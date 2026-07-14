@@ -1,18 +1,16 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "4 command(s) failed: python code/data_loader.py (rc=1); python code/ast_cloner.py (rc=1); python code/bug_detection.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/bug_detection.py: self-declared fabricated metric \u2014 \u201c\u2026st be of float dtype.\")     # Placeholder accuracy.     return 0.0   def save_re\u2026\u201d; 2 command(s) failed: python code/ast_cloner.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
   "artifacts": [
     "data/analysis/correlation_results.csv",
     "data/pii_scan_results.csv"
   ],
   "failures": [
-    "python code/data_loader.py -> rc=1\n    ample\n    ds = load_dataset(\n         ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1698, in load_dataset\n    builder_instance = load_dataset_builder(\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1325, in load_dataset_builder\n    dataset_module = dataset_module_f",
-    "python code/ast_cloner.py -> rc=1\n    INFO:__main__:Raw sample not found at data/raw/github-code-sample.csv; generating a fresh sample.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/ast_cloner.py\", line 84, in <module>\n    compute_clone_density_batch()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/ast_cloner.py\", line 57, in compute_clone_density_batch\n    from .data_loader import download_and_save_sample  # local import to avoid circular de",
-    "python code/bug_detection.py -> rc=1\n    ath(url_or_filename)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py\", line 305, in resolve_path\n    parsed = parse_hf_uri(f\"{constants.HF_PROTOCOL}{path}\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py\", li",
-    "python code/quickstart_validation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 38, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 34, in main\n    validate_output_files()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 26, in validate_output_files\n    ra"
+    "python code/ast_cloner.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/ast_cloner.py\", line 19, in <module>\n    from .data_loader import download_and_save_sample\nImportError: attempted relative import with no known parent package",
+    "python code/quickstart_validation.py -> rc=1\n    ERROR:__main__:Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]\nERROR:__main__:Quickstart validation failed: Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/quickstart_validation.py\", line 29, in main\n    validate_output_files()\n  File \"/home/runn"
   ],
   "fix_rounds": 10,
   "model_tier": 1,
-  "updated_at": "2026-07-14T05:49:46Z"
+  "updated_at": "2026-07-14T06:27:55Z"
 }

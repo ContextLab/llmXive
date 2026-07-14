@@ -8,6 +8,14 @@ The tests verify that the module can:
 
 import csv
 from pathlib import Path
+import sys
+
+# Ensure the project's ``code`` directory is on ``sys.path`` so that the
+# ``correlation_analysis`` module can be imported as a top‑level module.
+import pathlib
+
+PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[2] / "code"
+sys.path.append(str(PROJECT_ROOT))
 
 import pandas as pd
 import pytest

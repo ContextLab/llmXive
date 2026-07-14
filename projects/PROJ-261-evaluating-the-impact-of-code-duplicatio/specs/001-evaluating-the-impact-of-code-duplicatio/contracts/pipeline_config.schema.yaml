@@ -1,35 +1,84 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Pipeline Configuration Schema
-description: Schema describing the configuration parameters for the entire pipeline.
+title: PipelineConfig
+description: Global configuration schema for the entire experimental pipeline.
 type: object
 properties:
   random_seed:
     type: integer
-    description: Global random seed for reproducibility.
-  memory_limit_mb:
-    type: integer
-    description: Maximum memory (in megabytes) the pipeline may consume.
-  max_runtime_seconds:
-    type: integer
-    description: Upper bound on total runtime for the pipeline.
+    description: Seed for all stochastic components to ensure reproducibility.
   clone_thresholds:
     type: array
-    description: List of clone‑density thresholds used in sensitivity analysis.
     items:
       type: number
+      minimum: 0
+      maximum: 1
+    description: List of clone‑density thresholds (e.g., [0.7, 0.8, 0.9]).
+  memory_limit_mb:
+    type: integer
+    minimum: 0
+    description: Maximum memory usage allowed for the pipeline (in megabytes).
+  max_runtime_seconds:
+    type: integer
+    minimum: 0
+    description: Upper bound on total runtime for the pipeline.
   dataset_name:
     type: string
-    description: Identifier of the code corpus dataset (e.g., "codeparrot/github-code").
+    description: Identifier of the source dataset (e.g., "codeparrot/github-code").
   model_name:
     type: string
-    description: Identifier of the language model used for perplexity computation.
+    description: HuggingFace model identifier used for perplexity computation.
   quantization_bits:
     type: integer
-    description: Number of bits for 8‑bit quantization (e.g., 8).
+    enum: [4, 8]
+    description: Number of bits for model quantization (bitsandbytes).
   streaming_enabled:
     type: boolean
-    description: Whether dataset streaming mode is enabled.
+    description: Whether the dataset should be streamed from HuggingFace Hub.
   pii_scan_enabled:
     type: boolean
-    description: Whether PII scanning is performed on the data.
-required: []
+    description: Flag controlling whether PII scanning is performed.
+  data_root:
+    type: string
+    description: Base directory for all data artifacts.
+  raw_dir:
+    type: string
+    description: Subdirectory under data_root for raw downloads.
+  processed_dir:
+    type: string
+    description: Subdirectory under data_root for processed metrics.
+  analysis_dir:
+    type: string
+    description: Subdirectory under data_root for analysis outputs.
+  figures_dir:
+    type: string
+    description: Subdirectory under analysis_dir for generated figures.
+  figure_format:
+    type: string
+    enum: ["png", "pdf"]
+    description: File format for saved visualizations.
+  figure_dpi:
+    type: integer
+    minimum: 72
+    description: DPI resolution for generated figures.
+  checksum_algorithm:
+    type: string
+    description: Hash algorithm used for artifact checksum manifest (e.g., "sha256").
+required:
+  - random_seed
+  - clone_thresholds
+  - memory_limit_mb
+  - max_runtime_seconds
+  - dataset_name
+  - model_name
+  - quantization_bits
+  - streaming_enabled
+  - pii_scan_enabled
+  - data_root
+  - raw_dir
+  - processed_dir
+  - analysis_dir
+  - figures_dir
+  - figure_format
+  - figure_dpi
+  - checksum_algorithm
+additionalProperties: false

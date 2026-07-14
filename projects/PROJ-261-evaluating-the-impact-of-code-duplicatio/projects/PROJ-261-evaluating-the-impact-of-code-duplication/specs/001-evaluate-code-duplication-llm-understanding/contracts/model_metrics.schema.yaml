@@ -1,0 +1,12 @@
+type: object
+properties:
+  file_path:
+    type: string
+    description: Path to the source code file for which the model metric was computed.
+  perplexity:
+    type: number
+    description: Token‑level perplexity score produced by the language model.
+required:
+  - file_path
+  - perplexity
+additionalProperties: false

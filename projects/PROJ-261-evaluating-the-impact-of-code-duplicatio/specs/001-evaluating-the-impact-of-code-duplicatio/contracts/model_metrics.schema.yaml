@@ -1,17 +1,16 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Model Metrics Schema
-description: Schema for rows in the perplexity_scores.csv output.
+title: ModelMetrics
+description: Schema for per‑file language‑model perplexity scores.
 type: object
 properties:
   file_path:
     type: string
-    description: Path to the source file evaluated by the language model.
+    description: Relative path to the source file inside the dataset.
   perplexity:
     type: number
-    description: Token‑level perplexity score produced by the model.
-  model_name:
-    type: string
-    description: Identifier of the model used for inference.
+    minimum: 0
+    description: Token‑level perplexity computed by the language model.
 required:
   - file_path
   - perplexity
+additionalProperties: false

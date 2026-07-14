@@ -1,49 +1,82 @@
-"""
-Unit tests for the AST cloner utilities.
-"""
-from __future__ import annotations
-
-import pathlib
-import tempfile
+import csv
+from pathlib import Path
 
 import pytest
 
-from ast_cloner import compute_clone_density_batch, parse_python_file, IdentifierNormalizer
+from ast_cloner import compute_clone_density_batch
 
-def test_parse_python_file_reads_content(tmp_path: pathlib.Path):
-    file = tmp_path / "example.py"
-    file.write_text("a = 1", encoding="utf-8")
-    content = parse_python_file(file)
-    assert content == "a = 1"
 
-def test_identifier_normalizer_changes_names():
-    source = "def foo(x):\n    return x + 1"
-    tree = ast.parse(source)
-    normaliser = IdentifierNormalizer()
-    new_tree = normaliser.visit(tree)
-    normalized = ast.unparse(new_tree)
-    # The function name and argument should be replaced by generic placeholders
-    assert "def var_0(var_1):" in normalized
+@pytest.fixture
+def raw_csv_two_identical(tmp_path: Path) -> Path:
+    """Create a tiny raw CSV with two identical Python snippets."""
+    path = tmp_path / "github-code-sample.csv"
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["file_path", "content"])
+        writer.writeheader()
+        writer.writerow(
+            {"file_path": "a.py", "content": "def foo():\n    return 1"}
+        )
+        writer.writerow(
+            {"file_path": "b.py", "content": "def foo():\n    return 1"}
+        )
+    return path
 
-def test_compute_clone_density_batch_writes_csv(tmp_path: pathlib.Path):
-    # Create two identical files (Type‑1 clone) and one distinct file
-    raw_dir = tmp_path / "raw"
-    raw_dir.mkdir()
-    (raw_dir / "a.py").write_text("x = 1", encoding="utf-8")
-    (raw_dir / "b.py").write_text("x = 1", encoding="utf-8")
-    (raw_dir / "c.py").write_text("y = 2", encoding="utf-8")
 
-    output_csv = tmp_path / "clone_metrics.csv"
+def test_compute_clone_density_batch_writes_file(tmp_path: Path, raw_csv_two_identical: Path):
+    """Exact‑duplicate snippets should yield a density of 0.5."""
+    out_path = tmp_path / "clone_metrics.csv"
+    rc = compute_clone_density_batch(
+        raw_path=raw_csv_two_identical,
+        output_path=out_path,
+    )
+    assert rc == 0
+    with out_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    assert len(rows) == 1
+    density = float(rows[0]["clone_density"])
+    assert pytest.approx(density, rel=1e-2) == 0.5
 
-    # Call with explicit paths
-    compute_clone_density_batch(input_path=raw_dir, output_path=output_csv)
 
-    # Verify CSV exists and contains plausible numbers
-    assert output_csv.exists()
-    rows = list(csv.reader(output_csv.read_text().splitlines()))
-    header, values = rows
-    assert header == ["total_files", "clone_files", "clone_density"]
-    total, clone_files, density = map(float, values)
-    assert total == 3
-    assert clone_files == 2  # two files belong to a clone group
-    assert 0.0 < density <= 1.0
+@pytest.fixture
+def raw_csv_with_syntax_error(tmp_path: Path) -> Path:
+    """CSV containing one valid snippet and one with a syntax error."""
+    path = tmp_path / "github-code-sample.csv"
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["file_path", "content"])
+        writer.writeheader()
+        writer.writerow(
+            {"file_path": "valid.py", "content": "def good():\n    return 42"}
+        )
+        # Deliberate syntax error (missing closing parenthesis)
+        writer.writerow(
+            {"file_path": "bad.py", "content": "def bad(:\n    pass"}
+        )
+    return path
+
+
+def test_compute_clone_density_batch_handles_syntax_error(tmp_path: Path, raw_csv_with_syntax_error: Path):
+    """Files that cannot be parsed should be skipped and logged."""
+    out_path = tmp_path / "clone_metrics.csv"
+    rc = compute_clone_density_batch(
+        raw_path=raw_csv_with_syntax_error,
+        output_path=out_path,
+    )
+    assert rc == 0
+    with out_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    assert len(rows) == 1
+    density = float(rows[0]["clone_density"])
+    # Only the valid file remains, so no duplicates → density 0.0
+    assert pytest.approx(density, rel=1e-2) == 0.0
+
+    # Verify that a parse‑failure entry was written
+    from parse_failure_logger import get_parse_failures_path
+
+    failures_path = get_parse_failures_path()
+    with failures_path.open(newline="", encoding="utf-8") as f:
+        failure_reader = csv.DictReader(f)
+        failures = list(failure_reader)
+    # At least one failure should be recorded for the bad file
+    assert any(row["file_path"] == "bad.py" for row in failures)

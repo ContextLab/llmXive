@@ -1,0 +1,16 @@
+type: object
+properties:
+  metric:
+    type: string
+    description: Name of the metric being correlated (e.g., "clone_density_vs_perplexity").
+  spearman_coefficient:
+    type: number
+    description: Spearman rank correlation coefficient.
+  p_value:
+    type: number
+    description: Two‑tailed p‑value associated with the correlation.
+required:
+  - metric
+  - spearman_coefficient
+  - p_value
+additionalProperties: false

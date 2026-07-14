@@ -1,13 +1,12 @@
-"""Correlation analysis for code duplication study.
+"""Correlation analysis utilities.
 
-This module loads processed metrics (clone density, perplexity scores,
-bug‑detection results), computes Spearman rank correlations between relevant
-pairs of metrics, and saves the results (including p‑values and sample size)
-to ``data/analysis/correlation_results.csv``.
+This module loads the three metric CSV files produced by the earlier
+pipeline stages, computes Spearman rank correlations between:
+  * clone_density ↔ perplexity
+  * clone_density ↔ pass_at_1 (bug‑detection accuracy)
 
-The implementation is defensive: it works even if some input files are
-missing or columns have unexpected names. It logs informative messages and
-only writes rows for which a valid correlation could be computed.
+The results are written to ``data/analysis/correlation_results.csv`` and
+also returned as a list of dictionaries for programmatic use.
 """
 
 from __future__ import annotations
@@ -23,198 +22,180 @@ from scipy.stats import spearmanr
 logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- #
-# Helper functions to load the three processed artefacts                        #
+# Helper loaders
 # --------------------------------------------------------------------------- #
 def _load_csv(path: Path) -> pd.DataFrame:
     """Load a CSV file into a DataFrame.
 
-    If the file does not exist or is empty, returns an empty DataFrame.
+    Returns an empty DataFrame if the file does not exist or is empty.
     """
     if not path.is_file():
-        logger.warning("Expected CSV %s does not exist – returning empty DataFrame.", path)
+        logger.warning("CSV file %s does not exist – returning empty DataFrame", path)
         return pd.DataFrame()
     try:
         df = pd.read_csv(path)
         if df.empty:
-            logger.warning("CSV %s is empty.", path)
+            logger.warning("CSV file %s is empty", path)
         return df
     except Exception as exc:  # pragma: no cover – defensive
         logger.error("Failed to read %s: %s", path, exc)
         return pd.DataFrame()
 
 def load_clone_metrics() -> pd.DataFrame:
-    """Load ``clone_metrics.csv`` produced by the AST cloner."""
+    """Load ``clone_metrics.csv`` from the processed data directory."""
     return _load_csv(Path("data/processed/clone_metrics.csv"))
 
 def load_perplexity_scores() -> pd.DataFrame:
-    """Load ``perplexity_scores.csv`` produced by the model‑metrics step."""
+    """Load ``perplexity_scores.csv`` from the processed data directory."""
     return _load_csv(Path("data/processed/perplexity_scores.csv"))
 
 def load_bug_detection_results() -> pd.DataFrame:
-    """Load ``bug_detection_results.csv`` produced by the bug‑detection step."""
+    """Load ``bug_detection_results.csv`` from the processed data directory."""
     return _load_csv(Path("data/processed/bug_detection_results.csv"))
 
 # --------------------------------------------------------------------------- #
-# Core correlation logic                                                       #
+# Core correlation logic
 # --------------------------------------------------------------------------- #
-def _compute_spearman(x: pd.Series, y: pd.Series) -> Tuple[float, float, int]:
-    """Return (rho, p_value, n) for the Spearman correlation of two series.
+def _compute_spearman(
+    x: pd.Series, y: pd.Series
+) -> Tuple[float, float, int]:
+    """Compute Spearman rank correlation between two Series.
 
-    Missing values are dropped pair‑wise.
+    Returns ``(rho, p_value, n)`` where ``n`` is the number of
+    non‑NaN paired observations.
     """
-    # Align the two series and drop NaNs
-    df = pd.concat([x, y], axis=1).dropna()
-    n = len(df)
-    if n < 2:
-        raise ValueError("Not enough data points to compute correlation (n < 2).")
-    rho, p_val = spearmanr(df.iloc[:, 0], df.iloc[:, 1])
-    return float(rho), float(p_val), n
+    # Drop NaNs pairwise
+    valid = pd.concat([x, y], axis=1).dropna()
+    n = len(valid)
+    if n == 0:
+        logger.warning("No overlapping data for correlation computation")
+        return float("nan"), float("nan"), 0
+    rho, p = spearmanr(valid.iloc[:, 0], valid.iloc[:, 1])
+    return float(rho), float(p), n
 
 def compute_correlations() -> List[Dict[str, Any]]:
-    """Compute all required correlations.
+    """Compute the required Spearman correlations.
 
-    Returns a list of dictionaries, each describing one correlation pair.
+    Returns a list of dictionaries, each containing:
+        * metric_x
+        * metric_y
+        * spearman_rho
+        * p_value
+        * n
     """
+    clone_df = load_clone_metrics()
+    perp_df = load_perplexity_scores()
+    bug_df = load_bug_detection_results()
+
     results: List[Dict[str, Any]] = []
 
-    # 1. Clone density ↔ Perplexity
-    df_clone = load_clone_metrics()
-    df_ppl = load_perplexity_scores()
-    if not df_clone.empty and not df_ppl.empty:
-        # Attempt to merge on a common identifier.  The most reliable column is
-        # ``file_path`` if present; otherwise fall back to the first column that
-        # exists in both frames.
-        merge_key = None
-        for candidate in ["file_path", "id", "filename"]:
-            if candidate in df_clone.columns and candidate in df_ppl.columns:
-                merge_key = candidate
-                break
-        if merge_key:
-            merged = pd.merge(df_clone, df_ppl, on=merge_key, how="inner")
-            if "clone_density" in merged.columns and "perplexity" in merged.columns:
-                try:
-                    rho, p_val, n = _compute_spearman(
-                        merged["clone_density"], merged["perplexity"]
-                    )
-                    results.append(
-                        {
-                            "metric_x": "clone_density",
-                            "metric_y": "perplexity",
-                            "spearman_rho": rho,
-                            "p_value": p_val,
-                            "n": n,
-                        }
-                    )
-                except Exception as exc:  # pragma: no cover
-                    logger.error("Failed Spearman for clone↔perplexity: %s", exc)
-            else:
-                logger.warning(
-                    "Expected columns 'clone_density' and 'perplexity' not found after merge."
-                )
-        else:
-            logger.warning(
-                "No common merge key found between clone_metrics and perplexity_scores."
+    # ------------------------------------------------------------------- #
+    # clone_density ↔ perplexity
+    # ------------------------------------------------------------------- #
+    if not clone_df.empty and not perp_df.empty:
+        merged = pd.merge(
+            clone_df[["file_path", "clone_density"]],
+            perp_df[["file_path", "perplexity"]],
+            on="file_path",
+            how="inner",
+        )
+        if not merged.empty:
+            rho, p, n = _compute_spearman(
+                merged["clone_density"], merged["perplexity"]
             )
+            results.append(
+                {
+                    "metric_x": "clone_density",
+                    "metric_y": "perplexity",
+                    "spearman_rho": rho,
+                    "p_value": p,
+                    "n": n,
+                }
+            )
+        else:
+            logger.info("No overlapping rows for clone ↔ perplexity correlation.")
     else:
-        logger.info("One of clone_metrics or perplexity_scores is empty – skipping that correlation.")
+        logger.info("Missing clone or perplexity data – skipping that correlation.")
 
-    # 2. Clone density ↔ Bug‑detection accuracy (pass@1)
-    df_bug = load_bug_detection_results()
-    if not df_clone.empty and not df_bug.empty:
-        # Expected identifier columns: ``problem_id`` or ``id``.
-        merge_key = None
-        for candidate in ["problem_id", "id"]:
-            if candidate in df_clone.columns and candidate in df_bug.columns:
-                merge_key = candidate
-                break
-        if merge_key:
-            merged = pd.merge(df_clone, df_bug, on=merge_key, how="inner")
-            # The bug‑detection result column is usually called ``pass_at_1`` or ``accuracy``.
-            accuracy_col = (
-                "pass_at_1"
-                if "pass_at_1" in merged.columns
-                else ("accuracy" if "accuracy" in merged.columns else None)
+    # ------------------------------------------------------------------- #
+    # clone_density ↔ pass_at_1
+    # ------------------------------------------------------------------- #
+    if not clone_df.empty and not bug_df.empty:
+        # ``bug_detection_results`` uses ``problem_id`` as the identifier.
+        merged = pd.merge(
+            clone_df[["file_path", "clone_density"]],
+            bug_df[["problem_id", "pass_at_1"]],
+            left_on="file_path",
+            right_on="problem_id",
+            how="inner",
+        )
+        if not merged.empty:
+            rho, p, n = _compute_spearman(
+                merged["clone_density"], merged["pass_at_1"]
             )
-            if "clone_density" in merged.columns and accuracy_col:
-                try:
-                    rho, p_val, n = _compute_spearman(
-                        merged["clone_density"], merged[accuracy_col]
-                    )
-                    results.append(
-                        {
-                            "metric_x": "clone_density",
-                            "metric_y": accuracy_col,
-                            "spearman_rho": rho,
-                            "p_value": p_val,
-                            "n": n,
-                        }
-                    )
-                except Exception as exc:  # pragma: no cover
-                    logger.error("Failed Spearman for clone↔accuracy: %s", exc)
-            else:
-                logger.warning(
-                    "Required columns for clone↔accuracy not present after merge."
-                )
+            results.append(
+                {
+                    "metric_x": "clone_density",
+                    "metric_y": "pass_at_1",
+                    "spearman_rho": rho,
+                    "p_value": p,
+                    "n": n,
+                }
+            )
         else:
-            logger.warning(
-                "No common merge key found between clone_metrics and bug_detection_results."
-            )
+            logger.info("No overlapping rows for clone ↔ pass_at_1 correlation.")
     else:
-        logger.info("One of clone_metrics or bug_detection_results is empty – skipping that correlation.")
+        logger.info("Missing clone or bug‑detection data – skipping that correlation.")
 
     return results
 
 # --------------------------------------------------------------------------- #
-# Persistence                                                                   #
+# Persistence
 # --------------------------------------------------------------------------- #
-def save_correlation_results(
-    correlations: List[Dict[str, Any]],
-    output_path: Optional[Path] = None,
-) -> None:
-    """Write correlation results to CSV.
+def save_correlation_results(correlations: List[Dict[str, Any]]) -> None:
+    """Write the correlation results to ``data/analysis/correlation_results.csv``.
 
-    The CSV has columns:
-    ``metric_x,metric_y,spearman_rho,p_value,n``
-
-    If ``correlations`` is empty, a file containing only the header is still
-    written (so downstream validation knows the script ran).
+    The output CSV has the columns:
+    ``metric_x, metric_y, spearman_rho, p_value, n``.
     """
-    out_path = output_path or Path("data/analysis/correlation_results.csv")
+    out_path = Path("data/analysis/correlation_results.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ["metric_x", "metric_y", "spearman_rho", "p_value", "n"]
-    try:
-        with out_path.open("w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in correlations:
-                # Ensure all required keys exist; missing keys are written as empty strings.
-                writer.writerow(
-                    {
-                        key: row.get(key, "")
-                        for key in fieldnames
-                    }
-                )
-        logger.info("Correlation results saved to %s (%d rows).", out_path, len(correlations))
-    except Exception as exc:  # pragma: no cover
-        logger.error("Failed to write correlation results to %s: %s", out_path, exc)
-        raise
+    fieldnames = [
+        "metric_x",
+        "metric_y",
+        "spearman_rho",
+        "p_value",
+        "n",
+    ]
+    with out_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in correlations:
+            # Ensure values are serialisable as strings
+            writer.writerow(
+                {
+                    "metric_x": row["metric_x"],
+                    "metric_y": row["metric_y"],
+                    "spearman_rho": f"{row['spearman_rho']}",
+                    "p_value": f"{row['p_value']}",
+                    "n": f"{row['n']}",
+                }
+            )
+    logger.info("Correlation results written to %s", out_path)
 
 # --------------------------------------------------------------------------- #
-# High‑level orchestration                                                       #
+# Orchestration helpers
 # --------------------------------------------------------------------------- #
 def run_correlation_analysis() -> List[Dict[str, Any]]:
-    """Compute correlations and persist them.
-
-    Returns the list of correlation dictionaries for possible downstream use.
-    """
+    """Convenience wrapper that computes and persists correlation results."""
     correlations = compute_correlations()
     save_correlation_results(correlations)
     return correlations
 
-def main() -> None:
-    """Entry‑point for ``python -m code.correlation_analysis``."""
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+def main() -> None:  # pragma: no cover
+    """Entry‑point used by the quick‑start scripts."""
+    logging.basicConfig(level=logging.INFO)
     run_correlation_analysis()
 
 if __name__ == "__main__":  # pragma: no cover

@@ -66,3 +66,14 @@
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q20748093
   verified_at: '2026-07-02T08:45:02.012080Z'
+- artifact_hash: 321b07c904d44a0bf6ca5628ad465ad96d413fc4c44b775a455eb10a7d492f22
+  artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pii - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q18760935
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q18760935
+  verified_at: '2026-07-14T06:48:58.763669Z'

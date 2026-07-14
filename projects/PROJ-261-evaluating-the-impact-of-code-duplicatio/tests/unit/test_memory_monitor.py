@@ -1,27 +1,15 @@
 """
-Unit tests for ``memory_monitor.setup_memory_monitoring``.
-The function must accept calls with positional, keyword, and extra arguments.
+Unit test for the memory‑monitor helper – it should start a thread and
+return a ``MemoryMonitor`` instance without raising.
 """
-
-from __future__ import annotations
-
-import threading
-
-import pytest
+import time
 
 from memory_monitor import setup_memory_monitoring
 
-def test_setup_memory_monitoring_defaults():
-    """Calling with no arguments should return a threading.Event."""
-    stop_event = setup_memory_monitoring()
-    assert isinstance(stop_event, threading.Event)
-
-def test_setup_memory_monitoring_with_kwargs():
-    """Calling with keyword arguments should succeed."""
-    stop_event = setup_memory_monitoring(memory_limit_mb=1024, interval=1)
-    assert isinstance(stop_event, threading.Event)
-
-def test_setup_memory_monitoring_extra_args():
-    """Extra positional arguments must be ignored, not raise."""
-    stop_event = setup_memory_monitoring(999, 2, "unused", key="value")
-    assert isinstance(stop_event, threading.Event)
+def test_memory_monitor_starts_and_stops():
+    monitor = setup_memory_monitoring(interval_seconds=0.1)
+    # Let the thread run a couple of cycles.
+    time.sleep(0.3)
+    monitor.stop()
+    # After stop the thread should be marked as not alive.
+    assert not monitor._thread.is_alive()

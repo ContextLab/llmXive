@@ -1,6 +1,5 @@
-'|analysi clone detection sensitivity threshold':
-  quote: "are \uFB01ltered by removing those instances where the merged method is\
-    \ not at least 70% similar"
-  source_id: '2006.15682'
-  url: https://arxiv.org/abs/2006.15682
-  value: 70%
+'|any detected flagged found logged no pattern pii':
+  quote: Pii
+  source_id: Q18760935
+  url: https://www.wikidata.org/wiki/Q18760935
+  value: Pii

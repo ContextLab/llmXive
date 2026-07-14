@@ -1,11 +1,8 @@
 """
-Quick‑Start Validation
-======================
-
-After the individual pipeline steps have been executed, this script checks that
-the required output artifacts exist and are non‑empty.
+quickstart_validation.py
+------------------------
+Validates that the required output files exist after the pipeline runs.
 """
-
 from __future__ import annotations
 
 import logging
@@ -26,13 +23,15 @@ def validate_output_files() -> None:
         raise FileNotFoundError(f"Missing required output files: {missing}")
     logger.info("All required output files are present.")
 
-def main() -> None:
-    """Run validation – used by the CI quick‑start step."""
-    logging.basicConfig(level=logging.INFO)
-    # Load configuration to ensure the config module works (no side‑effects needed).
-    _ = get_all_config()
-    validate_output_files()
-    logger.info("Quick‑start validation succeeded.")
+def main() -> int:
+    try:
+        validate_output_files()
+        logger.info("Quickstart validation succeeded.")
+        return 0
+    except Exception as exc:  # pragma: no cover
+        logger.exception("Quickstart validation failed: %s", exc)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level=logging.INFO)
+    raise SystemExit(main())

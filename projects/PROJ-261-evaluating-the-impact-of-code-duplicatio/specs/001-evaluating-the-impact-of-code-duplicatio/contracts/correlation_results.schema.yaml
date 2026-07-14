@@ -1,25 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Correlation Results Schema
-description: Schema for rows in the correlation_results.csv output.
+title: CorrelationResults
+description: Schema for the correlation analysis output linking clone density, perplexity and bug‑detection accuracy.
 type: object
 properties:
   metric_x:
     type: string
-    description: Name of the first metric (e.g., clone_density).
-  metric_y:
-    type: string
-    description: Name of the second metric (e.g., perplexity or pass@1_accuracy).
-  spearman:
+    description: Name of the correlation being reported (e.g., "clone_vs_perplexity").
+  spearman_rho:
     type: number
-    description: Spearman rank correlation coefficient between the two metrics.
+    description: Spearman rank correlation coefficient.
   p_value:
     type: number
-    description: Two‑tailed p‑value associated with the Spearman correlation.
+    minimum: 0
+    maximum: 1
+    description: Two‑tailed p‑value for the correlation.
   n:
     type: integer
-    description: Number of observations used in the correlation calculation.
+    minimum: 1
+    description: Number of observations used in the correlation.
 required:
-  - metric_x
-  - metric_y
-  - spearman
+  - metric
+  - spearman_rho
   - p_value

@@ -1,0 +1,12 @@
+type: object
+properties:
+  file_path:
+    type: string
+    description: Path to the source code file for which the clone metric was computed.
+  clone_density:
+    type: number
+    description: Ratio of cloned lines to total lines in the file (0.0 – 1.0).
+required:
+  - file_path
+  - clone_density
+additionalProperties: false

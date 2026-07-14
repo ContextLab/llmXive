@@ -1,12 +1,9 @@
-datasets
-transformers
-bitsandbytes
+datasets>=2.0.0
+transformers>=4.30.0
+torch>=2.0.0
+bitsandbytes>=0.41.0
 scipy
 matplotlib
 pytest
-torch
+pandas
 scikit-learn
-numpy
-
-# The project already includes other dependencies; they are listed above.
-# Ensure the CI environment installs these packages before running the pipeline.
