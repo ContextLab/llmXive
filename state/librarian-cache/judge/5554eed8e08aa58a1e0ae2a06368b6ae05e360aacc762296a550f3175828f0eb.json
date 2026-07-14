@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.11439",
+  "judged_at": "2026-07-14T00:05:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically investigates the correlation between specific material processing parameters (doping, precipitate formation, grain refinement) and mechanical properties (strength, stability) within a specific class of alloys, providing the type of mechanism-based evidence required for a literature review on processing-property relationships in additively manufactured alloys.",
+  "relevant": true
+}

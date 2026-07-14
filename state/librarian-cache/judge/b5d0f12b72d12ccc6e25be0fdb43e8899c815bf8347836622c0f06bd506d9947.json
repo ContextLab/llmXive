@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.04485",
+  "judged_at": "2026-07-14T00:05:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) by measuring the direct causal link between a specific processing parameter (ultrasound application) and a resulting microstructural property (grain size/density) in an additively manufactured alloy (316L stainless steel), which serves as a foundational mechanism for the mechanical properties the user is investigating.",
+  "relevant": true
+}

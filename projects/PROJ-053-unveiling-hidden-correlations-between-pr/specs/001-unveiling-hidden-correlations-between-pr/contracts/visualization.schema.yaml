@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Visualization Output Schema"
+description: "Schema for visualization metadata (sidecar JSON)"
+type: "object"
+required:
+  - "file_name"
+  - "x_axis"
+  - "y_axis"
+  - "z_axis"
+  - "uncertainty_flag"
+properties:
+  file_name:
+    type: "string"
+    description: "Name of the output PNG file"
+  x_axis:
+    type: "string"
+    description: "Feature name for X-axis"
+  y_axis:
+    type: "string"
+    description: "Feature name for Y-axis"
+  z_axis:
+    type: "string"
+    description: "Target variable name"
+  uncertainty_flag:
+    type: "boolean"
+    description: "True if max(σ) > 2 * median(σ)"
+  max_uncertainty:
+    type: "number"
+    description: "Maximum predictive standard deviation observed"
+  median_uncertainty:
+    type: "number"
+    description: "Median predictive standard deviation"
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.16042",
+  "judged_at": "2026-07-14T00:05:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "rationale": "This paper satisfies criterion (a) by measuring the correlation between a specific processing parameter (extrusion force) and a resulting geometric/mechanical outcome (line width) in material extrusion additive manufacturing, which is a subset of the user's broader inquiry into processing parameters and properties in additively manufactured materials. It also aligns with criterion (b) by establishing an empirical relationship between a control variable and a quality metric within the relevant do",
+  "relevant": true
+}

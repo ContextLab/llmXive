@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2101.05114",
+  "judged_at": "2026-07-14T00:05:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "rationale": "The paper investigates the correlation between processing parameters and *acoustical* properties (sound absorption) of fibrous structures, whereas the user's question specifically targets *mechanical* properties (e.g., strength, stiffness, ductility) in alloys. While both involve additive manufacturing, the dependent variables (acoustics vs. mechanics) and material classes (fibrous polymers vs. metallic alloys) are distinct constructs with no overlap in the mechanism or domain required for inclu",
+  "relevant": false
+}

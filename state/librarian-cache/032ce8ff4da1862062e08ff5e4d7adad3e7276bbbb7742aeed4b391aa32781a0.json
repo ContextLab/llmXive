@@ -1,0 +1,625 @@
+{
+  "fetched_at": "2026-07-14T00:05:55Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys",
+      "target_n": 5
+    },
+    "duration_seconds": 371.675,
+    "ended_at": "2026-07-14T00:05:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "structure-property relationships in additive manufacturing"
+        ],
+        [
+          2,
+          "process-structure-property linkage in metal 3D printing"
+        ],
+        [
+          3,
+          "mechanical performance of additively manufactured alloys"
+        ],
+        [
+          4,
+          "microstructural evolution during laser powder bed fusion"
+        ],
+        [
+          5,
+          "influence of processing parameters on tensile properties"
+        ],
+        [
+          6,
+          "defect formation and mechanical integrity in AM alloys"
+        ],
+        [
+          7,
+          "data-driven modeling of additive manufacturing processes"
+        ],
+        [
+          8,
+          "correlation between build parameters and fatigue life"
+        ],
+        [
+          9,
+          "metallurgical characterization of 3D printed metal alloys"
+        ],
+        [
+          10,
+          "optimization of AM parameters for enhanced mechanical strength"
+        ],
+        [
+          11,
+          "machine learning for predicting alloy properties in additive manufacturing"
+        ],
+        [
+          12,
+          "grain structure anisotropy in additively manufactured components"
+        ],
+        [
+          13,
+          "effect of thermal history on mechanical behavior of AM alloys"
+        ],
+        [
+          14,
+          "quantitative structure-property modeling in metal additive manufacturing"
+        ],
+        [
+          15,
+          "process parameter sensitivity analysis for alloy mechanical properties"
+        ],
+        [
+          16,
+          "hidden patterns in additive manufacturing process data"
+        ],
+        [
+          17,
+          "predictive modeling of yield strength in 3D printed metals"
+        ],
+        [
+          18,
+          "relationship between energy density and material properties in AM"
+        ],
+        [
+          19,
+          "computational approaches to process-structure-property optimization"
+        ],
+        [
+          20,
+          "statistical analysis of mechanical variability in additively manufactured parts"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys materials science": 0,
+        "structure-property relationships in additive manufacturing": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "microstructure process-property mapping alloy",
+      "laser powder bed fusion tensile yield strength",
+      "energy density defect porosity fatigue life",
+      "heat treatment residual stress anisotropy",
+      "data-driven materials discovery process optimization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.16042"
+      ]
+    },
+    "per_query_hit_count": {
+      "Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys materials science": 3,
+      "data-driven materials discovery process optimization": 3,
+      "energy density defect porosity fatigue life": 3,
+      "heat treatment residual stress anisotropy": 3,
+      "laser powder bed fusion tensile yield strength": 3,
+      "microstructure process-property mapping alloy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2101.05114",
+          "rationale": "The paper investigates the correlation between processing parameters and *acoustical* properties (sound absorption) of fibrous structures, whereas the user's question specifically targets *mechanical* properties (e.g., strength, stiffness, ductility) in alloys. While both involve additive manufacturing, the dependent variables (acoustics vs. mechanics) and material classes (fibrous polymers vs. metallic alloys) are distinct constructs with no overlap in the mechanism or domain required for inclu",
+          "title": "Additive Manufacturing of Fibrous Sound Absorbers"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T23:59:43Z",
+    "term_input": {
+      "normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+      "raw": "Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes the novel use of low-cost, 5-axis, multi-material additive manufacturing to fabricate functional, complex conformal antennas. Using a customised open source 5-axis desktop printer incorporating conductive filaments, conformal S-band patch and Ultra-Wide Band antennas were fabricated and compared against planar-printed counterparts and electromagnetic simulations. Results show the potential of the approach for superior impedance matching, reduced fabrication time, and cost savings; highlighting the applicability of multi-axis multi-material prototyping of antennas with complex geometries.",
+          "claimed_authors": [
+            "Ivan Revenga Riesco",
+            "Borut Lampret",
+            "Connor Myant",
+            "David Boyle"
+          ],
+          "claimed_title": "5-axis Multi-material Desktop Additive Manufacturing of Conformal Antennas",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.01448"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='5-axis Multi-material Desktop Additive Manufacturing of Conformal Antennas')",
+        "failed_at": "2026-07-14T00:05:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this progress report we present a new approach to the ab-initio guided bottom up design of beta-Ti alloys for biomedical applications using a quantum mechanical simulation method in conjunction with experiments. Parameter-free density functional theory calculations are used to provide theoretical guidance in selecting and optimizing Ti-based alloys with respect to three constraints: (i) the use of non-toxic alloy elements; (ii) the stabilization of the body centered cubic beta phase at room temperature; (iii) the reduction of the elastic stiffness compared to existing Ti-based alloys. Following the theoretical predictions, the alloys of interest are cast and characterized with respect to their crystallographic structure, microstructure, texture, and elastic stiffness. Due to the complexity of the ab initio calculations, the simulations have been focused on a set of binary systems of Ti with two different high melting bcc metals, namely, Nb and Mo. Various levels of model approximations to describe mechanical and thermodynamic properties are tested and critically evaluated. The experiments are conducted both, on some of the binary alloys and on two more complex engineering alloy variants, namely, Ti-35wt.%Nb-7wt.%Zr-5wt.%Ta and a Ti-20wt.%Mo-7wt.%Zr-5wt.%Ta.",
+          "claimed_authors": [
+            "D. Raabe",
+            "B. Sander",
+            "M. Friak",
+            "D. Ma",
+            "J. Neugebauer"
+          ],
+          "claimed_title": "Ab-initio simulation and experimental validation of beta-titanium alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0811.0157"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Ab-initio simulation and experimental validation of beta-titanium alloys')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Alzheimer's disease (AD) confirmation often relies on positron emission tomography (PET) or cerebrospinal fluid (CSF) analysis, which are costly and invasive. Consequently, structural MRI biomarkers such as cortical thickness (CT) are widely used for non-invasive AD screening. Multiscale structural mapping (MSSM) was recently proposed to integrate gray-white matter contrasts (GWCs) with CT from a single T1-weighted MRI (T1w) scan. Building on this framework, we propose MSSM+, together with surface supervertex mapping (SSVM) and a Supervertex Vision Transformer (SV-ViT). 3D T1w images from individuals with AD and cognitively normal (CN) controls were analyzed. MSSM+ extends MSSM by incorporating sulcal depth and cortical curvature at the vertex level. SSVM partitions the cortical surface into supervertices (surface patches) that effectively represent inter- and intra-regional spatial relationships. SV-ViT is a Vision Transformer architecture operating on these supervertices, enabling anatomically informed learning from surface mesh representations. Compared with MSSM, MSSM+ identified more spatially extensive and statistically significant group differences between AD and CN. In AD vs. CN classification, MSSM+ achieved a 3%p higher area under the precision-recall curve than MSSM. Vendor-specific analyses further demonstrated reduced signal variability and consistently improved classification performance across MR manufacturers relative to CT, GWCs, and MSSM. These findings suggest that MSSM+ combined with SV-ViT is a promising MRI-based imaging marker for AD detection prior to CSF/PET confirmation.",
+          "claimed_authors": [
+            "Geonwoo Baek",
+            "David H. Salat",
+            "Ikbeom Jang"
+          ],
+          "claimed_title": "Improved Multiscale Structural Mapping with Supervertex Vision Transformer for the Detection of Alzheimer's Disease Neurodegeneration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14837"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title=\"Improved Multiscale Structural Mapping with Supervertex Vision Transformer for the Detection of Alzheimer's Disease Neurodegeneration\")",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conventional models of matching markets assume that monetary transfers can clear markets by compensating for utility differentials. However, empirical patterns show that such transfers often fail to close structural preference gaps. This paper introduces a market microstructure framework that models matching decisions as a limit order book system with rigid bid ask spreads. Individual preferences are represented by a latent preference state matrix, where the spread between an agent's internal ask price (the unconditional maximum) and the market's best bid (the reachable maximum) creates a structural liquidity constraint. We establish a Threshold Impossibility Theorem showing that linear compensation cannot close these spreads unless it induces a categorical identity shift. A dynamic discrete choice execution model further demonstrates that matches occur only when the market to book ratio crosses a time decaying liquidity threshold, analogous to order execution under inventory pressure. Numerical experiments validate persistent slippage, regional invariance of preference orderings, and high tier zero spread executions. The model provides a unified microstructure explanation for matching failures, compensation inefficiency, and post match regret in illiquid order driven environments.",
+          "claimed_authors": [
+            "Yao Wu"
+          ],
+          "claimed_title": "Limit Order Book Dynamics in Matching Markets: Microstructure, Spread, and Execution Slippage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.20606"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Limit Order Book Dynamics in Matching Markets: Microstructure, Spread, and Execution Slippage')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Powder-based additive manufacturing techniques provide tools to construct intricate structures that are difficult to manufacture using conventional methods. In Laser Powder Bed Fusion, components are built by selectively melting specific areas of the powder bed, to form the two-dimensional cross-section of the specific part. However, the high occurrence of defects impacts the adoption of this method for precision applications. Therefore, a control policy for dynamically altering process parameters to avoid phenomena that lead to defect occurrences is necessary. A Deep Reinforcement Learning (DRL) framework that derives a versatile control strategy for minimizing the likelihood of these defects is presented. The generated control policy alters the velocity of the laser during the melting process to ensure the consistency of the melt pool and reduce overheating in the generated product. The control policy is trained and validated on efficient simulations of the continuum temperature distribution of the powder bed layer under various laser trajectories.",
+          "claimed_authors": [
+            "Francis Ogoke",
+            "Amir Barati Farimani"
+          ],
+          "claimed_title": "Thermal Control of Laser Powder Bed Fusion Using Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.03355"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Thermal Control of Laser Powder Bed Fusion Using Deep Reinforcement Learning')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this study, a post-heat treatment design for additively manufactured copper-bearing high-strength low-alloy (HSLA)-100 steel is performed by understanding the process-structure-property relationships. Hot isostatic pressing (HIP) is designed to reduce the porosity from 3% to less than 1% for the HSLA-100 steel processed by laser powder bed fusion (LPBF). Quenching dilatometry is employed to design the HIP parameters with the optimized cooling rate for the maximum amount of martensite transformed after HIP. Afterward, a post-heat treatment step with cyclic re-austenitization is introduced for an effective grain refinement to compensate the coarsened microstructure after HIP. Finally, tempering is optimized through microstructure characterization and microhardness. A two-fold increase in the yield strength of the HSLA with tailored microstructure during post-heat treatment is achieved in comparison with the as-built HSLA.",
+          "claimed_authors": [
+            "Soumya Sridar",
+            "Yunhao Zhao",
+            "Kun Li",
+            "Xin Wang",
+            "Wei Xiong"
+          ],
+          "claimed_title": "Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.09939"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Post-Heat Treatment Design of High-Strength Low-Alloy Steels Processed by Laser Powder Bed Fusion')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine powders often tend to agglomerate due to van der Waals forces between the particles. These forces can be reduced significantly by covering the particles with nanoscaled adsorbates, as shown by recent experiments. In the present work a quantitative statistical analysis of the effect of powder flow regulating nanomaterials on the adhesive forces in powders is given. Covering two spherical powder particles randomly with nanoadsorbates we compute the decrease of the mutual van der Waals force. The dependence of the force on the relative surface coverage obeys a scaling form which is independent of the used materials. The predictions by our simulations are compared to the experimental results.",
+          "claimed_authors": [
+            "D. Kurfess",
+            "H. Hinrichsen",
+            "I. Zimmermann"
+          ],
+          "claimed_title": "Statistical model of the powder flow regulation by nanomaterials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0502133"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Statistical model of the powder flow regulation by nanomaterials')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A microstructure-sensitive fatigue life prediction framework based on CP-FFT is proposed to study SLM fabricated Hastelloy-X. The microstructure enters in the model through the shape, size and orientation distributions of grains in the RVEs, which are generated from experimental EBSD data. The framework has been applied to specimens built in two different directions with different polycrystalline microstructures and is able to accurately predict their fatigue life, using just two experiments for calibration. The model reproduces the better fatigue performance found experimentally at high stresses for samples built in transverse direction, identifying the origin of this anisotropy in grain aspect ratios.",
+          "claimed_authors": [
+            "Chandrashekhar M. Pilgar",
+            "Ana Fernandez",
+            "Javier Segurado"
+          ],
+          "claimed_title": "Microstructure sensitive fatigue life prediction model for SLM fabricated Hastelloy-X",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.08305"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Microstructure sensitive fatigue life prediction model for SLM fabricated Hastelloy-X')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims: Optical interferometry from space for the purpose of detecting and characterising exoplanets is seeing a revival, specifically from missions such as the proposed Large Interferometer For Exoplanets (LIFE). A default assumption since the design studies of Darwin and TPF-I has been that the Emma X-array configuration is the optimal architecture for this goal. Here, we examine whether new advances in the field of nulling interferometry, such as the concept of kernel nulling, challenge this assumption.\n  Methods: We develop a tool designed to derive the photon-limited signal to noise ratio of a large sample of simulated planets for different architecture configurations and beam combination schemes. We simulate four basic configurations: the double Bracewell/X-array, and kernel nullers with three, four and five telescopes respectively.\n  Results: We find that a configuration of five telescopes in a pentagonal shape, using a five aperture kernel nulling scheme, outperforms the X-array design in both search (finding more planets) and characterisation (obtaining better signal, faster) when total collecting area is conserved. This is especially the case when trying to detect Earth twins (temperate, rocky planets in the habitable zone), showing a 23% yield increase over the X-array. On average, we find that a five telescope design receives 1.2 times the signal over the X-array design.\n  Conclusions: With the results of this simulation, we conclude that the Emma X-array configuration may not be the best architecture choice for the upcoming LIFE mission, and that a five telescope design utilising kernel nulling concepts will likely provide better scientific return for the same collecting area, provided that technical solutions for the required achromatic phase shifts can be implemented.",
+          "claimed_authors": [
+            "Jonah T. Hansen",
+            "Michael J. Ireland",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.04891"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following the recommendations to NASA and ESA, the search for life on exoplanets will be a priority in the next decades. Two direct imaging space mission concepts are being developed: the Habitable Worlds Observatory (HWO) and the Large Interferometer for Exoplanets (LIFE). HWO focuses on reflected light spectra in the ultraviolet/visible/near-infrared (UV/VIS/NIR), while LIFE captures the mid-infrared (MIR) emission of temperate exoplanets. We assess the potential of HWO and LIFE in characterizing a cloud-free Earth twin orbiting a Sun-like star at 10 pc, both separately and synergistically, aiming to quantify the increase in information from joint atmospheric retrievals on a habitable planet. We perform Bayesian retrievals on simulated data from an HWO-like and a LIFE-like mission separately, then jointly, considering the baseline spectral resolutions currently assumed for these concepts and using two increasingly complex noise simulations. HWO would constrain H$_2$O, O$_2$, and O$_3$, in the atmosphere, with ~ 100 K uncertainty on the temperature profile. LIFE would constrain CO$_2$, H$_2$O, O$_3$ and provide constraints on the thermal atmospheric structure and surface temperature (~ 10 K uncertainty). Both missions would provide an upper limit on CH$_4$. Joint retrievals on HWO and LIFE data would accurately define the atmospheric thermal profile and planetary parameters, decisively constrain CO$_2$, H$_2$O, O$_2$, and O$_3$, and weakly constrain CO and CH$_4$. The detection significance is greater or equal to single-instrument retrievals. Both missions provide specific information to characterize a terrestrial habitable exoplanet, but the scientific yield is maximized with synergistic UV/VIS/NIR+MIR observations. Using HWO and LIFE together will provide stronger constraints on biosignatures and life indicators, potentially transforming the search for life in the universe.",
+          "claimed_authors": [
+            "E. Alei",
+            "S. P. Quanz",
+            "B. S. Konrad",
+            "E. O. Garvin",
+            "V. Kofman",
+            "A. Mandell",
+            "D. Angerhausen",
+            "P. Mollière",
+            "M. R. Meyer",
+            "T. Robinson",
+            "S. Rugheimer",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13037"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The joining of ceramics with metals have been extensively used in applications requiring high strength and excellent heat insulation. However, evaluating the residual stress generated inevitably due to the mismatch in coefficients of thermal expansion of ceramic and metal is challenging, which is very important for fabrication and characterization of layered inhomogeneous material. A simplified analytical model considering the overall deformation compatibility is established to compute the interlaminar residual stresses of the ZrO2/(ZrO2+Ni) sandwich ceramics, which agrees well with the results obtained by the commercial finite element package. The effects of the thickness ratio of the transitional layer to the middle layer, and the number of transitional layers on the properties of the ZrO2/(ZrO2+Ni) sandwich ceramics are researched to obtain the optimal structure.",
+          "claimed_authors": [
+            "Wenbin Zhou",
+            "Rubing Zhang",
+            "Shigang Ai",
+            "Yongmao Pei",
+            "Daining Fang"
+          ],
+          "claimed_title": "Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.09259"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The loading of a granular material induces anisotropies of the particle arrangement (fabric) and of the material's strength, incremental stiffness, and permeability. Thirteen measures of fabric anisotropy are developed, which are arranged in four categories: as preferred orientations of the particle bodies, the particle surfaces, the contact normals, and the void space. Anisotropy of the voids is described through image analysis and with Minkowski tensors. The thirteen measures of anisotropy change during loading, as determined with three-dimensional discrete element simulations of biaxial plane strain compression with constant mean stress. Assemblies with four different particle shapes were simulated. The measures of contact orientation are the most responsive to loading, and they change greatly at small strains, whereas the other measures lag the loading process and continue to change beyond the state of peak stress and even after the deviatoric stress has nearly reached a steady state. The paper implements a methodology for characterizing the incremental stiffness of a granular assembly during biaxial loading, with orthotropic loading increments that preserve the principal axes of the fabric and stiffness tensors. The linear part of the hypoplastic tangential stiffness is monitored with oedometric loading increments. This stiffness increases in the direction of the initial compressive loading but decreases in the direction of extension. Anisotropy of this stiffness is closely correlated with a particular measure of the contact fabric. Permeabilities are measured in three directions with lattice Boltzmann methods at various stages of loading and for assemblies with four particle shapes. Effective permeability is negatively correlated with the directional mean free path and is positively correlated with pore width.",
+          "claimed_authors": [
+            "Matthew R. Kuhn",
+            "WaiChing Sun",
+            "Qi Wang"
+          ],
+          "claimed_title": "Stress-induced anisotropy in granular materials: fabric, stiffness, and permeability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.08267"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Stress-induced anisotropy in granular materials: fabric, stiffness, and permeability')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this paper is to briefly recall heat transfer modes and explain their integration within a software dedicated to building simulation (CODYRUN). Detailed elements of the validation of this software are presented and two applications are finally discussed. One concerns the modeling of a flat plate air collector and the second focuses on the modeling of Trombe solar walls. In each case, detailed modeling of heat transfer allows precise understanding of thermal and energetic behavior of the studied structures. Recent decades have seen a proliferation of tools for building thermal simulation. These applications cover a wide spectrum from very simplified steady state models to dynamic simulation ones, including computational fluid dynamics modules (Clarke, 2001). These tools are widely available in design offices and engineering firms. They are often used for the design of HVAC systems and still subject to detailed research, particularly with respect to the integration of new fields (specific insulation materials, lighting, pollutants transport, etc.). Available from: http://www.intechopen.com/books/evaporation-condensation-and-heat-transfer/heat-transfer-in-buildings-application-to-solar-air-collector-and-trombe-wall-design",
+          "claimed_authors": [
+            "Harry Boyer",
+            "Frédéric Miranville",
+            "Dimitri Bigot",
+            "Stéphane Guichard",
+            "Ingar Idriss",
+            "Aurélien Jean",
+            "Ali Hamada Fakra",
+            "Ted Soubdhan"
+          ],
+          "claimed_title": "Heat transfer in buildings : application to air solar heating and Trombe wall design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.5260"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Heat transfer in buildings : application to air solar heating and Trombe wall design')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High throughput experimentation tools, machine learning (ML) methods, and open material databases are radically changing the way new materials are discovered. From the experimentally driven approach in the past, we are moving quickly towards the artificial intelligence (AI) driven approach, realizing the 'inverse design' capabilities that allow the discovery of new materials given the desired properties. This review aims to discuss different principles of AI-driven generative models that are applicable for materials discovery, including different materials representations available for this purpose. We will also highlight specific applications of generative models in designing new catalysts, semiconductors, polymers, or crystals while addressing challenges such as data scarcity, computational cost, interpretability, synthesizability, and dataset biases. Emerging approaches to overcome limitations and integrate AI with experimental workflows will be discussed, including multimodal models, physics informed architectures, and closed-loop discovery systems. This review aims to provide insights for researchers aiming to harness AI's transformative potential in accelerating materials discovery for sustainability, healthcare, and energy innovation.",
+          "claimed_authors": [
+            "Albertus Denny Handoko",
+            "Riko I Made"
+          ],
+          "claimed_title": "Artificial Intelligence and Generative Models for Materials Discovery -- A Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.03278"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Artificial Intelligence and Generative Models for Materials Discovery -- A Review')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Discovering new materials is essential to solve challenges in climate change, sustainability and healthcare. A typical task in materials discovery is to search for a material in a database which maximises the value of a function. That function is often expensive to evaluate, and can rely upon a simulation or an experiment. Here, we introduce SyMDis, a sample efficient optimisation method based on symbolic learning, that discovers near-optimal materials in a large database. SyMDis performs comparably to a state-of-the-art optimiser, whilst learning interpretable rules to aid physical and chemical verification. Furthermore, the rules learned by SyMDis generalise to unseen datasets and return high performing candidates in a zero-shot evaluation, which is difficult to achieve with other approaches.",
+          "claimed_authors": [
+            "Daniel Cunnington",
+            "Flaviu Cipcigan",
+            "Rodrigo Neumann Barros Ferreira",
+            "Jonathan Booth"
+          ],
+          "claimed_title": "Symbolic Learning for Material Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11487"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Symbolic Learning for Material Discovery')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data-driven science is heralded as a new paradigm in materials science. In this field, data is the new resource, and knowledge is extracted from materials data sets that are too big or complex for traditional human reasoning - typically with the intent to discover new or improved materials or materials phenomena. Multiple factors, including the open science movement, national funding, and progress in information technology, have fueled its development. Such related tools as materials databases, machine learning, and high-throughput methods are now established as parts of the materials research toolset. However, there are a variety of challenges that impede progress in data-driven materials science: data veracity, integration of experimental and computational data, data longevity, standardization, and the gap between industrial interests and academic efforts. In this perspective article, we discuss the historical development and current state of data-driven materials science, building from the early evolution of open science to the rapid expansion of materials data infrastructures. We also review key successes and challenges so far, providing a perspective on the future development of the field.",
+          "claimed_authors": [
+            "Lauri Himanen",
+            "Amber Geurts",
+            "Adam S. Foster",
+            "Patrick Rinke"
+          ],
+          "claimed_title": "Data-driven materials science: status, challenges and perspectives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.05644"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Unveiling Hidden Correlations Between Processing Parameters and Mechanical Prope', candidate_title='Data-driven materials science: status, challenges and perspectives')",
+        "failed_at": "2026-07-14T00:05:06Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. Simoes",
+            "J. A. Harris",
+            "S. Ghouse",
+            "P. A. Hooper",
+            "G. J. McShane"
+          ],
+          "title": "Process parameter sensitivity of the energy absorbing properties of additively manufactured metallic cellular materials",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.00438",
+        "summary": "Additive Manufacturing (AM) has enabled the fabrication of metallic cellular materials that are of interest in the design of lightweight impact resistant structures. However, there is a need to understand the interactions between: (i) the material architecture, (ii) the AM process parameters, and (iii) the as-built geometry, microstructure and energy absorbing properties. In this work, we investigate the quasi-static and dynamic behaviour of cellular materials manufactured from 316L stainless steel using laser powder bed fusion (LPBF). Four cellular architectures are considered (octet lattice, lattice-walled square honeycomb, origami and square honeycomb), as well as three sets of AM process parameters, characterised by laser powers of 50, 125 and 200 W. The exposure time is adjusted to deliver the same total heat input. The 125 W case leads to material with the highest strength and ductility. The cellular materials with this process variant match their nominal densities most closely, and have the highest strength and energy absorption. Either reducing (50 W) or increasing (200 W) the power leads to a significant increase in porosity, reducing strength and energy absorption. However, we find that changes due to process-induced porosity have a smaller influence than those resulting from the choice of cellular architecture.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.00438",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:05:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Franziska Scheibel",
+            "Wei Liu",
+            "Lukas Pfeuffer",
+            "Navid Shayanfar",
+            "Andreas Taubel",
+            "Konstantin P. Skokov",
+            "Stefan Riegg",
+            "Yuye Wu",
+            "Oliver Gutfleisch"
+          ],
+          "title": "Influence of Gd-rich precipitates on the martensitic transformation, magnetocaloric effect and mechanical properties of Ni-Mn-In Heusler alloys -- A comparative study",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.11439",
+        "summary": "A multi-stimuli cooling cycle can be used to increase the cyclic caloric performance of multicaloric materials like Ni-Mn-In Heusler alloys. However, the use of a uniaxial compressive stress as an additional external stimulus to a magnetic field requires good mechanical stability. Improvement of mechanical stability and strength by doping has been shown in several studies. However, doping is always accompanied by grain refinement and a change in transition temperature. This raises the question of the extent to which mechanical strength is related to grain refinement, transition temperature, or precipitates. This study shows a direct comparison between a single-phase Ni-Mn-Sn and a two-phase Gd-doped Ni-Mn-In alloy with the same transition temperature and grain size. It is shown that the excellent magnetocaloric properties of the Ni-Mn-In matrix are maintained with doping. The isothermal entropy change and adiabatic temperature change are reduced by only 15% in the two-phase Ni-Mn-In-Heusler alloy compared to the single-phase alloy, which is resulting from a slight increase in thermal hysteresis and the width of the transition. Due to the same grain size and transition temperature, this effect can be directly related to the precipitates. The introduction of Gd precipitates leads to a 100% improvement in mechanical strength, which is significantly lower than the improvement observed for Ni-Mn-In alloys with grain refinement and Gd precipitates. This reveals that a significant contribution to the improved mechanical stability in Gd-doped Heusler alloys is related to grain refinement.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.11439",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:05:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "C. J. Todaro",
+            "M. A. Easton",
+            "D. Qiu",
+            "M. Brandt",
+            "D. H. StJohn",
+            "M. Qian"
+          ],
+          "title": "Grain refinement of stainless steel in ultrasound-assisted additive manufacturing",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.04485",
+        "summary": "Metals and alloys fabricated by fusion-based additive manufacturing (AM), or 3D printing, undergo complex dynamics of melting and solidification, presenting challenges to the effective control of grain structure. Herein, we report on the use of high-intensity ultrasound that controls the process of solidification during AM of 316L stainless steel. We find that the use of ultrasound favours the columnar-to-equiaxed transition, promoting the formation of fine equiaxed grains with random crystallographic texture. Moreover, the use of ultrasound increases the number density of grains from 305 mm-2 to 2748 mm-2 despite an associated decrease in cooling rate and temperature gradient in the melt pool during AM. Our assessment of the relationship between grain size and cooling rate indicates that the formation of crystallites during AM is enhanced by ultrasound. Furthermore, the use of ultrasound increases the amount of constitutional supercooling during solidification by lowering the temperature gradient in the bulk of the melt pool, thus creating an environment that favours nucleation, growth, and survival of grains. This new understanding provides opportunities to better exploit ultrasound to control grain structure in AM-fabricated metal products.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.04485",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:05:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xavier Guidetti",
+            "Efe C. Balta",
+            "Yannick Nagel",
+            "Hang Yin",
+            "Alisa Rupenyan",
+            "John Lygeros"
+          ],
+          "title": "Stress Flow Guided Non-Planar Print Trajectory Optimization for Additive Manufacturing of Anisotropic Polymers",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.04999",
+        "summary": "When manufacturing parts using material extrusion additive manufacturing and anisotropic polymers, the mechanical properties of a manufactured component are strongly dependent on the print trajectory orientation. We conduct non-planar slicing and optimize the print trajectories to maximize the alignment between the material deposition direction and the stress flow induced by a predefined load case. The trajectory optimization framework considers manufacturability constraints in the form of uniform layer height and line spacing. We demonstrate the method by manufacturing a load bearing mechanical bracket using a 5-axis 3D printer and a liquid crystal polymer material. The failure strength and stiffness of the optimized bracket are improved by a factor of 44 and 6 respectively when compared with conventional printing.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.04999",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:05:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xavier Guidetti",
+            "Nathan Mingard",
+            "Raul Cruz-Oliver",
+            "Yannick Nagel",
+            "Marvin Rueppel",
+            "Alisa Rupenyan",
+            "Efe C. Balta",
+            "John Lygeros"
+          ],
+          "title": "Force Controlled Printing for Material Extrusion Additive Manufacturing",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.16042",
+        "summary": "In material extrusion additive manufacturing, the extrusion process is commonly controlled in a feed-forward fashion. The amount of material to be extruded at each printing location is pre-computed by a planning software. This approach is inherently unable to adapt the extrusion to external and unexpected disturbances, and the quality of the results strongly depends on a number of modeling and tuning parameters. To overcome these limitations, we propose the first framework for Force Controlled Printing for material extrusion additive manufacturing. We utilize a custom-built extruder to measure the extrusion force in real time, and use this quantity as feedback to continuously control the material flow in closed-loop. We demonstrate the existence of a strong correlation between extrusion force and line width, which we exploit to deposit lines of desired width in a width range of 33 % up to 233 % of the nozzle diameter. We also show how Force Controlled Printing outperforms conventional feed-forward extrusion in print quality and disturbance rejection, while requiring little tuning and automatically adapting to changes in the hardware settings. With no adaptation, Force Controlled Printing can deposit lines of desired width under severe disturbances in bed leveling, such as at layer heights ranging between 20 % and 200 % of the nominal height.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.16042",
+          "http_status": 200,
+          "pdf_sample_score": 0.2685,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:05:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

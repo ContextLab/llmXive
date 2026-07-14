@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.00438",
+  "judged_at": "2026-07-14T00:05:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "unveiling hidden correlations between processing parameters and mechanical properties in additively manufactured alloys materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it explicitly investigates the correlation between specific additive manufacturing process parameters (laser power, heat input) and mechanical properties (strength, ductility, energy absorption) in additively manufactured metallic alloys (316L stainless steel), directly addressing the core mechanism and variables of the user's question.",
+  "relevant": true
+}
