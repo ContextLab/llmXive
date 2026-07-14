@@ -1,13 +1,17 @@
-"""Unit tests for the graph‑metric computation utilities used by ``03_compute_graph_metrics.py``.\n\nThese tests exercise the metric functions in ``utils.graph`` on a tiny synthetic network.\n"""
+"""
+Unit tests for the graph‑metric computation utilities.
+The tests focus on the pure‑function helpers in ``utils.graph`` rather than the
+end‑to‑end script, which requires large neuroimaging data.
+"""
 
-from pathlib import Path
+from __future__ import annotations
 
 import numpy as np
+import networkx as nx
 import pytest
 
 from utils.graph import (
     create_graph_from_adjacency,
-    calculate_degree_centrality,
     calculate_global_efficiency,
     calculate_clustering_coefficient,
     calculate_shortest_path_length,
@@ -15,60 +19,52 @@ from utils.graph import (
 
 
 @pytest.fixture
-def tiny_adj_matrix() -> np.ndarray:
-    """
-    A simple 3‑node fully‑connected weighted graph:\n
-    node 0‑1 weight 1,\n
-    node 0‑2 weight 2,\n
-    node 1‑2 weight 3.\n
-    The diagonal is zero.
-    """
-    return np.array(
+def simple_adj():
+    """3‑node fully‑connected undirected graph (weights = 1)."""
+    mat = np.array(
         [
-            [0, 1, 2],
-            [1, 0, 3],
-            [2, 3, 0],
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0],
         ],
         dtype=float,
     )
+    return mat
 
 
-def test_create_graph_from_adjacency(tiny_adj_matrix):
-    G = create_graph_from_adjacency(tiny_adj_matrix)
+def test_create_graph_from_adjacency(simple_adj):
+    G = create_graph_from_adjacency(simple_adj)
+    assert isinstance(G, nx.Graph)
     assert G.number_of_nodes() == 3
-    # Undirected graph – each edge appears once.
-    assert G.number_of_edges() == 3
-    # Verify an edge weight.
-    assert G[0][1]["weight"] == 1.0
+    # each edge should have weight 1
+    for u, v, d in G.edges(data=True):
+        assert d["weight"] == 1.0
 
 
-def test_calculate_degree_centrality(tiny_adj_matrix):
-    G = create_graph_from_adjacency(tiny_adj_matrix)
+def test_calculate_degree_centrality(simple_adj):
+    G = create_graph_from_adjacency(simple_adj)
     deg = calculate_degree_centrality(G)
-    # Degree = sum of incident weights.
-    assert pytest.approx(deg[0]) == 3.0  # 1 + 2
-    assert pytest.approx(deg[1]) == 4.0  # 1 + 3
-    assert pytest.approx(deg[2]) == 5.0  # 2 + 3
+    # In a 3‑node fully connected graph, each node degree = 2
+    for val in deg.values():
+        assert val == 2
 
 
-def test_calculate_global_efficiency(tiny_adj_matrix):
-    G = create_graph_from_adjacency(tiny_adj_matrix)
+def test_calculate_global_efficiency(simple_adj):
+    G = create_graph_from_adjacency(simple_adj)
     eff = calculate_global_efficiency(G)
-    # For a fully connected 3‑node graph the global efficiency is 1.
-    assert pytest.approx(eff, rel=1e-6) == 1.0
+    # For a fully connected graph of size 3, efficiency = 1.0
+    assert pytest.approx(eff, 0.001) == 1.0
 
 
-def test_calculate_clustering_coefficient(tiny_adj_matrix):
-    G = create_graph_from_adjacency(tiny_adj_matrix)
-    clustering = calculate_clustering_coefficient(G)
-    # In a triangle each node has clustering coefficient 1.
-    for val in clustering.values():
-        assert pytest.approx(val) == 1.0
+def test_calculate_clustering_coefficient(simple_adj):
+    G = create_graph_from_adjacency(simple_adj)
+    cc = calculate_clustering_coefficient(G)
+    # Fully connected triangle has clustering coefficient 1.0
+    assert pytest.approx(cc, 0.001) == 1.0
 
 
-def test_calculate_shortest_path_length(tiny_adj_matrix):
-    G = create_graph_from_adjacency(tiny_adj_matrix)
-    avg_len = calculate_shortest_path_length(G)
-    # In a triangle the shortest path between any two distinct nodes is 1.
-    # Average over 3 unordered pairs => 1.0
-    assert pytest.approx(avg_len) == 1.0
+def test_calculate_shortest_path_length(simple_adj):
+    G = create_graph_from_adjacency(simple_adj)
+    spl = calculate_shortest_path_length(G)
+    # All pairs are directly connected, path length = 1
+    assert pytest.approx(spl, 0.001) == 1.0

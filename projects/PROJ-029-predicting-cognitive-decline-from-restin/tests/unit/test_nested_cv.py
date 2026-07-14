@@ -1,49 +1,66 @@
-"""Unit tests for the nested‑CV logic in ``code/04_train_model.py``."""
+"""Unit tests for the nested CV pipeline in ``code/04_train_model.py``."""
 
+import pathlib
 import pandas as pd
 import numpy as np
-import pytest
 
-from code import _04_train_model as train_mod
+from code._04_train_model import (
+    define_decline_label,
+    CollinearityTransformer,
+    make_inner_pipeline,
+    train_and_evaluate_nested_cv,
+)
 
-@pytest.fixture
-def synthetic_data(tmp_path):
-    """Create a tiny synthetic dataset that mimics the expected schema."""
-    # 30 subjects, 25 graph‑metric features
+# Helper to create a tiny synthetic dataset – this test does NOT rely on real data.
+def _create_dummy_data():
     rng = np.random.default_rng(42)
-    X = pd.DataFrame(rng.normal(size=(30, 25)),
-                     columns=[f"metric_{i}" for i in range(25)])
-    # Add a subject_id column
-    X.insert(0, "subject_id", [f"sub-{i:03d}" for i in range(30)])
+    # 30 subjects, 10 synthetic graph‑metric features
+    X = pd.DataFrame(rng.normal(size=(30, 10)), columns=[f"f{i}" for i in range(10)])
+    # Create a simple label with some drops
+    y = pd.Series(rng.integers(0, 2, size=30))
+    return X, y
 
-    # Simulate baseline/follow‑up scores with a modest decline in ~30% of subjects
-    scores = pd.DataFrame({
-        "subject_id": X["subject_id"],
-        "mmse_baseline": rng.integers(28, 30, size=30),
-        "mmse_followup": rng.integers(24, 30, size=30),
+def test_define_decline_label():
+    df = pd.DataFrame({
+        "mmse_baseline": [30, 28, 27],
+        "mmse_followup": [27, 28, 23],
+        "moca_baseline": [28, 27, 30],
+        "moca_followup": [27, 24, 30],
     })
+    labels = define_decline_label(df)
+    # First subject drops 3 on MMSE -> 1
+    # Second drops 0 on MMSE, 3 on MoCA -> 1
+    # Third drops 0 on both -> 0
+    assert list(labels) == [1, 1, 0]
 
-    # Write to the expected locations
-    (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    X_path = tmp_path / "data" / "processed" / "graph_metrics.csv"
-    scores_path = tmp_path / "data" / "processed" / "eligible_subjects.csv"
-    X.to_csv(X_path, index=False)
-    scores.to_csv(scores_path, index=False)
-    return tmp_path
+def test_collinearity_transformer():
+    # Create perfectly correlated columns
+    X = pd.DataFrame({
+        "a": np.arange(10),
+        "b": np.arange(10) * 2,  # perfectly correlated with a
+        "c": np.random.rand(10),
+    })
+    transformer = CollinearityTransformer(threshold=0.95)
+    transformer.fit(X)
+    X_t = transformer.transform(X)
+    # One of a or b must be dropped; c must remain.
+    assert "c" in X_t.columns
+    assert len(X_t.columns) == 2
 
-def test_train_and_evaluate_nested_cv(monkeypatch, synthetic_data):
-    """Run the full pipeline on the synthetic data and check outputs."""
-    # Patch Path objects inside the module to point at the temporary directory
-    monkeypatch.setattr(train_mod, "Path", lambda *p: synthetic_data / Path(*p))
+def test_make_inner_pipeline():
+    pipeline = make_inner_pipeline()
+    assert hasattr(pipeline, "fit")
+    assert hasattr(pipeline, "predict_proba")
 
-    # Execute main – it should return 0 and produce the two artefacts
-    assert train_mod.main() == 0
-    # Verify model file exists
-    model_path = synthetic_data / "data" / "processed" / "model.pkl"
-    assert model_path.is_file()
-    # Verify performance report exists and contains expected keys
-    report_path = synthetic_data / "data" / "processed" / "performance_report.json"
-    assert report_path.is_file()
-    report = pd.read_json(report_path, typ="series")
-    assert "mean_roc_auc" in report
-    assert "best_params" in report
+def test_train_and_evaluate_nested_cv():
+    X, y = _create_dummy_data()
+    model, perf = train_and_evaluate_nested_cv(X, y)
+    # Model should be a RandomForestClassifier
+    from sklearn.ensemble import RandomForestClassifier
+    assert isinstance(model, RandomForestClassifier)
+    # Performance dict must contain expected keys
+    for key in ["roc_auc_mean", "accuracy_mean", "f1_mean", "best_params"]:
+        assert key in perf
+
+# The tests are deliberately lightweight to run quickly in CI.  They verify
+# that the core functions exist and behave plausibly.

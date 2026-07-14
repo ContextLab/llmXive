@@ -10,36 +10,48 @@ from typing import Any
 
 @dataclass
 class LogEntry:
+    """A single log entry describing an operation."""
+
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
+        """Serialise the log entry to a JSON string."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
+    """A lightweight logger that never raises for unexpected calls.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    It stores LogEntry objects internally and provides no‑op methods for
+    typical logging levels (info, debug, warning, error, critical).  This
+    implementation is deliberately independent of the stdlib ``logging``
+    module to satisfy the heterogeneous call‑sites across the project.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # ``name`` is optional; default to a generic identifier.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        op = args[0] if args else kwargs.get("operation", "")
+        """Record a log entry.
+
+        The first positional argument, if present, is interpreted as the
+        operation name; otherwise the ``operation`` keyword argument is used.
+        All remaining keyword arguments are stored as ``parameters``.
+        """
+        op = args[0] if args else kwargs.pop("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    # Provide tolerant no‑op methods for common logging levels.
     def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
+        def _noop(*_a: Any, **_k: Any) -> None:
             return None
+
         return _noop
 
 
@@ -47,7 +59,11 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton logger. Accept any arguments for compatibility."""
+    """Return a singleton logger instance.
+
+    All callers receive the same logger object, satisfying the requirement
+    that multiple modules share a common logging store.
+    """
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -55,12 +71,13 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+    """Dual‑purpose helper: can be used as a decorator or a direct logger.
 
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+    - As a decorator: ``@log_operation`` wraps the target function unchanged.
+    - As a function call: ``log_operation('my_op', key=val)`` records a
+      LogEntry via the global logger and returns that entry.
     """
+    # Decorator usage detection.
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -70,5 +87,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
+    # Direct‑call usage.
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)

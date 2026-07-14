@@ -1,55 +1,82 @@
-"""Basic sanity test for the parallelised graph‑metrics script."""
+"""Unit test ensuring that the parallel implementation produces the same
+number of rows as there are input subjects and that the output CSV is
+written."""
 
-import sys
+import csv
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-# Ensure the project root is on the path so imports work when tests are run
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.append(str(PROJECT_ROOT))
-
-from code import __main__ as compute_module  # noqa: E402
-
+# Import the functions we need from the module under test
+from code import (
+    compute_subject_metrics,
+    write_outputs,
+    load_subject_list,
+    load_config_wrapper,
+    get_data_directories,
+)
 
 @pytest.fixture
-def empty_eligible_csv(tmp_path):
-    """Create an empty eligible_subjects.csv with the correct header."""
-    csv_path = tmp_path / "data" / "processed" / "eligible_subjects.csv"
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(columns=["subject_id"]).to_csv(csv_path, index=False)
-    return csv_path
+def dummy_processed_dir(tmp_path: Path):
+    """Create a minimal processed directory with an empty eligible_subjects.csv."""
+    processed = tmp_path / "processed"
+    processed.mkdir()
+    # Write a tiny eligible_subjects.csv with two dummy IDs
+    csv_path = processed / "eligible_subjects.csv"
+    with csv_path.open("w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["subject_id"])
+        writer.writerow(["001"])
+        writer.writerow(["002"])
+    return processed
 
+@pytest.fixture
+def dummy_raw_dir(tmp_path: Path):
+    """Create a raw directory containing dummy connectivity matrices."""
+    raw = tmp_path / "raw" / "ds000246"
+    raw.mkdir(parents=True)
+    for sid in ("001", "002"):
+        sub_dir = raw / f"sub-{sid}" / "func"
+        sub_dir.mkdir(parents=True)
+        matrix_path = sub_dir / f"sub-{sid}_desc-connectivity_matrix.npy"
+        # Simple identity matrix as a stand‑in
+        import numpy as np
+        np.save(matrix_path, np.identity(90))
+    return raw
 
-def test_compute_graph_metrics_runs_without_subjects(monkeypatch, tmp_path, empty_eligible_csv):
-    """The script should finish without error even when there are no subjects."""
-    # Patch the configuration to point to the temporary directory
-    def fake_load_config():
-        return {
-            "n_jobs": 2,
-            "output_path": tmp_path / "data" / "processed" / "graph_metrics.csv",
-            "connectivity_dir": tmp_path / "data" / "processed" / "connectivity_matrices",
-            "eligible_subjects_path": empty_eligible_csv,
-        }
+def test_parallel_computation_writes_csv(
+    dummy_processed_dir: Path, dummy_raw_dir: Path
+):
+    # Load config using the real helper – we patch the paths afterwards
+    cfg = load_config_wrapper()
+    cfg["raw_data_dir"] = str(dummy_raw_dir.parent.parent)  # points to project root
+    cfg["processed_dir"] = str(dummy_processed_dir.parent)
 
-    monkeypatch.setattr(compute_module, "load_config", fake_load_config)
+    raw_dir, processed_dir = get_data_directories(cfg)
 
-    # Run the main function
-    exit_code = compute_module.main()
-    assert exit_code == 0
+    subject_ids = load_subject_list(processed_dir)
+    assert subject_ids == ["001", "002"]
 
-    # Verify that an (empty) CSV was produced with the expected columns
-    out_path = tmp_path / "data" / "processed" / "graph_metrics.csv"
-    assert out_path.is_file()
-    df = pd.read_csv(out_path)
-    expected_cols = [
-        "subject_id",
-        "degree_centrality_mean",
-        "global_efficiency",
-        "clustering_coefficient_mean",
-        "average_shortest_path_length",
+    # Compute metrics (this will run the parallelised function)
+    results = [
+        compute_subject_metrics(raw_dir, sid) for sid in subject_ids
     ]
-    assert list(df.columns) == expected_cols
-    # No rows should be present
-    assert df.shape[0] == 0
+    assert len(results) == 2
+    for r in results:
+        assert r["subject_id"] in {"001", "002"}
+
+    # Write outputs and verify the CSV exists and has the right shape
+    write_outputs(processed_dir, results)
+    out_csv = processed_dir / "graph_metrics.csv"
+    assert out_csv.is_file()
+
+    df = pd.read_csv(out_csv)
+    assert list(df.columns) == [
+        "subject_id",
+        "degree_mean",
+        "global_efficiency",
+        "clustering_coefficient",
+        "characteristic_path_length",
+    ]
+    assert df.shape[0] == 2

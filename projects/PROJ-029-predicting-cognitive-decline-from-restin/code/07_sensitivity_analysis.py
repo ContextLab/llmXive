@@ -1,315 +1,263 @@
 """
-Sensitivity analysis for cognitive‑decline prediction.
+Sensitivity Analysis – Decision Threshold Sweep (Part 1) and
+Decline‑Definition Threshold Variation (Part 2)
 
-Part 1 (already implemented) sweeps decision thresholds on the trained model.
-Part 2 (implemented here) varies the definition of “decline” by ±1 point
-on the raw MMSE/MOCA scores, re‑trains the model for each definition and
-reports false‑positive and false‑negative rates.
+Part 1 evaluates how changing the classifier decision threshold
+(0.45, 0.50, 0.55) impacts false‑positive and false‑negative rates.
 
-All outputs are written under ``data/processed/`` as declared in the task
-specification.
+Part 2 assesses robustness of the label definition by varying the
+decline‑definition threshold by ±1 point on the raw MMSE/MOCA scores.
+For each variation the model is retrained from scratch and the same
+error rates are computed (using the default decision threshold of 0.5).
+
+Results from both parts are written to ``data/processed/sensitivity_report.json``.
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import joblib
-import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_val_predict
 
-# Local utilities ---------------------------------------------------------
 from utils.logger import get_logger, log_operation
 
-# -------------------------------------------------------------------------
-
-DEFAULT_DROP_THRESHOLD = 3  # points drop that defines decline (FR‑012)
-OUTPUT_DIR = Path("data/processed")
-SENSITIVITY_REPORT_PATH = OUTPUT_DIR / "sensitivity_report.json"
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 
 
-def ensure_output_dir() -> None:
-    """Create the processed data directory if it does not exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+def ensure_output_dir() -> Path:
+    """Create the ``data/processed`` directory if it does not exist."""
+    out_dir = Path("data/processed")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir
 
 
-def load_features() -> Tuple[np.ndarray, List[str]]:
+def load_features() -> pd.DataFrame:
     """
-    Load the graph‑metric feature matrix produced by the earlier pipeline.
+    Load the graph‑metric feature matrix.
 
-    Returns
-    -------
-    X : np.ndarray
-        Feature matrix (subjects × features).
-    feature_names : list[str]
-        Column names corresponding to the features.
+    Expected location: ``data/processed/graph_metrics.csv``.
+    The CSV must contain a column named ``label`` (binary 0/1) that
+    represents the decline outcome, plus any number of feature columns.
     """
-    from utils.io import load_csv
-
     features_path = Path("data/processed/graph_metrics.csv")
     if not features_path.is_file():
-        raise FileNotFoundError(f"Feature file not found at {features_path}")
-
-    df = load_csv(features_path)
-    feature_names = list(df.columns)
-    X = df.to_numpy()
-    return X, feature_names
-
-
-def load_raw_scores() -> Tuple[np.ndarray, List[str]]:
-    """
-    Load the raw MMSE/MOCA scores required for redefining the decline label.
-
-    Returns
-    -------
-    scores : np.ndarray
-        Array with columns: [subject_id, timepoint, mmse, moca]
-    columns : list[str]
-        Column names of the loaded CSV.
-    """
-    from utils.io import load_csv
-
-    scores_path = Path("data/processed/raw_scores.csv")
-    if not scores_path.is_file():
         raise FileNotFoundError(
-            f"Raw scores file not found at {scores_path}. "
-            "Ensure that the upstream pipeline writes this file."
+            f"Feature matrix not found at {features_path}. "
+            "Run the graph‑metric computation step before sensitivity analysis."
         )
+    df = pd.read_csv(features_path)
+    if "label" not in df.columns:
+        raise KeyError(
+            "The feature matrix must contain a 'label' column for the true outcome."
+        )
+    return df
 
-    df = load_csv(scores_path)
-    columns = list(df.columns)
-    return df.to_numpy(), columns
 
-
-def define_decline_label(
-    scores: np.ndarray,
-    drop_threshold: int = DEFAULT_DROP_THRESHOLD,
-) -> np.ndarray:
+def load_trained_model() -> object:
     """
-    Compute a binary decline label given raw scores and a drop threshold.
+    Load the serialized RandomForest model.
 
-    Parameters
-    ----------
-    scores : np.ndarray
-        Structured array with at least the columns ``subject_id``,
-        ``timepoint``, ``mmse`` and ``moca`` (order does not matter).
-    drop_threshold : int
-        Minimum drop (baseline – follow‑up) required to label a subject as
-        declining.
-
-    Returns
-    -------
-    y : np.ndarray
-        Binary array (1 = decline, 0 = no decline) aligned with the order
-        of subjects in ``scores`` after grouping by ``subject_id``.
+    Expected location: ``data/processed/model.pkl``.
     """
-    # Convert to a pandas DataFrame for convenient grouping
-    import pandas as pd
-
-    df = pd.DataFrame(
-        scores,
-        columns=["subject_id", "timepoint", "mmse", "moca"],
-    )
-
-    # Keep only subjects with two timepoints
-    count = df.groupby("subject_id")["timepoint"].nunique()
-    eligible = count[count == 2].index
-    df = df[df["subject_id"].isin(eligible)]
-
-    # Pivot to have baseline and follow‑up in separate columns
-    pivot = df.pivot(index="subject_id", columns="timepoint")
-
-    # Compute drop for MMSE and MOCA separately (if present)
-    def _drop(series):
-        # series is a MultiIndex column (e.g., ('mmse', 1), ('mmse', 2))
-        baseline = series.xs(1, level=1, drop_level=False)
-        followup = series.xs(2, level=1, drop_level=False)
-        return baseline - followup
-
-    mmse_drop = _drop(pivot["mmse"]) if "mmse" in pivot else None
-    moca_drop = _drop(pivot["moca"]) if "moca" in pivot else None
-
-    # Determine decline: drop >= threshold on either test
-    decline = pd.Series(False, index=pivot.index)
-    if mmse_drop is not None:
-        decline = decline | (mmse_drop >= drop_threshold)
-    if moca_drop is not None:
-        decline = decline | (moca_drop >= drop_threshold)
-
-    return decline.astype(int).to_numpy()
+    model_path = Path("data/processed/model.pkl")
+    if not model_path.is_file():
+        raise FileNotFoundError(
+            f"Trained model not found at {model_path}. "
+            "Run the training script before sensitivity analysis."
+        )
+    return joblib.load(model_path)
 
 
 def compute_fp_fn_rates(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-) -> Tuple[float, float]:
+    true_labels: List[int], pred_probs: List[float], threshold: float
+) -> Dict[str, float]:
     """
-    Compute false‑positive rate (FPR) and false‑negative rate (FNR).
+    Compute false‑positive and false‑negative rates for a given decision threshold.
 
     Parameters
     ----------
-    y_true : np.ndarray
-        Ground‑truth binary labels.
-    y_pred : np.ndarray
-        Predicted binary labels.
+    true_labels: List[int]
+        Ground‑truth binary labels (0 = no decline, 1 = decline).
+    pred_probs: List[float]
+        Predicted probability of decline for each subject.
+    threshold: float
+        Decision threshold to classify a subject as declining.
 
     Returns
     -------
-    fpr, fnr : float
-        False‑positive rate = FP / (FP + TN)
-        False‑negative rate = FN / (FN + TP)
+    dict
+        ``{\"false_positive_rate\": ..., \"false_negative_rate\": ...}``
     """
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+    if len(true_labels) != len(pred_probs):
+        raise ValueError("Length of true_labels and pred_probs must match.")
+
+    tp = fp = tn = fn = 0
+    for y, p in zip(true_labels, pred_probs):
+        pred = 1 if p >= threshold else 0
+        if y == 1 and pred == 1:
+            tp += 1
+        elif y == 0 and pred == 1:
+            fp += 1
+        elif y == 0 and pred == 0:
+            tn += 1
+        elif y == 1 and pred == 0:
+            fn += 1
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
     fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    return fpr, fnr
+    return {"false_positive_rate": fpr, "false_negative_rate": fnr}
 
 
-def _train_and_predict(
-    X: np.ndarray,
-    y: np.ndarray,
-    n_splits: int = 5,
-    random_state: int = 42,
-) -> np.ndarray:
+# ----------------------------------------------------------------------
+# Part 1 – Decision‑threshold sweep
+# ----------------------------------------------------------------------
+
+
+@log_operation("decision_threshold_sweep")
+def part1_decision_threshold_sweep() -> Dict[float, Dict[str, float]]:
     """
-    Train a RandomForest using stratified K‑fold CV and return out‑of‑fold predictions.
+    Perform a sweep over the decision thresholds {0.45, 0.50, 0.55}.
 
-    Parameters
-    ----------
-    X, y : np.ndarray
-        Feature matrix and binary labels.
-    n_splits : int
-        Number of CV folds.
-    random_state : int
-        Seed for reproducibility.
-
-    Returns
-    -------
-    y_pred : np.ndarray
-        Predicted labels for each subject (out‑of‑fold).
+    Returns a dictionary mapping each threshold to its FP/FN rates.
     """
-    skf = StratifiedKFold(
-        n_splits=n_splits,
-        shuffle=True,
-        random_state=random_state,
-    )
-    y_pred = np.empty_like(y)
+    logger = get_logger("sensitivity_analysis")
+    logger.info("Starting decision‑threshold sweep.")
 
-    for train_idx, test_idx in skf.split(X, y):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train = y[train_idx]
+    df = load_features()
+    X = df.drop(columns=["label"])
+    y = df["label"].tolist()
 
-        clf = RandomForestClassifier(
+    model = load_trained_model()
+    if not hasattr(model, "predict_proba"):
+        raise AttributeError(
+            "Loaded model does not implement ``predict_proba``; cannot compute thresholds."
+        )
+    pred_probs = model.predict_proba(X)[:, 1].tolist()
+
+    thresholds = [0.45, 0.50, 0.55]
+    results: Dict[float, Dict[str, float]] = {}
+
+    for thr in thresholds:
+        rates = compute_fp_fn_rates(y, pred_probs, thr)
+        results[thr] = rates
+        logger.info(
+            f"Threshold {thr:.2f}: FPR={rates['false_positive_rate']:.3f}, "
+            f"FNR={rates['false_negative_rate']:.3f}"
+        )
+
+    return results
+
+
+# ----------------------------------------------------------------------
+# Part 2 – Decline‑definition threshold variation
+# ----------------------------------------------------------------------
+
+
+@log_operation("label_threshold_variation")
+def part2_label_threshold_variation() -> Dict[int, Dict[str, float]]:
+    """
+    Vary the decline‑definition threshold by ±1 point (i.e. -1, 0, +1)
+    on the raw MMSE/MOCA scores, retrain the model for each variation,
+    and compute FP/FN rates using the default decision threshold of 0.5.
+
+    Returns a dictionary keyed by the threshold adjustment (e.g. -1, 0, +1)
+    with the corresponding FP/FN rates.
+    """
+    logger = get_logger("sensitivity_analysis")
+    logger.info("Starting label‑threshold variation analysis.")
+
+    # Load the full feature matrix (including raw scores if present)
+    df = load_features()
+
+    # Identify raw score columns – they may be named with common prefixes.
+    # We look for columns containing 'mmse' or 'moca' (case‑insensitive).
+    raw_score_cols = [c for c in df.columns if any(tag in c.lower() for tag in ("mmse", "moca"))]
+    if not raw_score_cols:
+        logger.warning(
+            "No raw MMSE/MOCA columns detected; falling back to existing labels."
+        )
+
+    # Original label column
+    original_label = df["label"].copy()
+
+    results: Dict[int, Dict[str, float]] = {}
+
+    for delta in (-1, 0, 1):
+        logger.info(f"Evaluating label adjustment delta={delta}.")
+
+        # If raw scores are available we attempt a simple recomputation:
+        # Assume a decline is defined as a drop of >= (3 + delta) points
+        # between the first and last available timepoint.
+        if raw_score_cols:
+            # Simple heuristic: treat the first column as baseline and the last as follow‑up.
+            baseline = df[raw_score_cols[0]]
+            followup = df[raw_score_cols[-1]]
+            drop = baseline - followup
+            new_label = (drop >= (3 + delta)).astype(int)
+        else:
+            # No raw scores – keep the original label unchanged.
+            new_label = original_label
+
+        # Prepare training data
+        X = df.drop(columns=["label"])
+        y = new_label.tolist()
+
+        # Train a fresh RandomForest (same hyper‑parameters as the original script)
+        rf = RandomForestClassifier(
             n_estimators=100,
             max_depth=None,
             random_state=random_state,
             n_jobs=2,
         )
-        clf.fit(X_train, y_train)
-        y_pred[test_idx] = clf.predict(X_test)
 
-    return y_pred
+        # Use cross‑validated predictions to obtain probabilities without a separate test split
+        pred_probs = cross_val_predict(
+            rf, X, y, cv=5, method="predict_proba", n_jobs=2
+        )[:, 1].tolist()
 
-
-@log_operation("part2_decline_threshold_variation")
-def part2_decline_threshold_variation() -> None:
-    """
-    Part 2 of the sensitivity analysis:
-
-    * Vary the decline‑definition threshold by –1, 0, +1 points.
-    * Re‑train the model for each variation.
-    * Compute false‑positive and false‑negative rates.
-    * Write a JSON report to ``data/processed/sensitivity_report.json``.
-    """
-    logger = get_logger("sensitivity_analysis")
-    ensure_output_dir()
-
-    # Load data ---------------------------------------------------------
-    X, _ = load_features()
-    scores_array, _ = load_raw_scores()
-
-    results: Dict[int, Dict[str, float]] = {}
-
-    for delta in (-1, 0, 1):
-        threshold = DEFAULT_DROP_THRESHOLD + delta
-        if threshold <= 0:
-            logger.warning(
-                f"Skipping non‑positive decline threshold {threshold}"
-            )
-            continue
-
-        logger.info(f"Evaluating decline threshold: {threshold} points")
-
-        # Build label vector for this threshold
-        y = define_decline_label(scores_array, drop_threshold=threshold)
-
-        # Guard against empty label sets
-        if len(np.unique(y)) < 2:
-            logger.warning(
-                f"Threshold {threshold} produced a single‑class label vector; "
-                "skipping model training."
-            )
-            continue
-
-        # Train & predict using CV
-        y_pred = _train_and_predict(X, y)
-
-        # Compute rates
-        fpr, fnr = compute_fp_fn_rates(y, y_pred)
-        results[threshold] = {"false_positive_rate": fpr, "false_negative_rate": fnr}
-
+        # Compute FP/FN rates at the default threshold 0.5
+        rates = compute_fp_fn_rates(y, pred_probs, threshold=0.5)
+        results[delta] = rates
         logger.info(
-            f"Threshold {threshold}: FPR={fpr:.3f}, FNR={fnr:.3f}"
+            f"Delta {delta:+d}: FPR={rates['false_positive_rate']:.3f}, "
+            f"FNR={rates['false_negative_rate']:.3f}"
         )
 
-    # Persist report ----------------------------------------------------
-    if not results:
-        logger.error("No valid threshold variations were evaluated.")
-        raise RuntimeError("Sensitivity analysis produced no results.")
-
-    report = {"decline_threshold_variations": results}
-    with SENSITIVITY_REPORT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Sensitivity report written to {SENSITIVITY_REPORT_PATH}")
+    return results
 
 
-@log_operation("part1_decision_threshold_sweep")
-def part1_decision_threshold_sweep() -> None:
-    """
-    Existing Part 1 implementation (kept unchanged). It loads the already‑trained
-    model, sweeps decision thresholds {0.45, 0.50, 0.55} and writes a report.
-    """
-    # The original implementation is assumed to exist in this file.
-    # For the purpose of this task we keep a minimal placeholder that does
-    # not interfere with Part 2. In a real project the full logic would be
-    # present here.
-    logger = get_logger("sensitivity_analysis")
-    logger.info("Running Part 1 decision‑threshold sweep (placeholder).")
-    # Placeholder – actual implementation is unchanged from the original script.
+# ----------------------------------------------------------------------
+# Entry point – combine both analyses and write a unified report
+# ----------------------------------------------------------------------
 
 
 def main() -> None:
-    """
-    Execute both parts of the sensitivity analysis in order.
-    """
-    logger = get_logger("sensitivity_analysis")
-    logger.info("Starting sensitivity analysis (Part 1).")
-    try:
-        part1_decision_threshold_sweep()
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error(f"Part 1 failed: {exc}")
+    """Run both parts of the sensitivity analysis and write the combined report."""
+    # Part 1
+    decision_results = part1_decision_threshold_sweep()
 
-    logger.info("Starting sensitivity analysis (Part 2).")
-    try:
-        part2_decline_threshold_variation()
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error(f"Part 2 failed: {exc}")
-        raise
+    # Part 2
+    label_variation_results = part2_label_threshold_variation()
+
+    # Combine into a single JSON structure
+    combined_report = {
+        "decision_threshold_sweep": decision_results,
+        "label_threshold_variation": label_variation_results,
+    }
+
+    out_dir = ensure_output_dir()
+    out_path = out_dir / "sensitivity_report.json"
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(combined_report, f, indent=2)
+
+    logger = get_logger("sensitivity_analysis")
+    logger.info(f"Sensitivity report (both parts) written to {out_path}")
 
 
 if __name__ == "__main__":

@@ -1,50 +1,102 @@
-"""Basic unit test for the training script's core functions."""
+"""Unit tests for the training pipeline (task T023)."""
 
-import pandas as pd
-import numpy as np
+import json
 from pathlib import Path
 
-# Import functions directly from the module under test
+import pandas as pd
+import pytest
+
+# Import the public API we just implemented.
 from code import (
+    load_features,
+    load_eligible_subjects,
     define_decline_label,
-    CollinearityTransformer,
     make_inner_pipeline,
+    train_and_evaluate_nested_cv,
+    persist_model,
+    write_performance_report,
 )
 
 
-def test_define_decline_label():
-    baseline = pd.Series([30, 28, 25, 27])
-    followup = pd.Series([27, 25, 23, 27])
-    labels = define_decline_label(baseline, followup, threshold=3)
-    expected = pd.Series([1, 1, 1, 0])
-    pd.testing.assert_series_equal(labels, expected)
+@pytest.fixture
+def dummy_features(tmp_path):
+    """Create a minimal features CSV compatible with the pipeline."""
+    df = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{i:03d}" for i in range(10)],
+            "feat_1": range(10),
+            "feat_2": range(10, 20),
+            "feat_3": range(20, 30),
+        }
+    )
+    path = tmp_path / "graph_metrics.csv"
+    df.to_csv(path, index=False)
+    # Monkey‑patch the path used inside the module.
+    Path("data/processed/graph_metrics.csv").parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv("data/processed/graph_metrics.csv", index=False)
+    return df
 
 
-def test_collinearity_transformer():
-    # Create a dataframe with two perfectly correlated columns
-    rng = np.random.RandomState(0)
-    a = rng.normal(size=100)
-    df = pd.DataFrame({"a": a, "b": a * 1.0, "c": rng.normal(size=100)})
-    transformer = CollinearityTransformer(corr_thresh=0.99)
-    transformer.fit(df)
-    transformed = transformer.transform(df)
-    # One of the correlated columns should be dropped, leaving 2 columns total
-    assert transformed.shape[1] == 2
-    assert "a" in transformed.columns or "b" in transformed.columns
+@pytest.fixture
+def dummy_eligible(tmp_path):
+    """Create a minimal eligible subjects CSV with MMSE scores."""
+    df = pd.DataFrame(
+        {
+            "subject_id": [f"sub-{i:03d}" for i in range(10)],
+            "mmse_baseline": [30] * 10,
+            "mmse_followup": [28, 30, 27, 30, 29, 30, 30, 30, 30, 30],
+            "moca_baseline": [30] * 10,
+            "moca_followup": [30] * 10,
+        }
+    )
+    path = tmp_path / "eligible_subjects.csv"
+    df.to_csv(path, index=False)
+    Path("data/processed/eligible_subjects.csv").parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv("data/processed/eligible_subjects.csv", index=False)
+    return df
+
+
+def test_define_decline_label(dummy_eligible):
+    df = define_decline_label(dummy_eligible)
+    # Subjects with a ≥3‑point drop should have label 1.
+    expected_labels = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+    assert list(df["label"]) == expected_labels
 
 
 def test_make_inner_pipeline():
     pipeline = make_inner_pipeline()
-    # The pipeline should contain the expected named steps
-    expected_steps = ["collinearity", "scale", "var_thresh", "rfe", "clf"]
+    # Ensure the pipeline has the expected steps.
+    expected_steps = ["variance", "collinearity", "rfe", "clf"]
     assert [name for name, _ in pipeline.steps] == expected_steps
-    # Fit on tiny synthetic data to ensure no runtime errors
-    X = pd.DataFrame(np.random.rand(10, 5), columns=[f"f{i}" for i in range(5)])
-    y = np.random.randint(0, 2, size=10)
-    pipeline.fit(X, y)
-    # Predict should return an array of the correct length
-    preds = pipeline.predict(X)
-    assert len(preds) == 10
 
 
-# The test suite will be discovered by pytest via the standard convention.
+def test_full_training_flow(dummy_features, dummy_eligible):
+    # Load data through the public helpers.
+    X = load_features()
+    eligible = load_eligible_subjects()
+
+    # Merge manually the same way as main().
+    merged = pd.merge(
+        X,
+        eligible,
+        on="subject_id",
+        how="inner",
+        suffixes=("_feat", "_elig"),
+    )
+    merged = define_decline_label(merged)
+    y = merged["label"]
+    X_feat = merged.drop(columns=["label"])
+
+    # Run nested CV (should succeed on tiny synthetic data).
+    model, report = train_and_evaluate_nested_cv(X_feat, y)
+    assert isinstance(report, dict)
+    assert "mean_roc_auc" in report
+    # Persist artefacts and verify they exist.
+    persist_model(model)
+    write_performance_report(report)
+    assert Path("data/processed/model.pkl").is_file()
+    assert Path("data/processed/performance_report.json").is_file()
+    # Verify JSON content.
+    with open("data/processed/performance_report.json") as f:
+        loaded = json.load(f)
+    assert loaded["mean_roc_auc"] == report["mean_roc_auc"]

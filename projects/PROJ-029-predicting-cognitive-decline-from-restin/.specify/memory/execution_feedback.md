@@ -18,59 +18,63 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_download_and_filter.py -> rc=1
-    ons.HTTPError: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/download?format=zip
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 208, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 185, in main
-    dataset_dir = ensure_dataset()
-                  ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 87, in ensure_dataset
-    download_file(DATASET_URL, zip_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 62, in download_file
-    raise RuntimeError(f"Failed to download after {retries} attempts: {e}")
-RuntimeError: Failed to download after 3 attempts: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/download?format=zip
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 165, in <module>
+    @log_operation("01_download_and_filter")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/03_compute_graph_metrics.py -> rc=1
     
 - python code/04_train_model.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 232, in <module>
-    @log_operation("train_model")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
-- python code/05_evaluate_model.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 178, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 167, in main
-    X, y = load_features_and_labels()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 54, in load_features_and_labels
-    raise FileNotFoundError(features_path)
-FileNotFoundError: data/processed/graph_metrics.csv
-- python code/06_permutation_test.py -> rc=1
-    
-- python code/07_sensitivity_analysis.py -> rc=1
-    _sensitivity_analysis.py", line 178, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 358, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 174, in main
-    part1_decision_threshold_sweep()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py", line 69, in _wrapper
-    return func(*a, **k)
-           ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 137, in part1_decision_threshold_sweep
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 320, in main
     features_df = load_features()
                   ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py", line 69, in _wrapper
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 65, in load_features
+    raise FileNotFoundError(features_path)
+FileNotFoundError: data/processed/graph_metrics.csv
+- python code/05_evaluate_model.py -> rc=1
+    st recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 184, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 176, in main
+    report = evaluate_model()
+             ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 114, in evaluate_model
+    df = load_features()
+         ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 74, in load_features
+    ensure_file(FEATURES_CSV)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 65, in ensure_file
+    raise FileNotFoundError(f"Required file not found: {path}")
+FileNotFoundError: Required file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
+- python code/06_permutation_test.py -> rc=1
+    eturn func(*a, **k)
+           ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py", line 210, in main
+    result = run_permutation_test()
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py", line 68, in _wrapper
     return func(*a, **k)
            ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 45, in load_features
-    raise FileNotFoundError(f"Feature file not found at {features_path}")
-FileNotFoundError: Feature file not found at data/processed/graph_metrics.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py", line 168, in run_permutation_test
+    X, y = load_features_and_labels()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py", line 68, in _wrapper
+    return func(*a, **k)
+           ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py", line 61, in load_features_and_labels
+    raise FileNotFoundError(f"{GRAPH_METRICS_PATH} does not exist")
+FileNotFoundError: data/processed/graph_metrics.csv does not exist
+- python code/07_sensitivity_analysis.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 121, in <module>
+    @log_operation("decision_threshold_sweep")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 
 ## Declared deliverables still missing
 
@@ -95,6 +99,11 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 - code/08_collinearity_check.py: logger = get_logger("collinearity_check")
 - code/15_ci_memory_profiler.py: logger = get_logger("ci_memory_profiler")
 - code/00_data_gate.py: logger = get_logger("data_gate")
+- code/01_download_and_filter.py: logger = get_logger("download_file")
+- code/01_download_and_filter.py: logger = get_logger("read_participants_tsv")
+- code/01_download_and_filter.py: logger = get_logger("write_eligible_csv")
+- code/01_download_and_filter.py: logger = get_logger("write_excluded_log")
+- code/01_download_and_filter.py: logger = get_logger("01_download_and_filter")
 - code/06_runtime_verifier.py: logger = get_logger("runtime_verifier")
 - code/11_external_outcome_check.py: logger = get_logger("external_outcome_check")
 - code/03_compute_graph_metrics.py: get_logger().warning("eligible_subjects.csv not found; returning empty list")
@@ -196,14 +205,11 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/eligible_subjects.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/06_permutation_test.py` — IS a run-book command
     - `code/01_download_and_filter.py` — IS a run-book command
     - `code/06_runtime_verifier.py` — NOT invoked by the run-book
     - `code/03_compute_graph_metrics.py` — IS a run-book command
     - `code/04_train_model.py` — IS a run-book command
-    - `code/05_evaluate_model.py` — IS a run-book command
     - `code/validate_quickstart.py` — NOT invoked by the run-book
-    - `code/07_sensitivity_analysis.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/eligible_subjects.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/graph_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/12_memory_profiler.py` — NOT invoked by the run-book
@@ -266,8 +272,8 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/eligible_subjects.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/06_permutation_test.py`, `code/01_download_and_filter.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/eligible_subjects.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/06_permutation_test.py`, `code/01_download_and_filter.py`, `code/06_runtime_verifier.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/eligible_subjects.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/01_download_and_filter.py`, `code/06_runtime_verifier.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`.
 
 ### `data/processed/model.pkl`
 
@@ -286,10 +292,10 @@ Consumers waiting on it: `code/04_train_model.py`, `code/05_evaluate_model.py`, 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/raw/ds000246/participants.tsv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`, `code/11_external_outcome_check.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/raw/ds000246/participants.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/raw/ds000246/participants.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
 Consumers waiting on it: `code/01_download_and_filter.py`, `code/11_external_outcome_check.py`.
 
 ### `participants.tsv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`, `code/11_external_outcome_check.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `participants.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `participants.tsv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
 Consumers waiting on it: `code/01_download_and_filter.py`, `code/11_external_outcome_check.py`.
