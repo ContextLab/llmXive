@@ -1,21 +1,22 @@
 """
 Quickstart Validation Script for PROJ-489.
 
-This script performs an end-to-end validation of the pipeline from a fresh clone.
-It checks dependencies, runs the download, preprocessing, metrics, and analysis
-stages, and verifies that all expected output files are generated.
+This script validates the end-to-end execution of the pipeline from a fresh clone.
+It verifies dependencies, runs each major stage (download, preprocess, metrics, analysis, report),
+and confirms that all expected output files are generated.
 """
 import logging
 import os
 import sys
 import subprocess
+import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler('data/quickstart_validation.log')
@@ -24,19 +25,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def check_dependencies() -> bool:
-    """Check if required dependencies are installed."""
+    """Check if all required Python packages are installed."""
     logger.info("Checking dependencies...")
-    required_packages = ['mne', 'statsmodels', 'networkx', 'scipy', 'pandas', 'numpy', 'pyedflib']
+    required_packages = [
+        'mne', 'statsmodels', 'networkx', 'scipy', 'pandas', 'numpy', 'pyedflib'
+    ]
+    
     missing = []
 
     for package in required_packages:
         try:
-            __import__(package)
-            logger.info(f"  ✓ {package} is installed")
+            __import__(pkg)
+            logger.debug(f"  ✓ {pkg} installed")
         except ImportError:
-            missing.append(package)
-            logger.warning(f"  ✗ {package} is missing")
-
+            missing.append(pkg)
+            logger.error(f"  ✗ {pkg} missing")
+    
     if missing:
         logger.error(f"Missing dependencies: {', '.join(missing)}")
         return False
@@ -48,7 +52,6 @@ def run_download() -> bool:
     """Run the download stage."""
     logger.info("Running download stage...")
     try:
-        # Import and run the main function from download.py
         from download import main as download_main
         download_main()
         logger.info("Download stage completed successfully.")
@@ -105,49 +108,46 @@ def run_report_generation() -> bool:
         logger.error(f"Report generation stage failed: {e}")
         return False
 
-def verify_outputs() -> bool:
+def verify_outputs() -> Tuple[bool, List[str]]:
     """Verify that all expected output files exist."""
     logger.info("Verifying output files...")
-    expected_files = [
-        "data/processed/epochs.fif",
-        "data/metrics/SubjectMetrics.csv",
-        "data/results/analysis_results.json",
-        "data/results/residuals_diagnostics.json",
-        "reports/final_report.md"
-    ]
-
-    all_exist = True
-    for file_path in expected_files:
-        full_path = Path(file_path)
-        if full_path.exists():
-            logger.info(f"  ✓ {file_path} exists")
-        else:
-            logger.warning(f"  ✗ {file_path} does NOT exist")
-            all_exist = False
-
-    if all_exist:
-        logger.info("All expected output files are present.")
-    else:
-        logger.error("Some expected output files are missing.")
     
-    return all_exist
+    expected_files = [
+        'data/processed/epochs.fif',
+        'data/metrics/SubjectMetrics.csv',
+        'data/results/analysis_results.json',
+        'data/results/residuals_diagnostics.json',
+        'reports/final_report.md',
+        'data/results/quickstart_validation.log'
+    ]
+    
+    missing = []
+    for file_path in expected_files:
+        if not Path(file_path).exists():
+            missing.append(file_path)
+            logger.error(f"  ✗ Missing: {file_path}")
+        else:
+            logger.debug(f"  ✓ Found: {file_path}")
+    
+    if missing:
+        logger.error(f"Missing output files: {missing}")
+        return False, missing
+    
+    logger.info("All expected output files verified.")
+    return True, []
 
 def main() -> int:
-    """Main entry point for the quickstart validation."""
+    """Main validation function."""
+    start_time = time.time()
     logger.info("=" * 60)
     logger.info("Starting Quickstart Validation")
     logger.info("=" * 60)
-
-    # Change to project root if running from a subdirectory
-    project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
-    logger.info(f"Working directory: {os.getcwd()}")
-
+    
     # Step 1: Check dependencies
     if not check_dependencies():
-        logger.error("Dependency check failed. Aborting.")
+        logger.error("Dependency check failed. Aborting validation.")
         return 1
-
+    
     # Step 2: Run pipeline stages
     stages = [
         ("Download", run_download),
@@ -156,21 +156,34 @@ def main() -> int:
         ("Analysis", run_analysis),
         ("Report Generation", run_report_generation)
     ]
-
+    
+    failed_stages = []
     for stage_name, stage_func in stages:
+        logger.info(f"--- Executing {stage_name} ---")
         if not stage_func():
-            logger.error(f"{stage_name} stage failed. Aborting.")
-            return 1
-
+            failed_stages.append(stage_name)
+            logger.error(f"{stage_name} stage failed. Continuing to next stage...")
+    
+    if failed_stages:
+        logger.error(f"Failed stages: {failed_stages}")
+    
     # Step 3: Verify outputs
-    if not verify_outputs():
-        logger.error("Output verification failed.")
+    success, missing_files = verify_outputs()
+    
+    end_time = time.time()
+    duration = end_time - start_time
+    
+    logger.info("=" * 60)
+    logger.info(f"Validation completed in {duration:.2f} seconds")
+    logger.info("=" * 60)
+    
+    if success:
+        logger.info("✓ Quickstart validation PASSED")
+        return 0
+    else:
+        logger.error("✗ Quickstart validation FAILED")
+        logger.error(f"Missing files: {missing_files}")
         return 1
-
-    logger.info("=" * 60)
-    logger.info("Quickstart Validation PASSED")
-    logger.info("=" * 60)
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

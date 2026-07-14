@@ -395,3 +395,230 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T11:23:45Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: 35 subjects analyzed in network centrality and neural synchrony study
+  claim_id: c_d6399ca5
+  context: Data Overview section listing Subjects Analyzed as 35.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 35 subjects were analyzed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:51:05Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Sleep-EDF dataset from PhysioNet used as data source
+  claim_id: c_4fb580de
+  context: Data Overview section specifying Data Source as Sleep-EDF dataset (PhysioNet).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "available benchmark database, Physionet Sleep-EDF [extended] SC \u2217\
+        \ (SC ="
+      source_id: '1803.01710'
+      url: https://arxiv.org/abs/1803.01710
+      value: Sleep-EDF
+    filled: true
+  kind: entity_fact
+  raw_text: The analysis employed data from the Sleep-EDF dataset (PhysioNet).
+  resolved_value: Sleep-EDF
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T12:51:33Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Marginal R-squared of 0.342 for linear mixed effects model
+  claim_id: c_6b544968
+  context: "Model Fit Statistics section listing Marginal R\xB2 as 0.342."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Linear Mixed Effects model yielded a Marginal R\xB2 of 0.342."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:52:15Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Conditional R-squared of 0.687 for linear mixed effects model
+  claim_id: c_0de57eeb
+  context: "Model Fit Statistics section listing Conditional R\xB2 as 0.687."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Linear Mixed Effects model yielded a Conditional R\xB2 of 0.687."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:53:03Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: AIC of 245.6 for linear mixed effects model
+  claim_id: c_c8dc03bc
+  context: Model Fit Statistics section listing AIC as 245.6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Akaike Information Criterion (AIC) for the model was 245.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:53:27Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: BIC of 268.3 for linear mixed effects model
+  claim_id: c_647c9a68
+  context: Model Fit Statistics section listing BIC as 268.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian Information Criterion (BIC) for the model was 268.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:53:50Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Shapiro-Wilk statistic of 0.982 for residual normality
+  claim_id: c_6e43e4a8
+  context: Diagnostic Tests section under Normality of Residuals listing Statistic
+    as 0.982.
+  evidence:
+    asserted: '0.982'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk statistic for normality of residuals was 0.982.
+  resolved_value: '3.142'
+  resolver: approximate
+  source_hash: ab2c5c81357403e93b4277fc0e90d99c2ec0bd437245b579f88ac613e8444789
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T12:53:50Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Breusch-Pagan statistic of 2.34 for homoscedasticity
+  claim_id: c_b8b94b1b
+  context: Diagnostic Tests section under Homoscedasticity listing Statistic as 2.34.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Breusch-Pagan statistic for homoscedasticity was 2.34.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:54:09Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Durbin-Watson statistic of 1.98 for autocorrelation
+  claim_id: c_b87950bf
+  context: Diagnostic Tests section under Autocorrelation listing Statistic as 1.98.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Durbin-Watson statistic for autocorrelation was 1.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:54:29Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: PLI estimate of 0.187 for predicting network centrality
+  claim_id: c_4eb51e73
+  context: Fixed Effects Coefficients table showing PLI Estimate as 0.187.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimate for PLI as a predictor of centrality was 0.187.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:54:52Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: FDR-corrected p-value of 7.6e-05 for PLI predictor
+  claim_id: c_88f3a9f1
+  context: Fixed Effects Coefficients table showing PLI FDR-corrected p-value as 7.6e-05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FDR-corrected p-value for the PLI predictor was 7.6e-05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:55:14Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: Global Coherence estimate of 0.092 for predicting network centrality
+  claim_id: c_c5485646
+  context: Fixed Effects Coefficients table showing Global Coherence Estimate as 0.092.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimate for Global Coherence as a predictor of centrality was 0.092.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:55:46Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: FDR-corrected p-value of 0.024 for Global Coherence predictor
+  claim_id: c_39497d1d
+  context: Fixed Effects Coefficients table showing Global Coherence FDR-corrected
+    p-value as 0.024.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FDR-corrected p-value for the Global Coherence predictor was 0.024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:56:14Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/reports/final_report.md
+  attempts: 1
+  canonical: 3 potential outliers identified in data analysis
+  claim_id: c_03d1cdbb
+  context: Limitations section under Data Quality stating 3 potential outliers were
+    identified.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 potential outliers were identified in the analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:56:43Z'

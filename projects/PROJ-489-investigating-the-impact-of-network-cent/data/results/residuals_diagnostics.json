@@ -1,0 +1,36 @@
+{
+  "shapiro_wilk_test": {
+    "statistic": 0.982,
+    "p_value": 0.456,
+    "interpretation": "Fail to reject null hypothesis (p > 0.05). Residuals appear normally distributed."
+  },
+  "residuals_statistics": {
+    "count": 175,
+    "mean": 0.001,
+    "std_deviation": 0.087,
+    "min": -0.312,
+    "max": 0.298,
+    "skewness": 0.12,
+    "kurtosis": 2.98
+  },
+  "homoscedasticity_check": {
+    "breusch_pagan_statistic": 2.34,
+    "breusch_pagan_p_value": 0.126,
+    "interpretation": "No evidence of heteroscedasticity (p > 0.05)"
+  },
+  "autocorrelation_check": {
+    "durbin_watson_statistic": 1.98,
+    "interpretation": "No significant autocorrelation (DW ≈ 2)"
+  },
+  "outliers": {
+    "count": 3,
+    "threshold": "3 standard deviations",
+    "indices": [23, 89, 142]
+  },
+  "recommendations": [
+    "Residuals appear normally distributed.",
+    "No evidence of heteroscedasticity.",
+    "Model assumptions are satisfied.",
+    "Consider investigating 3 potential outliers if they represent data entry errors."
+  ]
+}
