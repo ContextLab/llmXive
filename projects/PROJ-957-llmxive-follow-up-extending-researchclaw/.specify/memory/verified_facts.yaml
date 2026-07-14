@@ -1,5 +1,6 @@
-'|agent involve study':
-  quote: TeV gamma-ray observations from nearby AGNs by Utah Seven
-  source_id: astro-ph/9906054
-  url: https://arxiv.org/abs/astro-ph/9906054
-  value: Seven
+'|budget clock experiment hour time wall':
+  quote: not compute budgets. We study optimal model sizing under fixed time budgets
+    from 5 minutes to 24 hours on
+  source_id: '2603.28823'
+  url: https://arxiv.org/abs/2603.28823
+  value: 24 hours

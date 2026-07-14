@@ -29,7 +29,7 @@
 
 - [X] T001 Create project structure per implementation plan
 - [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scipy`, `pytest`, `pyyaml`, `jsonschema`, `datasets`, `tqdm`, `numpy`, `statsmodels`
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -240,7 +240,7 @@ With multiple developers:
 - **Data Integrity**: All dataset downloads must use real URLs or `datasets.load_dataset`; no synthetic/fake data generation for input.
 - **Statistical Rigor**: T029 must perform normality check and select test accordingly; low power handling is a fallback note.
 - **Verified Accuracy**: T007-T007e must abort if data/templates cannot be verified; no placeholders allowed.
-- **Scope**: Strictly 140 runs (7 agents × 2 conditions × 10 tasks). No N=30 generations.
+- **Scope**: Strictly 140 runs (7 agents × 2 conditions × 10 (2402.18749, https://arxiv.org/abs/2402.18749) tasks). No N=30 generations.
 - **Execution Order**: T023 (Execution) MUST run after T015b (Data Prep), T022 (Agent Loading), and T023a (Concurrency Controller). T029 (Analysis) MUST run after T024 (Aggregation).
 - **Gate Logic**: T007b-T007e form a sequential chain that blocks T008 and all subsequent tasks.
 - **Audit Trails**: T014 handles "Scaffold Conflict" (FR-007); T015c handles "Failure Mode Audit" (edge case).

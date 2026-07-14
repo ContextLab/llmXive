@@ -1,57 +1,28 @@
-# llmXive follow-up: extending "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re"
+# llmXive: Automated Science Pipeline
 
-**Project ID**: PROJ-957-llmxive-follow-up-extending-researchclaw
+## Project: PROJ-957-llmxive-follow-up-extending-researchclaw
 
-## Overview
-This project implements an automated science pipeline to evaluate autonomous agents on the ResearchClawBench dataset. It focuses on scaffolded protocol injection, dual-condition execution, and statistical decoupling analysis.
+This project implements an automated scientific research pipeline to extend the "ResearchClawBench" benchmark.
 
-## Project Structure
-```
-.
-├── assets/ # Templates and static assets
-│ └── templates/
-├── code/ # Source code
-│ ├── src/
-│ │ ├── agents/ # Agent implementations
-│ │ ├── analysis/ # Statistical analysis
-│ │ ├── cli/ # Command line interface
-│ │ ├── data/ # Data loading and filtering
-│ │ ├── scaffolding/ # Template injection and validation
-│ │ ├── scoring/ # Rubric engine and scoring
-│ │ └── utils/ # Utilities (checksum, logging, config)
-│ └── tests/ # Test suite
-├── data/ # Data artifacts
-│ ├── raw/ # Raw dataset downloads
-│ └── processed/ # Processed data subsets
-├── docs/ # Documentation
-├── results/ # Experiment outputs and logs
-├── specs/ # Design documents
-├── assets/ # Static assets
-├── requirements.txt # Python dependencies
-└── pyproject.toml # Project configuration
-```
+## Structure
 
-## Prerequisites
-- Python 3.11+
-- pip
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data
+- `results/`: Experiment outputs, logs, and reports
+- `tests/`: Unit and integration tests
+- `assets/`: Templates and static assets
+- `contracts/`: JSON schemas and validation rules
+- `docs/`: Documentation
+- `specs/`: Design specifications
 
-## Installation
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+## Getting Started
 
-## Usage
-Run the main experiment:
-```bash
-python -m code.src.cli.run_experiment
-```
+1. Ensure Python 3.11+ is installed.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run setup scripts in `code/` to initialize the environment.
 
-## License
-[Insert License]
+## Tasks
+
+- **T001**: Create project structure (COMPLETED)
+- **T002**: Initialize Python 3.11 project with dependencies (COMPLETED via setup_requirements.py)
+- **T003**: Configure linting (ruff) and formatting (black) (COMPLETED via setup_linting_formatting.py)

@@ -1,18 +1,12 @@
-# Core Data & Analysis
-pandas
-scipy
-numpy
-statsmodels
+# llmXive Project Dependencies
+# Generated for Python 3.11+
 
-# Testing
-pytest
-
-# Configuration & Validation
-pyyaml
-jsonschema
-
-# Data Loading
-datasets
-
-# Progress & Utilities
-tqdm
+pandas>=2.0.0
+scipy>=1.11.0
+pytest>=7.4.0
+pyyaml>=6.0.1
+jsonschema>=4.19.0
+datasets>=2.14.0
+tqdm>=4.66.0
+numpy>=1.24.0
+statsmodels>=0.14.0

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-957-llmxive-follow-up-extending-researchclaw
-last_run_id: 1768d8f7-9127-43e0-b447-66e68a8758d2
+last_run_id: 99c49941-5b41-473d-9d8a-f064839c909a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw
 title: 'llmXive follow-up: extending "ResearchClawBench: A Benchmark for End-to-End
   Autonomous Scientific Re"'
-updated_at: '2026-07-14T18:18:18.200496Z'
+updated_at: '2026-07-14T19:00:05.158564Z'

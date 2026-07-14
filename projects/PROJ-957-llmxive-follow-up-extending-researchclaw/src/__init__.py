@@ -1,1 +1,3 @@
-"""llmXive follow-up: extending ResearchClawBench project root."""
+"""
+Source code package for llmXive research pipeline.
+"""
