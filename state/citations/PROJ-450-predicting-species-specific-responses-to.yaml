@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://www.worldclim.org/data/worldclim21.html
   verified_at: '2026-07-01T07:28:29.883895Z'
+- artifact_hash: bd048ed1d1e8e6c91526ac22ac1061c5aaea2381663154fa216e580464875869
+  artifact_path: projects/PROJ-450-predicting-species-specific-responses-to/docs/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: http://bio-clim.org/downloads/worldclim_v2/`
+  verification_status: unreachable
+  verified_against_url: http://bio-clim.org/downloads/worldclim_v2/
+  verified_at: '2026-07-14T04:47:29.781073Z'

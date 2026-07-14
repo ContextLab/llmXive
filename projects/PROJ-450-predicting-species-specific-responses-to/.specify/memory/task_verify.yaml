@@ -1,21 +1,6 @@
-? T007 [P] Implement `src/code/download_worldclim.R` to check for local WorldClim
-  v2 rasters in `data/raw/worldclim_v2/*.tif` (mean annual temp and precip for 1970-2000
-  and 1991-2020); if missing, download from WorldClim v2, verify checksums, and save
-  to `data/raw/` (Spec Assumptions)
-: 2
-? T009 Create `tests/unit/test_utils.R` to verify logging, directory creation, checksum
-  functions, and coordinate validation logic
-: 1
-? T010 [P] [US1] Unit test for GBIF filtering logic in `tests/unit/test_fetch_gbif.R::test_filters_records_by_date_span_and_coordinates`
-  (using mocks/stubs)
-: 1
-? T011 [P] [US1] Unit test for climate extraction on synthetic coordinates in `tests/unit/test_extract_climate.R`
-  (using mocks/stubs)
-: 1
-? 'T012 [US1] Integration test: Verify full centroid generation for multiple species
-  produces correct CSV schema in `tests/integration/test_us1_centroids.R`'
-: 1
-? "T013 [US1] Implement `src/code/fetch_gbif.R` to query GBIF for `PRESERVED_SPECIMEN`\
-  \ using species list from `data/species_list.csv` (or CLI arg), parse dates, filter\
-  \ by \u226550 year span, and save raw CSV to `data/raw/`"
-: 1
+T007: 1
+T009: 1
+T010: 1
+T011: 1
+T012: 1
+T013: 1

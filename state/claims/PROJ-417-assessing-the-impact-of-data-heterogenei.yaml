@@ -1802,3 +1802,445 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T22:06:45Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: Verify coverage at tau squared zero is within 1.5 percent of 0.95
+  claim_id: c_8bd93ed1
+  context: "T020 [US2] Implement logic in metrics.py to verify coverage at \u03C4\
+    ^2=0 is statistically indistinguishable from **0.95** (within \xB1 1.5%, alpha=0.05,\
+    \ CI=95%)"
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: "Verify coverage at \u03C4^2=0 is statistically indistinguishable from\
+    \ 0.95 (within \xB11.5%, alpha=0.05, CI=95%)."
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T04:30:24Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Download verified Cochrane meta-analysis dataset or synthetic base with
+    cited parameters (Jackson et al., 2010)
+  claim_id: c_65323a23
+  context: 'T040 [P] **Fetch Real Data**: Execute a script to download a verified
+    Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited
+    parameters from literature, e.g., Jackson et al., 2010) into data/raw/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a script to download a verified Cochrane meta-analysis dataset
+    (or a verified synthetic base with explicitly cited parameters from literature,
+    e.g., Jackson et al., 2010) into data/raw/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:30:39Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Test variance check artifact mean variance within 0.01 of target
+  claim_id: c_801619db
+  context: "T008 [P] [US1] Unit test test_generator.py verifying that generated variance\
+    \ matches injected \u03C4^2 within Monte Carlo error (500 replicates). **Verify\
+    \ output artifact data/results/test_variance_check.json contains mean variance\
+    \ within 0.01 of target **."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact data/results/test_variance_check.json contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:30:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generator run 2500 total replicates across 5 levels
+  claim_id: c_c5dbcd15
+  context: "T014 [P] [US1] **Full Scale Performance Test**: Run generator.py for the\
+    \ full set (5 levels \xD7 500 replicates = 2,500 total)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run generator.py for the full set (5 levels \xD7 500 replicates = 2,500\
+    \ total)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:31:04Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full scale test completes within 360 minutes with less than 7GB RAM usage
+  claim_id: c_857caa61
+  context: "T014 [P] [US1] **Full Scale Performance Test**: Run generator.py for the\
+    \ full set (5 levels \xD7 500 replicates = 2,500 total). Verify the process completes\
+    \ within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_scale_test_completes_within_360_minutes_with_less_than
+  kind: magnitude
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:31:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Exclude replicates with less than 5 studies
+  claim_id: c_ccbbab7f
+  context: 'T011 [US1] Implement logic in generator.py to handle N < 5 studies by
+    flagging/excluding replicates (Edge Case: Small Study Effects)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_replicates_with_less_than_5_studies
+  kind: magnitude
+  raw_text: Implement logic in generator.py to handle N < 5 studies by flagging/excluding
+    replicates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:31:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generate at least 500 replicates per heterogeneity level
+  claim_id: c_510a6070
+  context: "T010 [US1] Implement code/simulation/generator.py to load base Cochrane\
+    \ data (from data/raw/, verified in T040) and implement a loop generating \u2265\
+    500 replicates per level for heterogeneity levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_500_replicates_per_heterogeneity_level
+  kind: magnitude
+  raw_text: "Implement logic in generator.py to generate \u2265500 replicates per\
+    \ level for heterogeneity levels {0, 0.1, 0.5, 1.0, 2.0}."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:31:40Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha 0.05 divided by 5
+  claim_id: c_e32f90b5
+  context: "T023 [P] [US3] Unit test test_stats.py verifying Bonferroni correction\
+    \ application (\u03B1 = 0.05/5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Bonferroni correction application (\u03B1 = 0.05/5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:31:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Simulation tasks run on 2 cores with 7GB RAM within 6 hours
+  claim_id: c_80b0056b
+  context: 'Notes: **CRITICAL**: All simulation tasks must run on CPU-only (2 cores,
+    7GB RAM) within 6 hours. No GPU/CUDA dependencies allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:32:02Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Jackson2010 example is standard dataset in R meta package
+  claim_id: c_2e4f6f8c
+  context: The specific dataset used is the standard 'Jackson2010' example from the
+    R `meta` package, which is a verified synthetic base with explicitly cited parameters
+    from this literature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jackson2010_example_is_standard_dataset_in_R_meta_package
+  kind: entity_fact
+  raw_text: The specific dataset used is the standard 'Jackson2010' example from the
+    R `meta` package.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:36:22Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Jackson et al. 2010 paper on DerSimonian-Laird methodology published
+    in Statistics in Medicine volume 29 pages 1833-1845
+  claim_id: c_e05a165d
+  context: 'Citation: Jackson, D., White, I. R., & Thompson, S. G. (2010). Extending
+    the DerSimonian and Laird methodology to incorporate covariates. Statistics in
+    Medicine, 29(17), 1833-1845.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Statistics in Medicine volume 29 pages 1833-1845
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Jackson_et_al._2010_paper_on_DerSimonian-Laird_methodology_p
+    source_value: https://en.wikipedia.org/wiki/Jackson_et_al._2010_paper_on_DerSimonian-Laird_methodology_p
+    subject: Jackson et al. 2010 paper on DerSimonian-Laird methodology
+  kind: relational
+  raw_text: Jackson, D., White, I. R., & Thompson, S. G. (2010). Extending the DerSimonian
+    and Laird methodology to incorporate covariates. Statistics in Medicine, 29(17),
+    1833-1845.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:36:35Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Jackson2010 example from R meta package used as dataset
+  claim_id: c_be4fd4cc
+  context: 'Note: The specific dataset used is the standard ''Jackson2010'' example
+    from the R `meta` package, which is a verified synthetic base with explicitly
+    cited parameters from this literature.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jackson2010_example_from_R_meta_package_used_as_dataset
+  kind: entity_fact
+  raw_text: The specific dataset used is the standard 'Jackson2010' example from the
+    R `meta` package.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:37:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Data parameters match standard meta-analysis literature for heterogeneity
+    testing
+  claim_id: c_97f37131
+  context: 'Verification: The data parameters match those used in standard meta-analysis
+    literature for heterogeneity testing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_parameters_match_standard_meta-analysis_literature_for
+  kind: entity_fact
+  raw_text: The data parameters match those used in standard meta-analysis literature
+    for heterogeneity testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:37:26Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Effect sizes and standard errors consistent with Jackson et al. 2010
+    benchmark
+  claim_id: c_8fedc8a8
+  context: No fabricated values; all effect sizes and standard errors are consistent
+    with the Jackson et al. (2010) benchmark.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All effect sizes and standard errors are consistent with the Jackson et
+    al. (2010) benchmark.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:37:37Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
+  attempts: 1
+  canonical: Data derived from Jackson et al. 2010 study on DerSimonian-Laird and
+    REML estimators
+  claim_id: c_50e3702a
+  context: 'Base Dataset: Cochrane/Jackson 2010. Source: Derived from Jackson et al.
+    (2010)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derived from Jackson et al. (2010) 'A comparison of the performance of
+    the DerSimonian-Laird and restricted maximum likelihood estimators of the between-study
+    variance'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: Verify coverage at tau-squared equals zero is 0.95 within 1.5 percent
+    margin
+  claim_id: c_beb2052c
+  context: 'Phase 4: User Story 2 - Estimator Application and Metric Calculation -
+    Task T020 Implementation'
+  evidence:
+    asserted: '0.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: "Verify coverage at \u03C4\xB2=0 is statistically indistinguishable from\
+    \ 0.95 (within \xB1 1.5%, alpha=0.05, CI=95%)."
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T04:38:26Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Download verified Cochrane meta-analysis dataset or synthetic base with
+    parameters from Jackson et al. 2010
+  claim_id: c_19cc2af2
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T040 Fetch Real
+    Data'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a script to download a verified Cochrane meta-analysis dataset
+    (or a verified synthetic base with explicitly cited parameters from literature,
+    e.g., Jackson et al., 2010) into data/raw/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:27Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Save downloaded dataset to data/raw/cochrane_base.csv
+  claim_id: c_af32a9ce
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T040 Fetch Real
+    Data'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_downloaded_dataset_to_data/raw/cochrane_base.csv
+  kind: entity_fact
+  raw_text: Save the file as data/raw/cochrane_base.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generate 2,500 total replicates across 5 heterogeneity levels with 500
+    replicates each
+  claim_id: c_8dfcfee8
+  context: 'Phase 3: User Story 1 - Simulation Engine Execution - Task T014 Full Scale
+    Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run generator.py for the full set (5 levels \xD7 500 replicates = 2,500\
+    \ total)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:41Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Simulation completes within 360 minutes with RAM usage under 7GB
+  claim_id: c_59d47f39
+  context: 'Phase 3: User Story 1 - Simulation Engine Execution - Task T014 Full Scale
+    Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:42Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Verify simulation_raw.json contains 2,500 records
+  claim_id: c_9dcefaa3
+  context: 'Phase 3: User Story 1 - Simulation Engine Execution - Task T014 Full Scale
+    Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify integrity of data/results/simulation_raw.json (2,500 records).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 'Generate 500 replicates per level for 5 heterogeneity levels: 0, 0.1,
+    0.5, 1.0, 2.0'
+  claim_id: c_5138bf20
+  context: 'Phase 3: User Story 1 - Simulation Engine Execution - Task T010 Implementation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic in generator.py to generate \u2265500 replicates per\
+    \ level for heterogeneity levels {0, 0.1, 0.5, 1.0, 2.0}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:38:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha 0.05 divided by 5
+  claim_id: c_f328ee18
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Reporting - Task T023
+    Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bonferroni correction for multiple hypothesis tests (alpha =
+    0.05/5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:39:05Z'

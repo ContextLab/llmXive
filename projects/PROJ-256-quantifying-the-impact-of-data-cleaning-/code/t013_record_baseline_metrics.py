@@ -14,191 +14,118 @@ import json
 import logging
 import hashlib
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import Config
-from analysis import run_baseline_analysis
-from utils import setup_logging, compute_file_checksum
+from analysis import run_baseline_analysis, load_datasets_from_raw, analyze_dataset
+from config import get_config
+from utils import compute_file_checksum
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def format_metric_value(value: float, precision: int = 3) -> float:
-    """Round a metric value to the specified precision."""
-    if value is None or not isinstance(value, (int, float)):
+def format_metric_value(value: Any, precision: int = 3) -> Any:
+    """Format numeric values to specified precision."""
+    if value is None:
         return None
-    return round(float(value), precision)
+    if isinstance(value, float):
+        return round(value, precision)
+    if isinstance(value, list):
+        return [format_metric_value(v, precision) for v in value]
+    if isinstance(value, dict):
+        return {k: format_metric_value(v, precision) for k, v in value.items()}
+    return value
 
-def log_metrics_summary(metrics: List[Dict[str, Any]]) -> None:
+def log_metrics_summary(metrics: List[Dict[str, Any]]):
     """Log a summary of the recorded metrics."""
-    logger.info(f"Recording {len(metrics)} dataset entries to baseline_metrics.json")
-    if not metrics:
-        logger.warning("No metrics to record. SC-006 requires ≥10 datasets; current count is 0.")
-        return
+    logger.info("=== Baseline Metrics Summary ===")
+    for m in metrics:
+        name = m.get('dataset_name', 'unknown')
+        logger.info(f"Dataset: {name}, Shape: {m.get('shape', [])}")
+        if 't_tests' in m:
+            for test_name, res in m['t_tests'].items():
+                p = res.get('p_value')
+                if p is not None:
+                    logger.info(f"  T-Test {test_name}: p={p:.3f}")
+        if 'effect_sizes' in m:
+            for es_name, res in m['effect_sizes'].items():
+                d = res.get('cohen_d')
+                if d is not None:
+                    logger.info(f"  Effect Size {es_name}: d={d:.3f}")
+    logger.info("===============================")
 
-    p_values = [m.get('p_value') for m in metrics if m.get('p_value') is not None]
-    if p_values:
-        logger.info(f"P-values range: [{min(p_values):.3f}, {max(p_values):.3f}]")
+def process_dataset_for_baseline(raw_dir: str, output_file: str, config: Dict[str, Any]):
+    """Process all datasets in raw_dir and record baseline metrics."""
+    logger.info(f"Processing datasets from {raw_dir}")
     
-    if len(metrics) < 10:
-        logger.warning(f"STATISTICAL_LIMITATION: SC-006 requires ≥10 datasets. Found {len(metrics)}.")
+    datasets = load_datasets_from_raw(raw_dir)
+    if not datasets:
+        logger.warning(f"No datasets found in {raw_dir}. Skipping baseline recording.")
+        return False
 
-def process_dataset_for_baseline(
-    df: Any, 
-    dataset_name: str, 
-    config: Optional[Config] = None
-) -> Optional[Dict[str, Any]]:
-    """
-    Run baseline analysis on a single dataset and format the result.
+    all_metrics = []
     
-    Args:
-        df: The pandas DataFrame.
-        dataset_name: Name of the dataset.
-        config: Configuration object.
+    for filename, df in datasets:
+        logger.info(f"Analyzing {filename}...")
+        # Run analysis
+        result = analyze_dataset(df, filename)
         
-    Returns:
-        A dictionary containing the formatted metrics, or None if analysis failed.
-    """
-    try:
-        # Run the analysis using the multi-signature compatible function
-        # This calls the version of run_baseline_analysis that takes (df, dataset_name, ...)
-        results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
+        # Add metadata
+        result['checksum'] = compute_file_checksum(os.path.join(raw_dir, filename))
+        result['analysis_timestamp'] = datetime.now().isoformat()
+        result['config_seed'] = config.get('RANDOM_SEED', 42)
         
-        if not results or not results.get('success'):
-            logger.error(f"Analysis failed for {dataset_name}")
-            return None
+        # Validate p-values
+        if 't_tests' in result:
+            for test_name, res in result['t_tests'].items():
+                p = res.get('p_value')
+                if p is not None and not (0 < p < 1):
+                    logger.warning(f"Invalid p-value {p} for {test_name} in {filename}. Marking as None.")
+                    res['p_value'] = None
+        
+        all_metrics.append(result)
+    
+    if not all_metrics:
+        logger.warning("No metrics generated.")
+        return False
 
-        # Extract metrics and format to ≥3 decimal precision
-        entry = {
-            "dataset_name": dataset_name,
-            "checksum": compute_file_checksum(os.path.join("data", "raw", f"{dataset_name}.csv")),
-            "analysis": results.get('analysis', {}),
-            "p_value": format_metric_value(results.get('p_value')),
-            "ci_lower": format_metric_value(results.get('ci_lower')),
-            "ci_upper": format_metric_value(results.get('ci_upper')),
-            "effect_size": format_metric_value(results.get('effect_size')),
-            "r_squared": format_metric_value(results.get('r_squared')),
-            "dataset_size": results.get('dataset_size', 0),
-            "timestamp": results.get('timestamp', "")
-        }
-
-        # Validate p-value and CI bounds
-        p_val = entry['p_value']
-        if p_val is not None and not (0 < p_val < 1):
-            logger.warning(f"Invalid p-value {p_val} for {dataset_name}. Clipping to (0, 1).")
-            entry['p_value'] = max(0.001, min(0.999, p_val))
-
-        ci_lower = entry['ci_lower']
-        ci_upper = entry['ci_upper']
-        if (ci_lower is not None and not (float('-inf') < ci_lower < float('inf'))) or \
-           (ci_upper is not None and not (float('-inf') < ci_upper < float('inf'))):
-            logger.warning(f"Non-finite CI bounds for {dataset_name}.")
-            # We do not clip here as it indicates a deeper analysis failure, 
-            # but we log it. The task requires finite CIs; if they are not finite,
-            # the analysis logic itself needs fixing, but we record what we have.
-
-        return entry
-
-    except Exception as e:
-        logger.exception(f"Failed to process dataset {dataset_name}: {e}")
-        return None
+    # Format and write
+    formatted_metrics = [format_metric_value(m, 3) for m in all_metrics]
+    
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(formatted_metrics, f, indent=2)
+    
+    logger.info(f"Baseline metrics written to {output_file}")
+    log_metrics_summary(formatted_metrics)
+    return True
 
 def main():
     """Main entry point for T013."""
-    setup_logging()
-    config = Config()
+    config = get_config()
+    raw_dir = config.get('RAW_DATA_PATH', 'data/raw')
+    output_file = config.get('OUTPUT_PATH', 'data/processed/baseline_metrics.json')
     
-    output_path = "data/processed/baseline_metrics.json"
-    raw_dir = "data/raw"
+    # Ensure output path ends with filename if it's a directory
+    if not output_file.endswith('.json'):
+        output_file = os.path.join(output_file, 'baseline_metrics.json')
     
-    logger.info(f"Starting T013: Record Baseline Metrics")
-    logger.info(f"Input directory: {raw_dir}")
-    logger.info(f"Output file: {output_path}")
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Check if baseline_metrics.json already exists and is valid (from T012)
-    # T012 might have already written this. If so, we can just validate and re-format if needed.
-    # However, T012's implementation was flagged as incomplete/truncated.
-    # We will attempt to generate it fresh if the file is missing or invalid.
-    
-    metrics_list = []
-    datasets_found = []
-
-    # Scan raw directory for datasets
-    if os.path.exists(raw_dir):
-        for filename in os.listdir(raw_dir):
-            if filename.endswith(('.csv', '.xlsx')):
-                # Remove extension for name
-                name = os.path.splitext(filename)[0]
-                datasets_found.append((name, os.path.join(raw_dir, filename)))
-    else:
-        logger.warning(f"Raw data directory {raw_dir} does not exist.")
-
-    if not datasets_found:
-        logger.error("No datasets found in raw directory. Cannot record baseline metrics.")
-        # Create an empty file to satisfy the "output exists" constraint, 
-        # but log the failure clearly.
-        with open(output_path, 'w') as f:
-            json.dump({"datasets": [], "metadata": {"error": "No datasets found"}}, f, indent=2)
-        return 1
-
-    logger.info(f"Found {len(datasets_found)} datasets to process.")
-
-    for name, filepath in datasets_found:
-        logger.info(f"Processing {name}...")
-        
-        # We need to load the dataframe here to pass to run_baseline_analysis(df, ...)
-        # Since T012's logic might be split, we use a simple load here.
-        # The analysis function handles the heavy lifting.
-        try:
-            import pandas as pd
-            if filepath.endswith('.csv'):
-                df = pd.read_csv(filepath)
-            elif filepath.endswith('.xlsx'):
-                df = pd.read_excel(filepath)
-            else:
-                logger.warning(f"Skipping unsupported file format: {filepath}")
-                continue
-            
-            entry = process_dataset_for_baseline(df, name, config)
-            if entry:
-                metrics_list.append(entry)
-        except Exception as e:
-            logger.exception(f"Failed to load or process {filepath}: {e}")
-            continue
-
-    log_metrics_summary(metrics_list)
-
-    # Write output
-    output_data = {
-        "metadata": {
-            "generated_at": datetime.now().isoformat(),
-            "task_id": "T013",
-            "precision": 3,
-            "dataset_count": len(metrics_list)
-        },
-        "datasets": metrics_list
+    config_dict = {
+        'RAW_DATA_PATH': raw_dir,
+        'OUTPUT_PATH': output_file,
+        'RANDOM_SEED': config.get('RANDOM_SEED'),
     }
-
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        logger.info(f"Successfully wrote baseline metrics to {output_path}")
-        
-        # Verify file exists and is not empty
-        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-            logger.info("Output file verified.")
-            return 0
-        else:
-            logger.error("Output file was not written correctly.")
-            return 1
-    except Exception as e:
-        logger.exception(f"Failed to write output file: {e}")
+    
+    success = process_dataset_for_baseline(raw_dir, output_file, config_dict)
+    
+    if success:
+        logger.info("T013 completed successfully.")
+        return 0
+    else:
+        logger.error("T013 failed to produce output.")
         return 1
 
 if __name__ == "__main__":
-    from datetime import datetime
     sys.exit(main())

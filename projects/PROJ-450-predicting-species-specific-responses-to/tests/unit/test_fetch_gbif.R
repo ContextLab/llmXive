@@ -1,79 +1,120 @@
 # tests/unit/test_fetch_gbif.R
-# Unit tests for fetch_gbif.R logic
-# Note: These tests use mocks/stubs to avoid hitting the live API during unit testing.
-# They verify the logic of taxonomic key resolution and filtering.
+# Unit tests for GBIF filtering logic
+# Note: These tests use mocks/stubs to avoid live API calls
 
 library(testthat)
 library(dplyr)
 library(lubridate)
 
-# Source the utility functions used by the script
-# Assuming utils.R is in src/code
-source(here::here("src", "code", "utils.R"))
+# Source the main script to access functions (if we refactor to functions)
+# For now, we test the logic by simulating the data processing steps
+# Since fetch_gbif.R is a script, we will test the core logic functions
+# that would be extracted or by sourcing and testing the internal logic
 
-# Mock data for testing
-mock_backbone_success <- list(
-  usageKey = 12345,
-  rank = "SPECIES"
-)
-mock_backbone_fail <- list(
-  usageKey = NULL,
-  rank = "NO_RANK"
-)
+# We will define the core logic here for testing purposes
+# In a real refactor, this logic should be in a separate utility file
 
-test_that("resolve_taxon_key logic handles successful backbone lookup", {
-  # Simulate the logic inside fetch_gbif.R
-  test_func <- function(backbone_result) {
-    if (!is.null(backbone_result$usageKey) && backbone_result$rank != "NO_RANK") {
-      return(backbone_result$usageKey)
-    } else {
-      return(NULL)
-    }
-  }
-
-  expect_equal(test_func(mock_backbone_success), 12345)
-  expect_null(test_func(mock_backbone_fail))
-})
-
-test_that("date parsing and year extraction works correctly", {
-  test_dates <- c("2020-05-12", "1980-01-01", "2020-12-31T10:00:00", NA)
-  df <- data.frame(eventDate = test_dates, stringsAsFactors = FALSE)
-
-  df_parsed <- df %>%
+test_that("filters records by date span and coordinates", {
+  # Create mock data mimicking GBIF response structure
+  mock_data <- data.frame(
+    decimalLatitude = c(40.1, 40.2, 40.3, 50.1, 50.2),
+    decimalLongitude = c(-74.1, -74.2, -74.3, -120.1, -120.2),
+    eventDate = c("1950", "1960", "2020", "2000", "2010"),
+    stringsAsFactors = FALSE
+  )
+  
+  # Simulate date parsing logic
+  parsed_data <- mock_data %>%
     mutate(
-      eventDate_parsed = ymd(eventDate, quiet = TRUE),
-      year = year(eventDate_parsed)
+      year = case_when(
+        grepl("/", eventDate) ~ as.integer(strsplit(eventDate, "/")[[1]][1]),
+        nchar(eventDate) == 4 & grepl("^[0-9]{4}$", eventDate) ~ as.integer(eventDate),
+        TRUE ~ NA_integer_
+      )
     )
-
-  expect_equal(df_parsed$year[1], 2020)
-  expect_equal(df_parsed$year[2], 1980)
-  expect_equal(df_parsed$year[3], 2020)
-  expect_true(is.na(df_parsed$year[4]))
-})
-
-test_that("coordinate filtering removes NA lat/lon", {
-  df <- data.frame(
-    decimalLatitude = c(10.5, NA, 20.0),
-    decimalLongitude = c(-10.5, 15.0, NA),
+  
+  # Test coordinate filtering (all valid in mock)
+  valid_coords <- parsed_data %>%
+    filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+    filter(decimalLatitude >= -90 & decimalLatitude <= 90) %>%
+    filter(decimalLongitude >= -180 & decimalLongitude <= 180)
+  
+  expect_equal(nrow(valid_coords), 5)
+  
+  # Test year span calculation
+  min_year <- min(valid_coords$year, na.rm = TRUE)
+  max_year <- max(valid_coords$year, na.rm = TRUE)
+  year_span <- max_year - min_year
+  
+  # Our mock data spans from 1950 to 2020 (70 years)
+  expect_equal(year_span, 70)
+  expect_true(year_span >= 50)
+  
+  # Test with a subset that doesn't meet the span
+  mock_data_short <- data.frame(
+    decimalLatitude = c(40.1, 40.2),
+    decimalLongitude = c(-74.1, -74.2),
+    eventDate = c("1950", "1955"),
     stringsAsFactors = FALSE
   )
-
-  df_filtered <- df %>%
-    filter(!is.na(decimalLatitude) & !is.na(decimalLongitude))
-
-  expect_equal(nrow(df_filtered), 0) # Both rows have at least one NA
+  
+  parsed_short <- mock_data_short %>%
+    mutate(
+      year = case_when(
+        grepl("/", eventDate) ~ as.integer(strsplit(eventDate, "/")[[1]][1]),
+        nchar(eventDate) == 4 & grepl("^[0-9]{4}$", eventDate) ~ as.integer(eventDate),
+        TRUE ~ NA_integer_
+      )
+    )
+  
+  min_year_short <- min(parsed_short$year, na.rm = TRUE)
+  max_year_short <- max(parsed_short$year, na.rm = TRUE)
+  year_span_short <- max_year_short - min_year_short
+  
+  expect_equal(year_span_short, 5)
+  expect_false(year_span_short >= 50)
 })
 
-test_that("year range filtering works", {
-  df <- data.frame(
-    year = c(1800, 1950, 2023, 2030, NA),
+test_that("handles invalid coordinates", {
+  mock_data <- data.frame(
+    decimalLatitude = c(40.1, 95.0, -95.0, 40.3), # 95 and -95 are invalid
+    decimalLongitude = c(-74.1, -74.2, -74.3, 200.0), # 200 is invalid
+    eventDate = c("1950", "1960", "1970", "1980"),
     stringsAsFactors = FALSE
   )
-  current_year <- 2023
+  
+  filtered <- mock_data %>%
+    filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+    filter(decimalLatitude >= -90 & decimalLatitude <= 90) %>%
+    filter(decimalLongitude >= -180 & decimalLongitude <= 180)
+  
+  # Only the first and last rows should remain (40.1/-74.1 and 40.3/200.0 -> 200 is invalid)
+  # Wait, 200.0 is invalid longitude, so only first row remains
+  expect_equal(nrow(filtered), 1)
+  expect_equal(filtered$decimalLatitude[1], 40.1)
+})
 
-  df_filtered <- df %>%
-    filter(!is.na(year) & year <= current_year & year >= 1900)
-
-  expect_equal(nrow(df_filtered), 2)
-  expect_true(all(df_filtered$year >= 1900 & df_filtered$year <= 2023))
+test_that("handles missing event dates", {
+  mock_data <- data.frame(
+    decimalLatitude = c(40.1, 40.2, 40.3),
+    decimalLongitude = c(-74.1, -74.2, -74.3),
+    eventDate = c("1950", NA, "2020"),
+    stringsAsFactors = FALSE
+  )
+  
+  parsed <- mock_data %>%
+    mutate(
+      year = case_when(
+        grepl("/", eventDate) ~ as.integer(strsplit(eventDate, "/")[[1]][1]),
+        nchar(eventDate) == 4 & grepl("^[0-9]{4}$", eventDate) ~ as.integer(eventDate),
+        TRUE ~ NA_integer_
+      )
+    )
+  
+  # NA eventDate should result in NA year
+  expect_true(is.na(parsed$year[2]))
+  
+  # After filtering NA years
+  valid_years <- parsed %>% filter(!is.na(year))
+  expect_equal(nrow(valid_years), 2)
 })

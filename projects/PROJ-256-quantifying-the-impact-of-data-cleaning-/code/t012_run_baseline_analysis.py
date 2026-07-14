@@ -5,39 +5,39 @@ import logging
 from typing import List, Dict, Any
 from pathlib import Path
 
-# Add parent directory to path for imports
+# Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from analysis import run_baseline_analysis
 from config import get_config
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
-
+    """Run baseline analysis on raw data."""
     config = get_config()
+    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
+    output_file = config.get("OUTPUT_PATH", "data/processed/baseline_metrics.json")
     
-    # Determine paths from config or defaults
-    if hasattr(config, 'get'):
-        raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-        output_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-    else:
-        raw_dir = "data/raw"
-        output_dir = "data/processed"
+    if not os.path.exists(raw_dir):
+        logger.error(f"Raw data directory {raw_dir} does not exist. Run data acquisition first.")
+        return 1
 
-    output_file = os.path.join(output_dir, "baseline_metrics.json")
-
-    logger.info(f"Running baseline analysis on directory: {raw_dir}")
+    logger.info(f"Running baseline analysis on {raw_dir}")
+    
+    # Ensure output path is a file
+    if not output_file.endswith('.json'):
+        output_file = os.path.join(output_file, 'baseline_metrics.json')
     
     success = run_baseline_analysis(raw_dir, output_file, config)
     
     if success:
-        logger.info(f"Successfully wrote baseline metrics to {output_file}")
+        logger.info(f"Baseline analysis complete. Output: {output_file}")
         return 0
     else:
-        logger.warning(f"Baseline analysis finished but no data was processed or output failed.")
-        # Return 0 anyway as the script ran, just no data
-        return 0
+        logger.error("Baseline analysis failed.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

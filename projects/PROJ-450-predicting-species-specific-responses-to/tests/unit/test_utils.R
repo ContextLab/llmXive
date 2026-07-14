@@ -1,167 +1,148 @@
 # tests/unit/test_utils.R
-# Unit tests for utils.R (T004)
-# Tests logging, directory creation, checksums, and data validation
+# Unit tests for src/code/utils.R functions
+# Verifies: logging, directory creation, checksum validation, coordinate precision checks
 
 library(testthat)
-library(here)
+library(tools)
 
-# Source the utils file
-# Assuming project structure: src/code/utils.R
-# We need to ensure the path is correct relative to the test execution
-utils_path <- here::here("src", "code", "utils.R")
-
-# Skip if utils.R doesn't exist yet (should exist after T004)
+# Load the utils module
+# We source it directly to ensure we have the latest implementation
+utils_path <- file.path("src", "code", "utils.R")
 if (!file.exists(utils_path)) {
-  test_that("utils.R exists", {
-    expect_true(file.exists(utils_path), info = "utils.R must exist for testing")
-  })
-} else {
-  source(utils_path)
-
-  # --- Test Directory Helpers ---
-  test_that("ensure_directory creates missing directories", {
-    temp_dir <- tempfile()
-    sub_dir <- file.path(temp_dir, "nested", "dir")
-    expect_false(dir.exists(sub_dir))
-
-    result <- ensure_directory(sub_dir)
-
-    expect_true(dir.exists(sub_dir))
-    expect_equal(result, sub_dir)
-
-    # Cleanup
-    unlink(temp_dir, recursive = TRUE)
-  })
-
-  test_that("ensure_directory handles existing directories", {
-    temp_dir <- tempfile()
-    expect_true(dir.exists(temp_dir))
-
-    result <- ensure_directory(temp_dir)
-
-    expect_equal(result, temp_dir)
-    unlink(temp_dir, recursive = TRUE)
-  })
-
-  # --- Test Checksum Helpers ---
-  test_that("get_file_checksum works on existing file", {
-    temp_file <- tempfile()
-    writeLines("test content", temp_file)
-
-    checksum <- get_file_checksum(temp_file)
-
-    expect_false(is.null(checksum))
-    expect_true(nchar(checksum) == 32) # MD5 length
-
-    unlink(temp_file)
-  })
-
-  test_that("get_file_checksum returns NULL for missing file", {
-    checksum <- get_file_checksum("non_existent_file_xyz.txt")
-    expect_null(checksum)
-  })
-
-  test_that("validate_checksum returns TRUE for matching checksum", {
-    temp_file <- tempfile()
-    writeLines("test content", temp_file)
-    correct_checksum <- get_file_checksum(temp_file)
-
-    result <- validate_checksum(temp_file, correct_checksum)
-
-    expect_true(result)
-    unlink(temp_file)
-  })
-
-  test_that("validate_checksum returns FALSE for mismatched checksum", {
-    temp_file <- tempfile()
-    writeLines("test content", temp_file)
-
-    result <- validate_checksum(temp_file, "wrong_checksum_123456789012")
-
-    expect_false(result)
-    unlink(temp_file)
-  })
-
-  # --- Test Data Validation Helpers ---
-  test_that("check_missing_climate_values detects NAs", {
-    df <- data.frame(
-      temp = c(10.5, NA, 12.0),
-      precip = c(50.0, 60.0, NA),
-      other = c(1, 2, 3)
-    )
-
-    result <- check_missing_climate_values(df, c("temp", "precip"))
-
-    expect_true(is.list(result))
-    expect_length(result, 2)
-
-    # Check temp
-    temp_res <- result[[1]]
-    expect_equal(temp_res$column, "temp")
-    expect_equal(temp_res$na_count, 1)
-
-    # Check precip
-    precip_res <- result[[2]]
-    expect_equal(precip_res$column, "precip")
-    expect_equal(precip_res$na_count, 1)
-  })
-
-  test_that("check_missing_climate_values handles missing columns", {
-    df <- data.frame(temp = c(10.5, 12.0))
-    result <- check_missing_climate_values(df, c("temp", "precip"))
-    expect_null(result)
-  })
-
-  test_that("check_coordinate_precision flags high uncertainty", {
-    df <- data.frame(
-      longitude = c(10, 20, 30),
-      latitude = c(40, 50, 60),
-      coordinateUncertaintyInMeters = c(5000, 15000, 1000)
-    )
-
-    result <- check_coordinate_precision(df, "coordinateUncertaintyInMeters", threshold_km = 10)
-
-    expect_equal(result$status, "checked")
-    expect_equal(result$records_flagged, 1) # Only 15000 > 10000
-    expect_equal(result$records_na_uncertainty, 0)
-  })
-
-  test_that("check_coordinate_precision handles NA uncertainty", {
-    df <- data.frame(
-      longitude = c(10, 20),
-      latitude = c(40, 50),
-      coordinateUncertaintyInMeters = c(5000, NA)
-    )
-
-    result <- check_coordinate_precision(df, "coordinateUncertaintyInMeters", threshold_km = 10)
-
-    expect_equal(result$status, "checked")
-    expect_equal(result$records_flagged, 0)
-    expect_equal(result$records_na_uncertainty, 1)
-  })
-
-  test_that("check_coordinate_precision handles missing column", {
-    df <- data.frame(longitude = c(10), latitude = c(40))
-    result <- check_coordinate_precision(df, "coordinateUncertaintyInMeters", threshold_km = 10)
-
-    expect_equal(result$status, "column_missing")
-  })
-
-  # --- Test Logging Helpers (Basic) ---
-  test_that("log functions execute without error", {
-    # Initialize logger to a temp file
-    temp_log <- tempfile(fileext = ".log")
-    init_logger(temp_log)
-
-    expect_silent(log_info("Test info message"))
-    expect_silent(log_warn("Test warning message"))
-    expect_silent(log_error("Test error message"))
-
-    # Verify file exists and has content
-    expect_true(file.exists(temp_log))
-    expect_true(file.info(temp_log)$size > 0)
-
-    # Cleanup
-    unlink(temp_log)
-  })
+  stop("utils.R not found at src/code/utils.R. Please ensure T004 is completed.")
 }
+source(utils_path)
+
+# --------------------------------------------------------------------------
+# Test Setup: Temporary Directory for File System Tests
+# --------------------------------------------------------------------------
+test_dir <- tempfile(pattern = "utils_test_")
+test_subdir <- file.path(test_dir, "subdir")
+test_nested <- file.path(test_dir, "level1", "level2")
+
+# Clean up after all tests
+on.exit({
+  if (dir.exists(test_dir)) {
+    unlink(test_dir, recursive = TRUE)
+  }
+})
+
+# --------------------------------------------------------------------------
+# Test Group: Logging Infrastructure
+# --------------------------------------------------------------------------
+test_that("logging functions create valid log entries", {
+  log_file <- file.path(test_dir, "test_log.log")
+
+  # Test write_log
+  expect_silent(write_log(log_file, "Test message", level = "INFO"))
+  expect_true(file.exists(log_file))
+
+  content <- readLines(log_file, warn = FALSE)
+  expect_true(length(content) >= 1)
+  expect_true(grepl("Test message", content[length(content)]))
+  expect_true(grepl("INFO", content[length(content)]))
+
+  # Test log_error (should capture timestamp and error message)
+  log_error(log_file, "Simulated error")
+  content <- readLines(log_file, warn = FALSE)
+  expect_true(grepl("ERROR", content[length(content)]))
+  expect_true(grepl("Simulated error", content[length(content)]))
+})
+
+# --------------------------------------------------------------------------
+# Test Group: Directory Creation
+# --------------------------------------------------------------------------
+test_that("ensure_directory creates directories correctly", {
+  # Test creating a single directory
+  expect_silent(ensure_directory(test_subdir))
+  expect_true(dir.exists(test_subdir))
+
+  # Test creating nested directories (recursive)
+  expect_silent(ensure_directory(test_nested))
+  expect_true(dir.exists(test_nested))
+
+  # Test that it doesn't error if directory already exists
+  expect_silent(ensure_directory(test_subdir))
+  expect_true(dir.exists(test_subdir))
+})
+
+# --------------------------------------------------------------------------
+# Test Group: Checksum Validation
+# --------------------------------------------------------------------------
+test_that("checksum validation works correctly", {
+  # Create a temporary file with known content
+  test_file <- file.path(test_dir, "checksum_test.txt")
+  writeLines("Hello, World!", test_file)
+
+  # Calculate MD5
+  md5_val <- tools::md5sum(test_file)
+
+  # Test valid checksum
+  expect_true(validate_checksum(test_file, md5_val))
+
+  # Test invalid checksum
+  expect_false(validate_checksum(test_file, "invalid_md5_hash_string"))
+
+  # Test non-existent file
+  expect_false(validate_checksum(file.path(test_dir, "nonexistent.txt"), md5_val))
+})
+
+# --------------------------------------------------------------------------
+# Test Group: Coordinate Validation
+# --------------------------------------------------------------------------
+test_that("coordinate precision checks work correctly", {
+  # Helper to create a minimal data frame for testing
+  create_test_df <- function(lat, lon, unc) {
+    data.frame(
+      decimalLatitude = lat,
+      decimalLongitude = lon,
+      coordinateUncertaintyInMeters = unc,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  # Test 1: Valid coordinates (uncertainty < 10km)
+  df_valid <- create_test_df(45.5, -75.2, 5000) # 5km uncertainty
+  expect_true(check_coordinate_precision(df_valid))
+
+  # Test 2: Invalid coordinates (uncertainty >= 10km)
+  df_invalid_unc <- create_test_df(45.5, -75.2, 15000) # 15km uncertainty
+  expect_false(check_coordinate_precision(df_invalid_unc))
+
+  # Test 3: Missing uncertainty (should be treated as invalid or skipped)
+  df_missing_unc <- create_test_df(45.5, -75.2, NA)
+  # Assuming the function returns FALSE if uncertainty is NA (cannot verify precision)
+  expect_false(check_coordinate_precision(df_missing_unc))
+
+  # Test 4: Mixed validity in a data frame
+  df_mixed <- rbind(
+    create_test_df(45.5, -75.2, 5000),
+    create_test_df(46.0, -76.0, 12000),
+    create_test_df(47.0, -77.0, 8000)
+  )
+  # The function should return TRUE only if ALL rows are valid
+  expect_false(check_coordinate_precision(df_mixed))
+
+  # Test 5: Empty data frame
+  df_empty <- data.frame(decimalLatitude = numeric(), decimalLongitude = numeric(), coordinateUncertaintyInMeters = numeric())
+  expect_true(check_coordinate_precision(df_empty)) # Vacuously true or handled gracefully
+})
+
+test_that("handle_missing_climate_values works as expected", {
+  # Create a data frame with some NA climate values
+  df <- data.frame(
+    species = c("A", "B", "C", "D"),
+    temp = c(10.5, NA, 12.0, NA),
+    precip = c(500.0, 450.0, NA, 600.0),
+    stringsAsFactors = FALSE
+  )
+
+  # Test filtering
+  result <- handle_missing_climate_values(df)
+
+  # Expect only rows with both temp and precip present
+  expected_rows <- 2 # Rows A and D
+  expect_equal(nrow(result), expected_rows)
+  expect_true(all(!is.na(result$temp)))
+  expect_true(all(!is.na(result$precip)))
+})

@@ -2,57 +2,52 @@
 
 ## Prerequisites
 - Python 3.11+
-- Installed dependencies (see `requirements.txt`)
+- Dependencies installed via `pip install -r requirements.txt`
 
-## Installation
+## Execution Steps
+
+### 1. Ensure Data Exists
 ```bash
-cd code
-pip install -r requirements.txt
-cd..
+python code/t011_ensure_data.py
 ```
 
-## Pipeline Execution
-Run the full pipeline to download data, analyze, clean, and compare:
-
+### 2. Run Baseline Analysis (T012)
+Downloads/loads raw data and computes baseline statistics.
 ```bash
-# 1. Ensure data exists (download if missing)
-python code/t011_ensure_data.py
-
-# 2. Run baseline analysis on raw data
 python code/t012_run_baseline_analysis.py
+```
+*Output: `data/processed/baseline_metrics.json`*
 
-# 3. Save cleaned datasets
+### 3. Record Baseline Metrics (T013)
+Formats and validates baseline metrics.
+```bash
+python code/t013_record_baseline_metrics.py
+```
+*Output: `data/processed/baseline_metrics.json` (updated)*
+
+### 4. Clean Data (T017-T022)
+Applies cleaning strategies.
+```bash
 python code/t022_save_cleaned_datasets.py
+```
+*Output: `data/processed/dataset_cleaned_*.csv`*
 
-# 4. Re-analyze cleaned variants
+### 5. Re-analyze Cleaned Data (T023)
+Computes statistics on cleaned variants.
+```bash
 python code/t023_reanalyze_cleaned_variants.py
+```
+*Output: `data/processed/cleaned_metrics.json`*
 
-# 5. Generate null FPR metrics
-python code/t032_permutation_null_fpr.py
-
-# 6. Run outlier threshold sweep (T033)
-python code/t033_outlier_threshold_sweep.py
-
-# 7. Generate reports and visualizations
-python code/t036_pvalue_shift_reporting.py
-python code/t037_ci_width_reporting.py
-python code/t038_effect_size_reporting.py
-python code/t034_generate_forest_plot.py
-python code/t035_generate_ci_heatmap.py
-
-# 8. Generate final report
+### 6. Generate Reports (T027-T041)
+Compares metrics and generates visualizations.
+```bash
 python code/t041_generate_final_report.py
 ```
-
-## Expected Outputs
-- `data/processed/baseline_metrics.json`
-- `data/processed/cleaned_metrics.json`
-- `data/processed/null_fpr_metrics.json`
-- `data/processed/threshold_sweep_metrics.json`
-- `figures/*.png`
-- `data/reports/final_report.md`
+*Output: `data/processed/final_report.txt`, `figures/*.png`*
 
 ## Validation
+Run the validation script to ensure all artifacts are present.
 ```bash
 python code/run_quickstart_validation.py
 ```

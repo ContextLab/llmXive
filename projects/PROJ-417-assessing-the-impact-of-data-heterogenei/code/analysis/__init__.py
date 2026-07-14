@@ -10,7 +10,8 @@ from .metrics import (
     calculate_bias,
     calculate_coverage,
     calculate_i_squared,
-    aggregate_metrics
+    aggregate_metrics,
+    MetricsResult
 )
 
 from .stats import (
@@ -22,17 +23,29 @@ from .stats import (
     apply_kruskal_wallis
 )
 
+from .estimators import (
+    estimate_fixed_effects,
+    estimate_dersimonian_laird,
+    estimate_reml,
+    EstimationResult
+)
+
 __all__ = [
     "calculate_bias",
     "calculate_coverage",
     "calculate_i_squared",
     "aggregate_metrics",
+    "MetricsResult",
     "exact_binomial_test",
     "shapiro_wilk_test",
     "bonferroni_correction",
     "conditional_statistical_test",
     "apply_anova",
-    "apply_kruskal_wallis"
+    "apply_kruskal_wallis",
+    "estimate_fixed_effects",
+    "estimate_dersimonian_laird",
+    "estimate_reml",
+    "EstimationResult"
 ]
 
 # Import logger if needed for module-level logging

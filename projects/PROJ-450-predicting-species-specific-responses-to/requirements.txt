@@ -1,8 +1,4 @@
-# Project dependencies for PROJ-450
-# Note: This is an R project, but we list Python deps if any (e.g., for data prep)
-# R dependencies are managed via renv/DESCRIPTION in the R project structure
-# However, if this script is called from a Python wrapper, we list them here.
-# Based on the R scripts, no Python dependencies are strictly required for the R execution itself.
-# If the project uses a Python wrapper for the pipeline, add it here.
-# For now, this file is empty or contains minimal placeholders if the runner is Python-based.
-# The R environment is set up via renv as per T002.
+# Python dependencies (if any external tools were needed, but this is R)
+# This project primarily uses R.
+# If you need to run any Python wrappers, add them here.
+# Currently empty as T037 is implemented in R.

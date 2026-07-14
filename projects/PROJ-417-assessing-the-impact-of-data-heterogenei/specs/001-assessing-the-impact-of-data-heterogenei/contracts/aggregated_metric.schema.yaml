@@ -2,48 +2,56 @@ $schema: http://json-schema.org/draft-07/schema#
 title: AggregatedMetric
 description: >
   Schema for aggregated results across multiple replicates for a specific
-  heterogeneity level and estimator.
+  heterogeneity level and estimator. Used for final reporting and plotting.
 type: object
 required:
   - heterogeneity_level
   - estimator_name
-  - n_replicates
+  - num_replicates
   - mean_bias
-  - coverage_rate
   - mean_i_squared
-  - mean_tau_squared_estimate
-  - shapiro_p_value
-  - binomial_p_value
-  - is_coverage_significant
+  - coverage_rate
+  - coverage_p_value
+  - is_coverage_acceptable
 properties:
   heterogeneity_level:
     type: number
     description: The target tau^2 level for this aggregation.
   estimator_name:
     type: string
-    description: The estimator used.
-  n_replicates:
+    enum:
+      - FixedEffects
+      - DerSimonianLaird
+      - REML
+    description: Estimator used.
+  num_replicates:
     type: integer
     description: Number of replicates included in this aggregation.
   mean_bias:
     type: number
     description: Average bias across replicates.
-  coverage_rate:
+  std_bias:
     type: number
-    description: Proportion of replicates where the CI covered the true effect.
+    description: Standard deviation of bias.
   mean_i_squared:
     type: number
     description: Average I^2 statistic across replicates.
-  mean_tau_squared_estimate:
+  coverage_rate:
     type: number
-    description: Average estimated tau^2 across replicates.
-  shapiro_p_value:
+    description: Proportion of replicates where true effect was in CI.
+  coverage_p_value:
     type: number
-    description: P-value from Shapiro-Wilk test for normality of bias distribution.
-  binomial_p_value:
-    type: number
-    description: P-value from exact binomial test for coverage deviation.
-  is_coverage_significant:
+    description: P-value from the binomial test against 0.95.
+  is_coverage_acceptable:
     type: boolean
-    description: True if coverage rate is statistically significantly different from 0.95.
+    description: True if coverage rate is within acceptable bounds (e.g., 0.935-0.965).
+  statistical_test:
+    type: string
+    description: Name of the statistical test performed (e.g., "Binomial", "Kruskal-Wallis").
+  test_statistic:
+    type: number
+    description: The test statistic value.
+  notes:
+    type: string
+    description: Additional context or warnings.
 additionalProperties: false

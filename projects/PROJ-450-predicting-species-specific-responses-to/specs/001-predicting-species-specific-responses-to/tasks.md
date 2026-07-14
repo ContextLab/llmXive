@@ -147,11 +147,11 @@
 
 - [~] T035 [P] Run `testthat` suite for all unit and integration tests
 - [~] T036a [P] Validate SC-001: Check logs to confirm ≥90% of supplied species with ≥50 valid records produced a complete `centroids.csv` record for both periods
-- [ ] T036b [P] Validate SC-006: Check per-region regression summary to confirm ≥80% of regions produced computable results (count of regions with valid results / total regions)
-- [ ] T037 [P] Verify all PNG plots meet 1200x800px resolution requirement (SC-004)
-- [ ] T038 [P] Validate log file warning ratio is ≤5% of total processed records (SC-005)
-- [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution completes within 6 hours
-- [ ] T040 [P] Final documentation update: Ensure `research.md` and `data-model.md` reflect final query parameters and checksums
+- [~] T036b [P] Validate SC-006: Check per-region regression summary to confirm ≥80% of regions produced computable results (count of regions with valid results / total regions)
+- [~] T037 [P] Verify all PNG plots meet 1200x800px resolution requirement (SC-004)
+- [~] T038 [P] Validate log file warning ratio is ≤5% of total processed records (SC-005)
+- [~] T039 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution completes within 6 hours <!-- FAILED: unspecified -->
+- [~] T040 [P] Final documentation update: Ensure `research.md` and `data-model.md` reflect final query parameters and checksums
 
 ---
 

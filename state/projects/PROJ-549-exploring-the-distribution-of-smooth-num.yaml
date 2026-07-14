@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-549-exploring-the-distribution-of-smooth-num
-last_run_id: 2cd7c8a9-fd85-4697-8f4c-c21bd0ca47d0
+last_run_id: 8ac9f7c9-3cbc-41ee-bfc1-3e418c9e6541
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num
 title: Exploring the Distribution of Smooth Numbers in Short Intervals
-updated_at: '2026-07-13T16:29:14.346586Z'
+updated_at: '2026-07-14T04:23:01.264997Z'

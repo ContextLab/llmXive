@@ -1,63 +1,71 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
 description: >
-  Schema for the results of applying an estimator to a simulated dataset.
-  Includes bias, coverage flags, and heterogeneity statistics.
+  Schema for the results of applying an estimator (Fixed-Effects, DL, REML)
+  to a specific simulated dataset replicate. Includes pooled estimates,
+  confidence intervals, and heterogeneity metrics.
 type: object
 required:
+  - simulation_id
   - replicate_id
   - estimator_name
-  - pooled_estimate
+  - pooled_effect
+  - se_pooled
   - ci_lower
   - ci_upper
-  - tau_squared_estimate
+  - tau2_estimated
   - i_squared
-  - true_effect
-  - true_tau_squared
   - bias
   - coverage_flag
-  - convergence_status
 properties:
+  simulation_id:
+    type: string
+    description: ID of the simulation run this result belongs to.
   replicate_id:
     type: integer
-    description: Reference to the simulation replicate_id.
+    description: ID of the specific replicate.
   estimator_name:
     type: string
-    description: Name of the estimator used (e.g., "FixedEffects", "DerSimonianLaird", "REML").
-  pooled_estimate:
+    enum:
+      - FixedEffects
+      - DerSimonianLaird
+      - REML
+    description: Name of the estimator used.
+  pooled_effect:
     type: number
-    description: The calculated pooled effect size.
+    description: The estimated pooled effect size (theta_hat).
+  se_pooled:
+    type: number
+    description: Standard error of the pooled estimate.
   ci_lower:
     type: number
     description: Lower bound of the 95% confidence interval.
   ci_upper:
     type: number
     description: Upper bound of the 95% confidence interval.
-  tau_squared_estimate:
+  tau2_estimated:
     type: number
-    description: Estimated between-study variance.
+    description: Estimated between-study variance (tau^2).
   i_squared:
     type: number
-    description: I^2 statistic (percentage of total variation due to heterogeneity).
-    minimum: 0
-    maximum: 100
-  true_effect:
-    type: number
-    description: The ground truth effect size used in simulation.
-  true_tau_squared:
-    type: number
-    description: The ground truth tau^2 used in simulation.
+    description: >
+      I^2 statistic representing the percentage of total variation across
+      studies due to heterogeneity rather than chance.
+      Calculated as (Q - df) / Q * 100.
   bias:
     type: number
-    description: Difference between pooled_estimate and true_effect.
+    description: Difference between pooled_effect and true_effect.
   coverage_flag:
     type: boolean
-    description: True if the CI [ci_lower, ci_upper] contains true_effect.
+    description: True if the true_effect falls within [ci_lower, ci_upper].
   convergence_status:
     type: string
     enum:
       - success
-      - failure
+      - failed
       - skipped
-    description: Status of the estimation process.
+    description: Status of the estimator convergence.
+  notes:
+    type: string
+    description: Optional notes (e.g., "REML failed to converge").
 additionalProperties: false
