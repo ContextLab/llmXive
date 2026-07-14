@@ -1,0 +1,635 @@
+resolved_at: '2026-07-14T01:28:56.598746+00:00'
+datasets:
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6057
+      parsed: true
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?Expires=1783995909&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2MGY3NzJiNGNhN2VlZWU2YTBhMi9lZTVlMDk0NWM1ODkzYmE5ZTlkNjFhNWE0NGUzM2VkMmM2YzUzOTQ5NzE1YzU0NmY0MjI0M2FiYmNiODU4MTIxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk5NTkwOX19fV19&Signature=c9U8kCWnskEw~nlYpA5cXpWpf9-mir6VsqOe1IU5xTTf3M5k00OUxAofoi2XtoyYtq7RvcDN4K1lGX9dEues9ug0mpM0WHOIqDZJjVXjIiYRKkd0XYun79Y9gzIxSO4rXwOjNN0hqJPLbDZ0xxtprqeurQDfanoUz~JkhrCV-u04oaJfCfE3Pk~a0F-BuDrSNl3QVRAUTs~oE2Y2y-GKCL7eUKpkD7ht4KESp3Db8XYkcOT0iFvQuih-4QeN9GfQqoG25frCjzUv2S-AujfXvyGnu~ygIW4MwleDksxYN7vbbAPNMfGzAvWKvaEBC5mAe9mw7FHyJY-AWRcwq2JJPw__&Key-Pair-Id=K2L8F4GPSG1IFC&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T012509Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=35557ce94a1bdf5678333476cdd5931aa60bb90171db7b8f4642a3b0ac41cfd1
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?Expires=1783995909&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2OTcyNzJiNGNhN2VlZWU3OTU3Ni9mYjJkM2VkMThiOWE2NTAwNTI0Y2NmMmViYWUyYTQ5NWQ0ZThjOTMxY2UzZjk5OWNkNDM2ODUyOTg0ZjBlNDI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk5NTkwOX19fV19&Signature=ueHwwnXViuxw7iRkuo8NaiQUOWTBX0IhIAC~YXZ7XNAc2KHS9u0fQ16STdjoru6-s5O8Rc2NxytoJTMjiTaWY~ah9zwy7DI4u7wR~rmUgsURs6Pr02cDBld8WtnQGQqrtmzwdMahoS4jcT9THyWdJYciyfyBnPDC1lUAGeiKpw4iAHgXZULkdbIAGfLthdbUXkr-5QI3ApClrn72D7ny6GEr3CoisX8pxL0zOs8kykbp~Cie1o4XEQDrmlyi-B1rFvjR1KHbMU6NLNau-AI9OwP2U0-lSgBCPU427PkmS8kWfJHDHTbh32wZVNa7dl4IHKkJCV8SozYLLs4n8gneAw__&Key-Pair-Id=K2L8F4GPSG1IFC&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T012509Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2f2e6baa8ea77c465ab0224885bae06b795429121a538e92c578bd4cd022189e
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Circular_value_chain_transition_in_office_fit-outs_best_practices_opportunities_and_key_performance_indicators/32979326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Hezekiah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bioaccumulation_of_microplastic_particles_and_trace_metals_in_the_little_penguin_Eudyptula_minor_from_two_South-Eastern_Australian_colonies/32972567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602326825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21348163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21348163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.bath.ac.uk/1496/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NMR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Tomoqt/tokenized_NMR_resample1000/resolve/main/tokenized_dataset.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mahynski/bmrb-hsqc-nmr-1H13C/resolve/main/test.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Tomoqt/tokenized_NMR_resample1000/resolve/main/tokenized_dataset.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Circular_value_chain_transition_in_office_fit-outs_best_practices_opportunities_and_key_performance_indicators/32979326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Hezekiah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bioaccumulation_of_microplastic_particles_and_trace_metals_in_the_little_penguin_Eudyptula_minor_from_two_South-Eastern_Australian_colonies/32972567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7197359
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14035885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20765553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21243431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/3861
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=2141&key=1NNUaSX4S4srggYJJ6qh0u1jrvDnt3BJ
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=2129&key=CW4r7i9zdoLNvEYFTKu5BIPwt682cYgZ
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=2128&key=avyTSEn53RbtKgQf60d7ZRNBybRdOKLK
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=2116&key=TnmQK6wF1GKzneVnl6WDUviMqmfTYZ71
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=2102&key=9vB8MpD0ImndqiYIMcWQ75gGi8Gvp60r
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/_b_O_Call_07036833482_2026_27_Hallmark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_b_/32979341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Circular_value_chain_transition_in_office_fit-outs_best_practices_opportunities_and_key_performance_indicators/32979326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Hezekiah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2592705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19681006
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19681006
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347905
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347905
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347580
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ZINC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/graphs-datasets/ZINC/resolve/main/data/test-00000-of-00001-a7e189a5b3ef716a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sagawa/ZINC-canonicalized/resolve/main/data/train-00000-of-00003-1dd8e62fc2556455.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/liyuesen/zinc_smile/resolve/main/data/train-00000-of-00111-6a1a63e5046f105c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/graphs-datasets/ZINC/resolve/main/data/test-00000-of-00001-a7e189a5b3ef716a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sagawa/ZINC-canonicalized/resolve/main/data/train-00000-of-00003-1dd8e62fc2556455.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zpn/zinc20/resolve/main/zinc_processed/smiles_all_00_clean.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/liyuesen/zinc_smile/resolve/main/data/train-00000-of-00111-6a1a63e5046f105c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Pixelatory/ZINC-20/c2195050ea0b554d59278876d052d3c0038fd61e/selfies_vocab.txt?%2Fdatasets%2FPixelatory%2FZINC-20%2Fresolve%2Fmain%2Fselfies_vocab.txt=&etag=%226529eea66513a12b0f790f69a4298fa954b01318%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Individualised_Music_Playlist_Based_on_the_Iso-Principle_for_De-Escalating_Agitation_in_Older_People_With_Dementia_Protocol_for_a_RCT/32979338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_O_Call_07036833482_2026_27_Hallmark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_b_/32979341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Circular_value_chain_transition_in_office_fit-outs_best_practices_opportunities_and_key_performance_indicators/32979326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/s41598-023-28061-w
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18300885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11503928
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11622726
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/chapter/10.1007/978-3-030-03742-0_4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.991434
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.991432
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19074304
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19074304
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5517/ccrck4s
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Edwin_Clark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Individualised_Music_Playlist_Based_on_the_Iso-Principle_for_De-Escalating_Agitation_in_Older_People_With_Dementia_Protocol_for_a_RCT/32979338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_O_Call_07036833482_2026_27_Hallmark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_b_/32979341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7034060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/6108#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/5340#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/3288#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/2855#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/2853#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MolSpectra
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Edwin_Clark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Individualised_Music_Playlist_Based_on_the_Iso-Principle_for_De-Escalating_Agitation_in_Older_People_With_Dementia_Protocol_for_a_RCT/32979338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_O_Call_07036833482_2026_27_Hallmark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_b_/32979341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Extending_the_protection_offered_by_safe_haven_networks_to_threatened_non-mammalian_fauna/32979335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2502.16284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: USPTO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ufukhaman/uspto_balanced_200k_ipc_classification/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bing-yan/USPTO/resolve/main/data/test-00000-of-00001-73e9452cdb1d5938.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chenxran/uspto_full/resolve/main/data/test-00000-of-00001-34f7e8e796c82948.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ufukhaman/uspto_balanced_200k_ipc_classification/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bigscience-data/roots_en_the_pile_uspto/resolve/main/data/train-00000-of-00045.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bing-yan/USPTO/resolve/main/data/test-00000-of-00001-73e9452cdb1d5938.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chenxran/uspto_full/resolve/main/data/test-00000-of-00001-34f7e8e796c82948.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/suolyer/pile_uspto/resolve/main/test.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/ID_427_Delineating_the_epigenetic_landscape_of_childhood_glioblastoma_for_targeted_therapy/32979359
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Edwin_Clark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Individualised_Music_Playlist_Based_on_the_Iso-Principle_for_De-Escalating_Agitation_in_Older_People_With_Dementia_Protocol_for_a_RCT/32979338
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_O_Call_07036833482_2026_27_Hallmark_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_b_/32979341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Penicillium_i_-mediated_toxicity_and_microbial_imbalance_induce_fruiting_body_abortion_in_artificial_cultivation_of_i_Ophiocordyceps_sinensis_i_/31744273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8114657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10955137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10548209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13858535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6352358
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18436373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18436373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18651045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18651045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18738911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

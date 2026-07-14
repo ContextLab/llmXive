@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.07836",
+  "judged_at": "2026-07-14T01:17:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper focuses on predicting temperature distributions from emission spectroscopy in gas mixtures, which is a distinct physical construct and domain (combustion diagnostics/thermometry) compared to the user's question about predicting chemical reaction yields from spectroscopic data. While both involve spectroscopy and machine learning, the paper does not measure the same biological pathway, physical observable (yield vs. temperature), or causal mechanism, nor does it establish a baseline for",
+  "relevant": false
+}

@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ReactionSample
+description: Schema for a single preprocessed chemical reaction sample.
+type: object
+properties:
+  reaction_smiles:
+    type: string
+    description: "Canonical SMILES of the reaction."
+  yield_percent:
+    type: number
+    minimum: 0.0
+    maximum: 100.0
+    description: "Reaction yield in percent (0-100) or normalized DFT total energy proxy."
+  ir_spectrum:
+    type: array
+    items:
+      type: number
+    description: "Resampled IR spectrum intensities."
+  nmr_spectrum:
+    type: array
+    items:
+      type: number
+    nullable: true
+    description: "Resampled NMR spectrum intensities (null if missing)."
+  rfp:
+    type: array
+    items:
+      type: integer
+    description: "ECFP4 fingerprint vector."
+  scaffold_id:
+    type: string
+    description: "Hash of the Bemis-Murcko scaffold."
+  solvent_id:
+    type: integer
+    description: "Encoded solvent category ID."
+  catalyst_id:
+    type: integer
+    description: "Encoded catalyst category ID."
+  temperature_k:
+    type: number
+    description: "Temperature in Kelvin."
+  source_dataset:
+    type: string
+    description: "Source dataset name (e.g., DFT)."
+required:
+  - reaction_smiles
+  - yield_percent
+  - ir_spectrum
+  - rfp
+  - scaffold_id
+  - solvent_id
+  - catalyst_id
+  - temperature_k
+  - source_dataset

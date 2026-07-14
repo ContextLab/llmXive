@@ -1,0 +1,728 @@
+{
+  "fetched_at": "2026-07-14T01:17:21Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms",
+      "target_n": 5
+    },
+    "duration_seconds": 104.846,
+    "ended_at": "2026-07-14T01:17:21Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of reaction yields from spectroscopy"
+        ],
+        [
+          2,
+          "attention-based models for chemical yield estimation"
+        ],
+        [
+          3,
+          "deep learning for reaction yield prediction using spectral data"
+        ],
+        [
+          4,
+          "spectroscopic data analysis for reaction outcome prediction"
+        ],
+        [
+          5,
+          "neural networks predicting chemical reaction yields"
+        ],
+        [
+          6,
+          "yield prediction from NMR or IR spectra using transformers"
+        ],
+        [
+          7,
+          "attention mechanisms in chemoinformatics for yield forecasting"
+        ],
+        [
+          8,
+          "data-driven prediction of synthetic reaction efficiency"
+        ],
+        [
+          9,
+          "mapping spectral fingerprints to reaction yields with AI"
+        ],
+        [
+          10,
+          "computational prediction of chemical reaction yields"
+        ],
+        [
+          11,
+          "spectroscopy-guided reaction yield optimization"
+        ],
+        [
+          12,
+          "transformer models for chemical property regression"
+        ],
+        [
+          13,
+          "predicting reaction outcomes from spectroscopic descriptors"
+        ],
+        [
+          14,
+          "machine learning approaches to reaction yield estimation"
+        ],
+        [
+          15,
+          "attention-based regression for chemical synthesis data"
+        ],
+        [
+          16,
+          "spectral feature extraction for reaction yield modeling"
+        ],
+        [
+          17,
+          "AI-driven prediction of chemical reaction efficiency"
+        ],
+        [
+          18,
+          "deep learning for yield prediction in organic synthesis"
+        ],
+        [
+          19,
+          "quantitative structure-property relationship from spectra"
+        ],
+        [
+          20,
+          "yield forecasting using spectroscopic inputs and neural networks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry": 0,
+        "machine learning prediction of reaction yields from spectroscopy": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "spectroscopic fingerprint yield prediction",
+      "IR NMR Raman yield regression",
+      "attention mechanism graph neural network",
+      "reaction yield benchmark dataset evaluation",
+      "quantum chemical descriptor yield mapping"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2409.13113"
+      ]
+    },
+    "per_query_hit_count": {
+      "IR NMR Raman yield regression": 3,
+      "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry": 3,
+      "attention mechanism graph neural network": 3,
+      "quantum chemical descriptor yield mapping": 2,
+      "reaction yield benchmark dataset evaluation": 3,
+      "spectroscopic fingerprint yield prediction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2409.13113",
+          "rationale": "The paper focuses on quantum simulation of reaction dynamics using a parametric oscillator and tunneling rates, which is a distinct physical mechanism and methodology from the user's question about predicting chemical yields from spectroscopic data using attention mechanisms (a machine learning task). It fails to address the specific variables (spectroscopic data, yields, attention models) or the domain of data-driven prediction, falling under the rejection rule for \"Distinct construct sharing o",
+          "title": "Asymmetry Control in a Parametric Oscillator for the Quantum Simulation of Chemical Activation"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from predicting chemical reaction yields using spectroscopic data. It does not address the specific biological/chemical mechanism, the spectroscopic variables, the attention mechanism methodology, or the empirical population required by the user's question, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rul",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology but does not measure chemical reaction yields, analyze spectroscopic data, or evaluate attention mechanisms, failing to satisfy any of the inclusion criteria (a-f) for the specific domain and variables in the user's question. It is a meta-methodology paper rather than a study establishing empirical baselines or mechanisms for the specific chemistry task requested.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves in machine learning and does not address the specific domain of chemical reaction yields, spectroscopic data, or attention mechanisms. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or empirical population, and is not a foundational method for the specific application described.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of chemical reaction yields, spectroscopic data, or the application of attention mechanisms to this problem. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for the user's specific chemistry task, representing an off-domain application of machine learning.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2212.07836",
+          "rationale": "The paper focuses on predicting temperature distributions from emission spectroscopy in gas mixtures, which is a distinct physical construct and domain (combustion diagnostics/thermometry) compared to the user's question about predicting chemical reaction yields from spectroscopic data. While both involve spectroscopy and machine learning, the paper does not measure the same biological pathway, physical observable (yield vs. temperature), or causal mechanism, nor does it establish a baseline for",
+          "title": "Spatially-resolved Thermometry from Line-of-Sight Emission Spectroscopy via Machine Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T01:15:36Z",
+    "term_input": {
+      "normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+      "raw": "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A survey of the contributions to the Special Topic on Data-enabled Theoretical Chemistry is given, including a glossary of relevant machine learning terms.",
+          "claimed_authors": [
+            "Matthias Rupp",
+            "O. Anatole von Lilienfeld",
+            "Kieron Burke"
+          ],
+          "claimed_title": "Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.02690"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper has two goals:\n  It presents basic ideas, notions, and methods for reduction of reaction kinetics models: quasi-steady-state, quasi-equilibrium, slow invariant manifolds, and limiting steps.\n  It describes briefly the current state of the art and some latest achievements in the broad area of model reduction in chemical and biochemical kinetics, including new results in methods of invariant manifolds, computation singular perturbation, bottleneck methods, asymptotology, tropical equilibration, and reaction mechanism skeletonisation.",
+          "claimed_authors": [
+            "A. N. Gorban"
+          ],
+          "claimed_title": "Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.05745"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper summarizes the conclusions of the Snowmass White Paper \"Spectroscopic Needs for Imaging Dark Energy Experiments\" (arXiv:1309.5384) which are relevant to the calibration of LSST photometric redshifts; i.e., the accurate characterization of biases and uncertainties in photo-z's. Any significant miscalibration will lead to systematic errors in photo-z's, impacting nearly all extragalactic science with LSST. As existing deep redshift samples have failed to yield highly-secure redshifts for a systematic 20%-60% of their targets, it is a strong possibility that future deep spectroscopic samples will not solve the calibration problem on their own. The best options in this scenario are provided by cross-correlation methods that utilize clustering with objects from spectroscopic surveys (which need not be fully representative) to trace the redshift distribution of the full sample. For spectroscopy, the eBOSS survey would enable a basic calibration of LSST photometric redshifts, while the expected LSST-DESI overlap would be more than sufficient for an accurate calibration at z>0.2. A DESI survey of nearby galaxies conducted in bright time would enable accurate calibration down to z~0. The expanded areal coverage provided by the transfer of the DESI instrument (or duplication of it at the Blanco Telescope) would enable the best possible calibration from cross-correlations, in addition to other science gains.",
+          "claimed_authors": [
+            "Samuel J. Schmidt",
+            "Jeffrey A. Newman",
+            "Alexandra Abate",
+            "the Spectroscopic Needs White Paper Team"
+          ],
+          "claimed_title": "Spectroscopic Needs for Calibration of LSST Photometric Redshifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.4506"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Spectroscopic Needs for Calibration of LSST Photometric Redshifts')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper summarizes those conclusions of the Snowmass White Paper \"Spectroscopic Needs for Imaging Dark Energy Experiments\" (arXiv:1309.5384) which are relevant to the training of LSST photometric redshifts; i.e., the use of spectroscopic redshifts to improve algorithms and reduce photo-z errors. The larger and more complete the available training set is, the smaller the RMS error in photo-z estimates should be, increasing LSST's constraining power. Among the better US-based options for this work are the proposed MANIFEST fiber feed for the Giant Magellan Telescope or (with lower survey speed) the WFOS spectrograph on the Thirty Meter Telescope (TMT). Due to its larger field of view and higher multiplexing, the PFS spectrograph on Subaru would be able to obtain a baseline training sample faster than TMT; comparable performance could be achieved with a highly-multiplexed spectrograph on Gemini with at least a 20 arcmin diameter field of view.",
+          "claimed_authors": [
+            "Alexandra Abate",
+            "Jeffrey A. Newman",
+            "Samuel J. Schmidt",
+            "the Spectroscopic Needs White Paper team"
+          ],
+          "claimed_title": "Spectroscopic Needs for Training of LSST Photometric Redshifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.4498"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Spectroscopic Needs for Training of LSST Photometric Redshifts')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Model merging via Mixture-of-Experts (MoE) has emerged as a scalable solution for consolidating multiple task-specific models into a unified sparse architecture, where each expert is derived from a model fine-tuned on a distinct task. While effective for multi-task integration, this paradigm introduces a critical yet underexplored challenge: how to attribute and protect the intellectual property (IP) of individual experts after merging. We propose RouteMark, a framework for IP protection in merged MoE models through the design of expert routing fingerprints. Our key insight is that task-specific experts exhibit stable and distinctive routing behaviors under probing inputs. To capture these patterns, we construct expert-level fingerprints using two complementary statistics: the Routing Score Fingerprint (RSF), quantifying the intensity of expert activation, and the Routing Preference Fingerprint (RPF), characterizing the input distribution that preferentially activates each expert. These fingerprints are reproducible, task-discriminative, and lightweight to construct. For attribution and tampering detection, we introduce a similarity-based matching algorithm that compares expert fingerprints between a suspect and a reference (victim) model. Extensive experiments across diverse tasks and CLIP-based MoE architectures show that RouteMark consistently yields high similarity for reused experts and clear separation from unrelated ones. Moreover, it remains robust against both structural tampering (expert replacement, addition, deletion) and parametric tampering (fine-tuning, pruning, permutation), outperforming weight- and activation-based baseliness. Our work lays the foundation for RouteMark as a practical and broadly applicable framework for IP verification in MoE-based model merging.",
+          "claimed_authors": [
+            "Xin He",
+            "Junxi Shen",
+            "Zhenheng Tang",
+            "Xiaowen Chu",
+            "Bo Li",
+            "Ivor W. Tsang",
+            "Yew-Soon Ong"
+          ],
+          "claimed_title": "RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.01784"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article I will describe how NMR techniques may be used to build simple quantum information processing devices, such as small quantum computers, and show how these techniques are related to more conventional NMR experiments.",
+          "claimed_authors": [
+            "J. A. Jones"
+          ],
+          "claimed_title": "NMR Quantum Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "quant-ph/0009002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='NMR Quantum Computation')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A review of progress in NMR quantum computing and a brief survey of the literature",
+          "claimed_authors": [
+            "Jonathan A. Jones"
+          ],
+          "claimed_title": "Quantum Computing with NMR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1011.1382"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Quantum Computing with NMR')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on the first optical characterization of both cubic and hexagonal SrMnO$_3$. Room-temperature Raman spectra collected by means of a micro-Raman spectrometer are shown. The spectrum of the cubic compound is characterized by weak and broad bands in agreement with group-theory which predicts no Raman-active phonons for this compound. On the other hand, the spectrum of the hexagonal compound shows six narrow peaks ascribed to one-phonon processes. A complete polarization analysis of the spectra collected from a single crystallite allows us to completely assign the symmetries of the six observed peaks. Atomic displacements for each phonon peaks are also proposed.",
+          "claimed_authors": [
+            "A. Sacchetti",
+            "M. Baldini",
+            "P. Postorino",
+            "C. Martin",
+            "A. Maignan"
+          ],
+          "claimed_title": "Raman spectroscopy on cubic and hexagonal SrMnO$_3$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0509468"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Raman spectroscopy on cubic and hexagonal SrMnO$_3$')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
+          "claimed_authors": [
+            "Tianyi Liu",
+            "Kejun Wu",
+            "Yi Wang",
+            "Wenyang Liu",
+            "Kim-Hui Yap",
+            "Lap-Pui Chau"
+          ],
+          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.13890"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            " Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-07-14T01:16:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alejandro Cros Carrillo de Albornoz",
+            "Rodrigo G. Cortiñas",
+            "Max Schäfer",
+            "Nicholas E. Frattini",
+            "Brandon Allen",
+            "Delmar G. A. Cabral",
+            "Pablo E. Videla",
+            "Pouya Khazaei",
+            "Eitan Geva",
+            "Victor S. Batista",
+            "Michel H. Devoret"
+          ],
+          "title": "Asymmetry Control in a Parametric Oscillator for the Quantum Simulation of Chemical Activation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.13113",
+        "summary": "Dissipative tunneling remains a cornerstone effect in quantum mechanics. In chemistry, it plays a crucial role in governing the rates of chemical reactions, often modeled as the motion along the reaction coordinate from one potential well to another. The relative positions of energy levels in these wells strongly influence the reaction dynamics. Chemical research will benefit from a fully adjustable, asymmetric double-well equipped with precise measurement capabilities of the tunneling rates. In this paper, we show a quantum simulator system that consists of a continuously driven Kerr parametric oscillator with a third order non-linearity that can be operated in the quantum regime to create a fully tunable asymmetric double-well. Our experiment leverages a low-noise, all-microwave control system with a high-efficiency readout, based on a tunnel Josephson junction circuit, of the which-well information. We explore the reaction rates across the landscape of tunneling resonances in parameter space. We uncover two new and counter-intuitive effects: (i) a weak asymmetry can significantly decrease the activation rates, even though the well in which the system is initialized is made shallower, and (ii) the width of the tunneling resonances alternates between narrow and broad lines as a function of the well depth and asymmetry. We predict by numerical simulations that both effects will also manifest themselves in ordinary chemical double-well systems in the quantum regime. Our work is a first step for the development of analog molecule simulators of proton transfer reactions based on quantum parametric processes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.13113",
+          "http_status": 200,
+          "pdf_sample_score": 0.3282,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruiyuan Kang",
+            "Dimitrios C. Kyritsis",
+            "Panos Liatsis"
+          ],
+          "title": "Spatially-resolved Thermometry from Line-of-Sight Emission Spectroscopy via Machine Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.07836",
+        "summary": "A methodology is proposed, which addresses the caveat that line-of-sight emission spectroscopy presents in that it cannot provide spatially resolved temperature measurements in nonhomogeneous temperature fields. The aim of this research is to explore the use of data-driven models in measuring temperature distributions in a spatially resolved manner using emission spectroscopy data. Two categories of data-driven methods are analyzed: (i) Feature engineering and classical machine learning algorithms, and (ii) end-to-end convolutional neural networks (CNN). In total, combinations of fifteen feature groups and fifteen classical machine learning models, and eleven CNN models are considered and their performances explored. The results indicate that the combination of feature engineering and machine learning provides better performance than the direct use of CNN. Notably, feature engineering which is comprised of physics-guided transformation, signal representation-based feature extraction and Principal Component Analysis is found to be the most effective. Moreover, it is shown that when using the extracted features, the ensemble-based, light blender learning model offers the best performance with RMSE, RE, RRMSE and R values of 64.3, 0.017, 0.025 and 0.994, respectively. The proposed method, based on feature engineering and the light blender model, is capable of measuring nonuniform temperature distributions from low-resolution spectra, even when the species concentration distribution in the gas mixtures is unknown.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.07836",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:16:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

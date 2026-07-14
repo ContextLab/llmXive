@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationResult
+description: Schema for model evaluation results.
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the model (e.g., attention, fingerprint_baseline)."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  mae:
+    type: number
+    description: "Mean Absolute Error."
+  r2:
+    type: number
+    description: "Coefficient of determination."
+  p_value:
+    type: number
+    description: "P-value from paired t-test vs best baseline."
+  attention_map:
+    type: array
+    items:
+      type: number
+    description: "Averaged attention weights over the spectral axis."
+  permutation_r2:
+    type: number
+    nullable: true
+    description: "R² from the permutation test (null if not run)."
+  noise_robustness_score:
+    type: number
+    nullable: true
+    description: "Score from the noise robustness test (null if not run)."
+required:
+  - model_name
+  - rmse
+  - mae
+  - r2
+  - p_value
+  - attention_map

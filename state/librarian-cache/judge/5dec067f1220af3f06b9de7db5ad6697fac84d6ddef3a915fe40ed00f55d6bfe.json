@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.13113",
+  "judged_at": "2026-07-14T01:16:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper focuses on quantum simulation of reaction dynamics using a parametric oscillator and tunneling rates, which is a distinct physical mechanism and methodology from the user's question about predicting chemical yields from spectroscopic data using attention mechanisms (a machine learning task). It fails to address the specific variables (spectroscopic data, yields, attention models) or the domain of data-driven prediction, falling under the rejection rule for \"Distinct construct sharing o",
+  "relevant": false
+}

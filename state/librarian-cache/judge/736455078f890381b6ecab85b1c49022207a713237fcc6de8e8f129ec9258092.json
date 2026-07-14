@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-14T01:17:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of chemical reaction yields, spectroscopic data, or the application of attention mechanisms to this problem. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or foundational methodology for the user's specific chemistry task, representing an off-domain application of machine learning.",
+  "relevant": false
+}
