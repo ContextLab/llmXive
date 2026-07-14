@@ -1,23 +1,11 @@
-# Core scientific stack
-numpy
+# Core dependencies
 pandas
-pyarrow
-scikit-learn
-
-# Project utilities
-tqdm
-
-# Optional (used elsewhere in the repo)
+numpy
 torch
-torch-geometric
-scipy
+scikit-learn
+tqdm
+# Project‑specific utilities
 joblib
-
-# Linting / formatting (already configured)
-black
-isort
-flake8
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-rdkit  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
+# Analysis / statistics
+scipy
+# The shim ``code/numpy`` ensures the real NumPy package is imported correctly.

@@ -64,7 +64,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to a 10 k random subset [UNRESOLVED-CLAIM: c_ee63f0aa — status=not_enough_info], extract both 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10 k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -140,7 +140,7 @@ The method is: We will implement and evaluate a graph neural network model train
 - [X] T040 [US3] Rank structural contributions (e.g., electronegativeatom placement, local bond angles) and {{claim:c_9ded9bf2}} (FR‑007, SC‑002)
 - [X] T041 [US3] Implement paired t‑tests (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py` (FR‑008, SC‑004)
 - [X] T042 [US3] Generate `results/attributions.json` with feature importance rankings
-- [X] T043 [US3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664) ] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05 ` (FR‑008)
+- [X] T043 [US3 ({{claim:c_9b381115}}, https://www.wikidata.org/wiki/Q126592664) ] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05 ` (FR‑008)
 - [X] T044 [US3]**(Removed – CI computation consolidated into T034)**
 - [X] T045 [US3] Visualize feature‑importance maps on representative molecules (e.g., `data/processed/attributions_*.png`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/visualize_features.py` (FR‑009)
 

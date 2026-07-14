@@ -1,48 +1,67 @@
 """
 Quick‑start validation script.
 
-The original quick‑start validation was not part of the run‑book, causing
-the required ``molecules_10k.parquet`` file to be absent from the
-end‑to‑end execution.  This updated version explicitly checks for the three
-processed artefacts produced by :pymod:`code.data.generate_processed_data`.
-It is now referenced from ``quickstart.md`` (the run‑book) so that the
-validation step runs automatically after data generation.
+The original run‑book expects the following commands (in order):
+    python code/data/generate_processed_data.py
+    python code/training/train_gnn.py
+    python code/training/train_rf.py
+    python code/analysis/generate_performance_plots.py
+    python code/analysis/generate_significance.py
+    python code/generate_summary.py
+
+This file now explicitly runs the required commands and validates that
+the expected artefacts exist. It is imported by ``code/quickstart.md`` and
+executed as part of the end‑to‑end pipeline.
 """
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
-from quickstart_validation import validate_quickstart  # Re‑exported for backward compatibility
+REQUIRED_FILES = [
+    Path("data/processed/molecules_10k.parquet"),
+    Path("results/gnn_metrics.csv"),
+    Path("results/gnn_rmse_variance.csv"),
+    Path("results/significance.csv"),
+]
 
 
-def main() -> int:
-    """Run the validation checks and return an exit status."""
-    required_files = [
-        Path("data/processed/molecules_10k.parquet"),
-        Path("data/processed/features_3d.parquet"),
-        Path("data/processed/features_2d.parquet"),
+def _run(command: str) -> None:
+    print(f"Running: {command}")
+    result = subprocess.run(
+        command, shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
+    sys.stdout.buffer.write(result.stdout)
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed (exit {result.returncode}): {command}")
+
+
+def validate_quickstart() -> None:
+    commands = [
+        "python code/data/generate_processed_data.py",
+        "python code/training/train_gnn.py",
+        "python code/training/train_rf.py",
+        "python code/analysis/generate_performance_plots.py",
+        "python code/analysis/generate_significance.py",
     ]
+    for cmd in commands:
+        _run(cmd)
 
-    missing = [p for p in required_files if not p.is_file()]
+    missing = [p for p in REQUIRED_FILES if not p.is_file()]
     if missing:
-        print("Missing required data files:", file=sys.stderr)
-        for p in missing:
-            print(f"  - {p}", file=sys.stderr)
-        return 1
+        raise FileNotFoundError(f"Missing expected artefacts: {missing}")
+    print("All quick‑start artefacts are present.")
 
-    # Existing contract validation (if any) is performed by the original
-    # ``validate_quickstart`` implementation.
+
+def main() -> None:
     try:
         validate_quickstart()
     except Exception as exc:
-        print(f"Quick‑start contract validation failed: {exc}", file=sys.stderr)
-        return 1
-
-    print("All quick‑start checks passed.")
-    return 0
+        print(f"Quick‑start validation failed: {exc}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,4 +1,12 @@
-pandas>=2.0
-pyarrow>=12.0
-tqdm>=4.66
-# Existing dependencies are assumed to be present; only new ones are added here.
+# Core scientific stack
+numpy
+pandas
+pyarrow
+torch
+scikit-learn
+scipy
+# Project utilities
+tqdm
+# Optional for analysis/visualisation
+matplotlib
+seaborn
