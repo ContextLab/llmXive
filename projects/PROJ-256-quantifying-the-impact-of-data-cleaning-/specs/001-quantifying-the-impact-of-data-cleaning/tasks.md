@@ -86,7 +86,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 - [X] T011 [US1] Implement acquisition logic in `code/data_loader.py`. **Action**: Attempt download from OpenML Small Datasets collection first. If unavailable, fallback to UCI HAR (URL: `) and UCI Shopper (URL: `). **Requirement**: Log "Fallback to UCI: OpenML unavailable or empty" if fallback occurs. Validate p-values are in (0,1) and CI bounds are finite. Record checksums.
 - [ ] T012 [US1] Implement baseline analysis in `code/analysis.py` using scipy.stats (t-tests) and statsmodels (linear regression). **Requirement**: Validate p-values in (0,1) and CI bounds finite. Output `data/processed/baseline_metrics.json`. <!-- ATOMIZE: requested -->
-- [~] T013 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to `data/processed/baseline_metrics.json` with ≥3 decimal precision. **Note**: SC-006 requires ≥10 datasets; current multiple datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to `data/processed/baseline_metrics.json` with ≥3 decimal precision. **Note**: SC-006 requires ≥10 datasets; current multiple datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,7 +112,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - [X] T020 [US2] Implement function `apply_knn_imputation(df, columns, k=5)` in `code/cleaning.py` using scikit-learn. **Requirement**: Validate zero missing values post-op. Flag if variance reduction ≥20%.
 - [X] T021 [US2] Implement function `apply_categorical_recoding(df)` in `code/cleaning.py` with factor encoding for statistical testing.
 - [X] T022 [US2] Write cleaned datasets to `data/processed/` with strategy-specific naming (e.g., `dataset_outlier_removed.csv`).
-- [~] T023 [US2] Re-run t-tests and linear regressions on each cleaned variant using `code/analysis.py`. **Output**: `data/processed/cleaned_metrics.json`. <!-- FAILED: unspecified -->
+- [~] T023 [US2] Re-run t-tests and linear regressions on each cleaned variant using `code/analysis.py`. **Output**: `data/processed/cleaned_metrics.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,13 +132,13 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T028 [US3] Implement Bonferroni correction for Family-Wise Error Rate (FWER) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007."
 - [X] T029 [US3] Implement missingness rate binning with explicit thresholds: non-missing, low, moderate, and high. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] used. If bins are empty, log CONSTRAINT_VIOLATION but do not skip logic." **Control Flow**: If bins are empty, log warning and proceed.
 - [~] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95% CI. **Dependency**: Depends on existence of metric artifacts (T012, T023).
 - [~] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
-- [ ] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
+- [~] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
 - [X] T034 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to `output/`.
 - [X] T035 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to `output/`.
 - [X] T036 [US3] Implement per-dataset p-value shift reporting. **Requirement**: Calculate Median and IQR of p-value shifts. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.

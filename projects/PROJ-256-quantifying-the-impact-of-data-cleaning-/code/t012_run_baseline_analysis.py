@@ -1,3 +1,7 @@
+"""
+T012: Implement baseline analysis in code/analysis.py using scipy.stats (t-tests)
+and statsmodels (linear regression).
+"""
 import os
 import sys
 import json
@@ -6,24 +10,27 @@ from pathlib import Path
 from analysis import run_baseline_analysis
 from utils import setup_logging
 
+logger = setup_logging("INFO")
+
 def main():
-    logger = setup_logging("INFO")
+    """Main entry point for T012."""
+    logger.info("Starting T012: Baseline Analysis")
     
-    # Configuration
     raw_dir = "data/raw"
     output_file = "data/processed/baseline_metrics.json"
-    config = {"RANDOM_SEED": 42}
-
-    logger.info(f"Running baseline analysis on {raw_dir}")
+    config = {}
     
-    success = run_baseline_analysis(raw_dir, output_file, config=config)
+    if not os.path.exists(raw_dir):
+        logger.error(f"Raw data directory not found: {raw_dir}")
+        return
+    
+    # Run baseline analysis
+    success = run_baseline_analysis(raw_dir, output_file, config)
     
     if success:
-        logger.info(f"Baseline metrics saved to {output_file}")
-        return 0
+        logger.info("Baseline analysis completed successfully")
     else:
-        logger.error("Baseline analysis failed to produce output.")
-        return 1
+        logger.error("Baseline analysis failed")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

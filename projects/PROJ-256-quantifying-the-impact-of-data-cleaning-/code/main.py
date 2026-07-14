@@ -43,7 +43,7 @@ def main():
         "t030_dataset_size_sensitivity.py",
         "t031_bootstrap_variance.py",
         "t032_permutation_null_fpr.py",
-        "t033_outlier_threshold_sweep.py",  # T033
+        "t033_outlier_threshold_sweep.py",
         "t034_generate_forest_plot.py",
         "t035_generate_ci_heatmap.py",
         "t036_pvalue_shift_reporting.py",

@@ -1,83 +1,61 @@
-"""
-Utility functions for the project.
-Includes logging setup, random seed pinning, and file checksums.
-"""
 import os
 import hashlib
 import logging
 import numpy as np
 import scipy
 from typing import Optional, Any, Callable, Union
-import sys
+import random
 
 logger = logging.getLogger(__name__)
 
 def setup_logging(log_level: Union[str, int, None] = None, name: Optional[str] = None) -> logging.Logger:
     """
     Setup logging configuration.
-    
-    Accepts multiple signatures for flexibility:
-    - setup_logging() -> uses default INFO
-    - setup_logging("INFO") -> string level
-    - setup_logging(log_level="INFO") -> kwarg
-    - setup_logging(logging.INFO) -> int level
-    - setup_logging(logging.INFO, "name") -> name arg (ignored if passed)
-    - setup_logging(name="my_logger") -> name kwarg (ignored)
-    
-    Args:
-        log_level: String ("INFO", "DEBUG", etc.) or int (logging.INFO).
-        name: Optional logger name (ignored for global config, but accepted for compatibility).
-    
-    Returns:
-        The root logger instance.
+    Accepts various forms of log_level:
+    - None: Uses default INFO
+    - String: "INFO", "DEBUG", etc.
+    - Integer: logging.INFO, etc.
+    - Object with 'log_level' attribute (for compatibility)
     """
-    # Determine log level
-    level = logging.INFO
-    if log_level is not None:
-        if isinstance(log_level, str):
-            level = getattr(logging, log_level.upper(), logging.INFO)
-        elif isinstance(log_level, int):
-            level = log_level
-        # else: ignore unknown types
-    
-    # Configure root logger if not already configured
-    if not logging.getLogger().handlers:
-        handler = logging.StreamHandler(sys.stdout)
+    # Handle different call signatures
+    if log_level is None:
+        lvl = logging.INFO
+    elif isinstance(log_level, str):
+        lvl = getattr(logging, log_level.upper(), logging.INFO)
+    elif isinstance(log_level, int):
+        lvl = log_level
+    else:
+        lvl = logging.INFO
+
+    # If name is passed but not used, just ignore it to maintain compatibility
+    if name:
+        pass
+
+    if not logger.handlers:
+        handler = logging.StreamHandler()
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
-        logging.getLogger().addHandler(handler)
-        logging.getLogger().setLevel(level)
-    
-    # If a specific name is requested, return that logger
-    if name:
-        return logging.getLogger(name)
-    
-    return logging.getLogger()
+        logger.addHandler(handler)
+        logger.setLevel(lvl)
 
-def pin_random_seed(seed: int) -> None:
-    """Pin the random seed for numpy and scipy to ensure reproducibility."""
+    return logger
+
+def pin_random_seed(seed: int):
+    """Pin random seed for numpy, scipy, and python random."""
     np.random.seed(seed)
-    # Scipy uses numpy's random state, so setting numpy's seed is usually sufficient
-    # For older scipy versions or specific modules, we might need more, but this covers most.
+    random.seed(seed)
+    # scipy uses numpy random, so no separate seed needed
 
 def compute_file_checksum(filepath: str) -> str:
     """Compute SHA256 checksum of a file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
-    
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    
     return sha256_hash.hexdigest()
 
 def main():
-    """Main entry point for testing."""
-    logger = setup_logging("INFO")
-    logger.info("Utils module loaded.")
-    pin_random_seed(42)
-    logger.info(f"Random seed pinned. Numpy version: {np.__version__}")
+    pass
 
 if __name__ == "__main__":
     main()
