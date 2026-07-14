@@ -1,0 +1,72 @@
+---
+action_items:
+- id: 6a91ed02cc4e
+  severity: science
+  text: 'spec.md: Remove the claim that the project investigates "metacognitive awareness"
+    using the Iris dataset. Either:'
+- id: ced05b912525
+  severity: science
+  text: Reframe the project as a methodological demonstration of the "Hold-Out Accuracy"
+    design on a standard classification benchmark (e.g., "Evaluating the Hold-Out
+    Design for Metacognitive Estimation on Synthetic Data"), explicitly stating that
+    the data is synthetic/simulated and the goal is methodological validation, not
+    psychological discovery.
+- id: 9d8adfda69d9
+  severity: science
+  text: Revert to the "Blocked" state in plan.md and spec.md, acknowledging that no
+    valid dataset is currently available, and remove the execution results derived
+    from the Iris dataset as they are scientifically invalid for the stated question.
+- id: 484c13a0e1f2
+  severity: science
+  text: 'data/raw/iris_behavioral.csv: Delete or rename this file to clearly indicate
+    it is a placeholder or synthetic dataset, not a valid source for the psychological
+    research question. If the project is to be a methodological demo, update the README.md
+    and spec.md to explicitly state that the data is synthetic and the results are
+    not generalizable to human metacognition.'
+- id: 6c6655f741a5
+  severity: science
+  text: 'tasks.md (T004): Update the logic of data/validate_data_availability.py to
+    fail if the only available dataset is the Iris dataset (or any non-behavioral
+    dataset). The task should not "search for alternative datasets" and accept a mismatched
+    one; it should enforce the requirement for a human behavioral source-monitoring
+    dataset and block the project if none is found.'
+artifact_hash: 6d60084ef879998e992f6d0ade646203b245417ba4b4fe5e259e6a4f0f16b07b
+artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-14T07:56:03.438321Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_creativity
+score: 0.0
+verdict: full_revision
+---
+
+The project as scoped and executed fails the fundamental test of novelty because it attempts to answer a complex psychological research question using a dataset that is structurally incapable of supporting the required variables, resulting in a "reinvention" of a standard classification task under a misleading scientific framing.
+
+**1. The Core Contribution is a Category Error (Reinvention of a Standard Task)**
+The spec asks: "Do individuals with higher metacognitive awareness exhibit more accurate reality testing?" This requires a **source-monitoring task** where participants distinguish between internal (imagined) and external (perceived) sources. The execution evidence reveals the pipeline ran successfully on `data/raw/iris_behavioral.csv`. The Iris dataset is a standard flower classification dataset (species prediction based on petal/sepal dimensions). It contains **no** concept of "metacognitive awareness," "confidence ratings" (in the psychological sense of self-monitoring), or "source monitoring."
+
+By mapping flower features to "reality testing" and classification accuracy to "metacognitive awareness," the project is not testing a new hypothesis; it is **relabeling** a standard supervised learning benchmark (predicting Iris species) as a psychological study. This is not a "novel combination" or "cross-domain transplant"; it is a **misapplication** of a dataset that renders the research question nonsensical. The "Hold-Out Accuracy" design (T014) is a valid statistical technique, but applying it to Iris data to answer a question about human metacognition is a **reinvention of a known classification task** with a false scientific veneer.
+
+**2. The "Novelty" is an Illusion Created by Data Substitution**
+The spec explicitly acknowledges that the intended dataset (OpenNeuro ds003386) is invalid because it lacks behavioral data. The plan.md states the project is "BLOCKED" until a valid dataset is found. However, the execution evidence shows the project proceeded by substituting the Iris dataset.
+- **The Delta**: The only "new" thing here is the substitution of a flower dataset for a human behavioral dataset.
+- **The Result**: The output (correlation between "confidence" and "accuracy") is mathematically trivial for any classification dataset and provides **zero** insight into the actual research question (metacognition in humans).
+- **The Verdict**: This is not a "modest but genuinely novel" increment. It is a **derivative of a cited work** (standard classification benchmarks) that has been stripped of its original context and re-labeled to fit a specific, unanswerable question. The project does not contribute a new idea; it contributes a **false positive** result generated by a mismatched dataset.
+
+**3. Specific Defect: The "Iris" Substitution**
+The spec's "Data Constraints" section correctly identifies that ds003386 is invalid. The plan.md correctly identifies the project as "BLOCKED." The execution, however, bypassed this block by using `iris_behavioral.csv`. This is a **fatal flaw in the research design**. The project claims to investigate "metacognitive awareness" but uses a dataset where "confidence" is likely a proxy for model probability or a synthetic label, not a human self-report. The "novelty" of the approach is entirely dependent on this false premise.
+
+**Required Changes**
+The project cannot proceed in its current form because the core contribution is based on a dataset that does not support the research question. The "novelty" is an artifact of a data mismatch, not a genuine scientific insight.
+
+- **`spec.md`**: Remove the claim that the project investigates "metacognitive awareness" using the Iris dataset. Either:
+  1.  **Reframe the project** as a methodological demonstration of the "Hold-Out Accuracy" design on a standard classification benchmark (e.g., "Evaluating the Hold-Out Design for Metacognitive Estimation on Synthetic Data"), explicitly stating that the data is synthetic/simulated and the goal is methodological validation, not psychological discovery.
+  2.  **Revert to the "Blocked" state** in `plan.md` and `spec.md`, acknowledging that no valid dataset is currently available, and remove the execution results derived from the Iris dataset as they are scientifically invalid for the stated question.
+- **`data/raw/iris_behavioral.csv`**: Delete or rename this file to clearly indicate it is a **placeholder** or **synthetic** dataset, not a valid source for the psychological research question. If the project is to be a methodological demo, update the `README.md` and `spec.md` to explicitly state that the data is synthetic and the results are not generalizable to human metacognition.
+- **`tasks.md` (T004)**: Update the logic of `data/validate_data_availability.py` to **fail** if the only available dataset is the Iris dataset (or any non-behavioral dataset). The task should not "search for alternative datasets" and accept a mismatched one; it should enforce the requirement for a **human behavioral source-monitoring dataset** and block the project if none is found.
+
+Until the project either finds a valid behavioral dataset or explicitly reframes itself as a methodological demo on synthetic data (and removes the false claim of investigating human metacognition), the contribution is a **reinvention of a standard classification task** with a misleading scientific framing.
