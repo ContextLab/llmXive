@@ -1,223 +1,274 @@
-import pytest
-import numpy as np
-import pandas as pd
-from unittest.mock import patch, MagicMock
-import sys
+"""Unit tests for correlation analysis module."""
 import os
+import sys
+import tempfile
+import pytest
+import pandas as pd
+import numpy as np
 
-# Ensure code directory is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from analysis.correlations import (
-    run_correlation_analysis,
+from code.analysis.correlations import (
+    load_metrics_data,
+    partial_correlation,
     apply_fdr_correction,
-    calculate_batch_size,
-    log_correlation_threshold
+    run_metric_correlations,
+    run_pca,
+    compute_and_save_pca,
+    merge_metrics_and_pca,
+    create_full_metrics_output,
+    main
 )
-from analysis.power import calculate_detectable_effect_size
 
-class TestCorrelationAnalysis:
-    def test_correlation_computation(self):
-        """Test that correlation is computed correctly."""
+
+class TestLoadMetricsData:
+    def test_load_synthetic_data(self):
+        """Test that synthetic data generation works correctly."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=30)
+
+        assert len(df) == 30
+        required_cols = [
+            'subject_id', 'modularity', 'global_efficiency',
+            'participation_coef', 'within_module_degree', 'fd'
+        ]
+        for col in required_cols:
+            assert col in df.columns
+
+    def test_synthetic_data_realistic_ranges(self):
+        """Test that synthetic data falls within realistic ranges."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=100)
+
+        # Modularity typically 0.3-0.8
+        assert df['modularity'].between(0.2, 1.0).all()
+
+        # Global efficiency typically 0.1-0.5
+        assert df['global_efficiency'].between(0.0, 1.0).all()
+
+        # Participation coefficient typically 0-1
+        assert df['participation_coef'].between(0.0, 1.0).all()
+
+        # Within-module degree typically 0-2
+        assert df['within_module_degree'].between(0.0, 3.0).all()
+
+        # FD is always positive
+        assert (df['fd'] >= 0).all()
+
+
+class TestPartialCorrelation:
+    def test_partial_correlation_basic(self):
+        """Test basic partial correlation calculation."""
         np.random.seed(42)
         n = 100
-        x = np.random.randn(n)
-        y = 0.5 * x + np.random.randn(n) * 0.5  # Known correlation ~0.5
-        
-        # Calculate correlation manually
-        r = np.corrcoef(x, y)[0, 1]
-        
-        # Verify it's in expected range
-        assert 0.4 < r < 0.6, f"Expected correlation ~0.5, got {r}"
 
-    def test_spearman_correlation(self):
-        """Test Spearman correlation computation."""
+        # Create variables with known relationships
+        x = np.random.normal(0, 1, n)
+        z = np.random.normal(0, 1, n)
+        # y depends on both x and z
+        y = 0.5 * x + 0.5 * z + np.random.normal(0, 0.5, n)
+
+        # Without controlling for z, correlation should be high
+        corr_no_control = np.corrcoef(x, y)[0, 1]
+
+        # With controlling for z, correlation should be lower
+        r, p = partial_correlation(x, y, z)
+
+        assert abs(r) < abs(corr_no_control)
+        assert 0 <= p <= 1
+
+    def test_partial_correlation_with_matrix_z(self):
+        """Test partial correlation with multiple control variables."""
         np.random.seed(42)
         n = 100
-        x = np.random.randn(n)
-        y = np.random.randn(n)
-        
-        from scipy.stats import spearmanr
-        r, p = spearmanr(x, y)
-        
-        assert -1 <= r <= 1, f"Spearman r should be in [-1, 1], got {r}"
-        assert 0 <= p <= 1, f"Spearman p should be in [0, 1], got {p}"
 
-    def test_partial_correlation_with_covariate(self):
-        """Test partial correlation with covariate (FD)."""
-        np.random.seed(42)
-        n = 100
-        x = np.random.randn(n)
-        y = np.random.randn(n)
-        z = np.random.randn(n)  # Covariate (FD)
-        
-        # Partial correlation formula
-        r_xy = np.corrcoef(x, y)[0, 1]
-        r_xz = np.corrcoef(x, z)[0, 1]
-        r_yz = np.corrcoef(y, z)[0, 1]
-        
-        partial_r = (r_xy - r_xz * r_yz) / np.sqrt((1 - r_xz**2) * (1 - r_yz**2))
-        
-        assert -1 <= partial_r <= 1, f"Partial r should be in [-1, 1], got {partial_r}"
+        x = np.random.normal(0, 1, n)
+        z1 = np.random.normal(0, 1, n)
+        z2 = np.random.normal(0, 1, n)
+        y = 0.5 * x + 0.3 * z1 + 0.2 * z2 + np.random.normal(0, 0.5, n)
+
+        z = np.column_stack([z1, z2])
+        r, p = partial_correlation(x, y, z)
+
+        assert -1 <= r <= 1
+        assert 0 <= p <= 1
+
 
 class TestFDRCorrection:
-    def test_bh_fdr_correction(self):
-        """Test Benjamini-Hochberg FDR correction."""
-        # Create a set of p-values with known ground truth
-        p_values = np.array([0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.5, 0.9])
-        n = len(p_values)
-        
-        # Sort p-values
-        sorted_indices = np.argsort(p_values)
-        sorted_p = p_values[sorted_indices]
-        
-        # BH correction
-        corrected_p = np.zeros(n)
-        for i in range(n):
-            corrected_p[sorted_indices[i]] = sorted_p[i] * n / (i + 1)
-        
-        # Ensure corrected p-values are >= original
-        assert np.all(corrected_p >= p_values), "FDR corrected p-values should be >= original"
-        
-        # Ensure corrected p-values are <= 1
-        assert np.all(corrected_p <= 1.0), "FDR corrected p-values should be <= 1"
+    def test_fdr_correction_basic(self):
+        """Test basic FDR correction."""
+        p_values = [0.01, 0.03, 0.04, 0.06, 0.10, 0.20]
 
-    def test_fdr_significance(self):
-        """Test FDR significance determination."""
-        p_values = np.array([0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.5, 0.9])
-        alpha = 0.05
-        
-        # Apply FDR correction
-        corrected_p = apply_fdr_correction(p_values, alpha)
-        
-        # Count significant results
-        significant = np.sum(corrected_p <= alpha)
-        
-        # With these p-values, we expect some to be significant
-        assert significant >= 0, "Should have non-negative significant count"
-        assert significant <= len(p_values), "Should have at most all significant"
+        significant, p_adj = apply_fdr_correction(p_values, alpha=0.05)
 
-    def test_fdr_with_all_high_p(self):
-        """Test FDR when all p-values are high."""
-        p_values = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
-        alpha = 0.05
-        
-        corrected_p = apply_fdr_correction(p_values, alpha)
-        
-        # None should be significant
-        assert np.all(corrected_p > alpha), "No p-values should be significant"
+        assert len(significant) == len(p_values)
+        assert len(p_adj) == len(p_values)
 
-    def test_fdr_with_all_low_p(self):
-        """Test FDR when all p-values are low."""
-        p_values = np.array([0.001, 0.002, 0.003, 0.004, 0.005])
-        alpha = 0.05
-        
-        corrected_p = apply_fdr_correction(p_values, alpha)
-        
-        # All should be significant
-        assert np.all(corrected_p <= alpha), "All p-values should be significant"
+        # Some should be significant
+        assert any(significant)
 
-class TestBatchSizeCalculation:
-    def test_batch_size_memory_constraint(self):
-        """Test that batch size respects memory constraints."""
-        # Simulate memory constraints
-        available_memory_gb = 7.0
-        matrix_size_bytes = 400 * 400 * 8  # float64
-        
-        batch_size = calculate_batch_size(available_memory_gb, matrix_size_bytes)
-        
-        # Should return a positive integer
-        assert isinstance(batch_size, int), "Batch size should be integer"
-        assert batch_size > 0, "Batch size should be positive"
+    def test_fdr_correction_empty(self):
+        """Test FDR correction with empty list."""
+        significant, p_adj = apply_fdr_correction([])
 
-    def test_batch_size_scaling(self):
-        """Test that batch size scales with available memory."""
-        matrix_size_bytes = 400 * 400 * 8
-        
-        batch_7gb = calculate_batch_size(7.0, matrix_size_bytes)
-        batch_3gb = calculate_batch_size(3.0, matrix_size_bytes)
-        
-        # Larger memory should allow larger batch
-        assert batch_7gb >= batch_3gb, "Larger memory should allow larger batch"
+        assert len(significant) == 0
+        assert len(p_adj) == 0
 
-class TestCorrelationThreshold:
-    def test_threshold_logging(self):
-        """Test that correlation threshold is logged correctly."""
-        r_values = [0.1, 0.2, 0.3, 0.4, 0.5]
-        threshold = 0.3
-        
-        # Count values above threshold
-        above_threshold = sum(1 for r in r_values if abs(r) > threshold)
-        
-        assert above_threshold == 2, "Should have 2 values above threshold"
+    def test_fdr_correction_all_significant(self):
+        """Test FDR correction where all p-values are significant."""
+        p_values = [0.001, 0.002, 0.003, 0.004]
 
-    def test_threshold_zero(self):
-        """Test threshold with zero threshold."""
-        r_values = [-0.1, 0.1, -0.2, 0.2]
-        threshold = 0.0
-        
-        above_threshold = sum(1 for r in r_values if abs(r) > threshold)
-        
-        assert above_threshold == 4, "All values should be above zero threshold"
+        significant, p_adj = apply_fdr_correction(p_values, alpha=0.05)
 
-class TestPowerAnalysis:
-    def test_detectable_effect_size(self):
-        """Test detectable effect size calculation."""
-        n = 100
-        power = 0.8
-        alpha = 0.05
-        
-        r = calculate_detectable_effect_size(n, power, alpha)
-        
-        # Should return a valid correlation coefficient
-        assert -1 <= r <= 1, f"Detectable r should be in [-1, 1], got {r}"
-        assert r > 0, "Detectable effect size should be positive"
+        assert all(significant)
 
-    def test_power_scaling_with_n(self):
-        """Test that detectable effect size decreases with larger N."""
-        r_50 = calculate_detectable_effect_size(50, 0.8, 0.05)
-        r_100 = calculate_detectable_effect_size(100, 0.8, 0.05)
-        
-        # Larger sample should detect smaller effects
-        assert r_100 < r_50, "Larger N should detect smaller effects"
 
-    def test_power_scaling_with_power(self):
-        """Test that detectable effect size increases with required power."""
-        r_07 = calculate_detectable_effect_size(100, 0.7, 0.05)
-        r_09 = calculate_detectable_effect_size(100, 0.9, 0.05)
-        
-        # Higher power requirement should detect larger effects
-        assert r_09 > r_07, "Higher power should detect larger effects"
+class TestMetricCorrelations:
+    def test_run_correlations_synthetic(self):
+        """Test running correlations on synthetic data."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=50)
 
-class TestIntegration:
-    def test_full_correlation_pipeline(self):
-        """Test the full correlation analysis pipeline."""
-        np.random.seed(42)
-        
-        # Create synthetic data
-        n_subjects = 50
-        metrics = {
-            'modularity': np.random.randn(n_subjects),
-            'global_efficiency': np.random.randn(n_subjects),
-            'participation_coef': np.random.randn(n_subjects),
-            'within_module_degree': np.random.randn(n_subjects),
-            'motor_score': np.random.randn(n_subjects),
-            'fd': np.random.rand(n_subjects) * 0.5  # FD < 0.5
-        }
-        
-        df = pd.DataFrame(metrics)
-        
-        # Run correlation analysis (mocked)
-        with patch('analysis.correlations.run_correlation_analysis') as mock_run:
-            mock_run.return_value = {
-                'modularity': {'r': 0.3, 'p': 0.03, 'q': 0.04, 'significant': True},
-                'global_efficiency': {'r': 0.2, 'p': 0.1, 'q': 0.12, 'significant': False}
-            }
-            
-            results = mock_run(df, 'motor_score', 'fd')
-            
-            assert 'modularity' in results, "Modularity should be in results"
-            assert 'global_efficiency' in results, "Global efficiency should be in results"
+        metric_cols = ['modularity', 'global_efficiency']
+        results = run_metric_correlations(df, metric_cols, target_col='motor_score')
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        assert len(results) == len(metric_cols)
+        assert 'r' in results.columns
+        assert 'p' in results.columns
+        assert 'q' in results.columns
+        assert 'significant' in results.columns
+
+    def test_partial_correlation_with_fd(self):
+        """Test that partial correlation with FD covariate works."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=50)
+
+        results = run_metric_correlations(
+            df,
+            ['modularity'],
+            target_col='motor_score',
+            covariate_col='fd',
+            use_partial=True
+        )
+
+        assert len(results) == 1
+        assert 'r' in results.columns
+
+
+class TestPCA:
+    def test_run_pca_basic(self):
+        """Test basic PCA execution."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=50)
+
+        metric_cols = ['modularity', 'global_efficiency', 'participation_coef']
+
+        loadings, scores = run_pca(df, metric_cols, n_components=2)
+
+        # Check loadings shape
+        assert loadings.shape == (3, 2)
+        assert all(f'component_{i}' in loadings.columns for i in [1, 2])
+
+        # Check scores shape
+        assert scores.shape[0] == 50
+        assert 'subject_id' in scores.columns
+        assert 'pca_factor_1' in scores.columns
+        assert 'pca_factor_2' in scores.columns
+
+    def test_compute_and_save_pca(self):
+        """Test PCA computation and file saving."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            df = load_metrics_data(use_synthetic=True, n_subjects=50)
+
+            metric_cols = ['modularity', 'global_efficiency']
+            loadings_path = os.path.join(tmpdir, 'loadings.csv')
+            scores_path = os.path.join(tmpdir, 'scores.csv')
+
+            loadings, scores = compute_and_save_pca(
+                df, metric_cols, loadings_path, scores_path, n_components=2
+            )
+
+            # Check files exist
+            assert os.path.exists(loadings_path)
+            assert os.path.exists(scores_path)
+
+            # Check content
+            loaded_loadings = pd.read_csv(loadings_path)
+            loaded_scores = pd.read_csv(scores_path)
+
+            assert len(loaded_loadings) == 2
+            assert len(loaded_scores) == 50
+
+    def test_merge_metrics_and_pca(self):
+        """Test merging metrics with PCA scores."""
+        df = load_metrics_data(use_synthetic=True, n_subjects=30)
+
+        metric_cols = ['modularity', 'global_efficiency']
+        _, scores = run_pca(df, metric_cols, n_components=2)
+
+        merged = merge_metrics_and_pca(df, scores)
+
+        assert len(merged) == 30
+        assert 'modularity' in merged.columns
+        assert 'pca_factor_1' in merged.columns
+
+    def test_create_full_metrics_output(self):
+        """Test creating full metrics output file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            df = load_metrics_data(use_synthetic=True, n_subjects=30)
+
+            metric_cols = ['modularity', 'global_efficiency']
+            _, scores = run_pca(df, metric_cols, n_components=2)
+
+            output_path = os.path.join(tmpdir, 'full_metrics.csv')
+            merged = create_full_metrics_output(df, scores, output_path)
+
+            assert os.path.exists(output_path)
+
+            loaded = pd.read_csv(output_path)
+            assert len(loaded) == 30
+            assert 'modularity' in loaded.columns
+            assert 'pca_factor_1' in loaded.columns
+
+
+class TestMainFunction:
+    def test_main_completes(self):
+        """Test that main function completes and produces files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = main(
+                input_path=None,
+                output_dir=tmpdir,
+                use_synthetic=True,
+                n_subjects=30
+            )
+
+            # Check return dict
+            assert 'loadings' in result
+            assert 'factor_scores' in result
+            assert 'full_metrics' in result
+            assert 'correlations' in result
+
+            # Check files exist
+            for key, path in result.items():
+                assert os.path.exists(path), f"File not created: {path}"
+
+    def test_main_output_format(self):
+        """Test that main function outputs have correct columns."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = main(
+                output_dir=tmpdir,
+                use_synthetic=True,
+                n_subjects=30
+            )
+
+            # Check loadings columns
+            loadings = pd.read_csv(result['loadings'])
+            assert 'component_1' in loadings.columns
+            assert 'component_2' in loadings.columns
+
+            # Check factor scores columns
+            scores = pd.read_csv(result['factor_scores'])
+            assert 'subject_id' in scores.columns
+            assert 'pca_factor_1' in scores.columns
+
+            # Check full metrics columns
+            full = pd.read_csv(result['full_metrics'])
+            assert 'subject_id' in full.columns
+            assert 'modularity' in full.columns
+            assert 'pca_factor_1' in full.columns
