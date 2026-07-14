@@ -1,1 +1,12 @@
-[]
+- artifact_hash: 04da969bee76dc582cb8dae8af757ba94a0502b47f696dbbd6be1c3d874316e7
+  artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1406.5617] Web Document Clustering and Ranking using Tf-Idf based
+    Apriori Approach'
+  kind: url
+  value: https://arxiv.org/abs/1406.5617
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1406.5617
+  verified_at: '2026-07-14T17:40:33.565411Z'

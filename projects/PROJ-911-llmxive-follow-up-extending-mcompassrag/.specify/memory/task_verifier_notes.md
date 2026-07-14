@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T010** — No test file or code snippet for `tests/unit/test_graph_builder.py` was provided, so we cannot verify that a unit test covering the low‑term‑diversity (< 5) edge case exists or is correctly implemented. The required artifact is missing.
+- **T011** — The claim provides only a description of the required integration test but no evidence that a file `tests/integration/test_graph_pipeline.py` actually exists or contains a non‑empty test exercising the full graph pipeline on sample data. Without the test artifact present, the task requirement is not satisfied.
+- **T012** — The required output file `data/processed/fixed_vocab.json` is missing, so the TF‑IDF filtering result was not saved as specified. Without this file the versioning requirement cannot be satisfied.
+- **T014** — The `calculate_topological_metrics` function computes modularity, average degree, and average betweenness centrality, but it never calculates the required average path length (or any shortest‑path metric). Moreover, the file ends abruptly after a truncated `def save` line, indicating the implementation is unfinished. The missing avg‑path‑length calculation must be added (and the file completed) to satisfy the task.

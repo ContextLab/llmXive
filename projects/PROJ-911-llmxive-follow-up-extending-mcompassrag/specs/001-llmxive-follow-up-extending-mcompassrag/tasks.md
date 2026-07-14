@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/`)
-- [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (networkx, scikit-learn, bertopic, datasets, pandas, numpy, pytest)
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/`)
+- [X] T002 Initialize Python 3.11 project with pinned `requirements.txt` (networkx, scikit-learn, bertopic, datasets, pandas, numpy, pytest)
 
 ---
 
@@ -35,12 +35,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` to define hyperparameters (window=10), random seeds, and path constants
-- [ ] T005 [P] Create `code/utils/hash_artifacts.py` to calculate SHA-256 hashes for `data/` and update `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`
-- [ ] T006 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure
-- [ ] T007 Implement `code/data_loader.py` to fetch HotpotQA (`fullwiki`) and Wikipedia 20231001.en via `datasets.load_dataset` with deterministic sampling (N ≤ 360)
-- [ ] T008 Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the ‑hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit.
-- [ ] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for artifact validation
+- [X] T004 Implement `code/config.py` to define hyperparameters (window=10), random seeds, and path constants
+- [X] T005 [P] Create `code/utils/hash_artifacts.py` to calculate SHA-256 hashes for `data/` and update `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`
+- [X] T006 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure
+- [X] T007 Implement `code/data_loader.py` to fetch HotpotQA (`fullwiki`) and Wikipedia 20231001.en via `datasets.load_dataset` with deterministic sampling (N ≤ 360)
+- [X] T008 Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the ‑hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit.
+- [X] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for artifact validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -50,7 +50,7 @@
 
 **Goal**: Process academic abstracts to extract deterministic topological features (modularity, centrality) from lexical co-occurrence graphs on CPU.
 
-**Independent Test**: Run the graph construction pipeline on a sample subset (up to 360 docs) and verify numerical feature vectors are generated for every document within 60s/doc.
+**Independent Test**: Run the graph construction pipeline on a sample subset (up to 360 docs) and verify numerical feature vectors are generated for every document within 60s/doc. [UNRESOLVED-CLAIM: c_0f27858d — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -60,11 +60,11 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement TF‑IDF filtering with fixed reference vocabulary and **save the resulting vocabulary to `data/processed/fixed_vocab.json`** (FR‑001) for versioning (Plan Data Traceability). The versioning script will hash this file.
-- [ ] T013 [US1] Implement sliding window lexical co-occurrence graph construction in `code/graph_builder.py` (FR‑001). The window size will be sufficiently large to capture relevant lexical relationships. **Dependency**: Requires filtered terms from T012.
+- [X] T013 [US1] Implement sliding window lexical co-occurrence graph construction in `code/graph_builder.py` (FR‑001). The window size will be sufficiently large to capture relevant lexical relationships. **Dependency**: Requires filtered terms from T012.
 - [ ] T014 [US1] Implement topological metric calculation (modularity, avg path length, degree/betweenness centrality) in `code/topology_extractor.py` (FR‑002)
-- [ ] T015 [US1] Add error handling for low‑diversity documents (assign default zeros or log warning) in `code/topology_extractor.py`
-- [ ] T016 [US1] Write graph artifacts and feature vectors to `data/processed/graphs.json` and `data/processed/features.csv`
-- [ ] T017 [US1] Add logging for document processing time to verify <60s constraint per doc
+- [~] T015 [US1] Add error handling for low‑diversity documents (assign default zeros or log warning) in `code/topology_extractor.py`
+- [~] T016 [US1] Write graph artifacts and feature vectors to `data/processed/graphs.json` and `data/processed/features.csv`
+- [~] T017 [US1] Add logging for document processing time to verify <60s constraint per doc
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,23 +80,23 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for Recall@k output schema in `tests/contract/test_recall_schema.py`
-- [ ] T019 [P] [US2] Integration test for disjoint train/test split validation in `tests/integration/test_data_split.py`
+- [~] T018 [P] [US2] Contract test for Recall@k output schema in `tests/contract/test_recall_schema.py`
+- [~] T019 [P] [US2] Integration test for disjoint train/test split validation in `tests/integration/test_data_split.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement BERTopic (CPU‑only mode, no CUDA) for topic embeddings in `code/neural_baseline.py` (FR‑)
-- [ ] T021 [US2] Implement fallback mechanism for BERTopic memory pressure (reduce corpus/window size) in `code/neural_baseline.py`
-- [ ] T022 [US2] Implement TF‑IDF Cosine Similarity ranking for query‑document matching in `code/retrieval_sim.py` (FR‑004). **Output**: `data/results/retrieval_scores.csv` (ranked lists)
-- [ ] T023 [US2] Implement extraction of topological signatures **ONLY from the set of documents returned by the TF‑IDF ranking**; ensure no topology data is used to generate the ranking scores. **Output**: `data/results/retrieved_features.csv`
-- [ ] T024 [US2] Implement Recall@K calculation against HotpotQA ground‑truth in `code/evaluator.py` (FR‑004). 
+- [~] T020 [US2] Implement BERTopic (CPU‑only mode, no CUDA) for topic embeddings in `code/neural_baseline.py` (FR‑)
+- [~] T021 [US2] Implement fallback mechanism for BERTopic memory pressure (reduce corpus/window size) in `code/neural_baseline.py`
+- [~] T022 [US2] Implement TF‑IDF Cosine Similarity ranking for query‑document matching in `code/retrieval_sim.py` (FR‑004). **Output**: `data/results/retrieval_scores.csv` (ranked lists)
+- [~] T023 [US2] Implement extraction of topological signatures **ONLY from the set of documents returned by the TF‑IDF ranking**; ensure no topology data is used to generate the ranking scores. **Output**: `data/results/retrieved_features.csv`
+- [~] T024 [US2] Implement Recall@K calculation against HotpotQA ground‑truth in `code/evaluator.py` (FR‑004).
 
-The research question is: Can we improve multi-hop reasoning performance by incorporating knowledge graph embeddings into a transformer-based architecture?
+The research question is: Can we improve multi-hop reasoning performance by incorporating knowledge graph embeddings into a transformer-based architecture? [UNRESOLVED-CLAIM: c_581626f8 — status=not_enough_info]
 
-The method is: We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K as a key metric.
+We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K as a key metric. [UNRESOLVED-CLAIM: c_74a4d931 — status=not_enough_info]
 
 (FR‑004) **Output**: `data/results/retrieval_scores.csv`
-- [ ] T025 [US2] Ensure strict disjointness between training corpus and query set to prevent data leakage in `code/data_loader.py`
+- [~] T025 [US2] Ensure strict disjointness between training corpus and query set to prevent data leakage in `code/data_loader.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,16 +110,16 @@ The method is: We will evaluate the performance of our model on the HotpotQA dat
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_evaluator.py`
-- [ ] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
+- [~] T026 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_evaluator.py`
+- [~] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement Spearman rank correlation between topological features (per query, from T016) and Recall@10 (from T024) in `code/evaluator.py` (FR‑005). **Note**: This task depends on T016 and T024 completion.
-- [ ] T029 [US3] Implement paired t‑test for precision metrics **and calculate the ratio of Graph Recall@10 to Neural Recall@10**, logging whether the ratio meets the ≥ 0.70 threshold in `metrics.json` (FR‑006).
-- [ ] T030 [US3] Calculate wall‑clock time and percentage reduction in metadata generation latency in `code/evaluator.py` (FR‑006)
-- [ ] T031 [US3] Write final metrics (r, p‑value, Recall@k, latency) to `data/results/metrics.json` and `data/results/correlation.csv`
-- [ ] T032 [US3] Validate results against Success Criteria (SC‑001 to SC‑005) by logging the correlation coefficient r, p‑value and a status field indicating whether the hypothesis was supported (r > 0.6). **Do NOT raise an exception on low r; only log status.**
+- [~] T028 [US3] Implement Spearman rank correlation between topological features (per query, from T016) and Recall@10 (from T024) in `code/evaluator.py` (FR‑005). **Note**: This task depends on T016 and T024 completion. <!-- FAILED: unspecified -->
+- [~] T029 [US3] Implement paired t‑test for precision metrics **and calculate the ratio of Graph Recall@10 to Neural Recall@10**, logging whether the ratio meets the ≥ 0.70 threshold in `metrics.json` (FR‑006).
+- [~] T030 [US3] Calculate wall‑clock time and percentage reduction in metadata generation latency in `code/evaluator.py` (FR‑006)
+- [~] T031 [US3] Write final metrics (r, p‑value, Recall@k, latency) to `data/results/metrics.json` and `data/results/correlation.csv`
+- [~] T032 [US3] Validate results against Success Criteria (SC‑001 to SC‑005) by logging the correlation coefficient r, p‑value and a status field indicating whether the hypothesis was supported (r > 0.6). **Do NOT raise an exception on low r; only log status.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,8 +145,8 @@ The method is: We will evaluate the performance of our model on the HotpotQA dat
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational (Phase 2) completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -198,9 +198,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -216,5 +216,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU‑only CI (limited cores, constrained RAM, time limit). No GPU, no 8‑bit quantization, no large model loading.
 - **Data Integrity**: All datasets must be real (HotpotQA, Wikipedia) via `datasets` library. No synthetic data generation.
-- **Methodology**: Topological signatures are extracted from *retrieved* documents only; they are NOT used for ranking. Ranking is performed via TF‑IDF Cosine Similarity.
-
+- **Methodology**: Topological signatures are extracted from *retrieved* documents only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)

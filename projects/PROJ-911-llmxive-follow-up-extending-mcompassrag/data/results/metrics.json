@@ -1,0 +1,21 @@
+{
+  "task_id": "T029",
+  "description": "Paired t-test for precision metrics and Graph/Neural Recall@10 ratio",
+  "t_test": {
+    "t_statistic": 0.0,
+    "p_value": 1.0,
+    "summary": {
+      "graph_mean": 0.0,
+      "neural_mean": 0.0,
+      "pairs": 0,
+      "graph_std": 0.0,
+      "neural_std": 0.0
+    }
+  },
+  "ratio": {
+    "average_graph_neural_ratio": 0.0,
+    "threshold": 0.7,
+    "meets_threshold": false
+  },
+  "status": "placeholder"
+}
