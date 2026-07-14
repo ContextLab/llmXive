@@ -1,76 +1,38 @@
-"""
-Configuration settings for the Chemo Biomarker Discovery project.
-
-This module defines paths, random seeds, thresholds, and system limits.
-"""
 import os
 from pathlib import Path
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project Root
+# Assuming the code is run from the project root or 'code' directory
+# Adjust based on actual project structure if needed
+if "code" in str(Path(__file__).parent):
+    PROJECT_ROOT = Path(__file__).parent.parent
+else:
+    PROJECT_ROOT = Path(__file__).parent
 
-# Data directories
+# Directories
 DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
-
-# Results directories
+DATA_RAW = DATA_DIR / "raw"
+DATA_PROCESSED = DATA_DIR / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
-RESULTS_META_ANALYSIS_DIR = RESULTS_DIR / "meta_analysis"
-
-# State and specs
-STATE_DIR = PROJECT_ROOT / "state"
+RESULTS_META = RESULTS_DIR / "meta_analysis"
+TESTS_DIR = PROJECT_ROOT / "tests"
 SPECS_DIR = PROJECT_ROOT / "specs" / "001-chemo-biomarker-discovery"
+CONTRACTS_DIR = SPECS_DIR / "contracts"
+STATE_DIR = PROJECT_ROOT / "state"
 
-# Random seed for reproducibility
+# Configuration Constants
 RANDOM_SEED = 42
-
-# Statistical thresholds
 FDR_THRESHOLD = 0.05
-LOG2FC_THRESHOLD = 1.0
-MAX_VARIANCE_GENES = 1000  # Maximum genes to consider based on variance
+CPU_LIMIT = None # Set to number of cores if needed
+MEMORY_LIMIT_MB = 16000 # 16GB default
+MAX_VARIANCE_GENES = 5000
+MAX_RUNTIME_HOURS = 5
 
-# System limits
-TIMEOUT_HOURS = 5
-MAX_MEMORY_GB = 16
-CPU_CORES = os.cpu_count() or 4
+# Feasibility Gate Constants
+MIN_TCQA_TYPES = 3
 
-# TCGA configuration
-TCGA_HUGGINGFACE_ORG = "tcga-data"
-MIN_TCGA_TUMOR_TYPES = 3
-
-# GEO configuration
-GEO_DATASETS = ["GSE25055", "GSE42752"]
-MIN_GEO_DATASETS = 2
-
-# Preprocessing thresholds
-MIN_CPM = 1.0
-MIN_SAMPLE_PERCENT = 0.20  # Keep genes with CPM >= MIN_CPM in at least 20% of samples
-MIN_HGNC_COVERAGE = 0.95  # Minimum gene symbol coverage required
-
-# Model configuration
-CV_FOLDS = 5
-INNER_CV_FOLDS = 3
-TEST_SIZE = 0.2
-STRATIFY = True
-
-# Validation thresholds
-MIN_AUC = 0.75
-CALIBRATION_DECILES = 10
-MIN_DECILE_SIZE = 20
-
-# Ensure directories exist
 def ensure_directories():
-    """Create all required directories if they don't exist."""
-    dirs = [
-        DATA_RAW_DIR,
-        DATA_PROCESSED_DIR,
-        RESULTS_DIR,
-        RESULTS_META_ANALYSIS_DIR,
-        STATE_DIR
-    ]
+    """Creates all required directories if they do not exist."""
+    dirs = [DATA_RAW, DATA_PROCESSED, RESULTS_DIR, RESULTS_META, STATE_DIR]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-
-# Initialize directories on import
-ensure_directories()

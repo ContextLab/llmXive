@@ -56,12 +56,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` to define constants (paths, filter params, seeds, band definitions)
-- [ ] T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities
+- [X] T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities
 - [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni, permutation, and MDES utilities
 - [ ] T007 Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery data and verify checksums (FR-001)
 - [ ] T008a [P] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id` and validate demographic metadata (Phase 0.5 Gate Part 1). **Exit Condition**: If join fails or datasets incompatible, exit with code 1 and generate `data/processed/feasibility_report.md`. **Must run after T007 completes**.
 - [ ] T008b [P] Create `code/00_feasibility_check_report.py` to generate `data/processed/feasibility_report.md` based on join results if T008a fails (Phase 0.5 Gate Part 2). **Must run after T008a completes**.
-- [~] T009 Setup environment configuration management and random seed pinning
+- [ ] T009 Setup environment configuration management and random seed pinning
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,12 +75,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance, and implement participant exclusion logic (drop if >30% channels rejected) (FR-002). **Must run after T007 completes**.
+- [ ] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance, and implement participant exclusion logic (drop if >30% channels rejected) (FR-002). **Must run after T007 completes**.
 - [~] T010b [US1] Implement ICA cleaning in `code/02_preprocess_eeg.py` to remove ocular/muscle artifacts (Constitution Principle VI). **Must run after T010 completes and before T012 starts**.
 - [~] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with **[deferred] overlap (2s)** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Must run after T010b completes**.
-- [ ] T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004). **Must run after T010b completes**.
-- [ ] T015 [US1] Implement relative power calculation (band/total) for all bands to control for total power confound (FR-010). Consume `data/processed/features_raw.csv` (from T012/T013 merge) and produce `data/processed/features.csv`. **Must run after T012 and T013 complete**.
-- [ ] T016 [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range). **Must run after T015 completes**.
+- [~] T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004). **Must run after T010b completes**.
+- [~] T015 [US1] Implement relative power calculation (band/total) for all bands to control for total power confound (FR-010). Consume `data/processed/features_raw.csv` (from T012/T013 merge) and produce `data/processed/features.csv`. **Must run after T012 and T013 complete**.
+- [~] T016 [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range). **Must run after T015 completes**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,9 +94,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with 5-fold CV (depends on `data/processed/features.csv`) (FR-005). **Must run after T016 completes**.
-- [ ] T018 [US2] Implement LASSO regression with lambda tuning to minimize RMSE (FR-005). **Must run after T017 completes**.
-- [ ] T019 [US2] Calculate and log Adjusted R² and optimal lambda to `data/processed/model_results.json`. **Must run after T018 completes**.
+- [~] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with 5-fold CV (depends on `data/processed/features.csv`) (FR-005). **Must run after T016 completes**.
+- [~] T018 [US2] Implement LASSO regression with lambda tuning to minimize RMSE (FR-005). **Must run after T017 completes**.
+- [~] T019 [US2] Calculate and log Adjusted R² and optimal lambda to `data/processed/model_results.json`. **Must run after T018 completes**.
 - [ ] T020 [P] [US2] Implement Pearson correlation tests between relative band powers and median RT (depends on `data/processed/features.csv`) (FR-006). **Must run after T016 completes**.
 - [ ] T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec FR-006 and flag significant results. **Must run after T020 completes**.
 - [ ] T022 [US2] Implement permutation test (sufficient shuffles) on held-out test set ONLY (using split indices from `data/processed/split_indices.json`, seed from config.py) to prevent data leakage (per Plan feasibility constraint) for R² significance (FR-007). **Must run after T017 completes**.

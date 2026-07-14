@@ -1,107 +1,129 @@
-%YAML 1.2
----
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Meta-Analysis and Gene Panel Schema"
-description: >
-  Schema for the final selected gene panel and meta-analysis results
-  generated in User Story 2 (T023-T028).
+$schema: http://json-schema.org/draft-07/schema#
+title: Meta-Analysis Schema
+description: Schema for meta-analysis results and gene panel selection.
 type: object
 required:
-  - metadata
-  - selection_method
-  - gene_panel
-  - statistical_summary
+  - analysis_metadata
+  - differential_expression_results
+  - gene_panel_selection
 properties:
-  metadata:
+  analysis_metadata:
     type: object
     required:
+      - analysis_id
       - created_at
-      - tumor_types_analyzed
-      - total_discovery_samples
+      - method
     properties:
+      analysis_id:
+        type: string
+        description: Unique meta-analysis identifier
       created_at:
         type: string
         format: date-time
+        description: ISO 8601 timestamp
+      method:
+        type: string
+        enum: [Stouffer, Fisher, Intersection, Union]
+        description: Meta-analysis method used
       tumor_types_analyzed:
         type: array
         items:
           type: string
-        description: "List of tumor types included in meta-analysis"
-      total_discovery_samples:
+        description: List of tumor types included
+      total_samples:
         type: integer
-        description: "Sum of samples across all discovery sets"
-      de_method:
-        type: string
-        description: "DE method used (e.g., 'DESeq2_Wald')"
-      fdr_threshold:
-        type: number
-        description: "FDR threshold used for significance (e.g., 0.05)"
-      log2fc_threshold:
-        type: number
-        description: "Absolute log2FC threshold (e.g., 1.0)"
-  selection_method:
-    type: string
-    enum:
-      - "intersection"
-      - "union_fallback"
-      - "stouffers_ranking"
-    description: "Method used to select the final gene panel"
-  fallback_reason:
-    type: string
-    nullable: true
-    description: "Reason for fallback if intersection was empty (e.g., 'intersection_empty')"
-  gene_panel:
+        minimum: 1
+  differential_expression_results:
     type: array
-    description: "Final list of selected genes with meta-analysis statistics"
+    description: DE results per tumor type
     items:
       type: object
       required:
-        - gene_symbol
-        - rank
-        - stouffers_p_value
-        - mean_log2fc
-        - is_significant_intersection
+        - tumor_type
+        - significant_genes
       properties:
-        gene_symbol:
+        tumor_type:
           type: string
-        rank:
-          type: integer
-          minimum: 1
-        stouffers_p_value:
-          type: number
-          minimum: 0
-          maximum: 1
-        adjusted_p_value:
-          type: number
-          description: "Bonferroni adjusted p-value"
-        mean_log2fc:
-          type: number
-        significant_in_types:
+        significant_genes:
           type: array
           items:
-            type: string
-          description: "Tumor types where this gene was significant"
-        is_significant_intersection:
-          type: boolean
-          description: "True if gene was significant in all analyzed types"
-  statistical_summary:
+            type: object
+            required:
+              - gene_symbol
+              - log2fc
+              - p_value
+              - adj_p_value
+            properties:
+              gene_symbol:
+                type: string
+              log2fc:
+                type: number
+              p_value:
+                type: number
+              adj_p_value:
+                type: number
+              base_mean:
+                type: number
+        total_significant:
+          type: integer
+  gene_panel_selection:
     type: object
     required:
-      - total_candidates
-      - intersection_size
-      - final_panel_size
+      - final_panel
+      - selection_method
     properties:
-      total_candidates:
+      final_panel:
+        type: array
+        items:
+          type: string
+        description: List of final selected gene symbols
+      selection_method:
+        type: string
+        enum: [Intersection, Union, Fallback_TopN]
+        description: Method used to select the final panel
+      fallback_reason:
+        type: string
+        enum: [intersection_empty, insufficient_overlap]
+        description: Reason if fallback logic was triggered
+      panel_size:
         type: integer
-        description: "Total unique genes found significant in at least one type"
-      intersection_size:
+        minimum: 1
+      stouffer_meta_pvalues:
+        type: array
+        items:
+          type: object
+          required:
+            - gene_symbol
+            - meta_p_value
+            - rank
+          properties:
+            gene_symbol:
+              type: string
+            meta_p_value:
+              type: number
+            rank:
+              type: integer
+      intersection_genes:
+        type: array
+        items:
+          type: string
+        description: Genes present in intersection across tumor types
+      union_genes:
+        type: array
+        items:
+          type: string
+        description: Genes present in union across tumor types
+  quality_control:
+    type: object
+    properties:
+      fdr_threshold:
+        type: number
+      log2fc_threshold:
+        type: number
+      min_tumor_types_for_intersection:
         type: integer
-        description: "Number of genes significant in ALL types (before fallback)"
-      final_panel_size:
-        type: integer
-        description: "Final number of genes in the panel"
-      union_size_if_fallback:
-        type: integer
-        nullable: true
-        description: "Size of union if fallback was triggered"
-additionalProperties: false
+      batch_correction_applied:
+        type: boolean
+      batch_correction_method:
+        type: string
+        enum: [ComBat_seq, Quantile_Matching, None]

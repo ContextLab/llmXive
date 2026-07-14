@@ -1,8 +1,14 @@
 """
 PII Scanner Module for the llmXive pipeline.
 
-Provides functionality to scan text data for Personally Identifiable Information (PII)
-including Email addresses, US Phone numbers, and Social Security Numbers (SSN).
+Implements regex-based detection of Personally Identifiable Information (PII)
+including Email addresses, US Phone numbers, and US Social Security Numbers (SSN).
+
+Public API:
+- PIIScanResult: TypedDict for scan results
+- scan_text: Scan a string for PII patterns
+- scan_dataframe: Scan all string columns in a DataFrame
+- generate_report: Write scan findings to a JSON file
 """
 
 import re
@@ -10,176 +16,161 @@ import json
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
+# Define regex patterns for PII detection
+# Email: Standard RFC 5322 simplified pattern
+EMAIL_PATTERN = re.compile(
+    r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+    re.IGNORECASE
+)
 
-# Compile regex patterns for efficiency
-PATTERNS = {
-    "email": re.compile(
-        r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
-    ),
-    "phone": re.compile(
-        r"(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?"
-    ),
-    "ssn": re.compile(
-        r"\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b"
-    )
-}
+# Phone: US formats (XXX) XXX-XXXX, XXX-XXX-XXXX, XXX.XXX.XXXX, XXXXXXXXXX
+PHONE_PATTERN = re.compile(
+    r'(?:\+1[-.\s]?)?'
+    r'(?:\(?\d{3}\)?)[-.\s]?\d{3}[-.\s]?\d{4}',
+    re.IGNORECASE
+)
 
+# SSN: XXX-XX-XXXX (strict format with dashes)
+SSN_PATTERN = re.compile(
+    r'\b\d{3}-\d{2}-\d{4}\b'
+)
 
 class PIIScanResult:
-    """Container for PII scan results."""
-
-    def __init__(self, text: str, findings: Dict[str, List[str]]):
-        self.text = text
-        self.findings = findings
-        self.is_clean = len(findings) == 0
-        self.total_findings = sum(len(v) for v in findings.values())
-
+    """Data structure for PII scan results."""
+    
+    def __init__(
+        self,
+        text_id: Optional[str] = None,
+        email_count: int = 0,
+        phone_count: int = 0,
+        ssn_count: int = 0,
+        findings: Dict[str, List[str]] = None
+    ):
+        self.text_id = text_id
+        self.email_count = email_count
+        self.phone_count = phone_count
+        self.ssn_count = ssn_count
+        self.findings = findings or {
+            'emails': [],
+            'phones': [],
+            'ssns': []
+        }
+        
     def to_dict(self) -> Dict[str, Any]:
+        """Convert result to dictionary."""
         return {
-            "text_preview": self.text[:100] + ("..." if len(self.text) > 100 else ""),
-            "is_clean": self.is_clean,
-            "total_findings": self.total_findings,
-            "findings": self.findings
+            'text_id': self.text_id,
+            'email_count': self.email_count,
+            'phone_count': self.phone_count,
+            'ssn_count': self.ssn_count,
+            'total_findings': self.email_count + self.phone_count + self.ssn_count,
+            'findings': self.findings
         }
 
-
-def scan_text(text: str, pattern_types: Optional[List[str]] = None) -> PIIScanResult:
+def scan_text(text: str, text_id: Optional[str] = None) -> PIIScanResult:
     """
-    Scan a single string for PII patterns.
-
+    Scan a string for PII patterns (email, phone, SSN).
+    
     Args:
-        text: The string to scan.
-        pattern_types: Optional list of pattern keys to scan for ('email', 'phone', 'ssn').
-                       If None, scans for all defined patterns.
-
-    Returns:
-        PIIScanResult object containing matches.
-    """
-    if pattern_types is None:
-        pattern_types = list(PATTERNS.keys())
-
-    findings: Dict[str, List[str]] = {}
-
-    for p_type in pattern_types:
-        if p_type not in PATTERNS:
-            raise ValueError(f"Unknown pattern type: {p_type}. Valid types: {list(PATTERNS.keys())}")
+        text: The input string to scan.
+        text_id: Optional identifier for the text source.
         
-        matches = PATTERNS[p_type].findall(text)
-        if matches:
-            # Handle regex groups: findall returns tuples if groups exist
-            # Flatten tuples to strings if necessary
-            clean_matches = []
-            for match in matches:
-                if isinstance(match, tuple):
-                    # For phone numbers, we often get tuples of groups. 
-                    # Join non-empty parts or take the full match if we used groups loosely.
-                    # Here we rely on the fact that findall might return groups.
-                    # To be safe and get the actual substring, we should use finditer or handle groups.
-                    # However, for simple extraction, let's re-run finditer for precision if groups exist.
-                    # But for this implementation, let's assume the regex captures the whole entity or we handle the tuple.
-                    # The phone regex above has groups. Let's refine the approach to get the full match string.
-                    pass 
-            
-            # Re-implement using finditer to get the actual matched string (match.group(0))
-            # This avoids issues with capturing groups in the regex definition
-            current_matches = []
-            for m in PATTERNS[p_type].finditer(text):
-                current_matches.append(m.group(0))
-            
-            if current_matches:
-                findings[p_type] = current_matches
-
-    return PIIScanResult(text, findings)
-
-
-def scan_dataframe(df, text_column: str, pattern_types: Optional[List[str]] = None) -> List[PIIScanResult]:
+    Returns:
+        PIIScanResult containing counts and lists of found PII.
     """
-    Scan a pandas DataFrame column for PII.
+    result = PIIScanResult(text_id=text_id)
+    
+    # Find emails
+    emails = EMAIL_PATTERN.findall(text)
+    result.email_count = len(emails)
+    result.findings['emails'] = list(set(emails))  # Deduplicate
+    
+    # Find phones
+    phones = PHONE_PATTERN.findall(text)
+    result.phone_count = len(phones)
+    result.findings['phones'] = list(set(phones))
+    
+    # Find SSNs
+    ssns = SSN_PATTERN.findall(text)
+    result.ssn_count = len(ssns)
+    result.findings['ssns'] = list(set(ssns))
+    
+    return result
 
+def scan_dataframe(df: Any, columns: Optional[List[str]] = None) -> List[PIIScanResult]:
+    """
+    Scan string columns in a pandas DataFrame for PII.
+    
     Args:
-        df: The pandas DataFrame.
-        text_column: Name of the column containing text to scan.
-        pattern_types: Optional list of pattern types to check.
-
+        df: Pandas DataFrame to scan.
+        columns: Optional list of column names to scan. If None, scans all string columns.
+        
     Returns:
         List of PIIScanResult objects, one per row.
     """
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("pandas is required for scan_dataframe. Install via pip install pandas")
-
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("df must be a pandas DataFrame")
+    import pandas as pd
     
-    if text_column not in df.columns:
-        raise ValueError(f"Column '{text_column}' not found in DataFrame")
-
     results = []
+    
+    # Determine columns to scan
+    if columns is None:
+        # Select only object/string columns
+        columns = df.select_dtypes(include=['object', 'string']).columns.tolist()
+    
     for idx, row in df.iterrows():
-        val = row[text_column]
-        if pd.isna(val) or not isinstance(val, str):
-            # Treat non-strings as empty/no PII
-            results.append(PIIScanResult(str(val) if val is not None else "", {}))
-        else:
-            results.append(scan_text(val, pattern_types))
+        row_text = " ".join(
+            str(row[col]) if pd.notna(row[col]) else ""
+            for col in columns
+        )
+        
+        result = scan_text(row_text, text_id=str(idx))
+        results.append(result)
     
     return results
 
-
-def generate_report(results: List[PIIScanResult], output_path: Optional[str] = None) -> Dict[str, Any]:
+def generate_report(
+    results: List[PIIScanResult],
+    output_path: str | Path,
+    overwrite: bool = False
+) -> Path:
     """
-    Generate a summary report of PII scan results.
-
+    Generate a JSON report of PII scan findings.
+    
     Args:
         results: List of PIIScanResult objects.
-        output_path: Optional path to save the report as JSON.
-
+        output_path: Path to write the JSON report.
+        overwrite: If False, raises FileExistsError if file exists.
+        
     Returns:
-        Dictionary containing the summary report.
+        Path to the generated report.
     """
-    total_scanned = len(results)
-    clean_count = sum(1 for r in results if r.is_clean)
-    flagged_count = total_scanned - clean_count
-
-    summary = {
-        "total_records": total_scanned,
-        "clean_records": clean_count,
-        "flagged_records": flagged_count,
-        "clean_percentage": (clean_count / total_scanned * 100) if total_scanned > 0 else 0.0,
-        "findings_by_type": {
-            "email": 0,
-            "phone": 0,
-            "ssn": 0
-        },
-        "details": [r.to_dict() for r in results if not r.is_clean]
-    }
-
-    # Aggregate counts
-    for r in results:
-        for p_type, matches in r.findings.items():
-            if p_type in summary["findings_by_type"]:
-                summary["findings_by_type"][p_type] += len(matches)
-
-    if output_path:
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(summary, f, indent=2)
-
-    return summary
-
-
-if __name__ == "__main__":
-    # Simple CLI for testing the scanner directly
-    sample_text = """
-    Contact us at support@example.com or call 1-800-555-0199.
-    My SSN is 123-45-6789.
-    Another email: user.name+tag@domain.co.uk.
-    Phone: (555) 123-4567.
-    No PII here.
-    """
+    output_path = Path(output_path)
     
-    print("Running PII Scanner on sample text...")
-    result = scan_text(sample_text)
-    print(json.dumps(result.to_dict(), indent=2))
+    if output_path.exists() and not overwrite:
+        raise FileExistsError(f"Report file already exists: {output_path}")
+    
+    # Aggregate statistics
+    total_emails = sum(r.email_count for r in results)
+    total_phones = sum(r.phone_count for r in results)
+    total_ssns = sum(r.ssn_count for r in results)
+    total_findings = total_emails + total_phones + total_ssns
+    
+    report = {
+        'summary': {
+            'total_items_scanned': len(results),
+            'items_with_findings': sum(1 for r in results if r.total_findings > 0),
+            'total_findings': total_findings,
+            'breakdown': {
+                'emails': total_emails,
+                'phones': total_phones,
+                'ssns': total_ssns
+            }
+        },
+        'detailed_results': [r.to_dict() for r in results]
+    }
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+    
+    return output_path

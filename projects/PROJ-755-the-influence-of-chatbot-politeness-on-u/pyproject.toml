@@ -1,20 +1,53 @@
-# Black configuration for llmXive project
-# See: https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-chatbot-politeness"
+version = "0.1.0"
+description = "Research pipeline: Influence of Chatbot Politeness on User-Perceived Quality"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "datasets",
+    "statsmodels",
+    "pandas",
+    "scikit-learn",
+    "numpy",
+    "pyyaml",
+    "tqdm",
+    "rpy2",
+    "textstat",
+    "evalue",
+    "python-dotenv",
+]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
-extend-exclude = '''
+include = '\.pyi?$'
+exclude = '''
 /(
-    # directories to exclude
-    \\.git
-    | \\.mypy_cache
-    | \\.ruff_cache
-    | __pycache__
-    | data/raw
-    | data/processed
-    | venv
-    | .venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+
+[tool.ruff]
+# Inherit settings from .ruff.toml if present, or define here for pyproject usage
+line-length = 88
+target-version = "py311"
+select = ["E", "W", "F", "I", "B", "C4"]
+ignore = ["ANN101", "ANN204"]

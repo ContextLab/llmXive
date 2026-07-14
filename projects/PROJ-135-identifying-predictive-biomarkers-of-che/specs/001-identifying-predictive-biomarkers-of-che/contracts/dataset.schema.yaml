@@ -1,109 +1,125 @@
-%YAML 1.2
----
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "TCGA/GEO Dataset Schema"
-description: >
-  Schema for validated dataset files produced by the data acquisition and
-  preprocessing pipeline (T012-T020). Enforces structure for discovery and
-  training sets, gene identifiers, and response labels.
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for preprocessed cancer genomic datasets used in biomarker discovery.
 type: object
 required:
   - metadata
-  - data
+  - samples
+  - features
 properties:
   metadata:
     type: object
     required:
+      - dataset_id
       - source
       - tumor_type
-      - platform
-      - sample_count
-      - gene_count
       - created_at
-      - checksum
+      - sample_count
+      - feature_count
     properties:
+      dataset_id:
+        type: string
+        description: Unique identifier for the dataset (e.g., TCGA-BRCA-processed)
       source:
         type: string
-        description: "Source identifier (e.g., 'TCGA-BRCA', 'GSE25055')"
-        pattern: "^(TCGA-[A-Z0-9]{4}|GSE[0-9]+)$"
+        enum: [TCGA, GEO]
+        description: Origin of the raw data
+      dataset_name:
+        type: string
+        description: Human-readable name of the dataset
       tumor_type:
         type: string
-        description: "Standardized tumor type code (e.g., 'BRCA', 'LUAD')"
-      platform:
-        type: string
-        enum:
-          - "RNA-Seq (HTSeq-Counts)"
-          - "Microarray (Affymetrix)"
-          - "Microarray (Agilent)"
-      sample_count:
-        type: integer
-        minimum: 1
-      gene_count:
-        type: integer
-        minimum: 1
+        description: Tumor type code (e.g., BRCA, LUAD)
+      accession_ids:
+        type: array
+        items:
+          type: string
+        description: List of source accession IDs (e.g., GSE12345)
       created_at:
         type: string
         format: date-time
-      checksum:
+        description: ISO 8601 timestamp of creation
+      sample_count:
+        type: integer
+        minimum: 1
+        description: Total number of samples
+      feature_count:
+        type: integer
+        minimum: 1
+        description: Total number of genes/features
+      preprocessing_version:
         type: string
-        description: "SHA-256 checksum of the data payload"
-      harmonization_method:
+        description: Version of preprocessing pipeline used
+      response_label_distribution:
+        type: object
+        additionalProperties:
+          type: integer
+        description: Count of samples per response label category
+  samples:
+    type: array
+    description: List of sample metadata
+    items:
+      type: object
+      required:
+        - sample_id
+        - response_label
+      properties:
+        sample_id:
+          type: string
+          description: Unique sample identifier (e.g., TCGA-XX-XXXX)
+        response_label:
+          type: string
+          enum: [CR, PR, SD, PD, Responder, NonResponder, Unknown]
+          description: Clinical response outcome
+        treatment_regimen:
+          type: string
+          description: Chemotherapy regimen details
+        batch_id:
+          type: string
+          description: Batch identifier for batch correction
+        age:
+          type: integer
+          minimum: 0
+          description: Patient age
+        sex:
+          type: string
+          enum: [Male, Female, Other, Unknown]
+        stage:
+          type: string
+          description: TNM stage or other staging system
+  features:
+    type: array
+    description: List of gene features
+    items:
+      type: object
+      required:
+        - gene_symbol
+        - ensembl_id
+      properties:
+        gene_symbol:
+          type: string
+          description: HGNC approved gene symbol
+        ensembl_id:
+          type: string
+          description: Ensembl gene ID
+        entrez_id:
+          type: string
+          description: Entrez gene ID
+        biotype:
+          type: string
+          description: Gene biotype (e.g., protein_coding)
+  data_matrix:
+    type: object
+    description: Placeholder for actual data matrix structure reference
+    properties:
+      format:
         type: string
-        description: "Method used for ID harmonization (e.g., 'mygene', 'biomaRt')"
+        enum: [csv, parquet, h5ad]
+        description: File format of the matrix
+      path:
+        type: string
+        description: Relative path to the data file
       normalization_method:
         type: string
-        description: "Method used for normalization (e.g., 'VST', 'voom', 'Quantile')"
-      batch_correction_applied:
-        type: boolean
-        description: "Whether ComBat-seq or Quantile Matching was applied"
-  data:
-    type: object
-    required:
-      - columns
-      - rows
-    properties:
-      columns:
-        type: array
-        description: "Column definitions for the dataset"
-        items:
-          type: object
-          required:
-            - name
-            - type
-          properties:
-            name:
-              type: string
-            type:
-              type: string
-              enum:
-                - "gene_id"
-                - "expression_value"
-                - "response_label"
-                - "clinical_covariate"
-      rows:
-        type: array
-        description: "Sample rows (indexed by sample ID)"
-        items:
-          type: object
-          required:
-            - sample_id
-            - gene_values
-            - response_label
-          properties:
-            sample_id:
-              type: string
-            gene_values:
-              type: object
-              additionalProperties:
-                type: number
-              description: "Map of HGNC symbol to expression value"
-            response_label:
-              type: string
-              enum:
-                - "Responder"
-                - "NonResponder"
-                - "Unknown"
-            clinical_covariates:
-              type: object
-              description: "Optional clinical variables (age, stage, etc.)"
-additionalProperties: false
+        enum: [VST, log2cpm, quantile, combat_seq]
+        description: Normalization method applied

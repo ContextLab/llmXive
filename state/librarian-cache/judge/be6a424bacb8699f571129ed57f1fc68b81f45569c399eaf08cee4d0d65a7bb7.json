@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.04848",
+  "judged_at": "2026-07-14T00:57:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"achieving gold-medal-level olympiad reasoning via simple and unified s\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (reasoning abilities of LLMs enhanced by Reinforcement Learning) and measures the dependent variable (reasoning performance) on the same domain (LLMs), even though it focuses on non-ideal conditions rather than the specific \"Gold-Medal-Level\" benchmark mentioned in the user's title. It provides essential context for a literature review on the limitations and robustness of RL-tuned reasoning models.",
+  "relevant": true
+}

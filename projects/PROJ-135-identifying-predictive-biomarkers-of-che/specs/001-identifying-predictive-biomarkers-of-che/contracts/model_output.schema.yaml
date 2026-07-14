@@ -1,130 +1,144 @@
-%YAML 1.2
----
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: >
-  Schema for tumor-type-specific predictive model outputs generated in
-  User Story 3 (T031-T038). Includes metrics, coefficients, and validation results.
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for predictive model outputs and validation metrics.
 type: object
 required:
-  - metadata
-  - model_config
+  - model_metadata
   - performance_metrics
-  - validation_results
+  - feature_importance
 properties:
-  metadata:
+  model_metadata:
     type: object
     required:
+      - model_id
       - tumor_type
       - model_type
-      - gene_panel_source
-      - created_at
+      - trained_at
+      - gene_panel
     properties:
+      model_id:
+        type: string
+        description: Unique model identifier
       tumor_type:
         type: string
-        description: "Tumor type code (e.g., 'BRCA')"
+        description: Tumor type this model is specific to
       model_type:
         type: string
-        enum:
-          - "ElasticNet_Logistic"
-      gene_panel_source:
-        type: string
-        description: "Path to gene panel JSON used for training"
-      created_at:
+        enum: [ElasticNet, LogisticRegression, RandomForest]
+        description: Type of machine learning model
+      trained_at:
         type: string
         format: date-time
-      cv_folds:
-        type: integer
-        description: "Number of CV folds used in nested CV"
-      cv_inner_folds:
-        type: integer
-        description: "Number of inner CV folds for hyperparameter tuning"
-  model_config:
-    type: object
-    required:
-      - alpha
-      - l1_ratio
-      - selected_genes
-    properties:
-      alpha:
-        type: number
-        description: "Regularization strength"
-      l1_ratio:
-        type: number
-        description: "Mixing parameter for Elastic Net (0=ridge, 1=lasso)"
-      selected_genes:
+        description: ISO 8601 timestamp of training completion
+      gene_panel:
         type: array
         items:
           type: string
-        description: "List of HGNC symbols in the fixed gene panel"
-      coefficients:
+        description: List of gene symbols used in the model
+      hyperparameters:
         type: object
-        additionalProperties:
-          type: number
-        description: "Gene coefficients (intercept excluded)"
-      intercept:
-        type: number
+        description: Dictionary of model hyperparameters
+      cv_folds:
+        type: integer
+        minimum: 2
+        description: Number of cross-validation folds used
+      nested_cv_inner_folds:
+        type: integer
+        minimum: 2
+        description: Number of inner CV folds for hyperparameter tuning
   performance_metrics:
     type: object
     required:
       - auc_roc
       - auc_pr
-      - accuracy
-      - f1_score
     properties:
       auc_roc:
         type: number
-        minimum: 0
-        maximum: 1
-        description: "Area Under ROC Curve"
+        minimum: 0.0
+        maximum: 1.0
+        description: Area Under the Receiver Operating Characteristic Curve
       auc_pr:
         type: number
-        minimum: 0
-        maximum: 1
-        description: "Area Under Precision-Recall Curve"
+        minimum: 0.0
+        maximum: 1.0
+        description: Area Under the Precision-Recall Curve
       accuracy:
         type: number
-        minimum: 0
-        maximum: 1
+        minimum: 0.0
+        maximum: 1.0
       f1_score:
         type: number
-        minimum: 0
-        maximum: 1
+        minimum: 0.0
+        maximum: 1.0
       calibration_slope:
         type: number
-        description: "Slope of calibration curve (ideal=1.0)"
       calibration_intercept:
         type: number
-        description: "Intercept of calibration curve (ideal=0.0)"
+      sensitivity:
+        type: number
+      specificity:
+        type: number
+      cv_metrics:
+        type: object
+        properties:
+          mean_auc_roc:
+            type: number
+          std_auc_roc:
+            type: number
+          mean_auc_pr:
+            type: number
+          std_auc_pr:
+            type: number
+      external_validation:
+        type: array
+        items:
+          type: object
+          required:
+            - dataset_id
+            - auc_roc
+          properties:
+            dataset_id:
+              type: string
+            auc_roc:
+              type: number
+            auc_pr:
+              type: number
+  feature_importance:
+    type: array
+    description: List of features with their importance scores
+    items:
+      type: object
+      required:
+        - gene_symbol
+        - coefficient
+      properties:
+        gene_symbol:
+          type: string
+        coefficient:
+          type: number
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        adjusted_p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
   validation_results:
     type: object
-    required:
-      - internal_cv
-      - external_validation
     properties:
-      internal_cv:
+      delong_test:
         type: object
         properties:
-          mean_auc:
+          p_value:
             type: number
-          std_auc:
+          adjusted_p_value:
             type: number
-          per_fold_auc:
-            type: array
-            items:
-              type: number
-      external_validation:
-        type: object
-        description: "Results on held-out GEO datasets if available"
-        properties:
-          dataset_id:
+          comparison:
             type: string
-          auc_roc:
-            type: number
-          p_value_delong:
-            type: number
-            description: "P-value from DeLong's test vs baseline"
-          bonferroni_adjusted_p:
-            type: number
-            description: "Bonferroni adjusted p-value"
-additionalProperties: false
+      calibration_plot_path:
+        type: string
+        description: Relative path to calibration plot image
+      roc_plot_path:
+        type: string
+        description: Relative path to ROC curve image

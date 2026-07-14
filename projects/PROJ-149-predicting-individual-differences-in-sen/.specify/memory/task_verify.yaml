@@ -1,11 +1,5 @@
-T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities: 2
-T007 Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery data and verify checksums (FR-001): 1
-? 'T008a [P] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets
-  on `participant_id` and validate demographic metadata (Phase 0.5 Gate Part 1). **Exit
-  Condition**: If join fails or datasets incompatible, exit with code 1 and generate
-  `data/processed/feasibility_report.md`. **Must run after T007 completes**.'
-: 1
-? T008b [P] Create `code/00_feasibility_check_report.py` to generate `data/processed/feasibility_report.md`
-  based on join results if T008a fails (Phase 0.5 Gate Part 2). **Must run after T008a
-  completes**.
-: 1
+T007: 1
+T008a: 1
+T008b: 1
+T009: 1
+T010: 1

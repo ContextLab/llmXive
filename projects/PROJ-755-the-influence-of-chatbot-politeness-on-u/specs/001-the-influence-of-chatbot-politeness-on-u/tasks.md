@@ -48,7 +48,7 @@
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup CI workflow (GitHub Actions) to install R-base, R packages (lme4, ordinal), and Python dependencies
 - [ ] T005 Create `.gitignore` to exclude `data/raw/*` (except.gitkeep), `data/processed/*`, `__pycache__`, and model caches
-- [ ] T006 [P] Implement `code/utils/pii_scanner.py` for PII scanning (regex for email, phone, SSN patterns)
+- [X] T006 [P] Implement `code/utils/pii_scanner.py` for PII scanning (regex for email, phone, SSN patterns)
 - [~] T007 [P] Implement `code/utils/data_integrity.py` for checksumming and data integrity checks
 - [~] T008 [P] Create `contracts/dataset.schema.yaml` defining Dialogue, Utterance, and User entities
 
@@ -87,23 +87,23 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
-- [ ] T014 [P] [US1] Unit test for politeness scoring logic (batched inference) in `tests/unit/test_scoring.py`
+- [~] T013 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [~] T014 [P] [US1] Unit test for politeness scoring logic (batched inference) in `tests/unit/test_scoring.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/01_download_and_score.py` to fetch **Persona-Chat** (HF ID: `lhoestq/personachat`) and **EmpatheticDialogues** (HF ID: `empathetic_dialogues`) as **mandatory primary inputs** per FR-001.
+- [~] T015 [US1] Implement `code/01_download_and_score.py` to fetch **Persona-Chat** (HF ID: `lhoestq/personachat`) and **EmpatheticDialogues** (HF ID: `empathetic_dialogues`) as **mandatory primary inputs** per FR-001.
  - *Logic*:
  1. Download Persona-Chat and EmpatheticDialogues first.
  2. Verify presence of `quality_rating`, `user_id`, `dialogue_id`.
  3. If either primary dataset lacks `quality_rating`, attempt to fetch **HCI_P2** as a fallback source.
  4. If all sources lack `quality_rating`, abort with critical error.
  - *Deliverable*: Raw data stored in `data/raw/` with checksums.
-- [ ] T016 [US1] Implement merging logic to combine all three datasets into a unified DataFrame, preserving `user_id`, `dialogue_id`, `quality_rating`, `age`, `gender`.
-- [ ] T017 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
-- [ ] T018 [US1] Implement batched inference using `jfiedler/politeness-bert` (CPU-only, `torch.no_grad()`, max_memory management) to score utterances.
+- [~] T016 [US1] Implement merging logic to combine all three datasets into a unified DataFrame, preserving `user_id`, `dialogue_id`, `quality_rating`, `age`, `gender`.
+- [~] T017 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
+- [~] T018 [US1] Implement batched inference using `jfiedler/politeness-bert` (CPU-only, `torch.no_grad()`, max_memory management) to score utterances.
  - *Error Handling*: Implement try-except for `ModelLoadingError` and `MemoryError`, log specific error codes, and fallback to `batch_size=1`.
-- [ ] T019 [US1] Implement aggregation logic to compute `mean_politeness_score` per dialogue and z-score standardization.
+- [~] T019 [US1] Implement aggregation logic to compute `mean_politeness_score` per dialogue and z-score standardization.
 - [ ] T020 [US1] Save processed data to `data/processed/scored_dialogues.parquet` and raw logs to `data/raw/exclusions.log`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

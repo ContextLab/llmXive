@@ -1,0 +1,710 @@
+{
+  "fetched_at": "2026-07-14T00:57:45Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified S\"",
+      "target_n": 5
+    },
+    "duration_seconds": 86.802,
+    "ended_at": "2026-07-14T00:57:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Gold-medal level Olympiad reasoning in large language models"
+        ],
+        [
+          2,
+          "Simple and unified strategy for mathematical Olympiad problems"
+        ],
+        [
+          3,
+          "Large language model reasoning for competitive mathematics"
+        ],
+        [
+          4,
+          "Unified framework for solving IMO and Putnam problems"
+        ],
+        [
+          5,
+          "Scaling laws for mathematical reasoning in LLMs"
+        ],
+        [
+          6,
+          "Chain-of-thought prompting for Olympiad-level mathematics"
+        ],
+        [
+          7,
+          "Verification of mathematical proofs in large language models"
+        ],
+        [
+          8,
+          "Automated theorem proving for high school mathematics competitions"
+        ],
+        [
+          9,
+          "Generalization of reasoning capabilities in foundation models"
+        ],
+        [
+          10,
+          "Zero-shot mathematical problem solving with LLMs"
+        ],
+        [
+          11,
+          "Improving LLM performance on hard reasoning benchmarks"
+        ],
+        [
+          12,
+          "Systematic approach to mathematical reasoning in AI"
+        ],
+        [
+          13,
+          "LLM evaluation on International Mathematical Olympiad datasets"
+        ],
+        [
+          14,
+          "Synthesis of mathematical solutions by neural networks"
+        ],
+        [
+          15,
+          "Reasoning strategies for complex algorithmic problems"
+        ],
+        [
+          16,
+          "Bridging the gap between LLM reasoning and human experts"
+        ],
+        [
+          17,
+          "Unified prompting techniques for advanced mathematics"
+        ],
+        [
+          18,
+          "Error analysis in LLM-generated mathematical proofs"
+        ],
+        [
+          19,
+          "Training language models on Olympiad problem datasets"
+        ],
+        [
+          20,
+          "Transfer learning for mathematical reasoning tasks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Gold-medal level Olympiad reasoning in large language models": 5,
+        "llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified S\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "gold-medal-level reasoning formal proofs",
+      "IMO math competition dataset LLM",
+      "automated theorem proving Lean Coq",
+      "chain-of-thought reasoning accuracy benchmark",
+      "synthetic data distillation reasoning capability"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.13301"
+      ]
+    },
+    "per_query_hit_count": {
+      "IMO math competition dataset LLM": 3,
+      "automated theorem proving Lean Coq": 3,
+      "chain-of-thought reasoning accuracy benchmark": 3,
+      "gold-medal-level reasoning formal proofs": 3,
+      "llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified S\" computer science": 3,
+      "synthetic data distillation reasoning capability": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T00:56:18Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"achieving gold-medal-level olympiad reasoning via simple and unified s\" computer science",
+      "raw": "llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified S\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformer-based models are nowadays state-of-the-art in ad-hoc Information Retrieval, but their behavior is far from being understood. Recent work has claimed that BERT does not satisfy the classical IR axioms. However, we propose to dissect the matching process of ColBERT, through the analysis of term importance and exact/soft matching patterns. Even if the traditional axioms are not formally verified, our analysis reveals that ColBERT: (i) is able to capture a notion of term importance; (ii) relies on exact matches for important terms.",
+          "claimed_authors": [
+            "Thibault Formal",
+            "Benjamin Piwowarski",
+            "Stéphane Clinchant"
+          ],
+          "claimed_title": "A White Box Analysis of ColBERT",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.09650"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='A White Box Analysis of ColBERT')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many intellectual endeavors require mathematical problem solving, but this skill remains beyond the capabilities of computers. To measure this ability in machine learning models, we introduce MATH, a new dataset of 12,500 challenging competition mathematics problems. Each problem in MATH has a full step-by-step solution which can be used to teach models to generate answer derivations and explanations. To facilitate future research and increase accuracy on MATH, we also contribute a large auxiliary pretraining dataset which helps teach models the fundamentals of mathematics. Even though we are able to increase accuracy on MATH, our results show that accuracy remains relatively low, even with enormous Transformer models. Moreover, we find that simply increasing budgets and model parameter counts will be impractical for achieving strong mathematical reasoning if scaling trends continue. While scaling Transformers is automatically solving most other text-based tasks, scaling is not currently solving MATH. To have more traction on mathematical problem solving we will likely need new algorithmic advancements from the broader research community.",
+          "claimed_authors": [
+            "Dan Hendrycks",
+            "Collin Burns",
+            "Saurav Kadavath",
+            "Akul Arora",
+            "Steven Basart",
+            "Eric Tang",
+            "Dawn Song",
+            "Jacob Steinhardt"
+          ],
+          "claimed_title": "Measuring Mathematical Problem Solving With the MATH Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.03874"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Measuring Mathematical Problem Solving With the MATH Dataset')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A constructive proof of the Goedel-Rosser incompleteness theorem has been completed using the Coq proof assistant. Some theory of classical first-order logic over an arbitrary language is formalized. A development of primitive recursive functions is given, and all primitive recursive functions are proved to be representable in a weak axiom system. Formulas and proofs are encoded as natural numbers, and functions operating on these codes are proved to be primitive recursive. The weak axiom system is proved to be essentially incomplete. In particular, Peano arithmetic is proved to be consistent in Coq's type theory and therefore is incomplete.",
+          "claimed_authors": [
+            "Russell O'Connor"
+          ],
+          "claimed_title": "Essential Incompleteness of Arithmetic Verified by Coq",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cs/0505034"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Essential Incompleteness of Arithmetic Verified by Coq')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural theorem proving combines large language models (LLMs) with proof assistants such as Lean, where the correctness of formal proofs can be rigorously verified, leaving no room for hallucination. With existing neural theorem provers pretrained on a fixed collection of data and offering valuable suggestions at times, it is challenging for them to continually prove novel theorems in a fully autonomous mode, where human insights may be critical. In this paper, we explore LLMs as copilots that assist humans in proving theorems. We introduce Lean Copilot, a general framework for running LLM inference natively in Lean. It enables programmers to build various LLM-based proof automation tools that integrate seamlessly into the workflow of Lean users. Lean users can use our pretrained models or bring their own ones that run either locally (with or without GPUs) or on the cloud. Using Lean Copilot, we build LLM-based tools that suggest proof steps, complete proof goals, and select relevant premises. Experimental results on the Mathematics in Lean textbook demonstrate the effectiveness of our method compared to existing rule-based proof automation in Lean (aesop). When assisting humans, Lean Copilot requires only 2.08 manually-entered proof steps on average (3.86 required by aesop); when automating the theorem proving process, Lean Copilot automates 74.2% proof steps on average, 85% better than aesop (40.1%). We open source all code and artifacts under a permissive MIT license to facilitate further research.",
+          "claimed_authors": [
+            "Peiyang Song",
+            "Kaiyu Yang",
+            "Anima Anandkumar"
+          ],
+          "claimed_title": "Lean Copilot: Large Language Models as Copilots for Theorem Proving in Lean",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.12534"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Lean Copilot: Large Language Models as Copilots for Theorem Proving in Lean')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a formal verification of Wolstenholme's theorem -- $\\binom{2p}{p} \\equiv 2 \\pmod{p^3}$ for prime $p \\geq 5$ -- in Lean~4 with Mathlib. The proof proceeds by expanding the shifted factorial product $\\prod_{k=1}^{p-1}(p+k)$ to second order in $p$, identifying the quadratic coefficient as the second elementary symmetric product, and showing its divisibility by $p$ via power sum vanishing in $\\mathbb{Z}/p\\mathbb{Z}$. The formalization comprises nine lemmas across approximately 800 lines of Lean, with zero \\texttt{sorry} declarations. To our knowledge, this is the first formal verification of Wolstenholme's theorem in Lean~4. The proof was discovered through a collaboration between a relational analogy engine for theorem proving and human-directed formalization.",
+          "claimed_authors": [
+            "Alexandre Linhares"
+          ],
+          "claimed_title": "Deep Vision: A Formal Proof of Wolstenholmes Theorem in Lean 4",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.16507"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Deep Vision: A Formal Proof of Wolstenholmes Theorem in Lean 4')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+          "claimed_authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "claimed_title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14140"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Achieving Gold-Medal-Level Olympiad Reasoning via ', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-14T00:56:53Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yafu Li",
+            "Runzhe Zhan",
+            "Haoran Zhang",
+            "Shunkai Zhang",
+            "Yizhuo Li",
+            "Zhilin Wang",
+            "Jiacheng Chen",
+            "Futing Wang",
+            "Xuyang Hu",
+            "Yuchen Fan",
+            "Bangjie Xu",
+            "Yucheng Su",
+            "Xinmiao Han",
+            "Chenxi Li",
+            "Haodi Lei",
+            "Yufeng Zhao",
+            "Zejin Lin",
+            "Qianjia Cheng",
+            "Tong Zhu",
+            "Xiaoye Qu",
+            "Ganqu Cui",
+            "Peng Ye",
+            "Yun Luo",
+            "Zhouchen Lin",
+            "Yu Qiao",
+            "Bowen Zhou",
+            "Ning Ding",
+            "Yu Cheng"
+          ],
+          "title": "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.13301",
+        "summary": "Recent progress in reasoning models has substantially advanced long-horizon mathematical and scientific problem solving, with several systems now reaching gold-medal-level performance on International Mathematical Olympiad (IMO) and International Physics Olympiad (IPhO) problems. In this paper, we introduce a simple and unified recipe for converting a post-trained reasoning backbone into a rigorous olympiad-level solver. The recipe first uses a reverse-perplexity curriculum for SFT to instill rigorous proof-search and self-checking behaviors, then scales these behaviors through a two-stage RL pipeline that progresses from RL with verifiable rewards to more delicate proof-level RL, and finally boosts solving performance with test-time scaling. Applying this recipe, we train a 30B-A3B backbone with SFT on around 340K sub-8K-token trajectories followed by 200 RL steps. The resulting model, SU-01, supports stable reasoning on difficult problems with trajectories exceeding 100K tokens, while achieving gold-medal-level performance on mathematical and physical olympiad competitions, including IMO 2025/USAMO 2026 and IPhO 2024/2025. It also demonstrates strong generalization of scientific reasoning to domains beyond mathematics and physics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.13301",
+          "http_status": 200,
+          "pdf_sample_score": 0.2248,
+          "query_relevance_score": 0.6429,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:56:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:57:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deep Shah",
+            "Sanket Badhe",
+            "Nehal Kathrotia",
+            "Priyanka Tiwari"
+          ],
+          "title": "CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14214",
+        "summary": "Large Language Models utilizing reasoning techniques improve task performance but incur significant latency and token costs due to verbose generation. Existing automatic prompt optimization(APO) frameworks target task accuracy exclusively at the expense of generating long reasoning traces. We propose Cost-Regularized Optimization of Prompts (CROP), an APO method that introduces regularization on response length by generating textual feedback in addition to standard accuracy feedback. This forces the optimization process to produce prompts that elicit concise responses containing only critical information and reasoning. We evaluate our approach on complex reasoning datasets, specifically GSM8K, LogiQA and BIG-Bench Hard. We achieved an 80.6\\% reduction in token consumption while maintaining competitive accuracy, seeing only a nominal decline in performance. This presents a pragmatic solution for deploying token-efficient and cost-effective agentic AI systems in production pipelines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14214",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:57:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dongqi Zheng"
+          ],
+          "title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.00071",
+        "summary": "Large Reasoning Language Models (LRLMs or LRMs) demonstrate remarkable capabilities in complex reasoning tasks, but suffer from significant computational inefficiencies due to overthinking phenomena. Existing efficient reasoning methods face the challenge of balancing reasoning quality with inference cost reduction. We propose \\textbf{Adaptive Reasoning Suppression (ARS)}, a novel training-free approach that dynamically suppresses redundant reasoning steps while preserving accuracy through adaptive certainty monitoring. ARS introduces a multi-checkpoint certainty estimation mechanism with progressive suppression thresholds, achieving superior efficiency compared to static suppression methods. Our extensive evaluation across mathematical reasoning benchmarks using multiple model architectures demonstrates that ARS achieves up to 53%, 46.1%, and 57.9% in token, latency and energy reduction, while maintaining or improving accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.00071",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:57:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chang Tian",
+            "Matthew B. Blaschko",
+            "Mingzhe Xing",
+            "Xiuxing Li",
+            "Yinliang Yue",
+            "Marie-Francine Moens"
+          ],
+          "title": "Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.04848",
+        "summary": "Reinforcement learning (RL) has become a key technique for enhancing the reasoning abilities of large language models (LLMs), with policy-gradient algorithms dominating the post-training stage because of their efficiency and effectiveness. However, most existing benchmarks evaluate large-language-model reasoning under idealized settings, overlooking performance in realistic, non-ideal scenarios. We identify three representative non-ideal scenarios with practical relevance: summary inference, fine-grained noise suppression, and contextual filtering. We introduce a new research direction guided by brain-science findings that human reasoning remains reliable under imperfect inputs. We formally define and evaluate these challenging scenarios. We fine-tune three LLMs and a state-of-the-art large vision-language model (LVLM) using RL with a representative policy-gradient algorithm and then test their performance on eight public datasets. Our results reveal that while RL fine-tuning improves baseline reasoning under idealized settings, performance declines significantly across all three non-ideal scenarios, exposing critical limitations in advanced reasoning capabilities. Although we propose a scenario-specific remediation method, our results suggest current methods leave these reasoning deficits largely unresolved. This work highlights that the reasoning abilities of large models are often overstated and underscores the importance of evaluating models under non-ideal scenarios. The code and data will be released at XXXX.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.04848",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T00:57:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"achieving gold-medal-level olympiad reasoning via simple and unified s\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
