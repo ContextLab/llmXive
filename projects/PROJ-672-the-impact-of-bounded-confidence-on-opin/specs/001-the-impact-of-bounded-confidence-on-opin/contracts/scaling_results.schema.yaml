@@ -1,8 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ScalingResult Schema"
-description: "Schema for the fitted power-law parameters"
+description: "Schema for the fitted power-law parameters for a single network instance"
 type: object
 properties:
+  network_id:
+    type: string
+    description: "Unique identifier for the network instance"
   topology_type:
     type: string
     enum: ["ER", "BA", "WS"]
@@ -12,7 +15,7 @@ properties:
     description: "Scaling exponent"
   epsilon_c:
     type: number
-    description: "Critical threshold estimate"
+    description: "Critical threshold estimate (from grid search)"
   r_squared:
     type: number
     minimum: 0
@@ -26,6 +29,7 @@ properties:
     minimum: 1
     description: "Number of data points used in the fit"
 required:
+  - network_id
   - topology_type
   - gamma
   - epsilon_c

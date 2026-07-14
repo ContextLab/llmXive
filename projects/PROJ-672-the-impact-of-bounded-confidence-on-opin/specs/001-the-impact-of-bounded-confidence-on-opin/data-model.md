@@ -1,94 +1,87 @@
 # Data Model: The Impact of Bounded Confidence on Opinion Polarization Speed
 
-## 1. Overview
+## Overview
 
-This document defines the data structures for the synthetic network generation, simulation execution, and analysis results. All data is stored in `data/` with a strict separation between raw outputs and processed metrics.
+This document defines the data structures for network generation, simulation execution, and analysis results. All data is stored in CSV or Parquet formats to ensure compatibility with Python data stacks and checksum verification.
 
-## 2. Entity Definitions
+## Entity Definitions
 
-### 2.1 NetworkInstance
+### 1. NetworkInstance
 Represents a single generated graph.
--   `network_id`: Unique string (e.g., `BA_N500_m2_seed42`).
--   `topology_type`: Enum (`ER`, `BA`, `WS`).
+-   `network_id`: Unique identifier (UUID).
+-   `topology_type`: Enum {`er`, `ba`, `ws`}.
 -   `node_count`: Integer (500).
 -   `edge_count`: Integer.
 -   `assortativity`: Float (Pearson correlation of degrees).
--   `average_path_length`: Float (or NaN if disconnected).
+-   `average_path_length`: Float.
 -   `clustering_coefficient`: Float.
--   `rewiring_probability`: Float (only for WS, null otherwise).
--   `seed`: Integer.
+-   `rewiring_prob`: Float (only for `ws`, else null).
+-   `seed`: Integer (random seed used for generation).
 
-### 2.2 SimulationRun
+### 2. SimulationRun
 Represents a single execution of the HK model.
--   `run_id`: Unique string.
--   `network_id`: Foreign key to `NetworkInstance`.
--   `epsilon`: Float.
--   `seed`: Integer.
+-   `run_id`: Unique identifier (UUID).
+-   `network_id`: FK to `NetworkInstance`.
+-   `epsilon`: Float (confidence threshold).
+-   `seed`: Integer (random seed for initial opinions).
 -   `convergence_time`: Integer (iterations to converge).
--   `final_clusters`: Integer (number of opinion clusters at convergence).
--   `status`: Enum (`converged`, `non_converged`, `timeout`).
--   `max_opinion_change`: Float (at final step).
+-   `status`: Enum {`converged`, `non_converged`}.
+-   `final_clusters`: Integer (number of opinion clusters at end).
+-   `timestamp`: ISO8601.
 
-### 2.3 ScalingResult
-Represents the fitted parameters for a **single network instance**.
--   `instance_id`: String (Foreign key to NetworkInstance).
+### 3. ScalingResult
+Represents the fitted parameters for a single network instance.
+-   `network_id`: FK to `NetworkInstance`.
 -   `topology_type`: Enum.
 -   `gamma`: Float (scaling exponent).
--   `epsilon_c`: Float (critical threshold estimate, derived from peak finding).
--   `model_type`: Enum (`power_law`, `exponential`, `inconclusive`).
+-   `epsilon_c`: Float (critical threshold estimate).
 -   `r_squared`: Float.
--   `aic`: Float (Akaike Information Criterion).
 -   `standard_error`: Float.
--   `sample_size`: Integer.
+-   `n_points`: Integer (number of $\epsilon$ points used in fit).
 
-### 2.4 RegressionResult
-Represents the output of the multiple linear regression.
+### 4. RegressionResult
+Represents the outcome of the multiple linear regression.
 -   `metric_name`: String (e.g., "assortativity").
 -   `coefficient`: Float.
--   `std_error`: Float.
--   `t_statistic`: Float.
 -   `p_value`: Float.
--   `model_r_squared`: Float.
--   `fdr_adjusted_p`: Float (False Discovery Rate adjusted p-value).
+-   `adjusted_r_squared`: Float.
+-   `model_type`: String (e.g., "A", "B").
 
-### 2.5 SensitivityResult
-Represents the output of the sensitivity analysis (FR-008).
--   `topology_type`: Enum.
--   `convergence_threshold`: Float (e.g., 1e-3, 1e-4, 1e-5).
--   `mean_gamma`: Float (average $\gamma$ across instances for this threshold).
--   `std_gamma`: Float.
--   `variation_percent`: Float (variation relative to the baseline threshold).
+### 5. SensitivityResult
+Represents the outcome of the sensitivity analysis (FR-008).
+-   `metric_name`: String (e.g., "convergence_threshold").
+-   `threshold_value`: Float (e.g., 1e-3, 1e-4, 1e-5).
+-   `gamma_estimate`: Float.
+-   `variation_percent`: Float (variation from baseline).
 
-## 3. File Formats
+## File Layout
 
-### 3.1 Raw Simulation Data
--   **Path**: `data/raw/simulations.csv`
--   **Format**: CSV (Comma Separated Values).
--   **Schema**: Matches `SimulationRun` entity.
--   **Constraints**: No headers with special characters; `epsilon` formatted to 3 decimal places.
+```text
+data/
+├── raw/
+│   ├── networks/
+│   │   ├── er_001.csv
+│   │   ├── ba_001.csv
+│   │   └── ...
+│   └── simulations/
+│       ├── sim_00001.csv
+│       └── ...
+├── processed/
+│   ├── scaling_fits.csv
+│   ├── regression_summary.csv
+│   └── sensitivity_analysis.csv
+└── checksums.json
+```
 
-### 3.2 Processed Metrics
--   **Path**: `data/processed/network_metrics.csv`, `data/processed/scaling_results.csv`, `data/processed/regression_results.csv`, `data/processed/sensitivity_results.csv`
--   **Format**: CSV.
--   **Schema**: Matches corresponding entities.
+## Data Flow
 
-### 3.3 Checksums
--   **Path**: `data/.checksums.json`
--   **Content**: SHA-256 hashes of all files in `data/raw/` and `data/processed/`.
--   **State Integration**: These hashes are recorded in `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` under the `artifact_hashes` key.
+1.  **Generation**: `generate_networks.py` creates `NetworkInstance` records and writes to `data/raw/networks/`.
+2.  **Simulation**: `simulate_hk.py` reads networks, runs HK, writes `SimulationRun` records to `data/raw/simulations/`.
+3.  **Analysis**: `analyze_scaling.py` aggregates simulations, fits power laws (per network instance), runs regression, writes `ScalingResult` and `RegressionResult` to `data/processed/`.
+4.  **Sensitivity**: `run_sensitivity.py` sweeps convergence thresholds, writes `SensitivityResult` to `data/processed/sensitivity_analysis.csv`.
 
-## 4. Data Lineage
+## Integrity Constraints
 
-1.  **Generation**: `generate_networks.py` reads config, generates graphs, writes `network_metrics.csv`.
-2.  **Simulation**: `simulate_hk.py` reads `network_metrics.csv`, runs HK, appends to `simulations.csv`.
-3.  **Analysis**: `analyze_scaling.py` reads `simulations.csv`, fits models per instance, writes `scaling_results.csv` and `regression_results.csv`.
-4.  **Sensitivity**: `sensitivity_analysis.py` reads `simulations.csv`, writes `sensitivity_results.csv`.
-5.  **Checksum**: `utils/checksums.py` generates `data/.checksums.json` and updates the state file.
-
-## 5. Validation Rules
-
--   **Range Checks**: $\epsilon \in [0.05, 0.50]$.
--   **Type Checks**: All floats must be finite (no NaN/Inf in `convergence_time`).
--   **Uniqueness**: `run_id` and `instance_id` must be unique.
--   **Referential Integrity**: `network_id` in `simulations.csv` must exist in `network_metrics.csv`.
--   **Model Consistency**: If `model_type` is `power_law`, `r_squared` must be reported; if `exponential`, `aic` must be reported.
+-   **Immutability**: Files in `data/raw/` are never overwritten. New runs append or create new files with timestamps.
+-   **Checksums**: Every file in `data/` must have a corresponding entry in `checksums.json` (SHA-256).
+-   **Schema Validation**: All CSVs must match the column definitions above.

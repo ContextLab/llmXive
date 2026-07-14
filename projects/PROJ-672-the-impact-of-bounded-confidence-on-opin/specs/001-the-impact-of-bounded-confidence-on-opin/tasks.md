@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: create directories `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/contract/`
-- [ ] T002 Initialize Python 3.11 project with dependencies (networkx, numpy, pandas, scikit-learn, scipy, matplotlib, pytest) in `projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/requirements.txt`
+- [ ] T001 Create project structure per implementation plan: create directories `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/contract/`, and initialize `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`
+- [ ] T002 Initialize Python 3.11 project with dependencies (networkx, numpy, pandas, scipy, matplotlib, pytest, statsmodels) in `projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -62,11 +62,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/generate_networks.py` to generate multiple independent instances per topology type with fixed random seeds using `numpy.random` (FR-001)
+- [ ] T012 [US1] Implement `code/generate_networks.py` to generate multiple independent instances per topology type with fixed random seeds using `numpy.random` explicitly wired to the global seed fixture defined in `tests/conftest.py` (FR-001)
 - [ ] T013 [US1] Implement logic to calculate and store structural metrics (assortativity, path length) for each generated network instance; save as JSON to `data/raw/networks/metrics_{seed}.json`
 - [ ] T014 [US1] Add serialization logic to save network instances and metrics to `data/raw/networks/` with checksums
 - [ ] T015 [US1] Add validation to ensure generated networks are connected (or handle disconnected components explicitly)
-- [ ] T016 [US1] Implement logic to explicitly compare and validate the divergence of $\gamma$ (scaling exponent) between scale-free (BA) and small-world (WS) topologies as a distinct verification step for Constitution Principle VI (output to `data/processed/topology_comparison.json`)
+- [ ] T016a [P] [US1] **Data Schema Prep**: Implement the data structure preparation for regression analysis in `code/contracts/regression_schema.py`. This task defines the schema for `regression_data.json` (mapping structural metrics to simulation IDs) but does NOT populate it with gamma values yet (FR-006, US-3 dependency).
+- [ ] T016b [P] [US3] **Data Population**: (Depends on US3 completion) Implement logic to populate `data/processed/regression_data.json` by correlating the extracted scaling exponent $\gamma$ (from T029/T030) with structural metrics (from T013) and outputting the final dataset (FR-006, US-3).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,11 +88,11 @@
 
 - [ ] T019 [US2] Implement `code/simulate_hk.py` with vectorized NumPy updates for the discrete-time Hegselmann-Krause rule (FR-002, FR-003). **Dependency**: This task consumes network instances saved by T014.
 - [ ] T020 [US2] Implement convergence detection logic: stop when max opinion change $< 10^{-4}$ or max iterations reached (FR-004, FR-007)
-- [ ] T021 [US2] Implement batch execution engine to sweep $\epsilon$ across a range of $[0.05, 0.50]$ with step size $0.05$ and execute multiple independent simulation runs per configuration (FR-003)
+- [ ] T021 [US2] Implement batch execution engine to sweep $\epsilon$ across a range of $[, 0.50]$ with step size $0.05$ and execute multiple independent simulation runs per configuration (FR-003)
 - [ ] T022 [US2] Add logic to handle non-convergent runs: flag as "non-convergent" in the `status` column of the CSV output in `data/raw/simulations/`
-- [ ] T023 [US2] Write raw simulation results (seed, epsilon, convergence_time, status) to `data/raw/simulations/` with checksums
-- [ ] T024 [US2] Integration test for batch execution of multiple configurations (3 topologies × variable epsilons) verifying output format in `tests/integration/test_simulation_batch.py`
-- [ ] T025 [US2] Implement performance optimization and runtime monitoring in `code/simulate_hk.py` (e.g., parallel processing with `multiprocessing`, progress tracking) to ensure the full simulation suite completes within 5 hours (SC-003)
+- [ ] T023 [US2] Write raw simulation results to `data/raw/simulations/` with checksums. **CRITICAL CHANGE**: Output format MUST include the full temporal trace of opinion vectors (state at every iteration) for each run to support FR-008 sensitivity analysis, in addition to the final convergence time and status.
+- [ ] T024 [US2] Integration test for batch execution of multiple configurations (multiple topologies × variable epsilons) verifying output format in `tests/integration/test_simulation_batch.py`
+- [ ] T025 [US2] Implement performance optimization and runtime monitoring in `code/simulate_hk.py` (e.g., parallel processing with `multiprocessing`, progress tracking) to ensure the full simulation suite completes within 5 hours (SC-003). **Reproducibility Constraint**: Parallel workers MUST use a deterministic seed distribution strategy (e.g., `worker_seed = base_seed + worker_id`) to prevent race conditions and ensure floating-point reproducibility.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,9 +111,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/analyze_scaling.py` with peak-finding algorithm to detect $\epsilon_c$ per topology and calculate the critical threshold explicitly (FR-005). **Output**: $\epsilon_c$ values for each topology.
-- [ ] T029 [US3] Implement power-law fitting $T = A(\epsilon - \epsilon_c)^{-\gamma}$ restricted to critical regime $\epsilon \in [\epsilon_c + 0.05, 0.50]$. **Logic**: Must consume $\epsilon_c$ values from T028 to define the regime filter, then perform the fit (FR-005)
-- [ ] T030 [US3] Implement multiple linear regression to correlate $\gamma$ with assortativity and path length, including topology as a categorical variable (FR-006)
+- [ ] T028 [US3] Implement `code/analyze_scaling.py` with peak-finding algorithm to detect $\epsilon_c$ for each of the network instances per topology and output a set of $\epsilon_c$ values to `data/processed/epsilon_c_values.json` (FR-005, Plan Clarification #1)
+- [ ] T029 [US3] Implement power-law fitting $T = A(\epsilon - \epsilon_c)^{-\gamma}$ restricted to critical regime $\epsilon \in [\epsilon_c + \delta, 0.50]$, where $\delta$ represents a small positive offset defining the onset of the critical regime.. **Logic**: Must consume per-instance $\epsilon_c$ values from T028 to define the regime filter, then perform the fit (FR-005)
+- [ ] T030 [US3] Implement Model A: Multiple linear regression to correlate $\gamma$ with Topology type (categorical variable only), excluding structural metrics to avoid multicollinearity (FR-006, Plan Clarification #3)
+- [ ] T030b [US3] Implement Model B: Multiple linear regression to correlate $\gamma$ with Assortativity and PathLength *within* each topology group, excluding Topology as a variable (FR-006, Plan Clarification #3)
 - [ ] T031 [US3] Implement visualization module to generate: (1) $\gamma$ vs. assortativity scatter with regression line, (2) Convergence time vs. $\epsilon$ on log-log scale
 - [ ] T032 [US3] Save processed results (ScalingResult, RegressionResult) to `data/processed/` with checksums
 
@@ -128,10 +130,32 @@
 
 ### Implementation for Sensitivity Analysis
 
-- [ ] T033 [US3] Implement `code/sensitivity_analysis.py` to **re-run the simulation engine** (`simulate_hk.py`) with convergence thresholds $\delta \in [10^{-3}, 10^{-5}]$ (generating new raw data in `data/raw/simulations_sensitivity/`), then re-analyze to compare resulting $\gamma$ values (FR-008). **Dependency**: Depends on `simulate_hk.py` code from US2, not on US3 analysis completion.
+- [ ] T033 [US3] Implement `code/sensitivity_analysis.py` to **re-analyze existing simulation traces** (from `data/raw/simulations/` generated by T023) by applying convergence thresholds $\delta \in [10^{-3}, 10^{-5}]$ to the **full temporal traces** stored in the raw data and re-running the analysis logic to compare resulting $\gamma$ values (FR-008). **Dependency**: Depends on `simulate_hk.py` output (T023) containing full traces.
 - [ ] T034 [US3] Generate report comparing $\gamma$ variation across the sensitivity sweep; flag if variation > 5%
 
 **Checkpoint**: Sensitivity and robustness checks complete.
+
+---
+
+## Phase 7: Research Review Resolution (Addressing Prior Reviews)
+
+**Goal**: Explicitly address concerns raised by Alan Turing (adaptive thresholds), David Krakauer (biological signal detection context), Stephen Wolfram (rule-space exploration), and Geoffrey West (scaling of $\epsilon$ with density) without violating the static HK constraint of the current spec.
+
+**Independent Test**: Documentation and code comments clearly distinguish between the static baseline and the proposed adaptive variants; a "Rule Space Explorer" script runs variations of the HK update rule; a scaling analysis script tests $\epsilon$ vs. network density.
+
+### Implementation for Research Review Resolution
+
+- [ ] T035 [P] [Review] Implement `code/explorers/rule_space_explorer.py` to systematically enumerate and run alternative update rules (e.g., weighted averaging, median-based updates, non-linear transformations) within the bounded confidence framework, generating a "rule landscape" dataset (Response to Stephen Wolfram).
+- [ ] T036 [P] [Review] Implement `code/explorers/adaptive_threshold_prototype.py` as a **non-executable research prototype** (or a separate optional branch) that simulates an agent adapting $\epsilon$ based on convergence history, strictly isolated from the main `simulate_hk.py` to maintain spec fidelity (Response to Alan Turing).
+- [ ] T037 [P] [Review] Update `docs/methodology.md` to include a section "Biological Imperative and Signal Detection" discussing the evolutionary context of bounded confidence as a noise-filtering mechanism vs. error-calcifying mechanism (Response to David Krakauer).
+- [ ] T038 [P] [Review] Update `docs/methodology.md` to include a section "Historical Lineage and Micro-Rules" explicitly contrasting Deffuant (convergence) vs. Hegselmann & Krause (fragmentation) outcomes based on the specific micro-rule implemented (Response to David Krakauer).
+- [ ] T039 [P] [Review] Add a validation task in `tests/unit/test_review_alignment.py` to ensure the codebase explicitly distinguishes between "static cognitive limitation" (current model) and "adaptive learning" (future work) in all docstrings and comments (Response to Alan Turing).
+- [ ] T040 [P] [Review] Generate a comparative plot in `code/visualizations/plot_rule_space.py` showing how different update rules affect the phase transition point (Response to Stephen Wolfram).
+- [ ] T041 [P] [Review] Implement `code/explorers/epsilon_scaling_analysis.py` to test the hypothesis that $\epsilon$ scales with network density (average degree) by running a targeted sweep of $\epsilon$ values across networks of varying densities and plotting the resulting $\gamma$ vs. density relationship (Response to Geoffrey West).
+- [ ] T042 [P] [Review] Update `docs/methodology.md` to include a section "Topological Constraints and Scaling" discussing the implications of degree heterogeneity (power-law vs. homogeneous) on the critical threshold and the potential for phase transitions at critical network sizes (Response to Geoffrey West).
+- [ ] T043 [P] [Review] Run the Reference-Validator Agent on all new citations introduced in `docs/methodology.md` and `code/explorers/` (T035-T042) to satisfy Constitution Principle II before transitioning to `research_accepted`.
+
+**Checkpoint**: All prior research-stage reviews are addressed with code prototypes or explicit documentation clarifications.
 
 ---
 
@@ -139,10 +163,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `docs/` including explanation of the methodology and results
-- [ ] T036 Code cleanup and refactoring of `simulate_hk.py` for performance (vectorization check)
-- [ ] T037 [P] Run quickstart.md validation
-- [ ] T038 Update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` with final artifact hashes
+- [ ] T044 [P] Documentation updates in `docs/` including explanation of the methodology and results
+- [ ] T045 Code cleanup and refactoring of `simulate_hk.py` for performance (vectorization check)
+- [ ] T046 [P] Run quickstart.md validation
+- [ ] T047 [P] Update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` with final artifact hashes
 
 ---
 
@@ -156,6 +180,7 @@
   - US1 (Network Gen) must complete before US2 (Simulation) can run
   - US2 (Simulation) must complete before US3 (Analysis) can run
   - Sensitivity (Phase 6) depends on the *code* of US2 (to re-run simulations) and US3 (for analysis logic), but is a parallel branch that re-executes US2 logic.
+  - Research Review (Phase 7) can run in parallel with US3/Phase 6 as it focuses on exploration and documentation.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -164,6 +189,7 @@
 - **User Story 2 (P2)**: Depends on US1 (needs networks to simulate)
 - **User Story 3 (P3)**: Depends on US2 (needs simulation results)
 - **Sensitivity (Phase 6)**: Depends on US2 code (to re-run) and US3 code (for analysis); re-executes US2 logic with new parameters.
+- **Research Review (Phase 7)**: Can start after Foundational; depends on US2/US3 logic for comparison but is largely independent.
 - **Polish (Phase N)**: Depends on all prior phases
 
 ### Within Each User Story
@@ -180,6 +206,7 @@
 - US2 can start as soon as US1 produces the first batch of networks (if pipelined)
 - All tests for a user story marked [P] can run in parallel
 - Phase 6 tasks (T033-T034) can run in parallel with US3 analysis if US2 code is ready.
+- Phase 7 tasks (T035-T043) can run in parallel with US3 and Phase 6.
 
 ---
 
@@ -201,7 +228,8 @@
 3. Add US2 → Test independently → Validate convergence times
 4. Add US3 → Test independently → Validate scaling exponents
 5. Add Sensitivity → Test independently → Validate robustness
-6. Each story adds value without breaking previous stories
+6. Add Research Review → Test independently → Validate alignment with prior reviews
+7. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -212,8 +240,9 @@ With multiple developers:
    - Developer A: US1 (Network Gen)
    - Developer B: US2 (Simulation Engine) - *Note: Developer B can start with a mock network generator if US1 is delayed*
    - Developer C: US3 (Analysis) - *Can start with synthetic data*
+   - Developer D: Phase 7 (Research Review Exploration) - *Can start immediately on rule-space logic and scaling analysis*
 3. Once baseline is established:
-   - Developer D: Phase 6 (Sensitivity Analysis)
+   - Developer E: Phase 6 (Sensitivity Analysis)
 
 ---
 
@@ -225,7 +254,8 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - **Critical Constraint**: All tasks must run on CPU-only (limited cores, constrained RAM). No GPU, no 8-bit quantization, no large model loading.
-- **Scope Note**: This project strictly implements the fixed Hegselmann-Krause model as defined in FR-001 to FR-008. The experimental Phase 7 tasks (adaptive thresholds, alternative rules) have been removed to adhere strictly to the spec.
-- **Performance**: Task T025 explicitly addresses the 5-hour runtime constraint (SC-003).
-- **Sensitivity**: Task T033 explicitly re-runs simulations to satisfy FR-008, ensuring valid sensitivity analysis.
-- **Validation**: Task T016 explicitly validates Constitution Principle VI regarding topological divergence.
+- **Scope Note**: This project strictly implements the fixed Hegselmann-Krause model as defined in FR-001 to FR-008. The experimental Phase 7 tasks (adaptive thresholds, alternative rules, scaling analysis) are **exploratory prototypes** or **documentation** and do not alter the core static model execution.
+- **Performance**: Task T025 explicitly addresses the 5-hour runtime constraint (SC-003) with deterministic parallelization.
+- **Sensitivity**: Task T033 explicitly re-analyzes existing traces (now containing full temporal data) to satisfy FR-008, ensuring valid sensitivity analysis within runtime limits.
+- **Validation**: Task T016a/T016b explicitly validates Constitution Principle VI regarding topological divergence by preparing and populating data for regression.
+- **Review Alignment**: Phase 7 tasks (T035-T043) directly address the specific concerns raised by Alan Turing (static vs. adaptive), David Krakauer (biological context), Stephen Wolfram (rule space exploration), and Geoffrey West (scaling of $\epsilon$ with density), including the mandatory Reference-Validator run (T043).

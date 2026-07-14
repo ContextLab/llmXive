@@ -3,17 +3,18 @@
 ## Prerequisites
 
 -   Python 3.11+
--   `pip` (Python package manager)
+-   `pip` or `conda`
 -   Git
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
+1.  **Clone the repository**:
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-672-the-impact-of-bounded-confidence-on-opin
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create and activate a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -26,60 +27,49 @@
 
 ## Running the Pipeline
 
-The pipeline is designed to run end-to-end via the `main.py` script.
+The pipeline consists of three sequential steps. Run them in order to reproduce the study.
 
-### 1. Generate Networks
-Generates an ensemble of networks per topology type.
+### Step 1: Generate Networks
+Generates multiple instances of each topology (ER, BA, WS).
 ```bash
-python code/generate_networks.py --output data/raw/network_metrics.csv --seeds 50
+python code/generate_networks.py --output data/raw/networks/ --seeds 50
 ```
 
-### 2. Run Simulations
-Executes the HK model sweep. **Note**: This may take up to 2-3 hours.
+### Step 2: Run Simulations
+Executes the HK model for all networks and $\epsilon$ values.
 ```bash
 python code/simulate_hk.py \
-  --networks data/raw/network_metrics.csv \
-  --output data/raw/simulations.csv \
-  --eps 0.05 0.50 0.05 \
-  --max-iter 10000
+  --networks data/raw/networks/ \
+  --epsilon-start 0.05 \
+  --epsilon-end 0.50 \
+  --epsilon-step 0.05 \
+  --seeds 50 \
+  --output data/raw/simulations/
 ```
 
-### 3. Analyze Scaling
-Fits power laws and runs regressions using the two-stage estimation method.
+### Step 3: Analyze Results
+Fits power laws and runs regression.
 ```bash
 python code/analyze_scaling.py \
-  --simulations data/raw/simulations.csv \
-  --networks data/raw/network_metrics.csv \
+  --simulations data/raw/simulations/ \
+  --networks data/raw/networks/ \
   --output data/processed/
-```
-
-### 4. Sensitivity Analysis (Optional)
-Tests robustness of $\gamma$ to convergence threshold.
-```bash
-python code/sensitivity_analysis.py \
-  --simulations data/raw/simulations.csv \
-  --output data/processed/sensitivity_results.csv
-```
-
-### 5. Generate Checksums
-Generates `data/.checksums.json` and updates the state file.
-```bash
-python code/utils/checksums.py --data-dir data/ --state-file state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml
 ```
 
 ## Verification
 
-To verify the results:
-1.  Check `data/processed/scaling_results.csv` for `model_type` and `r_squared`.
-2.  Check `data/processed/regression_results.csv` for `fdr_adjusted_p` values < 0.05.
-3.  Run the test suite:
+To verify the installation and logic:
+
+1.  **Unit Test**:
     ```bash
-    pytest tests/
+    pytest tests/unit/test_hk_update.py -v
+    ```
+2.  **Integration Test**:
+    ```bash
+    pytest tests/integration/test_full_pipeline.py -v
     ```
 
 ## Troubleshooting
 
--   **Memory Error**: Ensure you are not holding all simulation states in memory. The scripts stream to disk.
-- **Timeout**: If a simulation hangs, check the `max-iter` flag. The default is [deferred].
--   **Non-convergence**: If many runs are `non_converged`, the $\epsilon$ range might be too close to $\epsilon_c$. The analysis will handle this by flagging the model as `inconclusive`.
--   **Model Mismatch**: If `model_type` is `exponential` for most topologies, the power-law hypothesis may be rejected for this dataset.
+-   **Memory Error**: If you encounter OOM errors, reduce the number of seeds in Step 2 (e.g., `--seeds 10`). The default threshold is calibrated for the 7 GB limit.
+-   **Non-convergence**: The script will flag non-convergent runs. If >10% of runs are non-convergent, check if $\epsilon$ is too low (below $\epsilon_c$).

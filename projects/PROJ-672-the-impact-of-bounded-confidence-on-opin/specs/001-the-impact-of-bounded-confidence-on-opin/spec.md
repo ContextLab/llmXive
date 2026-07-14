@@ -25,7 +25,7 @@ The system must generate reproducible ensembles of synthetic networks (Erd≈ës-R√
 
 ### User Story 2 - Execute Bounded Confidence Simulations (Priority: P2)
 
-The system must execute discrete-time Hegselmann-Krause agent-based simulations on the generated networks, sweeping the confidence threshold $\epsilon$ across a range of values $\epsilon \in [, 0.50]$ in uniform increments of 0.05, and measuring the convergence time for each configuration.
+The system must execute discrete-time Hegselmann-Krause agent-based simulations on the generated networks, sweeping the confidence threshold $\epsilon$ across a range of values in uniform increments, and measuring the convergence time for each configuration.
 
 **Why this priority**: This is the core experimental engine. It produces the raw data (convergence times) required to test the scaling hypothesis. It is complex and computationally intensive, making it the second most critical component.
 
@@ -45,7 +45,7 @@ The system must fit a power-law model to the convergence time data for each topo
 
 **Why this priority**: This is the analytical phase that answers the research question. It relies entirely on the outputs of US-1 and US-2. While essential for the final result, it is logically downstream of data generation.
 
-**Independent Test**: Can be tested by providing a synthetic dataset of convergence times and structural metrics, verifying that the regression model correctly identifies a known correlation (e.g., $\gamma \propto$ assortativity) and that the power-law fit $R^2$ exceeds 0.8.
+**Independent Test**: Can be tested by providing a synthetic dataset of convergence times and structural metrics, verifying that the regression model correctly identifies a known correlation (e.g., $\gamma \propto$ assortativity) and that the power-law fit $R^$ exceeds 0.8.
 
 **Acceptance Scenarios**:
 

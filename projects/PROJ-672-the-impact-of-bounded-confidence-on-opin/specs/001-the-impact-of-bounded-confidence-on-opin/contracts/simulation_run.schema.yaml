@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationRun Schema"
+description: "Schema for validating single HK simulation execution results."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique UUID for the run."
+  network_id:
+    type: "string"
+    description: "Foreign key to NetworkInstance."
+  epsilon:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence threshold value."
+  seed:
+    type: "integer"
+    description: "Random seed for initial opinions."
+  convergence_time:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Iterations until convergence; null if non-converged."
+  status:
+    type: "string"
+    enum:
+      - "converged"
+      - "non_converged"
+    description: "Outcome status of the simulation."
+  final_clusters:
+    type: ["integer", "null"]
+    minimum: 1
+    description: "Number of opinion clusters at termination."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of execution."
+required:
+  - "run_id"
+  - "network_id"
+  - "epsilon"
+  - "seed"
+  - "status"
+  - "timestamp"
+additionalProperties: false

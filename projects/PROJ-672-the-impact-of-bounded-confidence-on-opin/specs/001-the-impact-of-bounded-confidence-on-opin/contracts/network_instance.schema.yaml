@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetworkInstance Schema"
+description: "Schema for validating synthetic network metadata and structural metrics."
+type: "object"
+properties:
+  network_id:
+    type: "string"
+    description: "Unique UUID for the network instance."
+  topology_type:
+    type: "string"
+    enum:
+      - "er"
+      - "ba"
+      - "ws"
+    description: "Type of network topology."
+  node_count:
+    type: "integer"
+    const: 500
+    description: "Number of nodes in the network."
+  edge_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of edges."
+  assortativity:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Degree assortativity coefficient."
+  average_path_length:
+    type: "number"
+    minimum: 0.0
+    description: "Average shortest path length."
+  clustering_coefficient:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Global clustering coefficient."
+  rewiring_prob:
+    type: ["number", "null"]
+    minimum: 0.0
+    maximum: 1.0
+    description: "Rewiring probability for Watts-Strogatz; null for others."
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+required:
+  - "network_id"
+  - "topology_type"
+  - "node_count"
+  - "edge_count"
+  - "assortativity"
+  - "average_path_length"
+  - "clustering_coefficient"
+  - "seed"
+additionalProperties: false

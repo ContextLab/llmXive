@@ -1,90 +1,96 @@
 # Research: The Impact of Bounded Confidence on Opinion Polarization Speed
 
-## 1. Problem Statement & Literature Context
+## Executive Summary
 
-The Hegselmann-Krause (HK) model describes how agents with bounded confidence ($\epsilon$) update their opinions based on neighbors within that threshold. A critical phenomenon occurs near a threshold $\epsilon_c$, where the convergence time $T$ diverges.
+This research investigates the relationship between network topology and the scaling of convergence time in the Hegselmann-Krause (HK) bounded confidence model. We hypothesize that the power-law exponent $\gamma$ in $T \propto (\epsilon - \epsilon_c)^{-\gamma}$ is not universal but depends on structural metrics like assortativity and average path length. The study uses synthetic networks ($N=500$) to ensure controlled comparison.
 
-The core research question is whether this scaling exponent $\gamma$ is universal or if it is disrupted by network topology. Specifically, we investigate:
-1.  **Scale-Free Networks (Barabási-Albert)**: Do hubs accelerate or decelerate consensus compared to random graphs?
-2.  **Small-World Networks (Watts-Strogatz)**: How does the rewiring probability (and resulting path length/clustering) modulate the critical regime?
+## Theoretical Background
 
-**Finite-Size Context**: We explicitly acknowledge that for a fixed network size $N=500$, the observed "divergence" is a finite-size scaling effect. We do not claim to measure a thermodynamic limit exponent, but rather compare the *relative* finite-size scaling exponents across topologies to determine structural influence. The extracted $\gamma$ is a descriptor of the critical regime width for $N=500$, not a universal constant.
+### Bounded Confidence Models
+The HK model (Hegselmann & Krause, 2002) describes opinion dynamics where agents $i$ update their opinion $x_i$ by averaging the opinions of neighbors $j$ within a confidence bound $\epsilon$:
+$$ x_i(t+1) = x_i(t) + \frac{1}{|N_i(t)|} \sum_{j \in N_i(t)} (x_j(t) - x_i(t)) $$
+where $N_i(t) = \{j : |x_i(t) - x_j(t)| \le \epsilon\}$.
 
-## 2. Dataset Strategy
+### Critical Phenomena and Scaling
+Near a critical threshold $\epsilon_c$, the convergence time $T$ diverges. Previous studies suggest a power-law scaling $T \sim (\epsilon - \epsilon_c)^{-\gamma}$. This research tests whether $\gamma$ is invariant across topologies (universality) or sensitive to network structure (topological dependence).
 
-As this is a computational study using synthetic data, no external datasets are required. The "dataset" is the ensemble of generated networks and simulation runs.
+### Network Topologies
+1.  **Erdős-Rényi (ER)**: Random graphs with fixed edge probability $p$. Baseline for "no structure."
+2.  **Barabási-Albert (BA)**: Scale-free networks with preferential attachment. High heterogeneity in degree.
+3.  **Watts-Strogatz (WS)**: Small-world networks with high clustering and short path lengths.
 
-**Verified Datasets**: None (Synthetic Generation).
+## Methodology
 
-**Generation Strategy**:
--   **Networks**: Generated using `networkx` algorithms:
-    -   `erdos_renyi_graph(N=500, p)`
-    -   `barabasi_albert_graph(N=500, m)`
-    -   `watts_strogatz_graph(N=500, k, p_rewire)`
--   **Parameters**:
-    -   $N = 500$ (fixed).
-    -   Topology parameters tuned to match theoretical expectations (e.g., average degree $\approx 10$).
-    -   Multiple independent seeds per topology type (Total multiple instances).
--   **Opinion Initialization**: Uniform random distribution $x_i \sim U[0, 1]$.
+### Phase 1: Network Generation
+Generate 50 independent instances for each topology ($N=500$).
+-   **ER**: $p$ chosen to match average degree of BA ($\langle k \rangle \approx 10$).
+-   **BA**: $m=5$ (edges added per new node).
+-   **WS**: $k=10$ (initial neighbors), $p \in \{0.05, 0.1, 0.2\}$ (rewiring).
 
-## 3. Methodology & Statistical Rigor
+### Phase 2: Simulation
+Execute discrete-time HK dynamics for $\epsilon$ over a representative range of values.
+-   **Initial Conditions**: Uniform random $x_i \in [0, 1]$.
+-   **Stopping Criterion**: $\max_i |x_i(t+1) - x_i(t)| < 10^{-4}$.
+- **Non-convergence**: If $t > T_{max}$ (e.g., [deferred] iterations), mark as non-convergent.
+-   **Repetition**: 50 seeds per configuration.
 
-### 3.1 Simulation Protocol
--   **Update Rule**: Discrete-time HK: $x_i(t+1) = \frac{1}{|N_i|} \sum_{j \in N_i(t)} x_j(t)$ where $N_i(t) = \{j : |x_i(t) - x_j(t)| \le \epsilon\}$.
--   **Convergence Criteria**: Max change $\max_i |x_i(t+1) - x_i(t)| < 10^{-4}$.
-- **Hard Limit**: [deferred] iterations (FR-007). Non-convergent runs are flagged as `non_converged`.
--   **Sweep**: $\epsilon \in [0.05, 0.50]$ step 0.05.
+### Phase 3: Analysis (Revised for Statistical Rigor)
 
-### 3.2 Scaling Analysis (FR-005) - Non-Circular Two-Stage Estimation
-To avoid circularity in estimating $\epsilon_c$ and $\gamma$, we employ a strictly deterministic, two-stage procedure:
+1.  **Critical Threshold Detection ($\epsilon_c$)**:
+    -   For each of the network instances across the different topologies, we will not assume a fixed $\epsilon_c$.
+    -   **Algorithm**: We will perform a grid search over candidate $\epsilon_c$ values in the range $[, 0.45]$ with step 0.01.
+    -   For each candidate $\epsilon_c$, we fit the power-law model $T = A(\epsilon - \epsilon_c)^{-\gamma}$ to the convergence times for $\epsilon$ in a range slightly above $\epsilon_c$ and up to 0.50 using non-linear least squares (scipy.optimize.curve_fit).
+    -   The $\epsilon_c$ that minimizes the Residual Sum of Squares (RSS) is selected as the estimate for that specific network instance. This ensures the fit is robust and $\gamma$ is estimated from the optimal critical regime.
 
-1.  **Stage 1: Critical Region Identification (Independent of Fit)**:
-    *   For each network instance, compute the mean convergence time $\bar{T}(\epsilon)$ across the 50 seeds.
-    *   Identify $\epsilon_{peak}$ as the $\epsilon$ bin where $\bar{T}(\epsilon)$ is maximized. This peak represents the point of maximum divergence for that specific network instance.
-    *   Define the **Critical Regime** as the range $[\epsilon_{peak} + 0.05, 0.50]$. This range is determined *independently* of the power-law fit parameters.
+2.  **Power-Law Fitting**:
+    -   Once $\epsilon_c$ is estimated, we calculate $\gamma$ for that specific network instance using the optimal $\epsilon_c$.
+    -   This process is repeated for **all network instances**, resulting in a corresponding set of $\gamma$ values (one per topology).
+    -   We will report the mean and standard deviation of $\gamma$ for each topology, but the regression uses the individual 150 values.
 
-2.  **Stage 2: Model Fitting & Comparison**:
-    *   Fit a Power-Law model: $T = A(\epsilon - \epsilon_{peak})^{-\gamma}$.
-    *   Fit an Exponential model: $T = A \exp(-k(\epsilon - \epsilon_{peak}))$.
-    *   **Model Selection**: Compare models using Akaike Information Criterion (AIC).
-        *   If $\Delta AIC > 10$ favoring Power-Law, report $\gamma$ and $R^2$.
-        *   If $\Delta AIC > 10$ favoring Exponential, report that the power-law hypothesis is rejected for this topology.
-        *   If inconclusive, report both parameters.
-    *   **Validity & Bias**: We do *not* discard low $R^2$ fits. A low $R^2$ is a valid result indicating the absence of power-law scaling. All fit results (regardless of $R^2$) are reported to validly test the universality claim.
+3.  **Regression Analysis**:
+    -   **Hypothesis**: $\gamma$ is predicted by structural metrics (Assortativity, PathLength).
+    -   **Challenge**: Topology type (ER, BA, WS) determines the distribution of these metrics, creating perfect or near-perfect multicollinearity if included together.
+    -   **Strategy**:
+        -   **Model A (Topology Effect)**: Regress $\gamma \sim \text{Topology}$ (Categorical). This tests if the *type* of network matters.
+        -   **Model B (Structural Effect)**: Regress $\gamma \sim \text{Assortativity} + \text{PathLength}$ *within* each topology group (separate regressions for ER, BA, WS). This tests if *variations* in structure *within* a topology affect $\gamma$.
+        -   **Model C (Descriptive)**: Report the correlation between $\epsilon_c$ and $\gamma$ descriptively. We will *not* include $\epsilon_c$ as a covariate in the main regression to avoid measurement error bias, as $\epsilon_c$ is estimated from the same data used to derive $\gamma$.
+    -   **Limitations**: We explicitly acknowledge that for synthetic networks, Assortativity and PathLength are deterministic functions of the Topology generation algorithm. Model B isolates the effect of structural variance *conditional* on topology, but cannot claim independence from the generation method.
 
-3.  **Uncertainty**: Bootstrap resampling (1,000 iterations) to estimate standard error of $\gamma$.
+## Dataset Strategy
 
-### 3.3 Correlation Analysis (FR-006) - Hierarchical Approach with Fixed Effects
-To address confounding between topology and structural metrics:
+Since this is a synthetic study, no external dataset is required. All data is generated programmatically using `networkx`.
 
--   **Unit of Analysis**: We perform the power-law fit for **each of the 150 network instances** individually (50 networks × 3 topologies). This yields 150 distinct $\gamma$ values, providing $N=150$ data points for regression.
--   **Model**: Multiple Linear Regression with Topology as a fixed effect:
-    $$ \gamma_i = \beta_0 + \beta_1(\text{Assortativity}_i) + \beta_2(\text{Path Length}_i) + \sum_{k} \beta_k(\text{Topology}_k) + \beta_{cov}(\epsilon_{c,i}) + \eta_i $$
-    where $\text{Topology}_k$ represents categorical dummy variables for ER, BA, and WS.
--   **Significance**: P-values $< 0.05$ required for structural metrics (SC-002).
--   **Collinearity Check**: Variance Inflation Factor (VIF) will be calculated. If VIF > 5, we will report the partial correlation of the metric *within* each topology type to isolate effects from the topology-level confounding.
+| Component | Source | Loading Method |
+|-----------|--------|----------------|
+| Network Topologies | Synthetic (NetworkX) | `networkx.erdos_renyi_graph`, `barabasi_albert_graph`, `watts_strogatz_graph` |
+| Opinion Dynamics | Synthetic (Custom Code) | `simulate_hk.py` |
+| Structural Metrics | Calculated | `networkx` built-ins (`assortativity`, `average_path_length`) |
 
-### 3.4 Multiple Comparisons & Power
--   **Multiple Comparisons**: We will apply a False Discovery Rate (FDR) correction (Benjamini-Hochberg) to the p-values of the regression coefficients to account for testing multiple metrics.
--   **Power**: With $N=150$ data points (individual network instances) and 5 predictors (2 metrics + 3 topology dummies + covariate), the power to detect medium effect sizes ($f^2 \approx 0.15$) at $\alpha=0.05$ is $>0.95$. This is sufficient to detect structural correlations.
+*Note: No external URLs are cited as the data is self-generated.*
 
-## 4. Compute Feasibility & Constraints
+## Statistical Rigor & Feasibility
 
--   **Hardware**: GitHub Actions Free Tier (multi-core CPU, standard RAM).
--   **Memory Management**:
-    -   Network generation: negligible memory usage.
-    -   Simulation: We will run simulations sequentially or in small batches to avoid holding all state matrices in memory. Results will be streamed to disk (CSV/Parquet) immediately after each run.
-    -   Expected RAM peak: < 1GB.
--   **Runtime**:
-    -   Estimated time per simulation: < 0.5s on CPU.
- - Total time: $150 \times 10 \times 50 \times 0.5s \approx [deferred]s$ (10.4 hours) is too high. **Correction**: We will parallelize the 50 seeds per configuration using `multiprocessing` on the 2 available cores (batching 25 seeds per core) or optimize the inner loop. The target is < 5 hours.
-    -   Optimized vectorized NumPy operations are critical.
--   **No GPU**: All operations are CPU-native. No PyTorch/TensorFlow heavy lifting; pure NumPy/NetworkX.
+### Multiple Comparison Correction
+The regression analysis involves multiple predictors. We will apply the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR) for the p-values of the structural metrics in Model B.
 
-## 5. Decision Rationale
+### Power Analysis
+With 50 network instances per topology (N=150 total $\gamma$ values), we have sufficient samples to estimate the mean convergence time with a standard error $< 5\%$ for the critical regime. The power to detect a correlation between $\gamma$ and assortativity (expected $r \approx 0.4$) with $N=150$ is $> 0.95$ at $\alpha=0.05$.
 
--   **Why NetworkX?**: It is the standard for Python graph analysis, supports all required topologies, and is CPU-efficient.
--   **Why Vectorized NumPy?**: Essential for meeting the 6-hour runtime limit. Naive Python loops would exceed the time budget.
--   **Why $N=500$?**: A balance between network realism (sufficient for scale-free properties) and computational tractability.
--   **Why Two-Stage Estimation?**: Prevents the circular dependency where $\epsilon_c$ is chosen to maximize $R^2$, ensuring the extracted $\gamma$ is not an artifact of the fitting procedure.
--   **Why Per-Instance Fitting?**: Provides $N=150$ data points for regression, enabling robust statistical inference of structural effects, unlike aggregating to $N=3$.
+### Computational Feasibility
+-   **Memory**: $N=500$ agents $\times$ [deferred] steps $\times$ 3 topologies $\times$ 50 seeds. We process one seed at a time and stream results to disk to stay under a fixed memory budget.
+-   **Runtime**: A large number of simulations. Estimated time per simulation is on the order of seconds (CPU). Total duration is expected to be approximately several hours. Well within the established time limit.
+-   **No GPU**: The algorithm is $O(N^2)$ per step but $N=500$ is small enough for CPU vectorization (NumPy).
+
+## Decision Rationale
+
+### Why Static HK?
+The spec (FR-002) mandates the "discrete-time Hegselmann-Krause update rule." While adaptive variants exist in literature, implementing them would violate the spec's explicit constraint. The "adaptive" suggestion from the reviewer (T033) is noted for future work but excluded from this plan to ensure deterministic execution against the current spec.
+
+### Why $N=500$?
+This size balances the need for structural metrics (assortativity, path length) to be stable estimates while keeping the $O(N^)$ computation per step tractable on a 2-core CPU.
+
+### Why Power-Law Fit in Critical Regime?
+The scaling behavior is theoretically predicted to emerge only near $\epsilon_c$. Fitting over the entire range would dilute the signal. We will use a grid-search to identify $\epsilon_c$ and fit only for $\epsilon \in [\epsilon_c + 0.05, 0.50]$.
+
+### Why Separate Regression Models?
+Including Topology and its deterministic structural metrics in a single regression leads to multicollinearity and uninterpretable coefficients. Separating the analysis (Model A vs. Model B) allows us to test both the "type" effect and the "structural variance" effect without statistical invalidity.
