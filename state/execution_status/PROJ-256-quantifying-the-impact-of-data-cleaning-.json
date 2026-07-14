@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026l dataset     # We use a dummy dataset name since this is a gen\u2026\u201d; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Create a simple synthetic dataset for null generation if n\u2026\u201d; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026er.warning(\"Running with simulated data for demonstration\")\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    /Online Retail.xlsx\n2026-07-14 01:18:29 - __main__ - ERROR - Failed to download https://archive.ics.uci.edu/ml/machine-learning-databases/00394/Online%20Retail.xlsx: HTTP Error 404: Not Found\n2026-07-14 01:18:29 - __main__ - WARNING - Failed to download UCI Shopper dataset.\n2026-07-14 01:18:29 - __main__ - INFO - Data availability check passed. Found 2 files in data/raw\n2026-07-14 01:18:29 - __main__ - INFO - Running baseline analysis (T012)...\n2026-07-14 01:18:29 - __main__ - INFO - Running: /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-im"
+    "python code/main.py -> rc=1\n    son\n2026-07-14 03:18:33,787 - analysis - INFO - run_baseline_analysis called with input type: str\n2026-07-14 03:18:33,788 - analysis - INFO - Loaded dataset: sample_data with shape (50, 7)\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line 50, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line "
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "updated_at": "2026-07-14T01:18:31Z"
+  "updated_at": "2026-07-14T03:18:35Z"
 }

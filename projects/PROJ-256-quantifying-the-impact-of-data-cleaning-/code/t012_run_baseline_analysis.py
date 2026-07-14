@@ -4,37 +4,48 @@ import json
 import logging
 from typing import List, Dict, Any
 from pathlib import Path
-from utils import setup_logging
-from config import get_config
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from analysis import run_baseline_analysis
+from config import Config
+from utils import setup_logging
 
 def main():
-    """
-    Wrapper script to run T012 baseline analysis.
-    Reads config, runs analysis, and exits.
-    """
     setup_logging("INFO")
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("t012_run_baseline_analysis")
     logger.info("Starting T012: Run Baseline Analysis")
 
-    config = get_config()
+    # Load configuration
+    config = Config()
     raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    output_file = config.get("OUTPUT_PATH", "data/processed/baseline_metrics.json")
+    output_file = config.get("PROCESSED_DATA_PATH", "data/processed")
+    output_file = os.path.join(output_file, "baseline_metrics.json")
 
     logger.info(f"Input directory: {raw_dir}")
     logger.info(f"Output file: {output_file}")
 
+    # Check if raw directory exists and has files
     if not os.path.exists(raw_dir):
-        logger.error(f"Input directory does not exist: {raw_dir}")
-        sys.exit(1)
+        logger.error(f"Input directory {raw_dir} does not exist.")
+        return False
 
-    success = run_baseline_analysis(raw_dir, output_file, config=config)
+    files = [f for f in os.listdir(raw_dir) if f.lower().endswith(('.csv', '.xlsx', '.xls'))]
+    if not files:
+        logger.error(f"No datasets found in {raw_dir}")
+        return False
+
+    # Run analysis
+    success = run_baseline_analysis(raw_dir, output_file, config)
+
     if success:
         logger.info("T012 completed successfully.")
-        sys.exit(0)
+        return True
     else:
         logger.error("T012 failed.")
-        sys.exit(1)
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

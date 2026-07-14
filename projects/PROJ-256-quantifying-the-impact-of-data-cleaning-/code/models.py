@@ -7,44 +7,54 @@ class ImputationMethod(str, Enum):
     MEAN = "mean"
     MEDIAN = "median"
     KNN = "knn"
+    MODE = "mode"
 
 class CleaningStrategyType(str, Enum):
     OUTLIER_REMOVAL = "outlier_removal"
     IMPUTATION = "imputation"
     RECODING = "recoding"
+    COMBINED = "combined"
 
 class Dataset(BaseModel):
     name: str
     path: str
-    n_rows: int
-    n_cols: int
+    rows: int
+    columns: int
     checksum: str
-    missing_rate: Optional[float] = None
+    missing_rate: float
 
 class CleaningStrategy(BaseModel):
     type: CleaningStrategyType
     parameters: Dict[str, Any]
-    rows_removed: Optional[int] = None
-    variance_reduction: Optional[float] = None
+    description: str
 
 class AnalysisResult(BaseModel):
     dataset_name: str
-    n_rows: int
-    n_cols: int
-    t_tests: Dict[str, Dict[str, Any]]
-    regressions: Dict[str, Dict[str, Any]]
+    strategy_used: Optional[str] = None
+    p_value: float
+    ci_lower: float
+    ci_upper: float
+    effect_size: float
+    test_type: str  # e.g., "t_test", "linear_regression"
+    coefficients: Optional[List[float]] = None
 
 class ComparisonReport(BaseModel):
-    baseline_metrics: List[Dict[str, Any]]
-    cleaned_metrics: List[Dict[str, Any]]
-    absolute_diff: Dict[str, float]
-    relative_diff: Dict[str, float]
-    sensitivity_analysis: Dict[str, Any]
-    generated_at: datetime = Field(default_factory=datetime.now)
+    """
+    The core entity for T040.
+    Contains baseline metrics, cleaned metrics, diffs, and sensitivity analysis.
+    """
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    comparison: Dict[str, Any] = Field(default_factory=dict)
+    sensitivity_analysis: Optional[Dict[str, Any]] = None
+
+    @field_validator('comparison')
+    def validate_comparison_structure(cls, v):
+        required_keys = ['baseline', 'cleaned', 'absolute_diff', 'relative_diff', 'summary']
+        for key in required_keys:
+            if key not in v:
+                raise ValueError(f"Missing required key in comparison: {key}")
+        return v
 
 def main():
-    """CLI for models."""
-    print("Models module loaded.")
-
-if __name__ == "__main__":
-    main()
+    """Entry point for models module if run directly."""
+    pass

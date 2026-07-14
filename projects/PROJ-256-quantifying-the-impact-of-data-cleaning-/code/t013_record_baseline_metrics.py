@@ -1,188 +1,139 @@
-"""
-Task T013: Record baseline metrics to data/processed/baseline_metrics.json.
-
-This script aggregates baseline analysis results from the raw data directory,
-ensures they are formatted with ≥3 decimal precision, and writes them to the
-specified output file.
-
-It handles the case where data might not be present by attempting to trigger
-the data acquisition logic (T011) if necessary, or failing loudly if no data
-exists.
-"""
 import os
 import sys
 import json
 import logging
 import hashlib
 from typing import List, Dict, Any, Optional
-from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
+import numpy as np
 
-from config import Config, get_config
-from analysis import load_datasets_from_raw, run_baseline_analysis
+from analysis import run_baseline_analysis
+from config import Config
 from utils import setup_logging, compute_file_checksum
 
 logger = logging.getLogger(__name__)
 
-def format_metric_value(value: Any) -> float:
-    """
-    Format a metric value to ensure ≥3 decimal precision for JSON output.
-    Handles None, NaN, and Inf gracefully.
-    """
-    if value is None:
-        return 0.0
-    try:
-        f_val = float(value)
-        if not (f_val == f_val):  # NaN check
-            return 0.0
-        if abs(f_val) == float('inf'):
-            return 0.0
-        return round(f_val, 4)  # Round to 4 for safety, display 3+
-    except (ValueError, TypeError):
-        return 0.0
+def format_metric_value(val: Any) -> Any:
+    """Format metric values to required precision (>= 3 decimals)."""
+    if val is None:
+        return None
+    if isinstance(val, float):
+        # Round to 6 decimals to ensure >= 3 precision, avoid floating point noise
+        return round(val, 6)
+    if isinstance(val, list):
+        return [format_metric_value(v) for v in val]
+    return val
 
-def log_metrics_summary(metrics: Dict[str, Any]) -> None:
-    """Log a summary of the recorded metrics."""
-    logger.info("Recorded Baseline Metrics Summary:")
+def log_metrics_summary(metrics: Dict[str, Any]):
+    """Log a summary of the metrics."""
+    logger.info("=== Baseline Metrics Summary ===")
     if 'datasets' in metrics:
         for ds in metrics['datasets']:
             name = ds.get('dataset_name', 'Unknown')
-            logger.info(f"  Dataset: {name}")
+            logger.info(f"Dataset: {name}")
             if 'tests' in ds:
-                for test_name, res in ds['tests'].items():
-                    p_val = res.get('p_value', 0)
-                    logger.info(f"    {test_name}: p={p_val:.4f}")
-    else:
-        logger.warning("No datasets found in metrics.")
+                tests = ds['tests']
+                if 't_test' in tests:
+                    p_val = tests['t_test'].get('p_value')
+                    logger.info(f"  T-Test P-Value: {p_val}")
+                if 'regression' in tests:
+                    r_sq = tests['regression'].get('r_squared')
+                    logger.info(f"  Regression R-Squared: {r_sq}")
+    logger.info("================================")
 
-def process_dataset_for_baseline(dataset_name: str, df: Any, config: Config) -> Dict[str, Any]:
+def process_dataset_for_baseline(
+    input_path: str, 
+    output_path: str, 
+    config: Optional[Dict] = None
+) -> bool:
     """
-    Run baseline analysis on a single dataset and format the results.
+    Process a dataset to generate baseline metrics.
+    Ensures output is written to disk with correct precision.
+    """
+    if config is None:
+        config = {}
     
-    Args:
-        dataset_name: Name of the dataset
-        df: DataFrame to analyze
-        config: Configuration object
+    logger.info(f"Processing dataset from {input_path}")
+    
+    # Run analysis
+    # run_baseline_analysis handles both file loading and returning dict
+    # We force it to return a dict by passing a DataFrame or handling the string path carefully
+    # Since input_path is a string (directory), we rely on the function to load and write
+    # But we want to ensure precision. The function writes directly.
+    # Let's intercept the write or post-process.
+    # Simpler: Call run_baseline_analysis, which writes the file.
+    # Then read it back, format, and write again? Or modify run_baseline_analysis?
+    # The task says "Record ... to ... with >= 3 decimal precision".
+    # The analysis.py write_output uses default json.dump which might truncate.
+    # We will post-process the file written by run_baseline_analysis to ensure precision.
+    
+    # 1. Run the analysis (this writes a file)
+    success = run_baseline_analysis(input_path, output_path, config)
+    if not success:
+        logger.error("Analysis failed to run.")
+        return False
+    
+    # 2. Read, Format, Rewrite
+    try:
+        with open(output_path, 'r') as f:
+            data = json.load(f)
         
-    Returns:
-        Dictionary containing formatted metrics
-    """
-    logger.info(f"Processing baseline for dataset: {dataset_name}")
-    
-    # Run the analysis
-    # The run_baseline_analysis function is designed to handle both
-    # file paths and DataFrames. We pass the DataFrame directly.
-    result = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-    
-    if not result:
-        logger.error(f"Baseline analysis failed for {dataset_name}")
-        return {}
-    
-    # Ensure result is a dict if it came back as a success boolean
-    # (The function signature suggests it returns a dict when called with df)
-    if isinstance(result, bool) and result:
-        # This shouldn't happen if called with df, but handle gracefully
-        return {}
-    
-    # Format numeric values to ensure precision
-    formatted_result = {
-        'dataset_name': dataset_name,
-        'dataset_size': result.get('dataset_size', 0),
-        'checksum': result.get('checksum', ''),
-        'timestamp': result.get('timestamp', ''),
-        'tests': {}
-    }
-    
-    if 'tests' in result:
-        for test_name, test_res in result['tests'].items():
-            formatted_test = {
-                'p_value': format_metric_value(test_res.get('p_value')),
-                'ci_lower': format_metric_value(test_res.get('ci_lower')),
-                'ci_upper': format_metric_value(test_res.get('ci_upper')),
-                'effect_size': format_metric_value(test_res.get('effect_size')),
-                'effect_size_type': test_res.get('effect_size_type', 'Cohen\'s d'),
-                'significant': test_res.get('significant', False),
-                'method': test_res.get('method', '')
-            }
-            formatted_result['tests'][test_name] = formatted_test
-    
-    if 'regression' in result:
-        formatted_result['regression'] = {
-            'r_squared': format_metric_value(result['regression'].get('r_squared')),
-            'adj_r_squared': format_metric_value(result['regression'].get('adj_r_squared')),
-            'f_statistic': format_metric_value(result['regression'].get('f_statistic')),
-            'p_value': format_metric_value(result['regression'].get('p_value')),
-            'coefficients': [format_metric_value(c) for c in result['regression'].get('coefficients', [])]
-        }
-    
-    return formatted_result
+        # Recursively format floats
+        def fmt(obj):
+            if isinstance(obj, dict):
+                return {k: fmt(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [fmt(v) for v in obj]
+            elif isinstance(obj, float):
+                return round(obj, 6) # Ensure >= 3 decimals
+            return obj
+        
+        formatted_data = fmt(data)
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(formatted_data, f, indent=2)
+        
+        logger.info(f"Metrics recorded to {output_path} with precision.")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to format/write metrics: {e}")
+        return False
 
 def main():
     """Main entry point for T013."""
-    setup_logging(log_level="INFO")
-    config = get_config()
+    setup_logging("INFO")
+    config_obj = Config()
     
-    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    output_path = config.get("BASELINE_OUTPUT_PATH", "data/processed/baseline_metrics.json")
+    # Convert Config object to dict for the helper
+    cfg_dict = {}
+    if hasattr(config_obj, 'get'):
+        for key in ['RAW_DATA_PATH', 'PROCESSED_DATA_PATH', 'RANDOM_SEED', 'TARGET_COLUMN']:
+            val = config_obj.get(key)
+            if val is not None:
+                cfg_dict[key] = val
     
-    logger.info(f"Starting T013: Record Baseline Metrics")
-    logger.info(f"Input directory: {raw_dir}")
-    logger.info(f"Output file: {output_path}")
+    raw_dir = cfg_dict.get('RAW_DATA_PATH', 'data/raw')
+    processed_dir = cfg_dict.get('PROCESSED_DATA_PATH', 'data/processed')
+    output_file = os.path.join(processed_dir, 'baseline_metrics.json')
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    os.makedirs(processed_dir, exist_ok=True)
     
-    # Load datasets
-    datasets = load_datasets_from_raw(raw_dir)
+    success = process_dataset_for_baseline(raw_dir, output_file, cfg_dict)
     
-    if not datasets:
-        logger.error("No datasets found in raw directory. Aborting T013.")
-        logger.error("Please ensure T011 (data acquisition) has run successfully.")
-        return False
-    
-    logger.info(f"Found {len(datasets)} datasets to process.")
-    
-    baseline_metrics = {
-        'metadata': {
-            'generated_at': str(config.get('TIMESTAMP', '')),
-            'source_dir': raw_dir,
-            'config_seed': config.get('RANDOM_SEED', 42)
-        },
-        'datasets': []
-    }
-    
-    for ds_name, df in datasets.items():
+    if success:
+        # Load and log summary
         try:
-            metrics = process_dataset_for_baseline(ds_name, df, config)
-            if metrics:
-                baseline_metrics['datasets'].append(metrics)
+            with open(output_file, 'r') as f:
+                metrics = json.load(f)
+            log_metrics_summary(metrics)
         except Exception as e:
-            logger.error(f"Failed to process dataset {ds_name}: {e}", exc_info=True)
-    
-    if not baseline_metrics['datasets']:
-        logger.error("No valid metrics were generated. Aborting write.")
-        return False
-    
-    # Write to file
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(baseline_metrics, f, indent=2)
-        
-        # Compute checksum
-        checksum = compute_file_checksum(output_path)
-        logger.info(f"Wrote baseline metrics to {output_path}")
-        logger.info(f"Checksum: {checksum}")
-        
-        log_metrics_summary(baseline_metrics)
-        return True
-        
-    except Exception as e:
-        logger.error(f"Failed to write output file: {e}", exc_info=True)
-        return False
+            logger.error(f"Could not log summary: {e}")
+    else:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()
