@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.13658",
+  "judged_at": "2026-07-14T09:32:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting insect pollinator networks from floral trait data biology",
+  "rationale": "The paper studies primate social networks and their relationship to cognitive/structural factors, which is an entirely different empirical domain (animal behavior/sociology) and mechanism (social complexity) than the user's question regarding insect pollinator networks and floral traits (plant-pollinator ecology). It fails to satisfy any inclusion criteria (a-f) as it does not measure the same variables, mechanisms, or populations, nor does it provide a foundational methodology specific to trait",
+  "relevant": false
+}

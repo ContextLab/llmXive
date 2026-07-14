@@ -1,0 +1,576 @@
+{
+  "fetched_at": "2026-07-14T09:32:18Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Insect Pollinator Networks from Floral Trait Data",
+      "target_n": 5
+    },
+    "duration_seconds": 52.753,
+    "ended_at": "2026-07-14T09:32:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "plant-pollinator interaction prediction"
+        ],
+        [
+          2,
+          "floral trait-based network inference"
+        ],
+        [
+          3,
+          "predicting mutualistic networks from traits"
+        ],
+        [
+          4,
+          "pollination network reconstruction"
+        ],
+        [
+          5,
+          "floral characteristics and pollinator assemblages"
+        ],
+        [
+          6,
+          "trait-matching in pollination systems"
+        ],
+        [
+          7,
+          "modeling insect visitation from flower morphology"
+        ],
+        [
+          8,
+          "ecological network prediction using functional traits"
+        ],
+        [
+          9,
+          "pollinator preference based on floral signals"
+        ],
+        [
+          10,
+          "plant-pollinator network assembly rules"
+        ],
+        [
+          11,
+          "floral phenotype and pollinator identity"
+        ],
+        [
+          12,
+          "predicting specialized pollination networks"
+        ],
+        [
+          13,
+          "trait-based modeling of plant-insect interactions"
+        ],
+        [
+          14,
+          "floral resource prediction for pollinators"
+        ],
+        [
+          15,
+          "inferring pollinator guilds from floral traits"
+        ],
+        [
+          16,
+          "machine learning for pollination network prediction"
+        ],
+        [
+          17,
+          "floral scent and color effects on pollinator networks"
+        ],
+        [
+          18,
+          "phenotypic traits driving pollinator network structure"
+        ],
+        [
+          19,
+          "generalized pollination network prediction"
+        ],
+        [
+          20,
+          "pollinator visitation probability from floral data"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Insect Pollinator Networks from Floral Trait Data biology": 0,
+        "plant-pollinator interaction prediction": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "plant phenology flower morphology pollination syndromes",
+      "bee visitation rates hummingbird foraging behavior",
+      "network robustness nestedness modularity mutualism",
+      "interaction frequency pollinator abundance trait matching",
+      "coevolutionary arms race trait evolution specialization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2201.05219"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Insect Pollinator Networks from Floral Trait Data biology": 3,
+      "bee visitation rates hummingbird foraging behavior": 3,
+      "coevolutionary arms race trait evolution specialization": 3,
+      "interaction frequency pollinator abundance trait matching": 2,
+      "network robustness nestedness modularity mutualism": 3,
+      "plant phenology flower morphology pollination syndromes": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2402.13658",
+          "rationale": "The paper studies primate social networks and their relationship to cognitive/structural factors, which is an entirely different empirical domain (animal behavior/sociology) and mechanism (social complexity) than the user's question regarding insect pollinator networks and floral traits (plant-pollinator ecology). It fails to satisfy any inclusion criteria (a-f) as it does not measure the same variables, mechanisms, or populations, nor does it provide a foundational methodology specific to trait",
+          "title": "Network nestedness in primates: a structural constraint or a biological advantage of social complexity?"
+        },
+        {
+          "primary_pointer": "2504.19879",
+          "rationale": "The paper focuses on the impact of climate warming on existing plant-pollinator networks and management strategies, rather than addressing the user's specific question of *predicting* network structure from *floral trait data*. While it studies the same domain (plant-pollinator networks), it does not measure the mechanism of trait-based prediction, nor does it establish a baseline for that specific predictive task or provide the foundational methodology for inferring networks from traits.",
+          "title": "Warming demands extensive tropical but minimal temperate management in plant-pollinator networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T09:31:25Z",
+    "term_input": {
+      "normalized": "predicting insect pollinator networks from floral trait data biology",
+      "raw": "Predicting Insect Pollinator Networks from Floral Trait Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In plant-pollinator communities many pollinators are potential generalists and their preferences for certain plants can change quickly in response to changes in plant and pollinator densities. These changes in preferences affect coexistence within pollinator guilds as well as within plant guilds. Using a mathematical model, we study how adaptations of pollinator preferences influence population dynamics of a two-plant-two-pollinator community interaction module. Adaptation leads to coexistence between generalist and specialist pollinators, and produces complex plant population dynamics, involving alternative stable states and discrete transitions in the plant community. Pollinator adaptation also leads to plant-plant apparent facilitation that is mediated by changes in pollinator preferences. We show that adaptive pollinator behavior reduces niche overlap and leads to coexistence by specialization on different plants. Thus, this article documents how adaptive pollinator preferences for plants change the structure and coexistence of plant-pollinator communities.",
+          "claimed_authors": [
+            "Tomás A. Revilla",
+            "Vlastimil Křivan"
+          ],
+          "claimed_title": "Competition, trait-mediated facilitation, and the structure of plant-pollinator communities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.06846"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Competition, trait-mediated facilitation, and the structure of plant-pollinator communities')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multiobjective design optimization problems require multiobjective optimization techniques to solve, and it is often very challenging to obtain high-quality Pareto fronts accurately. In this paper, the recently developed flower pollination algorithm (FPA) is extended to solve multiobjective optimization problems. The proposed method is used to solve a set of multobjective test functions and two bi-objective design benchmarks, and a comparison of the proposed algorithm with other algorithms has been made, which shows that FPA is efficient with a good convergence rate. Finally, the importance for further parametric studies and theoretical analysis are highlighted and discussed.",
+          "claimed_authors": [
+            "Xin-She Yang",
+            "M. Karamanoglu",
+            "X. S. He"
+          ],
+          "claimed_title": "Flower Pollination Algorithm: A Novel Approach for Multiobjective Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1408.5332"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Flower Pollination Algorithm: A Novel Approach for Multiobjective Optimization')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robotic pollination offers a promising alternative to manual labor and bumblebee-assisted methods in controlled agriculture, where wind-driven pollination is absent and regulatory restrictions limit the use of commercial pollinators. In this work, we present and validate a vision-guided robotic framework that uses data from an end-effector mounted RGB-D sensor and combines 3D plant reconstruction, targeted grasp planning, and physics-based vibration modeling to enable precise pollination. First, the plant is reconstructed in 3D and registered to the robot coordinate frame to identify obstacle-free grasp poses along the main stem. Second, a discrete elastic rod model predicts the relationship between actuation parameters and flower dynamics, guiding the selection of optimal pollination strategies. Finally, a manipulator with soft grippers grasps the stem and applies controlled vibrations to induce pollen release. End-to-end experiments demonstrate a 92.5\\% main-stem grasping success rate, and simulation-guided optimization of vibration parameters further validates the feasibility of our approach, ensuring that the robot can safely and effectively perform pollination without damaging the flower. To our knowledge, this is the first robotic system to jointly integrate vision-based grasping and vibration modeling for automated precision pollination.",
+          "claimed_authors": [
+            "Jaehwan Jeong",
+            "Tuan-Anh Vu",
+            "Radha Lahoti",
+            "Jiawen Wang",
+            "Vivek Alumootil",
+            "Sangpil Kim",
+            "M. Khalid Jawed"
+          ],
+          "claimed_title": "Vision-Guided Targeted Grasping and Vibration for Robotic Pollination in Controlled Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.06146"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Vision-Guided Targeted Grasping and Vibration for Robotic Pollination in Controlled Environments')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The accurate determination of the position-dependent energy fluence rate of scattered light (which is proportional to the energy density) is crucial to the understanding of transport in anisotropically scattering and absorbing samples, such as biological tissue, seawater, atmospheric turbulent layers, and light-emitting diodes. While Monte Carlo simulations are precise, their long computation time is not desirable. Common analytical approximations to the radiative transfer equation (RTE) fail to predict light transport and could even give unphysical results. Therefore, we experimentally probe the position-dependent energy fluence rate of light inside scattering samples where the widely used P1 and P3 approximations to the RTE fail. The samples are three-dimensional (3D) aqueous suspensions of anisotropically scattering and both absorbing and non-absorbing spherical scatterers, namely, microspheres (r = 0.5 um) with and without absorbing dye. To probe the energy fluence rate, we detect the emission of quantum-dot reporter particles that are excited by the incident light and that are contained in a thin capillary. By scanning the capillary through the sample, we access the position dependence. We present a comprehensive discussion of experimental limitations and of both random and systematic errors. Our observations agree well with the Monte Carlo simulations and the P3 approximation of the RTE with a correction for forward scattering. In contrast, the P1 and the P3 approximations deviate increasingly from our observations, ultimately even predicting unphysical negative energies.",
+          "claimed_authors": [
+            "Ozan Akdemir",
+            "Minh Duy Truong",
+            "Alfredo Rates",
+            "Ad Lagendijk",
+            "Willem L. Vos"
+          ],
+          "claimed_title": "Probing the position-dependent optical energy fluence rate in three-dimensional scattering samples",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.14748"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Probing the position-dependent optical energy fluence rate in three-dimensional scattering samples')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While diffusion models are powerful in generating high-quality, diverse synthetic data for object-centric tasks, existing methods struggle with scene-aware tasks such as Visual Question Answering (VQA) and Human-Object Interaction (HOI) Reasoning, where it is critical to preserve scene attributes in generated images consistent with a multimodal context, i.e. a reference image with accompanying text guidance query. To address this, we introduce $\\textbf{Hummingbird}$, the first diffusion-based image generator which, given a multimodal context, generates highly diverse images w.r.t. the reference image while ensuring high fidelity by accurately preserving scene attributes, such as object interactions and spatial relationships from the text guidance. Hummingbird employs a novel Multimodal Context Evaluator that simultaneously optimizes our formulated Global Semantic and Fine-grained Consistency Rewards to ensure generated images preserve the scene attributes of reference images in relation to the text guidance while maintaining diversity. As the first model to address the task of maintaining both diversity and fidelity given a multimodal context, we introduce a new benchmark formulation incorporating MME Perception and Bongard HOI datasets. Benchmark experiments show Hummingbird outperforms all existing methods by achieving superior fidelity while maintaining diversity, validating Hummingbird's potential as a robust multimodal context-aligned image generator in complex visual tasks. Project page: https://roar-ai.github.io/hummingbird",
+          "claimed_authors": [
+            "Minh-Quan Le",
+            "Gaurav Mittal",
+            "Tianjian Meng",
+            "A S M Iftekhar",
+            "Vishwas Suryanarayanan",
+            "Barun Patra",
+            "Dimitris Samaras",
+            "Mei Chen"
+          ],
+          "claimed_title": "Hummingbird: High Fidelity Image Generation via Multimodal Context Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.05153"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Hummingbird: High Fidelity Image Generation via Multimodal Context Alignment')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-Video (T2V) generation has attracted significant attention for its ability to synthesize realistic videos from textual descriptions. However, existing models struggle to balance computational efficiency and high visual quality, particularly on resource-limited devices, e.g.,iGPUs and mobile phones. Most prior work prioritizes visual fidelity while overlooking the need for smaller, more efficient models suitable for real-world deployment. To address this challenge, we propose a lightweight T2V framework, termed Hummingbird, which prunes existing models and enhances visual quality through visual feedback learning. Our approach reduces the size of the U-Net from 1.4 billion to 0.7 billion parameters, significantly improving efficiency while preserving high-quality video generation. Additionally, we introduce a novel data processing pipeline that leverages Large Language Models (LLMs) and Video Quality Assessment (VQA) models to enhance the quality of both text prompts and video data. To support user-driven training and style customization, we publicly release the full training code, including data processing and model training. Extensive experiments show that our method achieves a 31X speedup compared to state-of-the-art models such as VideoCrafter2, while also attaining the highest overall score on VBench. Moreover, our method supports the generation of videos with up to 26 frames, addressing the limitations of existing U-Net-based methods in long video generation. Notably, the entire training process requires only four GPUs, yet delivers performance competitive with existing leading methods. Hummingbird presents a practical and efficient solution for T2V generation, combining high performance, scalability, and flexibility for real-world applications.",
+          "claimed_authors": [
+            "Takashi Isobe",
+            "He Cui",
+            "Dong Zhou",
+            "Mengmeng Ge",
+            "Dong Li",
+            "Emad Barsoum"
+          ],
+          "claimed_title": "AMD-Hummingbird: Towards an Efficient Text-to-Video Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.18559"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='AMD-Hummingbird: Towards an Efficient Text-to-Video Model')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nestedness characterizes the linkage pattern of networked systems, indicating the likelihood that a node is linked to the nodes linked to the nodes with larger degrees than it. Networks of mutualistic relationship between distinct groups of species in ecological communities exhibit such nestedness, which is known to support the network robustness. Despite such importance, quantitative characteristics of nestedness is little understood. Here we take graph-theoretic approach to derive the scaling properties of nestedness in various model networks. Our results show how the heterogeneous connectivity patterns enhance nestedness. Also we find that the nestedness of bipartite networks depend sensitively on the fraction of different types of nodes, causing nestedness to scale differently for nodes of different types.",
+          "claimed_authors": [
+            "Deok-Sun Lee",
+            "Seong Eun Maeng",
+            "Jae Woo Lee"
+          ],
+          "claimed_title": "Scaling of nestedness in complex networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.2825"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Scaling of nestedness in complex networks')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_authors": [
+            "ILC Technology Network"
+          ],
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze noise properties of time series of frequency data from different counting modes of a Keysight 53230A frequency counter. We use a 10 MHz reference signal from a passive hydrogen maser connected via phase-stable Huber+Suhner Sucoflex 104 cables to the reference and input connectors of the counter. We find that the high resolution gap-free (CONT) frequency counting process imposes long-term correlations in the output data, resulting in a modified Allan deviation that is characteristic of random walk phase noise. Equally important, the CONT mode results in a frequency bias. In contrast, the counter's undocumented raw continuous mode (RCON) yields unbiased frequency stability estimates with white phase noise characteristics, and of a magnitude consistent with the counter's 20 ps single-shot resolution. Furthermore, we demonstrate that a 100-point running average filter in conjunction with the RCON mode yields resolution enhanced frequency estimates with flicker phase noise characteristics. For instance, the counter's built-in moving-average function can be used. The improved noise characteristics of the averaged RCON mode versus the CONT mode imply that the former mode yields frequency estimates with improved confidence for a given measurement time.",
+          "claimed_authors": [
+            "Tim Dunker",
+            "Harald Hauglin",
+            "Ole Petter Rønningen"
+          ],
+          "claimed_title": "On temporal correlations in high-resolution frequency counting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.05076"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='On temporal correlations in high-resolution frequency counting')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Widely used data race detectors, including the state-of-the-art FastTrack algorithm, incur performance costs that are acceptable for regular in-house testing, but miss races detectable from the analyzed execution. Predictive analyses detect more data races in an analyzed execution than FastTrack detects, but at significantly higher performance cost.\n  This paper presents SmartTrack, an algorithm that optimizes predictive race detection analyses, including two analyses from prior work and a new analysis introduced in this paper. SmartTrack's algorithm incorporates two main optimizations: (1) epoch and ownership optimizations from prior work, applied to predictive analysis for the first time; and (2) novel conflicting critical section optimizations introduced by this paper. Our evaluation shows that SmartTrack achieves performance competitive with FastTrack-a qualitative improvement in the state of the art for data race detection.",
+          "claimed_authors": [
+            "Jake Roemer",
+            "Kaan Genç",
+            "Michael D. Bond"
+          ],
+          "claimed_title": "SmartTrack: Efficient Predictive Race Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.00494"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='SmartTrack: Efficient Predictive Race Detection')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the Prime Focus Spectrograph (PFS) Galaxy Evolution pillar of the 360-night PFS Subaru Strategic Program. This 130-night program will capitalize on the wide wavelength coverage and massive multiplexing capabilities of PFS to study the evolution of typical galaxies from cosmic dawn to the present. From Lyman alpha emitters at z~7 to probe reionization, drop-outs at z~3 to map the inter-galactic medium in absorption, and a continuum-selected sample at z~1.5, we will chart the physics of galaxy evolution within the evolving cosmic web. This article is dedicated to the memory of Olivier Le Fevre, who was an early advocate for the construction of PFS, and a key early member of the Galaxy Evolution Working Group.",
+          "claimed_authors": [
+            "Jenny Greene",
+            "Rachel Bezanson",
+            "Masami Ouchi",
+            "John Silverman",
+            "the PFS Galaxy Evolution Working Group"
+          ],
+          "claimed_title": "The Prime Focus Spectrograph Galaxy Evolution Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.14908"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Insect Pollinator Networks from Floral Trait Data biology', candidate_title='The Prime Focus Spectrograph Galaxy Evolution Survey')",
+        "failed_at": "2026-07-14T09:31:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tomás A. Revilla",
+            "Vlastimil Křivan"
+          ],
+          "title": "Competition, trait-mediated facilitation, and the structure of plant-pollinator communities",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1712.06846",
+        "summary": "In plant-pollinator communities many pollinators are potential generalists and their preferences for certain plants can change quickly in response to changes in plant and pollinator densities. These changes in preferences affect coexistence within pollinator guilds as well as within plant guilds. Using a mathematical model, we study how adaptations of pollinator preferences influence population dynamics of a two-plant-two-pollinator community interaction module. Adaptation leads to coexistence between generalist and specialist pollinators, and produces complex plant population dynamics, involving alternative stable states and discrete transitions in the plant community. Pollinator adaptation also leads to plant-plant apparent facilitation that is mediated by changes in pollinator preferences. We show that adaptive pollinator behavior reduces niche overlap and leads to coexistence by specialization on different plants. Thus, this article documents how adaptive pollinator preferences for plants change the structure and coexistence of plant-pollinator communities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1712.06846",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:32:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arnab Chattopadhyay",
+            "Amit Samadder",
+            "Sabyasachi Bhattacharya"
+          ],
+          "title": "Pesticide Mediated Critical Transition in Plant-Pollinator Networks",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.08495",
+        "summary": "Mutually beneficial interactions between plant and pollinators play an essential role in the biodiversity, stability of the ecosystem and crop production. Despite their immense importance, rapid decline events of pollinators are common worldwide in past decades. Excessive use of chemical pesticides is one of the most important threat to pollination in the current era of anthropogenic changes. Pesticides are applied to the plants to increase their growth by killing harmful pests and pollinators accumulates toxic pesticides from the interacting plants directly from the nectar and pollen. This has a significant adverse effect on the pollinator growth and the mutualism which in turn can cause an abrupt collapse of the community however predicting the fate of such community dynamics remains a blur under the alarming rise in the dependency of chemical pesticides. We mathematically modeled the influence of pesticides in a multispecies mutualistic community and used 105 real plant-pollinator networks sampled worldwide as well as simulated networks, to assess its detrimental effect on the plant-pollinator mutualistic networks. Our results indicate that the persistence of the community is strongly influenced by the level of pesticide and catastrophic and irreversible community collapse may occur due to pesticide. Furthermore, a species rich, highly nested community with low connectance and modularity has greater potential to function under the influence of pesticide. We finally proposed a realistic intervention strategy which involves the management of the pesticide level of one targeted plant from the community. We show that our intervention strategy can significantly delay the collapse of the community. Overall our study can be considered as the first attempt to understand the consequences of the chemical pesticide on a plant-pollinator mutualistic community.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.08495",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:32:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sylvain Billiard",
+            "Hélène Leman",
+            "Thomas Rey",
+            "Viet Chi Tran"
+          ],
+          "title": "Continuous limits of large plant-pollinator random networks and some applications",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.05219",
+        "summary": "We study a stochastic individual-based model of interacting plant and pollinator species through a bipartite graph: each species is a node of the graph, an edge representing interactions between a pair of species. The dynamics of the system depends on the between- and within-species interactions: pollination by insects increases plant reproduction rate but has a cost which can increase plant death rate, depending on the densities of pollinators. Pollinators reproduction is increased by the resources harvested on plants. Each species is characterized by a trait corresponding to its degree of generalism. This trait determines the structure of the interaction graph and the quantities of resources exchanged between species. Our model includes in particular nested or modular networks. Deterministic approximations of the stochastic measure-valued process by systems of ordinary differential equations or integro-differential equations are established and studied, when the population is large or when the graph is dense and can be replaced with a graphon. The long-time behaviors of these limits are studied and central limit theorems are established to quantify the difference between the discrete stochastic individual-based model and the deterministic approximations. Finally, studying the continuous limits of the interaction network and the resulting PDEs, we show that nested plant-pollinator communities are expected to collapse towards a coexistence between a single pair of species of plants and pollinators.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.05219",
+          "http_status": 200,
+          "pdf_sample_score": 0.2679,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:32:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tom Clegg",
+            "Thilo Gross"
+          ],
+          "title": "Temporal Structure Mediates the Robustness and Collapse of Plant-Pollinator Networks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.07347",
+        "summary": "Mutualistic networks provide a powerful way to describe and analyse plant-pollinator communities and their structure over time. While these networks capture the complex interdependencies that link population fates across the season, they can be hard to untangle, preventing us from understanding the emergence of community-scale properties and responses to perturbation. Here, we address this problem by developing a structural model of a plant-pollinator community that explicitly incorporates seasonal turnover and the temporal nature of species interactions. We analyse our model using percolation methods from network science to derive simple analytical solutions linking network structure to emergent community diversity. Our findings reveal that temporal structure organises community diversity into distinct ecological phases, creating the potential for alternative high- and low-diversity states and bistable regimes. We demonstrate how this temporal structure mediates the nature of transitions between these states, determining whether systems undergo gradual shifts or abrupt, catastrophic collapses. Crucially, we show how this temporal structure reduces the robustness of plant-pollinator systems, creating bottlenecks that inhibit species persistence and increase susceptibility to secondary extinctions. Our results demonstrate that the temporal dynamics of plant-pollinator networks are central to mediating their fragility, highlighting the importance of accounting for time when considering community resilience.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.07347",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:32:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting insect pollinator networks from floral trait data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

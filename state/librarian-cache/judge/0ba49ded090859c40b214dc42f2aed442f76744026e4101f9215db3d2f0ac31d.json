@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.05219",
+  "judged_at": "2026-07-14T09:32:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting insect pollinator networks from floral trait data biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it models the fundamental mechanism of plant-pollinator network formation and structure based on species traits (specifically \"degree of generalism\"), providing the canonical theoretical baseline for how trait data influences network topology in this empirical domain. Although it focuses on theoretical limits rather than a specific predictive algorithm, it establishes the essential biological and mathematical framework required for any literature revi",
+  "relevant": true
+}

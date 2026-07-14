@@ -9,35 +9,78 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can supervised machine learning models accurately predict the existence of pollinator-plant links in bipartite networks using only static floral trait descriptors (e.g., color, morphology, scent profile)?
+To what extent do static floral trait descriptors (e.g., color, morphology, scent profile) determine the probability of pollinator-plant links in bipartite networks?
 
 ## Motivation
 
-Pollinator decline threatens ecosystem stability, yet interaction data is sparse and costly to collect. If trait-based prediction is feasible, we can infer missing links in existing networks and identify plants vulnerable to trait mismatches under climate change. This approach addresses the natural history data gap highlighted in recent macroevolutionary studies.
+Pollinator decline threatens ecosystem stability, yet interaction data is sparse and costly to collect. While network structure is often analyzed post-hoc, the predictive power of static floral traits for specific link probabilities remains under-quantified across diverse ecosystems. Establishing this relationship allows for the inference of missing links in data-poor regions and the identification of plants vulnerable to trait mismatches under rapid environmental change.
 
 ## Related work
 
-- [Paucity of natural history data impedes phylogenetic analyses of pollinator‐driven evolution (2020)](https://doi.org/10.1111/nph.16813) — Highlights the critical lack of observational data required for robust evolutionary and network analyses.
-- [Floral scent in a whole‐plant context: moving beyond pollinator attraction (2009)](https://doi.org/10.1111/j.1365-2435.2009.01643.x) — Establishes floral scent as a complex trait influencing pollinator behavior beyond simple attraction.
-- [Spatial Monitoring and Insect Behavioural Analysis Using Computer Vision for Precision Pollination (2022)](http://arxiv.org/abs/2205.04675v2) — Demonstrates modern computational methods for insect monitoring, contrasting passive observation with trait-based inference.
+- [Competition, trait-mediated facilitation, and the structure of plant-pollinator communities (2017)](https://arxiv.org/abs/1712.06846) — Demonstrates that while pollinators are often generalists, their preferences shift based on density, suggesting a baseline where trait matching drives initial link formation.
+- [Pesticide Mediated Critical Transition in Plant-Pollinator Networks (2023)](https://arxiv.org/abs/2303.08495) — Highlights the critical role of mutualistic interactions in ecosystem stability, providing context for why predicting link existence is vital for conservation planning.
+- [Continuous limits of large plant-pollinator random networks and some applications (2022)](https://arxiv.org/abs/2201.05219) — Provides a stochastic modeling framework for bipartite graphs, offering a theoretical baseline against which empirical trait-based predictions can be compared.
+- [Temporal Structure Mediates the Robustness and Collapse of Plant-Pollinator Networks (2026)](https://arxiv.org/abs/2604.07347) — Emphasizes that network robustness depends on complex interdependencies, implying that static traits alone may have a ceiling on predictive power without temporal context.
 
 ## Expected results
 
-We expect a Random Forest model to achieve an AUC-ROC > 0.75 in link prediction tasks across multiple plant families. Feature importance analysis should reveal that floral morphology and scent compounds are stronger predictors of network specificity than color alone. This evidence would support the hypothesis that static traits encode significant ecological interaction information.
+We expect a Random Forest model to achieve an AUC-ROC significantly higher than random chance (>0.65) but potentially below 0.80, indicating that static traits explain a substantial but incomplete portion of link variance. Feature importance analysis is expected to reveal that floral morphology and scent compounds are stronger predictors of network specificity than color alone, supporting the hypothesis that physical compatibility constrains interaction more than visual attraction. This evidence would quantify the "trait gap" in current network models.
 
 ## Methodology sketch
 
-- Download bipartite interaction matrices from the Web of Life database (http://www.web-of-life.es/) for 10 selected ecosystems.
-- Scrape associated floral trait metadata from linked Dryad repositories or extract from supplementary materials of the primary literature.
-- Preprocess data: encode categorical traits (e.g., color) via one-hot encoding; normalize continuous traits (e.g., corolla depth).
-- Construct a feature matrix where each row represents a potential plant-pollinator pair and labels indicate observed vs. unobserved links.
-- Train a Random Forest classifier using `scikit-learn` (CPU-only) with 5-fold stratified cross-validation to handle class imbalance.
-- Evaluate performance using AUC-ROC, precision-recall curves, and confusion matrices generated via `scipy` and `matplotlib`.
-- Perform permutation importance testing to determine which floral traits most significantly influence prediction accuracy.
-- Visualize predicted network structures against observed networks using `networkx` to identify structural discrepancies.
+- Download bipartite interaction matrices (plant-pollinator links) from the Web of Life database (http://www.web-of-life.es/) for 10 distinct ecosystems to ensure geographic and taxonomic diversity.
+- Retrieve corresponding floral trait metadata (color, corolla depth, scent compounds) from linked Dryad repositories or extract from supplementary materials of the primary literature associated with the Web of Life entries.
+- Preprocess data: encode categorical traits (e.g., color) via one-hot encoding; normalize continuous traits (e.g., corolla depth); handle missing values via imputation or exclusion.
+- Construct a feature matrix where each row represents a potential plant-pollinator pair, with labels indicating observed (1) vs. unobserved (0) links, ensuring the unobserved set is a random sample of non-interacting pairs.
+- Train a Random Forest classifier using `scikit-learn` (CPU-only) with 5-fold stratified cross-validation to address class imbalance inherent in sparse ecological networks.
+- Evaluate performance using AUC-ROC and precision-recall curves generated via `scipy` and `matplotlib`, comparing results against a null model of random edge assignment.
+- Perform permutation importance testing to determine which specific floral traits most significantly influence prediction accuracy.
+- **Validation**: Validate the model's predictive capability against an **independent** subset of the Web of Life data (a held-out ecosystem not used in training) to ensure generalizability, rather than validating against the training data's own distribution.
+- Visualize predicted network structures against observed networks using `networkx` to identify structural discrepancies and specific trait combinations that consistently fail to predict links.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in current context.
 - Closest match: N/A.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-14T09:32:18Z
+**Outcome**: exhausted
+**Original term**: Predicting Insect Pollinator Networks from Floral Trait Data biology
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Insect Pollinator Networks from Floral Trait Data biology | 0 |
+| 1 | plant-pollinator interaction prediction | 5 |
+| 2 | floral trait-based network inference | 0 |
+| 3 | predicting mutualistic networks from traits | 0 |
+| 4 | pollination network reconstruction | 0 |
+| 5 | floral characteristics and pollinator assemblages | 0 |
+| 6 | trait-matching in pollination systems | 0 |
+| 7 | modeling insect visitation from flower morphology | 0 |
+| 8 | ecological network prediction using functional traits | 0 |
+| 9 | pollinator preference based on floral signals | 0 |
+| 10 | plant-pollinator network assembly rules | 0 |
+| 11 | floral phenotype and pollinator identity | 0 |
+| 12 | predicting specialized pollination networks | 0 |
+| 13 | trait-based modeling of plant-insect interactions | 0 |
+| 14 | floral resource prediction for pollinators | 0 |
+| 15 | inferring pollinator guilds from floral traits | 0 |
+| 16 | machine learning for pollination network prediction | 0 |
+| 17 | floral scent and color effects on pollinator networks | 0 |
+| 18 | phenotypic traits driving pollinator network structure | 0 |
+| 19 | generalized pollination network prediction | 0 |
+| 20 | pollinator visitation probability from floral data | 0 |
+
+### Verified citations
+
+1. **Competition, trait-mediated facilitation, and the structure of plant-pollinator communities** (2017). Tomás A. Revilla, Vlastimil Křivan. arXiv. [1712.06846](https://arxiv.org/abs/1712.06846). PDF-sampled: No.
+2. **Pesticide Mediated Critical Transition in Plant-Pollinator Networks** (2023). Arnab Chattopadhyay, Amit Samadder, Sabyasachi Bhattacharya. arXiv. [2303.08495](https://arxiv.org/abs/2303.08495). PDF-sampled: No.
+3. **Continuous limits of large plant-pollinator random networks and some applications** (2022). Sylvain Billiard, Hélène Leman, Thomas Rey, Viet Chi Tran. arXiv. [2201.05219](https://arxiv.org/abs/2201.05219). PDF-sampled: No.
+4. **Temporal Structure Mediates the Robustness and Collapse of Plant-Pollinator Networks** (2026). Tom Clegg, Thilo Gross. arXiv. [2604.07347](https://arxiv.org/abs/2604.07347). PDF-sampled: No.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.08495",
+  "judged_at": "2026-07-14T09:32:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting insect pollinator networks from floral trait data biology",
+  "rationale": "This paper satisfies criterion (a) and (b) because it analyzes the same biological domain (plant-pollinator networks) and measures the same structural variables (nestedness, modularity, connectance) that are central to the user's question about predicting these networks from traits, even though the specific predictor variable in this study is pesticide exposure rather than floral traits. It provides essential context on the stability and structural determinants of the specific network type the u",
+  "relevant": true
+}
