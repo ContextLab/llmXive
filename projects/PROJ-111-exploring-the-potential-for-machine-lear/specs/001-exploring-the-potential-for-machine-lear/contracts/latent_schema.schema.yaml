@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LatentRepresentationAnalysis"
+description: "Schema for the output of the latent space analysis and critical point detection."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "Heisenberg"
+      - "XY"
+    description: "Model type analyzed."
+  results:
+    type: "array"
+    description: "List of results for each temperature bin."
+    items:
+      type: "object"
+      properties:
+        temperature:
+          type: "number"
+          description: "Center temperature of the bin."
+        latent_variance:
+          type: "number"
+          description: "Sum of variances of latent means (Σ Var(μ))."
+        reconstruction_error_variance:
+          type: "number"
+          description: "Variance of the reconstruction error."
+        sample_count:
+          type: "integer"
+          description: "Number of samples in this bin."
+        tau_int:
+          type: "number"
+          description: "Integrated autocorrelation time for this bin."
+      required:
+        - temperature
+        - latent_variance
+        - reconstruction_error_variance
+        - sample_count
+        - tau_int
+  critical_signature:
+    type: "object"
+    description: "Final detected critical point and validation metrics."
+    properties:
+      t_star:
+        type: "number"
+        description: "Detected critical temperature."
+      confidence_interval:
+        type: "object"
+        properties:
+          lower:
+            type: "number"
+          upper:
+            type: "number"
+        required:
+          - lower
+          - upper
+      significance_metric:
+        type: "number"
+        description: "Signal-to-noise ratio or peak height (replaces p_value from BCPD)."
+      ground_truth_chi_extrapolated:
+        type: "number"
+        description: "Extrapolated critical temperature T_c(inf) from FSS."
+      is_significant:
+        type: "boolean"
+        description: "True if significance_metric > threshold."
+      is_artifact:
+        type: "boolean"
+        description: "True if peak did not sharpen with increasing L."
+    required:
+      - t_star
+      - confidence_interval
+      - significance_metric
+      - ground_truth_chi_extrapolated
+      - is_significant
+      - is_artifact
+required:
+  - model_type
+  - results
+  - critical_signature
+additionalProperties: false

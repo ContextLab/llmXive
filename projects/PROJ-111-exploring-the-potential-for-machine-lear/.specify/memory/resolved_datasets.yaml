@@ -1,0 +1,70 @@
+resolved_at: '2026-07-14T02:07:21.333616+00:00'
+datasets:
+- intent: VAE
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/WeixuanYuan/VAE_sound/resolve/main/NN.json
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/data_for_b_Hydrological_pacing_of_iron_limited_nitrogen_utilization_in_the_western_equatorial_Pacific_margin_over_the_past_140_000_years_b_/32979431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11002977
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437647
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5137922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4245446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7350768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19135431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19135431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7h44j1098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
