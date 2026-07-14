@@ -7,12 +7,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    2026-07-13 22:24:10 - utils - INFO - Logging initialized at level INFO
-2026-07-13 22:24:10 - __main__ - INFO - Ensuring dataset availability...
-2026-07-13 22:24:10 - __main__ - INFO - Running: /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python code/t011_ensure_data.py
-/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011_ensure_data.py': [Errno 2] No such file or directory
-2026-07-13 22:24:10 - __main__ - ERROR - Script t011_ensure_data.py failed with return code 2
-2026-07-13 22:24:10 - __main__ - ERROR - Failed to ensure data availability.
+    - INFO - Running: /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python code/t012_run_baseline_analysis.py
+2026-07-14 00:00:45 - utils - INFO - Starting T012: Run Baseline Analysis
+2026-07-14 00:00:45 - utils - INFO - Input directory: data/raw
+2026-07-14 00:00:45 - utils - INFO - Output file: data/processed/baseline_metrics.json
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 45, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 35, in main
+    success = run_baseline_analysis(raw_dir, output_path=output_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: run_baseline_analysis() got an unexpected keyword argument 'output_path'
+2026-07-14 00:00:45 - __main__ - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
+2026-07-14 00:00:45 - __main__ - ERROR - Pipeline failed at t012_run_baseline_analysis.py
 
 ## Declared deliverables still missing
 
@@ -30,15 +38,15 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `run_baseline_analysis` — defined in `code/analysis.py`; called 9 way(s):
 
-- code/t023_reanalyze_cleaned_variants.py: return run_baseline_analysis(df, dataset_name=dataset_name)
-- code/t012_run_baseline_analysis.py: results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-- code/t013_record_baseline_metrics.py: results = run_baseline_analysis(df, dataset_name=dataset_name, outcome_col=outcome_col)
+- code/t023_reanalyze_cleaned_variants.py: # The prompt says: "run_baseline_analysis(df, dataset_name=dataset_name) -> returns dict"
+- code/t023_reanalyze_cleaned_variants.py: results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
+- code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_path=output_file)
+- code/t013_record_baseline_metrics.py: results = run_baseline_analysis(
 - code/analysis.py: 1. run_baseline_analysis(raw_dir, output_path, config) -> writes file, returns bool
 - code/analysis.py: 2. run_baseline_analysis(df, dataset_name=...) -> returns dict
 - code/analysis.py: 3. run_baseline_analysis(df_cleaned, dataset_name=...) -> returns dict
-- code/t033_outlier_threshold_sweep.py: res = run_baseline_analysis(df, dataset_name="null")
-- code/t033_outlier_threshold_sweep.py: base_res = run_baseline_analysis(df, dataset_name="base")
-- code/t033_outlier_threshold_sweep.py: clean_res = run_baseline_analysis(clean_df, dataset_name=f"k{k}")
+- code/t033_outlier_threshold_sweep.py: results_null = run_baseline_analysis(df_cleaned_null, dataset_name=f"null_k_{k}")
+- code/t032_permutation_null_fpr.py: result = run_baseline_analysis(df_null, dataset_name=f"{dataset_name}_null_{i}")
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
@@ -80,10 +88,10 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
 - code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
+- code/t023_reanalyze_cleaned_variants.py: pin_random_seed(config.get("RANDOM_SEED", 42))
 - code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
 - code/t012_run_baseline_analysis.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
 - code/t012_run_baseline_analysis.py: output_path = config.get("PROCESSED_DATA_PATH", "data/processed")
-- code/config.py: Supports dict-like .get() and attribute-like .KEY access.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

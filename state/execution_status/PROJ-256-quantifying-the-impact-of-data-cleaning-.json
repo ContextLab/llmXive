@@ -4,9 +4,9 @@
   "reason": "1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    2026-07-13 22:24:10 - utils - INFO - Logging initialized at level INFO\n2026-07-13 22:24:10 - __main__ - INFO - Ensuring dataset availability...\n2026-07-13 22:24:10 - __main__ - INFO - Running: /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python code/t011_ensure_data.py\n/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011"
+    "python code/main.py -> rc=1\n    - INFO - Running: /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python code/t012_run_baseline_analysis.py\n2026-07-14 00:00:45 - utils - INFO - Starting T012: Run Baseline Analysis\n2026-07-14 00:00:45 - utils - INFO - Input directory: data/raw\n2026-07-14 00:00:45 - utils - INFO - Output file: data/processed/baseline_metrics.json\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", lin"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "updated_at": "2026-07-13T22:24:11Z"
+  "updated_at": "2026-07-14T00:00:46Z"
 }

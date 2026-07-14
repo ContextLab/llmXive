@@ -1,124 +1,186 @@
 """
-Integration test for Task T040: Create comparison report.
-Verifies that the comparison report is generated correctly with valid diffs.
+Integration test for T040: Create comparison report.
+Verifies that the comparison report is generated correctly with all required fields.
 """
 import os
 import json
 import pytest
-import tempfile
-import shutil
-from datetime import datetime
+from pathlib import Path
 
-# Ensure the code directory is in the path
+# Add code directory to path for imports
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from models import ComparisonReport
 from t040_create_comparison_report import (
     load_baseline_metrics,
     load_cleaned_metrics,
+    load_sensitivity_analysis,
+    calculate_absolute_diff,
+    calculate_relative_diff,
     aggregate_metrics_for_comparison,
-    create_comparison_report
+    create_comparison_report,
+    main
 )
-from models import ComparisonReport
+from config import Config
 
 @pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory for test data."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
-
-def test_aggregate_metrics_for_comparison(temp_data_dir):
-    """Test the aggregation logic with mock data."""
-    baseline_data = {
+def sample_baseline_metrics():
+    return {
         "datasets": [
             {
                 "dataset_name": "test_dataset_1",
+                "p_value": 0.045,
+                "ci_width": 0.15,
+                "effect_size": 0.5,
+                "n_rows": 100,
                 "analysis": {
-                    "t_test": {"p_value": 0.03, "ci_width": 0.1, "effect_size": 0.5},
-                    "regression": {"r_squared": 0.6}
+                    "t_test": {"p_value": 0.045, "ci": [0.4, 0.55]},
+                    "regression": {"r_squared": 0.3, "coefficients": [1.2]}
                 }
             }
         ]
     }
 
-    cleaned_data = {
+@pytest.fixture
+def sample_cleaned_metrics():
+    return {
         "datasets": [
             {
                 "dataset_name": "test_dataset_1",
-                "strategy": "outlier_removal",
+                "cleaning_strategy": "iqr_outlier",
+                "p_value": 0.032,
+                "ci_width": 0.12,
+                "effect_size": 0.6,
+                "n_rows": 95,
                 "analysis": {
-                    "t_test": {"p_value": 0.01, "ci_width": 0.08, "effect_size": 0.6},
-                    "regression": {"r_squared": 0.65}
+                    "t_test": {"p_value": 0.032, "ci": [0.45, 0.57]},
+                    "regression": {"r_squared": 0.35, "coefficients": [1.3]}
                 }
             }
         ]
     }
 
-    result = aggregate_metrics_for_comparison(baseline_data, cleaned_data)
+@pytest.fixture
+def sample_sensitivity_analysis():
+    return {
+        "status": "complete",
+        "bins": {
+            "small": {"count": 1, "avg_shift": 0.01},
+            "medium": {"count": 0, "avg_shift": 0.0},
+            "large": {"count": 0, "avg_shift": 0.0}
+        },
+        "bootstrap_results": {"mean_shift": 0.015, "ci": [0.01, 0.02]}
+    }
+
+def test_calculate_absolute_diff():
+    assert calculate_absolute_diff(0.05, 0.03) == 0.02
+    assert calculate_absolute_diff(0.05, 0.05) == 0.0
+    assert calculate_absolute_diff(None, 0.03) == 0.0
+
+def test_calculate_relative_diff():
+    assert abs(calculate_relative_diff(0.05, 0.03) - 0.4) < 0.001
+    assert calculate_relative_diff(0.05, 0.05) == 0.0
+    assert calculate_relative_diff(0.0, 0.03) == 0.0
+    assert calculate_relative_diff(None, 0.03) == 0.0
+
+def test_aggregate_metrics_for_comparison(sample_baseline_metrics, sample_cleaned_metrics):
+    result = aggregate_metrics_for_comparison(sample_baseline_metrics, sample_cleaned_metrics)
     
-    assert len(result) == 1
-    assert result[0]["dataset_name"] == "test_dataset_1"
-    assert len(result[0]["cleaned_variants"]) == 1
-    assert result[0]["cleaned_variants"][0]["strategy"] == "outlier_removal"
+    assert "baseline_datasets" in result
+    assert "cleaned_datasets" in result
+    assert "comparisons" in result
     
-    metrics = result[0]["cleaned_variants"][0]["metrics"]
-    assert metrics["p_value_shift"] == pytest.approx(0.02, abs=1e-5) # |0.01 - 0.03|
-    assert metrics["absolute_diff_p"] == pytest.approx(0.02, abs=1e-5)
-
-def test_create_comparison_report_writes_file(temp_data_dir):
-    """Test that the report is written to disk and is valid JSON."""
-    baseline_path = os.path.join(temp_data_dir, "baseline.json")
-    cleaned_path = os.path.join(temp_data_dir, "cleaned.json")
-    output_path = os.path.join(temp_data_dir, "report.json")
-
-    baseline_data = {"datasets": [{"dataset_name": "d1", "analysis": {"t_test": {"p_value": 0.05}}}]}
-    cleaned_data = {"datasets": [{"dataset_name": "d1", "strategy": "test", "analysis": {"t_test": {"p_value": 0.04}}}]}
-
-    with open(baseline_path, 'w') as f:
-        json.dump(baseline_data, f)
-    with open(cleaned_path, 'w') as f:
-        json.dump(cleaned_data, f)
-
-    # Patch the load functions to use our temp paths
-    import t040_create_comparison_report as t040_module
-    original_load_base = t040_module.load_baseline_metrics
-    original_load_clean = t040_module.load_cleaned_metrics
-
-    t040_module.load_baseline_metrics = lambda fp=baseline_path: load_baseline_metrics(fp)
-    t040_module.load_cleaned_metrics = lambda fp=cleaned_path: load_cleaned_metrics(fp)
-
-    try:
-        report = create_comparison_report(
-            baseline_data, cleaned_data, output_path=output_path
-        )
-        
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
-            saved_report = json.load(f)
-        
-        assert "report_id" in saved_report
-        assert "summary" in saved_report
-        assert "detailed_comparisons" in saved_report
-        assert saved_report["summary"]["total_datasets_analyzed"] == 1
-    finally:
-        t040_module.load_baseline_metrics = original_load_base
-        t040_module.load_cleaned_metrics = original_load_clean
-
-def test_comparison_report_entity_creation():
-    """Test that the ComparisonReport Pydantic model is created correctly."""
-    baseline = {"datasets": []}
-    cleaned = {"datasets": []}
+    assert len(result["baseline_datasets"]) == 1
+    assert len(result["cleaned_datasets"]) == 1
+    assert len(result["comparisons"]) == 1
     
-    report = ComparisonReport(
-        report_id="TEST-001",
-        baseline_metrics=baseline,
-        cleaned_metrics=cleaned,
-        absolute_diff=0.05,
-        relative_diff=1.0,
-        sensitivity_analysis=None
+    comp = result["comparisons"][0]
+    assert comp["dataset_name"] == "test_dataset_1"
+    assert comp["cleaning_strategy"] == "iqr_outlier"
+    assert "metrics" in comp
+    assert "p_value" in comp["metrics"]
+    assert "absolute_diff" in comp["metrics"]["p_value"]
+    assert "relative_diff" in comp["metrics"]["p_value"]
+
+def test_create_comparison_report_entity(sample_baseline_metrics, sample_cleaned_metrics, sample_sensitivity_analysis):
+    report = create_comparison_report(
+        sample_baseline_metrics,
+        sample_cleaned_metrics,
+        sample_sensitivity_analysis
     )
     
-    assert report.report_id == "TEST-001"
-    assert report.absolute_diff == 0.05
-    assert report.relative_diff == 1.0
+    assert isinstance(report, ComparisonReport)
+    assert report.baseline_metrics is not None
+    assert report.cleaned_metrics is not None
+    assert report.absolute_diff is not None
+    assert report.relative_diff is not None
+    assert report.sensitivity_analysis is not None
+    assert report.summary is not None
+    assert "total_comparisons" in report.summary
+    assert report.created_at is not None
+
+def test_main_execution(tmp_path, sample_baseline_metrics, sample_cleaned_metrics, sample_sensitivity_analysis):
+    # Setup mock files
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    baseline_file = processed_dir / "baseline_metrics.json"
+    cleaned_file = processed_dir / "cleaned_metrics.json"
+    sensitivity_file = processed_dir / "sensitivity_analysis.json"
+    
+    with open(baseline_file, 'w') as f:
+        json.dump(sample_baseline_metrics, f)
+    with open(cleaned_file, 'w') as f:
+        json.dump(sample_cleaned_metrics, f)
+    with open(sensitivity_file, 'w') as f:
+        json.dump(sample_sensitivity_analysis, f)
+    
+    # Mock config to use tmp_path
+    original_get = Config.get
+    def mock_get(self, key, default=None):
+        if key == "PROCESSED_DATA_PATH":
+            return str(processed_dir)
+        return original_get(self, key, default)
+    
+    Config.get = mock_get
+    
+    try:
+        exit_code = main()
+        assert exit_code == 0
+        
+        output_file = processed_dir / "comparison_report.json"
+        assert output_file.exists()
+        
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        assert "baseline_metrics" in data
+        assert "cleaned_metrics" in data
+        assert "absolute_diff" in data
+        assert "relative_diff" in data
+        assert "sensitivity_analysis" in data
+        assert "summary" in data
+    finally:
+        Config.get = original_get
+
+def test_missing_baseline_file(tmp_path, caplog):
+    # Setup empty processed dir
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    # Mock config
+    original_get = Config.get
+    def mock_get(self, key, default=None):
+        if key == "PROCESSED_DATA_PATH":
+            return str(processed_dir)
+        return original_get(self, key, default)
+    
+    Config.get = mock_get
+    
+    try:
+        exit_code = main()
+        assert exit_code != 0
+        assert "Missing required data file" in caplog.text
+    finally:
+        Config.get = original_get

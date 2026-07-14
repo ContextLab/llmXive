@@ -1,11 +1,6 @@
 """
-T027: Run metrics comparison and generate the comparison report.
-
-This script loads baseline_metrics.json and cleaned_metrics.json, computes
-absolute and relative differences, calculates inconsistency rates, and writes
-the final comparison report to data/processed/comparison_report.json.
-
-It relies on the functions in code/reporting.py.
+T027: Run Comparison Script
+Executes the metrics comparison logic defined in reporting.py.
 """
 import os
 import sys
@@ -14,90 +9,62 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-# Add parent directory to path to allow imports from code/
+# Add project root to path if running as script
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from reporting import (
-    load_json_file,
-    calculate_p_value_shift,
-    compute_ci_width_change,
-    compute_effect_size_delta,
-    calculate_inconsistency_rate,
-    generate_comparison_report
-)
-from config import get_config
+from reporting import generate_comparison_report, load_json_file
 from utils import setup_logging
 
-# Setup logging
-logger = setup_logging("T027")
-logger.info("Starting T027: Metrics Comparison and Report Generation")
+logger = logging.getLogger(__name__)
 
-def load_baseline_metrics(output_path: str) -> Optional[Dict[str, Any]]:
-    """Load baseline metrics from the processed directory."""
-    baseline_path = os.path.join(output_path, "baseline_metrics.json")
-    if not os.path.exists(baseline_path):
-        logger.warning(f"Baseline metrics not found at {baseline_path}")
-        return None
-    return load_json_file(baseline_path)
+def load_baseline_metrics(path: str) -> Dict[str, Any]:
+    """Helper to load baseline metrics with error handling."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Baseline metrics not found at {path}")
+    return load_json_file(path)
 
-def load_cleaned_metrics(output_path: str) -> Optional[Dict[str, Any]]:
-    """Load cleaned metrics from the processed directory."""
-    cleaned_path = os.path.join(output_path, "cleaned_metrics.json")
-    if not os.path.exists(cleaned_path):
-        logger.warning(f"Cleaned metrics not found at {cleaned_path}")
-        return None
-    return load_json_file(cleaned_path)
+def load_cleaned_metrics(path: str) -> Dict[str, Any]:
+    """Helper to load cleaned metrics with error handling."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Cleaned metrics not found at {path}")
+    return load_json_file(path)
 
 def main():
-    config = get_config()
-    output_path = config.get("PROCESSED_DATA_PATH", "data/processed")
-    
-    # Ensure output directory exists
-    os.makedirs(output_path, exist_ok=True)
+    """
+    Main entry point for T027.
+    Ensures artifacts exist and generates the comparison report.
+    """
+    setup_logging(logging.INFO)
+    logger.info("Starting T027: Run Comparison Analysis")
 
-    # Load artifacts
-    logger.info(f"Loading baseline metrics from {output_path}/baseline_metrics.json")
-    baseline_metrics = load_baseline_metrics(output_path)
-    
-    logger.info(f"Loading cleaned metrics from {output_path}/cleaned_metrics.json")
-    cleaned_metrics = load_cleaned_metrics(output_path)
+    baseline_path = "data/processed/baseline_metrics.json"
+    cleaned_path = "data/processed/cleaned_metrics.json"
+    output_path = "data/processed/comparison_report.json"
 
-    if baseline_metrics is None or cleaned_metrics is None:
-        logger.error("Missing required input artifacts. Cannot proceed with comparison.")
-        # Create a minimal error report to satisfy the "write real output" constraint
-        error_report = {
-            "status": "failed",
-            "reason": "Missing input artifacts (baseline_metrics.json or cleaned_metrics.json)",
-            "timestamp": datetime.now().isoformat()
-        }
-        output_file = os.path.join(output_path, "comparison_report.json")
-        with open(output_file, 'w') as f:
-            json.dump(error_report, f, indent=2)
-        logger.info(f"Wrote error report to {output_file}")
-        return 1
+    try:
+        # Validate inputs exist before processing
+        if not os.path.exists(baseline_path):
+            logger.error(f"Required artifact missing: {baseline_path}")
+            logger.error("Please ensure T012 (baseline analysis) has run successfully.")
+            return False
 
-    # Perform comparison
-    logger.info("Calculating p-value shifts, CI width changes, and effect size deltas...")
-    
-    # Generate the full comparison report using the helper in reporting.py
-    comparison_report = generate_comparison_report(
-        baseline_metrics,
-        cleaned_metrics,
-        logger=logger
-    )
+        if not os.path.exists(cleaned_path):
+            logger.error(f"Required artifact missing: {cleaned_path}")
+            logger.error("Please ensure T023 (cleaned variant analysis) has run successfully.")
+            return False
 
-    # Add metadata
-    comparison_report["generated_at"] = datetime.now().isoformat()
-    comparison_report["status"] = "completed"
+        # Run the comparison logic
+        report = generate_comparison_report(baseline_path, cleaned_path, output_path)
 
-    # Write output
-    output_file = os.path.join(output_path, "comparison_report.json")
-    logger.info(f"Writing comparison report to {output_file}")
-    with open(output_file, 'w') as f:
-        json.dump(comparison_report, f, indent=2)
+        logger.info("T027 completed successfully.")
+        logger.info(f"Comparison report written to: {output_path}")
+        logger.info(f"Inconsistency Rate: {report['summary']['inconsistency_rate']}")
+        return True
 
-    logger.info("T027 completed successfully.")
-    return 0
+    except Exception as e:
+        logger.error(f"Error during T027 execution: {e}", exc_info=True)
+        return False
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = main()
+    sys.exit(0 if success else 1)

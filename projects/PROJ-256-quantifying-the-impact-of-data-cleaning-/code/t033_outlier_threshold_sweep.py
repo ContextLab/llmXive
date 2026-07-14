@@ -4,18 +4,16 @@ import json
 import logging
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional, Tuple
-
-# Local imports from project API surface
+from typing import List, Dict, Any, Optional
 from utils import setup_logging, pin_random_seed
 from config import get_config
-from cleaning import apply_iqr_outlier_removal
 from analysis import run_baseline_analysis, load_datasets_from_raw
+from cleaning import apply_iqr_outlier_removal
 
 logger = logging.getLogger(__name__)
 
 def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
-    """Load baseline metrics from JSON file."""
+    """Load baseline metrics from JSON."""
     if not os.path.exists(filepath):
         logger.error(f"Baseline metrics file not found: {filepath}")
         return {}
@@ -23,267 +21,242 @@ def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
         return json.load(f)
 
 def load_cleaned_metrics(filepath: str) -> Dict[str, Any]:
-    """Load cleaned metrics from JSON file."""
+    """Load cleaned metrics from JSON."""
     if not os.path.exists(filepath):
         logger.error(f"Cleaned metrics file not found: {filepath}")
         return {}
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def load_dataset_from_processed(dataset_name: str, processed_dir: str) -> Optional[pd.DataFrame]:
+def load_dataset_from_processed(filepath: str) -> pd.DataFrame:
     """Load a dataset from the processed directory."""
-    filepath = os.path.join(processed_dir, f"{dataset_name}.csv")
-    if not os.path.exists(filepath):
-        # Try alternative naming if dataset_name includes strategy
-        # Look for any CSV matching the dataset name pattern
-        import glob
-        matches = glob.glob(os.path.join(processed_dir, f"*{dataset_name.split('_')[0]}*.csv"))
-        if matches:
-            filepath = matches[0]
-        else:
-            logger.warning(f"Dataset file not found: {filepath}")
-            return None
-    try:
-        return pd.read_csv(filepath)
-    except Exception as e:
-        logger.error(f"Failed to load dataset {filepath}: {e}")
-        return None
+    return pd.read_csv(filepath)
 
 def generate_null_dataset(df: pd.DataFrame, seed: int) -> pd.DataFrame:
-    """Generate a null dataset by shuffling the outcome variable."""
+    """Generate a null dataset by shuffling the outcome column."""
     pin_random_seed(seed)
     df_null = df.copy()
-    # Assume the last column is the outcome for simplicity, or find a numeric column
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if len(numeric_cols) == 0:
-        logger.error("No numeric columns found to create null dataset")
+    numeric_cols = df_null.select_dtypes(include=[np.number]).columns.tolist()
+    if len(numeric_cols) < 1:
         return df_null
     
-    # Shuffle the last numeric column as outcome
     outcome_col = numeric_cols[-1]
     df_null[outcome_col] = np.random.permutation(df_null[outcome_col].values)
     return df_null
 
-def estimate_fpr_for_dataset(df: pd.DataFrame, outcome_col: Optional[str] = None, seed: int = 42) -> float:
+def estimate_fpr_for_dataset(df_null: pd.DataFrame, threshold_k: float) -> float:
     """
-    Estimate False Positive Rate (FPR) for a dataset.
-    FPR is the proportion of tests with p <= 0.05 in null datasets.
+    Estimate False Positive Rate (FPR) for a null dataset at a given outlier threshold k.
+    FPR = proportion of tests with p <= 0.05.
     """
-    pin_random_seed(seed)
-    # Use a subset of rows if too large for speed
-    if len(df) > 5000:
-        df = df.sample(n=5000, random_state=seed)
+    # Apply outlier removal with threshold k
+    # Note: apply_iqr_outlier_removal expects k as the multiplier for IQR
+    df_cleaned = apply_iqr_outlier_removal(df_null, k=threshold_k)
     
-    # Determine outcome column if not provided
-    if outcome_col is None:
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        if not numeric_cols:
-            return 0.0
-        outcome_col = numeric_cols[-1]
-    
-    # Run analysis on the original data to get baseline p-values
-    # We will simulate FPR by running on permuted data multiple times
-    num_permutations = 100
-    sig_count = 0
-    
-    for i in range(num_permutations):
-        null_df = generate_null_dataset(df, seed=seed + i)
-        # Run a simple t-test or regression on the null data
-        # We'll use the baseline analysis function but need to handle its output
-        try:
-            # Run baseline analysis on null data
-            # This function expects to write to disk, but we need in-memory results
-            # We'll call the underlying analysis logic directly if possible
-            # For now, we'll run a simple t-test on the outcome vs a predictor
-            predictors = [c for c in df.columns if c != outcome_col and pd.api.types.is_numeric_dtype(df[c])]
-            if not predictors:
-                continue
-            
-            # Pick first predictor
-            pred_col = predictors[0]
-            from scipy import stats
-            t_stat, p_val = stats.ttest_ind(
-                null_df[null_df[pred_col] > null_df[pred_col].median()][outcome_col],
-                null_df[null_df[pred_col] <= null_df[pred_col].median()][outcome_col],
-                equal_var=False
-            )
-            
-            if p_val <= 0.05:
-                sig_count += 1
-        except Exception as e:
-            logger.debug(f"Error in permutation {i}: {e}")
-            continue
-    
-    fpr = sig_count / num_permutations if num_permutations > 0 else 0.0
-    return fpr
-
-def calculate_inconsistency_rate(baseline_metrics: Dict, cleaned_metrics: Dict, threshold: float = 0.05) -> float:
-    """
-    Calculate Inconsistency Rate as proportion of datasets where significance status changes.
-    """
-    if not baseline_metrics.get('datasets') or not cleaned_metrics.get('datasets'):
-        logger.warning("Missing baseline or cleaned metrics for inconsistency rate calculation")
+    if len(df_cleaned) == 0:
+        logger.warning("Dataset empty after outlier removal.")
         return 0.0
     
-    baseline_datasets = baseline_metrics['datasets']
-    cleaned_datasets = cleaned_metrics.get('datasets', [])
+    # Run analysis on the cleaned null dataset
+    # We treat this as a single dataset analysis
+    results = run_baseline_analysis(df_cleaned, dataset_name=f"null_k_{threshold_k}")
     
-    # Map cleaned datasets by name
-    cleaned_map = {d['dataset_name']: d for d in cleaned_datasets}
+    if not results:
+        return 0.0
     
-    changes = 0
-    total = 0
+    total_tests = 0
+    significant_tests = 0
     
-    for b_entry in baseline_datasets:
-        ds_name = b_entry.get('dataset_name')
-        if ds_name in cleaned_map:
-            c_entry = cleaned_map[ds_name]
-            
-            # Extract p-values from tests
-            b_tests = b_entry.get('analysis', {}).get('t_tests', [])
-            c_tests = c_entry.get('analysis', {}).get('t_tests', [])
-            
-            if not b_tests or not c_tests:
-                continue
-            
-            total += 1
-            
-            # Check if significance status changed for any test
-            for b_test, c_test in zip(b_tests, c_tests):
-                b_p = b_test.get('p_value', 1.0)
-                c_p = c_test.get('p_value', 1.0)
-                
-                b_sig = b_p <= threshold
-                c_sig = c_p <= threshold
-                
-                if b_sig != c_sig:
-                    changes += 1
-                    break  # Count dataset once if any test changes
+    # Check t-tests
+    for pred, res in results.get("t_tests", {}).items():
+        if res.get("p_value") is not None:
+            total_tests += 1
+            if res["p_value"] <= 0.05:
+                significant_tests += 1
     
-    inconsistency_rate = changes / total if total > 0 else 0.0
-    return inconsistency_rate
+    # Check regressions
+    for pred, res in results.get("regressions", {}).items():
+        if res.get("p_value") is not None:
+            total_tests += 1
+            if res["p_value"] <= 0.05:
+                significant_tests += 1
+    
+    if total_tests == 0:
+        return 0.0
+    
+    fpr = significant_tests / total_tests
+    return fpr
 
-def run_threshold_sweep(config: Any, thresholds: List[float] = None) -> Dict[str, Any]:
+def calculate_inconsistency_rate(
+    baseline_results: List[Dict], 
+    cleaned_results: List[Dict],
+    threshold_k: float
+) -> float:
     """
-    Run outlier threshold sweep for k values.
-    Calculate FPR and Inconsistency Rate per threshold.
+    Calculate Inconsistency Rate: proportion of datasets where significance status changes.
     """
-    if thresholds is None:
-        thresholds = [1.0, 1.5, 2.0, 2.5, 3.0]
+    if not baseline_results or not cleaned_results:
+        return 0.0
     
-    processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-    baseline_path = os.path.join(processed_dir, "baseline_metrics.json")
-    cleaned_path = os.path.join(processed_dir, "cleaned_metrics.json")
+    if len(baseline_results) != len(cleaned_results):
+        logger.warning("Mismatch in number of datasets between baseline and cleaned.")
+        return 0.0
     
-    baseline_metrics = load_baseline_metrics(baseline_path)
-    cleaned_metrics = load_cleaned_metrics(cleaned_path)
+    inconsistencies = 0
+    total_comparisons = 0
     
-    results = []
-    
-    for k in thresholds:
-        logger.info(f"Processing threshold k={k}")
+    for b_entry, c_entry in zip(baseline_results, cleaned_results):
+        b_name = b_entry.get("dataset_name")
+        c_name = c_entry.get("dataset_name")
         
-        # Apply IQR outlier removal with current k to all datasets
-        # We need to re-run cleaning and analysis for each k
-        # For efficiency, we'll sample a few datasets or use existing cleaned data if available
-        
-        # Estimate FPR on a subset of datasets
-        fpr_values = []
-        inconsistency_rates = []
-        
-        # Load raw datasets to apply cleaning
-        raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-        datasets = load_datasets_from_raw(raw_dir)
-        
-        if not datasets:
-            logger.warning("No datasets found for threshold sweep")
+        if b_name != c_name:
+            logger.warning(f"Dataset name mismatch: {b_name} vs {c_name}")
             continue
         
-        # Process first 3 datasets for speed
-        sample_datasets = datasets[:3]
+        # Compare significance status across all tests
+        b_tests = b_entry.get("t_tests", {})
+        c_tests = c_entry.get("t_tests", {})
+        b_regs = b_entry.get("regressions", {})
+        c_regs = c_entry.get("regressions", {})
         
-        for ds_name, df in sample_datasets.items():
-            # Clean with current k
-            try:
-                clean_df = apply_iqr_outlier_removal(df, k=k)
-                
-                # Estimate FPR on this cleaned dataset
-                fpr = estimate_fpr_for_dataset(clean_df, seed=42)
-                fpr_values.append(fpr)
-                
-                # For inconsistency rate, we need to compare with baseline
-                # We'll skip full re-analysis for speed and use a proxy
-                # In a full implementation, we would run baseline_analysis on clean_df
-                # and compare p-values
-                
-            except Exception as e:
-                logger.warning(f"Error processing {ds_name} with k={k}: {e}")
-                continue
+        all_preds = set(list(b_tests.keys()) + list(b_regs.keys()))
         
-        avg_fpr = np.mean(fpr_values) if fpr_values else 0.0
-        
-        # Calculate inconsistency rate using existing metrics (approximation)
-        # In a full implementation, we would regenerate cleaned metrics for this k
-        irr = calculate_inconsistency_rate(baseline_metrics, cleaned_metrics)
-        
-        results.append({
-            "threshold_k": k,
-            "fpr": round(avg_fpr, 4),
-            "inconsistency_rate": round(irr, 4),
-            "datasets_processed": len(sample_datasets)
-        })
-        
-        logger.info(f"k={k}: FPR={avg_fpr:.4f}, Inconsistency Rate={irr:.4f}")
+        for pred in all_preds:
+            b_sig = False
+            c_sig = False
+            
+            # T-test
+            if pred in b_tests and b_tests[pred].get("p_value") is not None:
+                total_comparisons += 1
+                if b_tests[pred]["p_value"] <= 0.05:
+                    b_sig = True
+                if pred in c_tests and c_tests[pred].get("p_value") is not None:
+                    if c_tests[pred]["p_value"] <= 0.05:
+                        c_sig = True
+                if b_sig != c_sig:
+                    inconsistencies += 1
+            
+            # Regression
+            if pred in b_regs and b_regs[pred].get("p_value") is not None:
+                if pred not in b_tests: # Avoid double counting if already checked in t-test
+                    total_comparisons += 1
+                    if b_regs[pred]["p_value"] <= 0.05:
+                        b_sig = True
+                    if pred in c_regs and c_regs[pred].get("p_value") is not None:
+                        if c_regs[pred]["p_value"] <= 0.05:
+                            c_sig = True
+                    if b_sig != c_sig:
+                        inconsistencies += 1
     
-    return {
-        "thresholds": thresholds,
-        "results": results,
-        "metadata": {
-            "generated_at": str(pd.Timestamp.now()),
-            "description": "Outlier threshold sweep: FPR and Inconsistency Rate per k value"
-        }
-    }
+    if total_comparisons == 0:
+        return 0.0
+    
+    return inconsistencies / total_comparisons
 
-def main():
-    """Main entry point for T033: Outlier Threshold Sweep."""
-    setup_logging("INFO")
-    logger.info("Starting T033: Outlier Threshold Sweep")
+def run_threshold_sweep(
+    raw_dir: str,
+    k_values: List[float],
+    baseline_metrics_path: str,
+    output_path: str
+) -> Dict[str, Any]:
+    """
+    Run outlier threshold sweep for k in k_values.
+    Calculates FPR and Inconsistency Rate for each k.
+    """
+    datasets = load_datasets_from_raw(raw_dir)
+    if not datasets:
+        logger.error("No datasets found.")
+        return {}
     
-    config = get_config()
-    pin_random_seed(42)
+    results = {
+        "thresholds": [],
+        "summary": {}
+    }
     
-    # Define thresholds to sweep
-    thresholds = [1.0, 1.5, 2.0, 2.5, 3.0]
+    # Load baseline metrics if available for inconsistency rate
+    baseline_data = load_baseline_metrics(baseline_metrics_path)
+    baseline_datasets = baseline_data.get("baseline", {}).get("datasets", [])
     
-    # Run sweep
-    sweep_results = run_threshold_sweep(config, thresholds)
+    for k in k_values:
+        logger.info(f"Processing threshold k={k}")
+        k_results = {
+            "k": k,
+            "fpr_values": [],
+            "inconsistency_rates": []
+        }
+        
+        fpr_sum = 0.0
+        fpr_count = 0
+        inc_sum = 0.0
+        inc_count = 0
+        
+        # Process each dataset
+        for df, dataset_name in datasets:
+            # 1. FPR Calculation using null datasets
+            # Generate a few null datasets to estimate FPR
+            null_fprs = []
+            for i in range(3): # 3 null samples per dataset
+                seed = 42 + i
+                df_null = generate_null_dataset(df, seed)
+                fpr = estimate_fpr_for_dataset(df_null, k)
+                null_fprs.append(fpr)
+            
+            avg_fpr = np.mean(null_fprs)
+            k_results["fpr_values"].append(avg_fpr)
+            fpr_sum += avg_fpr
+            fpr_count += 1
+            
+            # 2. Inconsistency Rate Calculation
+            # Apply cleaning to real data
+            df_cleaned = apply_iqr_outlier_removal(df, k=k)
+            if len(df_cleaned) == 0:
+                logger.warning(f"Dataset {dataset_name} empty after cleaning with k={k}")
+                continue
+            
+            cleaned_res = run_baseline_analysis(df_cleaned, dataset_name=dataset_name)
+            
+            # Find corresponding baseline entry
+            b_entry = next((b for b in baseline_datasets if b.get("dataset_name") == dataset_name), None)
+            if not b_entry:
+                logger.warning(f"No baseline entry for {dataset_name}")
+                continue
+            
+            inc_rate = calculate_inconsistency_rate([b_entry], [cleaned_res], k)
+            k_results["inconsistency_rates"].append(inc_rate)
+            inc_sum += inc_rate
+            inc_count += 1
+        
+        k_results["avg_fpr"] = float(fpr_sum / fpr_count) if fpr_count > 0 else 0.0
+        k_results["avg_inconsistency_rate"] = float(inc_sum / inc_count) if inc_count > 0 else 0.0
+        results["thresholds"].append(k_results)
+    
+    # Summary
+    results["summary"] = {
+        "total_datasets_processed": len(datasets),
+        "k_values_tested": k_values
+    }
     
     # Write output
-    output_path = os.path.join(config.get("PROCESSED_DATA_PATH", "data/processed"), "outlier_threshold_sweep.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
     with open(output_path, 'w') as f:
-        json.dump(sweep_results, f, indent=2, default=str)
+        json.dump(results, f, indent=2)
     
     logger.info(f"Threshold sweep results written to {output_path}")
+    return results
+
+def main():
+    setup_logging("INFO")
+    config = get_config()
+    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
+    output_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
+    baseline_path = os.path.join(output_dir, "baseline_metrics.json")
+    output_file = os.path.join(output_dir, "threshold_sweep_metrics.json")
     
-    # Also update the main null_fpr_metrics.json if needed
-    # Append this data to existing FPR metrics
-    null_fpr_path = os.path.join(config.get("PROCESSED_DATA_PATH", "data/processed"), "null_fpr_metrics.json")
+    # Define k values: 1.0, 1.5, 2.0, 2.5, 3.0
+    k_values = [1.0, 1.5, 2.0, 2.5, 3.0]
     
-    existing_null_fpr = {}
-    if os.path.exists(null_fpr_path):
-        with open(null_fpr_path, 'r') as f:
-            existing_null_fpr = json.load(f)
-    
-    existing_null_fpr["outlier_threshold_sweep"] = sweep_results
-    
-    with open(null_fpr_path, 'w') as f:
-        json.dump(existing_null_fpr, f, indent=2, default=str)
-    
-    logger.info(f"Updated {null_fpr_path} with threshold sweep data")
-    
-    return sweep_results
+    run_threshold_sweep(raw_dir, k_values, baseline_path, output_file)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
