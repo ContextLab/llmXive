@@ -1,0 +1,127 @@
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: 16GB of RAM required for batch processing
+  claim_id: c_056f7701
+  context: 'Step 1: Environment Setup - Check Memory Availability'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/16GB_of_RAM_required_for_batch_processing
+  kind: magnitude
+  raw_text: Ensure at least 16GB of RAM is available for batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:24:25Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: Dataset stratified into 4 subsets
+  claim_id: c_3aa1262c
+  context: 'Step 3: Stratify Dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'This will: Stratify into 4 subsets (Static-High, Static-Low, Fast-High,
+    Fast-Low)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:24:48Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: Each stratum has at least 50 sequences
+  claim_id: c_434b957b
+  context: 'Step 3: Stratify Dataset'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Each_stratum_has_at_least_50_sequences
+  kind: magnitude
+  raw_text: Ensure each stratum has at least 50 sequences
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:25:11Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: Batch processing triggered if RAM usage exceeds 6GB
+  claim_id: c_16959743
+  context: 'Step 4: Extract Sparse Features'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_triggered_if_RAM_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: Handle batch processing if RAM usage exceeds 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:25:44Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: Inference time reduction compared against 40% threshold
+  claim_id: c_d60b5adf
+  context: 'Step 8: Generate Final Report'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare against the 40% threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:25:44Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
+  attempts: 1
+  canonical: WorldScore 0.85 for sparse vs 0.88 for dense
+  claim_id: c_83f2a884
+  context: Key Findings section comparing sparse and dense methods.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'WorldScore: 0.85 (Sparse) vs 0.88 (Dense)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:37:49Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
+  attempts: 1
+  canonical: Sparse-Consistency Score 0.92
+  claim_id: c_b1ff8e7d
+  context: Key Findings section reporting consistency metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sparse-Consistency Score: 0.92'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:38:21Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
+  attempts: 1
+  canonical: Inference time reduction 42.4%
+  claim_id: c_9e75b639
+  context: Key Findings section reporting efficiency gain.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Inference Time Reduction: 42.4%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:38:21Z'

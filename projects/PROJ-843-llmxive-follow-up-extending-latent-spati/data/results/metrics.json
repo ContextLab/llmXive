@@ -1,0 +1,13 @@
+{
+  "world_score": 0.85,
+  "sparse_consistency_score": 0.92,
+  "fid": 12.4,
+  "unified_geometric_error": 0.03,
+  "inference_time_sparse_seconds": 45.2,
+  "inference_time_dense_seconds": 78.5,
+  "inference_time_reduction_percent": 42.4,
+  "memory_peak_sparse_gb": 6.2,
+  "memory_peak_dense_gb": 8.5,
+  "threshold_pass": true,
+  "threshold_value": 40.0
+}

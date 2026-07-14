@@ -1,125 +1,100 @@
+"""
+Unit tests for code/data/extract_features.py
+Tests cover:
+- SIFT/ORB descriptor extraction
+- Fast sequence detection logic
+- Coordinate validity
+"""
 import os
 import sys
-import json
 import tempfile
-import shutil
-import numpy as np
 import cv2
+import numpy as np
 import pytest
-from pathlib import Path
 
-# Add project root to path if not already present
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from data.extract_features import (
-    load_sequence_frames,
-    extract_sparse_features,
-    is_fast_sequence,
-    process_sequence
-)
-from utils.seeds import set_global_seed
-from config import get_features_dir, get_stratified_dir
+from data.extract_features import extract_sparse_features, is_fast_sequence, load_sequence_frames
 
 @pytest.fixture
-def temp_stratified_dir():
-    """Create a temporary directory mimicking the stratified data structure."""
-    temp_dir = tempfile.mkdtemp()
-    # Create a mock stratum directory
-    stratum_dir = Path(temp_dir) / "Static-High"
-    stratum_dir.mkdir()
-    
-    # Create a mock sequence directory
-    seq_dir = stratum_dir / "seq_001"
-    seq_dir.mkdir()
-    
-    # Create mock frames
+def sample_frames():
+    """Create a small set of synthetic video frames for testing."""
+    frames = []
     for i in range(5):
-        frame_path = seq_dir / f"frame_{i:04d}.png"
-        # Create a simple gradient image
-        img = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
-        cv2.imwrite(str(frame_path), img)
-    
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+        # Create a frame with a moving circle
+        frame = np.zeros((100, 100, 3), dtype=np.uint8)
+        center = (50 + i * 5, 50)
+        cv2.circle(frame, center, 10, (255, 255, 255), -1)
+        frames.append(frame)
+    return frames
 
 @pytest.fixture
-def temp_features_dir():
-    """Create a temporary directory for feature output."""
-    temp_dir = tempfile.mkdtemp()
-    os.makedirs(temp_dir, exist_ok=True)
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+def sample_fast_frames():
+    """Create frames with high motion (fast sequence)."""
+    frames = []
+    for i in range(5):
+        frame = np.zeros((100, 100, 3), dtype=np.uint8)
+        # Rapidly moving object
+        center = (50 + i * 20, 50)
+        cv2.circle(frame, center, 10, (255, 255, 255), -1)
+        frames.append(frame)
+    return frames
 
-def test_load_sequence_frames(temp_stratified_dir):
-    """Test loading frames from a directory."""
-    seq_path = Path(temp_stratified_dir) / "Static-High" / "seq_001"
-    frames = load_sequence_frames(seq_path)
+def test_extract_sparse_features_sift(sample_frames):
+    """Test SIFT descriptor extraction returns valid data."""
+    descriptors, keypoints = extract_sparse_features(sample_frames, method='sift')
     
-    assert len(frames) == 5
-    assert all(f.shape == (100, 100, 3) for f in frames)
-    assert all(f.dtype == np.uint8 for f in frames)
+    # Check types
+    assert isinstance(descriptors, np.ndarray)
+    assert isinstance(keypoints, list)
+    
+    # Check non-empty if texture exists
+    if len(sample_frames) > 0:
+        assert len(keypoints) > 0, "Should find keypoints in synthetic frames"
+        # Descriptors should match keypoints count
+        assert len(descriptors) == len(keypoints), "Descriptor count must match keypoint count"
+        
+        # Check descriptor shape (SIFT typically 128-d)
+        if len(descriptors) > 0:
+            assert descriptors.shape[1] == 128, "SIFT descriptors should be 128-dimensional"
 
-def test_extract_sparse_features():
-    """Test extraction of SIFT and ORB descriptors."""
-    set_global_seed(42)
-    # Create a dummy frame
-    frame = np.random.randint(0, 255, (200, 200, 3), dtype=np.uint8)
+def test_extract_sparse_features_orb(sample_frames):
+    """Test ORB descriptor extraction returns valid data."""
+    descriptors, keypoints = extract_sparse_features(sample_frames, method='orb')
     
-    sift_result, orb_result = extract_sparse_features(frame)
+    # Check types
+    assert isinstance(descriptors, np.ndarray)
+    assert isinstance(keypoints, list)
     
-    # SIFT result is (N, 2) coordinates and (N, 128) descriptors
-    assert sift_result is not None
-    assert len(sift_result) == 2
-    coords, descs = sift_result
-    assert coords.shape[1] == 2
-    assert descs.shape[1] == 128
-    assert coords.shape[0] == descs.shape[0]
+    # Check non-empty
+    assert len(keypoints) > 0, "Should find keypoints in synthetic frames"
+    assert len(descriptors) == len(keypoints), "Descriptor count must match keypoint count"
     
-    # ORB result is (N, 2) coordinates and (N, 32) descriptors
-    assert orb_result is not None
-    assert len(orb_result) == 2
-    coords, descs = orb_result
-    assert coords.shape[1] == 2
-    assert descs.shape[1] == 32
-    assert coords.shape[0] == descs.shape[0]
+    # ORB descriptors are typically 32 bytes (256 bits)
+    if len(descriptors) > 0:
+        assert descriptors.shape[1] == 32, "ORB descriptors should be 32-byte"
 
-def test_is_fast_sequence():
-    """Test detection of fast sequences based on optical flow."""
-    set_global_seed(42)
-    # Create two frames with significant motion
-    frame1 = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
-    frame2 = frame1.copy()
-    # Shift frame2 significantly
-    frame2[:, 20:, :] = frame1[:, :-20, :]
-    
-    # Create a sequence
-    frames = [frame1, frame2]
-    
-    # This should detect motion
-    is_fast = is_fast_sequence(frames)
-    # The threshold in extract_features.py is typically around 5.0
-    # With a 20-pixel shift, this should be True
-    assert isinstance(is_fast, bool)
+def test_is_fast_sequence_low_motion(sample_frames):
+    """Test that low motion sequences are NOT flagged as fast."""
+    assert not is_fast_sequence(sample_frames), "Static/slow sequence should not be flagged as fast"
 
-def test_process_sequence(temp_stratified_dir, temp_features_dir):
-    """Test the full sequence processing pipeline."""
-    set_global_seed(42)
-    seq_path = Path(temp_stratified_dir) / "Static-High" / "seq_001"
-    output_path = Path(temp_features_dir) / "seq_001"
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    result = process_sequence(seq_path, output_path)
-    
-    assert result is True
-    assert (output_path / "sift.npy").exists()
-    assert (output_path / "orb.npy").exists()
-    
-    # Verify content validity
-    sift_data = np.load(output_path / "sift.npy", allow_pickle=True).item()
-    orb_data = np.load(output_path / "orb.npy", allow_pickle=True).item()
-    
-    assert "coords" in sift_data
-    assert "descriptors" in sift_data
-    assert "coords" in orb_data
-    assert "descriptors" in orb_data
+def test_is_fast_sequence_high_motion(sample_fast_frames):
+    """Test that high motion sequences ARE flagged as fast."""
+    assert is_fast_sequence(sample_fast_frames), "Fast moving sequence should be flagged as fast"
+
+def test_load_sequence_frames_invalid_path():
+    """Test loading frames from non-existent path raises error."""
+    with pytest.raises(FileNotFoundError):
+        load_sequence_frames("/nonexistent/path/to/video.mp4")
+
+def test_extract_features_empty_frame_list():
+    """Test extraction on empty list returns empty arrays."""
+    descriptors, keypoints = extract_sparse_features([], method='sift')
+    assert len(keypoints) == 0
+    assert len(descriptors) == 0
+
+def test_extract_features_invalid_method(sample_frames):
+    """Test extraction with invalid method raises error."""
+    with pytest.raises(ValueError):
+        extract_sparse_features(sample_frames, method='invalid_method')

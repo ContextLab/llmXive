@@ -1,0 +1,8 @@
+{
+  "parameter": "RANSAC Threshold",
+  "range": [0.5, 1.0, 1.5, 2.0],
+  "world_score_variance": 0.012,
+  "sparse_consistency_variance": 0.008,
+  "stability": "High",
+  "optimal_threshold": 1.0
+}

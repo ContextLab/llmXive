@@ -1,118 +1,112 @@
+"""
+Unit tests for code/eval/anova.py
+Tests cover:
+- Data loading for ANOVA
+- Two-way ANOVA execution
+- Interaction effect detection
+- P-value validation
+"""
 import os
 import sys
 import json
 import tempfile
-import shutil
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
+from scipy import stats
 
 # Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from eval.anova import (
-    load_metrics_for_anova,
-    run_anova,
-    main
-)
-from utils.seeds import set_global_seed
+from eval.anova import load_metrics_for_anova, run_anova
 
 @pytest.fixture
-def temp_metrics_dir():
-    """Create a temporary directory with mock metrics JSON files."""
-    temp_dir = tempfile.mkdtemp()
+def sample_metrics_data(tmp_path):
+    """Create sample metrics data for ANOVA testing."""
+    data_dir = tmp_path / "results"
+    data_dir.mkdir()
     
-    # Create mock metric files for different strata
-    strata = ["Static-High", "Static-Low", "Fast-High", "Fast-Low"]
+    # Create synthetic metrics data
+    metrics = [
+        {"sequence_id": "seq1", "dynamics": "Static", "texture": "High", "world_score": 0.85, "sparse_consistency": 0.90},
+        {"sequence_id": "seq2", "dynamics": "Static", "texture": "High", "world_score": 0.82, "sparse_consistency": 0.88},
+        {"sequence_id": "seq3", "dynamics": "Static", "texture": "Low", "world_score": 0.70, "sparse_consistency": 0.75},
+        {"sequence_id": "seq4", "dynamics": "Static", "texture": "Low", "world_score": 0.68, "sparse_consistency": 0.72},
+        {"sequence_id": "seq5", "dynamics": "Fast", "texture": "High", "world_score": 0.75, "sparse_consistency": 0.80},
+        {"sequence_id": "seq6", "dynamics": "Fast", "texture": "High", "world_score": 0.72, "sparse_consistency": 0.78},
+        {"sequence_id": "seq7", "dynamics": "Fast", "texture": "Low", "world_score": 0.60, "sparse_consistency": 0.65},
+        {"sequence_id": "seq8", "dynamics": "Fast", "texture": "Low", "world_score": 0.58, "sparse_consistency": 0.62},
+    ]
     
-    for stratum in strata:
-        # Create a mock metrics file
-        metrics = {
-            "sequence_id": f"seq_{stratum}",
-            "stratum": stratum,
-            "world_score": np.random.uniform(0.5, 0.9),
-            "sparse_consistency_score": np.random.uniform(0.6, 0.95),
-            "fid": np.random.uniform(0.1, 0.5),
-            "inference_time": np.random.uniform(0.1, 1.0)
-        }
-        
-        file_path = Path(temp_dir) / f"metrics_{stratum}.json"
-        with open(file_path, 'w') as f:
-            json.dump(metrics, f)
+    metrics_file = data_dir / "metrics.json"
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f)
     
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+    return data_dir
 
-@pytest.fixture
-def temp_results_dir():
-    """Create a temporary results directory."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+def test_load_metrics_for_anova(sample_metrics_data):
+    """Test loading metrics data for ANOVA."""
+    df = load_metrics_for_anova(sample_metrics_data)
+    
+    assert isinstance(df, pd.DataFrame), "Should return a DataFrame"
+    assert len(df) == 8, "Should load all 8 records"
+    assert "dynamics" in df.columns, "Should have dynamics column"
+    assert "texture" in df.columns, "Should have texture column"
+    assert "world_score" in df.columns, "Should have world_score column"
+    assert "sparse_consistency" in df.columns, "Should have sparse_consistency column"
 
-def test_load_metrics_for_anova(temp_metrics_dir):
-    """Test loading metrics for ANOVA analysis."""
-    metrics_df = load_metrics_for_anova(temp_metrics_dir)
+def test_run_anova_interaction_effect(sample_metrics_data):
+    """Test that ANOVA correctly identifies interaction effects."""
+    df = load_metrics_for_anova(sample_metrics_data)
+    result = run_anova(df, metric="world_score")
     
-    assert isinstance(metrics_df, pd.DataFrame)
-    assert "stratum" in metrics_df.columns
-    assert "world_score" in metrics_df.columns
-    assert "sparse_consistency_score" in metrics_df.columns
-    assert len(metrics_df) == 4  # 4 strata
+    # Result should be a dictionary
+    assert isinstance(result, dict), "ANOVA result should be a dictionary"
+    assert "f_statistic" in result, "Result should contain F-statistic"
+    assert "p_value" in result, "Result should contain p-value"
+    assert "interaction_p_value" in result, "Result should contain interaction p-value"
+    
+    # Values should be numeric
+    assert isinstance(result["f_statistic"], (int, float)), "F-statistic must be numeric"
+    assert isinstance(result["p_value"], (int, float)), "P-value must be numeric"
+    assert result["p_value"] >= 0 and result["p_value"] <= 1, "P-value must be between 0 and 1"
 
-def test_run_anova(temp_metrics_dir):
-    """Test running two-way ANOVA."""
-    set_global_seed(42)
-    metrics_df = load_metrics_for_anova(temp_metrics_dir)
+def test_run_anova_different_metrics(sample_metrics_data):
+    """Test ANOVA on different metric columns."""
+    df = load_metrics_for_anova(sample_metrics_data)
     
-    # Manually expand the dataset to have enough samples for ANOVA
-    # (In real usage, we'd have multiple sequences per stratum)
-    expanded_data = []
-    for _, row in metrics_df.iterrows():
-        for _ in range(10):  # Create 10 samples per stratum
-            sample = row.to_dict()
-            sample["world_score"] += np.random.normal(0, 0.05)
-            sample["sparse_consistency_score"] += np.random.normal(0, 0.05)
-            expanded_data.append(sample)
+    result_ws = run_anova(df, metric="world_score")
+    result_sc = run_anova(df, metric="sparse_consistency")
     
-    expanded_df = pd.DataFrame(expanded_data)
-    
-    # Extract factors
-    expanded_df["dynamics"] = expanded_df["stratum"].apply(lambda x: "Static" if "Static" in x else "Fast")
-    expanded_df["texture"] = expanded_df["stratum"].apply(lambda x: "High" if "High" in x else "Low")
-    
-    result = run_anova(expanded_df, "world_score", "dynamics", "texture")
-    
-    assert result is not None
-    assert "anova_table" in result
-    assert "interaction_pvalue" in result
-    assert "main_effect_dynamics_pvalue" in result
-    assert "main_effect_texture_pvalue" in result
+    # Both should produce valid results
+    assert result_ws["p_value"] >= 0, "WorldScore p-value must be valid"
+    assert result_sc["p_value"] >= 0, "SparseConsistency p-value must be valid"
 
-def test_main(temp_metrics_dir, temp_results_dir):
-    """Test the main ANOVA execution flow."""
-    set_global_seed(42)
-    # Create expanded data as in test_run_anova
-    metrics_df = load_metrics_for_anova(temp_metrics_dir)
-    expanded_data = []
-    for _, row in metrics_df.iterrows():
-        for _ in range(10):
-            sample = row.to_dict()
-            sample["world_score"] += np.random.normal(0, 0.05)
-            sample["sparse_consistency_score"] += np.random.normal(0, 0.05)
-            expanded_data.append(sample)
-    expanded_df = pd.DataFrame(expanded_data)
+def test_anova_with_insufficient_data():
+    """Test ANOVA handling of insufficient data."""
+    # Create a DataFrame with only one group
+    df = pd.DataFrame({
+        "dynamics": ["Static", "Static"],
+        "texture": ["High", "High"],
+        "world_score": [0.8, 0.8]
+    })
     
-    # Save expanded data
-    expanded_path = Path(temp_results_dir) / "expanded_metrics.csv"
-    expanded_df.to_csv(expanded_path, index=False)
+    # Should not crash, but might return NaN or specific error handling
+    # depending on scipy implementation
+    try:
+        result = run_anova(df, metric="world_score")
+        # If it runs, result should be valid structure
+        assert "p_value" in result
+    except ValueError:
+        # scipy.stats might raise ValueError for insufficient degrees of freedom
+        # This is acceptable behavior
+        pass
+
+def test_anova_p_value_threshold(sample_metrics_data):
+    """Test that ANOVA correctly reports significance threshold."""
+    df = load_metrics_for_anova(sample_metrics_data)
+    result = run_anova(df, metric="world_score")
     
-    # Mock the main function to use our temp directory
-    # In a real scenario, main() would scan the results directory
-    # For this test, we verify the logic can handle the data
-    result = run_anova(expanded_df, "world_score", "dynamics", "texture")
-    
-    assert result["interaction_pvalue"] is not None
-    assert isinstance(result["interaction_pvalue"], float)
+    # Check that we can determine significance
+    is_significant = result["interaction_p_value"] < 0.05
+    assert isinstance(is_significant, bool), "Significance check should return boolean"

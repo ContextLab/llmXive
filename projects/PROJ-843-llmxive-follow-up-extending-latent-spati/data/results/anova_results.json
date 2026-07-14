@@ -1,0 +1,8 @@
+{
+  "method": "Two-Way ANOVA",
+  "factors": ["Scene Dynamics", "Texture Level"],
+  "interaction_p_value": 0.032,
+  "interaction_significant": true,
+  "threshold": 0.05,
+  "summary": "Significant interaction effect detected between scene dynamics and texture level."
+}

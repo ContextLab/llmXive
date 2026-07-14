@@ -1,25 +1,13 @@
-# Core Data & Numerical Computing
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
-
-# Computer Vision & Image Processing
 opencv-python>=4.8.0
-scikit-image>=0.21.0
-imageio>=2.31.0
-imageio-ffmpeg>=0.4.8
-
-# Machine Learning & Statistics
 scikit-learn>=1.3.0
+scipy>=1.11.0
+pandas>=2.0.0
+numpy>=1.24.0
 torch>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
 datasets>=2.14.0
-
-# Memory Profiling
-memory-profiler>=0.61.0
-
-# Testing
+imageio>=2.31.0
 pytest>=7.4.0
-
-# Note: Ensure Python 3.11+ is used.
-# The torch-cpu requirement is satisfied by the index-url directive above.
-# scikit-image is included for FID calculation support.
+memory-profiler>=0.61.0
+scikit-image>=0.21.0
+matplotlib>=3.7.0
+seaborn>=0.12.0

@@ -1,0 +1,9 @@
+status: none
+intent: download RealEstate10K dataset and validation split python package dataset
+required_fields:
+- sequence_id
+- frame_index
+- rgb_image_path
+- video_file_path
+- camera_intrinsics
+- timestamp
