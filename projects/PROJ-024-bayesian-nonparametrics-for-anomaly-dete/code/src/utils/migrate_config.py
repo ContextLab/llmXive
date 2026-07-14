@@ -2,7 +2,7 @@
 Utility to migrate derived statistics from config.yaml to the state file.
 
 This script performs the following steps:
-1. Loads code/config.yaml.
+1. Loads the project's config.yaml (located at projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml).
 2. Identifies derived statistic keys: 'dataset_stats', 'inference_results', 'simulation_metrics'.
 3. Removes these keys from the config (if present).
 4. Loads the target state file (state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml).
@@ -16,9 +16,13 @@ import yaml
 from pathlib import Path
 from datetime import datetime
 
-# Project paths relative to project root
-# The project root is the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+# Determine the project root.
+# The script is at: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/utils/migrate_config.py
+# Project root is: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/
+SCRIPT_DIR = Path(__file__).resolve().parent
+CODE_DIR = SCRIPT_DIR.parent
+PROJECT_ROOT = CODE_DIR.parent
+
 CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
 
@@ -40,6 +44,7 @@ def save_yaml(path: Path, data: dict):
 
 def main():
     print(f"Starting config migration at {datetime.now().isoformat()}")
+    print(f"Project Root: {PROJECT_ROOT}")
     print(f"Config path: {CONFIG_PATH}")
     print(f"State path: {STATE_PATH}")
 

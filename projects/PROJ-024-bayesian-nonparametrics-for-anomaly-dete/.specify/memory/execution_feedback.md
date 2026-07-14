@@ -13,13 +13,13 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…())                  # Return placeholder result         return EvaluationResu…”
 - code/scripts/verify_confusion_matrix.py: metric `y_scores` assigned from an RNG draw (line 50)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 136)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 159)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 189)
+- code/src/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363)
+- code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
+- code/src/services/threshold_calibrator.py: metric `normal_scores` assigned from an RNG draw (line 418)
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 90 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 5 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 87 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 5 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -29,35 +29,42 @@ Configuration Check
 ============================================================
 ERROR: Configuration file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/code/config.yaml
 - python code/src/data/download_datasets.py -> rc=1
-    ============================================================
-Dataset Download Script (T052)
-============================================================
-2026-07-14 15:52:17,686 - WARNING - Search result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json. Assuming search failed.
-2026-07-14 15:52:17,686 - CRITICAL - Aborting download. T052b Search failed: Search result file missing
-2026-07-14 15:52:17,687 - INFO - Download manifest saved to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/download_manifest.json
-2026-07-14 15:52:17,687 - ERROR - No datasets were successfully downloaded.
+    2026-07-14 17:25:54,559 - INFO - ============================================================
+2026-07-14 17:25:54,559 - INFO - Dataset Download Script (T052)
+2026-07-14 17:25:54,559 - INFO - ============================================================
+2026-07-14 17:25:54,559 - WARNING - Search result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json. Assuming search failed.
+2026-07-14 17:25:54,559 - CRITICAL - Aborting download. T052b Search failed: Search result file missing
+2026-07-14 17:25:54,559 - INFO - Download manifest saved to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/download_manifest.json
+2026-07-14 17:25:54,559 - ERROR - No datasets were successfully downloaded.
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 27, in <module>
-    from models.anomaly_score import AnomalyScore
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 8, in <module>
-    class AnomalyScore:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 27, in AnomalyScore
-    component_assignments: Optional[List[int]] = field(default=None)
-                                    ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 25, in <module>
+    from models.dpgmm import DPGMMModel, DPGMMConfig
+ModuleNotFoundError: No module named 'models.dpgmm'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 32, in <module>
+    from models.dpgmm import DPGMMModel, DPGMMConfig
+ModuleNotFoundError: No module named 'models.dpgmm'
 - python code/src/evaluation/simulation.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 27, in <module>
-    from src.models.dpgmm import DPGMMModel, DPGMMConfig
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
-    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
-    import _winapi
-ModuleNotFoundError: No module named '_winapi'
+    'stride': 1, 'noise_level': 0.1, 'anomaly_amplitude': 2.0, 'anomaly_duration': 10, 'seed': 42, 'alpha_true': 1.0, 'alpha_anomaly': 3.0}
+2026-07-14 17:25:55,182 - INFO - Generated signal of length 2500 with 160 anomaly points
+2026-07-14 17:25:55,183 - INFO - Extracted 2451 windows
+2026-07-14 17:25:55,219 - INFO - Estimated noise std: 0.0649
+2026-07-14 17:25:55,244 - INFO - Simulation completed in 0.06 seconds
+2026-07-14 17:25:55,263 - INFO - Results saved to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/data/processed/results/simulation_snr.csv
+2026-07-14 17:25:55,264 - INFO - Anomaly window SNR stats: mean=0.1726, min=0.0000
+2026-07-14 17:25:55,264 - INFO - SNR > 1 passing rate: 5.22% (46/881)
+2026-07-14 17:25:55,264 - WARNING - VALIDATION FAILED: SNR <= 1 for majority of anomaly windows
+2026-07-14 17:25:55,264 - INFO - ============================================================
+2026-07-14 17:25:55,264 - INFO - SIMULATION VALIDATION: FAILED
+2026-07-14 17:25:55,264 - INFO - The ADVI estimator may need tuning before proceeding to Phase 3.
+2026-07-14 17:25:55,264 - INFO - ============================================================
 - python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 24, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 32, in <module>
     from models.dp_gmm import DPGMMModel, DPGMMConfig
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
     from models.anomaly_score import AnomalyScore
@@ -134,5 +141,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/src/data/download_datasets.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/src/data/download_datasets.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/src/data/download_datasets.py`, `code/tests/unit/test_download_datasets.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/src/data/download_datasets.py`, `code/tests/unit/test_download_datasets.py`.

@@ -1,5 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T060** — The provided `code/config.yaml` (653 bytes) is under the wrong path (`code/config.yaml` instead of `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml`) and does not contain the required keys `dataset_stats`, `inference_results`, or `simulation_metrics`, so there is nothing to migrate. No evidence of an updated `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml` showing the migrated data is present, and the migration script is truncated before completion. The implementer must place the correct config file at the specified location, ensure it include
