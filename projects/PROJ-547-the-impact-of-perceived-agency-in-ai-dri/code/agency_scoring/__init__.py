@@ -1,3 +1,3 @@
 """
-Agency scoring package initialization.
+Agency Scoring Module
 """

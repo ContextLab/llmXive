@@ -1,12 +1,14 @@
-spaCy>=3.6
-NLTK>=3.8
+# Core dependencies
+spacy>=3.6
+nltk>=3.8
 pandas>=2.0
 statsmodels>=0.14
 scikit-learn>=1.3
 pyyaml>=6.0
 matplotlib>=3.8
 tqdm>=4.66
-scipy>=1.11
-# Added for validation reporting
-PyYAML>=6.0
-# No additional external PDF library required; minimal PDF generated manually.
+
+# Additional dependencies for utils module
+psutil>=5.9.0
+jsonschema>=4.17.0
+mypy>=1.0.0

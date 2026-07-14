@@ -1,0 +1,3 @@
+"""
+Adherence Extraction Module
+"""
