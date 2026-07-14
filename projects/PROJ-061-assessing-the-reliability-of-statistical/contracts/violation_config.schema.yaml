@@ -1,57 +1,36 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ViolationConfig
-description: >-
-  Schema for defining parameters of induced statistical assumption violations
-  used in User Story 2 (Bias Mapping).
+description: Schema for configuration of induced violations in User Story 2.
 type: object
 required:
   - violation_type
-  - magnitude
-  - seed
+  - parameters
 properties:
   violation_type:
     type: string
-    enum: [heavy_tailed, ar1_autocorrelation, effect_size_heterogeneity]
-    description: Type of violation being induced.
-  magnitude:
+    enum: [heavy_tailed_noise, ar1_autocorrelation, effect_size_heterogeneity]
+    description: Type of assumption violation to induce.
+  parameters:
     type: object
     description: Parameters specific to the violation type.
     properties:
-      # For heavy_tailed: contamination rate and degrees of freedom
       contamination_rate:
         type: number
-        minimum: 0
-        maximum: 1
-        description: Proportion of data points replaced by heavy-tailed noise.
-      df:
-        type: number
-        minimum: 1
-        description: Degrees of freedom for the t-distribution (lower = heavier tails).
-      # For ar1_autocorrelation: AR coefficient
+        minimum: 0.0
+        maximum: 1.0
+        description: For heavy-tailed noise, the rate of contamination.
       ar_coefficient:
         type: number
-        minimum: -1
-        maximum: 1
-        description: Autoregressive coefficient for AR(1) process.
-      # For effect_size_heterogeneity: mixing ratio and separation
+        minimum: -1.0
+        maximum: 1.0
+        description: For AR(1), the autocorrelation coefficient.
       mixing_ratio:
         type: number
-        minimum: 0
-        maximum: 1
-        description: Proportion of the second sub-population.
-      separation_sd:
+        minimum: 0.0
+        maximum: 1.0
+        description: For heterogeneity, the ratio of the second sub-population.
+      separation_distance:
         type: number
-        minimum: 0
-        description: Separation distance between sub-population means in standard deviations.
-    required: []
-    # Note: Required fields depend on violation_type, enforced at application logic
-  seed:
-    type: integer
-    description: Random seed for the perturbation process.
-  dataset_id:
-    type: string
-    description: ID of the dataset this configuration applies to.
-  notes:
-    type: string
-    description: Optional notes about the configuration.
+        description: For heterogeneity, the separation in standard deviations.
+    additionalProperties: true
 additionalProperties: false

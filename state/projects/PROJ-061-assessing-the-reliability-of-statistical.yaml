@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-061-assessing-the-reliability-of-statistical
-last_run_id: b28fb6ea-ab35-40b3-923c-f78f6238b4dc
+last_run_id: f8a1796b-1a5f-4bd0-8566-f4f70ce8cfeb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical
 title: Assessing the Reliability of Statistical Power Calculations in Real-World Datasets
-updated_at: '2026-07-14T10:32:14.572426Z'
+updated_at: '2026-07-14T11:19:03.695407Z'

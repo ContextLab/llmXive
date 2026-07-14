@@ -1,43 +1,62 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PowerEstimate"
-description: "Schema for power estimation results comparing theoretical vs empirical power"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: PowerEstimate
+description: Schema for baseline power analysis results conforming to User Story 1.
+type: object
 required:
+  - dataset_id
+  - dataset_type
+  - n_samples
   - theoretical_power
   - empirical_power
   - absolute_error
+  - status
 properties:
-  theoretical_power:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Theoretical power calculated from analytical formulas"
-  empirical_power:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Empirical power estimated via bootstrap simulation"
-  absolute_error:
-    type: number
-    minimum: 0
-    description: "Absolute difference between theoretical and empirical power"
   dataset_id:
     type: string
-    description: "Identifier of the dataset used for estimation"
-  sample_size:
-    type: integer
-    minimum: 1
-    description: "Sample size of the dataset"
-  effect_size:
-    type: number
-    description: "Effect size (e.g., Cohen's d) used in calculation"
-  bootstrap_iterations:
-    type: integer
-    minimum: 1
-    description: "Number of bootstrap iterations performed"
-  timestamp:
+    description: Unique identifier for the dataset.
+  dataset_type:
     type: string
-    format: date-time
-    description: "ISO 8601 timestamp of when the estimate was generated"
-
-additionalProperties: true
+    enum: [continuous, count, binary]
+    description: Type of the outcome variable.
+  n_samples:
+    type: integer
+    minimum: 30
+    description: Number of samples used in the analysis after cleaning.
+  theoretical_power:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Power calculated using standard theoretical methods (e.g., statsmodels).
+  empirical_power:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Power estimated via bootstrap simulation.
+  absolute_error:
+    type: number
+    minimum: 0.0
+    description: Absolute difference between theoretical and empirical power.
+  status:
+    type: string
+    enum: [completed, skipped, excluded, error]
+    description: Status of the analysis for this dataset.
+  reason:
+    type: string
+    nullable: true
+    description: Reason for skipping or exclusion (if applicable).
+  validation:
+    type: object
+    description: Validation details from the bootstrap check.
+    properties:
+      is_valid:
+        type: boolean
+      details:
+        type: object
+  bootstrap_stats:
+    type: object
+    description: Additional statistics from the bootstrap simulation.
+  error_message:
+    type: string
+    nullable: true
+    description: Error message if status is 'error'.
+additionalProperties: false

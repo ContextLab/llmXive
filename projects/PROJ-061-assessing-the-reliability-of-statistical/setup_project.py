@@ -1,14 +1,15 @@
 """
-Script to initialize the project directory structure for T001.
-Creates required directories and __init__.py files.
+Script to initialize the project directory structure and Python packages.
+This implements Task T001.
 """
 import os
 import sys
 
-def main():
-    # Define the relative paths based on the project structure
-    # Root directories
-    dirs = [
+def create_directories():
+    """Create the required directory structure."""
+    # Define the root directory (current working directory or specified path)
+    # For this task, we assume running from the project root
+    base_dirs = [
         "code",
         "tests",
         "data/raw",
@@ -16,9 +17,9 @@ def main():
         "data/results",
         "docs"
     ]
-
-    # Python package directories requiring __init__.py
-    packages = [
+    
+    # Define the package directories that need __init__.py
+    package_dirs = [
         "code",
         "tests",
         "tests/unit",
@@ -26,25 +27,44 @@ def main():
         "tests/contract"
     ]
 
-    # Create directories
-    print("Creating project directories...")
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-        print(f"  Created: {d}/")
+    created_dirs = []
+    created_files = []
 
-    # Create __init__.py files
-    print("Creating __init__.py files...")
-    for pkg in packages:
-        file_path = os.path.join(pkg, "__init__.py")
-        # Check if file already exists to avoid overwriting with empty content if it had code
-        if not os.path.exists(file_path):
-            with open(file_path, "w") as f:
-                f.write('"""\n' + f"{pkg.replace('/', ' ').title()} package\n" + '"""\n')
-            print(f"  Created: {file_path}")
+    # Create base directories
+    for dir_path in base_dirs:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+            created_dirs.append(dir_path)
+            print(f"Created directory: {dir_path}")
         else:
-            print(f"  Skipped (exists): {file_path}")
+            print(f"Directory already exists: {dir_path}")
 
-    print("Setup complete.")
+    # Create __init__.py files in package directories
+    for pkg_dir in package_dirs:
+        init_path = os.path.join(pkg_dir, "__init__.py")
+        if not os.path.exists(init_path):
+            with open(init_path, "w") as f:
+                f.write('"""\n')
+                f.write(f'{pkg_dir.replace("/", ".")} package\n')
+                f.write('"""\n')
+            created_files.append(init_path)
+            print(f"Created file: {init_path}")
+        else:
+            print(f"File already exists: {init_path}")
+
+    return created_dirs, created_files
+
+def main():
+    print("Initializing project structure for Task T001...")
+    dirs, files = create_directories()
+    print(f"\nSummary:")
+    print(f"  Directories created: {len(dirs)}")
+    print(f"  Files created: {len(files)}")
+    
+    if not dirs and not files:
+        print("  No changes made (structure already exists).")
+    else:
+        print("  Project structure initialized successfully.")
 
 if __name__ == "__main__":
     main()

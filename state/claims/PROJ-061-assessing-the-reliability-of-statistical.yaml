@@ -2,1492 +2,6 @@
   attempts: 1
   canonical: 'Select 10 diverse public datasets from UCI: 3 continuous, 3 count, 4
     binary, each with N >= 30'
-  claim_id: c_d58b8dee
-  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
-    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
-    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:23:06Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculation uses Cohen's d = 0.5 for two-sample t-test
-  claim_id: c_63f866d7
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:25:13Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Bootstrap recovery rate must match true power within 5%
-  claim_id: c_f38f11b6
-  context: 'T031a Implement code/power_empirical.py synthetic test mode logic: Generate
-    data with known parameters, run bootstrap, verify recovery rate matches true power
-    within 5% (FR-008).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate data with known parameters, run bootstrap, verify recovery rate
-    matches true power within 5%
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:25:13Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity injection uses mixing ratio 0.2 and separation
-    distance 1.5 standard deviations
-  claim_id: c_fdfde3fa
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
-    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
-    Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:25:43Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis sweeps thresholds across range [0.01, 0.05, 0.10]
-  claim_id: c_c8fd4d45
-  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
-    thresholds across a **configurable range defined in code/config.py (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]**).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10])
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:25:43Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_22d9162c
-  context: T032 [Validation] ... 1. **Prune** the 2 datasets with the largest N first.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first if runtime exceeds 6 hours
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:26:35Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours after pruning
-  claim_id: c_f20188cd
-  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
-    to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:26:35Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline run on 10 diverse datasets
-  claim_id: c_b48bb34a
-  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
-    outcomes
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:26:53Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: 'Sensitivity analysis thresholds: 0.01, 0.05, 0.10'
-  claim_id: c_ba4b1054
-  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
-    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10]).
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:30:38Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: '10 UCI datasets selected: 3 continuous, 3 count, 4 binary, with N >=
-    30'
-  claim_id: c_0d8e1f51
-  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
-    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
-    Select the first 10 datasets...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:30:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Real-data processing blocked if recovery rate is not within 5%
-  claim_id: c_b177303e
-  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
-    act as a blocking gate. If the recovery rate is not within 5%, the task fails...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:30:55Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculation for two-sample t-test with Cohen's d =
-    0.5
-  claim_id: c_3bb28a35
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:30:55Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Effect size heterogeneity: mixing ratio 0.2, separation distance 1.5
-    standard deviations'
-  claim_id: c_f378fa33
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for...
-    Effect size heterogeneity via mixing two sub-populations with a mixing ratio of
-    0.2 and separation distance of 1.5 standard deviations...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:30:55Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Separation distance 1.5 standard deviations
-  claim_id: c_1ceda5a5
-  context: '...mixing ratio of 0.2 and separation distance of 1.5 standard deviations
-    (Spec US-2 Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:31:13Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Runtime enforcement: prune 2 largest datasets if total runtime exceeds
-    6 hours'
-  claim_id: c_1f6d96bf
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement:
-    1. Prune the 2 datasets with the largest N first.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_enforcement:_prune_2_largest_datasets_if_total_runti
-  kind: magnitude
-  raw_text: 'If estimated total runtime > 6 hours, implement hard enforcement: Prune
-    the 2 datasets with the largest N first.'
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:32:05Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
-  claim_id: c_98f08591
-  context: 2. If still > 6h, reduce bootstrap iterations to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:32:05Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Full pipeline run on 10 diverse datasets: continuous, count, binary'
-  claim_id: c_9984b507
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:32:05Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Select 10 datasets from UCI: 3 continuous, 3 count, 4 binary, each with
-    N >= 30'
-  claim_id: c_34b00eb7
-  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
-    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
-    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:04Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
-  canonical: Synthetic Ground Truth test fails if recovery rate is not within 5%
-  claim_id: c_ef5ed563
-  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
-    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
-    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing can begin
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:04Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculation uses Cohen's d = 0.5 for two-sample t-test
-  claim_id: c_e0bc6e22
-  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using `statsmodels`.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:04Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity uses mixing ratio 0.2 and separation distance
-    1.5 standard deviations
-  claim_id: c_4ec2853d
-  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
-    3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
-    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
-    Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement effect size heterogeneity via mixing two sub-populations with
-    a mixing ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
-  canonical: Full pipeline runtime must not exceed 6 hours
-  claim_id: c_c6d004fc
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
-    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**:'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Profile execution time for the full suite. If estimated total runtime
-    > 6 hours, implement hard enforcement
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
-  claim_id: c_dc0f3ee7
-  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
-    to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:33:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  claim_id: c_00abf977
-  context: T032 [Validation] ... 1. **Prune** the 2 datasets with the largest N first.
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first.
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:33:35Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: sensitivity analysis sweeps thresholds 0.01, 0.05, 0.10
-  claim_id: c_2bacfbe5
-  context: T028 [US3] Implement sensitivity analysis logic in `code/main.py` to sweep
-    thresholds across a **configurable range defined in `code/config.py` (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]**).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10])
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:34:38Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_58599123
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: ... 1. **Prune** the
-    2 datasets with the largest N first.'
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:34:38Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: '10 datasets selected from UCI: 3 continuous, 3 count, 4 binary, N >=
-    30'
-  claim_id: c_4f82c49c
-  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
-    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
-    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:34:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: bootstrap recovery rate matches true power within 5%
-  claim_id: c_8aedc5d2
-  context: 'T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate
-    data with known parameters, run bootstrap, verify recovery rate matches true power
-    within 5% (FR-008).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: verify recovery rate matches true power within 5%
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:34:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: synthetic ground truth test fails if recovery rate not within 5%
-  claim_id: c_c4482f6b
-  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
-    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
-    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:34:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: theoretical power calculation uses Cohen's d of 0.5
-  claim_id: c_ce715781
-  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:36:21Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: effect size heterogeneity uses mixing ratio 0.2 and separation 1.5 standard
-    deviations
-  claim_id: c_ac220433
-  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
-    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
-    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
-    Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: mixing ratio of 0.2 and separation distance of 1.5 standard deviations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:36:41Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: full pipeline runtime constrained to 6 hours
-  claim_id: c_d72ebb92
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
-    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If estimated total runtime > 6 hours, implement hard enforcement
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:36:41Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: bootstrap iterations reduced to 500 if runtime exceeds 6 hours
-  claim_id: c_7f10ef0d
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: ... 2. If still > 6h,
-    **reduce** bootstrap iterations to 500.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: reduce bootstrap iterations to 500
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:37:04Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: full pipeline run on 10 diverse datasets
-  claim_id: c_1df4fd12
-  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:37:28Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  claim_id: c_e81e687c
-  context: 'T032 [Validation] Profile and Enforce Runtime: ... 1. Prune the 2 datasets
-    with the largest N first.'
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first.
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:39:22Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 10 diverse public datasets selected from UCI/OpenML with 3 continuous,
-    3 count, 4 binary types and N >= 30
-  claim_id: c_24947efb
-  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
-    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
-    Select the first 10 datasets from the UCI Machine Learning Repository that match
-    criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:39:23Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis run with thresholds 0.05 and 0.10
-  claim_id: c_c0bdb451
-  context: 'Independent Test: Run analysis with thresholds {, 0.05, 0.10}; verify
-    output table shows classification counts for each threshold.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run analysis with thresholds {, 0.05, 0.10}; verify output table shows
-    classification counts for each threshold.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:39:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.10
-  claim_id: c_39df7c8b
-  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
-    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sensitivity analysis logic in code/main.py to sweep thresholds across
-    a configurable range defined in code/config.py (e.g., THRESHOLDS = [0.01, 0.05,
-    0.10]).
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:39:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full suite execution time constrained to 6 hours
-  claim_id: c_dd699e5c
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Profile execution time for the full suite. If estimated total runtime
-    > 6 hours, implement hard enforcement.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:39:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Sensitivity analysis thresholds include 0.01, 0.05, and 0.10
-  claim_id: c_36f0edb6
-  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
-    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10]).
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:40:55Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  claim_id: c_7c2ac6d2
-  context: T032 ... 1. Prune the 2 datasets with the largest N first.
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first.
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:40:55Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Select 10 diverse public datasets from UCI: 3 continuous, 3 count, 4
-    binary, each N >= 30'
-  claim_id: c_fb50b88f
-  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
-    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
-    Select the first 10 datasets from the UCI Machine Learning Repository that match
-    criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Synthetic ground truth test fails if recovery rate is not within 5%
-  claim_id: c_de273776
-  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
-    act as a blocking gate. If the recovery rate is not within 5%, the task fails
-    and no real-data processing (Phase 3, 4, 5, 6) can begin.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity uses mixing ratio 0.2 and separation distance
-    1.5 standard deviations
-  claim_id: c_9e55877b
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... Effect size heterogeneity via mixing two sub-populations with a mixing ratio
-    of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Separation distance is 1.5 standard deviations
-  claim_id: c_44f7b7f5
-  context: T021 [P] [US2] ... mixing ratio of 0.2 and separation distance of 1.5 standard
-    deviations (Spec US-2 Acceptance 3).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Runtime enforcement triggered if estimated total runtime exceeds 6 hours
-  claim_id: c_2bb1c804
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If estimated total runtime > 6 hours, implement hard enforcement.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:57Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Reduce bootstrap iterations to 500 if runtime still exceeds 6 hours
-  claim_id: c_1d6c079b
-  context: T032 ... 2. If still > 6h, reduce bootstrap iterations to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:57Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline runs on 10 diverse datasets
-  claim_id: c_9d88b39b
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:40:57Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Select 10 UCI datasets with specific type distribution and N >= 30
-  claim_id: c_9f64a8a0
-  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
-    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
-    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:44:30Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Fail task if bootstrap recovery rate is not within 5%
-  claim_id: c_7dbcdad7
-  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
-    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
-    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:44:30Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculation uses Cohen's d of 0.5
-  claim_id: c_1597ac82
-  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using `statsmodels`.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:44:30Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Mixing ratio 0.2 and separation distance 1.5 standard deviations for
-    effect size heterogeneity
-  claim_id: c_008ab82e
-  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
-    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
-    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
-    Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:44:31Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.10
-  claim_id: c_d6dae557
-  context: T028 [US3] Implement sensitivity analysis logic in `code/main.py` to sweep
-    thresholds across a **configurable range defined in `code/config.py` (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]**).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sensitivity analysis logic to sweep thresholds across a configurable range
-    defined in `code/config.py` (e.g., THRESHOLDS = [0.01, 0.05, 0.10]).
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:44:31Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_5348ebc7
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
-    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement
-    **: 1. **Prune** the 2 datasets with the largest N first.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: If estimated total runtime > 6 hours, implement hard enforcement by pruning
-    the 2 datasets with the largest N first.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:45:19Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
-  claim_id: c_7ae3857a
-  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
-    to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:45:19Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Run full pipeline on 10 diverse datasets
-  claim_id: c_8d7c60ae
-  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:45:19Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Select 10 datasets from UCI: 3 continuous, 3 count, 4 binary, each with
-    N >= 30'
-  claim_id: c_1cd04e34
-  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
-    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
-    Select the first 10 datasets from the UCI Machine Learning Repository that match
-    criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:10Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
-  canonical: Synthetic Ground Truth test fails if recovery rate is not within 5%
-  claim_id: c_4c96df32
-  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
-    act as a blocking gate. If the recovery rate is not within 5%, the task fails
-    and no real-data processing (Phase 3, 4, 5, 6) can begin.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:10Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 3
-  canonical: Theoretical power calculation uses Cohen's d = 0.5
-  claim_id: c_f66b9009
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:10Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity uses mixing ratio 0.2 and separation distance
-    1.5 standard deviations
-  claim_id: c_f6168bbe
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement effect size heterogeneity via mixing two sub-populations with
-    a mixing ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:11Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_48660bb8
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement:
-    1. Prune the 2 datasets with the largest N first.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: 'If estimated total runtime > 6 hours, implement hard enforcement: Prune
-    the 2 datasets with the largest N first.'
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:12Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Reduce bootstrap iterations to 500 if runtime still exceeds 6 hours
-  claim_id: c_1e3bc5e2
-  context: 'T032 [Validation] Profile and Enforce Runtime: ... 2. If still > 6h, reduce
-    bootstrap iterations to 500.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:13Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
-  canonical: Full pipeline run on 10 diverse datasets
-  claim_id: c_5b009e6f
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:47:13Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 10 diverse public datasets selected from UCI/OpenML (3 continuous, 3
-    count, 4 binary) with sample size >= 30
-  claim_id: c_82ced7f8
-  context: Task T004a requires selecting and listing 10 diverse public datasets from
-    UCI/OpenML satisfying specific criteria.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:38Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Real-data processing blocked if synthetic recovery rate is not within
-    5%
-  claim_id: c_4fd4c6f4
-  context: Task T031b acts as a blocking gate for the entire project based on the
-    synthetic ground truth test results.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
-  canonical: Effect size heterogeneity injected with mixing ratio 0.2 and separation
-    distance 1.5 standard deviations
-  claim_id: c_3f41d6be
-  context: Task T021 specifies parameters for injecting effect size heterogeneity
-    as part of User Story 2.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline run on 10 diverse datasets
-  claim_id: c_3815b4dc
-  context: Task T034 involves running the full validation pipeline on the selected
-    datasets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:39Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Runtime enforcement prunes 2 largest datasets if total runtime exceeds
-    6 hours
-  claim_id: c_ae89ac79
-  context: Task T032 defines the runtime enforcement strategy to meet the 6-hour constraint.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_enforcement_prunes_2_largest_datasets_if_total_runti
-  kind: magnitude
-  raw_text: 'If estimated total runtime > 6 hours, implement hard enforcement: Prune
-    the 2 datasets with the largest N first.'
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:42Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours after
-    pruning
-  claim_id: c_b10b8653
-  context: Task T032 defines the runtime enforcement strategy to meet the 6-hour constraint.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:42Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculation for two-sample t-test with Cohen's d of
-    0.5
-  claim_id: c_a76ec1c9
-  context: Task T012 specifies the parameters for implementing theoretical power calculations.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:50:42Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Sensitivity analysis sweeps thresholds across range [0.01, 0.05, 0.10]
-  claim_id: c_f36a8e0f
-  context: T028 [US3] Implement sensitivity analysis logic in `code/main.py` to sweep
-    thresholds across a **configurable range defined in `code/config.py` (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]**).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10])
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:51:31Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Runtime enforcement prunes 2 largest datasets first
-  claim_id: c_ffc76d9e
-  context: T032 ... 1. **Prune** the 2 datasets with the largest N first.
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:51:32Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: '10 UCI/OpenML datasets selected: 3 continuous, 3 count, 4 binary with
-    N >= 30'
-  claim_id: c_407db1df
-  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
-    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
-    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Synthetic test recovery rate must match true power within 5%
-  claim_id: c_652a941d
-  context: 'T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate
-    data with known parameters, run bootstrap, verify recovery rate matches true power
-    within 5% (FR-008).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: verify recovery rate matches true power within 5%
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity injection uses mixing ratio 0.2 and separation
-    distance 1.5 standard deviations
-  claim_id: c_d19ed9e4
-  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
-    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
-    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
-    Acceptance 3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: mixing ratio of 0.2 and separation distance of 1.5 standard deviations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:33Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline runtime enforcement threshold is 6 hours
-  claim_id: c_5a525e76
-  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
-    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If estimated total runtime > 6 hours, implement hard enforcement
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:34Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
-  claim_id: c_62acfbed
-  context: T032 ... 2. If still > 6h, **reduce** bootstrap iterations to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: reduce bootstrap iterations to 500
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:34Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Theoretical power calculated for two-sample t-test with Cohen's d 0.5
-  claim_id: c_24b4094d
-  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:34Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Datasets with N < 30 are skipped in validation
-  claim_id: c_022bd5a4
-  context: T015 [US1] Add validation logic to skip datasets with N < 30 and log "insufficient
-    sample size"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Add validation logic to skip datasets with N < 30
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:51:34Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Sweep thresholds across range 0.01, 0.05, 0.10
-  claim_id: c_5ecd698b
-  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
-    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
-    = [0.01, 0.05, 0.10]).
-  evidence:
-    asserted: '0.01'
-    authority: scipy.constants.G (CODATA 2018)
-    constant: gravitational
-    corrected: true
-    mode: approximate
-    true_value: 6.6743e-11
-    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
-  kind: numeric
-  raw_text: Sweep thresholds across a configurable range defined in code/config.py
-    (e.g., THRESHOLDS = [0.01, 0.05, 0.10]).
-  resolved_value: '0'
-  resolver: approximate
-  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:52:52Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 'Select 10 diverse public datasets from UCI: 3 continuous, 3 count, 4
-    binary, each with N >= 30'
   claim_id: c_d8b9e0e5
   context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
     binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
@@ -1503,31 +17,30 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:52Z'
+  updated_at: '2026-07-14T11:09:45Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Synthetic Ground Truth test fails if recovery rate is not within 5%,
-    blocking real-data processing
-  claim_id: c_b587dfba
-  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
-    act as a blocking gate. If the recovery rate is not within 5%, the task fails
-    and no real-data processing (Phase 3, 4, 5, 6) can begin.
+  canonical: Synthetic test recovery rate must match true power within 5%
+  claim_id: c_075339c8
+  context: 'T031a Implement code/power_empirical.py synthetic test mode logic: Generate
+    data with known parameters, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
-    processing (Phase 3, 4, 5, 6) can begin.
+  raw_text: Generate data with known parameters, run bootstrap, verify recovery rate
+    matches true power within 5%.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:53Z'
+  updated_at: '2026-07-14T11:09:45Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Theoretical power calculation for two-sample t-test with Cohen's d of
+  canonical: Theoretical power calculation for two-sample t-test using Cohen's d =
     0.5
-  claim_id: c_0ab7e1ce
+  claim_id: c_44462bb2
   context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
     for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
   evidence:
@@ -1540,56 +53,32 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:53Z'
+  updated_at: '2026-07-14T11:11:50Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Mix two sub-populations with ratio 0.2 and separation 1.5 standard deviations
-  claim_id: c_2b9762b1
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
+  canonical: Effect size heterogeneity injection uses mixing ratio 0.2 and separation
+    1.5 standard deviations
+  claim_id: c_0abc6aef
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for...
+    Effect size heterogeneity via mixing two sub-populations with a mixing ratio of
+    0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance 3).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
+  raw_text: Mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+    for effect size heterogeneity.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:53Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  claim_id: c_ba3e9232
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement:
-    1. Prune the 2 datasets with the largest N first.'
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: 'If estimated total runtime > 6 hours, implement hard enforcement: Prune
-    the 2 datasets with the largest N first.'
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:52:55Z'
+  updated_at: '2026-07-14T11:12:24Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
   canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours after pruning
-  claim_id: c_bf48c39b
-  context: T032 [Validation] ... 2. If still > 6h, reduce bootstrap iterations to
-    500.
+  claim_id: c_0b3cd483
+  context: T032 [Validation] Profile and Enforce Runtime... 2. If still > 6h, reduce
+    bootstrap iterations to 500.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1599,7 +88,7 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:56Z'
+  updated_at: '2026-07-14T11:13:20Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
   canonical: Run full pipeline on 10 diverse datasets covering continuous, count,
@@ -1617,36 +106,12 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:52:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 0
-  canonical: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  claim_id: c_326d1e95
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement
-    : 1. Prune the 2 datasets with the largest N first.'
-  evidence:
-    candidates:
-    - - N if runtime exceeds
-      - 6.0
-    - - Prune
-      - 2.0
-    ordering_correct: true
-    source_url: https://en.wikipedia.org/wiki/Prune_2_datasets_with_largest_N_if_runtime_exceeds_6_hours
-  kind: magnitude
-  raw_text: 'If estimated total runtime > 6 hours, implement hard enforcement: Prune
-    the 2 datasets with the largest N first.'
-  resolved_value: Prune 2 datasets with largest N if runtime exceeds 6 hours
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T10:57:38Z'
+  updated_at: '2026-07-14T11:13:48Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Select first 10 datasets from UCI with 3 continuous 3 count 4 binary
-    each N >= 30
-  claim_id: c_bb3325f6
+  canonical: 'Select first 10 datasets from UCI: 3 continuous, 3 count, 4 binary with
+    N >= 30'
+  claim_id: c_003d5178
   context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
     binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
     Select the first 10 datasets from the UCI Machine Learning Repository that match
@@ -1661,11 +126,136 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:57:39Z'
+  updated_at: '2026-07-14T11:18:21Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Task fails if recovery rate not within 5 percent blocking real data processing
-  claim_id: c_7e07c75a
+  canonical: Mix two sub-populations with 0.2 ratio and 1.5 standard deviation separation
+  claim_id: c_a4039cc1
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
+    ... Effect size heterogeneity via mixing two sub-populations with a mixing ratio
+    of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
+    3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement effect size heterogeneity via mixing two sub-populations with
+    a mixing ratio of 0.2 and separation distance of 1.5 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:18:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Enforce 6-hour runtime limit for full pipeline
+  claim_id: c_8fab3dc0
+  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
+    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, implement hard enforcement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:18:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
+  claim_id: c_33c9f865
+  context: T032 [Validation] ... 2. If still > 6h, reduce bootstrap iterations to
+    500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If still > 6h, reduce bootstrap iterations to 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:18:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Run full pipeline on 10 diverse datasets
+  claim_id: c_4cc1d10e
+  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:18:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Selection of 10 UCI datasets with 3 continuous, 3 count, and 4 binary
+    types, each with N >= 30
+  claim_id: c_20adad39
+  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
+    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
+    Select the first 10 datasets from the UCI Machine Learning Repository that match
+    criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:19:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+    for effect size heterogeneity
+  claim_id: c_b89bbb88
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
+    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
+    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
+    3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
+    ratio of 0.2 and separation distance of 1.5 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:20:18Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Recovery rate matches true power within 5%
+  claim_id: c_5f4ec6d8
+  context: 'T031a Implement code/power_empirical.py synthetic test mode logic: Generate
+    data with known parameters, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:20:18Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Task fails if recovery rate is not within 5%, blocking real-data processing
+  claim_id: c_5ba4dae6
   context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
     act as a blocking gate. If the recovery rate is not within 5%, the task fails
     and no real-data processing (Phase 3, 4, 5, 6) can begin.
@@ -1679,175 +269,46 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:57:39Z'
+  updated_at: '2026-07-14T11:20:46Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Theoretical power calculation for two-sample t-test with Cohen d 0.5
-  claim_id: c_c9527390
+  canonical: Theoretical power calculation for two-sample t-test with Cohen's d of
+    0.5
+  claim_id: c_0ab7e1ce
   context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
     for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels.
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T10:57:39Z'
+  updated_at: '2026-07-14T11:24:02Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Effect size heterogeneity mixing ratio 0.2 separation distance 1.5 standard
-    deviations
-  claim_id: c_6333ca9f
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:57:40Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Run full pipeline on 10 diverse datasets covering continuous count binary
-    outcomes
-  claim_id: c_235b0988
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes. This task is gated by T031b
-    success and T032 enforcement.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:57:40Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: 10 datasets selected from UCI (3 continuous, 3 count, 4 binary) with
-    N >= 30
-  claim_id: c_d1d8b827
-  context: T004a [P] Select and list 10 diverse public datasets (continuous, count,
-    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
-    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:59:40Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Effect size heterogeneity mixing ratio 0.2 with separation 1.5 standard
-    deviations
-  claim_id: c_5eddec4c
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for...
-    Effect size heterogeneity via mixing two sub-populations'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement perturbation modules with a mixing ratio of 0.2 and separation
-    distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T10:59:58Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Two-sample t-test theoretical power with Cohen's d 0.5
-  claim_id: c_cd3c92f4
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test using Cohen's d =
-    0.5.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:01:56Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_364ff4a3
-  context: 'T032 [Validation] Profile and Enforce Runtime: If estimated total runtime
-    > 6 hours, implement hard enforcement: 1. Prune the 2 datasets with the largest
-    N first.'
+  canonical: Skip datasets with N less than 30
+  claim_id: c_3a824d5f
+  context: T015 [US1] Add validation logic to skip datasets with N < 30 and log insufficient
+    sample size
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_N_less_than_30
   kind: magnitude
-  raw_text: Prune the 2 datasets with the largest N first if estimated total runtime
-    > 6 hours.
+  raw_text: Skip datasets with N < 30 and log insufficient sample size.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:02:47Z'
+  updated_at: '2026-07-14T11:24:51Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
-  claim_id: c_e3d00148
-  context: 'T032 [Validation] Profile and Enforce Runtime: 2. If still > 6h, reduce
-    bootstrap iterations to 500.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Reduce bootstrap iterations to 500 if runtime still exceeds 6 hours after
-    pruning.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:03:10Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline run on 10 diverse datasets (continuous, count, binary)
-  claim_id: c_903b7bd5
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
-    outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:03:10Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Select 10 UCI datasets with 3 continuous, 3 count, 4 binary outcomes
-    and N >= 30
-  claim_id: c_8fb6c3dd
+  canonical: 'Select 10 datasets from UCI: 3 continuous, 3 count, 4 binary, N >= 30'
+  claim_id: c_05cd20cd
   context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
     binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; Algorithm:
     Select the first 10 datasets from the UCI Machine Learning Repository that match
@@ -1862,32 +323,239 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:04:19Z'
+  updated_at: '2026-07-14T11:25:53Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Verify bootstrap recovery rate matches true power within 5%
-  claim_id: c_67b00fb6
-  context: 'T031a Implement code/power_empirical.py synthetic test mode logic: Generate
-    data with known parameters, run bootstrap, verify recovery rate matches true power
-    within 5% (FR-008).'
+  canonical: Recovery rate must be within 5% to proceed with real-data processing
+  claim_id: c_8390fa63
+  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
+    act as a blocking gate. If the recovery rate is not within 5%, the task fails
+    and no real-data processing (Phase 3, 4, 5, 6) can begin.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Generate data with known parameters, run bootstrap, verify recovery rate
-    matches true power within 5%.
+  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
+    processing (Phase 3, 4, 5, 6) can begin.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:04:20Z'
+  updated_at: '2026-07-14T11:25:53Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Real-data processing blocked if recovery rate is not within 5%
-  claim_id: c_ac7ecf22
-  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
-    act as a blocking gate. If the recovery rate is not within 5%, the task fails
-    and no real-data processing (Phase 3, 4, 5, 6) can begin.
+  canonical: Theoretical power calculation for two-sample t-test with Cohen's d =
+    0.5
+  claim_id: c_3bb28a35
+  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement theoretical power calculation for two-sample t-test (Cohen's
+    d = 0.5) using statsmodels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:26:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity via mixing ratio 0.2 and separation 1.5 standard
+    deviations
+  claim_id: c_07d82295
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
+    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
+    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
+    3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement effect size heterogeneity via mixing two sub-populations with
+    a mixing ratio of 0.2 and separation distance of 1.5 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:26:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.01, 0.05, 0.10
+  claim_id: c_1139bbaf
+  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
+    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
+    = [0.01, 0.05, 0.10]).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement sensitivity analysis logic to sweep thresholds across a configurable
+    range defined in code/config.py (e.g., THRESHOLDS = [0.01, 0.05, 0.10]).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:26:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 3
+  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
+  claim_id: c_48660bb8
+  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
+    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement:
+    1. Prune the 2 datasets with the largest N first.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
+  kind: magnitude
+  raw_text: If estimated total runtime > 6 hours, prune the 2 datasets with the largest
+    N first.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:26:26Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline run on 10 diverse datasets
+  claim_id: c_5b009e6f
+  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:26:26Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Select first 10 UCI datasets: 3 continuous, 3 count, 4 binary, N >=
+    30'
+  claim_id: c_f4ad9b87
+  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
+    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
+    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:29:14Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Real-data processing blocked if recovery rate deviation exceeds 5%
+  claim_id: c_1dd0e116
+  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
+    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
+    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
+    processing (Phase 3, 4, 5, 6) can begin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:29:14Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
+  claim_id: c_698faf3b
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
+    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**:
+    ... 2. If still > 6h, **reduce** bootstrap iterations to 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce bootstrap iterations to 500 if estimated total runtime > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:30:01Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline run on 10 diverse datasets
+  claim_id: c_b48bb34a
+  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:30:01Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Select 10 UCI datasets: 3 continuous, 3 count, 4 binary, N >= 30'
+  claim_id: c_7856e707
+  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
+    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
+    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:33:08Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic test recovery rate within 5% of true power
+  claim_id: c_777b933a
+  context: 'T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate
+    data with known parameters, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:33:08Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth gate fails if recovery rate not within 5%
+  claim_id: c_f23ab14a
+  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
+    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
+    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1898,99 +566,67 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:04:20Z'
+  updated_at: '2026-07-14T11:33:08Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 2
+  canonical: Theoretical power calculation uses Cohen's d of 0.5
+  claim_id: c_1597ac82
+  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
+    using statsmodels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:33:08Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 2
+  canonical: Effect size heterogeneity mixing ratio 0.2, separation 1.5 standard deviations
+  claim_id: c_f0201afb
+  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
+    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
+    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
+    Acceptance 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:33:08Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Calculate theoretical power for two-sample t-test with Cohen's d of 0.5
-  claim_id: c_be9e45e4
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  canonical: Skip datasets with sample size less than 30
+  claim_id: c_15bdf3f3
+  context: T015 [US1] Add validation logic to skip datasets with N < 30 and log 'insufficient
+    sample size'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test using Cohen's d =
-    0.5.
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_sample_size_less_than_30
+  kind: magnitude
+  raw_text: Skip datasets with N < 30.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:04:21Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Mix two sub-populations with 0.2 ratio and 1.5 standard deviation separation
-  claim_id: c_f1572a48
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:04:21Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Separation distance of 1.5 standard deviations
-  claim_id: c_3856e557
-  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
-    ... 3. Effect size heterogeneity via mixing two sub-populations with a mixing
-    ratio of 0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance
-    3).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Separation distance of 1.5 standard deviations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:04:21Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Enforce hard runtime limit of 6 hours
-  claim_id: c_9c3b1703
-  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
-    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If estimated total runtime > 6 hours, implement hard enforcement.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:04:22Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 3
-  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
-  claim_id: c_49cf15df
-  context: 'T032 [Validation] Profile and Enforce Runtime: ... 2. If still > 6h, reduce
-    bootstrap iterations to 500.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:04:22Z'
+  updated_at: '2026-07-14T11:34:50Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
   canonical: Prune 2 largest datasets if runtime exceeds 6 hours
-  claim_id: c_2a7acffb
-  context: 'T032 [Validation] Profile and Enforce Runtime: ... 1. Prune the 2 datasets
-    with the largest N first.'
+  claim_id: c_aa46e345
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
+    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**:
+    1. **Prune** the 2 datasets with the largest N first.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
@@ -2003,4 +639,351 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T11:04:24Z'
+  updated_at: '2026-07-14T11:35:58Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
+  claim_id: c_7ae3857a
+  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
+    to 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce bootstrap iterations to 500 if estimated total runtime remains
+    > 6 hours after pruning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:36:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Run full pipeline on 10 diverse datasets
+  claim_id: c_8d7c60ae
+  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
+    outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:36:17Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Select 10 UCI datasets with 3 continuous, 3 count, and 4 binary outcomes,
+    each having sample size N >= 30
+  claim_id: c_a15bf497
+  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
+    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
+    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:01Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic Ground Truth test fails if recovery rate is not within 5%
+  claim_id: c_ef5ed563
+  context: T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a)
+    and act as a **blocking gate**. If the recovery rate is not within 5%, the task
+    fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
+    processing (Phase 3, 4, 5, 6) can begin.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:01Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Theoretical power calculation uses Cohen's d of 0.5 for two-sample t-test
+  claim_id: c_d98a590f
+  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
+    using `statsmodels`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:01Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis runs with thresholds 0.05 and 0.10
+  claim_id: c_953a91db
+  context: 'Independent Test: Run analysis with thresholds {, 0.05, 0.10}; verify
+    output table shows classification counts for each threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run analysis with thresholds {, 0.05, 0.10}; verify output table shows
+    classification counts for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:23Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.10
+  claim_id: c_d6dae557
+  context: T028 [US3] Implement sensitivity analysis logic in `code/main.py` to sweep
+    thresholds across a **configurable range defined in `code/config.py` (e.g., THRESHOLDS
+    = [0.01, 0.05, 0.10]**).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement sensitivity analysis logic in `code/main.py` to sweep thresholds
+    across a configurable range defined in `code/config.py` (e.g., THRESHOLDS = [0.01,
+    0.05, 0.10]).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:45:23Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime enforcement threshold is 6 hours
+  claim_id: c_e3bd9f41
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
+    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Profile and Enforce Runtime: Profile execution time for the full suite.
+    If estimated total runtime > 6 hours, implement hard enforcement.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
+  claim_id: c_dc0f3ee7
+  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
+    to 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If still > 6h, reduce bootstrap iterations to 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runs on 10 diverse datasets
+  claim_id: c_b3e55b7c
+  context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:45:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Select 10 diverse public datasets (3 continuous, 3 count, 4 binary) from
+    UCI with N >= 30
+  claim_id: c_5b74b0ad
+  context: T004a [P] Select and list 10 diverse public datasets (continuous, count,
+    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:52:10Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Real-data processing blocked if synthetic recovery rate deviates by more
+    than 5%
+  claim_id: c_82560411
+  context: T031b [Validation] Execute the Synthetic Ground Truth test (T031a) and
+    act as a blocking gate. If the recovery rate is not within 5%, the task fails
+    and no real-data processing (Phase 3, 4, 5, 6) can begin.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real-data_processing_blocked_if_synthetic_recovery_rate_devi
+  kind: magnitude
+  raw_text: If the recovery rate is not within 5%, the task fails and no real-data
+    processing (Phase 3, 4, 5, 6) can begin.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:52:12Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Theoretical power calculation uses Cohen's d of 0.5
+  claim_id: c_0ba126f3
+  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
+    using statsmodels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:52:12Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 2
+  canonical: Effect size heterogeneity injection uses 0.2 mixing ratio and 1.5 standard
+    deviation separation
+  claim_id: c_8b112900
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for...
+    Effect size heterogeneity via mixing two sub-populations with a mixing ratio of
+    0.2 and separation distance of 1.5 standard deviations (Spec US-2 Acceptance 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:52:13Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds including 0.01, 0.05, and 0.10
+  claim_id: c_75569c2d
+  context: T028 [US3] Implement sensitivity analysis logic in code/main.py to sweep
+    thresholds across a configurable range defined in code/config.py (e.g., THRESHOLDS
+    = [0.01, 0.05, 0.10]).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Sweep thresholds across a configurable range defined in code/config.py
+    (e.g., THRESHOLDS = [0.01, 0.05, 0.10])
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:52:13Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must not exceed 6 hours
+  claim_id: c_e2d65ca3
+  context: 'T032 [Validation] Profile and Enforce Runtime: Profile execution time
+    for the full suite. If estimated total runtime > 6 hours, implement hard enforcement'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, implement hard enforcement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:52:13Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Prune 2 largest datasets if runtime exceeds 6 hours
+  claim_id: c_2a7acffb
+  context: 'T032 [Validation] Profile and Enforce Runtime: ... 1. Prune the 2 datasets
+    with the largest N first.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_6_hours
+  kind: magnitude
+  raw_text: Prune the 2 datasets with the largest N first
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:53:11Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 3
+  canonical: Reduce bootstrap iterations to 500 if runtime exceeds 6 hours
+  claim_id: c_49cf15df
+  context: 'T032 [Validation] Profile and Enforce Runtime: ... 2. If still > 6h, reduce
+    bootstrap iterations to 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce bootstrap iterations to 500 if estimated total runtime still exceeds
+    6 hours after pruning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:53:11Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runs on 10 diverse datasets
+  claim_id: c_9d88b39b
+  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:53:11Z'

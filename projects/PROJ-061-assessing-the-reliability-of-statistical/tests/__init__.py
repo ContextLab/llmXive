@@ -1,1 +1,3 @@
-"""Test package for llmXive research-implementer."""
+"""
+llmXive Research Pipeline - Tests Module
+"""

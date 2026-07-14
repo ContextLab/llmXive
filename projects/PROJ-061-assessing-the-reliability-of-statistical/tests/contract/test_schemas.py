@@ -1,137 +1,140 @@
 """
 Contract tests for PowerEstimate JSON schema validation.
 
-This module validates that power estimate results conform to the 
-contracts/power_estimate.schema.yaml specification.
+This module validates that the output of the power estimation pipeline
+conforms to the schema defined in contracts/power_estimate.schema.yaml.
 
-Expected to FAIL initially until the schema and implementation are ready.
+Expected behavior:
+- Tests should FAIL initially if the schema file is missing or the pipeline
+  does not yet produce valid output.
+- Tests should PASS once the pipeline generates valid JSON matching the schema.
 """
+
 import json
 import os
-import pytest
+import sys
 from pathlib import Path
 from typing import Any, Dict
+
+import pytest
 import yaml
 
-# Path to the schema file
-SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "power_estimate.schema.yaml"
-# Path to a sample results file (may not exist yet)
-SAMPLE_RESULTS_PATH = Path(__file__).parent.parent.parent / "data" / "results" / "baseline.json"
+# Add project root to path to allow imports from code/
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from utils import safe_json_load
+
+SCHEMA_PATH = project_root / "contracts" / "power_estimate.schema.yaml"
+RESULTS_PATH = project_root / "data" / "results" / "baseline.json"
 
 def load_schema() -> Dict[str, Any]:
     """Load the JSON schema from the YAML file."""
     if not SCHEMA_PATH.exists():
-        pytest.fail(f"Schema file not found: {SCHEMA_PATH}")
+        raise FileNotFoundError(
+            f"Schema file not found at {SCHEMA_PATH}. "
+            "Ensure T007 (Define contracts) is completed."
+        )
     
-    with open(SCHEMA_PATH, 'r') as f:
-        schema = yaml.safe_load(f)
-    return schema
+    with open(SCHEMA_PATH, "r") as f:
+        return yaml.safe_load(f)
 
+def load_baseline_results() -> Dict[str, Any]:
+    """Load the baseline results JSON file."""
+    if not RESULTS_PATH.exists():
+        raise FileNotFoundError(
+            f"Results file not found at {RESULTS_PATH}. "
+            "Ensure the pipeline (T014) has been run to generate baseline.json."
+        )
+    
+    return safe_json_load(RESULTS_PATH)
 
 def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
     """
-    Validate data against the schema manually (since jsonschema might not be installed).
+    Validate data against the JSON schema.
     
-    Returns True if valid, raises AssertionError if invalid.
+    Note: This is a simple validation implementation. For production use,
+    consider using the 'jsonschema' library:
+    `import jsonschema; jsonschema.validate(data, schema)`
+    
+    Here we implement basic checks for the required keys and types
+    as defined in the schema.
     """
-    # Check required fields
-    required = schema.get('required', [])
-    for field in required:
-        if field not in data:
-            raise AssertionError(f"Missing required field: {field}")
+    # Check required properties
+    required = schema.get("required", [])
+    for key in required:
+        if key not in data:
+            raise AssertionError(f"Missing required key: {key}")
     
-    # Check types for known fields
-    properties = schema.get('properties', {})
-    
-    if 'theoretical_power' in data:
-        if not isinstance(data['theoretical_power'], (int, float)):
-            raise AssertionError("theoretical_power must be a number")
-    
-    if 'empirical_power' in data:
-        if not isinstance(data['empirical_power'], (int, float)):
-            raise AssertionError("empirical_power must be a number")
-    
-    if 'absolute_error' in data:
-        if not isinstance(data['absolute_error'], (int, float)):
-            raise AssertionError("absolute_error must be a number")
+    # Check property types
+    properties = schema.get("properties", {})
+    for key, value in data.items():
+        if key in properties:
+            expected_type = properties[key].get("type")
+            if expected_type == "number":
+                if not isinstance(value, (int, float)):
+                    raise AssertionError(f"Field '{key}' must be a number, got {type(value)}")
+            elif expected_type == "string":
+                if not isinstance(value, str):
+                    raise AssertionError(f"Field '{key}' must be a string, got {type(value)}")
+            elif expected_type == "array":
+                if not isinstance(value, list):
+                    raise AssertionError(f"Field '{key}' must be an array, got {type(value)}")
+            # Add more type checks as needed based on schema complexity
     
     return True
 
-
 class TestPowerEstimateSchema:
-    """Contract tests for PowerEstimate schema validation."""
+    """Contract tests for the PowerEstimate schema."""
 
     def test_schema_file_exists(self):
         """Test that the schema file exists."""
-        assert SCHEMA_PATH.exists(), "Schema file must exist for validation"
+        assert SCHEMA_PATH.exists(), f"Schema file missing: {SCHEMA_PATH}"
 
     def test_schema_is_valid_yaml(self):
         """Test that the schema file is valid YAML."""
         schema = load_schema()
         assert isinstance(schema, dict), "Schema must be a dictionary"
-        assert 'properties' in schema, "Schema must define properties"
-        assert 'required' in schema, "Schema must define required fields"
+        assert "type" in schema, "Schema must have a 'type' field"
+        assert schema["type"] == "object", "Schema type must be 'object'"
 
-    def test_validate_valid_power_estimate(self):
-        """Test validation of a correctly formatted power estimate."""
+    def test_baseline_results_exist(self):
+        """Test that the baseline results file exists."""
+        # This test will FAIL initially if the pipeline hasn't run yet
+        assert RESULTS_PATH.exists(), f"Baseline results file missing: {RESULTS_PATH}"
+
+    def test_baseline_results_loadable(self):
+        """Test that the baseline results file is valid JSON."""
+        data = load_baseline_results()
+        assert isinstance(data, list), "Baseline results must be a list of objects"
+        assert len(data) > 0, "Baseline results list is empty"
+
+    def test_baseline_results_conform_to_schema(self):
+        """
+        Test that each record in baseline_results conforms to the PowerEstimate schema.
+        
+        This is the primary contract test. It will FAIL if:
+        1. The schema is missing required keys (theoretical_power, empirical_power, absolute_error).
+        2. The pipeline output does not match the schema types.
+        """
         schema = load_schema()
-        
-        valid_estimate = {
-            "theoretical_power": 0.80,
-            "empirical_power": 0.78,
-            "absolute_error": 0.02
-        }
-        
-        # This should not raise an exception
-        validate_against_schema(valid_estimate, schema)
+        data = load_baseline_results()
 
-    def test_validate_missing_required_field(self):
-        """Test that missing required fields cause validation failure."""
-        schema = load_schema()
-        
-        invalid_estimate = {
-            "theoretical_power": 0.80
-            # Missing empirical_power and absolute_error
-        }
-        
-        with pytest.raises(AssertionError) as exc_info:
-            validate_against_schema(invalid_estimate, schema)
-        
-        assert "Missing required field" in str(exc_info.value)
+        for i, record in enumerate(data):
+            try:
+                validate_against_schema(record, schema)
+            except AssertionError as e:
+                pytest.fail(f"Record {i} failed schema validation: {e}")
 
-    def test_validate_wrong_type(self):
-        """Test that wrong types cause validation failure."""
-        schema = load_schema()
-        
-        invalid_estimate = {
-            "theoretical_power": "0.80",  # Should be number, not string
-            "empirical_power": 0.78,
-            "absolute_error": 0.02
-        }
-        
-        with pytest.raises(AssertionError) as exc_info:
-            validate_against_schema(invalid_estimate, schema)
-        
-        assert "must be a number" in str(exc_info.value)
+    def test_required_fields_present(self):
+        """
+        Explicit check for the three required fields defined in the task:
+        theoretical_power, empirical_power, absolute_error.
+        """
+        data = load_baseline_results()
+        required_keys = {"theoretical_power", "empirical_power", "absolute_error"}
 
-    def test_validate_baseline_results_file(self):
-        """Test validation of the actual baseline results file if it exists."""
-        if not SAMPLE_RESULTS_PATH.exists():
-            pytest.skip("Baseline results file not yet generated")
-        
-        with open(SAMPLE_RESULTS_PATH, 'r') as f:
-            data = json.load(f)
-        
-        schema = load_schema()
-        
-        # If baseline.json is a list of estimates, validate each
-        if isinstance(data, list):
-            for estimate in data:
-                validate_against_schema(estimate, schema)
-        else:
-            validate_against_schema(data, schema)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        for i, record in enumerate(data):
+            missing = required_keys - set(record.keys())
+            if missing:
+                pytest.fail(f"Record {i} missing required fields: {missing}")
