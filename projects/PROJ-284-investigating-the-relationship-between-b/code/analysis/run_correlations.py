@@ -1,31 +1,29 @@
+"""
+Runner script for correlation analysis (T024, T025, T023a, T023b).
+This script is invoked by the main pipeline to execute the analysis step.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.logging_config import get_logger
 from code.analysis.correlations import main as correlations_main
 
 logger = get_logger(__name__)
 
-
-def main() -> None:
-    """
-    Runner script for the Correlation Analysis phase (T023a, T023b, T024, T025).
-    Executes the full pipeline step.
-    """
-    logger.log("run_correlations", operation="start", status="running")
+def main():
+    """Execute the correlation analysis pipeline."""
+    logger.log("start_correlation_pipeline")
     try:
         # Execute the main logic from correlations.py which covers T023a and T023b
         correlations_main()
-        
-        # Note: T024 (Correlations) and T025 (FDR) are implemented in subsequent tasks/scripts
-        # This runner currently focuses on the metric aggregation and PCA output (T023a/b)
-        # as per the immediate dependency chain for full_metrics.csv generation.
-        
-        logger.log("run_correlations", operation="complete", status="success")
+        logger.log("correlation_pipeline_success")
     except Exception as e:
-        logger.log("run_correlations", operation="fail", error=str(e))
+        logger.log("correlation_pipeline_failed", error=str(e))
         raise
 
 

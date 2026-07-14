@@ -1,29 +1,28 @@
+"""
+Alternative runner for full metrics generation.
+Calls the correlations module's main function to ensure consistency.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.logging_config import get_logger
 from code.analysis.correlations import main as correlations_main
 
 logger = get_logger(__name__)
 
 def main():
-    """
-    Runner script to generate full_metrics.csv.
-    This ensures the file is produced as a side-effect of the analysis pipeline.
-    """
-    logger.log("generate_full_metrics_runner_start")
-    
-    # Ensure output directory exists
-    os.makedirs("data/analysis", exist_ok=True)
-    
-    # Run the main correlation logic which generates full_metrics.csv
+    """Main entry point."""
+    logger.log("generate_full_metrics_start", {})
+
     try:
-        df = correlations_main()
-        logger.log("generate_full_metrics_runner_success", rows=len(df))
+        correlations_main()
+        logger.log("generate_full_metrics_complete", {})
     except Exception as e:
-        logger.log("generate_full_metrics_runner_error", error=str(e))
+        logger.log("generate_full_metrics_error", {"error": str(e)})
         raise
 
 if __name__ == "__main__":

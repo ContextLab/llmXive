@@ -198,7 +198,7 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 ### `data/analysis/correlations.csv`
 
 This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/analysis/correlations.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/main.py`, `code/analysis/correlations.py`.
+Consumers waiting on it: `code/main.py`, `code/viz/scatter.py`, `code/analysis/correlations.py`.
 
 ### `data/processed/aggregated_metrics.csv`
 

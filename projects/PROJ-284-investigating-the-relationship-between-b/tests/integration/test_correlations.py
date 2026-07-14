@@ -1,125 +1,156 @@
 import pytest
 import pandas as pd
 import numpy as np
-import os
-import sys
 from pathlib import Path
+import sys
+import os
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.analysis.correlations import (
-    load_metrics_data, 
-    perform_pca_on_metrics, 
-    generate_full_metrics_dataframe,
-    calculate_correlation_with_covariate,
+    run_correlations_with_fd_covariate,
     apply_fdr_correction,
-    main
+    perform_pca_on_metrics,
+    generate_full_metrics
 )
 
-class TestCorrelationWithSyntheticData:
+@pytest.fixture
+def synthetic_metrics():
+    """Generate synthetic metrics data with known correlations."""
+    np.random.seed(42)
+    n_subjects = 100
+    
+    # Create known correlations
+    # Metric 1: positively correlated with motor score
+    # Metric 2: negatively correlated with motor score
+    # FD: uncorrelated with motor score (for control)
+    
+    motor_scores = np.random.normal(0, 1, n_subjects)
+    fd = np.random.normal(0, 0.5, n_subjects)
+    
+    # Create metrics with known relationships
+    modularity = 0.5 * motor_scores + np.random.normal(0, 0.3, n_subjects)
+    global_efficiency = -0.4 * motor_scores + np.random.normal(0, 0.3, n_subjects)
+    participation_coef = 0.3 * motor_scores + np.random.normal(0, 0.3, n_subjects)
+    within_module_degree = 0.1 * motor_scores + np.random.normal(0, 0.3, n_subjects)
+    
+    df = pd.DataFrame({
+        'subject_id': [f'sub-{i:03d}' for i in range(n_subjects)],
+        'modularity': modularity,
+        'global_efficiency': global_efficiency,
+        'participation_coef': participation_coef,
+        'within_module_degree': within_module_degree,
+        'fd': fd
+    })
+    
+    return df
+
+@pytest.fixture
+def synthetic_pca_data():
+    """Generate synthetic data for PCA testing."""
+    np.random.seed(123)
+    n_subjects = 50
+    
+    df = pd.DataFrame({
+        'subject_id': [f'sub-{i:03d}' for i in range(n_subjects)],
+        'modularity': np.random.normal(0, 1, n_subjects),
+        'global_efficiency': np.random.normal(0, 1, n_subjects),
+        'participation_coef': np.random.normal(0, 1, n_subjects),
+        'within_module_degree': np.random.normal(0, 1, n_subjects)
+    })
+    
+    return df
+
+def test_correlation_with_synthetic_data(synthetic_metrics):
     """
-    Integration test for T023a and T023b.
-    Verifies that PCA and metric merging work correctly on synthetic data.
+    Integration test: verify correlation analysis on synthetic data.
+    
+    Checks:
+    1. Correlation coefficients match expected direction
+    2. P-values are reasonable for the sample size
+    3. FDR correction is applied correctly
+    4. Significant correlations are identified correctly
     """
+    # Run correlation analysis
+    results = run_correlations_with_fd_covariate(synthetic_metrics)
+    
+    # Verify results structure
+    assert not results.empty, "Results DataFrame should not be empty"
+    assert 'metric_name' in results.columns, "Results should have metric_name column"
+    assert 'r' in results.columns, "Results should have r column"
+    assert 'p' in results.columns, "Results should have p column"
+    assert 'q' in results.columns, "Results should have q (FDR) column"
+    assert 'significant' in results.columns, "Results should have significant column"
+    
+    # Check that modularity has positive correlation (we created it with +0.5 coefficient)
+    modularity_row = results[results['metric_name'] == 'modularity']
+    assert not modularity_row.empty, "Modularity result should exist"
+    assert modularity_row['r'].values[0] > 0, "Modularity should have positive correlation"
+    assert modularity_row['r'].values[0] > 0.3, "Modularity correlation should be > 0.3"
+    
+    # Check that global_efficiency has negative correlation (we created it with -0.4 coefficient)
+    ge_row = results[results['metric_name'] == 'global_efficiency']
+    assert not ge_row.empty, "Global efficiency result should exist"
+    assert ge_row['r'].values[0] < 0, "Global efficiency should have negative correlation"
+    
+    # Verify FDR correction was applied (q values should be different from p values)
+    assert not results['p'].equals(results['q']), "FDR correction should modify p-values"
+    
+    # Verify significance flag is set based on q < 0.05
+    significant_count = results['significant'].sum()
+    assert significant_count >= 0, "Should have non-negative significant count"
+    
+    # For synthetic data with strong correlations, at least one should be significant
+    # (with n=100, r=0.5 should be significant after FDR)
+    assert significant_count >= 1, "At least one metric should be significant in synthetic data"
 
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup temporary directories and files for the test."""
-        self.tmp_path = tmp_path
-        self.processed_dir = self.tmp_path / "processed"
-        self.analysis_dir = self.tmp_path / "analysis"
-        self.processed_dir.mkdir(parents=True)
-        self.analysis_dir.mkdir(parents=True)
+def test_fdr_correction_accuracy(synthetic_metrics):
+    """Test that FDR correction produces valid q-values."""
+    results = run_correlations_with_fd_covariate(synthetic_metrics)
+    
+    # Q-values should be in [0, 1]
+    assert all((results['q'] >= 0) & (results['q'] <= 1)), "Q-values should be between 0 and 1"
+    
+    # Q-values should be monotonically increasing when sorted by p-values
+    sorted_results = results.sort_values('p')
+    sorted_q = sorted_results['q'].values
+    assert all(np.diff(sorted_q) >= -1e-10), "Q-values should be roughly monotonic with p-values"
 
-        # Create a synthetic aggregated_metrics.csv
-        # T021/T022 output format
-        data = {
-            'subject_id': [f'sub-{i:03d}' for i in range(1, 11)],
-            'modularity': np.random.rand(10) * 0.5 + 0.2,
-            'global_efficiency': np.random.rand(10) * 0.3 + 0.4,
-            'participation_coef': np.random.rand(10) * 0.2 + 0.1,
-            'within_module_degree': np.random.rand(10) * 0.5 + 0.3,
-            'mean_fd': np.random.rand(10) * 0.1
-        }
-        self.synthetic_df = pd.DataFrame(data)
-        self.metrics_file = self.processed_dir / "aggregated_metrics.csv"
-        self.synthetic_df.to_csv(self.metrics_file, index=False)
+def test_pca_on_synthetic_data(synthetic_pca_data):
+    """Test PCA implementation on synthetic data."""
+    loadings, scores = perform_pca_on_metrics(synthetic_pca_data)
+    
+    # Verify loadings structure
+    assert not loadings.empty, "Loadings should not be empty"
+    assert 'component_1' in loadings.columns, "Loadings should have component_1"
+    assert 'component_2' in loadings.columns, "Loadings should have component_2"
+    assert len(loadings) == 4, "Loadings should have 4 rows (one per metric)"
+    
+    # Verify scores structure
+    assert not scores.empty, "Scores should not be empty"
+    assert 'subject_id' in scores.columns, "Scores should have subject_id"
+    assert 'pca_factor_1' in scores.columns, "Scores should have pca_factor_1"
+    assert len(scores) == len(synthetic_pca_data), "Scores should have same number of subjects"
+    
+    # Verify scores are numeric
+    assert pd.api.types.is_numeric_dtype(scores['pca_factor_1']), "pca_factor_1 should be numeric"
 
-        # Patch the global paths in the module to use temp paths
-        # We do this by monkey-patching the module's constants or passing them.
-        # Since the functions use global constants, we need to be careful.
-        # For this test, we will re-implement the logic locally or patch the constants.
-        
-        # Better approach: Override the constants in the module for the test duration
-        import code.analysis.correlations as corr_mod
-        self.original_processed = corr_mod.PROCESSED_DIR
-        self.original_analysis = corr_mod.ANALYSIS_DIR
-        self.original_agg_file = corr_mod.AGGREGATED_METRICS_FILE
-        self.original_full_file = corr_mod.FULL_METRICS_FILE
-        self.original_pca_loadings = corr_mod.PCA_LOADINGS_FILE
-        self.original_factor_scores = corr_mod.FACTOR_SCORES_FILE
-
-        corr_mod.PROCESSED_DIR = self.processed_dir
-        corr_mod.ANALYSIS_DIR = self.analysis_dir
-        corr_mod.AGGREGATED_METRICS_FILE = self.metrics_file
-        corr_mod.FULL_METRICS_FILE = self.analysis_dir / "full_metrics.csv"
-        corr_mod.PCA_LOADINGS_FILE = self.analysis_dir / "pca_loadings.csv"
-        corr_mod.FACTOR_SCORES_FILE = self.analysis_dir / "factor_scores.csv"
-
-        yield
-
-        # Restore
-        corr_mod.PROCESSED_DIR = self.original_processed
-        corr_mod.ANALYSIS_DIR = self.original_analysis
-        corr_mod.AGGREGATED_METRICS_FILE = self.original_agg_file
-        corr_mod.FULL_METRICS_FILE = self.original_full_file
-        corr_mod.PCA_LOADINGS_FILE = self.original_pca_loadings
-        corr_mod.FACTOR_SCORES_FILE = self.original_factor_scores
-
-    def test_pca_and_merge_workflow(self):
-        """
-        Test the full workflow: Load -> PCA -> Merge -> Save.
-        Verifies that r, p, and q values (for correlation) are computed correctly 
-        in a synthetic scenario (though this test focuses on structure and file existence).
-        """
-        # Run the main logic
-        main()
-
-        # Verify files exist
-        assert self.analysis_dir.exists()
-        assert (self.analysis_dir / "pca_loadings.csv").exists()
-        assert (self.analysis_dir / "factor_scores.csv").exists()
-        assert (self.analysis_dir / "full_metrics.csv").exists()
-
-        # Load and verify content
-        full_metrics = pd.read_csv(self.analysis_dir / "full_metrics.csv")
-        
-        # Check required columns
-        required_cols = ['subject_id', 'modularity', 'global_efficiency', 'participation_coef', 
-                         'within_module_degree', 'mean_fd', 'pca_factor_1', 'pca_factor_2']
-        for col in required_cols:
-            assert col in full_metrics.columns, f"Missing column: {col}"
-
-        # Verify data integrity
-        assert len(full_metrics) == 10
-        assert not full_metrics['pca_factor_1'].isna().any()
-        assert not full_metrics['pca_factor_2'].isna().any()
-
-        # Test correlation function on synthetic data (T024 dependency check)
-        # Create synthetic correlation data
-        x = np.array([1, 2, 3, 4, 5])
-        y = np.array([2, 4, 5, 4, 5])
-        r, p = calculate_correlation_with_covariate(x, y)
-        
-        # Known: strong positive correlation
-        assert r > 0.5, f"Expected r > 0.5, got {r}"
-        assert p < 0.1, f"Expected p < 0.1, got {p}"
-
-        # Test FDR correction
-        p_vals = [0.01, 0.05, 0.1, 0.2, 0.5]
-        q_vals = apply_fdr_correction(p_vals)
-        assert len(q_vals) == len(p_vals)
-        # FDR values should be >= raw p-values (monotonicity)
-        for p, q in zip(p_vals, q_vals):
-            assert q >= p, f"FDR q-value {q} should be >= p-value {p}"
+def test_full_metrics_generation(synthetic_metrics, synthetic_pca_data):
+    """Test merging of metrics and PCA scores."""
+    # Run PCA
+    _, pca_scores = perform_pca_on_metrics(synthetic_pca_data)
+    
+    # Generate full metrics
+    full_metrics = generate_full_metrics(synthetic_pca_data, pca_scores)
+    
+    # Verify structure
+    assert not full_metrics.empty, "Full metrics should not be empty"
+    assert 'subject_id' in full_metrics.columns, "Should have subject_id"
+    assert 'modularity' in full_metrics.columns, "Should have modularity"
+    assert 'pca_factor_1' in full_metrics.columns, "Should have pca_factor_1"
+    
+    # Verify all original metrics are present
+    expected_metrics = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    for metric in expected_metrics:
+        assert metric in full_metrics.columns, f"Should have {metric}"
