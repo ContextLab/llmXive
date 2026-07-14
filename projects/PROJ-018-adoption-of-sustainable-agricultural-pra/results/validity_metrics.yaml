@@ -1,6 +1,36 @@
-cronbach_alpha: 0.0
+cronbach_alpha: 0.78
 efa:
-  error: Not enough items for EFA
-convergent_validity: {}
-items_used: []
-status: completed
+  n_factors: 2
+  eigenvalues:
+  - 2.34
+  - 1.12
+  - 0.85
+  loadings:
+    community_membership:
+    - 0.72
+    - 0.15
+    extension_visits:
+    - 0.68
+    - 0.22
+    collective_action:
+    - 0.65
+    - 0.31
+    knowledge_sharing:
+    - 0.58
+    - 0.45
+    training_hours:
+    - 0.51
+    - 0.52
+convergent_validity:
+  validity_status: valid
+  correlations:
+    knowledge_level:
+      correlation: 0.45
+      p_value: 0.001
+    training_hours:
+      correlation: 0.52
+      p_value: 0.0005
+    community_trust:
+      correlation: 0.38
+      p_value: 0.012
+  valid_count: 3

@@ -1,141 +1,125 @@
-"""
-Synthetic Data Generator for Sustainable Agriculture Adoption Study.
+"""Synthetic Data Generator for Development and Testing Purposes.
 
-IMPORTANT: This generator creates a REALISTIC synthetic dataset for DEVELOPMENT
-and TESTING purposes ONLY. In production, this should be replaced with actual
-survey data from World Bank LSMS or FAO FIES APIs.
-
-The generated data conforms to the schema defined in specs/018-adoption-sustainable-agriculture/contracts/dataset.schema.yaml
+NOTE: This is a FALLBACK mechanism ONLY when real data sources (World Bank LSMS, FAO FIES) are unavailable.
+Per project specifications (FR-001, FR-002), this is a documented limitation and not the primary data source.
 """
-import os
+from __future__ import annotations
+
+import json
 import random
-import yaml
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Any, Dict, List
 
 import pandas as pd
+import yaml
 
-# Low-income country codes (for realistic filtering)
-LOW_INCOME_COUNTRIES = ["ETH", "KEN", "UGA", "TZA", "MWI", "ZMW", "ZWE", "MDG", "MLI", "NER"]
+# Import logging
+from logging_config import get_logger, log_operation, initialize_modeling_log, update_log_section
 
-# Sustainable practices (binary: 0=not adopted, 1=adopted)
-PRACTICES = [
-    "practice_organic",
-    "practice_conservation",
-    "practice_agroforestry",
-    "practice_irrigation_efficient",
-    "practice_integrated_pest"
-]
 
-# Engagement proxies (ordinal: 0-4 scale)
-ENGAGEMENT_PROXIES = [
-    "membership",       # Community organization membership (0-4)
-    "extension",        # Extension service contact frequency (0-4)
-    "collective",       # Collective action participation (0-4)
-    "knowledge"         # Knowledge exchange frequency (0-4)
-]
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    try:
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        return {"random_seed": 42, "n_respondents": 500}
 
-def generate_survey_response(country_code: str) -> Dict[str, Any]:
-    """Generate a single synthetic respondent record."""
+
+def generate_survey_response(seed: int, config: Dict[str, Any]) -> Dict[str, Any]:
+    """Generate a single synthetic respondent record for testing."""
+    random.seed(seed)
+    
     # Demographics
-    age = random.randint(25, 70)
-    education = random.randint(0, 12)  # Years of education
-    farm_size = round(random.uniform(0.5, 10.0), 2)  # Hectares
+    age = random.randint(25, 65)
+    education = random.choice([1, 2, 3, 4, 5])  # 1=No formal, 5=University
+    
+    # Farm characteristics
+    farm_size = random.uniform(0.5, 50.0)
+    farm_size_category = 1 if farm_size < 2 else (2 if farm_size < 10 else 3)
     
     # Economic factors
-    credit = random.choice([0, 1])  # Access to credit
-    income = round(random.uniform(500, 5000), 2)  # Annual income (USD)
+    credit_access = random.choice([0, 1])
     
-    # Engagement proxies (correlated with education and farm size)
-    engagement_base = min(4, max(0, int((education / 12) * 3 + (farm_size / 10) * 2)))
-    membership = min(4, max(0, engagement_base + random.randint(-1, 1)))
-    extension = min(4, max(0, engagement_base + random.randint(-1, 1)))
-    collective = min(4, max(0, engagement_base + random.randint(-1, 1)))
-    knowledge = min(4, max(0, engagement_base + random.randint(-1, 1)))
+    # Sustainable practices (binary indicators)
+    organic_farming = random.randint(0, 1)
+    compost_use = random.randint(0, 1)
+    rotational_grazing = random.randint(0, 1)
+    cover_crops = random.randint(0, 1)
+    integrated_pest = random.randint(0, 1)
+    conservation_tillage = random.randint(0, 1)
     
-    # Sustainable practices (correlated with engagement)
-    engagement_score = (membership + extension + collective + knowledge) / 4
-    adoption_prob = 0.2 + (engagement_score / 4) * 0.6  # 20% base + up to 60% from engagement
+    # Community engagement proxies
+    community_membership = random.randint(0, 3)
+    extension_visits = random.randint(0, 5)
+    collective_action = random.randint(0, 2)
+    knowledge_sharing = random.randint(0, 3)
+    training_hours = random.randint(0, 40)
     
-    practices = {}
-    for practice in PRACTICES:
-        practices[practice] = 1 if random.random() < adoption_prob else 0
+    # Outcome variable (adoption)
+    adoption = int(any([organic_farming, compost_use, rotational_grazing, cover_crops, integrated_pest, conservation_tillage]))
     
-    # Community engagement level (derived)
-    community_engagement = "high" if engagement_score >= 3 else "medium" if engagement_score >= 1.5 else "low"
-    
+    # Correlations (make it realistic)
+    if education > 3:
+        adoption = max(adoption, 1) if random.random() > 0.3 else adoption
+    if credit_access == 1:
+        adoption = max(adoption, 1) if random.random() > 0.4 else adoption
+        
     return {
-        "country_code": country_code,
         "age": age,
         "education": education,
-        "farm_size": farm_size,
-        "credit": credit,
-        "income": income,
-        "membership": membership,
-        "extension": extension,
-        "collective": collective,
-        "knowledge": knowledge,
-        "community_engagement": community_engagement,
-        **practices
+        "farm_size": round(farm_size, 2),
+        "farm_size_category": farm_size_category,
+        "credit_access": credit_access,
+        "organic_farming": organic_farming,
+        "compost_use": compost_use,
+        "rotational_grazing": rotational_grazing,
+        "cover_crops": cover_crops,
+        "integrated_pest": integrated_pest,
+        "conservation_tillage": conservation_tillage,
+        "community_membership": community_membership,
+        "extension_visits": extension_visits,
+        "collective_action": collective_action,
+        "knowledge_sharing": knowledge_sharing,
+        "training_hours": training_hours,
+        "adoption": adoption
     }
 
-def generate_synthetic_dataset(n_respondents: int = 2000) -> pd.DataFrame:
+
+def generate_synthetic_dataset(n_respondents: int, seed: int) -> pd.DataFrame:
     """Generate the full synthetic dataset."""
     records = []
-    
-    for _ in range(n_respondents):
-        country = random.choice(LOW_INCOME_COUNTRIES)
-        record = generate_survey_response(country)
+    for i in range(n_respondents):
+        record = generate_survey_response(seed + i, {})
         records.append(record)
-    
-    df = pd.DataFrame(records)
-    
-    # Add metadata
-    df["generated_at"] = datetime.now().isoformat()
-    df["source"] = "synthetic"
-    
-    return df
+    return pd.DataFrame(records)
 
+
+@log_operation
 def main():
-    """Generate and save synthetic data."""
-    import logging
-    from config import get_config
-    from logging_config import get_logger
-
+    """Generate and save synthetic data (FALLBACK ONLY)."""
     logger = get_logger("synthetic_data")
-    config = get_config()
+    log_path = "modeling_log.yaml"
     
-    n_respondents = config.get("synthetic", {}).get("n_respondents", 2000)
-    output_path = config["data"]["raw"]["survey_data"]
+    if not os.path.exists(log_path):
+        initialize_modeling_log(log_path)
     
-    logger.info(f"Generating synthetic data for {n_respondents} respondents...")
+    config = load_config()
+    n_respondents = config.get("n_respondents", 500)
+    seed = config.get("random_seed", 42)
     
-    df = generate_synthetic_dataset(n_respondents)
+    logger.log("synthetic_generation_start", {"n_respondents": n_respondents, "seed": seed})
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df = generate_synthetic_dataset(n_respondents, seed)
     
-    # Save to CSV
+    output_path = "data/raw/survey_data.csv"
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Synthetic data saved to {output_path}")
     
-    # Save metadata
-    metadata = {
-        "source": "synthetic",
-        "n_respondents": n_respondents,
-        "countries": LOW_INCOME_COUNTRIES,
-        "generated_at": datetime.now().isoformat(),
-        "limitations": [
-            "This is synthetic data for development and testing only.",
-            "In production, replace with real survey data from World Bank LSMS or FAO FIES."
-        ]
-    }
-    
-    metadata_path = config["data"]["metadata"]
-    with open(metadata_path, "w") as f:
-        yaml.dump(metadata, f)
-    
-    logger.info(f"Metadata saved to {metadata_path}")
+    logger.log("synthetic_generation_complete", {"path": output_path, "rows": len(df)})
+    update_log_section("data_source_metadata", {"synthetic_fallback": {"status": "used", "reason": "Real data sources unavailable"}})
+
 
 if __name__ == "__main__":
     main()
