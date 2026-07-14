@@ -1,5 +1,5 @@
 """
-Simple metric utilities for regression tasks.
+Metric utilities used by the training scripts.
 """
 
 from __future__ import annotations
@@ -7,19 +7,15 @@ from __future__ import annotations
 import math
 from typing import Iterable, Sequence
 
-def mae(preds: Sequence[float] | Iterable[float], targets: Sequence[float] | Iterable[float]) -> float:
+def mae(y_true: Sequence[float], y_pred: Sequence[float]) -> float:
     """Mean Absolute Error."""
-    preds = list(preds)
-    targets = list(targets)
-    if len(preds) != len(targets):
-        raise ValueError("Length mismatch between predictions and targets.")
-    return sum(abs(p - t) for p, t in zip(preds, targets)) / len(preds)
+    if len(y_true) == 0:
+        raise ValueError('Empty input to mae')
+    return sum(abs(t - p) for t, p in zip(y_true, y_pred)) / len(y_true)
 
-def rmse(preds: Sequence[float] | Iterable[float], targets: Sequence[float] | Iterable[float]) -> float:
+def rmse(y_true: Sequence[float], y_pred: Sequence[float]) -> float:
     """Root Mean Squared Error."""
-    preds = list(preds)
-    targets = list(targets)
-    if len(preds) != len(targets):
-        raise ValueError("Length mismatch between predictions and targets.")
-    mse = sum((p - t) ** 2 for p, t in zip(preds, targets)) / len(preds)
+    if len(y_true) == 0:
+        raise ValueError('Empty input to rmse')
+    mse = sum((t - p) ** 2 for t, p in zip(y_true, y_pred)) / len(y_true)
     return math.sqrt(mse)

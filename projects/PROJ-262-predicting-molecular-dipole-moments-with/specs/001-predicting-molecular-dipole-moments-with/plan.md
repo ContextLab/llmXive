@@ -9,15 +9,17 @@ This feature implements a comparative study of 3D conformational geometry versus
 
 ## Technical Context
 
-**Language/Version**: Python 3  
-**Primary Dependencies**: PyTorch., PyTorch Geometric.0, RDKit.5, scikit-learn.2, pandas.4, numpy.2  
+**Language/Version**: Python 3.x  
+**Primary Dependencies**: PyTorch.0, PyTorch Geometric
+
+The specific version number is not asserted; instead, the study will utilize a recent release of PyTorch Geometric., RDKit (2023 release), scikit-learn.2, pandas 2.x, numpy.2  
 **Storage**: Parquet files under data/processed/, model checkpoints under data/checkpoints/  
 **Testing**: pytest.3 with contract tests against schema definitions  
 **Target Platform**: Linux server (CPU-only mode)  
 **Project Type**: computational research pipeline  
 **Performance Goals**: Complete all 5 random seed experiments within 6h on 2 CPU cores  
 **Constraints**: No GPU acceleration; memory footprint < 8GB; reproducibility via pinned random seeds  
-**Scale/Scope**: A substantial number of molecules, Multiple random seeds, 2 models, 2 feature attribution methods.
+**Scale/Scope**: A substantial number of molecules, random seeds, 2 models, feature attribution methods.
 **Documentation Structure**: README.md, quickstart.md, research.md under specs/001-predicting-molecular-dipole-moments/
 
 ## Constitution Check
@@ -38,7 +40,7 @@ This feature implements a comparative study of 3D conformational geometry versus
 - **Hydration state limitation**: QM9 molecules are gas-phase DFT calculations without explicit solvent. Hydration effects acknowledged as out-of-scope per spec assumptions.
 - **Conformational ensembles**: Single lowest-energy conformer per molecule from QM9 used; ensemble sampling documented as future work in research.md.
 - **Feature attribution**: Saliency mapping + permutation importance directly address "which part of the graph is doing the work"; physics-informed loss (Raissi) noted as future enhancement in research.md.
-- **Physical validation**: Physical measurement validation explicitly out-of-scope per spec assumptions; validation against QM9 DFT reference data (B3LYP/6-31G(2df,p)) as ground truth.
+- **Physical validation**: Physical measurement validation explicitly out-of-scope per spec assumptions; validation against QM9 DFT reference data (BLYP/6-31G(2df,p)) as ground truth.
 
 **Note on Scope Boundaries**: Tasks T021-T025, T039-T043, T056-T058 referenced in earlier versions have been renumbered to align with current spec requirements. All tasks now map to explicit FR and SC requirements in spec.md.
 

@@ -1,22 +1,25 @@
 """
-Shim module to expose the real NumPy implementation.
+Shim package that forwards all attribute accesses to the genuine NumPy
+implementation loaded via ``code.numpy_real``.
 
-The project previously introduced a custom ``code/numpy`` package that attempted
-to import a ``numpy_real`` helper, which caused a circular import and broke any
-downstream ``import numpy as np`` statements.  This file now simply forwards all
-attributes to the genuine NumPy package from the Python environment, ensuring
-that the rest of the codebase works without modification.
+This file exists because the repository contains a top‑level ``numpy`` package
+(likely added for namespace reasons). Importing pandas (or any other library
+that depends on NumPy) would otherwise resolve to this stub, which lacks
+required attributes such as ``__version__`` and leads to import errors.
+
+By delegating to the real NumPy distribution at import time we restore
+compatibility while keeping the original package name unchanged.
 """
 
-import importlib
+from __future__ import annotations
+
+# Load the real NumPy implementation and expose its symbols.
+from ..numpy_real import *  # noqa: F403,F401
+
+# Ensure ``sys.modules['numpy']`` points to this shim (which now contains all
+# real NumPy attributes).  This line is technically unnecessary because Python
+# already registers the module under its own name, but it makes the intention
+# explicit.
 import sys
 
-# Load the real NumPy implementation from the environment.
-_real_numpy = importlib.import_module('numpy')
-
-# Populate the current module's globals with NumPy's public attributes.
-globals().update(_real_numpy.__dict__)
-
-# Replace the entry in ``sys.modules`` so subsequent ``import numpy`` statements
-# receive the genuine NumPy module rather than this shim.
-sys.modules[__name__] = _real_numpy
+sys.modules[__name__] = sys.modules[__name__]

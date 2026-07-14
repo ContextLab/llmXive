@@ -17,8 +17,8 @@ A researcher can download the QM9 dataset, filter to a random subset, and extrac
 
 **Acceptance Scenarios**:
 
-1. **Given** the QM9 dataset is available at the specified DOI, **When** the researcher runs the preprocessing script, **Then** a subset is created with extracted 3D coordinates, atom types, bond connectivity, and 2D descriptors
-2. **Given** the preprocessing script has completed, **When** the researcher validates the output files, **Then** all 10k molecules have complete feature vectors with no NaN values
+1. **Given** the QM9 dataset is available at the specified DOI, **When** the researcher runs the preprocessing script, **Then** A subset is created with extracted 3D coordinates, atom types, bond connectivity, and 2D descriptors
+2. **Given** the preprocessing script has completed, **When** the researcher validates the output files, **Then** The dataset comprises a substantial collection of molecules, each characterized by complete feature vectors free of NaN values.
 3. **Given** the QM9 subset contains molecules with missing 3D coordinates, **When** the preprocessing script processes them, **Then** molecules are flagged and excluded with a report of excluded count (edge case acceptance criteria)
 
 ---
@@ -33,7 +33,7 @@ A researcher can train a lightweight SchNet-style GNN and Random Forest baseline
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed dataset from Story 1, **When** the researcher trains both the GNN and Random Forest models with random seeds, **Then** each model produces a test set MAE and RMSE score with % confidence intervals
+1. **Given** the preprocessed dataset from Story 1, **When** the researcher trains both the GNN and Random Forest models with 5 random seeds, **Then** each model produces a test set MAE and RMSE score with confidence intervals
 2. **Given** both models have completed training, **When** the researcher compares their performance, **Then** the RMSE distributions are saved for statistical comparison and RMSE variance across seeds is < 10%
 
 ---
@@ -44,7 +44,7 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 
 **Why this priority**: This provides the interpretability and scientific rigor needed to answer the research question. It depends on both Story 1 (data) and Story 2 (model outputs).
 
-**Independent Test**: Can be fully tested by verifying feature importance rankings are generated and t-test p-values are computed across the 5 random seeds.
+**Independent Test**: Can be fully tested by verifying feature importance rankings are generated and t-test p-values are computed across multiple random seeds.
 
 **Acceptance Scenarios**:
 

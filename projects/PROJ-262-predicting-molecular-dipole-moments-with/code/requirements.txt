@@ -1,21 +1,13 @@
 # Core scientific stack
 numpy
 pandas
+pyarrow
 torch
 scikit-learn
-
-# Utility libraries
-scipy
-joblib
-
-# Development / linting
-black
-flake8
-isort
-
-# Optional (used by other parts of the pipeline)
 tqdm
-
-# The project already pins versions via its CI; exact versions are left to the
-# environment. Adding scikit-learn satisfies the Random Forest implementation
-# required by T029.
+# Additional utilities used elsewhere in the project
+joblib
+scipy
+# The placeholder ``numpy`` package is overridden at runtime by ``numpy_real``.
+# ``numpy_real`` simply re‑exports the real NumPy distribution; it does not
+# need to be listed separately because it imports the standard ``numpy``.

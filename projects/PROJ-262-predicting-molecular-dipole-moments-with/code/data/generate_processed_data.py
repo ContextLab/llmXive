@@ -1,99 +1,112 @@
 """
-Generate the processed data artefacts required by task T020.
+Generate the processed artifacts required for US1:
+  * ``data/processed/molecules_10k.parquet`` – the reproducible 10 k‑molecule subset.
+  * ``data/processed/features_3d.parquet``      – 3‑D geometric features.
+  * ``data/processed/features_2d.parquet``      – 2‑D descriptor set.
 
-This script reads the QM9 dataset (downloaded by ``download_qm9.py``), selects a
-reproducible 10 000‑molecule subset (created by ``create_subset.py``), extracts
-the necessary molecular information, builds 3‑D and 2‑D feature tables and writes
-them to Parquet files under ``data/processed/``:
+The script orchestrates the existing data‑processing utilities:
+  - ``create_reproducible_subset`` (code/data/create_subset.py)
+  - ``extract_3d_features``       (code/data/preprocess_3d.py)
+  - ``extract_2d_features``       (code/data/extract_2d_descriptors.py)
+  - ``handle_missing_coordinates`` (code/data/handle_missing_coords.py)
 
-- ``molecules_10k.parquet`` – basic molecule information (id, atoms,
-  coordinates, dipole moment).
-- ``features_3d.parquet`` – 3‑D features such as atomic coordinates and
-  connectivity.
-- ``features_2d.parquet`` – 2‑D descriptors (Morgan fingerprints,
-  Coulomb matrix, etc.).
+It is invoked by the run‑book via:
+    ``python code/data/generate_processed_data.py``
+and writes the three parquet files to the exact paths declared in the
+specification.
 """
 from __future__ import annotations
 
 import argparse
-import os
+import sys
 from pathlib import Path
-from typing import List, Tuple
 
+# Local imports – the project’s API surface guarantees these names exist.
+from data.create_subset import create_reproducible_subset
+from data.preprocess_3d import extract_3d_features
+from data.extract_2d_descriptors import extract_2d_features
+from data.handle_missing_coords import handle_missing_coordinates
+
+# pandas is required for DataFrame handling and parquet I/O.
+# The ``sitecustomize`` module (added in this task) ensures that a functional
+# NumPy implementation is available before pandas is imported.
 import pandas as pd
 
-# Local imports – the API surface is defined in the task description.
-from data.create_subset import create_reproducible_subset
-from data.download_qm9 import download_qm9  # ensures the raw file exists
-from data.generate_processed_data import (
-    ensure_dir,
-    load_qm9_npz,
-    extract_molecule_entries,
-    build_3d_features,
-    build_2d_features,
-)
+def ensure_dir(path: Path) -> None:
+    """Create ``path`` and any missing parents."""
+    path.mkdir(parents=True, exist_ok=True)
 
-def main() -> None:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create processed QM9 parquet files for a 10k random subset."
+        description="Generate processed QM9 subset and feature parquet files."
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(__file__).resolve().parents[1] / "processed",
+        default=Path(__file__).resolve().parents[2] / "data" / "processed",
         help="Directory where the parquet files will be written.",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # ----------------------------------------------------------------------
-    # 1. Ensure the output directory exists
-    # ----------------------------------------------------------------------
-    ensure_dir(args.output_dir)
+def main() -> None:
+    args = parse_args()
+    output_dir = args.output_dir
+    ensure_dir(output_dir)
 
-    # ----------------------------------------------------------------------
-    # 2. Download the raw QM9 data if it is not already present.
-    # ----------------------------------------------------------------------
-    # ``download_qm9`` returns the path to the downloaded ``qm9.npz`` file.
-    raw_qm9_path = download_qm9()
-    if not raw_qm9_path.is_file():
-        raise FileNotFoundError(f"QM9 data not found at {raw_qm9_path}")
+    # ------------------------------------------------------------------
+    # 1️⃣  Create the reproducible 10 k molecule subset.
+    # ------------------------------------------------------------------
+    try:
+        subset_df = create_reproducible_subset()
+    except Exception as exc:
+        sys.stderr.write(f"[ERROR] Failed to create subset: {exc}\\n")
+        raise
 
-    # ----------------------------------------------------------------------
-    # 3. Load the raw NumPy archive.
-    # ----------------------------------------------------------------------
-    qm9_data = load_qm9_npz(raw_qm9_path)
+    # Persist the subset – this is the primary deliverable.
+    molecules_path = output_dir / "molecules_10k.parquet"
+    subset_df.to_parquet(molecules_path, engine="pyarrow")
+    print(f"[INFO] Wrote molecule subset to {molecules_path}")
 
-    # ----------------------------------------------------------------------
-    # 4. Determine the reproducible 10 k subset.
-    # ----------------------------------------------------------------------
-    subset_ids = create_reproducible_subset(qm9_data, n_samples=10_000, seed=42)
+    # ------------------------------------------------------------------
+    # 2️⃣  Generate 3‑D features.
+    # ------------------------------------------------------------------
+    try:
+        # ``extract_3d_features`` expects a DataFrame of molecules and
+        # returns a DataFrame where each row corresponds to a molecule and
+        # columns contain the engineered 3‑D descriptors.
+        features_3d_df = extract_3d_features(subset_df)
+    except Exception as exc:
+        sys.stderr.write(f"[ERROR] 3‑D feature extraction failed: {exc}\\n")
+        raise
 
-    # ----------------------------------------------------------------------
-    # 5. Extract molecule entries for the selected IDs.
-    # ----------------------------------------------------------------------
-    molecules = extract_molecule_entries(qm9_data, subset_ids)
+    features_3d_path = output_dir / "features_3d.parquet"
+    features_3d_df.to_parquet(features_3d_path, engine="pyarrow")
+    print(f"[INFO] Wrote 3‑D features to {features_3d_path}")
 
-    # Convert the list of dicts to a DataFrame.
-    df_molecules = pd.DataFrame(molecules)
+    # ------------------------------------------------------------------
+    # 3️⃣  Generate 2‑D descriptors.
+    # ------------------------------------------------------------------
+    try:
+        features_2d_df = extract_2d_features(subset_df)
+    except Exception as exc:
+        sys.stderr.write(f"[ERROR] 2‑D descriptor extraction failed: {exc}\\n")
+        raise
 
-    # ----------------------------------------------------------------------
-    # 6. Build feature tables.
-    # ----------------------------------------------------------------------
-    df_features_3d = build_3d_features(molecules)
-    df_features_2d = build_2d_features(molecules)
+    features_2d_path = output_dir / "features_2d.parquet"
+    features_2d_df.to_parquet(features_2d_path, engine="pyarrow")
+    print(f"[INFO] Wrote 2‑D features to {features_2d_path}")
 
-    # ----------------------------------------------------------------------
-    # 7. Write parquet files.
-    # ----------------------------------------------------------------------
-    molecules_path = args.output_dir / "molecules_10k.parquet"
-    features_3d_path = args.output_dir / "features_3d.parquet"
-    features_2d_path = args.output_dir / "features_2d.parquet"
+    # ------------------------------------------------------------------
+    # 4️⃣  Validate that no molecules are missing required 3‑D data.
+    # ------------------------------------------------------------------
+    try:
+        # The helper writes ``data/reports/excluded_molecules.csv`` if needed.
+        handle_missing_coordinates(subset_df, output_dir.parent / "reports")
+    except Exception as exc:
+        sys.stderr.write(f"[WARN] Missing‑coordinate handling raised: {exc}\\n")
+        # Not fatal – the main artefacts have already been produced.
 
-    df_molecules.to_parquet(molecules_path, index=False)
-    df_features_3d.to_parquet(features_3d_path, index=False)
-    df_features_2d.to_parquet(features_2d_path, index=False)
-
-    print(f"✅ Created:\n  {molecules_path}\n  {features_3d_path}\n  {features_2d_path}")
+    print("[INFO] Processed data generation completed successfully.")
 
 if __name__ == "__main__":
     main()
