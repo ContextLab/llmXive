@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Compressibility Analysis Schema"
+description: "Schema for validating statistical artifacts from the compressibility analysis, ensuring Single Source of Truth for the paper."
+type: object
+required:
+  - analysis_id
+  - regression_results
+  - trade_off_curve
+  - correlation_analysis
+properties:
+  analysis_id:
+    type: string
+    description: "Unique identifier for the analysis run."
+  regression_results:
+    type: object
+    required:
+      - coefficients
+      - p_values
+      - model_type
+      - fidelity_loss_range
+    properties:
+      model_type:
+        type: string
+        enum: ["BetaRegression"]
+        description: "Type of regression model used."
+      coefficients:
+        type: object
+        description: "Regression coefficients mapping structural metrics to fidelity loss."
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        description: "P-values for each coefficient."
+        additionalProperties:
+          type: number
+          minimum: 0
+          maximum: 1
+      fidelity_loss_range:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        minItems: 2
+        description: "Observed range of fidelity loss (min, max)."
+  trade_off_curve:
+    type: array
+    description: "Data points for the Fidelity Loss vs. Compression Ratio trade-off curve."
+    items:
+      type: object
+      required:
+        - compression_ratio
+        - fidelity_loss
+      properties:
+        compression_ratio:
+          type: number
+          minimum: 0
+          description: "Compression ratio value."
+        fidelity_loss:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Corresponding fidelity loss (1 - accuracy)."
+  correlation_analysis:
+    type: object
+    required:
+      - spearman_correlations
+      - p_values
+    properties:
+      spearman_correlations:
+        type: object
+        description: "Spearman correlation between structural metrics and compressibility score."
+        additionalProperties:
+          type: number
+          minimum: -1
+          maximum: 1
+      p_values:
+        type: object
+        description: "P-values for Spearman correlations."
+        additionalProperties:
+          type: number
+          minimum: 0
+          maximum: 1
+additionalProperties: false

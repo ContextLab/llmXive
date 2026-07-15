@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Benchmark Results Schema"
+description: "Schema for validating comparative benchmark results between baseline and compressed agents."
+type: object
+required:
+  - experiment_id
+  - timestamp
+  - baseline_metrics
+  - compressed_metrics
+  - comparison_summary
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the benchmark run."
+  timestamp:
+    type: string
+    format: date-time
+  baseline_metrics:
+    type: object
+    required:
+      - edit_accuracy
+      - retrieval_latency_ms
+    properties:
+      edit_accuracy:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Fraction of edits matching ground truth."
+      retrieval_latency_ms:
+        type: number
+        minimum: 0
+        description: "Time to context-ready in milliseconds."
+  compressed_metrics:
+    type: object
+    required:
+      - edit_accuracy
+      - retrieval_latency_ms
+      - compression_ratio
+    properties:
+      edit_accuracy:
+        type: number
+        minimum: 0
+        maximum: 1
+      retrieval_latency_ms:
+        type: number
+        minimum: 0
+      compression_ratio:
+        type: number
+        minimum: 0
+        description: "Ratio of compressed size to original size."
+  comparison_summary:
+    type: object
+    required:
+      - accuracy_delta
+      - latency_delta_ms
+    properties:
+      accuracy_delta:
+        type: number
+        description: "Difference in accuracy (Compressed - Baseline)."
+      latency_delta_ms:
+        type: number
+        description: "Difference in latency (Compressed - Baseline)."
+additionalProperties: false

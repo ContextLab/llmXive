@@ -1,0 +1,20 @@
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 model size 80MB fits in 7GB RAM
+  claim_id: c_0b69d07b
+  context: 'Implement `code/metrics/extract.py` to compute argument semantic variance
+    using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance
+    = mean pairwise cosine distance of all argument embeddings in a trace. **Note**:
+    Model size ~80MB fits within 7GB RAM constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_model_size_80MB_fits
+  kind: entity_fact
+  raw_text: Model size ~80MB fits within 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:35:38Z'

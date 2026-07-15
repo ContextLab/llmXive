@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MemSlides Trace Artifact Schema"
+description: "Schema for validating synthetic multi-turn revision session traces generated for the llmXive follow-up study."
+type: object
+required:
+  - session_id
+  - timestamp
+  - tool_sequence
+  - final_state
+  - metadata
+properties:
+  session_id:
+    type: string
+    description: "Unique UUID for the session."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of generation."
+  tool_sequence:
+    type: array
+    description: "Ordered list of tool calls executed in this session."
+    minItems: 1
+    items:
+      type: object
+      required:
+        - tool_name
+        - arguments
+      properties:
+        tool_name:
+          type: string
+          description: "Name of the tool used (e.g., 'create_slide', 'edit_text')."
+          minLength: 1
+        arguments:
+          type: object
+          description: "Key-value pairs of arguments passed to the tool."
+          additionalProperties: true
+  final_state:
+    type: object
+    description: "The resulting slide deck state after executing the tool sequence."
+    required:
+      - slides
+    properties:
+      slides:
+        type: array
+        description: "List of slide objects in the final state."
+        items:
+          type: object
+          properties:
+            slide_id:
+              type: integer
+            title:
+              type: string
+            content:
+              type: array
+              items:
+                type: string
+  metadata:
+    type: object
+    description: "Additional metadata for the trace."
+    required:
+      - seed
+      - sequence_length
+      - exact_tool_sequence
+      - raw_arg_variance
+    properties:
+      seed:
+        type: integer
+        description: "Random seed used for generation."
+      sequence_length:
+        type: integer
+        description: "Total number of tool calls in the sequence."
+      exact_tool_sequence:
+        type: array
+        description: "List of tool names in order."
+        items:
+          type: string
+      raw_arg_variance:
+        type: number
+        description: "Calculated variance of arguments (0.0 to 1.0)."
+        minimum: 0.0
+        maximum: 1.0
+additionalProperties: false

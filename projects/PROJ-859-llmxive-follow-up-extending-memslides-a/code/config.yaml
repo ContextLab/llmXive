@@ -1,0 +1,37 @@
+# llmXive Configuration File
+# This file defines default paths, seeds, and thresholds for the pipeline.
+# Environment variables (via .env) can override specific values.
+
+project:
+  name: "llmXive-follow-up-extending-memslides-a"
+  version: "0.1.0"
+  root_dir: "."
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_held_out: "data/held_out"
+  figures: "figures"
+  contracts: "contracts"
+  models: "data/processed/models"
+  rules: "data/processed/rules"
+
+seeds:
+  global_seed: 42
+  python_seed: 42
+  numpy_seed: 42
+
+thresholds:
+  compressibility_fidelity_cutoff: 0.90
+  max_rule_depth: 5
+  min_trace_length: 3
+
+model_config:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  device: "cpu"
+  max_memory_gb: 7
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"
