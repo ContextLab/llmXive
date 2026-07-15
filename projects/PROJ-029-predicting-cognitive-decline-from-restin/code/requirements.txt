@@ -12,3 +12,4 @@ psutil
 joblib
 fslpy
 scipy
+torch  # auto-added: imported by run-book but missing from venv

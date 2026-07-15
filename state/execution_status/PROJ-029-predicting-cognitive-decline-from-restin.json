@@ -1,23 +1,20 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/processed/eligible_subjects.csv: header only, ZERO data rows \u2014 the analysis produced no rows; every produced artifact is gitignored (data/processed/eligible_subjects.csv, data/raw/ds000246/participants.tsv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 5 declared deliverable(s) absent: data/processed/cv_results.json; data/processed/graph_metrics.csv; data/processed/model_params.json",
-  "artifacts": [
-    "data/processed/eligible_subjects.csv",
-    "data/raw/ds000246/participants.tsv"
-  ],
+  "reason": "7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 4 declared deliverable(s) absent: data/processed/cv_results.json; data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv",
+  "artifacts": [],
   "failures": [
-    "python code/01_download_and_filter.py -> rc=1\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 307, in main\n    write_status(0, 0, \"error\", str(e))\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 256, in write_status\n    save_json(status_data, STATUS_JSON)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py\", l",
+    "python code/01_download_and_filter.py -> rc=1\n    File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 308\n    \"\"\"Main entry point.\"\"\"\n                        ^\nSyntaxError: unterminated triple-quoted string literal (detected at line 354)",
     "python code/02_preprocess_and_parcellate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/02_preprocess_and_parcellate.py\", line 24, in <module>\n    from nilearn.input_data import NiftiLabelsMasker\nModuleNotFoundError: No module named 'nilearn.input_data'",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 175, in <module>\n    @log_operation(\"compute_graph_metrics_main\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 266, in <module>\n    @log_operation(\"train_model_main\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/05_evaluate_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 241, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py\", line 68, in _wrapper\n    return func(*a, **k)\n           ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 170, in main\n    subjects = l",
-    "python code/06_permutation_test.py -> rc=1\n    ",
+    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 235, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py\", line 68, in _wrapper\n    return func(*a, **k)\n           ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_gr",
+    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 249, in <module>\n    @log_operation(\"train_model_main\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/05_evaluate_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 164, in <module>\n    @log_operation(\"evaluate_model_main\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/06_permutation_test.py -> rc=1\n    Error: Failed to load features: [Errno 21] Is a directory: 'data/processed/graph_metrics.csv'",
     "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 81, in <module>\n    @log_operation(\"collinearity_check\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T23:01:25Z"
+  "updated_at": "2026-07-15T02:07:46Z"
 }

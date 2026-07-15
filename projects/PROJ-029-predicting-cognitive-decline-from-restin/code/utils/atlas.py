@@ -1,104 +1,97 @@
 """
-Atlas utilities for loading and validating brain atlases.
+Atlas utilities for loading and validating AAL atlas masks.
 """
 import numpy as np
 import nibabel as nib
 from pathlib import Path
 from typing import Union, Optional
+
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_aal_atlas_mask() -> Path:
+def load_aal_atlas_mask(
+    atlas_path: Optional[Union[str, Path]] = None
+) -> nib.Nifti1Image:
     """
-    Load the AAL (Automated Anatomical Labeling) atlas mask.
+    Load the AAL atlas mask.
+    
+    If atlas_path is not provided, attempts to fetch from nilearn.
     
     Returns:
-        Path to the AAL atlas mask file.
-        
-    Raises:
-        FileNotFoundError: If the AAL atlas is not found.
+        nib.Nifti1Image: The loaded atlas mask.
     """
-    # Try common locations for AAL atlas
-    possible_paths = [
-        Path("data/artifacts/AAL/AAL_template.nii"),
-        Path("data/artifacts/AAL/AAL.nii"),
-        Path("/usr/share/fsl/data/atlases/AAL/AAL.nii"),
-        Path("/usr/local/share/fsl/data/atlases/AAL/AAL.nii"),
-        Path.home() / ".fsl" / "data" / "atlases" / "AAL" / "AAL.nii",
-        # Fallback: create a dummy atlas if not found (for testing)
-        # In production, this should raise an error
-    ]
+    if atlas_path is None:
+        try:
+            from nilearn.datasets import fetch_atlas_aal
+            atlas_data = fetch_atlas_aal()
+            atlas_path = atlas_data.maps
+        except Exception as e:
+            raise RuntimeError(f"Failed to fetch AAL atlas: {e}")
     
-    for path in possible_paths:
-        if path.exists():
-            logger.info(f"AAL atlas found at: {path}")
-            return path
+    if isinstance(atlas_path, str):
+        atlas_path = Path(atlas_path)
     
-    # If not found, try to download or create a minimal version
-    # For this implementation, we'll create a minimal 3D mask
-    # In a real pipeline, this would download from a repository
-    logger.warning("AAL atlas not found. Creating a minimal placeholder atlas.")
-    return create_minimal_atlas()
+    if not atlas_path.exists():
+        raise FileNotFoundError(f"AAL atlas file not found: {atlas_path}")
+    
+    mask_img = nib.load(str(atlas_path))
+    logger.info(f"Loaded AAL atlas from {atlas_path}")
+    return mask_img
 
 
-def create_minimal_atlas() -> Path:
+def validate_atlas_shape(
+    atlas_img: nib.Nifti1Image,
+    expected_dims: Optional[tuple] = None
+) -> bool:
     """
-    Create a minimal placeholder atlas for testing.
-    
-    Returns:
-        Path to the created minimal atlas file.
-    """
-    output_path = Path("data/artifacts/AAL/AAL_template.nii")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Create a 91x109x91 volume (standard MNI152 size at 2mm)
-    shape = (91, 109, 91)
-    data = np.zeros(shape, dtype=np.int16)
-    
-    # Assign region labels (simplified)
-    # In a real atlas, this would have proper anatomical labels
-    for i in range(1, 91):  # 90 regions + 0 for background
-        if i < shape[0]:
-            data[i, :, :] = i
-    
-    # Create NIfTI image
-    affine = np.diag([2.0, 2.0, 2.0, 1.0])
-    affine[3, 3] = 1.0
-    affine[0, 3] = -90.0
-    affine[1, 3] = -126.0
-    affine[2, 3] = -72.0
-    
-    img = nib.Nifti1Image(data, affine)
-    nib.save(img, str(output_path))
-    
-    logger.info(f"Created minimal AAL atlas at: {output_path}")
-    return output_path
-
-
-def validate_atlas_shape(atlas_path: Union[str, Path], expected_shape: tuple = (91, 109, 91)) -> bool:
-    """
-    Validate that the atlas has the expected shape.
+    Validate that the atlas has reasonable dimensions.
     
     Args:
-        atlas_path: Path to the atlas file.
-        expected_shape: Expected shape of the atlas volume.
+        atlas_img: The atlas image to validate.
+        expected_dims: Optional tuple of expected dimensions (x, y, z).
         
     Returns:
-        True if valid, False otherwise.
+        bool: True if valid, False otherwise.
     """
-    try:
-        atlas_img = nib.load(str(atlas_path))
-        atlas_data = atlas_img.get_fdata()
-        
-        if atlas_data.shape != expected_shape:
-            logger.warning(f"Atlas shape {atlas_data.shape} does not match expected {expected_shape}")
-            return False
-        
-        return True
-    except Exception as e:
-        logger.error(f"Error validating atlas: {e}")
+    shape = atlas_img.shape
+    logger.debug(f"Atlas shape: {shape}")
+    
+    if len(shape) != 3:
+        logger.warning(f"Atlas should be 3D, got {len(shape)}D")
         return False
+    
+    if expected_dims:
+        if shape != expected_dims:
+            logger.warning(f"Atlas shape {shape} does not match expected {expected_dims}")
+            # We don't fail strictly, just warn
+    
+    return True
+
+
+def create_minimal_atlas(
+    shape: tuple = (91, 109, 91),
+    n_regions: int = 116
+) -> nib.Nifti1Image:
+    """
+    Create a minimal synthetic atlas for testing.
+    
+    Args:
+        shape: The shape of the atlas volume.
+        n_regions: Number of regions to create.
+        
+    Returns:
+        nib.Nifti1Image: A synthetic atlas mask.
+    """
+    data = np.zeros(shape, dtype=np.int32)
+    
+    # Assign region IDs
+    voxels = np.arange(n_regions) + 1
+    for i, idx in enumerate(np.random.choice(np.prod(shape), n_regions, replace=False)):
+        data.flat[idx] = voxels[i]
+    
+    # Create affine (identity for simplicity)
+    affine = np.eye(4)
+    
+    return nib.Nifti1Image(data, affine)

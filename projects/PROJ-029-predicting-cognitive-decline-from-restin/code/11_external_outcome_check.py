@@ -5,12 +5,8 @@ If unavailable, it writes a limitation note to data/artifacts/limitations.txt.
 """
 from __future__ import annotations
 
-import functools
 import json
-import os
 import sys
-from dataclasses import asdict, dataclass, field
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -43,7 +39,10 @@ def check_mci_conversion() -> bool:
 
         # Check header for MCI-related columns
         header = lines[0].lower()
-        mci_keywords = ["mci", "conversion", "diagnosis_change", "outcome", "mci_status", "conversion_status"]
+        mci_keywords = [
+            "mci", "conversion", "diagnosis_change", "outcome",
+            "mci_status", "conversion_status", "mci_conversion"
+        ]
         has_mci_data = any(keyword in header for keyword in mci_keywords)
 
         return has_mci_data
@@ -61,7 +60,7 @@ def write_limitation(message: str) -> None:
     output_path = Path("data/artifacts/limitations.txt")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Check if file exists and has content
+    # Check if file exists and has content to avoid duplicates
     if output_path.exists():
         existing_content = output_path.read_text()
         # Avoid duplicate messages
@@ -69,7 +68,7 @@ def write_limitation(message: str) -> None:
             return
 
     # Append the limitation message
-    with open(output_path, "a") as f:
+    with open(output_path, "a", encoding="utf-8") as f:
         f.write(f"\n{message}\n")
 
 
@@ -77,9 +76,10 @@ def main() -> int:
     """Main entry point for external outcome check.
 
     Returns:
-        0 on success, non-zero on failure.
+        0 on success (whether data found or not), non-zero on failure.
     """
     logger = get_logger("external_outcome_check")
+    # Log the start of the operation
     logger.log("check_mci_start", operation="external_outcome_check")
 
     try:
@@ -94,14 +94,24 @@ def main() -> int:
                 "Analysis is based on MMSE/MOCA score changes only."
             )
             write_limitation(limitation_msg)
-            logger.log("check_mci_end", has_data=False, limitation_written=True)
+            logger.log(
+                "check_mci_end",
+                has_data=False,
+                limitation_written=True,
+                status="completed_with_limitation"
+            )
             # Note: This is not a failure, just a documented limitation
             return 0
         else:
-            logger.log("check_mci_end", has_data=True, limitation_written=False)
+            logger.log(
+                "check_mci_end",
+                has_data=True,
+                limitation_written=False,
+                status="completed"
+            )
             return 0
     except Exception as e:
-        logger.log("check_mci_error", error=str(e))
+        logger.log("check_mci_error", error=str(e), status="failed")
         return 1
 
 
