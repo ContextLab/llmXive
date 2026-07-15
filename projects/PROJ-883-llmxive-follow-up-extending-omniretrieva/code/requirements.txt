@@ -1,0 +1,12 @@
+pandas
+numpy
+scipy
+statsmodels
+pytest
+pyyaml
+rdflib
+networkx
+matplotlib
+seaborn
+requests
+datasets

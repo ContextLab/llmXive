@@ -1,0 +1,118 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisResult
+description: >
+  Schema for the aggregated statistical analysis results (ANOVA, sensitivity,
+  error rates) produced by the research pipeline.
+type: object
+required:
+  - analysis_id
+  - generated_at
+  - method
+  - results
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run.
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation.
+  method:
+    type: string
+    enum:
+      - anova_two_way
+      - sensitivity_analysis
+      - error_rate_comparison
+      - post_hoc_tukey
+    description: The statistical method used.
+  input_data_source:
+    type: string
+    description: Path to the input data file (e.g., data/processed/execution_logs.csv).
+  results:
+    type: object
+    description: Method-specific result object.
+    properties:
+      # For ANOVA
+      f_statistic:
+        type: number
+      p_value:
+        type: number
+      interaction_term:
+        type: string
+        description: Name of the interaction term tested (e.g., "complexity_level:source_type").
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      slope_ratio:
+        type: number
+        description: Ratio of slopes (graph vs text) as per SC-001.
+      hypothesis_supported:
+        type: boolean
+        description: True if p < 0.05.
+      diagnostics:
+        type: object
+        description: Normality/Homogeneity check results (Levene, Shapiro-Wilk).
+        properties:
+          levene_statistic:
+            type: number
+          levene_p_value:
+            type: number
+          shapiro_statistic:
+            type: number
+          shapiro_p_value:
+            type: number
+          assumption_met:
+            type: boolean
+            description: Whether ANOVA assumptions were met.
+      
+      # For Sensitivity Analysis
+      sensitivity_points:
+        type: array
+        items:
+          type: object
+          properties:
+            cutoff:
+              type: integer
+              description: The complexity cutoff tested (2, 3, or 4).
+            spike_point:
+              type: number
+              description: x-value where max absolute difference in mean latency occurs.
+            slope_change:
+              type: number
+              description: Calculated change in slope at the spike.
+      
+      # For Error Rate Comparison
+      error_rates:
+        type: object
+        properties:
+          low_complexity:
+            type: number
+            description: Error rate for low complexity group.
+          high_complexity:
+            type: number
+            description: Error rate for high complexity group.
+          absolute_difference:
+            type: number
+            description: Absolute difference between groups (SC-002).
+      
+      # For Post-Hoc
+      pairwise_comparisons:
+        type: array
+        items:
+          type: object
+          properties:
+            group1:
+              type: string
+            group2:
+              type: string
+            p_value:
+              type: number
+            significant:
+              type: boolean
+  metadata:
+    type: object
+    description: Additional context (software versions, random seeds).
+    additionalProperties: true

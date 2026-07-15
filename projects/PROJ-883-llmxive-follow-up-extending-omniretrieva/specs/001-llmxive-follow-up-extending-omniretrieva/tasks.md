@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (code/, data/, tests/, specs/)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `rdflib`, `networkx`, `matplotlib`, `seaborn` in `code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `rdflib`, `networkx`, `matplotlib`, `seaborn`, `requests`, `datasets` in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -53,19 +53,20 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Tasks below are ordered to respect strict dependencies (e.g., T007 must complete before T006).
 
 - [ ] T004 [P] Create data schemas: `contracts/query_instance.schema.yaml`, `contracts/execution_metric.schema.yaml`, `contracts/analysis_result.schema.yaml`
-- [ ] T005 [P] Implement `code/config.py` for seeds, paths, and CPU throttling configuration (cgroups logic)
-- [ ] T006 [P] Implement `code/generators/synthetic_query.py` to generate queries with varying plan depths (1-2 low, 3+ high). This task MUST call `code/generators/reference_engine.py` (T007) to assign the `ground_truth_plan` attribute via deterministic rules (FR-008).
-- [ ] T007 [P] Implement `code/generators/reference_engine.py` (FR-008) to generate independent, deterministic ground-truth execution plans for all query types.
-- [ ] T008 [P] Implement `code/executors/base.py` with abstract base class for execution engines and timeout handling (60s limit). This class MUST utilize the throttling mechanism implemented in T016.
-- [ ] T009 [P] Implement `code/executors/text_executor.py` using sequential chaining to simulate complexity on flat text (SPARQL-like logic on sampled MS MARCO subset).
+- [ ] T005 [P] Implement `code/config.py` for seeds, paths, CPU throttling configuration, and **real dataset URLs** (MS MARCO subset, Spider benchmark subset, DBpedia/Wikidata subset) from HuggingFace/GitHub. This task MUST also define `EXIT_CODE_THROTTLING_FAILURE = 1` and include logic to handle fallback to synthetic graph generation if real URLs do not provide the required schema depth (Spec Assumptions).
+- [ ] T007 [P] Implement `code/generators/reference_engine.py` (FR-008) to generate independent, deterministic ground-truth execution plans for all query types using a greedy heuristic based on pre-computed source statistics.
+- [X] T006 Implement `code/generators/synthetic_query.py` to generate queries with **exact integer plan depths (1, 2, 3, 4+)**. This task MUST call `code/generators/reference_engine.py` (T007) to assign the `ground_truth_plan` attribute via deterministic rules (FR-008). The output query object MUST contain the integer field `complexity_level` (not binary). **Dependency: T007 must be complete.**
+- [~] T016 Implement CPU throttling logic in `code/utils/cpu_throttle.py`. This task MUST enforce the strict CPU time limit and memory cap defined in FR-001. It MUST utilize `cgroups` where available but MUST implement a fallback using the `resource` module + virtual delay if `cgroups` fails (e.g., on GitHub Actions Free Tier), ensuring FR-001 is met regardless of container permissions.
+- [~] T016b Implement CPU throttling validity check in `code/utils/cpu_throttle.py`. This task MUST detect if throttling (either via `cgroups` or fallback) fails to apply correctly and abort the run with `EXIT_CODE_THROTTLING_FAILURE` (defined in T005/config.py) to prevent invalid data collection, as required by Edge Cases and Constitution Principle VI.
+- [~] T016c [P] Implement `code/utils/data_fetcher.py` to handle real dataset downloads from the URLs defined in T005. This task MUST verify checksums and handle partial downloads to ensure data integrity (Constitution Principle III).
+- [~] T008 Implement `code/executors/base.py` with abstract base class for execution engines and timeout handling (s limit). This class MUST utilize the throttling mechanism implemented in T016. **Dependency: T016 must be complete.**
+- [~] T009 [P] Implement `code/executors/text_executor.py` using standard string matching or SQLite logic on the sampled MS MARCO subset fetched via `datasets.load_dataset`. This task MUST execute **actual queries** and MUST measure **real wall-clock time**. It MUST **NOT** use `time.sleep`. To simulate complexity, it MUST perform a number of logical operations (e.g., lookups, joins) proportional to the `complexity_level` integer generated by T006 (not T017). **Dependency: T006 must be complete.**
 - [ ] T010 [P] Implement `code/executors/relational_executor.py` wrapping SQLite with in-memory database for Spider benchmark subset.
-- [ ] T011 [P] Implement `code/executors/graph_executor.py` using NetworkX/RDFLib for synthetic graph generation and multi-hop traversal simulation.
+- [ ] T011 [P] Implement `code/executors/graph_executor.py` using NetworkX/RDFLib for synthetic graph generation and multi-hop traversal simulation (using sampled DBpedia/Wikidata subsets).
 - [ ] T012 [P] Implement `code/main.py` orchestration script to load config, generate queries, route to executors, and log raw metrics.
-- [ ] T016 [P] Implement CPU throttling logic in `code/utils/cpu_throttle.py` using `cgroups`. This task MUST enforce the strict CPU time limit and memory cap defined in FR-001.
-- [ ] T016b [P] Implement CPU throttling validity check in `code/utils/cpu_throttle.py`. This task MUST detect if `cgroups` fails due to container permissions and abort the run with a specific error code (e.g., exit code 1) to prevent invalid data collection, as required by Edge Cases and Constitution Principle VI.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,7 +76,7 @@
 
 **Goal**: Measure end-to-end latency difference between low and high complexity queries on CPU-constrained environment.
 
-**Independent Test**: Execute 500 synthetic queries (low/high split) against simulated CPU-throttled environment; verify latency logs are generated and ANOVA interaction term is calculable.
+**Independent Test**: Execute a set of synthetic queries (low/high split) against simulated CPU-throttled environment; verify latency logs are generated and ANOVA interaction term is calculable.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -83,20 +84,20 @@
 
 - [ ] T013 [P] [US1] Contract test for `ExecutionMetric` schema validation in `tests/contract/test_execution_metric.py`
 - [ ] T014 [P] [US1] Integration test for end-to-end query execution loop with CPU throttling in `tests/integration/test_latency_pipeline.py`
-- [ ] T014b [P] [US1] Integration test for CPU throttling validity check in `tests/integration/test_throttling_abort.py`. Verify the system exits with a specific error code when `cgroups` is unavailable.
+- [ ] T014b [P] [US1] Integration test for CPU throttling validity check in `tests/integration/test_throttling_abort.py`. Verify the system exits with `EXIT_CODE_THROTTLING_FAILURE` when throttling is unavailable.
 
 ### Implementation for User Story 1
 
 - [ ] T015 [US1] Implement `code/analysis/metrics.py` to record end-to-end latency (ms) and handle timeout flags (FR-003).
-- [ ] T017 [US1] Implement query classification logic in `code/generators/synthetic_query.py` to tag queries as "low-complexity" (depth ≤ 2) or "high-complexity" (depth ≥ 3) (FR-002).
+- [ ] T017 [US1] Implement query classification logic in `code/generators/synthetic_query.py` to **record the exact integer plan depth (1, 2, 3, 4+) as the `complexity_level` field** in the query object. This task MUST NOT truncate or binary-classify the depth; the integer value must be preserved in the output artifact for downstream ANOVA and sensitivity analysis (FR-002).
 - [ ] T018 [US1] Implement `code/analysis/stats.py` to perform Two-Way ANOVA on `latency` vs `complexity` × `source_type`. This task MUST:
-  1. Perform Levene and Shapiro-Wilk tests for variance validation (mandatory prerequisite per Constitution VII).
-  2. Output F-statistic, p-value, and 95% CI for the interaction term.
-  3. Calculate and report the **ratio of slopes (graph vs. text)** as required by SC-001.
-  4. Perform post-hoc Tukey tests to identify pairwise differences between source types (FR-005).
-  5. Flag the hypothesis as 'supported' only if p < 0.05.
-- [ ] T020 [US1] Implement sensitivity analysis in `code/analysis/stats.py`. This task MUST sweep the complexity depth cutoff over a **configurable range of low integer values** (default 1-5) and output a JSON object for **each** cutoff in the range containing: `{"cutoff": <int>, "spike_point": <float>, "slope_change": <float>}` (FR-007, SC-004).
-- [ ] T021 [US1] Add data persistence in `code/main.py` to write raw metrics to `data/processed/execution_logs.csv` and aggregated stats to `data/results/anova_results.json`.
+ 1. Perform Levene and Shapiro-Wilk tests as **diagnostics only**; if assumptions fail, automatically switch to robust ANOVA or ANCOVA as per FR-005 (do not block execution).
+ 2. Output F-statistic, p-value, and confidence interval for the interaction term.
+ 3. Calculate and report the **ratio of slopes (graph vs. text)** as required by SC-001.
+ 4. Perform post-hoc Tukey tests to identify pairwise differences between source types (FR-005).
+ 5. Flag the hypothesis as 'supported' only if p < 0.05.
+- [ ] T020 [US1] Implement sensitivity analysis in `code/analysis/stats.py`. This task MUST **loop over the specific range [2, 3, 4]** as defined in FR-007. For **each** cutoff, it MUST calculate `spike_point` and `slope_change` and **persist a distinct JSON object** to a **single output file** `data/results/sensitivity_analysis.json` (containing a list of objects, one per cutoff). `spike_point` MUST be calculated as the x-value where the **absolute difference in mean latency between consecutive complexity levels is maximized** (FR-007). **Dependency: T021 must provide raw logs for this sweep.**
+- [ ] T021 [US1] Add data persistence in `code/main.py` to write raw metrics to `data/processed/execution_logs.csv` (raw logs only) and aggregated stats to `data/results/anova_results.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,7 +107,7 @@
 
 **Goal**: Track frequency of translation errors (plan mismatch) under CPU throttling and compare low vs high complexity groups.
 
-**Independent Test**: Compare generated plans against ground-truth plans for 100 high-complexity graph queries; verify error rate calculation and reporting.
+**Independent Test**: Compare generated plans against ground-truth plans for high-complexity graph queries; verify error rate calculation and reporting.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -137,10 +138,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/analysis/viz.py` to generate interaction plots (latency vs complexity, grouped by source type) using `matplotlib` or `seaborn`. This task depends on aggregated data from T021 and T026.
+- [ ] T030 [US3] Implement `code/analysis/viz.py` to generate interaction plots (latency vs complexity, grouped by source type) using `matplotlib` or `seaborn`. This task depends on aggregated data from T021 (US1) and T026 (US2).
 - [ ] T031 [US3] Add logic in `code/analysis/viz.py` to explicitly highlight the slope difference for graph sources and identify spike thresholds (FR-006).
 - [ ] T032 [US3] Update `code/main.py` to save final plots to `data/results/interaction_plot.png` and `data/results/interaction_plot.pdf`.
-- [ ] T033 [US3] Add logic to generate a summary report in `data/results/research_summary.md` containing the ANOVA results (including slope ratio), error rates, and links to plots.
+- [ ] T033 [US3] Add logic to generate a summary report in `data/results/research_summary.md` containing the ANOVA results (including slope ratio), error rates, and links to plots. **This task MUST explicitly calculate and report the absolute difference in error rates between low and high complexity groups as a distinct top-level key in the report (SC-002).**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,6 +155,7 @@
 - [ ] T036 [P] Add unit tests for synthetic query generator edge cases (depth cap, timeout handling) in `tests/unit/`
 - [ ] T037 [P] Run `quickstart.md` validation to ensure the full pipeline completes within 6 hours on free-tier runners
 - [ ] T038 [P] Verify all dataset URLs in `code/config.py` are real and reachable (MS MARCO, Spider, DBpedia subsets)
+- [ ] T039 [P] Add a `state/state.yaml` generator to track artifact hashes for `data/processed/` and `data/results/` (Constitution Principle V)
 
 ---
 
@@ -162,10 +164,12 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **T016 and T016b MUST be complete before T008-T011.**
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
+ - **Strict Ordering Required**: T007 must complete before T006. T016 must complete before T008.
+ - Tasks T004, T005, T007, T016c, T009, T010, T011, T012 can run in parallel [P] within their dependency constraints.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -184,7 +188,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, respecting strict ordering T007->T006 and T016->T008)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -230,23 +234,23 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Latency & ANOVA)
-   - Developer B: User Story 2 (Translation Errors)
-   - Developer C: User Story 3 (Visualization)
+ - Developer A: User Story 1 (Latency & ANOVA)
+ - Developer B: User Story 2 (Translation Errors)
+ - Developer C: User Story 3 (Visualization)
 3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (unless strict ordering specified in text)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST run on CPU-only CI (2 cores, 7GB RAM). No GPU, no 8-bit quantization, no large model training.
+- **Critical Constraint**: All tasks MUST run on CPU-only CI (limited cores, moderate RAM). No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: All datasets must be fetched from real URLs (HuggingFace/GitHub) or generated synthetically with deterministic seeds. No fake data.
-- **Statistical Validity**: Levene/Shapiro tests are mandatory prerequisites for ANOVA (Constitution VII).
-- **Sensitivity Analysis**: Must use a configurable range of cutoffs, not hard-coded values.
+- **Statistical Validity**: Normality checks are diagnostics only; ANOVA/ANCOVA must run regardless.
+- **Sensitivity Analysis**: Must use the specific range [2, 3, 4] as defined in FR-007.

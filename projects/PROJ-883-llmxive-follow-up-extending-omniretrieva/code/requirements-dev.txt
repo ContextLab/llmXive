@@ -1,0 +1,6 @@
+# Development dependencies
+# These are in addition to the base requirements
+ruff>=0.1.0
+black>=23.0.0
+pytest-cov>=4.0.0
+mypy>=1.0.0

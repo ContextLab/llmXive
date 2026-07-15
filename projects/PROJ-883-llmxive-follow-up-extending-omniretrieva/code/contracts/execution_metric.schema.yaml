@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ExecutionMetric
+description: Schema for execution metrics (latency, status).
+type: object
+required:
+  - query_id
+  - query_type
+  - complexity_level
+  - status
+  - latency_ms
+properties:
+  query_id:
+    type: string
+  query_type:
+    type: string
+    enum: [text, relational, graph]
+  complexity_level:
+    type: integer
+    minimum: 1
+  status:
+    type: string
+    enum: [success, timeout, error]
+  latency_ms:
+    type: number
+    minimum: -1
+    description: -1 indicates timeout/error.
+  translation_error:
+    type: integer
+    enum: [0, 1]
+    description: 0 if plan matches ground truth, 1 otherwise.

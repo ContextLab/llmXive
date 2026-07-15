@@ -17,7 +17,7 @@ This feature implements a controlled experimental framework to quantify the "str
 **Project Type**: Research Simulation / CLI Tool  
 **Performance Goals**: Complete 500 synthetic query runs (including mismatch simulations) + statistical analysis within 4 hours.  
 **Constraints**: No GPU; strict memory cap (7GB); CPU throttling via `resource.getrusage` accounting + virtual delay; I/O throttling via controlled delay queues; no external network calls during core execution.  
-**Scale/Scope**: 500 queries (partitioned by depth 1-4+), source types, Multiple execution modes (Router-Selected vs. Optimal), A statistical model run will be performed to address the research question. The method involves statistical modeling. References: [Citation]..
+**Scale/Scope**: A set of queries (partitioned by depth), source types, Multiple execution modes (Router-Selected vs. Optimal), A statistical model run will be performed to address the research question. The method involves statistical modeling. References: [Citation]..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -84,7 +84,7 @@ projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/
 └── requirements.txt
 ```
 
-**Structure Decision**: Single project structure focused on `code/` for simulation and analysis. Separation of `generators`, `simulators` (including `router.py`), and `analysis` ensures modularity. The `state/` directory is explicitly added to track artifact hashes as required by Constitution Principle V. The `contracts/` directory in `specs/` contains the Phase 1 schema definitions (Input Specifications).
+**Structure Decision**: Single project structure focused on `code/` for simulation and analysis. Separation of `generators`, `simulators` (including `router.py`), and `analysis` ensures modularity. The `state/` directory is explicitly added to track artifact hashes as required by Constitution Principle V. The `contracts/` directory in `specs/` contains the initial schema definitions (Input Specifications).
 
 ## Complexity Tracking
 

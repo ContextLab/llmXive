@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisResult
+description: Schema for statistical analysis results.
+type: object
+required:
+  - test_type
+  - f_statistic
+  - p_value
+  - confidence_interval
+  - hypothesis_supported
+properties:
+  test_type:
+    type: string
+    enum: [anova, ancova, sensitivity]
+  f_statistic:
+    type: number
+  p_value:
+    type: number
+  confidence_interval:
+    type: array
+    items:
+      type: number
+  hypothesis_supported:
+    type: boolean
+  slope_ratio:
+    type: number
+    description: Ratio of slopes (graph vs text).
+  spike_point:
+    type: integer
+    description: Complexity level where spike occurs.
+  slope_change:
+    type: number
+    description: Magnitude of slope change.
