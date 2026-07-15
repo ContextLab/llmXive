@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2412.13798",
-  "judged_at": "2026-07-15T09:04:37Z",
+  "judged_at": "2026-07-15T09:15:56Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
-  "rationale": "This paper satisfies criterion (e) as an empirical-population canonical study, providing a large-scale resting-state fMRI dataset specifically for Autism Spectrum Disorder (ASD) which is the exact population and data modality required to investigate the user's question. Additionally, it addresses criterion (b) by establishing the foundational resting-state functional connectivity (RSN) maps for this domain, which are the necessary dependent variables for any subsequent analysis of network centra",
+  "rationale": "This paper satisfies criterion (e) as an empirical-population canonical study because it analyzes resting-state fMRI data specifically from the Autism Spectrum Disorder (ASD) population using the ABIDE dataset, which is the standard resource for this domain. Additionally, it addresses criterion (b) by providing the foundational resting-state network (RSN) data and connectivity patterns necessary to investigate how network properties (like centrality) differ in ASD, even though it focuses on the ",
   "relevant": true
 }

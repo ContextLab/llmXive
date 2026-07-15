@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.11477",
+  "judged_at": "2026-07-15T09:15:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
+  "rationale": "The paper is a general methodological review of machine learning applications in rs-fMRI and does not measure network centrality, functional connectivity patterns specific to Autism Spectrum Disorder, or the causal impact of centrality on connectivity. It fails to satisfy criteria (a) or (b) as it lacks the specific biological mechanism, population, or variables required, and it is not a foundational paper for the specific construct of centrality in ASD (criterion d).",
+  "relevant": false
+}

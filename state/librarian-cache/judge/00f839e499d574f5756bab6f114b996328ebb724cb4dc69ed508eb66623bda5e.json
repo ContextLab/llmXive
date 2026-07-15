@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1202.4751",
+  "judged_at": "2026-07-15T09:15:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
+  "rationale": "The paper is rejected because it studies a distinct empirical population (rat brain) and a different methodological focus (fractal analysis of noise artifacts) without addressing the specific construct of \"network centrality\" or the clinical domain of \"Autism Spectrum Disorder\" required by the user's question. While it deals with resting-state fMRI, it fails to meet the criteria for an empirical-population canonical study (e) or same-mechanism evidence (a) regarding the specific variables of cen",
+  "relevant": false
+}

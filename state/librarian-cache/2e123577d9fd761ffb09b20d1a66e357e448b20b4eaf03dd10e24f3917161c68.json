@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-15T09:04:42Z",
+  "fetched_at": "2026-07-15T09:16:00Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder",
       "target_n": 5
     },
-    "duration_seconds": 46.386,
-    "ended_at": "2026-07-15T09:04:42Z",
+    "duration_seconds": 47.71,
+    "ended_at": "2026-07-15T09:16:00Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Graph theoretical analysis of resting-state fMRI in autism spectrum disorder"
+          "graph theoretical analysis of resting-state fMRI in autism"
         ],
         [
           2,
-          "Hub disruption index in ASD functional brain networks"
+          "hub disruption in autistic brain networks"
         ],
         [
           3,
-          "Degree centrality abnormalities in autism resting-state connectivity"
+          "functional connectivity network topology in ASD"
         ],
         [
           4,
-          "Betweenness centrality alterations in ASD functional connectome"
+          "brain network centrality measures autism spectrum disorder"
         ],
         [
           5,
-          "Small-world network properties in autism spectrum disorder"
+          "resting-state functional connectivity alterations autism"
         ],
         [
           6,
-          "Functional connectivity hubs in autism spectrum disorder"
+          "small-world properties of brain networks in autism"
         ],
         [
           7,
-          "Global efficiency and local efficiency in ASD brain networks"
+          "degree centrality and functional connectivity in ASD"
         ],
         [
           8,
-          "Modular organization of resting-state networks in autism"
+          "betweenness centrality in autistic resting-state networks"
         ],
         [
           9,
-          "Network topology of the default mode network in autism spectrum disorder"
+          "network efficiency and autism spectrum disorder"
         ],
         [
           10,
-          "Central brain regions in autism resting-state functional connectivity"
+          "topological organization of functional brain networks in autism"
         ],
         [
           11,
-          "Graph metrics of functional connectivity in ASD"
+          "modular structure of brain connectivity in ASD"
         ],
         [
           12,
-          "Integration and segregation of brain networks in autism spectrum disorder"
+          "global and local efficiency in autism fMRI"
         ],
         [
           13,
-          "Rich-club organization in the autistic connectome"
+          "brain network reorganization in autism spectrum disorder"
         ],
         [
           14,
-          "Topological abnormalities of resting-state fMRI in ASD"
+          "resting-state network hubs autism"
         ],
         [
           15,
-          "Brain network centrality measures in autism spectrum disorder"
+          "functional network integration and segregation in autism"
         ],
         [
           16,
-          "Functional network topology in children with autism spectrum disorder"
+          "graph metrics of fMRI data in autism"
         ],
         [
           17,
-          "Altered centrality of salience network in autism"
+          "aberrant network centrality in autistic children"
         ],
         [
           18,
-          "Network-based statistics of functional connectivity in ASD"
+          "functional connectivity strength and network topology in ASD"
         ],
         [
           19,
-          "Connectome-wide analysis of network centrality in autism"
+          "brain connectome topology in autism spectrum disorder"
         ],
         [
           20,
-          "Resting-state functional connectivity patterns in autism spectrum disorder"
+          "resting-state network dysconnectivity autism"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Graph theoretical analysis of resting-state fMRI in autism spectrum disorder": 5,
-        "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 0
+        "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 0,
+        "graph theoretical analysis of resting-state fMRI in autism": 4
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "graph theory centrality measures hubness",
-      "autism spectrum disorder resting-state fMRI",
-      "small-world topology modularity efficiency",
-      "functional connectivity strength network metrics",
-      "node degree betweenness centrality biomarker"
+      "graph theory node centrality functional connectome",
+      "ASD resting-state fMRI graph metrics",
+      "small-world topology hub disruption autism",
+      "degree betweenness centrality rsFC network efficiency",
+      "connectome-wide association study centrality phenotypes"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,31 +120,36 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1211.4766"
+        "1309.5840"
       ]
     },
     "per_query_hit_count": {
+      "ASD resting-state fMRI graph metrics": 2,
       "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 3,
-      "autism spectrum disorder resting-state fMRI": 1,
-      "functional connectivity strength network metrics": 2,
-      "graph theory centrality measures hubness": 3,
-      "node degree betweenness centrality biomarker": 3,
-      "small-world topology modularity efficiency": 3
+      "connectome-wide association study centrality phenotypes": 3,
+      "degree betweenness centrality rsFC network efficiency": 3,
+      "graph theory node centrality functional connectome": 3,
+      "small-world topology hub disruption autism": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 2,
       "rejections": [
         {
-          "primary_pointer": "2206.11224",
-          "rationale": "The paper focuses on using Deep Reinforcement Learning as a classification tool to distinguish ASD from neurotypical controls, rather than investigating the biological mechanism of how network centrality impacts resting-state functional connectivity. While it uses the same domain (fMRI in ASD), it does not measure the specific independent variable (network centrality) or the specific dependent relationship (centrality's impact on connectivity) required by the user's question, failing to meet cri",
-          "title": "Deep reinforcement learning for fMRI prediction of Autism Spectrum Disorder"
+          "primary_pointer": "1202.4751",
+          "rationale": "The paper is rejected because it studies a distinct empirical population (rat brain) and a different methodological focus (fractal analysis of noise artifacts) without addressing the specific construct of \"network centrality\" or the clinical domain of \"Autism Spectrum Disorder\" required by the user's question. While it deals with resting-state fMRI, it fails to meet the criteria for an empirical-population canonical study (e) or same-mechanism evidence (a) regarding the specific variables of cen",
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI"
+        },
+        {
+          "primary_pointer": "1812.11477",
+          "rationale": "The paper is a general methodological review of machine learning applications in rs-fMRI and does not measure network centrality, functional connectivity patterns specific to Autism Spectrum Disorder, or the causal impact of centrality on connectivity. It fails to satisfy criteria (a) or (b) as it lacks the specific biological mechanism, population, or variables required, and it is not a foundational paper for the specific construct of centrality in ASD (criterion d).",
+          "title": "Machine learning in resting-state fMRI analysis"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-15T09:03:55Z",
+    "started_at": "2026-07-15T09:15:12Z",
     "term_input": {
       "normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
       "raw": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience"
@@ -169,7 +174,7 @@
           "primary_pointer": "1402.2589"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Partitioning Perfect Graphs into Stars')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -185,7 +190,7 @@
           "primary_pointer": "hep-th/9707234"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -203,7 +208,28 @@
           "primary_pointer": "2311.15289"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Counting cliques without generalized theta graphs')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -220,7 +246,25 @@
           "primary_pointer": "1802.08117"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Topological spaces of persistence modules and their properties')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "eXtended Reality (XR) autism research, ranging from Augmented Reality to Virtual Reality, focuses on socio-emotional abilities and high-functioning autism. However common autism interventions address the entire spectrum over social, sensory and mediation issues. To bridge the gap between autism research and real interventions, we compared existing literature on XR and autism with stakeholders' needs obtained by interviewing 34 skateholders, mainly practitioners. It allow us first to suggest XR use cases that could better support practitioners' interventions, and second to derive design guidelines accordingly. Findings demonstrate that collaborative XR sensory-based and mediation approaches would benefit the entire spectrum, and encourage to consider the overall intervention context when designing XR protocols.",
+          "claimed_authors": [
+            "Valentin Bauer",
+            "Tifanie Bouchara",
+            "Patrick Bourdot"
+          ],
+          "claimed_title": "eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.15983"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches')",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -238,91 +282,7 @@
           "primary_pointer": "1111.0731"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
-        "failed_at": "2026-07-15T09:04:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We employ cut and paste contact topological techniques to classify some tight contact structures on the closed, oriented genus-2 surface times the interval. A boundary condition is specified so that the Euler class of the of the contact structure vanishes when evaluated on each boundary component. We prove that there exists a unique, non-product tight contact structure in this case.",
-          "claimed_authors": [
-            "Tanya Cofer"
-          ],
-          "claimed_title": "A class of tight contact structures on Sigma_2 x I",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2004,
-          "primary_pointer": "math/0411208"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A class of tight contact structures on Sigma_2 x I')",
-        "failed_at": "2026-07-15T09:04:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
-          "claimed_authors": [
-            "ILC Technology Network"
-          ],
-          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.01172"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
-        "failed_at": "2026-07-15T09:04:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
-          "claimed_authors": [
-            "Keita Owari"
-          ],
-          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1304.7934"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
-        "failed_at": "2026-07-15T09:04:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Centrality metrics aim to identify the most relevant nodes in a network. In literature, a broad set of metrics exists, either measuring local or global centrality characteristics. Nevertheless, when networks exhibit a high spectral gap, the usual global centrality measures typically do not add significant information with respect to the degree, i.e., the simplest local metric. To extract new information from this class of networks, we propose the use of the GENeralized Economic comPlexitY index (GENEPY). Despite its original definition within the economic field, the GENEPY can be easily applied and interpreted on a wide range of networks, characterized by high spectral gap, including monopartite and bipartite networks systems. Tests on synthetic and real-world networks show that the GENEPY can shed new light about the nodes centrality, carrying information generally poorly correlated with the nodes number of direct connections (nodes degree).",
-          "claimed_authors": [
-            "Lorenzo Costantini",
-            "Carla Sciarra",
-            "Luca Ridolfi",
-            "Francesco Laio"
-          ],
-          "claimed_title": "Measuring nodes centrality when local and global measures overlap",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.15627"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Measuring nodes centrality when local and global measures overlap')",
-        "failed_at": "2026-07-15T09:04:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mobile Ad hoc Networks are highly dynamic networks. Quality of Service (QoS) routing in such networks is usually limited by the network breakage due to either node mobility or energy depletion of the mobile nodes. Also, to fulfill certain quality parameters, presence of multiple node-disjoint paths becomes essential. Such paths aid in the optimal traffic distribution and reliability in case of path breakages. Thus, to cater various challenges in QoS routing in Mobile Add hoc Networks, a Node Disjoint Multipath Routing Considering Link and Node Stability (NDMLNR) protocol has been proposed by the authors. The metric used to select the paths takes into account the stability of the nodes and the corresponding links. This paper studies various challenges in the QoS routing and presents the characteristic evaluation of NDMLNR w.r.t various existing protocols in this area.",
-          "claimed_authors": [
-            "Shuchita Upadhayaya",
-            "Charu Gandhi"
-          ],
-          "claimed_title": "Node Disjoint Multipath Routing Considering Link and Node Stability protocol: A characteristic Evaluation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.1162"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Node Disjoint Multipath Routing Considering Link and Node Stability protocol: A characteristic Evaluation')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -341,7 +301,93 @@
           "primary_pointer": "1210.5184"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A degree centrality in multi-layered social network')",
-        "failed_at": "2026-07-15T09:04:23Z",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Betweenness centrality is essential in complex network analysis; it characterizes the importance of nodes and edges in networks. It is a crucial problem that exactly computes the betweenness centrality in large networks faster, which urgently needs to be solved. We propose a novel algorithm for betweenness centrality based on the parallel computing of adjacency matrices, which is faster than the existing algorithms for large networks. The time complexity of the algorithm is only related to the number of nodes in the network, not the number of edges. Experimental evidence shows that the algorithm is effective and efficient. This novel algorithm is faster than Brandes' algorithm on small and dense networks and offers excellent solutions for betweenness centrality index computing on large-scale complex networks.",
+          "claimed_authors": [
+            "Yelai Feng",
+            "Huaixi Wang"
+          ],
+          "claimed_title": "A Faster Algorithm for Betweenness Centrality Based on Adjacency Matrices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00162"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A Faster Algorithm for Betweenness Centrality Based on Adjacency Matrices')",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
+          "claimed_authors": [
+            "ILC Technology Network"
+          ],
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Objective For the UK Biobank standardized phenotype codes are associated with patients who have been hospitalized but are missing for many patients who have been treated exclusively in an outpatient setting. We describe a method for phenotype recognition that imputes phenotype codes for all UK Biobank participants. Materials and Methods POPDx (Population-based Objective Phenotyping by Deep Extrapolation) is a bilinear machine learning framework for simultaneously estimating the probabilities of 1,538 phenotype codes. We extracted phenotypic and health-related information of 392,246 individuals from the UK Biobank for POPDx development and evaluation. A total of 12,803 ICD-10 diagnosis codes of the patients were converted to 1,538 Phecodes as gold standard labels. The POPDx framework was evaluated and compared to other available methods on automated multi-phenotype recognition. Results POPDx can predict phenotypes that are rare or even unobserved in training. We demonstrate substantial improvement of automated multi-phenotype recognition across 22 disease categories, and its application in identifying key epidemiological features associated with each phenotype. Conclusions POPDx helps provide well-defined cohorts for downstream studies. It is a general purpose method that can be applied to other biobanks with diverse but incomplete data.",
+          "claimed_authors": [
+            "Lu Yang",
+            "Sheng Wang",
+            "Russ B. Altman"
+          ],
+          "claimed_title": "POPDx: An Automated Framework for Patient Phenotyping across 392,246 Individuals in the UK Biobank Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.11223"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='POPDx: An Automated Framework for Patient Phenotyping across 392,246 Individuals in the UK Biobank Study')",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data from high-energy physics (HEP) experiments are collected with significant financial and human effort and are mostly unique. At the same time, HEP has no coherent strategy for data preservation and re-use. An inter-experimental Study Group on HEP data preservation and long-term analysis was convened at the end of 2008 and held two workshops, at DESY (January 2009) and SLAC (May 2009). This document is an intermediate report to the International Committee for Future Accelerators (ICFA) of the reflections of this Study Group.",
+          "claimed_authors": [
+            " Dphep Study Group"
+          ],
+          "claimed_title": "Data Preservation in High Energy Physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0912.0255"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Data Preservation in High Energy Physics')",
+        "failed_at": "2026-07-15T09:15:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Identifying phenotypes plays an important role in furthering our understanding of disease biology through practical applications within healthcare and the life sciences. The challenge of dealing with the complexities and noise within electronic health records (EHRs) has motivated applications of machine learning in phenotypic discovery. While recent research has focused on finding predictive subtypes for clinical decision support, here we instead focus on the noise that results in phenotypic misclassification, which can reduce a phenotypes ability to detect associations in genome-wide association studies (GWAS). We show that by combining anchor learning and transformer architectures into our proposed model, AnchorBERT, we are able to detect genomic associations only previously found in large consortium studies with 5$\\times$ more cases. When reducing the number of controls available by 50\\%, we find our model is able to maintain 40\\% more significant genomic associations from the GWAS catalog compared to standard phenotype definitions. \\keywords{Phenotyping \\and Machine Learning \\and Semi-Supervised \\and Genetic Association Studies \\and Biological Discovery}",
+          "claimed_authors": [
+            "Andre Vauvelle",
+            "Hamish Tomlinson",
+            "Aaron Sim",
+            "Spiros Denaxas"
+          ],
+          "claimed_title": "Phenotyping with Positive Unlabelled Learning for Genome-Wide Association Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.07451"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Phenotyping with Positive Unlabelled Learning for Genome-Wide Association Studies')",
+        "failed_at": "2026-07-15T09:15:41Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -369,7 +415,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-15T09:04:22Z"
+          "verified_at": "2026-07-15T09:15:40Z"
         }
       },
       {
@@ -392,13 +438,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1309.5840",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.1777,
           "query_relevance_score": 0.7,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-15T09:04:23Z"
+          "verified_at": "2026-07-15T09:15:40Z"
         }
       },
       {
@@ -429,37 +475,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-15T09:04:23Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yiqian Luo",
-            "Qiurong Chen",
-            "Fali Li",
-            "Liang Yi",
-            "Peng Xu",
-            "Yangsong Zhang"
-          ],
-          "title": "Hierarchical feature extraction on functional brain networks for autism spectrum disorder identification with resting-state fMRI data",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2412.02424",
-        "summary": "Autism Spectrum Disorder (ASD) is a pervasive developmental disorder of the central nervous system, primarily manifesting in childhood. It is characterized by atypical and repetitive behaviors. Currently, diagnostic methods mainly rely on questionnaire surveys and behavioral observations, which are prone to misdiagnosis due to their subjective nature. With advancements in medical imaging, MR imaging-based diagnostics have emerged as a more objective alternative. In this paper, we propose a Hierarchical Neural Network model for ASD identification, termed ASD-HNet, which hierarchically extracts features from functional brain networks based on resting-state functional magnetic resonance imaging (rs-fMRI) data. This hierarchical approach enhances the extraction of brain representations, improving diagnostic accuracy and aiding in the identification of brain regions associated with ASD. Specifically, features are extracted at three levels: (1) the local region of interest (ROI) scale, (2) the community scale, and (3) the global representation scale. At the ROI scale, graph convolution is employed to transfer features between ROIs. At the community scale, functional gradients are introduced, and a K-Means clustering algorithm is applied to group ROIs with similar functional gradients into communities. Features from ROIs within the same community are then extracted to characterize the communities. At the global representation scale, we extract global features from the whole community-scale brain networks to represent the entire brain. We validate the effectiveness of our method using the publicly available Autism Brain Imaging Data Exchange I (ABIDE-I) dataset. Experimental results demonstrate that ASD-HNet outperforms existing methods. The code is available at https://github.com/LYQbyte/ASD-HNet.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2412.02424",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.7,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-15T09:04:23Z"
+          "verified_at": "2026-07-15T09:15:40Z"
         }
       },
       {
@@ -483,12 +499,12 @@
           "final_url": "https://arxiv.org/abs/2412.13798",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-15T09:04:34Z"
+          "verified_at": "2026-07-15T09:15:47Z"
         }
       }
     ]
