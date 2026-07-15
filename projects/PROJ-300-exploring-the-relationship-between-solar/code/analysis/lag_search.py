@@ -1,6 +1,6 @@
 """
-Lag search module to find optimal lag.
-File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py
+Lag search module to find optimal propagation lag.
+File: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py
 """
 import numpy as np
 import pandas as pd
@@ -9,51 +9,49 @@ from scipy import stats
 from .correlation import calculate_correlation
 from ..data.lag import apply_lag_shift
 
-def find_optimal_lag(vsw: pd.Series, ey: pd.Series, min_lag: int, max_lag: int, step: int) -> Tuple[int, float, Dict]:
+def find_optimal_lag(df1: pd.DataFrame, df2: pd.DataFrame, min_lag: int = 30, max_lag: int = 90, step: int = 5) -> Tuple[float, float]:
     """
-    Sweep the lag window to find the optimal lag L*.
+    Sweep the lag window and identify the optimal lag that maximizes absolute correlation.
     
     Args:
-        vsw: Solar wind speed series
-        ey: Ey series
-        min_lag: Minimum lag in minutes
-        max_lag: Maximum lag in minutes
-        step: Step size in minutes
+        df1: DataFrame with Vsw (index: timestamp)
+        df2: DataFrame with Ey (index: timestamp)
+        min_lag: Minimum lag in minutes.
+        max_lag: Maximum lag in minutes.
+        step: Step size in minutes.
     
     Returns:
-        Tuple of (optimal_lag, correlation_at_optimal, full_results_dict)
+        Tuple of (optimal_lag, max_correlation)
     """
     lags = list(range(min_lag, max_lag + 1, step))
     correlations = []
     
     for lag in lags:
-        # Apply lag to Vsw (shift Vsw forward in time to align with Ey)
-        # We need to align the indices.
-        # Create a temporary dataframe to apply shift
-        temp_df = pd.DataFrame({'Vsw': vsw, 'Ey': ey})
-        temp_df_shifted = apply_lag_shift(temp_df, lag, 'Vsw')
+        df_shifted = apply_lag_shift(df1, lag, 'Vsw')
         
-        # Drop NaNs
-        valid = temp_df_shifted.dropna()
-        if len(valid) < 10:
+        # Align
+        common_idx = df_shifted.index.intersection(df2.index)
+        if len(common_idx) < 10:
             correlations.append(np.nan)
             continue
         
-        corr, _ = calculate_correlation(valid['Vsw'], valid['Ey'], method='pearson')
-        correlations.append(corr)
+        vsw_shifted = df_shifted.loc[common_idx, 'Vsw_lagged']
+        ey = df2.loc[common_idx, 'Ey']
+        
+        mask = vsw_shifted.notna() & ey.notna()
+        if mask.sum() < 10:
+            correlations.append(np.nan)
+            continue
+        
+        r, _, _, _ = calculate_correlation(vsw_shifted[mask], ey[mask])
+        correlations.append(abs(r))
     
-    # Find max absolute correlation
-    valid_corr = [(l, c) for l, c in zip(lags, correlations) if not np.isnan(c)]
-    if not valid_corr:
-        raise ValueError("No valid correlations found in the lag window.")
+    valid_indices = [i for i, r in enumerate(correlations) if not np.isnan(r)]
+    if not valid_indices:
+        return 0.0, 0.0
     
-    optimal_lag, best_corr = max(valid_corr, key=lambda x: abs(x[1]))
+    best_idx = max(valid_indices, key=lambda i: correlations[i])
+    best_lag = lags[best_idx]
+    best_corr = correlations[best_idx]
     
-    results = {
-        "lags": lags,
-        "correlations": correlations,
-        "optimal_lag": optimal_lag,
-        "correlation_at_optimal": best_corr
-    }
-    
-    return optimal_lag, best_corr, results
+    return float(best_lag), float(best_corr)

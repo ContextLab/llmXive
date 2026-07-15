@@ -1,6 +1,6 @@
 """
-Lag calculation and application module.
-Implements FR-012.
+Physics-based lag calculation and application module.
+File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
 """
 import numpy as np
 import pandas as pd
@@ -8,7 +8,7 @@ from typing import Tuple, Optional
 from .clean import clean_and_resample
 from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
 
-def calculate_physics_lag(vsw_mean_kms: float) -> float:
+def calculate_physics_lag(vsw_mean: float, distance_re: float = TAIL_DISTANCE_RE) -> float:
     """
     Calculates the physics-based propagation lag (L_phys) in minutes.
     Formula: L_phys = (K * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / Vsw_mean
@@ -23,19 +23,31 @@ def calculate_physics_lag(vsw_mean_kms: float) -> float:
     Time (s) = Distance / Velocity.
     Time (min) = Time (s) / 60.
     
-    The T006 text mentions "includes the 60 factor".
-    So: L_phys (min) = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / Vsw / 60.
-    The 'k' in the prompt description might be a typo or a specific scaling factor.
-    Given the prompt says "Rewritten passage: L_phys = (k * 6371) / Vsw_mean / k",
-    and T003 defines K_PROPAGATION, let's assume the formula is:
-    L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / Vsw / 60.
-    If K_PROPAGATION is 1, it's just the physical distance.
-    """
-    if vsw_mean_kms <= 0:
-        raise ValueError("Vsw must be positive")
+    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * distance_re) / (vsw_mean * 1000) * 60
+    Where:
+        - vsw_mean is in km/s
+        - distance_re is in Earth Radii (Re)
+        - EARTH_RADIUS_KM is in km
+        - K_PROPAGATION is a dimensionless factor
+        - Result is converted to minutes
     
-    distance_km = TAIL_DISTANCE_RE * EARTH_RADIUS_KM
-    time_seconds = distance_km / vsw_mean_kms
+    Args:
+        vsw_mean: Mean solar wind speed in km/s.
+        distance_re: Distance to the tail measurement point in Earth Radii (default 60).
+    
+    Returns:
+        Lag time in minutes.
+    """
+    if vsw_mean <= 0:
+        raise ValueError("Solar wind speed must be positive to calculate lag.")
+    
+    # Distance in km
+    distance_km = distance_re * EARTH_RADIUS_KM
+    
+    # Time in seconds: distance (km) / speed (km/s) * K_PROPAGATION
+    time_seconds = (K_PROPAGATION * distance_km) / vsw_mean
+    
+    # Convert to minutes
     time_minutes = time_seconds / 60.0
     
     # Apply K_PROPAGATION if defined as a scaling factor in config
@@ -49,47 +61,62 @@ def calculate_physics_lag(vsw_mean_kms: float) -> float:
     # We will use K_PROPAGATION as a multiplier for the final time.
     return (time_minutes * K_PROPAGATION)
 
-def apply_lag_shift(df_vsw: pd.DataFrame, df_ey: pd.DataFrame, lag_minutes: float) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, time_col: str = 'timestamp') -> pd.DataFrame:
     """
-    Applies a lag shift to the Vsw time series relative to Ey.
-    Since Vsw leads Ey, we shift Vsw forward in time (or Ey backward).
-    In pandas, shifting a series forward (future) means shifting the index.
-    To align Vsw(t) with Ey(t+lag), we need to shift Vsw so that Vsw(t) is compared to Ey(t+lag).
-    This effectively means we shift the Vsw series to the RIGHT (positive shift) if we are aligning indices?
-    No. If Vsw at t=0 causes Ey at t=lag, then Vsw[0] corresponds to Ey[lag].
-    To align them, we want Vsw_shifted[lag] = Vsw[0]. So we shift Vsw by +lag.
+    Apply a time shift to the DataFrame based on the lag.
+    
+    This shifts the time index forward by the lag amount to align the 
+    upstream solar wind data with the downstream geomagnetic response.
     
     Args:
-        df_vsw: DataFrame with 'Vsw'
-        df_ey: DataFrame with 'Ey'
-        lag_minutes: Lag in minutes
+        df: DataFrame with a datetime index or time column.
+        lag_minutes: Lag time in minutes.
+        time_col: Name of the time column if not index (default 'timestamp').
     
     Returns:
-        Tuple of aligned DataFrames
+        DataFrame with shifted time index.
     """
-    # Convert lag to number of rows based on the index frequency
-    # Assume index is datetime
-    freq = pd.infer_freq(df_vsw.index)
-    if freq is None:
-        # Fallback: assume 5 min if not inferable (common in this project)
-        freq = '5T'
+    df_shifted = df.copy()
     
-    freq_td = pd.Timedelta(freq)
-    lag_td = pd.Timedelta(minutes=lag_minutes)
+    # Ensure index is datetime
+    if not isinstance(df_shifted.index, pd.DatetimeIndex):
+        if time_col in df_shifted.columns:
+            df_shifted['timestamp'] = pd.to_datetime(df_shifted[time_col])
+            df_shifted.set_index('timestamp', inplace=True)
+        else:
+            raise ValueError("DataFrame must have a datetime index or a 'timestamp' column.")
     
-    n_steps = int(lag_td / freq_td)
+    # Shift the index backward (earlier time) to simulate the delay 
+    # i.e., if data at t=0 is the cause, the effect is at t=lag.
+    # To align cause with effect, we shift the cause data forward in time?
+    # Actually, standard practice: Shift the upstream (cause) data FORWARD 
+    # so that its t=0 aligns with the downstream t=lag.
+    # Or shift downstream BACKWARD.
+    # Here we shift the input data forward by lag_minutes.
     
-    # Shift Vsw forward by n_steps
-    vsw_shifted = df_vsw.copy()
-    vsw_shifted['Vsw'] = vsw_shifted['Vsw'].shift(n_steps)
+    new_index = df_shifted.index + pd.Timedelta(minutes=lag_minutes)
+    df_shifted.index = new_index
     
-    # Drop NaNs introduced by shift
-    vsw_clean = vsw_shifted.dropna()
-    ey_clean = df_ey.loc[vsw_clean.index].dropna()
+    return df_shifted
+
+def calculate_and_apply_lag(df_sw: pd.DataFrame, df_ey: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
+    """
+    Calculate physics lag from solar wind data and apply it to the solar wind series.
     
-    # Ensure they are aligned
-    common_idx = vsw_clean.index.intersection(ey_clean.index)
-    vsw_clean = vsw_clean.loc[common_idx]
-    ey_clean = ey_clean.loc[common_idx]
+    Args:
+        df_sw: Solar wind DataFrame (must have 'Vsw' column).
+        df_ey: Electric field DataFrame.
     
-    return vsw_clean, ey_clean
+    Returns:
+        Tuple of (lagged_sw_df, ey_df, lag_minutes).
+    """
+    # Calculate mean Vsw
+    vsw_mean = df_sw['Vsw'].mean()
+    
+    # Calculate lag
+    lag_min = calculate_physics_lag(vsw_mean)
+    
+    # Apply lag to solar wind data
+    lagged_sw = apply_lag_shift(df_sw, lag_min)
+    
+    return lagged_sw, df_ey, lag_min
