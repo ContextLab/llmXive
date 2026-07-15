@@ -1,100 +1,162 @@
 import os
 import json
+from typing import Dict, Any, List, Tuple
 import numpy as np
-from typing import Dict, Any, List, Optional, Tuple
-from scipy import stats
 import pandas as pd
+from scipy import stats
 
-def bootstrap_power_estimate(p_values: List[float], n_bootstrap: int = 1000, alpha: float = 0.05) -> Dict[str, float]:
-    """
-    Calculate bootstrapped power estimate from p-values.
-    Returns mean power estimate and confidence interval.
-    """
-    if not p_values:
-        return {'power_estimate': 0.0, 'ci_lower': 0.0, 'ci_upper': 0.0}
+# Paths
+REAL_DATA_PVALUES_PATH = "data/simulation/real_data_pvalues.csv"
+SIMULATED_POWER_PATH = "data/simulation/simulated_power_distribution.json"
+POWER_RESULTS_PATH = "data/simulation/real_data_power.json"
+
+def load_real_data_pvalues(pvalues_path: str = REAL_DATA_PVALUES_PATH) -> List[float]:
+    """Load real data p-values from CSV."""
+    if not os.path.exists(pvalues_path):
+        raise FileNotFoundError(f"Real data p-values file not found: {pvalues_path}")
     
-    p_array = np.array(p_values)
-    n = len(p_array)
-    bootstrap_powers = []
+    df = pd.read_csv(pvalues_path)
+    if 'p_value' not in df.columns:
+        raise ValueError(f"Column 'p_value' not found in {pvalues_path}")
+    
+    return df['p_value'].dropna().tolist()
+
+def load_simulated_power_distribution(power_path: str = SIMULATED_POWER_PATH) -> Dict[str, Any]:
+    """Load simulated power distribution from JSON."""
+    if not os.path.exists(power_path):
+        raise FileNotFoundError(f"Simulated power distribution file not found: {power_path}")
+    
+    with open(power_path, 'r') as f:
+        return json.load(f)
+
+def bootstrap_power_estimate(
+    pvalues: List[float],
+    n_bootstrap: int = 1000,
+    alpha: float = 0.05,
+    random_seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Perform bootstrapped power estimation on p-values.
+    Returns point estimate and confidence interval.
+    """
+    if not pvalues:
+        return {"estimate": None, "ci_lower": None, "ci_upper": None}
+    
+    np.random.seed(random_seed)
+    n = len(pvalues)
+    bootstrap_estimates = []
     
     for _ in range(n_bootstrap):
         # Resample with replacement
-        sample_indices = np.random.choice(n, size=n, replace=True)
-        sample = p_array[sample_indices]
-        # Calculate power for this bootstrap sample
-        power = np.mean(sample < alpha)
-        bootstrap_powers.append(power)
+        sample = np.random.choice(pvalues, size=n, replace=True)
+        # Calculate proportion significant (power estimate)
+        power = np.mean(np.array(sample) < alpha)
+        bootstrap_estimates.append(power)
     
-    bootstrap_powers = np.array(bootstrap_powers)
+    bootstrap_estimates = np.array(bootstrap_estimates)
+    
     return {
-        'power_estimate': float(np.mean(bootstrap_powers)),
-        'ci_lower': float(np.percentile(bootstrap_powers, 2.5)),
-        'ci_upper': float(np.percentile(bootstrap_powers, 97.5)),
-        'n_bootstrap': n_bootstrap
+        "point_estimate": float(np.mean(bootstrap_estimates)),
+        "ci_lower": float(np.percentile(bootstrap_estimates, 2.5)),
+        "ci_upper": float(np.percentile(bootstrap_estimates, 97.5)),
+        "std_error": float(np.std(bootstrap_estimates)),
+        "n_bootstrap": n_bootstrap,
+        "original_sample_size": n
     }
 
-def calculate_ks_distance(simulated: List[float], real: List[float]) -> Tuple[float, float]:
-    """
-    Calculate Kolmogorov-Smirnov distance between two distributions.
-    Returns (KS statistic, p-value).
-    """
+def calculate_ks_distance(simulated: List[float], real: List[float]) -> Dict[str, Any]:
+    """Calculate Kolmogorov-Smirnov distance between two distributions."""
     if not simulated or not real:
-        return (None, None)
+        return {"ks_statistic": None, "p_value": None}
     
-    ks_stat, p_value = stats.ks_2samp(simulated, real)
-    return (float(ks_stat), float(p_value))
+    try:
+        ks_stat, p_val = stats.ks_2samp(simulated, real)
+        return {
+            "ks_statistic": float(ks_stat),
+            "p_value": float(p_val),
+            "valid": True
+        }
+    except Exception as e:
+        return {
+            "ks_statistic": None,
+            "p_value": None,
+            "valid": False,
+            "error": str(e)
+        }
 
-def load_simulated_power_distribution(filepath: str = "data/simulation/error_rates_summary.csv") -> Dict[str, Any]:
-    """Load simulated power distribution from error rates summary."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Simulated power file not found: {filepath}")
-    
-    power_data = {}
-    with open(filepath, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            key = (row['test_type'], row['effect_size'], int(row['sample_size']))
-            # Power = 1 - Type II error rate
-            type_ii_rate = float(row['type_ii_error_rate'])
-            power = 1.0 - type_ii_rate
-            power_data[key] = power
-    
-    return power_data
-
-def run_bootstrapped_validation(real_pvalues: List[float], simulated_pvalues: List[float], n_bootstrap: int = 1000) -> Dict[str, Any]:
+def run_bootstrapped_validation(
+    real_pvalues_path: str = REAL_DATA_PVALUES_PATH,
+    simulated_pvalues_path: str = "data/simulation/p_values_raw.csv",
+    n_bootstrap: int = 1000,
+    alpha: float = 0.05,
+    random_seed: int = 42
+) -> Dict[str, Any]:
     """
-    Run full bootstrapped validation comparing real and simulated data.
+    Run full bootstrapped validation pipeline.
     """
-    # Bootstrap power for real data
-    real_power = bootstrap_power_estimate(real_pvalues, n_bootstrap)
+    # Load data
+    real_pvalues = load_real_data_pvalues(real_pvalues_path)
     
-    # Bootstrap power for simulated data
-    sim_power = bootstrap_power_estimate(simulated_pvalues, n_bootstrap)
+    # Load simulated p-values for comparison
+    if not os.path.exists(simulated_pvalues_path):
+        raise FileNotFoundError(f"Simulated p-values file not found: {simulated_pvalues_path}")
     
-    # KS distance
-    ks_stat, ks_pvalue = calculate_ks_distance(simulated_pvalues, real_pvalues)
+    df_sim = pd.read_csv(simulated_pvalues_path)
+    simulated_pvalues = df_sim['p_value'].dropna().tolist()
     
-    return {
-        'real_power': real_power,
-        'simulated_power': sim_power,
-        'ks_distance': ks_stat,
-        'ks_pvalue': ks_pvalue,
-        'validation_passed': ks_stat <= 0.10 if ks_stat is not None else False
+    # Calculate bootstrapped power estimate
+    power_estimate = bootstrap_power_estimate(
+        real_pvalues, 
+        n_bootstrap=n_bootstrap, 
+        alpha=alpha, 
+        random_seed=random_seed
+    )
+    
+    # Calculate KS distance
+    ks_result = calculate_ks_distance(simulated_pvalues, real_pvalues)
+    
+    # Compile results
+    results = {
+        "timestamp": str(np.datetime64('now')),
+        "real_data": {
+            "sample_size": len(real_pvalues),
+            "bootstrap_power": power_estimate
+        },
+        "comparison": {
+            "ks_distance": ks_result
+        },
+        "validation_passed": ks_result.get("ks_statistic") is not None and ks_result["ks_statistic"] <= 0.10
     }
+    
+    return results
 
-def save_power_results(results: Dict[str, Any], output_path: str = "data/simulation/real_data_power.json") -> None:
+def save_power_results(results: Dict[str, Any], output_path: str = POWER_RESULTS_PATH) -> str:
     """Save power estimation results to JSON."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(results, f, indent=2, default=str)
+    
+    return output_path
 
 def main():
-    """Main function for bootstrapped power estimation (T032)."""
-    print("Running bootstrapped power estimation...")
+    """Main entry point for bootstrapped validation."""
+    print("Running bootstrapped power estimation and validation...")
     
-    # This would typically load real data p-values and compare with simulation
-    # For T034, we focus on saving validation metrics, but T032 needs this too
-    pass
+    try:
+        results = run_bootstrapped_validation()
+        output_path = save_power_results(results)
+        
+        print(f"Results saved to: {output_path}")
+        print(f"Validation passed: {results['validation_passed']}")
+        print(f"KS Statistic: {results['comparison']['ks_distance'].get('ks_statistic')}")
+        
+        return 0
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

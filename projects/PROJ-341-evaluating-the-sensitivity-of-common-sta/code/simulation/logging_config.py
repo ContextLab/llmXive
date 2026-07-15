@@ -5,114 +5,85 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 import json
 
-_logger = None
-_log_file_path = None
+LOG_FILE_PATH = "data/simulation/simulation.log"
+_logger_instance = None
 
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
-    """
-    Setup the global logger.
+def setup_logging():
+    """Configure logging for the simulation."""
+    global _logger_instance
+    if _logger_instance is not None:
+        return _logger_instance
+
+    os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
     
-    Args:
-        log_file: Optional path to log file. Defaults to data/logs/simulation.log
-        
-    Returns:
-        Configured logger instance
-    """
-    global _logger, _log_file_path
-    
-    if _logger is not None:
-        return _logger
-    
-    # Default log file path
-    if log_file is None:
-        log_dir = "data/logs"
-        os.makedirs(log_dir, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = os.path.join(log_dir, f"simulation_{timestamp}.log")
-    
-    _log_file_path = log_file
-    
-    # Create logger
-    _logger = logging.getLogger('sim_logger')
-    _logger.setLevel(logging.INFO)
-    
-    # Clear existing handlers
-    _logger.handlers = []
-    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
     # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    
+    file_handler = logging.FileHandler(LOG_FILE_PATH)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+
     # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    
-    # Formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    _logger.addHandler(fh)
-    _logger.addHandler(ch)
-    
-    return _logger
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
 
-def get_logger() -> Optional[logging.Logger]:
-    """Get the global logger instance."""
-    return _logger
+    # Root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
 
-def log_simulation_params(logger: logging.Logger, args: Any):
+    _logger_instance = logging.getLogger(__name__)
+    return _logger_instance
+
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance."""
+    if _logger_instance is None:
+        setup_logging()
+    return logging.getLogger(name)
+
+def log_simulation_params(logger: logging.Logger, params: Dict[str, Any]):
     """Log simulation parameters."""
-    params = {
-        'mode': args.mode,
-        'test': args.test,
-        'min_n': args.min_n,
-        'max_n': args.max_n,
-        'step_n': args.step_n,
-        'effect_sizes': args.effect_sizes,
-        'hypotheses': args.hypotheses,
-        'alpha': args.alpha,
-        'iterations': args.iterations,
-        'seed': args.seed,
-        'timestamp': datetime.now().isoformat()
-    }
-    logger.info(f"Simulation parameters: {json.dumps(params, indent=2)}")
+    logger.info(f"Simulation Parameters: {json.dumps(params, indent=2)}")
 
-def log_seed_usage(logger: logging.Logger, seed: int, iteration: int):
-    """Log seed usage for reproducibility."""
-    logger.debug(f"Iteration {iteration} using seed: {seed}")
+def log_seed_usage(logger: logging.Logger, seed: int, context: str):
+    """Log usage of a specific seed."""
+    logger.debug(f"Seed {seed} used for: {context}")
 
-def log_iteration_status(logger: logging.Logger, iteration: int, total: int, status: str):
-    """Log iteration status."""
-    logger.info(f"Iteration {iteration}/{total}: {status}")
+def log_iteration_status(logger: logging.Logger, current: int, total: int, status: str):
+    """Log iteration progress."""
+    if current % 100 == 0 or current == total:
+        logger.info(f"Iteration {current}/{total}: {status}")
 
-def log_test_result(logger: logging.Logger, test_type: str, p_value: float, hypothesis: str):
-    """Log test result."""
-    logger.debug(f"Test {test_type}, Hypothesis {hypothesis}, p-value: {p_value}")
+def log_test_result(logger: logging.Logger, test_type: str, n: int, effect_size: float, p_value: float, decision: str):
+    """Log result of a single test."""
+    logger.debug(f"Test: {test_type}, n={n}, es={effect_size}, p={p_value:.4f}, {decision}")
 
 def log_warning_assumption_violated(logger: logging.Logger, test_type: str, assumption: str):
     """Log assumption violation warning."""
-    logger.warning(f"Assumption violated for {test_type}: {assumption}")
+    logger.warning(f"Assumption violated in {test_type}: {assumption}")
 
-def log_fallback_triggered(logger: logging.Logger, original_test: str, fallback_test: str):
-    """Log fallback test trigger."""
-    logger.warning(f"Test {original_test} triggered fallback to {fallback_test}")
+def log_fallback_triggered(logger: logging.Logger, test_type: str, fallback_type: str):
+    """Log fallback trigger."""
+    logger.info(f"Fallback triggered for {test_type}: {fallback_type}")
 
-def log_output_file_written(logger: logging.Logger, file_path: str, count: int):
-    """Log output file write."""
-    logger.info(f"Wrote {count} records to {file_path}")
+def log_output_file_written(logger: logging.Logger, filepath: str):
+    """Log that an output file was written."""
+    logger.info(f"Output file written: {filepath}")
 
-def log_error_details(logger: logging.Logger, error: Exception):
+def log_error_details(logger: logging.Logger, error: Exception, context: str):
     """Log error details."""
-    logger.error(f"Error occurred: {str(error)}")
-    import traceback
-    logger.error(traceback.format_exc())
+    logger.error(f"Error in {context}: {str(error)}", exc_info=True)
 
 def log_shutdown(logger: logging.Logger):
-    """Log shutdown."""
-    if logger:
-        logger.info("Simulation shutdown complete")
+    """Log shutdown message."""
+    logger.info("Simulation shutdown complete.")
 
-def get_log_file_path() -> Optional[str]:
-    """Get the path to the log file."""
-    return _log_file_path
+def get_log_file_path() -> str:
+    """Return the path to the log file."""
+    return LOG_FILE_PATH

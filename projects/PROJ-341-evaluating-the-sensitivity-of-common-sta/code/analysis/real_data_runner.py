@@ -4,6 +4,7 @@ import json
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 from code.analysis.validator import (
     download_breast_cancer_dataset,
@@ -11,165 +12,187 @@ from code.analysis.validator import (
     download_adult_dataset,
     prepare_data_for_ttest,
     prepare_data_for_anova,
-    prepare_data_for_chi_squared,
-    load_simulation_metadata,
-    save_simulation_metadata
+    prepare_data_for_chi_squared
 )
-from code.simulation.test_runner import run_t_test, run_anova, run_chi_squared
-from code.simulation.logging_config import get_logger
 
-logger = get_logger(__name__)
+# Paths
+REAL_DATA_PVALUES_PATH = "data/simulation/real_data_pvalues.csv"
+DATA_RAW_DIR = "data/raw"
 
-def load_prepared_data(dataset_name: str) -> Optional[pd.DataFrame]:
-    """Loads prepared data from the data/raw directory."""
-    path = os.path.join("data", "raw", f"{dataset_name}_prepared.csv")
-    if os.path.exists(path):
-        return pd.read_csv(path)
-    return None
-
-def run_ttest_on_dataset(df: pd.DataFrame, group_col: str, target_col: str) -> List[float]:
-    """Runs t-test on the dataset and returns a list of p-values."""
-    p_values = []
+def run_ttest_on_dataset(
+    df: pd.DataFrame,
+    group_col: str,
+    value_col: str,
+    group1: str,
+    group2: str
+) -> Dict[str, Any]:
+    """
+    Run independent t-test on dataset.
+    Returns p-value and test statistics.
+    """
     try:
-        # Assuming binary group for t-test
-        groups = df[group_col].unique()
-        if len(groups) != 2:
-            logger.warning(f"t-test requires 2 groups, found {len(groups)} for {group_col}")
-            return p_values
+        group1_data = df[df[group_col] == group1][value_col].dropna()
+        group2_data = df[df[group_col] == group2][value_col].dropna()
         
-        group1 = df[df[group_col] == groups[0]][target_col]
-        group2 = df[df[group_col] == groups[1]][target_col]
+        if len(group1_data) < 2 or len(group2_data) < 2:
+            return {"p_value": None, "statistic": None, "error": "Insufficient data"}
         
-        if len(group1) < 2 or len(group2) < 2:
-            return p_values
+        t_stat, p_val = stats.ttest_ind(group1_data, group2_data)
         
-        # Run t-test
-        stat, p = run_t_test(group1.values, group2.values, alpha=0.05)
-        p_values.append(p)
+        return {
+            "test_type": "t-test",
+            "p_value": float(p_val),
+            "statistic": float(t_stat),
+            "n_group1": len(group1_data),
+            "n_group2": len(group2_data)
+        }
     except Exception as e:
-        logger.error(f"Error running t-test: {e}")
-    return p_values
+        return {"test_type": "t-test", "p_value": None, "error": str(e)}
 
-def run_anova_on_dataset(df: pd.DataFrame, group_col: str, target_col: str) -> List[float]:
-    """Runs ANOVA on the dataset and returns a list of p-values."""
-    p_values = []
+def run_anova_on_dataset(
+    df: pd.DataFrame,
+    group_col: str,
+    value_col: str
+) -> Dict[str, Any]:
+    """
+    Run one-way ANOVA on dataset.
+    Returns p-value and F-statistic.
+    """
     try:
         groups = df[group_col].unique()
         if len(groups) < 2:
-            return p_values
+            return {"p_value": None, "statistic": None, "error": "Need at least 2 groups"}
         
-        group_data = [df[df[group_col] == g][target_col].values for g in groups]
+        group_data = [df[df[group_col] == g][value_col].dropna() for g in groups]
         
         if any(len(g) < 2 for g in group_data):
-            return p_values
+            return {"p_value": None, "statistic": None, "error": "Insufficient data in some groups"}
         
-        stat, p = run_anova(group_data, alpha=0.05)
-        p_values.append(p)
+        f_stat, p_val = stats.f_oneway(*group_data)
+        
+        return {
+            "test_type": "anova",
+            "p_value": float(p_val),
+            "statistic": float(f_stat),
+            "n_groups": len(groups),
+            "groups": list(groups)
+        }
     except Exception as e:
-        logger.error(f"Error running ANOVA: {e}")
-    return p_values
+        return {"test_type": "anova", "p_value": None, "error": str(e)}
 
-def run_chi_squared_on_dataset(df: pd.DataFrame, col1: str, col2: str) -> List[float]:
-    """Runs Chi-squared test on the dataset and returns a list of p-values."""
-    p_values = []
+def run_chi_squared_on_dataset(
+    df: pd.DataFrame,
+    col1: str,
+    col2: str
+) -> Dict[str, Any]:
+    """
+    Run chi-squared test of independence on dataset.
+    Returns p-value and chi-squared statistic.
+    """
     try:
-        # Create contingency table
         contingency = pd.crosstab(df[col1], df[col2])
         
         if contingency.shape[0] < 2 or contingency.shape[1] < 2:
-            return p_values
+            return {"p_value": None, "statistic": None, "error": "Need 2x2 or larger table"}
         
-        stat, p, dof, expected = run_chi_squared(contingency.values, alpha=0.05)
-        p_values.append(p)
+        chi2_stat, p_val, dof, expected = stats.chi2_contingency(contingency)
+        
+        return {
+            "test_type": "chi-squared",
+            "p_value": float(p_val),
+            "statistic": float(chi2_stat),
+            "degrees_of_freedom": int(dof),
+            "table_shape": list(contingency.shape)
+        }
     except Exception as e:
-        logger.error(f"Error running Chi-squared: {e}")
-    return p_values
+        return {"test_type": "chi-squared", "p_value": None, "error": str(e)}
 
-def save_p_values_to_csv(results: Dict[str, List[float]], output_path: str) -> None:
-    """Saves p-values to a CSV file."""
+def save_p_values_to_csv(results: List[Dict[str, Any]], output_path: str = REAL_DATA_PVALUES_PATH) -> str:
+    """Save p-value results to CSV."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['dataset', 'test_type', 'p_value'])
+        writer = csv.DictWriter(f, fieldnames=['dataset', 'test_type', 'p_value', 'statistic', 'details'])
+        writer.writeheader()
         
-        for dataset, tests in results.items():
-            for test_type, p_vals in tests.items():
-                for p in p_vals:
-                    writer.writerow([dataset, test_type, p])
+        for result in results:
+            row = {
+                'dataset': result.get('dataset', 'unknown'),
+                'test_type': result.get('test_type', 'unknown'),
+                'p_value': result.get('p_value'),
+                'statistic': result.get('statistic'),
+                'details': json.dumps({k: v for k, v in result.items() if k not in ['dataset', 'test_type', 'p_value', 'statistic']})
+            }
+            writer.writerow(row)
+    
+    return output_path
+
+def load_p_values_to_csv_safe(pvalues_path: str = REAL_DATA_PVALUES_PATH) -> List[Dict[str, Any]]:
+    """Safely load p-values from CSV."""
+    if not os.path.exists(pvalues_path):
+        return []
+    
+    results = []
+    with open(pvalues_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            results.append(row)
+    return results
 
 def main():
-    """
-    Main entry point for running statistical tests on real datasets.
-    Downloads datasets, prepares them, runs tests, and saves p-values.
-    """
-    logger.info("Starting Real Data Runner")
+    """Main entry point: download datasets, run tests, save results."""
+    print("Running statistical tests on real-world datasets...")
     
-    # Ensure data/raw directory exists
-    os.makedirs("data/raw", exist_ok=True)
+    results = []
     
-    # Download datasets
-    logger.info("Downloading datasets...")
-    download_breast_cancer_dataset()
-    download_wine_dataset()
-    download_adult_dataset()
+    # 1. Breast Cancer Dataset (T-test)
+    try:
+        print("Processing Breast Cancer dataset...")
+        df_bc = download_breast_cancer_dataset()
+        if df_bc is not None:
+            # Use diagnosis as group, mean radius as value
+            result = run_ttest_on_dataset(df_bc, 'diagnosis', 'radius_mean', 'B', 'M')
+            result['dataset'] = 'breast_cancer'
+            results.append(result)
+    except Exception as e:
+        print(f"Error processing Breast Cancer: {e}")
     
-    # Prepare datasets
-    logger.info("Preparing datasets...")
-    # Breast Cancer: T-test (diagnosis vs some feature)
-    bc_df = prepare_data_for_ttest("breast_cancer")
-    # Wine: ANOVA (class vs some feature)
-    wine_df = prepare_data_for_anova("wine")
-    # Adult: Chi-squared (two categorical features)
-    adult_df = prepare_data_for_chi_squared("adult")
+    # 2. Wine Dataset (ANOVA)
+    try:
+        print("Processing Wine dataset...")
+        df_wine = download_wine_dataset()
+        if df_wine is not None:
+            # Use class as group, alcohol as value
+            result = run_anova_on_dataset(df_wine, 'class', 'alcohol')
+            result['dataset'] = 'wine'
+            results.append(result)
+    except Exception as e:
+        print(f"Error processing Wine: {e}")
     
-    results = {}
-    
-    # Run tests on Breast Cancer
-    if bc_df is not None:
-        logger.info("Running tests on Breast Cancer dataset...")
-        # Assume 'diagnosis' is the target and 'radius_mean' is a feature
-        # We need a binary group column. Let's assume we created one or use existing.
-        # For demonstration, we'll try to run t-test on a numeric feature grouped by diagnosis
-        # But t-test_on_dataset expects a group_col and target_col.
-        # Let's assume the prepared data has 'group' and 'value' columns.
-        if 'group' in bc_df.columns and 'value' in bc_df.columns:
-            results['breast_cancer'] = {
-                't-test': run_ttest_on_dataset(bc_df, 'group', 'value')
-            }
-    
-    # Run tests on Wine
-    if wine_df is not None:
-        logger.info("Running tests on Wine dataset...")
-        # ANOVA: class vs feature
-        if 'class' in wine_df.columns and 'feature' in wine_df.columns:
-            results['wine'] = {
-                'anova': run_anova_on_dataset(wine_df, 'class', 'feature')
-            }
-    
-    # Run tests on Adult
-    if adult_df is not None:
-        logger.info("Running tests on Adult dataset...")
-        # Chi-squared: two categorical columns
-        if 'col1' in adult_df.columns and 'col2' in adult_df.columns:
-            results['adult'] = {
-                'chi-squared': run_chi_squared_on_dataset(adult_df, 'col1', 'col2')
-            }
+    # 3. Adult Dataset (Chi-squared)
+    try:
+        print("Processing Adult dataset...")
+        df_adult = download_adult_dataset()
+        if df_adult is not None:
+            # Use gender and income as categorical variables
+            result = run_chi_squared_on_dataset(df_adult, 'gender', 'income')
+            result['dataset'] = 'adult'
+            results.append(result)
+    except Exception as e:
+        print(f"Error processing Adult: {e}")
     
     # Save results
-    output_path = "data/simulation/real_data_pvalues.csv"
-    save_p_values_to_csv(results, output_path)
-    logger.info(f"Real data p-values saved to {output_path}")
+    if results:
+        output_path = save_p_values_to_csv(results)
+        print(f"Results saved to: {output_path}")
+        
+        # Print summary
+        for r in results:
+            print(f"{r['dataset']}/{r['test_type']}: p={r.get('p_value')}")
+    else:
+        print("No results to save.")
     
-    # Update metadata
-    meta = load_simulation_metadata()
-    meta['real_data_runs'] = meta.get('real_data_runs', [])
-    meta['real_data_runs'].append({
-        'timestamp': str(datetime.now()),
-        'datasets': list(results.keys()),
-        'output_file': output_path
-    })
-    save_simulation_metadata(meta)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

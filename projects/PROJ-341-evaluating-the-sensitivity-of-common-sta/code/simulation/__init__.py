@@ -1,40 +1,24 @@
-import os
 import numpy as np
-from typing import Optional
 import json
+import os
 
-_global_seed = None
-_rng_instance = None
+_rng = None
+_base_seed = 42
 
-def set_seed(seed: int):
-    """Set the global random seed for reproducibility."""
-    global _global_seed, _rng_instance
-    _global_seed = seed
-    _rng_instance = np.random.default_rng(seed)
-
-def get_rng(seed: Optional[int] = None):
-    """
-    Get a random number generator instance.
-    
-    Args:
-        seed: Optional seed. If None, uses global seed or creates a new one.
-        
-    Returns:
-        numpy.random.Generator instance
-    """
-    global _global_seed, _rng_instance
-    
+def get_rng(seed: int = None):
+    """Get a numpy random generator with deterministic seeding."""
+    global _rng
     if seed is not None:
         return np.random.default_rng(seed)
-    elif _global_seed is not None:
-        return np.random.default_rng(_global_seed)
-    else:
-        # If no seed is set, use a random one but log it
-        s = np.random.integers(0, 2**32)
-        return np.random.default_rng(s)
+    if _rng is None:
+        _rng = np.random.default_rng(_base_seed)
+    return _rng
 
-def reset_rng():
-    """Reset the RNG to initial state."""
-    global _global_seed, _rng_instance
-    _global_seed = None
-    _rng_instance = None
+def set_base_seed(seed: int):
+    """Set the base seed for the simulation."""
+    global _base_seed, _rng
+    _base_seed = seed
+    _rng = np.random.default_rng(_base_seed)
+
+if __name__ == '__main__':
+    print("Simulation Module")
