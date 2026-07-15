@@ -15,6 +15,7 @@ without changing public APIs.
 from __future__ import annotations
 
 import logging
+import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -242,23 +243,37 @@ def _active_tasks_md(project_dir: Path, *, track: str) -> Path | None:
 # state, and distinct from `[X]` (verifier-accepted, truly done).
 UNDER_REVIEW_MARK = "- [~]"
 
+#: A REAL task line: a checkbox at the start of a line (leading indent allowed for
+#: subtasks). Anchored with re.M so a `- [ ]` appearing INSIDE prose — most often the
+#: tasks.md's own "## Format: `- [ ] T### …`" documentation header — is NOT miscounted
+#: as an open task. That literal example kept `_all_tasks_done` False forever and
+#: stranded PROJ-148 at in_progress (all 60 tasks done, execution never ran) for 16
+#: days. Mirrors task_verifier._TASK_LINE_RE (require a space after the box).
+_TASK_LINE_RE = re.compile(r"^\s*-\s*\[([ xX~])\]\s", re.MULTILINE)
+
+
+def _task_marks(text: str) -> list[str]:
+    """The mark of every real checkbox task line: ``' '`` | ``'x'`` | ``'X'`` | ``'~'``."""
+    return _TASK_LINE_RE.findall(text)
+
+
+def _tasks_all_done(text: str) -> bool:
+    marks = _task_marks(text)
+    return bool(marks) and all(m in ("x", "X") for m in marks)
+
 
 def _all_tasks_done(project_dir: Path) -> bool:
     tasks = _active_tasks_md(project_dir, track="research")
     if tasks is None:
         return False
-    text = tasks.read_text(encoding="utf-8")
-    has_any = "[ ]" in text or "[X]" in text or "[x]" in text or "[~]" in text
-    return has_any and "[ ]" not in text and "[~]" not in text
+    return _tasks_all_done(tasks.read_text(encoding="utf-8"))
 
 
 def _all_paper_tasks_done(project_dir: Path) -> bool:
     tasks = _active_tasks_md(project_dir, track="paper")
     if tasks is None:
         return False
-    text = tasks.read_text(encoding="utf-8")
-    has_any = "[ ]" in text or "[X]" in text or "[x]" in text or "[~]" in text
-    return has_any and "[ ]" not in text and "[~]" not in text
+    return _tasks_all_done(tasks.read_text(encoding="utf-8"))
 
 
 def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
@@ -271,12 +286,15 @@ def _incomplete_task_count(project_dir: Path, *, paper: bool) -> int:
     task is also incomplete — the project may not advance until the independent
     task-verifier accepts it. Returns a large sentinel when no tasks.md exists yet
     (treated as "not drainable this tick"). Resolves the ACTIVE feature dir (SSoT)
-    so the loop drains the REAL tasks.md, not a stale ghost spec dir."""
+    so the loop drains the REAL tasks.md, not a stale ghost spec dir.
+
+    Counts real checkbox LINES only (:data:`_TASK_LINE_RE`) — a `- [ ]` in the
+    format-doc header is not an open task."""
     tasks = _active_tasks_md(project_dir, track="paper" if paper else "research")
     if tasks is None:
         return -1
-    text = tasks.read_text(encoding="utf-8")
-    return text.count("- [ ]") + text.count(UNDER_REVIEW_MARK)
+    marks = _task_marks(tasks.read_text(encoding="utf-8"))
+    return sum(1 for m in marks if m in (" ", "~"))
 
 
 def _run_task_verification(

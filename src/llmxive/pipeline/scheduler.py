@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -472,7 +473,15 @@ def _remaining_tasks(project: Project, *, repo_root: Path | None) -> int:
         text = (fdir / "tasks.md").read_text(encoding="utf-8")
     except OSError:
         return _NO_TASKS_SENTINEL
-    return text.count("- [ ]") + text.count("- [~]")
+    # Count real checkbox LINES, not any `- [ ]` substring — the tasks.md's own
+    # "## Format: `- [ ] T### …`" header contains the literal example and must not
+    # read as an open task (same phantom-marker bug that stranded PROJ-148; see
+    # graph._TASK_LINE_RE). Anchored per-line, indent allowed for subtasks.
+    return len(_OPEN_TASK_RE.findall(text))
+
+
+#: A real OPEN or under-review checkbox line (see _remaining_tasks).
+_OPEN_TASK_RE = re.compile(r"^\s*-\s*\[[ ~]\]\s", re.MULTILINE)
 
 
 #: Sorts a project with no readable tasks.md to the BACK of its implement queue.
