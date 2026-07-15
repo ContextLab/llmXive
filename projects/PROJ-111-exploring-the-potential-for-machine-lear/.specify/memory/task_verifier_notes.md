@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T006b** — The required file `specs/001-gene-regulation/contracts/dataset.schema.yaml` is not present in the provided evidence, nor is any content shown that defines the dataset fields, types, or constraints. Without this schema file, the task is not satisfied.
+- **T006c** — No `specs/001-gene-regulation/contracts/latent-output.schema.yaml` file was presented; the response contains only the task description and project excerpt, with no schema content. The required artifact is missing, so the task is not satisfied.
+- **T006d** — No `specs/001-gene-regulation/contracts/model-checkpoint.schema.yaml` file or its contents were provided; the claim lacks the required schema definition artifact. The implementer must add a non‑empty YAML file at the specified path that lists the checkpoint fields, their data types, and any constraints.
+- **T007** — The provided `code/utils.py` stops mid‑implementation of `calculate_magnetic_susceptibility` (the function body is missing) and the file is truncated, so other expected utilities such as the finite‑size scaling extrapolation are not present. Consequently the required functions are not fully implemented, and the artifact does not satisfy the task. The missing implementations must be added and the file completed.
+- **T008** — No `.env` configuration file, seed/path definitions, or logging setup (e.g., Python logging config, log files, or utility modules) were presented. The required artifacts for environment management and logging infrastructure are missing, so the task is not satisfied.
