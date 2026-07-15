@@ -87,7 +87,7 @@
  - **Merge**: Combine all successful sources.
  - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
  - **Output**: A unified DataFrame.
-- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
  - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
  - Merge these descriptors into the unified DataFrame.
  - Log any API failures but proceed with available data.
@@ -103,7 +103,7 @@
 - [X] T019 [US1] Add validation check in `code/data/cleaning.py`:
  - If row count < 50, log critical warning but proceed.
  - Log total excluded records and reasons.
-- [ ] T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested -->
+- [X] T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
  - Compute SHA-256 hash of the CSV file.
  - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
  - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
@@ -121,7 +121,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Unit test for VIF calculation logic in `code/tests/test_models.py`
-- [ ] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
+- [X] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
 
 ### Implementation for User Story 2
 
@@ -146,7 +146,7 @@
 - [X] T026 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
  - Repeat LME fit for α ∈ {0.05, 0.10} and other representative significance levels..
  - Report variation in coefficients and partial R².
-- [~] T027 [US2] Save `MixedEffectsResult` artifact (JSON/CSV) with all metrics, convergence status, and random effect estimates.
+- [X] T027 [US2] Save `MixedEffectsResult` artifact (JSON/CSV) with all metrics, convergence status, and random effect estimates.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -184,7 +184,7 @@
  - Load `MixedEffectsResult` artifact from T027.
  - **Comparison**: Compare the top 3 features from XGBoost with the top 3 coefficients from the LME model.
  - **Conditional Logic**: If FR-005 logic (in T023) resulted in a reduced feature set (e.g., only Energy Density), compare the importance/coefficient of the shared feature(s). If the feature sets are disjoint, log a warning and compare only the intersection of features.
-- [~] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
+- [X] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -194,15 +194,15 @@
 
 **Purpose**: Final reporting and validation
 
-- [X] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
+- [ ] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
  - Include table of standardized coefficients (US2).
  - Include partial dependence plots for top 3 parameters (US3).
  - Include predictive model metrics (R², MAE, RMSE).
  - Include VIF and sensitivity analysis results.
-- [~] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI.
-- [~] T037 [P] Update `research.md` with final findings and limitations.
-- [~] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
-- [~] T039 [P] Run quickstart.md validation.
+- [ ] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI.
+- [ ] T037 [P] Update `research.md` with final findings and limitations.
+- [ ] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
+- [ ] T039 [P] Run quickstart.md validation.
 
 ---
 

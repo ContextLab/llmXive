@@ -1,10 +1,9 @@
 """
-Task T020: Version the data/curated_builds.csv artifact.
+Artifact Versioning Module for PROJ-224.
 
-This module computes the SHA-256 hash of the curated dataset and records
-it in the project state file at state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml.
+This module handles the computation of SHA-256 hashes for data artifacts
+and manages the central state file where these hashes are recorded.
 """
-
 import hashlib
 import logging
 import os
@@ -12,101 +11,155 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-import yaml
+# Project root relative to this file (code/data/ -> root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-224-predicting-the-ductility-of-additively-m.yaml"
+CURATED_DATA_PATH = PROJECT_ROOT / "data" / "curated_builds.csv"
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CSV_PATH = PROJECT_ROOT / "data" / "curated_builds.csv"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE = STATE_DIR / "PROJ-224-predicting-the-ductility-of-additively-m.yaml"
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """
+    Compute the SHA-256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found: {file_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error computing hash for {file_path}: {e}")
-        raise
+    except IOError as e:
+        raise IOError(f"Error reading file {file_path}: {e}") from e
 
-def ensure_state_file(state_file: Path) -> dict:
-    """Ensure the state YAML file exists and return its contents."""
-    if not state_file.parent.exists():
-        logger.info(f"Creating state directory: {state_file.parent}")
-        state_file.parent.mkdir(parents=True, exist_ok=True)
 
-    if state_file.exists():
-        with open(state_file, "r", encoding="utf-8") as f:
-            try:
-                data = yaml.safe_load(f) or {}
-                return data
-            except yaml.YAMLError as e:
-                logger.warning(f"Error parsing existing state file: {e}. Starting fresh.")
-                return {}
-    else:
-        logger.info(f"State file not found. Creating new: {state_file}")
-        return {}
-
-def save_state(state_file: Path, data: dict) -> None:
-    """Save the state dictionary to the YAML file."""
-    with open(state_file, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-    logger.info(f"State saved to {state_file}")
-
-def version_artifact(csv_path: Path, state_file: Path) -> str:
+def ensure_state_file() -> Path:
     """
-    Compute SHA-256 hash of the CSV and record it in the state file.
+    Ensure the state directory and file exist.
 
     Returns:
-        str: The computed hash.
+        Path to the state YAML file.
     """
-    if not csv_path.exists():
-        raise FileNotFoundError(
-            f"Curated dataset not found at {csv_path}. "
-            "Please ensure T015-T019 have been executed successfully."
-        )
+    state_dir = STATE_FILE_PATH.parent
+    state_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Computing hash for {csv_path}")
-    file_hash = compute_sha256(csv_path)
-    logger.info(f"SHA-256 hash: {file_hash}")
+    if not STATE_FILE_PATH.exists():
+        logger.info(f"Creating new state file at {STATE_FILE_PATH}")
+        # Initialize with empty structure
+        with open(STATE_FILE_PATH, "w", encoding="utf-8") as f:
+            f.write("project_id: PROJ-224-predicting-the-ductility-of-additively-m\n")
+            f.write("artifact_hashes: {}\n")
+    else:
+        logger.debug(f"State file already exists at {STATE_FILE_PATH}")
 
-    state_data = ensure_state_file(state_file)
+    return STATE_FILE_PATH
 
+
+def save_state(hashes: dict) -> None:
+    """
+    Save the artifact hashes to the state YAML file.
+
+    Args:
+        hashes: Dictionary mapping artifact names to their SHA-256 hashes.
+    """
+    import yaml
+
+    # Ensure state file exists
+    ensure_state_file()
+
+    # Read existing content
+    with open(STATE_FILE_PATH, "r", encoding="utf-8") as f:
+        try:
+            state_data = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            logger.warning(f"Could not parse existing state file: {e}. Overwriting.")
+            state_data = {}
+
+    # Update artifact_hashes
     if "artifact_hashes" not in state_data:
         state_data["artifact_hashes"] = {}
 
-    state_data["artifact_hashes"]["curated_builds_csv"] = file_hash
+    state_data["artifact_hashes"].update(hashes)
 
-    save_state(state_file, state_data)
-    logger.info(f"Hash recorded in {state_file}")
+    # Write back
+    with open(STATE_FILE_PATH, "w", encoding="utf-8") as f:
+        yaml.safe_dump(state_data, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"Updated state file at {STATE_FILE_PATH}")
+
+
+def version_artifact(artifact_path: Path, artifact_name: Optional[str] = None) -> str:
+    """
+    Compute the hash of an artifact and record it in the state file.
+
+    Args:
+        artifact_path: Path to the artifact file.
+        artifact_name: Optional name for the artifact. Defaults to the file stem.
+
+    Returns:
+        The computed SHA-256 hash.
+
+    Raises:
+        FileNotFoundError: If the artifact file does not exist.
+    """
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found for versioning: {artifact_path}")
+
+    if artifact_name is None:
+        artifact_name = artifact_path.stem
+
+    logger.info(f"Versioning artifact: {artifact_name} -> {artifact_path}")
+
+    # Compute hash
+    file_hash = compute_sha256(artifact_path)
+    logger.info(f"Computed SHA-256 for {artifact_name}: {file_hash}")
+
+    # Save to state
+    save_state({artifact_name: file_hash})
 
     return file_hash
 
-def main():
-    """Entry point for the versioning script."""
-    logger.info("Starting T020: Artifact Versioning")
+
+def main() -> int:
+    """
+    Main entry point for versioning the curated dataset.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
     try:
-        file_hash = version_artifact(CSV_PATH, STATE_FILE)
-        logger.info(f"Task T020 completed successfully. Hash: {file_hash}")
+        if not CURATED_DATA_PATH.exists():
+            logger.error(f"Curated data file not found at {CURATED_DATA_PATH}")
+            logger.error("Please ensure T017 (data cleaning) has been run successfully.")
+            return 1
+
+        hash_value = version_artifact(CURATED_DATA_PATH, "curated_builds_csv")
+        logger.info(f"SUCCESS: Artifact versioned. Hash: {hash_value}")
+        logger.info(f"State file updated at: {STATE_FILE_PATH}")
         return 0
-    except FileNotFoundError as e:
-        logger.error(f"Task T020 failed: {e}")
-        return 1
+
     except Exception as e:
-        logger.error(f"Unexpected error during T020: {e}")
+        logger.error(f"Failed to version artifact: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -112,3 +112,58 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T01:31:29Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: curated dataset contains 50 or more rows
+  claim_id: c_4cce73f5
+  context: 'Dataset Size: The final curated dataset contains $N$ rows (where $N \ge
+    50$), sufficient for the statistical analyses performed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final curated dataset contains N rows (where N >= 50), sufficient
+    for the statistical analyses performed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:47Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: dataset size is less than 100 rows
+  claim_id: c_f1ae7c44
+  context: 'Splitting Strategy: Given the dataset size ($N < 100$), a Leave-One-Alloy-Family-Out
+    (LOAFO) cross-validation strategy was employed to ensure the model generalizes
+    across different material families.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_less_than_100_rows
+  kind: magnitude
+  raw_text: Given the dataset size (N < 100), a Leave-One-Alloy-Family-Out (LOAFO)
+    cross-validation strategy was employed to ensure the model generalizes across
+    different material families.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:26:39Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: dataset contains approximately 50 to 100 rows
+  claim_id: c_c2d8efc4
+  context: 'Data Scarcity: The dataset is limited to ~50-100 rows, primarily derived
+    from a few literature sources.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is limited to ~50-100 rows, primarily derived from a few literature
+    sources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:26:58Z'

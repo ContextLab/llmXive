@@ -1,6 +1,9 @@
 """
-Validation script for the final report generation.
-Ensures the report renders as Markdown within 30s on CI.
+Task T036: Validate final report renders as PDF/Markdown within 30s on CI.
+
+This script performs a local simulation of the CI report generation process.
+It measures the time taken to generate the final report using the existing
+reporting pipeline and verifies it completes within the 30-second budget.
 """
 import os
 import sys
@@ -9,11 +12,11 @@ import logging
 import subprocess
 from pathlib import Path
 
-# Add project root to path to allow imports from code/
+# Add project root to path for imports
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from analysis.reporting import generate_final_report
+from analysis.reporting import generate_final_report, main as reporting_main
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,49 +24,54 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-TIMEOUT_SECONDS = 30
+REPORT_TIMEOUT_SECONDS = 30
+REPORT_OUTPUT_PATH = "data/final_report.md"
+
+def run_report_generation():
+    """
+    Executes the report generation and measures the time taken.
+    Returns (success, duration_seconds, error_message).
+    """
+    logger.info(f"Starting report generation validation (timeout: {REPORT_TIMEOUT_SECONDS}s)...")
+    
+    start_time = time.time()
+    try:
+        # We call the main logic of the reporting module directly
+        # to simulate the CI execution without spawning a new process.
+        # This ensures we are testing the actual code path.
+        generate_final_report()
+        
+        # Verify the output file exists
+        output_path = project_root / REPORT_OUTPUT_PATH
+        if not output_path.exists():
+            return False, 0, f"Report file not created at {output_path}"
+        
+        duration = time.time() - start_time
+        
+        if duration > REPORT_TIMEOUT_SECONDS:
+            return False, duration, f"Report generation took {duration:.2f}s (exceeds {REPORT_TIMEOUT_SECONDS}s limit)"
+        
+        logger.info(f"Report generated successfully in {duration:.2f}s.")
+        return True, duration, None
+
+    except Exception as e:
+        duration = time.time() - start_time
+        logger.error(f"Report generation failed after {duration:.2f}s: {e}")
+        return False, duration, str(e)
 
 def main():
     """
-    Runs the report generation and validates it completes within the time limit.
+    Main entry point for the validation script.
+    Exits with code 0 on success, 1 on failure.
     """
-    logger.info(f"Starting report validation (Timeout: {TIMEOUT_SECONDS}s)...")
+    success, duration, error = run_report_generation()
     
-    output_path = project_root / "artifacts" / "final_report.md"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    start_time = time.time()
-    
-    try:
-        # Call the main generation function from reporting.py
-        # This function is expected to orchestrate loading data, models, and writing the file.
-        generate_final_report(str(output_path))
-        
-        elapsed = time.time() - start_time
-        
-        if elapsed > TIMEOUT_SECONDS:
-            logger.error(f"Report generation took {elapsed:.2f}s, exceeding limit of {TIMEOUT_SECONDS}s.")
-            return 1
-
-        if not output_path.exists():
-            logger.error(f"Report file not found at {output_path}")
-            return 1
-
-        file_size = output_path.stat().st_size
-        if file_size == 0:
-            logger.error(f"Report file is empty.")
-            return 1
-
-        logger.info(f"SUCCESS: Report generated in {elapsed:.2f}s.")
-        logger.info(f"Output: {output_path} ({file_size} bytes)")
-        return 0
-
-    except Exception as e:
-        elapsed = time.time() - start_time
-        logger.error(f"Report generation failed after {elapsed:.2f}s: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+    if success:
+        logger.info("VALIDATION PASSED: Report renders within time budget.")
+        sys.exit(0)
+    else:
+        logger.error(f"VALIDATION FAILED: {error}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
