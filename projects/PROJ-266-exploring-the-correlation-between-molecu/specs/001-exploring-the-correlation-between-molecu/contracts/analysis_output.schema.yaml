@@ -1,113 +1,119 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResultsSchema"
-description: "Schema for the statistical analysis results including correlations and model performance."
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: |
+  Schema for the output of the molecular flexibility analysis and correlation study.
+  Includes flexibility descriptors, outlier flags, and correlation results.
 type: object
+required:
+  - meta
+  - descriptors
+  - correlations
 properties:
-  correlations:
+  meta:
+    type: object
+    description: Metadata about the analysis run.
+    required:
+      - generated_at
+      - descriptor_method
+      - conformer_count
+      - variance_components
+      - correlation_method
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of analysis generation.
+      descriptor_method:
+        type: string
+        description: Method used for descriptor calculation (e.g., "RDKit_ConformerVariance").
+      conformer_count:
+        type: integer
+        minimum: 1
+        description: Number of conformers generated per molecule (per DEV-001).
+      variance_components:
+        type: array
+        items:
+          type: string
+        description: List of variance components calculated (e.g., ["bond", "angle", "dihedral"]).
+      correlation_method:
+        type: string
+        description: Statistical method used for correlation (e.g., "Pearson, Spearman").
+      fdr_correction:
+        type: boolean
+        description: Whether Benjamini-Hochberg FDR correction was applied.
+  descriptors:
     type: array
+    description: List of molecular flexibility descriptors.
     items:
       type: object
+      required:
+        - smiles
+        - bond_variance
+        - angle_variance
+        - dihedral_variance
+        - is_outlier
+      properties:
+        smiles:
+          type: string
+          description: Canonical SMILES string of the molecule.
+        bond_variance:
+          type: number
+          description: Variance of bond lengths in the ensemble (rad² or Å²).
+        angle_variance:
+          type: number
+          description: Variance of bond angles in the ensemble (rad²).
+        dihedral_variance:
+          type: number
+          description: Variance of dihedral angles in the ensemble (rad²).
+        is_outlier:
+          type: boolean
+          description: Flag indicating if the molecule is an outlier (IQR > 1.5 * Q1).
+        processing_status:
+          type: string
+          enum:
+            - success
+            - failed
+          description: Status of descriptor generation for this molecule.
+        error_message:
+          type:
+            - string
+            - "null"
+          description: Error message if processing failed.
+  correlations:
+    type: array
+    description: List of correlation results between flexibility descriptors and permeability.
+    items:
+      type: object
+      required:
+        - descriptor_name
+        - metric_type
+        - correlation_coefficient
+        - p_value
+        - fdr_adjusted_p_value
+        - significant_at_q05
       properties:
         descriptor_name:
           type: string
-          description: "Name of the flexibility descriptor (e.g., torsional_variance_dihedral)."
-        method:
+          description: Name of the flexibility descriptor (e.g., "dihedral_variance").
+        metric_type:
           type: string
           enum:
-            - "Pearson"
-            - "Spearman"
-          description: "Correlation method used."
+            - pearson
+            - spearman
+          description: Type of correlation coefficient.
         correlation_coefficient:
           type: number
-          description: "r value."
+          description: The calculated correlation coefficient.
         p_value:
           type: number
-          description: "Raw p-value."
-        q_value:
+          description: The p-value for the correlation test.
+        fdr_adjusted_p_value:
           type: number
-          description: "Benjamini-Hochberg corrected p-value."
-        ci_lower:
-          type: number
-          description: "Lower bound of 95% confidence interval."
-        ci_upper:
-          type: number
-          description: "Upper bound of 95% confidence interval."
-        associational_only:
+          description: Benjamini-Hochberg adjusted p-value.
+        significant_at_q05:
           type: boolean
-          description: "Flag indicating results are associational (not causal)."
-      required:
-        - descriptor_name
-        - method
-        - correlation_coefficient
-        - p_value
-        - q_value
-        - ci_lower
-        - ci_upper
-        - associational_only
-  model_performance:
-    type: object
-    properties:
-      r2:
-        type: object
-        properties:
-          mean_value:
-            type: number
-          std_value:
-            type: number
-          fold_scores:
-            type: array
-            items:
-              type: number
-            minItems: 5
-            maxItems: 5
-        required:
-          - mean_value
-          - std_value
-          - fold_scores
-      rmse:
-        type: object
-        properties:
-          mean_value:
-            type: number
-          std_value:
-            type: number
-          fold_scores:
-            type: array
-            items:
-              type: number
-            minItems: 5
-            maxItems: 5
-        required:
-          - mean_value
-          - std_value
-          - fold_scores
-      mae:
-        type: object
-        properties:
-          mean_value:
-            type: number
-          std_value:
-            type: number
-          fold_scores:
-            type: array
-            items:
-              type: number
-            minItems: 5
-            maxItems: 5
-        required:
-          - mean_value
-          - std_value
-          - fold_scores
-      coefficients:
-        type: object
-        additionalProperties:
-          type: number
-    required:
-      - r2
-      - rmse
-      - mae
-      - coefficients
-required:
-  - correlations
-  - model_performance
+          description: Whether the result is significant at q < 0.05.
+        sample_size:
+          type: integer
+          description: Number of samples used for this correlation.
 additionalProperties: false

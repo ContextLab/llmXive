@@ -18,12 +18,12 @@ This project investigates the associational relationship between molecular flexi
 **Constraints**: No GPU/CUDA; conformer ensemble size capped at a computationally feasible limit for CPU resources; dataset sampled to ≤1000 molecules if needed  
 **Scale/Scope**: A subset of raw records will be filtered to identify valid entries, which will then be screened for the presence of valid flexibility descriptors.
 
-> Note: The spec's requirement for 50 conformers (FR-003) is infeasible on the target runner. The plan explicitly constrains this to 20 conformers per molecule to ensure runtime completion within 6 hours, as documented in `research.md` (Decision/Rationale) and the Spec Deviation & Governance section. This is a feasibility adaptation, not a spec change.
+> Note: The spec's requirement for 50 conformers (FR-003) is infeasible on the target runner. The plan explicitly constrains this to a fixed number of conformers per molecule. to ensure runtime completion within 6 hours, as documented in `research.md` (Decision/Rationale) and the Spec Deviation & Governance section. This is a feasibility adaptation, not a spec change.
 
 ## Constitution Check
 
 **Principle I (Reproducibility)**:  
-- Random seeds pinned in `code/` (e.g., `numpy.random.seed(42)`, `rdkit` conformer generation seeds).  
+- Random seeds pinned in `code/` (e.g., `numpy.random.seed()`, `rdkit` conformer generation seeds).  
 - External datasets fetched from ChEMBL REST API on every run (no cached raw data committed).  
 - `requirements.txt` pins all dependencies.
 
