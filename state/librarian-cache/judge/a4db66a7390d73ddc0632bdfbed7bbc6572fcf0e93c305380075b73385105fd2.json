@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.12532",
+  "judged_at": "2026-07-15T05:11:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "rationale": "The paper focuses on improving medical LLM performance through multi-agent collaboration and intent resolution to reduce hallucinations, which is a system-design solution rather than an empirical study measuring the specific mechanism of \"epistemic resilience\" under misleading contexts. While both involve medical LLMs, the candidate paper does not measure the user's dependent variable (resilience to misleading information) or the specific linguistic mechanism of interest, falling under the \"dist",
+  "relevant": false
+}

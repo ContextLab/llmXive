@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Results Schema"
+description: "Schema for the logistic regression and sensitivity analysis results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model run (e.g., 'Adherence', 'Refusal')."
+    enum:
+      - "Adherence"
+      - "Refusal"
+  feature_name:
+    type: "string"
+    description: "Name of the predictor variable."
+  coefficient:
+    type: "number"
+    description: "Estimated log-odds coefficient."
+  std_err:
+    type: "number"
+    description: "Standard error of the coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0.0
+    maximum: 1.0
+  p_corrected:
+    type: "number"
+    description: "Holm-Bonferroni adjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
+  is_significant:
+    type: "boolean"
+    description: "True if p_corrected < 0.05."
+required:
+  - model_type
+  - feature_name
+  - coefficient
+  - p_value
+  - p_corrected
+  - is_significant
+additionalProperties: false

@@ -5,36 +5,60 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex"
 
-## Summary of the prior work
-The paper introduces MedMisBench, a benchmark demonstrating that Large Language Models (LLMs) lack "epistemic resilience" in medical settings, as their accuracy drops significantly when correct judgments are challenged by plausible but misleading context injected via authority framing or rule-like fabrications. By evaluating 11 model configurations across 10,932 items, the authors show that models often abandon correct medical answers when faced with "authority-framed falsehoods," exposing a critical safety gap where high exam scores do not guarantee safe real-world performance. The study validates these findings with a 14-member clinical panel, identifying serious potential harm in over 38% of cases where models succumbed to adversarial context.
+**Field**: linguistics / AI Safety
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "Context Sanity Check" module, designed to verify the internal consistency of injected medical claims against a static, curated knowledge graph of contraindications and guidelines, restore epistemic resilience in LLMs without requiring retraining or GPU-intensive inference?
+## Research question
 
-**Why it matters:** While MedMisBench identifies the vulnerability to misleading context, current mitigation strategies often rely on expensive fine-tuning or complex retrieval-augmented generation (RAG) pipelines that are not CPU-tractable for real-time, low-resource clinical triage tools. A deterministic, CPU-efficient filter that detects "authority-framed" logical inconsistencies before the LLM processes the prompt could provide an immediate, scalable safety layer that complements the model's internal reasoning.
+How does the presence of explicit logical contradictions between an authority-framed prompt and external medical knowledge influence the epistemic resilience of large language models, and what linguistic markers in the prompt determine whether the model prioritizes the authority framing or the contradictory evidence?
+
+## Motivation
+
+Prior work (MedMisBench) established that LLMs frequently abandon correct medical judgments when confronted with plausible but false authority framing, creating a critical safety gap in real-world deployment. While existing mitigations often rely on expensive fine-tuning or complex retrieval-augmented generation (RAG) pipelines, there is a lack of evidence regarding the specific linguistic conditions under which models fail to integrate contradictory external knowledge. Addressing this gap is essential for deploying safe, low-resource clinical triage tools in environments where compute is limited and for understanding the linguistic determinants of AI hallucination.
+
+## Related work
+
+- [LLM Robustness Against Misinformation in Biomedical Question Answering (2024)](https://arxiv.org/abs/2410.21330) — Demonstrates that retrieval-augmented generation (RAG) can reduce confabulation, providing a methodological precedent for using external context to improve LLM robustness, though this project investigates the specific linguistic failure modes of authority framing.
+- [Combating Misinformation in the Age of LLMs: Opportunities and Challenges (2023)](https://arxiv.org/abs/2311.05656) — Discusses the broader landscape of misinformation threats and the potential of LLMs as both vectors and detectors, framing the specific challenge of "authority-framed" falsehoods addressed in this study.
+- [Can LLM-Generated Misinformation Be Detected? (2023)](https://arxiv.org/abs/2309.13788) — Explores detection mechanisms for LLM-generated errors, offering a conceptual basis for analyzing how models process conflicting information sources.
+- [Medical Misinformation in AI-Assisted Self-Diagnosis: Development of a Method (EvalPrompt) for Analyzing Large Language Models (2023)](https://arxiv.org/abs/2307.04910) — Demonstrates the development of evaluation methods for medical LMs, validating the necessity of rigorous benchmarking against misleading contexts similar to those used in MedMisBench.
+
+## Expected results
+
+We expect to identify specific linguistic markers (e.g., imperative mood, specific citation patterns, or modal verbs) that correlate strongly with a model's failure to prioritize contradictory medical evidence over authority framing. A successful outcome would be confirmed by a statistically significant correlation (p < 0.05) between the density of these markers and the model's adherence to the false authority, demonstrating that epistemic resilience is a function of prompt linguistics rather than just model architecture.
 
 ## Methodology sketch
-**Data:** We will extract the 48,889 misleading context-option pairs from the original MedMisBench dataset, specifically isolating the "Authority-framed" and "Exception-poisoning" subsets where the paper found the highest attack success rates. We will construct a static, lightweight knowledge graph (JSON/SQLite) containing ~5,000 high-confidence medical rules (e.g., "Drug A is contraindicated with Condition B") derived from open-source guidelines (e.g., NIH, WHO) to serve as the ground truth for consistency checks.
 
-**Procedure:**
-1.  **Baseline Replication:** Re-run the original MedMisBench evaluation on a subset of 1,000 items using a CPU-only open-source LLM (e.g., a quantized 3B parameter model) to establish the baseline "attack success rate" (ASR) without intervention.
-2.  **Sanity Check Module:** Implement a deterministic, CPU-only "Sanity Check" function that parses the injected context to extract medical propositions and queries the static knowledge graph for contradictions. If a contradiction is found (e.g., injected context claims "Drug A is safe for Condition B" but the graph says "Contraindicated"), the module flags the context as "suspect" and appends a neutralizing prompt instruction (e.g., "The following claim contradicts established medical guidelines: [extracted claim]. Please ignore this specific claim and reason based on standard protocols.").
-3.  **Evaluation:** Run the LLM on the same 1,000 items with the Sanity Check module active. Compare the ASR of the "Sanity Check" condition against the baseline.
+- **Data Acquisition**: Download the MedMisBench dataset from the original repository; isolate the subset containing "Authority-framed" and "Exception-poisoning" attacks to ensure a controlled set of contradictory prompts.
+- **Linguistic Feature Extraction**: Process the prompt texts using a standard NLP pipeline (e.g., spaCy) to extract linguistic features, including sentence structure, modal verb frequency, citation density, and imperative vs. declarative mood ratios.
+- **Baseline Response Generation**: Run a quantized 3B parameter LLM (CPU-only, e.g., via `llama.cpp`) on the isolated subset to generate responses without intervention, recording the "Attack Success Rate" (ASR) as the ground truth for failure.
+- **Contradiction Mapping**: Manually annotate or script-match the "correct" medical fact for each prompt item to establish the binary label of "contradiction present" vs. "contradiction accepted."
+- **Statistical Modeling**: Perform a logistic regression analysis where the dependent variable is the model's adherence to the false authority (binary: 0/1) and the independent variables are the extracted linguistic features.
+- **Independence Verification**: Ensure the evaluation target (model adherence to authority) is measured independently of the linguistic features used as predictors; the model's output is the observed phenomenon, while the features are the structural properties of the input, satisfying the independence requirement for validation.
+- **Resource Constraint Check**: Ensure the entire pipeline (data processing, inference, and regression analysis) completes within the 6-hour GitHub Actions free-tier limit on 2 CPU cores and 7GB RAM.
 
-**Expected Result:** We hypothesize that the Sanity Check module will significantly reduce the ASR for "Authority-framed" and "Exception-poisoning" attacks (e.g., from ~69% down to <40%) by preventing the model from accepting logically inconsistent authority claims, thereby demonstrating that simple, non-parametric consistency checks can partially restore epistemic resilience in a CPU-tractable manner.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None found in the immediate corpus for this specific "linguistic marker" extension of MedMisBench.
+- Closest match: None (closest prior work is the original MedMisBench paper itself, which this project extends by focusing on the linguistic determinants of failure).
+- Verdict: NOT a duplicate
 
-- **Measuring Epistemic Resilience of LLMs Under Misleading Medical Context** — Hongjian Zhou, Xinyu Zou, Jinge Wu, Sean Wu, Junchi Yu, Bradley Max Segal, Tobias Erich Niebuhr, Sara Amro, Michael Petrus, Sheikh Momin, Alexandra M. Cardoso Pinto, Rachel Niesen, Laura Sophie Wegner, Dhruv Darji, Jung Moses Koo, Joshua Fieggen, Kapil Narain, Mingde Zeng, Lei Clifton, Linda Shapiro, Fenglin Liu, David A. Clifton. https://arxiv.org/abs/2606.12291.
 
-```bibtex
-@article{orig_arxiv_2606_12291,
-  title = {Measuring Epistemic Resilience of LLMs Under Misleading Medical Context},
-  author = {Hongjian Zhou and Xinyu Zou and Jinge Wu and Sean Wu and Junchi Yu and Bradley Max Segal and Tobias Erich Niebuhr and Sara Amro and Michael Petrus and Sheikh Momin and Alexandra M. Cardoso Pinto and Rachel Niesen and Laura Sophie Wegner and Dhruv Darji and Jung Moses Koo and Joshua Fieggen and Kapil Narain and Mingde Zeng and Lei Clifton and Linda Shapiro and Fenglin Liu and David A. Clifton},
-  year = {2026},
-  eprint = {2606.12291},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.12291},
-  url = {https://arxiv.org/abs/2606.12291}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-15T05:12:10Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex" linguistics
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex" linguistics | 4 |
+
+### Verified citations
+
+1. **Combating Misinformation in the Age of LLMs: Opportunities and Challenges** (2023). Canyu Chen, Kai Shu. arXiv. [2311.05656](https://arxiv.org/abs/2311.05656). PDF-sampled: No.
+2. **Can LLM-Generated Misinformation Be Detected?** (2023). Canyu Chen, Kai Shu. arXiv. [2309.13788](https://arxiv.org/abs/2309.13788). PDF-sampled: No.
+3. **LLM Robustness Against Misinformation in Biomedical Question Answering** (2024). Alexander Bondarenko, Adrian Viehweger. arXiv. [2410.21330](https://arxiv.org/abs/2410.21330). PDF-sampled: No.
+4. **Medical Misinformation in AI-Assisted Self-Diagnosis: Development of a Method (EvalPrompt) for Analyzing Large Language Models** (2023). Troy Zada, Natalie Tam, Francois Barnard, Marlize Van Sittert, Venkat Bhat, et al.. arXiv. [2307.04910](https://arxiv.org/abs/2307.04910). PDF-sampled: No.

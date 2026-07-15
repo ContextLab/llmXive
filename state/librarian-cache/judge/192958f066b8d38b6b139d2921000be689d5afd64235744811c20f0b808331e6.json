@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.05656",
+  "judged_at": "2026-07-15T05:11:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (f) as it addresses the core mechanism of \"misleading information\" (misinformation) in the context of LLMs, which is the fundamental construct underlying the user's specific focus on \"epistemic resilience\" against \"misleading medical contexts.\" Although the paper is a broad survey rather than a specific medical study, it establishes the canonical vocabulary and empirical landscape for LLMs interacting with false information, which is essential background for",
+  "relevant": true
+}

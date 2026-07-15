@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.13788",
+  "judged_at": "2026-07-15T05:11:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the core mechanism of LLM behavior under misleading or deceptive contexts (misinformation generation and detection difficulty), which is the fundamental phenomenon underlying the user's study of \"epistemic resilience\" in medical contexts. It also aligns with criterion (f) as it belongs to the canonical alternative-vocabulary cluster for LLM reliability and misinformation, providing essential baseline evidence on how LLMs handle deceptive inputs",
+  "relevant": true
+}

@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linguistic Features Schema"
+description: "Schema for the extracted linguistic features."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Foreign key to the original prompt ID."
+  modal_count:
+    type: "integer"
+    description: "Count of modal verbs (must, should, ought, have to, shall)."
+    minimum: 0
+  imperative_ratio:
+    type: "number"
+    description: "Ratio of imperative to declarative sentences."
+    minimum: 0.0
+  citation_density:
+    type: "integer"
+    description: "Count of citation patterns (e.g., [1], (Smith 2020))."
+    minimum: 0
+  sentence_count:
+    type: "integer"
+    description: "Total number of sentences in the prompt."
+    minimum: 0
+required:
+  - prompt_id
+  - modal_count
+  - imperative_ratio
+  - citation_density
+  - sentence_count
+additionalProperties: false

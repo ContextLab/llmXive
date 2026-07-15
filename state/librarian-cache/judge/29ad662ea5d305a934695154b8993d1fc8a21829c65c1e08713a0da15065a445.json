@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.21330",
+  "judged_at": "2026-07-15T05:11:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by measuring the same core mechanism—LLM robustness and accuracy degradation under misleading or injected medical/biomedical context—which is the direct operationalization of \"epistemic resilience\" in the user's question. It also fits criterion (b) by providing empirical data on the dependent variable (resilience/accuracy) within the specific domain (biomedical question answering) the user is investigating.",
+  "relevant": true
+}

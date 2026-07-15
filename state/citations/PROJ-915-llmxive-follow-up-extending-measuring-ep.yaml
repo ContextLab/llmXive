@@ -1,0 +1,34 @@
+- artifact_hash: a1e74f6657c31057359eadfcd2b73f2bf5f7f97fbcfa3fdac2c3c1a34ab95184
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: medmishle.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/AI4HealthResearch/MedMisBench/resolve/main/data/medmishle.jsonl`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/AI4HealthResearch/MedMisBench/261f7135f18ac5c9f65ae5948451126a8f388977/data%2Fmedmishle.jsonl?%2Fdatasets%2FAI4HealthResearch%2FMedMisBench%2Fresolve%2Fmain%2Fdata%2Fmedmishle.jsonl=&etag=%223524471079d636d78ea8500d8cd43757311d70be%22
+  verified_at: '2026-07-15T06:04:58.111609Z'
+- artifact_hash: a1e74f6657c31057359eadfcd2b73f2bf5f7f97fbcfa3fdac2c3c1a34ab95184
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18653/v1/2023.acl
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18653/v1/2023.acl
+  verified_at: '2026-07-15T06:04:58.111609Z'
+- artifact_hash: d8f973fc42bd5dd5bbb8f57f22816656f73c264035ba2686ef42e2e8f7126f8f
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'MoralDial: A Framework to Train and Evaluate Moral Dialogue Systems
+    via Moral Discussions'
+  kind: doi
+  value: 10.18653/v1/2023.acl-long.123
+  verification_status: verified
+  verified_against_url: https://doi.org/10.18653/v1/2023.acl-long.123
+  verified_at: '2026-07-15T06:05:13.425997Z'

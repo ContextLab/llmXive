@@ -1,0 +1,63 @@
+resolved_at: '2026-07-15T05:27:30.321040+00:00'
+datasets:
+- intent: MedMisBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AI4HealthResearch/MedMisBench/resolve/main/data/medmishle.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HongjianZhou/MedMisBench/resolve/main/data/medmishle.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Johndfm/MedMisBench-MentalHealth/resolve/main/medmisbench_mentalhealth.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AI4HealthResearch/MedMisBench/resolve/main/data/medmishle.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/HongjianZhou/MedMisBench/resolve/main/data/medmishle.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Johndfm/MedMisBench-MentalHealth/resolve/main/medmisbench_mentalhealth.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Same_yet_different_towards_understanding_nutrient_use_in_hemp-_and_drug-type_i_Cannabis_i_/32767041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Understanding_the_current_state_of_collaboration_in_the_production_and_dissemination_of_adaptation_knowledge_in_Namibia/32381490
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/chrisman_substrate_model/32989880
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/chapter/Achieving_sustainability_in_the_context_of_the_Blue_Economy/32381517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/chapter/Conclusions/32381622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.12291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

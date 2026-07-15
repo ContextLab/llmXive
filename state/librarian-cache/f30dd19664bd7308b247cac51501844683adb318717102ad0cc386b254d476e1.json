@@ -1,0 +1,628 @@
+{
+  "fetched_at": "2026-07-15T05:11:34Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.516,
+    "ended_at": "2026-07-15T05:11:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "LLM robustness against medical misinformation"
+        ],
+        [
+          2,
+          "epistemic uncertainty in medical language models"
+        ],
+        [
+          3,
+          "resilience of generative AI to misleading health contexts"
+        ],
+        [
+          4,
+          "fact-checking capabilities of large language models in medicine"
+        ],
+        [
+          5,
+          "hallucination detection in medical LLM responses"
+        ],
+        [
+          6,
+          "trust calibration for AI in healthcare communication"
+        ],
+        [
+          7,
+          "handling conflicting medical evidence in NLP systems"
+        ],
+        [
+          8,
+          "semantic stability of LLMs under adversarial medical prompts"
+        ],
+        [
+          9,
+          "evaluation metrics for AI reliability in clinical settings"
+        ],
+        [
+          10,
+          "cognitive bias mitigation in medical text generation"
+        ],
+        [
+          11,
+          "LLM performance on deceptive medical queries"
+        ],
+        [
+          12,
+          "truthfulness verification in biomedical natural language processing"
+        ],
+        [
+          13,
+          "resistance to misinformation in healthcare chatbots"
+        ],
+        [
+          14,
+          "epistemic humility in medical AI dialogue systems"
+        ],
+        [
+          15,
+          "robustness of transformer models to medical context distortion"
+        ],
+        [
+          16,
+          "measuring factual consistency in LLM medical advice"
+        ],
+        [
+          17,
+          "adversarial robustness of LLMs in the biomedical domain"
+        ],
+        [
+          18,
+          "influence of misleading medical framing on AI outputs"
+        ],
+        [
+          19,
+          "reliability assessment of LLMs for patient education"
+        ],
+        [
+          20,
+          "linguistic markers of epistemic confidence in medical AI"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "LLM robustness against medical misinformation": 5,
+        "llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "hallucination robustness semantic drift",
+      "medical misinformation prompt injection clinical vignette",
+      "epistemic trust calibration truthfulness benchmark",
+      "factual consistency medical QA evaluation metrics",
+      "deceptive context reasoning failure modes"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2307.04910"
+      ]
+    },
+    "per_query_hit_count": {
+      "deceptive context reasoning failure modes": 3,
+      "epistemic trust calibration truthfulness benchmark": 3,
+      "factual consistency medical QA evaluation metrics": 3,
+      "hallucination robustness semantic drift": 3,
+      "llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex\" linguistics": 3,
+      "medical misinformation prompt injection clinical vignette": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2410.12532",
+          "rationale": "The paper focuses on improving medical LLM performance through multi-agent collaboration and intent resolution to reduce hallucinations, which is a system-design solution rather than an empirical study measuring the specific mechanism of \"epistemic resilience\" under misleading contexts. While both involve medical LLMs, the candidate paper does not measure the user's dependent variable (resilience to misleading information) or the specific linguistic mechanism of interest, falling under the \"dist",
+          "title": "MedAide: Information Fusion and Anatomy of Medical Intents via LLM-based Agent Collaboration"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-15T05:10:40Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+      "raw": "llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misleading Medical Contex\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the impressive performance of Deep Neural Networks (DNNs) on various vision tasks, they still exhibit erroneous high sensitivity toward semantic primitives (e.g. object pose). We propose a theoretically grounded analysis for DNN robustness in the semantic space. We qualitatively analyze different DNNs' semantic robustness by visualizing the DNN global behavior as semantic maps and observe interesting behavior of some DNNs. Since generating these semantic maps does not scale well with the dimensionality of the semantic space, we develop a bottom-up approach to detect robust regions of DNNs. To achieve this, we formalize the problem of finding robust semantic regions of the network as optimizing integral bounds and we develop expressions for update directions of the region bounds. We use our developed formulations to quantitatively evaluate the semantic robustness of different popular network architectures. We show through extensive experimentation that several networks, while trained on the same dataset and enjoying comparable accuracy, do not necessarily perform similarly in semantic robustness. For example, InceptionV3 is more accurate despite being less semantically robust than ResNet50. We hope that this tool will serve as a milestone towards understanding the semantic robustness of DNNs.",
+          "claimed_authors": [
+            "Abdullah Hamdi",
+            "Bernard Ghanem"
+          ],
+          "claimed_title": "Towards Analyzing Semantic Robustness of Deep Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.04621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Towards Analyzing Semantic Robustness of Deep Neural Networks')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans can easily learn new concepts from just a single exemplar, mainly due to their remarkable ability to imagine or hallucinate what the unseen exemplar may look like in different settings. Incorporating such an ability to hallucinate diverse new samples of the tracked instance can help the trackers alleviate the over-fitting problem in the low-data tracking regime. To achieve this, we propose an effective adversarial approach, denoted as adversarial \"hallucinator\" (AH), for robust visual tracking. The proposed AH is designed to firstly learn transferable non-linear deformations between a pair of same-identity instances, and then apply these deformations to an unseen tracked instance in order to generate diverse positive training samples. By incorporating AH into an online tracking-by-detection framework, we propose the hallucinated adversarial tracker (HAT), which jointly optimizes AH with an online classifier (e.g., MDNet) in an end-to-end manner. In addition, a novel selective deformation transfer (SDT) method is presented to better select the deformations which are more suitable for transfer. Extensive experiments on 3 popular benchmarks demonstrate that our HAT achieves the state-of-the-art performance.",
+          "claimed_authors": [
+            "Qiangqiang Wu",
+            "Zhihui Chen",
+            "Lin Cheng",
+            "Yan Yan",
+            "Bo Li",
+            "Hanzi Wang"
+          ],
+          "claimed_title": "Hallucinated Adversarial Learning for Robust Visual Tracking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.07008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Hallucinated Adversarial Learning for Robust Visual Tracking')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have achieved remarkable success in various natural language processing tasks, yet they remain prone to generating factually incorrect outputs known as hallucinations. While recent approaches have shown promise for hallucination detection by repeatedly sampling from LLMs and quantifying the semantic inconsistency among the generated responses, they rely on fixed sampling budgets that fail to adapt to query complexity, resulting in computational inefficiency. We propose an Adaptive Bayesian Estimation framework for Semantic Entropy with Guided Semantic Exploration, which dynamically adjusts sampling requirements based on observed uncertainty. Our approach employs a hierarchical Bayesian framework to model the semantic distribution, enabling dynamic control of sampling iterations through variance-based thresholds that terminate generation once sufficient certainty is achieved. We also develop a perturbation-based importance sampling strategy to systematically explore the semantic space. Extensive experiments on four QA datasets demonstrate that our method achieves superior hallucination detection performance with significant efficiency gains. In low-budget scenarios, our approach requires about 50% fewer samples to achieve comparable detection performance to existing methods, while delivers an average AUROC improvement of 12.6% under the same sampling budget.",
+          "claimed_authors": [
+            "Qiyao Sun",
+            "Xingming Li",
+            "Xixiang He",
+            "Ao Cheng",
+            "Xuanyu Ji",
+            "Hailun Lu",
+            "Runke Huang",
+            "Qingyong Hu"
+          ],
+          "claimed_title": "Efficient Hallucination Detection: Adaptive Bayesian Estimation of Semantic Entropy with Guided Semantic Exploration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.22812"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Efficient Hallucination Detection: Adaptive Bayesian Estimation of Semantic Entropy with Guided Semantic Exploration')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) excel in processing and generating human language, powered by their ability to interpret and follow instructions. However, their capabilities can be exploited through prompt injection attacks. These attacks manipulate LLM-integrated applications into producing responses aligned with the attacker's injected content, deviating from the user's actual requests. The substantial risks posed by these attacks underscore the need for a thorough understanding of the threats. Yet, research in this area faces challenges due to the lack of a unified goal for such attacks and their reliance on manually crafted prompts, complicating comprehensive assessments of prompt injection robustness. We introduce a unified framework for understanding the objectives of prompt injection attacks and present an automated gradient-based method for generating highly effective and universal prompt injection data, even in the face of defensive measures. With only five training samples (0.3% relative to the test data), our attack can achieve superior performance compared with baselines. Our findings emphasize the importance of gradient-based testing, which can avoid overestimation of robustness, especially for defense mechanisms.",
+          "claimed_authors": [
+            "Xiaogeng Liu",
+            "Zhiyuan Yu",
+            "Yizhe Zhang",
+            "Ning Zhang",
+            "Chaowei Xiao"
+          ],
+          "claimed_title": "Automatic and Universal Prompt Injection Attacks against Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.04957"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Automatic and Universal Prompt Injection Attacks against Large Language Models')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are becoming increasingly prevalent in modern software systems, interfacing between the user and the Internet to assist with tasks that require advanced language understanding. To accomplish these tasks, the LLM often uses external data sources such as user documents, web retrieval, results from API calls, etc. This opens up new avenues for attackers to manipulate the LLM via prompt injection. Adversarial prompts can be injected into external data sources to override the system's intended instruction and instead execute a malicious instruction. To mitigate this vulnerability, we propose a new defense called SecAlign based on the technique of preference optimization. Our defense first constructs a preference dataset with prompt-injected inputs, secure outputs (ones that respond to the legitimate instruction), and insecure outputs (ones that respond to the injection). We then perform preference optimization on this dataset to teach the LLM to prefer the secure output over the insecure one. This provides the first known method that reduces the success rates of various prompt injections to <10%, even against attacks much more sophisticated than ones seen during training. This indicates our defense generalizes well against unknown and yet-to-come attacks. Also, SecAlign models are still practical with similar utility to the one before defensive training in our evaluations. Our code is at https://github.com/facebookresearch/SecAlign",
+          "claimed_authors": [
+            "Sizhe Chen",
+            "Arman Zharmagambetov",
+            "Saeed Mahloujifar",
+            "Kamalika Chaudhuri",
+            "David Wagner",
+            "Chuan Guo"
+          ],
+          "claimed_title": "SecAlign: Defending Against Prompt Injection with Preference Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05451"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='SecAlign: Defending Against Prompt Injection with Preference Optimization')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are vulnerable to attacks like prompt injection, backdoor attacks, and adversarial attacks, which manipulate prompts or models to generate harmful outputs. In this paper, departing from traditional deep learning attack paradigms, we explore their intrinsic relationship and collectively term them Prompt Trigger Attacks (PTA). This raises a key question: Can we determine if a prompt is benign or poisoned? To address this, we propose UniGuardian, the first unified defense mechanism designed to detect prompt injection, backdoor attacks, and adversarial attacks in LLMs. Additionally, we introduce a single-forward strategy to optimize the detection pipeline, enabling simultaneous attack detection and text generation within a single forward pass. Our experiments confirm that UniGuardian accurately and efficiently identifies malicious prompts in LLMs.",
+          "claimed_authors": [
+            "Huawei Lin",
+            "Yingjie Lao",
+            "Tong Geng",
+            "Tan Yu",
+            "Weijie Zhao"
+          ],
+          "claimed_title": "UniGuardian: A Unified Defense for Detecting Prompt Injection, Backdoor Attacks and Adversarial Attacks in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.13141"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='UniGuardian: A Unified Defense for Detecting Prompt Injection, Backdoor Attacks and Adversarial Attacks in Large Language Models')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust is a multilayered concept with critical relevance when it comes to introducing new technologies. Understanding how humans will interact with complex vehicle systems and preparing for the functional, societal and psychological aspects of autonomous vehicles' entry into our cities is a pressing concern. Design tools can help calibrate the adequate and affordable level of trust needed for a safe and positive experience. This study focuses on passenger interactions capable of enhancing the system trustworthiness and data accuracy in future shared public transportation.",
+          "claimed_authors": [
+            "Yuri Klebanov",
+            "Romi Mikulinsky",
+            "Tom Reznikov",
+            "Miles Pennington",
+            "Yoshihiro Suda",
+            "Toshihiro Hiraoka",
+            "Shoichi Kanzaki"
+          ],
+          "claimed_title": "How can design help enhance trust calibration in public autonomous vehicles?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.16106"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='How can design help enhance trust calibration in public autonomous vehicles?')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust is often cited as an essential criterion for the effective use and real-world deployment of AI. Researchers argue that AI should be more transparent to increase trust, making transparency one of the main goals of XAI. Nevertheless, empirical research on this topic is inconclusive regarding the effect of transparency on trust. An explanation for this ambiguity could be that trust is operationalized differently within XAI. In this position paper, we advocate for a clear distinction between behavioral (objective) measures of reliance and attitudinal (subjective) measures of trust. However, researchers sometimes appear to use behavioral measures when intending to capture trust, although attitudinal measures would be more appropriate. Based on past research, we emphasize that there are sound theoretical reasons to keep trust and reliance separate. Properly distinguishing these two concepts provides a more comprehensive understanding of how transparency affects trust and reliance, benefiting future XAI research.",
+          "claimed_authors": [
+            "Nicolas Scharowski",
+            "Sebastian A. C. Perrig",
+            "Nick von Felten",
+            "Florian Brühlmann"
+          ],
+          "claimed_title": "Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.12318"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Determining whether two sets of images belong to the same or different distributions or domains is a crucial task in modern medical image analysis and deep learning; for example, to evaluate the output quality of image generative models. Currently, metrics used for this task either rely on the (potentially biased) choice of some downstream task, such as segmentation, or adopt task-independent perceptual metrics (e.g., Fréchet Inception Distance/FID) from natural imaging, which we show insufficiently capture anatomical features. To this end, we introduce a new perceptual metric tailored for medical images, FRD (Fréchet Radiomic Distance), which utilizes standardized, clinically meaningful, and interpretable image features. We show that FRD is superior to other image distribution metrics for a range of medical imaging applications, including out-of-domain (OOD) detection, the evaluation of image-to-image translation (by correlating more with downstream task performance as well as anatomical consistency and realism), and the evaluation of unconditional image generation. Moreover, FRD offers additional benefits such as stability and computational efficiency at low sample sizes, sensitivity to image corruptions and adversarial attacks, feature interpretability, and correlation with radiologist-perceived image quality. Additionally, we address key gaps in the literature by presenting an extensive framework for the multifaceted evaluation of image similarity metrics in medical imaging -- including the first large-scale comparative study of generative models for medical image translation -- and release an accessible codebase to facilitate future research. Our results are supported by thorough experiments spanning a variety of datasets, modalities, and downstream tasks, highlighting the broad potential of FRD for medical image analysis.",
+          "claimed_authors": [
+            "Nicholas Konz",
+            "Richard Osuala",
+            "Preeti Verma",
+            "Yuwen Chen",
+            "Hanxue Gu",
+            "Haoyu Dong",
+            "Yaqian Chen",
+            "Andrew Marshall",
+            "Lidia Garrucho",
+            "Kaisar Kushibar",
+            "Daniel M. Lang",
+            "Gene S. Kim",
+            "Lars J. Grimm",
+            "John M. Lewin",
+            "James S. Duncan",
+            "Julia A. Schnabel",
+            "Oliver Diaz",
+            "Karim Lekadir",
+            "Maciej A. Mazurowski"
+          ],
+          "claimed_title": "Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.01496"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Factual consistency is an essential quality of text summarization models in practical settings. Existing work in evaluating this dimension can be broadly categorized into two lines of research, entailment-based and question answering (QA)-based metrics, and different experimental setups often lead to contrasting conclusions as to which paradigm performs the best. In this work, we conduct an extensive comparison of entailment and QA-based metrics, demonstrating that carefully choosing the components of a QA-based metric, especially question generation and answerability classification, is critical to performance. Building on those insights, we propose an optimized metric, which we call QAFactEval, that leads to a 14% average improvement over previous QA-based metrics on the SummaC factual consistency benchmark, and also outperforms the best-performing entailment-based metric. Moreover, we find that QA-based and entailment-based metrics can offer complementary signals and be combined into a single metric for a further performance boost.",
+          "claimed_authors": [
+            "Alexander R. Fabbri",
+            "Chien-Sheng Wu",
+            "Wenhao Liu",
+            "Caiming Xiong"
+          ],
+          "claimed_title": "QAFactEval: Improved QA-Based Factual Consistency Evaluation for Summarization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.08542"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='QAFactEval: Improved QA-Based Factual Consistency Evaluation for Summarization')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hallucinated outputs from large language models (LLMs) pose risks in the medical domain, especially for lay audiences making health-related decisions. Existing automatic factual consistency evaluation methods, such as entailment- and question-answering (QA) -based, struggle with plain language summarization (PLS) due to elaborative explanation phenomenon, which introduces external content (e.g., definitions, background, examples) absent from the scientific abstract to enhance comprehension. To address this, we introduce PlainQAFact, an automatic factual consistency evaluation metric trained on a fine-grained, human-annotated dataset PlainFact, for evaluating factual consistency of both source-simplified and elaborately explained sentences. PlainQAFact first classifies sentence type, then applies a retrieval-augmented QA scoring method. Empirical results show that existing evaluation metrics fail to evaluate the factual consistency in PLS, especially for elaborative explanations, whereas PlainQAFact consistently outperforms them across all evaluation settings. We further analyze PlainQAFact's effectiveness across external knowledge sources, answer extraction strategies, answer overlap measures, and document granularity levels, refining its overall factual consistency assessment. Taken together, our work presents a sentence-aware, retrieval-augmented metric targeted at elaborative explanations in biomedical PLS tasks, providing the community with both a new benchmark and a practical evaluation tool to advance reliable and safe plain language communication in the medical domain. PlainQAFact and PlainFact are available at: https://github.com/zhiwenyou103/PlainQAFact",
+          "claimed_authors": [
+            "Zhiwen You",
+            "Yue Guo"
+          ],
+          "claimed_title": "PlainQAFact: Retrieval-augmented Factual Consistency Evaluation Metric for Biomedical Plain Language Summarization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.08890"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='PlainQAFact: Retrieval-augmented Factual Consistency Evaluation Metric for Biomedical Plain Language Summarization')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Failures in multi-turn reasoning models are largely invisible to terminal-score evaluation. A model can lock onto an unsafe stance early in a long dialogue, yet its final-turn refusal rate may appear indistinguishable from a robustly aligned baseline. To expose these hidden temporal dynamics, we propose a trace-level diagnostic - the CoT-Output 2x2 safety matrix. This framework labels every turn along two independent axes (internal reasoning and visible output), yielding four operationally defined failure cells: robust alignment, alignment faking, overt jailbreak, and a distinct failure mode we term context-injection failure (where the CoT maintains safe reasoning, but the visible output produces harm, highlighting a multi-turn manifestation of reasoning unfaithfulness). We evaluate three distilled reasoning targets against a fixed attacker across five oversight conditions, collecting 6750 turn-level observations on the Information-Hazard scenario. Our analysis reveals two reproducible vulnerabilities: an oversight paradox where explicit monitoring cues paradoxically increase alignment-faking rates rather than suppress them, and a context-injection failure where models lock onto unsafe external outputs despite safe internal states. We release the full dataset of multi-turn dialogues and CoT traces to support follow-up trace-diagnostic research.",
+          "claimed_authors": [
+            "Sai Kartheek Reddy Kasu",
+            "Nils Lukas",
+            "Samuele Poppi"
+          ],
+          "claimed_title": "When the Chain of Thought Knows Better: Failure Modes in Multi-Turn Reasoning Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.10740"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='When the Chain of Thought Knows Better: Failure Modes in Multi-Turn Reasoning Models')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study a pipeline that curates reasoning data from initial structured data for improving long-context reasoning in large language models (LLMs). Our approach, $π^2$, constructs high-quality reasoning data through rigorous QA curation: 1) extracting and expanding tables from Wikipedia, 2) from the collected tables and relevant context, generating realistic and multi-hop analytical reasoning questions whose answers are automatically determined and verified through dual-path code execution, and 3) back-translating step-by-step structured reasoning traces as solutions of QA pairs given realistic web-search context. Supervised fine-tuning with \\textsc{\\small{gpt-oss-20b}} and \\textsc{\\small{Qwen3-4B-Instruct-2507}} on $π^2$ yields consistent improvements across four long-context reasoning benchmarks and our alike $π^2$-Bench, with average absolute accuracy gains of +4.3% and +2.7% respectively. Notably, our dataset facilitates self-distillation, where \\textsc{\\small{gpt-oss-20b}} even improves its average performance by +4.4% with its own reasoning traces, demonstrating $π^2$'s usefulness. Our code, data, and models are open-source at https://github.com/vt-pi-squared/pi-squared.",
+          "claimed_authors": [
+            "Quyet V. Do",
+            "Thinh Pham",
+            "Nguyen Nguyen",
+            "Sha Li",
+            "Pratibha Zunjare",
+            "Tu Vu"
+          ],
+          "claimed_title": "$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.05114"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Measuring Epistemic Resilience of LLMs Under Misle', candidate_title='$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models')",
+        "failed_at": "2026-07-15T05:11:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Canyu Chen",
+            "Kai Shu"
+          ],
+          "title": "Combating Misinformation in the Age of LLMs: Opportunities and Challenges",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.05656",
+        "summary": "Misinformation such as fake news and rumors is a serious threat on information ecosystems and public trust. The emergence of Large Language Models (LLMs) has great potential to reshape the landscape of combating misinformation. Generally, LLMs can be a double-edged sword in the fight. On the one hand, LLMs bring promising opportunities for combating misinformation due to their profound world knowledge and strong reasoning abilities. Thus, one emergent question is: how to utilize LLMs to combat misinformation? On the other hand, the critical challenge is that LLMs can be easily leveraged to generate deceptive misinformation at scale. Then, another important question is: how to combat LLM-generated misinformation? In this paper, we first systematically review the history of combating misinformation before the advent of LLMs. Then we illustrate the current efforts and present an outlook for these two fundamental questions respectively. The goal of this survey paper is to facilitate the progress of utilizing LLMs for fighting misinformation and call for interdisciplinary efforts from different stakeholders for combating LLM-generated misinformation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.05656",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T05:11:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Canyu Chen",
+            "Kai Shu"
+          ],
+          "title": "Can LLM-Generated Misinformation Be Detected?",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.13788",
+        "summary": "The advent of Large Language Models (LLMs) has made a transformative impact. However, the potential that LLMs such as ChatGPT can be exploited to generate misinformation has posed a serious concern to online safety and public trust. A fundamental research question is: will LLM-generated misinformation cause more harm than human-written misinformation? We propose to tackle this question from the perspective of detection difficulty. We first build a taxonomy of LLM-generated misinformation. Then we categorize and validate the potential real-world methods for generating misinformation with LLMs. Then, through extensive empirical investigation, we discover that LLM-generated misinformation can be harder to detect for humans and detectors compared to human-written misinformation with the same semantics, which suggests it can have more deceptive styles and potentially cause more harm. We also discuss the implications of our discovery on combating misinformation in the age of LLMs and the countermeasures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.13788",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T05:11:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alexander Bondarenko",
+            "Adrian Viehweger"
+          ],
+          "title": "LLM Robustness Against Misinformation in Biomedical Question Answering",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.21330",
+        "summary": "The retrieval-augmented generation (RAG) approach is used to reduce the confabulation of large language models (LLMs) for question answering by retrieving and providing additional context coming from external knowledge sources (e.g., by adding the context to the prompt). However, injecting incorrect information can mislead the LLM to generate an incorrect answer.\n  In this paper, we evaluate the effectiveness and robustness of four LLMs against misinformation - Gemma 2, GPT-4o-mini, Llama~3.1, and Mixtral - in answering biomedical questions. We assess the answer accuracy on yes-no and free-form questions in three scenarios: vanilla LLM answers (no context is provided), \"perfect\" augmented generation (correct context is provided), and prompt-injection attacks (incorrect context is provided). Our results show that Llama 3.1 (70B parameters) achieves the highest accuracy in both vanilla (0.651) and \"perfect\" RAG (0.802) scenarios. However, the accuracy gap between the models almost disappears with \"perfect\" RAG, suggesting its potential to mitigate the LLM's size-related effectiveness differences.\n  We further evaluate the ability of the LLMs to generate malicious context on one hand and the LLM's robustness against prompt-injection attacks on the other hand, using metrics such as attack success rate (ASR), accuracy under attack, and accuracy drop. As adversaries, we use the same four LLMs (Gemma 2, GPT-4o-mini, Llama 3.1, and Mixtral) to generate incorrect context that is injected in the target model's prompt. Interestingly, Llama is shown to be the most effective adversary, causing accuracy drops of up to 0.48 for vanilla answers and 0.63 for \"perfect\" RAG across target models. Our analysis reveals that robustness rankings vary depending on the evaluation measure, highlighting the complexity of assessing LLM resilience to adversarial attacks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.21330",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T05:11:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Troy Zada",
+            "Natalie Tam",
+            "Francois Barnard",
+            "Marlize Van Sittert",
+            "Venkat Bhat",
+            "Sirisha Rambhatla"
+          ],
+          "title": "Medical Misinformation in AI-Assisted Self-Diagnosis: Development of a Method (EvalPrompt) for Analyzing Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.04910",
+        "summary": "Rapid integration of large language models (LLMs) in health care is sparking global discussion about their potential to revolutionize health care quality and accessibility. At a time when improving health care quality and access remains a critical concern for countries worldwide, the ability of these models to pass medical examinations is often cited as a reason to use them for medical training and diagnosis. However, the impact of their inevitable use as a self-diagnostic tool and their role in spreading healthcare misinformation has not been evaluated. This study aims to assess the effectiveness of LLMs, particularly ChatGPT, from the perspective of an individual self-diagnosing to better understand the clarity, correctness, and robustness of the models. We propose the comprehensive testing methodology evaluation of LLM prompts (EvalPrompt). This evaluation methodology uses multiple-choice medical licensing examination questions to evaluate LLM responses. We use open-ended questions to mimic real-world self-diagnosis use cases, and perform sentence dropout to mimic realistic self-diagnosis with missing information. Human evaluators then assess the responses returned by ChatGPT for both experiments for clarity, correctness, and robustness. The results highlight the modest capabilities of LLMs, as their responses are often unclear and inaccurate. As a result, medical advice by LLMs should be cautiously approached. However, evidence suggests that LLMs are steadily improving and could potentially play a role in healthcare systems in the future. To address the issue of medical misinformation, there is a pressing need for the development of a comprehensive self-diagnosis dataset. This dataset could enhance the reliability of LLMs in medical applications by featuring more realistic prompt styles with minimal information across a broader range of medical fields.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.04910",
+          "http_status": 200,
+          "pdf_sample_score": 0.3102,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T05:11:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

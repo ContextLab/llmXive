@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MedMisBench Ingestion Schema"
+description: "Schema for the raw filtered dataset after ingestion and filtering."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  prompt:
+    type: "string"
+    description: "The full text of the input prompt."
+  source_label:
+    type: "string"
+    description: "Source classification (e.g., 'Authority-framed', 'Exception-poisoning')."
+    enum:
+      - "Authority-framed"
+      - "Exception-poisoning"
+  correct_answer:
+    type: "string"
+    description: "The medically correct answer (ground truth)."
+  false_claim:
+    type: "string"
+    description: "The false claim presented in the prompt (optional; if absent, will be extracted via regex)."
+    nullable: true
+required:
+  - id
+  - prompt
+  - source_label
+  - correct_answer
+additionalProperties: false

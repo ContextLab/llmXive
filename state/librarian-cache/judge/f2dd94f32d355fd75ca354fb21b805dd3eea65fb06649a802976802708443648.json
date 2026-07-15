@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.04910",
+  "judged_at": "2026-07-15T05:11:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"measuring epistemic resilience of llms under misleading medical contex\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the robustness and correctness of LLMs under misleading or incomplete medical contexts (via sentence dropout and open-ended self-diagnosis prompts), which directly aligns with the user's focus on \"epistemic resilience\" and \"misleading medical context\" in the medical domain. Although it proposes a specific evaluation method (EvalPrompt) rather than using the exact \"llmXive\" framework, it provides the necessary empirical baseline and mechani",
+  "relevant": true
+}

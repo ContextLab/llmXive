@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Schema"
+description: "Schema for the sensitivity analysis results across probability thresholds."
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "Probability threshold used (e.g., 0.01, 0.05, 0.1)."
+  asr:
+    type: "number"
+    description: "Attack Success Rate at this threshold."
+    minimum: 0.0
+    maximum: 1.0
+  refusal_rate:
+    type: "number"
+    description: "Refusal Rate at this threshold."
+    minimum: 0.0
+    maximum: 1.0
+  variance:
+    type: "number"
+    description: "Variance from the baseline ASR."
+required:
+  - threshold
+  - asr
+  - refusal_rate
+  - variance
+additionalProperties: false
