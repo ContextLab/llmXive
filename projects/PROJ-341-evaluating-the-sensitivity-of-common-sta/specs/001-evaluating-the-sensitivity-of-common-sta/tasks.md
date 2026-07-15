@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations.
+**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations. [UNRESOLVED-CLAIM: c_2bbc4a3c — status=not_enough_info]
 
 **Independent Test**: {{claim:c_46a368b8}}
 
@@ -81,8 +81,8 @@
 ### Implementation for User Story 1
 
 - [X] T012b [US1] Refactor `code/simulation/test_runner.py` to accept `alpha` as a dynamic parameter instead of hardcoding 0.05; this enables SC-004 sensitivity analysis (FR-002, SC-004)
-- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; verify runtime of the full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml` (FR-001, Constitution VI)
-- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5 and route to fallback logic (FR-007); MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002, FR-007)
+- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; verify runtime of the full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml` [UNRESOLVED-CLAIM: c_d8795938 — status=not_enough_info] (FR-001, Constitution VI)
+- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; The system must detect expected cell counts less than 5 and route to fallback logic. [UNRESOLVED-CLAIM: c_f5333042 — status=not_enough_info] (FR-007); MUST flag n < 30 for normality warnings [UNRESOLVED-CLAIM: c_35234d45 — status=not_enough_info]; supports dynamic alpha (FR-002, FR-007)
 - [X] T013 [US1] Implement logic in `code/simulation/chi_squared_utils.py` to {{claim:c_61a9fcdd}} (1405.1250, https://arxiv.org/abs/1405.1250) (FR-007, Edge Cases)
 - [X] T013b [US1] Implement logic in `code/simulation/test_runner.py` to flag sample sizes n < 30 as "small sample warning" where normality assumptions are severely violated (Edge Cases)
 - [X] T014a [US1] Create `code/main.py` skeleton with argument parsing for sample size, effect size, test type, and alpha
@@ -108,12 +108,12 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/analysis/threshold_finder.py` to compute binomial confidence intervals (Wilson score) for all error rates (FR-003); depends on T018
-- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. (FR-004)
-- [X] T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify the smallest n where power CI remains < 0.80) for 3 consecutive increments (FR-004)
-- [ ] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n <!-- FAILED: unspecified -->
+- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. [UNRESOLVED-CLAIM: c_39b4d7ff — status=not_enough_info] (FR-004)
+- [X] T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify the smallest n where power CI remains < 0.80) for 3 consecutive increments [UNRESOLVED-CLAIM: c_651d9aef — status=not_enough_info] (FR-004)
+- [X] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T024 [US2] Implement `code/visualization/plotter.py` to generate line plots with 95% CI bands for sample size vs. error rate (FR-005)
 - [X] T025 [US2] Add annotations to plots marking the identified reliability thresholds and nominal alpha/power lines
-- [X] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30)
+- [X] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30) [UNRESOLVED-CLAIM: c_9c268ce8 — status=not_enough_info]
 - [X] T027 [US2] Save all plots to `data/visualization/` directory with descriptive filenames
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -133,13 +133,13 @@
 ### Implementation for User Story 3
 
 - [X] T029a [US3] Implement `code/analysis/validator.py` to download the {{claim:c_51a94046}} (1711.07831, https://arxiv.org/abs/1711.07831) using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
-- [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset[UNRESOLVED-CLAIM: c_787e6c3f — status=not_enough_info] using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
+- [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
 - [X] T029c [US3] Implement `code/analysis/validator.py` to download the {{claim:c_aae0c4fb}} (1810.10076, https://arxiv.org/abs/1810.10076) using `ucimlrepo` with the dataset ID corresponding to the Adult dataset. (FR-006)
-- [ ] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III) <!-- FAILED: unspecified -->
+- [X] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III) <!-- FAILED: unspecified -->
 - [X] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
-- [ ] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
-- [~] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10., and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
-- [~] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json` <!-- FAILED: unspecified -->
+- [X] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
+- [X] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10. [UNRESOLVED-CLAIM: c_b5079288 — status=not_enough_info], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
+- [X] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json` <!-- FAILED: unspecified -->
 - [X] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035 [US1] Implement sensitivity analysis for alpha thresholds across standard significance levels. to observe critical sample size shifts (SC-004); depends on T012b refactored for dynamic alpha
-- [~] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. [UNRESOLVED-CLAIM: c_7010d612 — status=not_enough_info] <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T037 [P] Add comprehensive logging to all simulation steps for debugging reproducibility issues
 - [X] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
 - [X] T039 [P] Run `pytest` suite to ensure all unit and integration tests pass
@@ -250,5 +250,5 @@ With multiple developers:
 - **Compute Constraint**: Ensure all simulation tasks (T012, T014, T015) use vectorization or batch processing to stay within 6h/2CPU limits. Do not use 8-bit quantization or GPU.
 - **Alpha Constraint**: T012b must be completed before T012 to ensure dynamic alpha support for SC-004.
 - **Data Flow Constraint**: T016 (output CSV) must complete before T020 (threshold calculation) and T031 (validation) can execute.
-- **Real-Data Constraint**: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric IDs (197, 198, 522) to fetch datasets, not generic "download from UCI" instructions.
+- **Real-Data Constraint**: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric IDs (197, 198, 522) to fetch datasets [UNRESOLVED-CLAIM: c_f0a6c398 — status=not_enough_info], not generic "download from UCI" instructions.
 - **Note on Spec.md**: This is a plan-root cause. The tasks enforce the [deferred] minimum as per FR-001.

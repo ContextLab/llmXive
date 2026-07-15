@@ -7,6 +7,6 @@ statsmodels
 scikit-learn
 requests
 ucimlrepo
-psutil
-# Additional dependencies added for bootstrapping and validation
-tqdm
+openml
+pytest
+pyyaml
