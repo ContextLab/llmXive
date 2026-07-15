@@ -14,32 +14,34 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/modeling/train.py; 4 command(s) failed: python code/data/download_gh.py (rc=1); python code/data/extract_metrics.py (rc=1); python code/data/preprocess.py (rc=1); 1 declared deliverable(s) absent: data/model/corrected_pvalues.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 4 command(s) failed: python code/data/extract_metrics.py (rc=1); python code/data/preprocess.py (rc=2); python code/modeling/train.py (rc=1); 1 declared deliverable(s) absent: data/model/corrected_pvalues.csv
 
 ## Failing / missing run-book commands
 
-- python code/data/download_gh.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py", line 12, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
 - python code/data/extract_metrics.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/extract_metrics.py", line 45, in <module>
-    import lizard
-ModuleNotFoundError: No module named 'lizard'
-- python code/data/preprocess.py -> rc=1
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/extract_metrics.py", line 13, in <module>
+    import psutil
+ModuleNotFoundError: No module named 'psutil'
+- python code/data/preprocess.py -> rc=2
+    usage: preprocess.py [-h] --input INPUT --output OUTPUT
+                     [--ground-truth GROUND_TRUTH]
+                     [--min-precision MIN_PRECISION]
+preprocess.py: error: the following arguments are required: --input, --output
+- python code/modeling/train.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/preprocess.py", line 23, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
-- python code/modeling/train.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/train.py': [Errno 2] No such file or directory
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/train.py", line 24, in <module>
+    from modeling.generate_thresholds import generate_thresholds
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/generate_thresholds.py", line 24, in <module>
+    from modeling.evaluate import load_test_data, load_model
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 13, in <module>
+    from sklearn.metrics import roc_auc_score, precision_recall_curve, auc, calibration_curve, ConfusionMatrixDisplay
+ImportError: cannot import name 'calibration_curve' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)
 - python code/modeling/evaluate.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 26, in <module>
-    import joblib
-ModuleNotFoundError: No module named 'joblib'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 13, in <module>
+    from sklearn.metrics import roc_auc_score, precision_recall_curve, auc, calibration_curve, ConfusionMatrixDisplay
+ImportError: cannot import name 'calibration_curve' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)
 
 ## Declared deliverables still missing
 
@@ -51,5 +53,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/model/corrected_pvalues.csv` is declared but was NOT written. Scripts referencing it:
     - `code/report/generate_report.py` — NOT invoked by the run-book
+    - `code/modeling/train.py` — IS a run-book command
     - `code/modeling/correct_pvalues.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/model/corrected_pvalues.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

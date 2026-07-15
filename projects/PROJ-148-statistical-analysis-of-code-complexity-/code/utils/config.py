@@ -1,50 +1,49 @@
 from __future__ import annotations
 
+import logging
 import os
 import random
 from dataclasses import dataclass, field
 from typing import Optional
 
-import numpy as np
-
-
 @dataclass
 class Config:
-    """Configuration container for the project."""
+    """Global configuration container."""
     seed: int = 42
+    log_level: int = logging.INFO
     data_dir: str = "data"
     code_dir: str = "code"
-    output_dir: str = "data/output"
-    model_dir: str = "data/model"
-    log_level: int = logging.INFO
-    # Add other config parameters as needed
+    output_dir: str = "data/model"
+    figures_dir: str = "figures"
+    cache_dir: str = "data/cache"
+    project_name: str = "statistical-analysis-of-code-complexity"
+
+    def __post_init__(self):
+        # Ensure directories exist
+        for d in [self.data_dir, self.code_dir, self.output_dir, self.figures_dir, self.cache_dir]:
+            os.makedirs(d, exist_ok=True)
+
+_config: Optional[Config] = None
+
+def get_config() -> Config:
+    """Get or create the global configuration instance."""
+    global _config
+    if _config is None:
+        _config = Config()
+    return _config
+
+def set_random_seed(seed: int | None = None) -> None:
+    """Set random seeds for reproducibility."""
+    if seed is None:
+        seed = get_config().seed
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    # Note: numpy and torch seeds are set in their respective modules if needed
 
 def get_seed() -> int:
-    """Get the random seed from environment or default."""
-    seed_str = os.getenv("RANDOM_SEED", "42")
-    try:
-        return int(seed_str)
-    except ValueError:
-        return 42
+    """Get the current random seed."""
+    return get_config().seed
 
-
-def set_random_seed(seed: Optional[int] = None) -> None:
-    """Set random seed for reproducibility across libraries."""
-    if seed is None:
-        seed = get_seed()
-
-    random.seed(seed)
-    np.random.seed(seed)
-    # If torch is available, set seed
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
-
-
-# Import logging here to avoid circular dependency if Config uses it,
-# though Config uses int for log_level.
-import logging
+def get_log_level() -> int:
+    """Get the current logging level."""
+    return get_config().log_level

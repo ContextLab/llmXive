@@ -34,12 +34,14 @@ If omitted, the default paths above are used.
 from __future__ import annotations
 
 import argparse
+import logging
 import pathlib
 import sys
 
 import pandas as pd
 from statsmodels.stats.multitest import multipletests
 
+# Import logging utility from the project's shared utils
 from utils.logging import get_logger
 
 LOGGER = get_logger(__name__)
@@ -81,7 +83,7 @@ def apply_bh_correction(df: pd.DataFrame, alpha: float = ALPHA) -> pd.DataFrame:
     df: pd.DataFrame
         DataFrame containing a ``p_value`` column.
     alpha: float
-        Desired false discovery rate threshold (default 0.05).
+        Desired false discovery rate threshold (default: 0.05).
 
     Returns
     -------

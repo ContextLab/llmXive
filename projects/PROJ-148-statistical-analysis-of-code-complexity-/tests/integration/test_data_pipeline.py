@@ -113,7 +113,7 @@ def test_end_to_end_pipeline(monkeypatch, temp_data_dir):
     def fake_split_dataset():
         pre_path = temp_data_dir / "preprocessed" / "preprocessed.csv"
         df = pd.read_csv(pre_path)
-        # 70 % train, 30 % test split (deterministic via random_state)
+        # 70 % train, 30 % test split (deterministic via random_state)
         train_df = df.sample(frac=0.7, random_state=42)
         test_df = df.drop(train_df.index)
 

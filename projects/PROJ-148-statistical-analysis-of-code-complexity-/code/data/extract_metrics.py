@@ -1,3 +1,7 @@
+"""
+Extract code complexity metrics from source files using lizard.
+Implements memory-aware, chunked processing to stay within a modest RAM limit.
+"""
 from __future__ import annotations
 
 import argparse
@@ -5,260 +9,326 @@ import csv
 import hashlib
 import logging
 import os
-import resource
+import gc
+import psutil
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional, Generator
 
 import lizard
-import pandas as pd
 
-# Import logging utility from project structure
-try:
-    from utils.logging import get_logger
-except ImportError:
-    # Fallback for direct execution if utils not in path
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+from utils.logging import get_logger
+from utils.config import get_seed
 
-    def get_logger(name: str) -> logging.Logger:
-        return logging.getLogger(name)
-
-# Import cache utility
-try:
-    from data.cache_metrics import load_cache, save_cache, compute_file_hash
-except ImportError:
-    # Fallback if cache module not fully initialized in this specific run context
-    # In a full run, this should be imported. For safety, we define a minimal stub if missing
-    # but the task implies the cache module exists (T037).
-    def load_cache(path: str) -> Dict: return {}
-    def save_cache(path: str, data: Dict) -> None: pass
-    def compute_file_hash(path: str) -> str:
-        with open(path, 'rb') as f:
-            return hashlib.md5(f.read()).hexdigest()
+# Constants
+DEFAULT_CHUNK_SIZE = 50  # Number of files per chunk
+DEFAULT_RAM_LIMIT_MB = 1024  # 1 GB limit
+METRIC_COLUMNS = [
+    "file_path", "project_name", "function_name", "loc", "nloc",
+    "cyclomatic_complexity", "token_count", "nesting_depth",
+    "halstead_volume", "is_bug_fix"
+]
 
 logger = get_logger(__name__)
 
-# Constants
-DEFAULT_CHUNK_SIZE = 100  # Number of files to process before checkpointing/cleaning memory
-DEFAULT_RAM_LIMIT_MB = 1024  # Target RAM limit in MB (modest limit)
-METRICS_COLUMNS = [
-    'file_path', 'project', 'cyclomatic_complexity', 'loc', 'token_count',
-    'nesting_depth', 'halstead_volume', 'file_hash', 'parse_success'
-]
-
-def calculate_halstead_volume(operators: int, operands: int) -> float:
-    """
-    Calculate Halstead Volume.
-    V = N * log2(n)
-    N = total operators + total operands
-    n = unique operators + unique operands
-    """
-    if n_unique := (operators + operands) == 0:
-        return 0.0
-    # Note: lizard returns counts of unique and total.
-    # We need unique operators (n1), unique operands (n2), total operators (N1), total operands (N2).
-    # The function signature here is simplified for the prompt context, assuming we extract these from lizard.
-    # Correct implementation using lizard's actual return structure happens in extract_metrics_for_file.
-    return 0.0
-
-def extract_metrics_for_file(file_path: Path, project_name: str) -> Optional[Dict]:
-    """
-    Extract complexity metrics for a single file using lizard.
-    Handles parse failures gracefully (returns None and logs warning).
-    """
-    try:
-        # Lizard analysis
-        # lizard.analyze_file.analyze_source_code returns an object with metrics
-        result = lizard.analyze_file.analyze_source_code(
-            str(file_path),
-            language=str(file_path.suffix).lower().replace('.', '')
-        )
-
-        if result is None:
-            logger.warning(f"Failed to parse file (None result): {file_path}")
-            return None
-
-        if not hasattr(result, 'functions') or len(result.functions) == 0:
-            # File might be empty or non-code. Count as 0 metrics but valid.
-            # Or skip? Let's record as valid with 0s.
-            pass
-
-        # Aggregate metrics across functions in the file
-        total_cc = sum(f.cyclomatic_complexity for f in result.functions)
-        total_loc = sum(f.length for f in result.functions)
-        total_tokens = sum(f.token_count for f in result.functions)
-        max_nesting = max((f.nesting_depth for f in result.functions), default=0)
-
-        # Halstead calculation
-        # Lizard provides n1, n2, N1, N2 for the whole file in result if available,
-        # or we sum from functions. Lizard's FileAnalysis has these attributes.
-        # Accessing directly from result object if available
-        if hasattr(result, 'n1'):
-            n1, n2, N1, N2 = result.n1, result.n2, result.N1, result.N2
-        else:
-            # Fallback: sum from functions (approximation if file-level not set)
-            n1, n2, N1, N2 = 0, 0, 0, 0
-            for f in result.functions:
-                if hasattr(f, 'n1'):
-                    n1 += f.n1
-                    n2 += f.n2
-                    N1 += f.N1
-                    N2 += f.N2
-
-        # Halstead Volume V = N * log2(n)
-        # N = N1 + N2 (total operators + total operands)
-        # n = n1 + n2 (unique operators + unique operands)
-        N = N1 + N2
-        n = n1 + n2
-        if n > 0:
-            halstead_volume = N * (n.bit_length() if n > 0 else 0) # Approx log2
-            # More precise:
-            import math
-            halstead_volume = N * math.log2(n) if n > 1 else 0.0
-        else:
-            halstead_volume = 0.0
-
-        file_hash = compute_file_hash(str(file_path))
-
-        return {
-            'file_path': str(file_path),
-            'project': project_name,
-            'cyclomatic_complexity': total_cc,
-            'loc': total_loc,
-            'token_count': total_tokens,
-            'nesting_depth': max_nesting,
-            'halstead_volume': halstead_volume,
-            'file_hash': file_hash,
-            'parse_success': True
-        }
-
-    except Exception as e:
-        logger.warning(f"Error parsing file {file_path}: {e}")
-        # T050 Requirement: Skip unparsable files, log warnings, continue.
-        # Return None to indicate failure, handled by caller.
-        return None
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB (Unix/Linux/macOS)."""
-    try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in kilobytes on Linux, bytes on some others?
-        # On Linux, it's KB.
-        return usage.ru_maxrss / 1024.0
-    except Exception:
+    """
+    Get current memory usage in MB using psutil.
+    Returns the memory usage of the current process.
+    """
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
+
+
+def calculate_halstead_volume(operators: int, operands: int, n1: int, n2: int) -> float:
+    """
+    Calculate Halstead Volume.
+    N = total number of operators and operands
+    n = number of distinct operators and operands
+    V = N * log2(n)
+    """
+    if n1 + n2 == 0:
         return 0.0
+    N = operators + operands
+    n = n1 + n2
+    if n == 0:
+        return 0.0
+    return N * (n1 + n2)
+
+
+def extract_metrics_for_file(
+    file_path: Path,
+    project_name: str,
+    is_bug_fix: bool = False
+) -> List[Dict[str, Any]]:
+    """
+    Extract complexity metrics for a single file using lizard.
+    Handles parsing errors gracefully and returns a list of metrics per function.
+    """
+    metrics_list = []
+    try:
+        # Use lizard to analyze the file
+        results = lizard.analyze_file.analyze_source_code(
+            str(file_path),
+            file_path.read_text(encoding='utf-8', errors='ignore')
+        )
+
+        if not results.function_list:
+            # If no functions found, create a file-level metric
+            metrics_list.append({
+                "file_path": str(file_path),
+                "project_name": project_name,
+                "function_name": "<file>",
+                "loc": results.nloc,
+                "nloc": results.nloc,
+                "cyclomatic_complexity": results.cyclomatic_complexity,
+                "token_count": results.token_count,
+                "nesting_depth": results.max_nesting,
+                "halstead_volume": calculate_halstead_volume(
+                    results.operator_count,
+                    results.operands_count,
+                    results.distinct_operators,
+                    results.distinct_operands
+                ),
+                "is_bug_fix": is_bug_fix
+            })
+        else:
+            for func in results.function_list:
+                metrics_list.append({
+                    "file_path": str(file_path),
+                    "project_name": project_name,
+                    "function_name": func.name,
+                    "loc": func.line_count,
+                    "nloc": func.nloc,
+                    "cyclomatic_complexity": func.cyclomatic_complexity,
+                    "token_count": func.token_count,
+                    "nesting_depth": func.max_nesting,
+                    "halstead_volume": calculate_halstead_volume(
+                        func.operator_count,
+                        func.operands_count,
+                        func.distinct_operators,
+                        func.distinct_operands
+                    ),
+                    "is_bug_fix": is_bug_fix
+                })
+    except Exception as e:
+        logger.warning(f"Failed to parse {file_path}: {e}")
+        # Return a minimal record indicating failure
+        metrics_list.append({
+            "file_path": str(file_path),
+            "project_name": project_name,
+            "function_name": "<parse_error>",
+            "loc": 0,
+            "nloc": 0,
+            "cyclomatic_complexity": 0,
+            "token_count": 0,
+            "nesting_depth": 0,
+            "halstead_volume": 0.0,
+            "is_bug_fix": is_bug_fix
+        })
+
+    return metrics_list
+
+
+def get_file_list_from_directory(input_dir: Path, extensions: List[str] = None) -> List[Path]:
+    """
+    Recursively find all source files in a directory.
+    """
+    if extensions is None:
+        extensions = ['.java', '.py', '.cpp', '.c', '.h', '.js', '.ts']
+    
+    file_list = []
+    for ext in extensions:
+        file_list.extend(input_dir.rglob(f'*{ext}'))
+    
+    return sorted(file_list)
+
+
+def process_chunk(
+    files: List[Path],
+    project_name: str,
+    is_bug_fix_map: Optional[Dict[str, bool]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Process a chunk of files and return their metrics.
+    """
+    all_metrics = []
+    for file_path in files:
+        is_bug_fix = False
+        if is_bug_fix_map:
+            is_bug_fix = is_bug_fix_map.get(str(file_path), False)
+        
+        metrics = extract_metrics_for_file(file_path, project_name, is_bug_fix)
+        all_metrics.extend(metrics)
+    return all_metrics
+
 
 def extract_metrics(
     input_dir: Path,
-    output_file: Path,
+    output_path: Path,
     chunk_size: int = DEFAULT_CHUNK_SIZE,
-    ram_limit_mb: float = DEFAULT_RAM_LIMIT_MB
+    ram_limit_mb: int = DEFAULT_RAM_LIMIT_MB,
+    is_bug_fix_map: Optional[Dict[str, bool]] = None
 ) -> None:
     """
-    Extract metrics for all Java files in input_dir.
-    Implements memory-aware, chunked processing.
+    Extract complexity metrics from all source files in input_dir.
+    Processes files in chunks to stay within RAM limits.
     
-    1. Scans files in batches (chunks).
-    2. Processes a chunk, appends to CSV.
-    3. Checks memory usage after each chunk.
-    4. If memory exceeds limit, forces garbage collection and logs status.
-    5. Skips files that fail to parse (T050).
+    Args:
+        input_dir: Directory containing source files
+        output_path: Path to write the CSV output
+        chunk_size: Number of files to process at once
+        ram_limit_mb: Maximum RAM usage in MB
+        is_bug_fix_map: Optional mapping of file paths to bug-fix status
     """
-    if not input_dir.exists():
-        raise FileNotFoundError(f"Input directory not found: {input_dir}")
-
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting metric extraction from {input_dir}")
+    logger.info(f"Chunk size: {chunk_size}, RAM limit: {ram_limit_mb} MB")
     
-    # Initialize cache
-    cache_path = output_file.parent / f"{output_file.stem}_cache.json"
-    existing_cache = load_cache(str(cache_path))
+    # Get all files
+    file_list = get_file_list_from_directory(input_dir)
+    total_files = len(file_list)
+    logger.info(f"Found {total_files} source files")
     
-    # Collect files
-    # Filter for Java files
-    java_files = list(input_dir.rglob("*.java"))
-    logger.info(f"Found {len(java_files)} Java files to process.")
-
-    # Prepare output list
-    results = []
-    
-    # Check if output file exists to append or overwrite
-    file_exists = output_file.exists()
-
-    with open(output_file, mode='a' if file_exists else 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=METRICS_COLUMNS)
-        if not file_exists:
+    if total_files == 0:
+        logger.warning("No source files found. Creating empty output.")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=METRIC_COLUMNS)
             writer.writeheader()
-
-        for i, file_path in enumerate(java_files):
-            # T051: Chunked processing
-            # Process in chunks to manage memory and allow intermediate saving
-            if i > 0 and i % chunk_size == 0:
-                logger.info(f"Processed {i} files. Current chunk complete.")
-                # Optional: Force garbage collection between chunks
-                import gc
-                gc.collect()
-                
-                # Check memory
-                current_ram = get_memory_usage_mb()
-                logger.info(f"Current RAM usage: {current_ram:.2f} MB (Limit: {ram_limit_mb} MB)")
-                
-                if current_ram > ram_limit_mb:
-                    logger.warning(f"RAM usage ({current_ram:.2f} MB) exceeded limit ({ram_limit_mb} MB). "
-                                 "Proceeding with caution, but consider reducing chunk size.")
-
-            # Skip if already in cache (hash match)
-            file_str = str(file_path)
-            if file_str in existing_cache:
-                # Skip processing, assume cached data is valid
-                # In a real robust system, we'd verify the hash of the file matches the cache key
-                # Here we trust the cache for speed
-                continue
-
-            # Extract metrics
-            metrics = extract_metrics_for_file(file_path, project_name=input_dir.name)
+        return
+    
+    # Determine project name from directory structure
+    project_name = input_dir.name
+    
+    # Process in chunks
+    all_metrics = []
+    current_chunk = []
+    chunk_count = 0
+    
+    for i, file_path in enumerate(file_list):
+        current_chunk.append(file_path)
+        
+        # Process chunk when it reaches size or at the end
+        if len(current_chunk) >= chunk_size or i == total_files - 1:
+            logger.info(f"Processing chunk {chunk_count + 1} ({len(current_chunk)} files)")
             
-            if metrics is not None:
-                results.append(metrics)
-                # Write to CSV immediately to avoid holding large list in memory
-                # But for efficiency, we might buffer a few. 
-                # Given the "memory-aware" requirement, writing immediately per file or small batch is safer.
-                # Let's write immediately if we are in a chunked loop to ensure disk persistence.
-                writer.writerow(metrics)
-                
-                # Update cache
-                existing_cache[file_str] = metrics['file_hash']
-                if i % 10 == 0: # Save cache periodically
-                    save_cache(str(cache_path), existing_cache)
-            else:
-                # Log handled failure (T050)
-                pass
+            # Check memory before processing
+            mem_before = get_memory_usage_mb()
+            if mem_before > ram_limit_mb * 0.8:  # 80% threshold
+                logger.warning(f"Memory usage high ({mem_before:.1f} MB). Forcing garbage collection.")
+                gc.collect()
+            
+            chunk_metrics = process_chunk(current_chunk, project_name, is_bug_fix_map)
+            all_metrics.extend(chunk_metrics)
+            
+            # Check memory after processing
+            mem_after = get_memory_usage_mb()
+            logger.info(f"Chunk {chunk_count + 1} complete. Memory: {mem_after:.1f} MB")
+            
+            # Force garbage collection if memory is high
+            if mem_after > ram_limit_mb * 0.9:
+                logger.warning("Memory usage very high. Clearing cache and forcing GC.")
+                del chunk_metrics
+                gc.collect()
+            
+            current_chunk = []
+            chunk_count += 1
+            
+            # Optional: Write intermediate results to avoid memory buildup
+            if chunk_count % 10 == 0 and all_metrics:
+                logger.info(f"Writing intermediate results ({len(all_metrics)} records so far)")
+                _write_metrics_to_csv(all_metrics, output_path, append=True)
+                all_metrics = []  # Clear in-memory list
+    
+    # Write remaining metrics
+    if all_metrics:
+        logger.info(f"Writing final batch ({len(all_metrics)} records)")
+        _write_metrics_to_csv(all_metrics, output_path, append=(chunk_count > 0))
+    
+    logger.info(f"Metric extraction complete. Total records: {sum(1 for _ in open(output_path)) - 1}")
 
-        # Final cache save
-        save_cache(str(cache_path), existing_cache)
 
-    logger.info(f"Metrics extraction complete. Output saved to {output_file}")
+def _write_metrics_to_csv(metrics: List[Dict[str, Any]], output_path: Path, append: bool = False) -> None:
+    """
+    Write metrics to CSV file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    mode = 'a' if append else 'w'
+    with open(output_path, mode, newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=METRIC_COLUMNS)
+        if not append:
+            writer.writeheader()
+        writer.writerows(metrics)
 
-def main():
-    parser = argparse.ArgumentParser(description="Extract code complexity metrics from Java files.")
-    parser.add_argument("--input", type=str, required=True, help="Directory containing Java source files")
-    parser.add_argument("--output", type=str, required=True, help="Output CSV file path")
-    parser.add_argument("--chunk-size", type=int, default=DEFAULT_CHUNK_SIZE, 
-                      help=f"Number of files to process per chunk (default: {DEFAULT_CHUNK_SIZE})")
-    parser.add_argument("--ram-limit", type=float, default=DEFAULT_RAM_LIMIT_MB,
-                      help=f"RAM limit in MB (default: {DEFAULT_RAM_LIMIT_MB})")
+
+def main() -> None:
+    """
+    Main entry point for the script.
+    """
+    parser = argparse.ArgumentParser(
+        description="Extract code complexity metrics from source files."
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        required=True,
+        help="Input directory containing source files"
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="Output CSV file path"
+    )
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=DEFAULT_CHUNK_SIZE,
+        help=f"Number of files to process per chunk (default: {DEFAULT_CHUNK_SIZE})"
+    )
+    parser.add_argument(
+        "--ram-limit",
+        type=int,
+        default=DEFAULT_RAM_LIMIT_MB,
+        help=f"RAM limit in MB (default: {DEFAULT_RAM_LIMIT_MB})"
+    )
+    parser.add_argument(
+        "--bug-map",
+        type=Path,
+        default=None,
+        help="Optional CSV file mapping file paths to bug-fix status"
+    )
     
     args = parser.parse_args()
     
-    input_dir = Path(args.input)
-    output_file = Path(args.output)
+    # Validate inputs
+    if not args.input.exists():
+        logger.error(f"Input directory does not exist: {args.input}")
+        sys.exit(1)
     
+    # Load bug map if provided
+    is_bug_fix_map = None
+    if args.bug_map and args.bug_map.exists():
+        is_bug_fix_map = {}
+        with open(args.bug_map, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                is_bug_fix_map[row['file_path']] = row['is_bug_fix'] == 'True'
+        logger.info(f"Loaded bug map with {len(is_bug_fix_map)} entries")
+    
+    # Run extraction
     extract_metrics(
-        input_dir=input_dir,
-        output_file=output_file,
+        input_dir=args.input,
+        output_path=args.output,
         chunk_size=args.chunk_size,
-        ram_limit_mb=args.ram_limit
+        ram_limit_mb=args.ram_limit,
+        is_bug_fix_map=is_bug_fix_map
     )
+    
+    logger.info("Extraction completed successfully.")
+
 
 if __name__ == "__main__":
     main()
