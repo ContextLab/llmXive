@@ -1,23 +1,23 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "LoCoMo Benchmark Dataset Schema"
-description: "Schema for the input LoCoMo benchmark CSV file."
-type: object
+title: "LoCoMo Dataset Schema"
+description: "Schema for the raw LoCoMo benchmark dataset."
+type: "object"
 properties:
   task_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the task."
   question:
-    type: string
-    description: "The multi-hop reasoning question."
+    type: "string"
+    description: "The reasoning query."
   context:
-    type: string
-    description: "The full context text or concatenated paragraphs."
-  answer:
-    type: string
-    description: "The ground truth answer."
+    type: "string"
+    description: "The supporting text or context for the query."
+  ground_truth:
+    type: "string"
+    description: "The expected answer for the query."
 required:
   - task_id
   - question
   - context
-  - answer
-additionalProperties: true
+  - ground_truth
+additionalProperties: false

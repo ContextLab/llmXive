@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Results Schema"
+description: "Schema for the output of strategy executions."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Foreign key to the task."
+  strategy:
+    type: "string"
+    enum:
+      - "Full"
+      - "Lazy"
+      - "Greedy"
+    description: "The traversal strategy used."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Alignment with ground truth (0.0 to 1.0)."
+  nodes_visited:
+    type: "integer"
+    minimum: 0
+    description: "Number of nodes visited during traversal."
+  latency_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Time taken for execution in seconds."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "unresolved"
+      - "error"
+    description: "Execution status."
+  evidence_threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence threshold for Lazy strategy (null for others)."
+    nullable: true
+  top_k:
+    type: "integer"
+    minimum: 1
+    description: "Top-k edges for Greedy strategy (null for others)."
+    nullable: true
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of execution."
+required:
+  - task_id
+  - strategy
+  - accuracy
+  - nodes_visited
+  - latency_seconds
+  - status
+  - timestamp
+additionalProperties: false

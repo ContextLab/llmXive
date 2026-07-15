@@ -1,4 +1,4 @@
-resolved_at: '2026-07-15T09:55:43.221448+00:00'
+resolved_at: '2026-07-15T10:50:37.029816+00:00'
 datasets:
 - intent: CPU-only
   status: verified
@@ -15,23 +15,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Three_new_steroidal_alkaloids_from_the_whole_plants_of_i_Sarcococca_ruscifolia_i_/32993595
+  - url: https://indigo.uic.edu/articles/thesis/An_Ethnographic_Analysis_of_Teaching_Responses_to_Error_in_Surgical_Simulation/32993894
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Transcripts_of_caregivers_under_family_planning_study/32070471
+  - url: https://repository.lboro.ac.uk/articles/dataset/Impact_Testing_on_a_Radial_Turbine_Blade/32955863
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Expanding_and_enhancing_employment_opportunities_in_the_social_sector_particularly_for_rural_and_marginalised_women/32851400
+  - url: https://tandf.figshare.com/articles/journal_contribution/Determination_and_safety_assessment_of_lead_cadmium_arsenic_mercury_and_chromium_in_mulberry_leaves_from_different_origins_and_varieties_in_Chongqing/32993897
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_EEG_dataset_from_children_with_autism_spectrum_disorder_for_aperiodic_component_analysis/32991308
+  - url: https://hsrc-repository.figshare.com/articles/book/Monitoring_maternal_and_child_morbidity_and_mortality_in_South_Africa_strengthening_surveillance_strategies/32382150
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Health_empowerment_and_intention_to_use_digital_health_technologies_among_Korean_older_adults_extending_the_technology_acceptance_model/31998402
+  - url: https://figshare.com/articles/dataset/multi-tissue_mRNA-seq_miRNA-seq_and_single-cell_RNA-seq_of_skeletal_muscle_adipose_liver_and_PBMCs_from_heat-stressed_lactating_Holstein_cowsm/32993768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -39,11 +39,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -51,7 +51,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,23 +118,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Three_new_steroidal_alkaloids_from_the_whole_plants_of_i_Sarcococca_ruscifolia_i_/32993595
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993909
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Transcripts_of_caregivers_under_family_planning_study/32070471
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_4_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993912
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Expanding_and_enhancing_employment_opportunities_in_the_social_sector_particularly_for_rural_and_marginalised_women/32851400
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_EEG_dataset_from_children_with_autism_spectrum_disorder_for_aperiodic_component_analysis/32991308
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993906
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Health_empowerment_and_intention_to_use_digital_health_technologies_among_Korean_older_adults_extending_the_technology_acceptance_model/31998402
+  - url: https://indigo.uic.edu/articles/thesis/Higher_Rank_Bergman_Kernels_on_Compact_Riemann_Surfaces/32993900
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -182,23 +182,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Sexual_Consent_among_Spanish_Mixed-Gender_Couples_A_Dyadic_Analysis/32993573
+  - url: https://hsrc-repository.figshare.com/articles/chapter/Introduction_to_system_dynamics_as_a_decision-support_tool_for_developmental_planning/32382147
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Three_new_steroidal_alkaloids_from_the_whole_plants_of_i_Sarcococca_ruscifolia_i_/32993595
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993909
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Transcripts_of_caregivers_under_family_planning_study/32070471
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_4_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993912
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Expanding_and_enhancing_employment_opportunities_in_the_social_sector_particularly_for_rural_and_marginalised_women/32851400
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993915
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_EEG_dataset_from_children_with_autism_spectrum_disorder_for_aperiodic_component_analysis/32991308
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Detecting_large_language_models_fingerprint_for_Japanese_texts_generated_by_six_LLMs_csv/32993906
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

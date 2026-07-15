@@ -1,37 +1,36 @@
 # Implementation Plan: llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents"
 
 **Branch**: `001-llmxive-memory-optimization` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-memory-optimization/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-memory-optimization/spec.md`
 
 ## Summary
 
-This project implements a comparative analysis of graph memory traversal strategies ("Full" baseline vs. "Lazy" and "Greedy" heuristics) for LLM agents using the LoCoMo benchmark. The primary technical approach involves downloading the LoCoMo dataset via the official HuggingFace loader, constructing memory graphs with validated edge-formation rules (cosine similarity of embeddings), executing three distinct traversal algorithms under a 30-minute per-task timeout, and performing rigorous statistical analysis (paired t-tests/Wilcoxon, LOESS-smoothed trade-off curves) to quantify the trade-off between computational cost (nodes visited) and reasoning accuracy. The implementation is constrained to CPU-only execution to align with the project's goal of simulating edge devices.
+This project implements a comparative analysis of memory reconstruction strategies (Full, Lazy, Greedy) for LLM agents on the LoCoMo benchmark. The primary technical approach involves downloading the LoCoMo dataset, generating synthetic noisy graph variants using semantic distractor edges, and executing three traversal algorithms on a CPU-only environment using a quantized LLM (llama.cpp). The system measures accuracy, latency, and node visitation counts to determine if heuristic strategies can reduce computational load (40-50% node reduction) while maintaining accuracy within 2% of the baseline. The study explicitly acknowledges the "Full" strategy as a noisy baseline and focuses on relative efficiency gains rather than absolute reasoning stability.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `networkx`, `scipy`, `numpy`, `datasets` (HuggingFace), `sentence-transformers`, `tqdm`, `timeout-decorator` (or `signal` based), `pytest`, `loess` (or `statsmodels` for smoothing)  
-**Storage**: Local `data/` directory (Parquet/CSV), `data/processed/` for intermediate graph structures. No external database.  
-**Testing**: `pytest` with unit tests for graph construction and integration tests for the full pipeline.  
-**Target Platform**: Linux (GitHub Actions free-tier: a low-tier virtual machine with a small number of CPU cores, limited RAM, and constrained disk space.).  
-**Project Type**: Research / Data Analysis Pipeline  
-**Performance Goals**: Complete LoCoMo subset analysis within 6 hours; per-task timeout enforced at a predefined duration.  
-**Constraints**: CPU-only; no GPU acceleration; memory usage < 7GB; strict reproducibility via pinned seeds.  
-**Scale/Scope**: LoCoMo benchmark subset (estimated to include a representative number of tasks based on LoCoMo paper/dataset card); synthetic noise injection at controlled density (a low to moderate proportion of relevant subgraph edges).
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `networkx`, `huggingface_hub`, `transformers`, `llama-cpp-python` (for CPU quantized inference), `pytest`, `spacy` (for graph construction), `statsmodels` (for mixed-effects models)  
+**Storage**: Local `data/` directory (raw CSVs, generated graphs, results CSVs)  
+**Testing**: `pytest` (unit tests for graph generation, integration tests for strategy execution)  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7GB RAM, No GPU)  
+**Project Type**: Research CLI / Data Analysis Pipeline  
+**Performance Goals**: Complete full benchmark subset within 6 hours; individual task timeout < 30 mins.  
+**Constraints**: CPU-only execution; memory < 7GB; no external API calls for inference (local quantized model); robust handling of disconnected graphs and timeouts.  
+**Scale/Scope**: LoCoMo benchmark subset (~100-500 tasks); synthetic graph generation for noise injection.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Empirical specifics (exact task counts, model sizes, latency values) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*Gates determined based on constitution file*
-
-- **I. Reproducibility**: The plan enforces pinned random seeds in `code/`, uses the canonical HuggingFace loader for datasets, and requires a `requirements.txt` at `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/`.
-- **II. Verified Accuracy**: All dataset citations (LoCoMo) are restricted to the verified URLs provided in the spec. No URLs for MRAgent are cited as none were verified.
-- **III. Data Hygiene**: Raw data downloads are checksummed before processing. Derivations (graph construction, noise injection) write to new files in `data/processed/`.
-- **IV. Single Source of Truth**: All metrics (accuracy, nodes visited, latency, token count) are logged to CSVs which serve as the single source for the statistical report.
-- **V. Versioning**: The plan mandates content hashing for artifacts and explicitly defines `code/utils/versioning.py` as the mechanism to update the project state file upon completion.
-- **VI. Computational Efficiency**: The plan explicitly selects CPU-tractable methods (small quantized LLM via `llama.cpp` or CPU-native graph traversal logic) and enforces a time-out to prevent resource exhaustion. It also mandates logging `token_count` as a primary metric.
-- **VII. Graph Topology Robustness**: The plan includes a specific **Phase 4: Robustness Analysis** that mandates a paired t-test/Wilcoxon comparison of the "Lazy" heuristic against the baseline on synthetic noisy graphs (noise injected only into the relevant subgraph).
+| Principle | Status | Compliance Details |
+|-----------|--------|--------------------|
+| **I. Reproducibility** | PASS | Random seeds pinned in `code/`. LoCoMo dataset fetched via HuggingFace `datasets` library (canonical source). Synthetic graph noise injection uses fixed seed. |
+| **II. Verified Accuracy** | PASS | Citations in `research.md` restricted to verified HuggingFace URLs. No MRAgent URL cited (per verified list). |
+| **III. Data Hygiene** | PASS | Raw data (LoCoMo CSV) preserved in `data/raw/`. Generated graphs saved as `data/processed/graphs/graph_noise_{seed}.json`. Checksums recorded in state file. |
+| **IV. Single Source of Truth** | PASS | All metrics (accuracy, nodes, latency) derived from `code/` output CSVs. No hand-typed numbers in `paper/` or `plan.md`. |
+| **V. Versioning Discipline** | PASS | `requirements.txt` pins versions. Artifacts hashed upon generation via `code/utils/hash_artifacts.py`. |
+| **VI. Computational Efficiency** | PASS | Plan specifies `llama-cpp-python` with low-bit quantization on CPU. Strategies explicitly target node reduction. |
+| **VII. Graph Topology Robustness** | PASS | Plan includes explicit synthetic noise injection using 'distractor edges' (semantically plausible but incorrect) and statistical comparison (Wilcoxon) on noisy data. |
 
 ## Project Structure
 
@@ -43,10 +42,10 @@ specs/001-llmxive-memory-optimization/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Specification Artifacts)
+├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (created by /speckit-tasks)
+│   └── results.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -56,43 +55,78 @@ projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/
 ├── code/
 │   ├── requirements.txt
 │   ├── __init__.py
-│   ├── main.py                  # Entry point for the pipeline
-│   ├── data/
-│   │   ├── downloader.py        # Handles HuggingFace downloads & checksums
-│   │   └── graph_builder.py     # Constructs Memory Graphs & injects noise
-│   ├── agents/
-│   │   ├── base.py              # Abstract traversal strategy
-│   │   ├── full.py              # Baseline "Full" reconstruction
-│   │   ├── lazy.py              # "Lazy" heuristic
-│   │   └── greedy.py            # "Greedy" heuristic
-│   ├── analysis/
-│   │   ├── metrics.py           # Accuracy, latency, node count, token count calculation
-│   │   └── statistics.py        # T-tests, LOESS smoothing, trade-off curves
-│   ├── utils/
-│   │   ├── timeout.py           # 30-min per-task enforcement
-│   │   ├── logger.py            # Structured logging
-│   │   └── versioning.py        # Updates project state file (Constitution Principle V)
-│   └── tests/
-│       ├── unit/
-│       │   ├── test_graph_builder.py
-│       │   └── test_strategies.py
-│       └── integration/
-│           └── test_pipeline.py
+│   ├── config.py              # Paths, seeds, thresholds (configurable default)
+│   ├── data_loader.py         # LoCoMo download, synthetic graph gen
+│   ├── graph_utils.py         # Noise injection (distractor edges), connectivity checks
+│   ├── strategies/
+│   │   ├── __init__.py
+│   │   ├── full.py            # Baseline traversal
+│   │   ├── lazy.py            # Lazy heuristic (threshold-based)
+│   │   └── greedy.py          # Greedy heuristic (top-k)
+│   ├── inference.py           # llama.cpp wrapper (CPU quantized)
+│   ├── runner.py              # Task execution loop with timeout (30m)
+│   ├── analysis.py            # Stats (t-test, Wilcoxon, Point-Biserial, Mixed-Effects)
+│   └── utils/
+│       └── hash_artifacts.py  # Versioning & Hashing workflow
 ├── data/
-│   ├── raw/                     # Downloaded datasets (checksummed)
-│   └── processed/               # Generated graphs, results CSVs
-└── docs/
-    └── ...
+│   ├── raw/
+│   │   └── locomo.csv         # Downloaded benchmark
+│   ├── processed/
+│   │   ├── graphs/            # Generated graph structures
+│   │   └── results/           # Strategy output CSVs
+│   └── logs/                  # Execution logs, timeouts
+├── tests/
+│   ├── test_graph_utils.py
+│   ├── test_strategies.py
+│   └── test_runner.py
+└── requirements.txt
 ```
 
-**Structure Decision**: A single project structure under `code/` is selected to simplify dependency management and ensure the pipeline runs as a cohesive unit. The separation of `data`, `agents`, and `analysis` ensures modularity and testability, directly supporting the reproducibility and data hygiene principles. Contracts in `specs/` serve as specification artifacts, while runtime validation scripts in `code/` will reference them.
+**Structure Decision**: Single project structure selected to minimize overhead for a research pipeline. `code/` is modularized by concern (data, strategies, inference, analysis) to facilitate unit testing of individual components (e.g., graph noise injection) before full integration.
 
-## Complexity Tracking
+## Phase Plan
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Synthetic Noise Injection (Relevant Subgraph Only) | Required by SC-007 and Constitution Principle VII to test robustness against over-pruning without confounding with irrelevant paths. | Adding noise to the entire graph would introduce irrelevant paths that the 'Full' baseline traverses but heuristics avoid, confounding the 'robustness' claim. |
-| Graph Validation Step | Required to ensure the 'Full' baseline can actually reach the answer via the constructed edges. | Running traversal on a broken graph makes the baseline accuracy uninterpretable. |
-| LOESS Smoothing for Trade-off Curves | Required to handle small sample sizes (N < 50) where Fixed binning (groups of a fixed size) creates high variance.. | Fixed binning leads to unstable inflection points in small datasets. |
-| Three Distinct Strategies (Full, Lazy, Greedy) | Required by FR-002, FR-003, FR-004 to enable comparative analysis. | Running only one strategy would not allow for the statistical comparison required by FR-005. |
-| 30-minute Timeout Logic | Required by FR-007 and US-4 to prevent CI job exhaustion on complex tasks. | Removing the timeout risks hanging the entire GitHub Actions runner, invalidating the experiment. |
+### Phase 0: Research & Feasibility (Current)
+- **Goal**: Confirm dataset availability, verify model feasibility on CPU, define statistical rigor.
+- **FR-001**: Verify LoCoMo CSV download via HuggingFace. Confirm synthetic graph generation logic (noise injection with distractor edges).
+- **FR-007**: Validate timeout logic implementation strategy (Python `signal` or `threading` with `join`).
+- **Statistical Rigor**: Confirm Point-Biserial calculation method and binning strategy (n≥3) for SC-004. Add Power Analysis for MDES.
+- **Output**: `research.md`, `data-model.md`, `contracts/`.
+
+### Phase 1: Core Implementation
+- **Goal**: Implement data loading, graph generation, and strategy skeletons.
+- **FR-001**: Implement `data_loader.py` to fetch LoCoMo and generate synthetic noisy graphs using NER/Rule-Based extraction.
+- **FR-002, FR-003, FR-004**: Implement `strategies/full.py`, `lazy.py`, `greedy.py`.
+- **FR-007**: Implement `runner.py` with hard 30-minute timeout per task.
+- **Edge Cases**: Ensure `graph_utils.py` handles disconnected graphs (flag as unresolved) and degenerate inputs (no division by zero).
+
+### Phase 2: Integration & Execution
+- **Goal**: Run the full pipeline on a small subset (10 tasks) to verify end-to-end flow.
+- **FR-002, FR-003, FR-004**: Execute strategies on subset.
+- **FR-001**: Verify synthetic noise generation reproducibility.
+- **FR-007**: Verify timeout triggers correctly on a simulated slow task.
+
+### Phase 3: Statistical Analysis & Reporting
+- **Goal**: Generate final metrics and statistical reports.
+- **FR-005**: Run paired t-test/Wilcoxon on accuracy distributions.
+- **FR-006**: Calculate Point-Biserial correlation (descriptive only) and perform Threshold Sensitivity Analysis.
+- **SC-001, SC-002, SC-003, SC-004, SC-005**: Compute reduction %, delta, p-values, correlation, inflection points (strategy-specific), and timeout counts.
+- **Power Analysis**: Calculate MDES and report limitations.
+- **Output**: Final `results/` CSVs, analysis report, `stats.json`.
+
+### Phase 4: Validation & Documentation
+- **Goal**: Verify results against acceptance criteria and update paper.
+- **US-1, US-2, US-3, US-4**: Confirm all acceptance scenarios pass.
+- **Constitution Check**: Re-verify reproducibility and data hygiene.
+- **Versioning**: Run `code/utils/hash_artifacts.py` to update state file.
+
+## Versioning & Hashing Workflow
+
+To satisfy Constitution Principle V, the following workflow is enforced:
+1. After each phase, `code/utils/hash_artifacts.py` is executed.
+2. This script computes SHA-256 hashes for all files in `data/` and `code/`.
+3. The hashes are written to the `state/projects/PROJ-894-...yaml` file under `artifact_hashes`.
+4. The `updated_at` timestamp is updated automatically.
+5. The `Advancement-Evaluator` checks these hashes before allowing stage transitions.
+
+This ensures that any change in data or code invalidates the current state, preventing stale analysis.
