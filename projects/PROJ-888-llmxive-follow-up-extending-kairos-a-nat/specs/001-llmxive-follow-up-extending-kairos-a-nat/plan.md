@@ -17,7 +17,7 @@ This project investigates the scaling of minimum information density required fo
 **Project Type**: Research pipeline / Data processing & Modeling  
 **Performance Goals**: Training loop convergence within 4 hours (graceful exit at 6h), inference latency ≤ 2s/step, peak RAM < 7GB.  
 **Constraints**: No GPU/CUDA usage, no 8-bit/4-bit quantization libraries requiring CUDA (e.g., `bitsandbytes`), strict adherence to 7GB RAM limit via data chunking.  
-**Scale/Scope**: LIBERO dataset subset (sampled to fit RAM), 10 independent runs with varying noise seeds, 3 quantization levels (4, 8, 16-bit).  
+**Scale/Scope**: LIBERO dataset subset (sampled to fit RAM), Multiple independent runs with varying noise seeds, multiple quantization levels (variable bit-widths, e.g., 8 and 16-bit).  
 **Prediction Horizons**: 100, 500, and 1000 steps (per Constitution Principle VII).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -34,7 +34,7 @@ This project investigates the scaling of minimum information density required fo
 | **IV. Single Source of Truth** | **PASS** | All error metrics (MSE, p-values/credible intervals) will be generated programmatically and stored in `data/` as CSV/JSON. Paper figures will be generated directly from these files. |
 | **V. Versioning Discipline** | **PASS** | Content hashes for all artifacts in `data/` and `code/` will be tracked in `state/`. `updated_at` timestamps managed by the Advancement-Evaluator. |
 | **VI. Resource-Constrained Stability** | **PASS** | Pipeline explicitly designed for a minimal multi-core/low-memory configuration. Training loop includes memory monitoring and graceful exit at 6h. Quantization parameters (4/8/16-bit) explicitly logged. |
-| **VII. Discrete Modality Error** | **PASS** | MSE normalized by state space dimensionality. Cumulative error growth calculated over 100, 500, and 1000 steps. Bayesian Hierarchical Modeling (BHM) used for multiple independent runs to ensure statistical power. |
+| **VII. Discrete Modality Error** | **PASS** | MSE normalized by state space dimensionality. Cumulative error growth calculated over short, medium, and long horizons. Bayesian Hierarchical Modeling (BHM) used for multiple independent runs to ensure statistical power. |
 
 ## Project Structure
 
@@ -87,7 +87,7 @@ projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Two-Stage Training** | Standard libraries do not support the specific "discrete sensor simulation" with Gaussian noise injection and bin clamping required by US-1. | Using pre-binned datasets would not allow the controlled sweep of quantization levels (4/8/16-bit) and noise parameters (0.1-0.5 std dev) needed for the scaling law analysis. |
+| **Two-Stage Training** | Standard libraries do not support the specific "discrete sensor simulation" with Gaussian noise injection and bin clamping required by US-1. | Using pre-binned datasets would not allow the controlled sweep of quantization levels and noise parameters needed for the scaling law analysis. |
 | **CPU-Only Training Adapter** | The Kairos model is typically trained on GPU; a custom adapter is needed to replace the visual encoder with a fixed discrete projection without triggering CUDA errors. | Attempting to run the original GPU-optimized code on CPU would result in "CUDA device" errors or OOM, failing US-2. |
 | **Statistical Rigor (BHM)** | To satisfy FR-005 and SC-004 with N=10 runs, a Bayesian Hierarchical Model is required to handle low-N high-variance data and avoid Type II errors. | A frequentist t-test with N=10 lacks the power to detect subtle scaling effects, risking a false negative conclusion. |
 | **HDF5 Parsing** | The LIBERO benchmark distributes data as HDF5 files, not Parquet. | Assuming Parquet format would result in data loading failures and invalid state extraction. |
