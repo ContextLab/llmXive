@@ -95,5 +95,5 @@ The researcher needs to sweep significance thresholds and compute confidence int
 - The simulation dataset fits within 7 GB RAM (sub-sampling applied if necessary).
 - The nominal significance threshold α = 0.05 is fixed based on standard statistical convention.
 - No GPU acceleration is available or required for the statistical methods used.
-- The default simulation range for ICC is [0.0, 0.5] with a step size of 0.1.
-- The default set of alpha levels for sensitivity analysis is {0.01, 0.05, 0.10}.
+- The default simulation range for ICC spans from zero to 0.5 with a step size of 0.1.
+- The default set of alpha levels for sensitivity analysis is a standard range of conventional thresholds.

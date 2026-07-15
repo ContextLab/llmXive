@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T05:18:02.599992Z'
-current_stage: in_progress
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-239-evaluating-the-statistical-significance-
-last_run_id: 0dfb13f9-c9e2-482f-b509-1cf20aee48e9
+last_run_id: 6a97134e-d64c-47b2-b8d9-8e995fa249de
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance
 title: Evaluating the Statistical Significance of A/B Test Results with Non-Independent
   Observations
-updated_at: '2026-07-01T20:16:32.539739Z'
+updated_at: '2026-07-15T17:36:06.148701Z'

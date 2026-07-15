@@ -6,7 +6,6 @@ saves it to the project's raw data directory, computes a SHA-256 checksum,
 and performs a basic PII scan for email patterns.
 
 Dependencies:
-    - requests (if not in standard library environment, though usually installed)
     - pandas
     - hashlib
     - re
@@ -20,8 +19,6 @@ import hashlib
 import warnings
 from pathlib import Path
 
-# Ensure we can import from the project root if run as a script
-# but rely on the project structure for imports if run as a module.
 try:
     import pandas as pd
 except ImportError:
@@ -29,16 +26,11 @@ except ImportError:
     sys.exit(1)
 
 # Constants
-CANONICAL_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
-# Alternative CSV source if XLSX is problematic for direct download without xlrd/openpyxl
-# The UCI repository often hosts a CSV version or we can fetch the XLSX and convert.
-# Given the requirement for "real, runnable code" and minimizing heavy dependencies,
-# we will attempt to fetch the CSV if available, or XLSX with pandas engine.
-# UCI often provides a direct CSV for this dataset in some mirrors, but the official is XLSX.
-# We will use the XLSX URL and rely on pandas' default engine (openpyxl) which is likely
-# already present if pandas is installed, or we fall back to a CSV mirror if available.
-# Let's use a reliable direct CSV mirror often used for this dataset to avoid engine issues:
+# Using the direct CSV mirror which is widely used for this dataset to avoid
+# engine dependencies (openpyxl/xlrd) required for the XLSX version.
+# If this URL fails, the script will attempt the canonical XLSX source as a fallback.
 CSV_URL = "https://raw.githubusercontent.com/eamonn/UCI-Online-Retail/master/Online%20Retail.csv"
+CANONICAL_XLSX_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
 
 OUTPUT_DIR = Path("data/raw")
 OUTPUT_FILE = OUTPUT_DIR / "uci_online_retail.csv"
@@ -50,14 +42,14 @@ EMAIL_PATTERN = re.compile(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+')
 def ensure_dirs():
     """Create output directories if they do not exist."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure data directory exists for checksum file
+    Path("data").mkdir(parents=True, exist_ok=True)
 
 def download_data(url: str, output_path: Path) -> None:
-    """Download the dataset from the given URL."""
+    """Download the dataset from the given URL using urllib."""
     print(f"Downloading data from {url}...")
     try:
         import urllib.request
-        # Use urllib to avoid adding 'requests' dependency if not strictly necessary
-        # though requests is standard. urllib is built-in.
         urllib.request.urlretrieve(url, str(output_path))
         print(f"Data downloaded successfully to {output_path}")
     except Exception as e:
@@ -68,7 +60,6 @@ def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
@@ -87,8 +78,7 @@ def scan_pii(file_path: Path) -> int:
     print(f"Scanning {file_path} for PII (email patterns)...")
     count = 0
     try:
-        # Read as text. The dataset might be large, so we read line by line or in chunks.
-        # Assuming CSV format.
+        # Read as text. The dataset might be large, so we read line by line.
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 matches = EMAIL_PATTERN.findall(line)
@@ -102,38 +92,48 @@ def scan_pii(file_path: Path) -> int:
         print("This dataset may contain PII. Ensure compliance with data privacy regulations.")
     else:
         print("No email patterns found.")
-    
+
     return count
 
 def main():
     """Main execution function."""
     print("--- UCI Online Retail Data Ingestion ---")
-    
+
     # 1. Ensure directories
     ensure_dirs()
 
     # 2. Download data
-    # We use the CSV URL to avoid dependency on openpyxl/xlrd if possible,
-    # as it's a direct text download.
+    # We attempt the CSV first to minimize dependencies.
+    data_downloaded = False
     if not OUTPUT_FILE.exists():
         try:
             download_data(CSV_URL, OUTPUT_FILE)
+            data_downloaded = True
         except Exception as e:
-            # Fallback to XLSX if CSV fails, but that requires pandas engine
-            print("CSV download failed, attempting XLSX (requires openpyxl)...")
+            print(f"CSV download failed ({e}). Attempting XLSX fallback...")
+            xlsx_path = OUTPUT_FILE.with_suffix('.xlsx')
             try:
-                download_data(CANONICAL_URL, OUTPUT_FILE.with_suffix('.xlsx'))
-                # Convert XLSX to CSV
+                download_data(CANONICAL_URL, xlsx_path)
                 print("Converting XLSX to CSV...")
-                df = pd.read_excel(OUTPUT_FILE.with_suffix('.xlsx'))
-                df.to_csv(OUTPUT_FILE, index=False)
-                OUTPUT_FILE.with_suffix('.xlsx').unlink() # Remove temp XLSX
-                print("Conversion complete.")
+                # Check for openpyxl
+                try:
+                    df = pd.read_excel(xlsx_path)
+                    df.to_csv(OUTPUT_FILE, index=False)
+                    xlsx_path.unlink()
+                    print("Conversion complete.")
+                    data_downloaded = True
+                except ImportError:
+                    print("Error: openpyxl is required to read XLSX files. Install via 'pip install openpyxl'.")
+                    sys.exit(1)
             except Exception as e2:
                 print(f"Both download attempts failed: {e2}")
                 sys.exit(1)
     else:
         print(f"Data file {OUTPUT_FILE} already exists. Skipping download.")
+
+    if not data_downloaded and not OUTPUT_FILE.exists():
+        print("Error: Data file could not be retrieved.")
+        sys.exit(1)
 
     # 3. Compute Checksum
     checksum = compute_sha256(OUTPUT_FILE)
@@ -141,7 +141,7 @@ def main():
 
     # 4. PII Scan
     pii_count = scan_pii(OUTPUT_FILE)
-    
+
     print("--- Ingestion Complete ---")
     return 0
 
