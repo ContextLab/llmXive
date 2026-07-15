@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-04T01:42:54Z",
+  "fetched_at": "2026-07-15T09:04:42Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,104 @@
       "idea_body_excerpt": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder",
       "target_n": 5
     },
-    "duration_seconds": 68.941,
-    "ended_at": "2026-07-04T01:42:54Z",
-    "expansion": null,
+    "duration_seconds": 46.386,
+    "ended_at": "2026-07-15T09:04:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph theoretical analysis of resting-state fMRI in autism spectrum disorder"
+        ],
+        [
+          2,
+          "Hub disruption index in ASD functional brain networks"
+        ],
+        [
+          3,
+          "Degree centrality abnormalities in autism resting-state connectivity"
+        ],
+        [
+          4,
+          "Betweenness centrality alterations in ASD functional connectome"
+        ],
+        [
+          5,
+          "Small-world network properties in autism spectrum disorder"
+        ],
+        [
+          6,
+          "Functional connectivity hubs in autism spectrum disorder"
+        ],
+        [
+          7,
+          "Global efficiency and local efficiency in ASD brain networks"
+        ],
+        [
+          8,
+          "Modular organization of resting-state networks in autism"
+        ],
+        [
+          9,
+          "Network topology of the default mode network in autism spectrum disorder"
+        ],
+        [
+          10,
+          "Central brain regions in autism resting-state functional connectivity"
+        ],
+        [
+          11,
+          "Graph metrics of functional connectivity in ASD"
+        ],
+        [
+          12,
+          "Integration and segregation of brain networks in autism spectrum disorder"
+        ],
+        [
+          13,
+          "Rich-club organization in the autistic connectome"
+        ],
+        [
+          14,
+          "Topological abnormalities of resting-state fMRI in ASD"
+        ],
+        [
+          15,
+          "Brain network centrality measures in autism spectrum disorder"
+        ],
+        [
+          16,
+          "Functional network topology in children with autism spectrum disorder"
+        ],
+        [
+          17,
+          "Altered centrality of salience network in autism"
+        ],
+        [
+          18,
+          "Network-based statistics of functional connectivity in ASD"
+        ],
+        [
+          19,
+          "Connectome-wide analysis of network centrality in autism"
+        ],
+        [
+          20,
+          "Resting-state functional connectivity patterns in autism spectrum disorder"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph theoretical analysis of resting-state fMRI in autism spectrum disorder": 5,
+        "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 0
+      },
+      "total_queries_issued": 1
+    },
     "extracted_queries": [
-      "graph metrics degree betweenness eigenvector centrality",
-      "ASD autism spectrum disorder resting-state fMRI",
-      "small-world topology modular segregation brain network",
-      "functional connectivity strength node degree correlation",
-      "hub disruption default mode network salience network"
+      "graph theory centrality measures hubness",
+      "autism spectrum disorder resting-state fMRI",
+      "small-world topology modularity efficiency",
+      "functional connectivity strength network metrics",
+      "node degree betweenness centrality biomarker"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,21 +115,21 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1208.0924"
+        "1211.4766"
       ]
     },
     "per_query_hit_count": {
-      "ASD autism spectrum disorder resting-state fMRI": 2,
       "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 3,
-      "functional connectivity strength node degree correlation": 2,
-      "graph metrics degree betweenness eigenvector centrality": 3,
-      "hub disruption default mode network salience network": 3,
-      "small-world topology modular segregation brain network": 3
+      "autism spectrum disorder resting-state fMRI": 1,
+      "functional connectivity strength network metrics": 2,
+      "graph theory centrality measures hubness": 3,
+      "node degree betweenness centrality biomarker": 3,
+      "small-world topology modularity efficiency": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -48,14 +137,14 @@
       "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "2206.11233",
-          "rationale": "The paper is a broad review of AI-based diagnostic methods for ASD using MRI, which does not measure the specific mechanism of \"network centrality\" or its relationship to \"resting-state functional connectivity\" as required by the user's question. While it covers the same population (ASD) and modality (fMRI), it fails to address the specific variables or causal mechanism, falling under the rejection rule for papers with no measurable connection to the user's specific mechanism or variables.",
-          "title": "Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review"
+          "primary_pointer": "2206.11224",
+          "rationale": "The paper focuses on using Deep Reinforcement Learning as a classification tool to distinguish ASD from neurotypical controls, rather than investigating the biological mechanism of how network centrality impacts resting-state functional connectivity. While it uses the same domain (fMRI in ASD), it does not measure the specific independent variable (network centrality) or the specific dependent relationship (centrality's impact on connectivity) required by the user's question, failing to meet cri",
+          "title": "Deep reinforcement learning for fMRI prediction of Autism Spectrum Disorder"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-04T01:41:45Z",
+    "started_at": "2026-07-15T09:03:55Z",
     "term_input": {
       "normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
       "raw": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience"
@@ -64,104 +153,159 @@
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Eigenvector centrality is a linear algebra based graph invariant used in various rating systems such as webpage ratings for search engines. A generalization of the eigenvector centrality invariant is defined which is motivated by the need to design rating systems for bipartite graph models of time-sensitive and other processes. The linear algebra connection and some applications are described.",
+          "claimed_abstract": "The partition of graphs into \"nice\" subgraphs is a central algorithmic problem with strong ties to matching theory. We study the partitioning of undirected graphs into same-size stars, a problem known to be NP-complete even for the case of stars on three vertices. We perform a thorough computational complexity study of the problem on subclasses of perfect graphs and identify several polynomial-time solvable cases, for example, on interval graphs and bipartite permutation graphs, and also NP-complete cases, for example, on grid graphs and chordal graphs.",
           "claimed_authors": [
-            "Peteris Daugulis"
+            "René van Bevern",
+            "Robert Bredereck",
+            "Laurent Bulteau",
+            "Jiehua Chen",
+            "Vincent Froese",
+            "Rolf Niedermeier",
+            "Gerhard J. Woeginger"
           ],
-          "claimed_title": "A note on a generalization of eigenvector centrality for bipartite graphs and applications",
+          "claimed_title": "Partitioning Perfect Graphs into Stars",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1610.01544"
+          "claimed_year": 2014,
+          "primary_pointer": "1402.2589"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A note on a generalization of eigenvector centrality for bipartite graphs and applications')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Partitioning Perfect Graphs into Stars')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We characterize all graphs for which there are eigenvectors of the graph Laplacian having all their components in {-1,+1} or {-1,0,+ 1}. Graphs having eigenvectors with components in {-1,+1} are called bivalent and are shown to be the regular bipartite graphs and their extensions obtained by adding edges between vertices with the same value for the given eigenvector. Graphs with eigenvectors with components in {-1,0,+ 1} are called trivalent and are shown to be soft-regular graphs -graphs such that vertices associated with non-zero components have the same degree- and their extensions via some transformations.",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
           "claimed_authors": [
-            "J-G. Caputo",
-            "I. Khames",
-            "A. Knippel"
+            "Jae Hyung Yee"
           ],
-          "claimed_title": "On graph Laplacian eigenvectors with components in {-1,0,1}",
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-07-15T09:04:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The \\textit{generalized Turán number} $\\mathrm{ex}(n, T, F)$ is the maximum possible number of copies of $T$ in an $F$-free graph on $n$ vertices for any two graphs $T$ and $F$. For the book graph $B_t$, there is a close connection between $\\ex(n,K_3,B_t)$ and the Ruzsa-Szemerédi triangle removal lemma. Motivated by this, in this paper, we study the generalized Turán problem for generalized theta graphs, a natural extension of book graphs. Our main result provides a complete characterization of the magnitude of $\\ex(n,K_3,H)$ when $H$ is a generalized theta graph, indicating when it is quadratic, when it is nearly quadratic, and when it is subquadratic. Furthermore, as an application, we obtain the exact value of $\\ex(n, K_r, kF)$, where $F$ is an edge-critical generalized theta graph, and $3\\le r\\le k+1$, extending several recent results.",
+          "claimed_authors": [
+            "Jun Gao",
+            "Zhuo Wu",
+            "Yisai Xue"
+          ],
+          "claimed_title": "Counting cliques without generalized theta graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.15289"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Counting cliques without generalized theta graphs')",
+        "failed_at": "2026-07-15T09:04:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1806.00072"
+          "primary_pointer": "1802.08117"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='On graph Laplacian eigenvectors with components in {-1,0,1}')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Let $G$ be a connected graph and let $F$ be a connected subgraph of $G$ with a given structure. We consider that the centrality of a vertex $i$ of $G$ is determined by the centrality of other vertices in all subgraphs contain $i$ and isomorphic to $F$. In this paper we propose an $F$-subgraph tensor and an $F$-subgraph eigenvector centrality of $G$. When the graph is $F$-connected, we show that the $F$-subgraph tensor is weakly irreducible, and in this case, the $F$-subgraph eigenvector centrality exists. Specifically, when we choose $F$ to be a path $P_1$ of length $1$(or a complete graph $K_2$), the $F$-eigenvector centrality is eigenvector centrality of $G$. Furthermore, we propose the $(K_2,F)$-subgraph eigenvector centrality of $G$ and prove it always exists when $G$ is connected. Specifically, the $P_2$-subgraph eigenvector centrality and $(K_2,F)$-subgraph eigenvector centrality are studied. Some examples show that the ranking of vertices under them differs from the rankings under several classic centralities. Vertices of a regular graph have the same eigenvector centrality scores. But the $(K_2,K_3)$-subgraph eigenvector centrality can distinguish vertices in a given regular graph.",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
           "claimed_authors": [
-            "Qingying Zhang",
-            "Lizhu Sun",
-            "Changjiang Bu"
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
           ],
-          "claimed_title": "The subgraph eigenvector centrality of graphs",
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2411.12409"
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='The subgraph eigenvector centrality of graphs')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The small-world phenomenon is found in many self-organising systems. Systems configured in small-world networks spread information more easily than in random or regular lattice-type networks. Whilst it is a known fact that small-world networks have short average path length and high clustering coefficient in self-organising systems, the ego centralities that maintain the cohesiveness of small-world network have not been formally defined. Here we show that instantaneous events such as the release of news items via Twitter, coupled with active community arguments related to the news item form a particular type of small-world network. Analysis of the centralities in the network reveals that community arguments maintain the small-world network whilst actively maintaining the cohesiveness and boundary of the group. The results demonstrate how an active Twitter community unconsciously forms a small-world network whilst interacting locally with a bordering community. Over time, such local interactions brought about the global emergence of the small-world network, connecting media channels with human activities. Understanding the small-world phenomenon in relation to online social or civic movement is important, as evident in the spate of online activists that tipped the power of governments for the better or worst in recent times. The support, or removal of high centrality nodes in such networks has important ramifications in the self-expression of society and civic discourses. The presentation in this article anticipates further exploration of man-made self-organising systems where a larger cluster of ad-hoc and active community maintains the overall cohesiveness of the network.",
+          "claimed_abstract": "We employ cut and paste contact topological techniques to classify some tight contact structures on the closed, oriented genus-2 surface times the interval. A boundary condition is specified so that the Euler class of the of the contact structure vanishes when evaluated on each boundary component. We prove that there exists a unique, non-product tight contact structure in this case.",
           "claimed_authors": [
-            "Eugene Ch'ng"
+            "Tanya Cofer"
           ],
-          "claimed_title": "Local Interactions and the Emergence of a Twitter Small-World Network",
+          "claimed_title": "A class of tight contact structures on Sigma_2 x I",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1508.03594"
+          "claimed_year": 2004,
+          "primary_pointer": "math/0411208"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Local Interactions and the Emergence of a Twitter Small-World Network')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A class of tight contact structures on Sigma_2 x I')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
           "claimed_authors": [
-            "Kazuhiro Sato",
-            "Ryohei Kawamura"
+            "ILC Technology Network"
           ],
-          "claimed_title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2408.03023"
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The human brain has been studied at multiple scales, from neurons, circuits, areas with well defined anatomical and functional boundaries, to large-scale functional networks which mediate coherent cognition. In a recent work, we addressed the problem of the hierarchical organization in the brain through network analysis. Our analysis identified functional brain modules of fractal structure that were inter-connected in a small-world topology. Here, we provide more details on the use of network science tools to elaborate on this behavior. We indicate the importance of using percolation theory to highlight the modular character of the functional brain network. These modules present a fractal, self-similar topology, identified through fractal network methods. When we lower the threshold of correlations to include weaker ties, the network as a whole assumes a small-world character. These weak ties are organized precisely as predicted by theory maximizing information transfer with minimal wiring costs.",
+          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
           "claimed_authors": [
-            "Lazaros K. Gallos",
-            "Mariano Sigman",
-            "Hernan A. Makse"
+            "Keita Owari"
           ],
-          "claimed_title": "The conundrum of functional brain networks: small-world efficiency or fractal modularity",
+          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1205.3747"
+          "claimed_year": 2013,
+          "primary_pointer": "1304.7934"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='The conundrum of functional brain networks: small-world efficiency or fractal modularity')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
+        "failed_at": "2026-07-15T09:04:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Centrality metrics aim to identify the most relevant nodes in a network. In literature, a broad set of metrics exists, either measuring local or global centrality characteristics. Nevertheless, when networks exhibit a high spectral gap, the usual global centrality measures typically do not add significant information with respect to the degree, i.e., the simplest local metric. To extract new information from this class of networks, we propose the use of the GENeralized Economic comPlexitY index (GENEPY). Despite its original definition within the economic field, the GENEPY can be easily applied and interpreted on a wide range of networks, characterized by high spectral gap, including monopartite and bipartite networks systems. Tests on synthetic and real-world networks show that the GENEPY can shed new light about the nodes centrality, carrying information generally poorly correlated with the nodes number of direct connections (nodes degree).",
+          "claimed_authors": [
+            "Lorenzo Costantini",
+            "Carla Sciarra",
+            "Luca Ridolfi",
+            "Francesco Laio"
+          ],
+          "claimed_title": "Measuring nodes centrality when local and global measures overlap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.15627"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Measuring nodes centrality when local and global measures overlap')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -178,79 +322,26 @@
           "primary_pointer": "1002.1162"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Node Disjoint Multipath Routing Considering Link and Node Stability protocol: A characteristic Evaluation')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
+          "claimed_abstract": "Multi-layered social networks reflect complex relationships existing in modern interconnected IT systems. In such a network each pair of nodes may be linked by many edges that correspond to different communication or collaboration user activities. Multi-layered degree centrality for multi-layered social networks is presented in the paper. Experimental studies were carried out on data collected from the real Web 2.0 site. The multi-layered social network extracted from this data consists of ten distinct layers and the network analysis was performed for different degree centralities measures.",
           "claimed_authors": [
-            "Keita Owari"
+            "Piotr Bródka",
+            "Krzysztof Skibicki",
+            "Przemysław Kazienko",
+            "Katarzyna Musiał"
           ],
-          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
+          "claimed_title": "A degree centrality in multi-layered social network",
           "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1304.7934"
+          "claimed_year": 2012,
+          "primary_pointer": "1210.5184"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
-        "failed_at": "2026-07-04T01:42:25Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
-          "claimed_authors": [
-            "ILC Technology Network"
-          ],
-          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.01172"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
-        "failed_at": "2026-07-04T01:42:25Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We attempt to identify the different node hubs of a road network using PageRank for preparation for possible random terrorist attacks. The robustness of a road network against such attack is crucial to be studied because it may cripple its connectivity by simply shutting down these hubs. We show the important hubs in a road network based on network structure and propose a model for robustness analysis. By identifying important hubs in a road network, possible preparation schemes may be done earlier to mitigate random terrorist attacks, including defense reinforcement and transportation security. A case study of the Metro Manila road network is also presented. The case study shows that the most important hubs in the Metro Manila road network are near airports, piers, major highways and expressways",
-          "claimed_authors": [
-            "Jacob Chan",
-            "Kardi Teknomo"
-          ],
-          "claimed_title": "Hub Identification of the Metro Manila Road Network Using PageRank",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1609.01464"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Hub Identification of the Metro Manila Road Network Using PageRank')",
-        "failed_at": "2026-07-04T01:42:25Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Korean VLBI Network (KVN) is the first dedicated mm-wavelength VLBI Network in East Asia and will be available from the middle of 2008. KVN consists of three stations and has the maximum observation frequency of 129 GHz with the maximum baseline length of 480 km. KVN has unique characteristics in the multifrequency, simultaneous observing system. By taking advantage of this we are considering various science topics, including not only maser emitting regions and young stellar objects in our galaxy, but also extragalactic objects. Construction of the first site is in progress. We are concurrently developing components, including receivers, data acquisition systems, and a correlator, and also arranging the international collaboration.",
-          "claimed_authors": [
-            "Kiyoaki Wajima",
-            "Hyun-Goo Kim",
-            "Seog-Tae Han",
-            "Duk-Gyoo Roh",
-            "Do-Heung Je",
-            "Se-Jin Oh",
-            "Seog-Oh Wi",
-            "Korean VLBI Network Group"
-          ],
-          "claimed_title": "Korean VLBI Network: the First Dedicated Mm-Wavelength VLBI Network in East Asia",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "astro-ph/0511065"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Korean VLBI Network: the First Dedicated Mm-Wavelength VLBI Network in East Asia')",
-        "failed_at": "2026-07-04T01:42:25Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A degree centrality in multi-layered social network')",
+        "failed_at": "2026-07-15T09:04:23Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -267,18 +358,18 @@
         },
         "primary_pointer": "1208.0924",
         "summary": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
-        "summary_grounded_pdf": true,
+        "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1208.0924",
           "http_status": 200,
-          "pdf_sample_score": 0.5018,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T01:42:24Z"
+          "verified_at": "2026-07-15T09:04:22Z"
         }
       },
       {
@@ -307,7 +398,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T01:42:24Z"
+          "verified_at": "2026-07-15T09:04:23Z"
         }
       },
       {
@@ -332,13 +423,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1211.4766",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2252,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T01:42:25Z"
+          "verified_at": "2026-07-15T09:04:23Z"
         }
       },
       {
@@ -368,7 +459,36 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T01:42:25Z"
+          "verified_at": "2026-07-15T09:04:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sjir J. C. Schielen",
+            "Jesper Pilmeyer",
+            "Albert P. Aldenkamp",
+            "Danny Ruijters",
+            "Svitlana Zinger"
+          ],
+          "title": "ICA-based Resting-State Networks Obtained on Large Autism fMRI Dataset ABIDE",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.13798",
+        "summary": "Functional magnetic resonance imaging (fMRI) has become instrumental in researching brain function. One application of fMRI is investigating potential neural features that distinguish people with autism spectrum disorder (ASD) from healthy controls. The Autism Brain Imaging Data Exchange (ABIDE) facilitates this research through its extensive data-sharing initiative. While ABIDE offers data preprocessed with various atlases, independent component analysis (ICA) for dimensionality reduction remains underutilized. We address this gap by presenting ICA-based resting-state networks (RSNs) from preprocessed scans from ABIDE, now publicly available: https://github.com/SjirSchielen/groupICAonABIDE. These RSNs unveil neural activation clusters without atlas constraints, offering a perspective on ASD analyses that complements the predominantly atlas-based literature. This contribution provides a valuable resource for further research into ASD, potentially aiding in developing new analytical approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.13798",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T09:04:34Z"
         }
       }
     ]
