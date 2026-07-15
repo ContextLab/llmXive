@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-224-predicting-the-ductility-of-additively-m",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/reporting.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026lines.append(\"- **Synthetic Data**: **No** synthetic data\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/curated_builds.csv",
+  "artifacts": [
+    "data/raw_unified.csv"
+  ],
+  "failures": [
+    "python code/main.py -> rc=1\n    2026-07-15 15:10:44,709 - root - CRITICAL - Missing dependency: statsmodels. Please install via requirements.txt."
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-15T15:10:46Z"
+}

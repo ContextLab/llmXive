@@ -1,117 +1,234 @@
 """
-Main entry point for the full pipeline.
-Orchestrates data acquisition, cleaning, preprocessing, modeling, and reporting.
+Main entry point for the Ductility Prediction Pipeline.
+Orchestrates the end-to-end execution of data acquisition, cleaning,
+modeling, and reporting stages, with timing and budget enforcement.
 """
 import os
 import sys
 import time
 import logging
 import json
+import argparse
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from data.acquisition import main as stage_data_acquisition
-from data.cleaning import main as stage_data_cleaning
-from data.preprocessing import main as stage_preprocessing
-from models.lme_model import main as stage_lme_modeling
-from models.xgboost_model import main as stage_xgboost_modeling
-from analysis.sensitivity import main as stage_sensitivity_analysis
-from analysis.reporting import main as stage_reporting
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-BUDGET_SECONDS = 600
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+STATE_DIR = PROJECT_ROOT / "state" / "projects" / "PROJ-224-predicting-the-ductility-of-additively-m"
 
-def check_budget(start_time):
-    """Check if execution time exceeds budget."""
+# Ensure output directories exist
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Stage definitions
+STAGES = [
+    {
+        "name": "setup_directories",
+        "script": "code/setup_directories.py",
+        "description": "Initialize project directory structure",
+        "required": True
+    },
+    {
+        "name": "data_acquisition",
+        "script": "code/data/acquisition.py",
+        "description": "Fetch data from primary and secondary sources",
+        "required": True
+    },
+    {
+        "name": "data_cleaning",
+        "script": "code/data/cleaning.py",
+        "description": "Clean, unit-convert, and filter data",
+        "required": True
+    },
+    {
+        "name": "data_versioning",
+        "script": "code/data/version_artifact.py",
+        "description": "Version the curated dataset artifact",
+        "required": True
+    },
+    {
+        "name": "preprocessing",
+        "script": "code/data/preprocessing.py",
+        "description": "Feature engineering and VIF analysis",
+        "required": True
+    },
+    {
+        "name": "lme_modeling",
+        "script": "code/models/lme_model.py",
+        "description": "Fit Linear Mixed-Effects model",
+        "required": True
+    },
+    {
+        "name": "save_lme_artifact",
+        "script": "code/models/save_lme_artifact.py",
+        "description": "Save LME results to JSON",
+        "required": True
+    },
+    {
+        "name": "sensitivity_analysis",
+        "script": "code/analysis/sensitivity.py",
+        "description": "Compute partial R2 and likelihood ratio tests",
+        "required": True
+    },
+    {
+        "name": "xgboost_training",
+        "script": "code/models/xgboost_model.py",
+        "description": "Train XGBoost model and compare with LME",
+        "required": True
+    },
+    {
+        "name": "save_predictive_artifact",
+        "script": "code/models/save_predictive_artifact.py",
+        "description": "Save predictive model artifact",
+        "required": True
+    },
+    {
+        "name": "reporting",
+        "script": "code/analysis/reporting.py",
+        "description": "Generate final report",
+        "required": True
+    }
+]
+
+def check_budget(start_time: float, budget_seconds: int) -> bool:
+    """Check if execution time is within budget."""
     elapsed = time.time() - start_time
-    if elapsed > BUDGET_SECONDS:
-        logger.error(f"Execution exceeded budget of {BUDGET_SECONDS}s at {elapsed:.1f}s")
-        return False
-    return True
+    return elapsed <= budget_seconds
 
-def run_stage(stage_name, stage_func):
-    """Run a pipeline stage with timing and error handling."""
-    logger.info(f"Starting stage: {stage_name}")
-    start = time.time()
+def run_stage(stage: dict, start_time: float, budget_seconds: int) -> dict:
+    """Run a single stage script and return timing/result."""
+    script_path = PROJECT_ROOT / stage["script"]
+    if not script_path.exists():
+        logger.error(f"Script not found: {script_path}")
+        return {
+            "stage": stage["name"],
+            "status": "failed",
+            "error": f"Script not found: {script_path}",
+            "duration": 0
+        }
+
+    if not check_budget(start_time, budget_seconds):
+        logger.error(f"Budget exceeded before starting {stage['name']}")
+        return {
+            "stage": stage["name"],
+            "status": "skipped",
+            "error": "Budget exceeded",
+            "duration": 0
+        }
+
+    logger.info(f"Starting stage: {stage['name']} - {stage['description']}")
+    stage_start = time.time()
     try:
-        stage_func()
-        elapsed = time.time() - start
-        logger.info(f"Stage {stage_name} completed in {elapsed:.2f}s")
-        if not check_budget(start):
-            return False
-        return True
+        # Run the script
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 min per stage max
+        )
+        duration = time.time() - stage_start
+
+        if result.returncode != 0:
+            logger.error(f"Stage {stage['name']} failed with code {result.returncode}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
+            return {
+                "stage": stage["name"],
+                "status": "failed",
+                "error": f"Exit code {result.returncode}: {result.stderr[:500]}",
+                "duration": duration
+            }
+
+        logger.info(f"Stage {stage['name']} completed in {duration:.2f}s")
+        return {
+            "stage": stage["name"],
+            "status": "success",
+            "duration": duration
+        }
+
+    except subprocess.TimeoutExpired:
+        duration = time.time() - stage_start
+        logger.error(f"Stage {stage['name']} timed out after 300s")
+        return {
+            "stage": stage["name"],
+            "status": "failed",
+            "error": "Timeout (300s)",
+            "duration": duration
+        }
     except Exception as e:
-        logger.error(f"Stage {stage_name} failed with error: {e}", exc_info=True)
-        return False
-
-def stage_data_acquisition():
-    """Wrapper for data acquisition stage."""
-    stage_data_acquisition()
-
-def stage_data_cleaning():
-    """Wrapper for data cleaning stage."""
-    stage_data_cleaning()
-
-def stage_preprocessing():
-    """Wrapper for data preprocessing stage."""
-    stage_preprocessing()
-
-def stage_lme_modeling():
-    """Wrapper for LME modeling stage."""
-    stage_lme_modeling()
-
-def stage_xgboost_modeling():
-    """Wrapper for XGBoost modeling stage."""
-    stage_xgboost_modeling()
-
-def stage_sensitivity_analysis():
-    """Wrapper for sensitivity analysis stage."""
-    stage_sensitivity_analysis()
-
-def stage_reporting():
-    """Wrapper for reporting stage."""
-    stage_reporting()
+        duration = time.time() - stage_start
+        logger.error(f"Stage {stage['name']} raised exception: {e}")
+        return {
+            "stage": stage["name"],
+            "status": "failed",
+            "error": str(e),
+            "duration": duration
+        }
 
 def main():
-    """Execute the full pipeline."""
-    logger.info("Starting full pipeline execution...")
+    parser = argparse.ArgumentParser(description="Run the full ductility prediction pipeline.")
+    parser.add_argument("--timing", action="store_true", help="Output timing breakdown to JSON")
+    parser.add_argument("--budget", type=int, default=600, help="Execution budget in seconds")
+    args = parser.parse_args()
+
+    logger.info(f"Starting pipeline execution with budget: {args.budget}s")
     start_time = time.time()
+    results = []
+    all_success = True
 
-    stages = [
-        ("Data Acquisition", stage_data_acquisition),
-        ("Data Cleaning", stage_data_cleaning),
-        ("Preprocessing", stage_preprocessing),
-        ("LME Modeling", stage_lme_modeling),
-        ("XGBoost Modeling", stage_xgboost_modeling),
-        ("Sensitivity Analysis", stage_sensitivity_analysis),
-        ("Reporting", stage_reporting),
-    ]
+    for stage in STAGES:
+        result = run_stage(stage, start_time, args.budget)
+        results.append(result)
+        if result["status"] != "success":
+            if stage["required"]:
+                all_success = False
+                logger.critical(f"Required stage {stage['name']} failed. Aborting.")
+                break
+            else:
+                logger.warning(f"Non-required stage {stage['name']} failed. Continuing.")
 
-    success = True
-    for name, func in stages:
-        if not check_budget(start_time):
-            success = False
-            break
-        if not run_stage(name, func):
-            success = False
-            break
+    total_duration = time.time() - start_time
+    logger.info(f"Pipeline execution finished in {total_duration:.2f}s")
 
-    total_time = time.time() - start_time
-    
-    if success:
-        logger.info(f"Pipeline completed successfully in {total_time:.2f}s (Budget: {BUDGET_SECONDS}s)")
-        return 0
-    else:
-        logger.error(f"Pipeline failed or timed out after {total_time:.2f}s")
-        return 1
+    # Save timing results
+    timing_output = {
+        "total_duration": total_duration,
+        "budget_seconds": args.budget,
+        "within_budget": total_duration <= args.budget,
+        "stages": results
+    }
+
+    output_path = DATA_DIR / "validation" / "pipeline_timing.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(timing_output, f, indent=2)
+    logger.info(f"Timing results saved to {output_path}")
+
+    if args.timing:
+        print(json.dumps(timing_output, indent=2))
+
+    if not all_success:
+        logger.error("Pipeline failed due to required stage failure.")
+        sys.exit(1)
+
+    if total_duration > args.budget:
+        logger.error(f"Pipeline exceeded budget ({total_duration:.2f}s > {args.budget}s)")
+        sys.exit(1)
+
+    logger.info("Pipeline completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,0 +1,14 @@
+status: none
+intent: download additive-manufacturing-superalloy dataset from HuggingFace and Materials
+  Project API python package dataset
+required_fields:
+- laser_power
+- scan_speed
+- hatch_spacing
+- layer_thickness
+- ductility
+- alloy_composition
+- material_id
+cache_key: a9105b402413a8b3ee4f72fe8239f59d5766f7176d16210443665a125d7e6910
+searched_at: '2026-07-15T15:11:42.554925+00:00'
+retry_count: 1

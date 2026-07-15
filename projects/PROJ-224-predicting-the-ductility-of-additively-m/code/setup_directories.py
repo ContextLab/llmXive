@@ -1,47 +1,53 @@
+"""
+Setup script to create the required project directory structure.
+Ensures all necessary folders exist before data processing begins.
+"""
 import os
 import sys
 from pathlib import Path
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def create_directories():
-    """
-    Create the required subdirectories for the project structure.
-    Specifically creates:
-    - code/data/
-    - code/models/
-    - code/analysis/
-    
-    Also ensures parent directories exist.
-    """
-    base_path = Path(__file__).resolve().parent.parent
-    
-    # Define the directories to create relative to the project root
+    """Create all required directories for the project."""
+    project_root = Path(__file__).resolve().parent.parent
     directories = [
+        "code",
         "code/data",
         "code/models",
-        "code/analysis"
+        "code/analysis",
+        "code/tests",
+        "data",
+        "data/validation",
+        "data/reports",
+        "artifacts",
+        "state",
+        "state/projects/PROJ-224-predicting-the-ductility-of-additively-m"
     ]
-    
-    created = []
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
-            print(f"Created directory: {full_path}")
+
+    created = 0
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created += 1
         else:
-            print(f"Directory already exists: {full_path}")
-    
-    return created
+            logger.debug(f"Directory exists: {dir_path}")
+
+    logger.info(f"Directory setup complete. Created {created} new directories.")
+    return True
 
 def main():
-    """Main entry point for directory creation."""
-    print("Starting directory creation for PROJ-224...")
-    created_dirs = create_directories()
-    if created_dirs:
-        print(f"Successfully created {len(created_dirs)} directories.")
-    else:
-        print("No new directories were created (all already exist).")
-    return 0
+    try:
+        create_directories()
+        logger.info("Setup directories stage completed successfully.")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Setup directories stage failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

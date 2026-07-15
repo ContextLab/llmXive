@@ -10,3 +10,5 @@ ruff==0.1.14
 black==24.1.1
 pytest==8.0.0
 matplotlib==3.8.2
+datasets  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

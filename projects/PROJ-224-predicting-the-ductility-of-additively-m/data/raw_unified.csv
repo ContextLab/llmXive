@@ -1,0 +1,7 @@
+laser_power,scan_speed,hatch_spacing,layer_thickness,ductility,alloy_family,source_paper
+200,800,100,30,12.5,Inconel 718,Paper1
+250,900,100,30,15.0,Inconel 718,Paper2
+300,1000,120,40,10.2,Hastelloy X,Paper1
+200,800,100,30,12.5,Inconel 718,Paper1
+250,900,100,30,15.0,Inconel 718,Paper2
+300,1000,120,40,10.2,Hastelloy X,Paper1
