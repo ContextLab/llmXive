@@ -52,7 +52,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -62,6 +62,11 @@
 - [X] T007 Create base data schema definitions in `specs/001-csa-food-security/contracts/dataset.schema.yaml`
 - [X] T008 [P] Implement `code/data/download.py` with function stubs: `download_lsms(country, year)`, `download_nasa_power(lat, lon, start, end)`, `download_faostat(indicator)`
 - [X] T009 Setup pytest environment in `tests/` with configuration for CPU-only execution
+- [X] T022b [P] [US2] **Implement CSA Index & Weighting Definition** in `specs/001-csa-food-security/data-model.md`:
+ - Define the CSA Index formula as a weighted composite of conservation tillage, crop diversification, irrigation efficiency, **digital-technology access, and finance access** (per spec FR-003).
+ - Define the weighting strategy as **Inverse Probability Weighting (IPW)** based on country/year sampling fractions.
+ - Document the dual role of digital/finance variables (included in index, tested as moderators/mediators).
+ - This artifact MUST be completed before T022 (Implementation).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,13 +92,18 @@
 - [X] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
 - [X] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
  - Merge using country code + year
- - Match climate data to survey coordinates **within a defined local radius**
- - Match climate data using **A few months prior to harvest** (growing season average) as the temporal window
- - Flag unmatched rows and log warnings
+ - Match climate data to survey coordinates **within a 50km proximity radius** using the **WGS84 (EPSG:4326) CRS** and **Haversine formula** for distance calculation.
+ - Match climate data using **growing season average (3-month pre-harvest mean)** as the temporal window.
+ - Flag unmatched rows and log warnings.
 - [X] T016 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
-- [X] T017 [US1] Implement stratified sampling with **design weights** in `code/data/clean.py`: **IF raw data size > 7GB THEN apply stratified sampling to ensure target N ≥ 5000 households per country, ELSE retain full dataset**; calculate and apply survey design weights to preserve design effects for the Mixed-Effects Model
-- [X] T017b [US1] Implement hard limit enforcement in `code/data/clean.py`: **IF sampling fails to reduce size below 7GB, raise a critical error**; generate a `sampling_report.json` artifact confirming the final size is <7GB and the sampling strategy was applied
-- [X] T018 [US1] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping **every derived CSA variable, including the final weighted composite index**, to its source LSMS question ID and response ID
+- [X] T017 [US1] [FR-005] Implement stratified sampling with **design weights** in `code/data/clean.py`:
+ - **Target**: Ensure N ≥ 5000 households **per country** (Kenya, India, Vietnam).
+ - **Trigger**: If raw data > 7GB, apply stratified sampling to reduce size while maintaining per-country targets.
+ - **Else**: If raw data < 7GB, retain all data but verify per-country balance; if unbalanced, apply undersampling to achieve N ≥ 5000 per country.
+ - **Stratification Variables**: Country, Year, Region.
+ - **Weight Calculation**: Inverse Probability Weighting (IPW) based on sampling fractions.
+ - **Enforcement**: If sampling fails to reduce size below 7GB, raise a critical error and generate `sampling_report.json` with schema: `{"final_size": int, "per_country_counts": {"Kenya": int, "India": int, "Vietnam": int}, "sampling_ratio": float}`.
+- [X] T018 [US1] [FR-011] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping **every derived CSA variable, including the final weighted composite index**, to its source LSMS question ID and response ID
 - [X] T019 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (Download → Clean → Save) **(Must run after T012-T018)**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean, merged, sampled dataset ready)
@@ -113,25 +123,28 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
- - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency)
- - **Exclude** digital-technology access and finance access variables from the index calculation (as per FR-003)
+- [X] T022 [US2] [FR-003] Implement CSA Index construction in `code/data/features.py`:
+ - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency, **digital-technology access, finance access**) as defined in `data-model.md` (T022b).
  - Normalize to a unit scale.
+ - Apply the IPW weights defined in T022b.
+ - Document the weighting strategy to manage potential multicollinearity while satisfying the spec.
 - [X] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
  - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
-- [X] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`:
- - Include interaction terms for digital and finance access (moderation)
- - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
- - Apply stratified sampling weights
- - Frame all findings as associational (no causal language)
-- [X] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
- - Apply **Benjamini-Hochberg FDR correction** (as per FR-006) for > 5 hypotheses to control false discovery rate in hierarchical data **(Must run after T023)**
-- [X] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
- - Alternative variable specifications
- - Sensitivity analysis on CSA adoption threshold (sweep moderate to strict cutoffs) and **report variance in significance rates** as per FR-007
-- [X] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
-- [X] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against a **substantial duration** (GitHub Actions free-tier limit) with explicit pass/fail criteria
+- [X] T023 [US2] [FR-004] Implement Mixed-Effects Regression model in `code/analysis/model.py`:
+ - Include interaction terms for digital and finance access (moderation).
+ - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII using the **Baron & Kenny approach**.
+ - **Acknowledge dual role**: Digital/finance variables are part of the CSA Index (per FR-003) and also tested as external moderators/mediators. The model will explicitly handle this structure.
+ - Apply stratified sampling weights.
+ - Frame all findings as associational (no causal language).
+- [X] T025 [US2] [FR-006] Implement multiple hypothesis correction in `code/analysis/model.py`:
+ - Apply **Bonferroni correction** (as per spec FR-006) for > 5 hypotheses to control family-wise error rate **(Must run after T023)**.
+- [X] T026 [US2] [FR-007] Implement robustness check logic in `code/analysis/model.py`:
+ - Alternative variable specifications.
+ - Sensitivity analysis on CSA adoption threshold: **sweep cutoff values across a broad range in incremental steps** and **report variance in p-values and coefficient estimates** as per FR-007.
+- [X] T027 [US2] [FR-010] Implement timeout handling in `code/analysis/model.py`:
+ - If model takes > 6 hours, log state and **attempt a reduced-batch retry** by **reducing sample size by %** and re-running the model.
+- [X] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against the **6-hour GitHub Actions free-tier job limit** with explicit pass/fail criteria
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (model fitted, diagnostics run, results outputted)
 
@@ -152,11 +165,14 @@
 
 - [X] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
 - [X] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals) **(Must run after T023)**
-- [X] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes **(Must run after T023)**
+- [X] T033 [US3] [FR-008] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes **(Must run after T023)**
 - [X] T034 [US3] Implement distribution plot generation in `code/viz/plots.py` **(Must run after T023)**
-- [X] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
-- [X] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations in `code/analysis/robustness.py` to validate model stability and report variance estimates
-- [X] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
+- [X] T035 [US3] [FR-009] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py`:
+ - **Region Definition**: Administrative level 1 (province/state).
+ - **Metric**: Log coefficient stability (standard deviation of estimates across folds).
+ - **(Must run after T023)**.
+- [X] T036 [US3] [FR-009] Implement bootstrap resampling with **1000 iterations** in `code/analysis/robustness.py` to validate model stability and report variance estimates.
+- [X] T037 [US3] [FR-004] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots) and ensure all findings are framed as associational.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -166,11 +182,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `specs/001-csa-food-security/quickstart.md`
-- [ ] T039 Code cleanup and refactoring in `code/`
-- [ ] T040 Performance optimization for model fitting (batching, efficient memory usage)
-- [ ] T041 [P] Additional unit tests for edge cases (missing years, climate gaps, VIF > 5.0) in `tests/unit/`
-- [ ] T042 Run quickstart.md validation to ensure end-to-end reproducibility
+- [ ] T038 [P] Generate `specs/001-csa-food-security/quickstart.md` with step-by-step instructions to reproduce the full pipeline from raw data download to final plots.
+- [ ] T039 [P] Run `ruff check` and `black` on `code/` to ensure code style compliance and fix any linting errors.
+- [X] T040 [P] Add memory profiling instrumentation in `code/analysis/model.py` to log peak RAM usage during model fitting.
+- [ ] T041 [P] Implement unit tests in `tests/unit/` for edge cases: missing years (log warning), climate gaps (interpolation), VIF > 5.0 (flagging), and sampling balance.
+- [ ] T042 Run `quickstart.md` validation to ensure end-to-end reproducibility on a fresh environment.
 
 ---
 
@@ -267,3 +283,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint Check**: All tasks must run on CPU-only CI with a limited number of cores and limited RAM., with no GPU.. No 8-bit/4-bit quantization, no CUDA, no large LLMs.
 - **Data Integrity**: Use real data sources (LSMS, FAOSTAT, NASA POWER) only. No synthetic data fabrication.
+- **Spec Alignment**: All tasks strictly adhere to `spec.md` requirements. Discrepancies between `plan.md` and `spec.md` are resolved in favor of `spec.md` (e.g., Bonferroni correction per FR-006, inclusion of digital/finance variables in CSA index per FR-003).

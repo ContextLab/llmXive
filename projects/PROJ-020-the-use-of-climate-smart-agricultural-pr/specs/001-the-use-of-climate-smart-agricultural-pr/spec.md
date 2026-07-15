@@ -63,7 +63,7 @@ As a researcher, I need to generate scatter plots, coefficient plots, regional m
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download LSMS microdata for Kenya, India, and Vietnam covering survey years 2015 through 2023 (See US-1).
+- **FR-001**: System MUST download LSMS microdata for Kenya, India, and Vietnam covering recent survey years (See US-1).
 - **FR-002**: System MUST merge datasets using country code and survey year as primary keys, ensuring climate data matches survey coordinates within 50km using the growing season average (a defined temporal window prior to harvest) as the temporal window (See US-1).
 - **FR-003**: System MUST construct the CSA adoption index as a weighted composite score based on practice intensity and quality (conservation tillage, crop diversification, irrigation efficiency), normalized to a unit interval scale, and include digital-technology access and finance access variables in the index calculation (See US-2).
 - **FR-004**: System MUST frame all statistical findings as associational relationships, explicitly avoiding causal language in output summaries (See US-3).

@@ -23,7 +23,7 @@ The CSA Index is constructed **exclusively** from agronomic practices (conservat
 **Project Type**: Data Analysis Pipeline / Research Script
 **Performance Goals**: Complete full pipeline (download, clean, model, plot) within 6 hours on CPU.
 **Constraints**: No GPU usage; memory < 7GB; no causal claims; strict adherence to dataset availability.
-**Scale/Scope**: [deferred] households (5k per country) after sampling; 3 countries; 9 years of climate data.
+**Scale/Scope**: [deferred] households (A sample of approximately five thousand per country.) after sampling; countries; years of climate data.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

@@ -584,3 +584,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T16:29:35Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Target sample size of 5000 households per country for Kenya, India, and
+    Vietnam
+  claim_id: c_a1bb6eb2
+  context: "Implement stratified sampling with design weights in code/data/clean.py:\
+    \ Target: Ensure N \u2265 5000 households per country (Kenya, India, Vietnam)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: Ensure N \u2265 5000 households per country (Kenya, India, Vietnam)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:21:20Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for more than 5 hypotheses
+  claim_id: c_89870671
+  context: 'Implement multiple hypothesis correction in code/analysis/model.py: Apply
+    Bonferroni correction (as per spec FR-006) for > 5 hypotheses to control family-wise
+    error rate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_more_than_5_hypotheses
+  kind: magnitude
+  raw_text: Apply Bonferroni correction for > 5 hypotheses to control family-wise
+    error rate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:21:45Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with 1000 iterations for model stability validation
+  claim_id: c_bffab13f
+  context: Implement bootstrap resampling with 1000 iterations in code/analysis/robustness.py
+    to validate model stability and report variance estimates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrap resampling with 1000 iterations in code/analysis/robustness.py
+    to validate model stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:22:13Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Pipeline output contains at least 95 percent valid records
+  claim_id: c_b9bd2369
+  context: "Independent Test: Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_output_contains_at_least_95_percent_valid_records
+  kind: magnitude
+  raw_text: "Verify pipeline runs without error and output file exists containing\
+    \ \u2265 95% valid records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:22:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Match climate data to survey coordinates within 50km proximity radius
+  claim_id: c_71c31bfe
+  context: 'Merge using country code + year: Match climate data to survey coordinates
+    within a 50km proximity radius using the WGS84 (EPSG:4326) CRS and Haversine formula
+    for distance calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Match_climate_data_to_survey_coordinates_within_50km_proximi
+  kind: entity_fact
+  raw_text: Match climate data to survey coordinates within a 50km proximity radius.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:23:15Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Flag predictors with Variance Inflation Factor greater than 5.0
+  claim_id: c_cb09f42c
+  context: 'Implement collinearity diagnostics in code/analysis/diagnostics.py: Calculate
+    VIF for all predictors; Flag predictors exceeding VIF > 5.0 (log warning, do not
+    auto-exclude mediators).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_Variance_Inflation_Factor_greater_than
+  kind: magnitude
+  raw_text: Flag predictors exceeding VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:23:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Model timeout threshold of 6 hours triggers reduced-batch retry
+  claim_id: c_9d1e712d
+  context: 'Implement timeout handling in code/analysis/model.py: If model takes >
+    6 hours, log state and attempt a reduced-batch retry by reducing sample size by
+    % and re-running the model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If model takes > 6 hours, log state and attempt a reduced-batch retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:23:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Stratified sampling triggered if raw data exceeds 7GB
+  claim_id: c_00fa4158
+  context: 'Trigger: If raw data > 7GB, apply stratified sampling to reduce size while
+    maintaining per-country targets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_triggered_if_raw_data_exceeds_7GB
+  kind: entity_fact
+  raw_text: If raw data > 7GB, apply stratified sampling to reduce size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:24:08Z'
