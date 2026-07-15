@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 05110a7c0e105e37a748c919bd3498b50c3ac6df1e7e5a4fac617e450ab36ca3
+  artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Power_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Power
+  verified_at: '2026-07-15T06:52:55.678573Z'

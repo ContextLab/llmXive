@@ -1,0 +1,10 @@
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "BLE", "A", "C4", "DTZ", "T10", "ISC", "ICN", "G", "PIE", "T20", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "RUF"]
+ignore = ["ANN002", "ANN003", "ANN204", "S101", "S311", "ARG001"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

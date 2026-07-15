@@ -1,0 +1,397 @@
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Generate power_report.json with calculated power value and pass/fail
+    flag
+  claim_id: c_618844f1
+  context: "T027 [US3] Implement code/analysis/power.py to perform power analysis\
+    \ on the filtered subset (target: detect medium effect size f\xB2 \u2265 0.15,\
+    \ power \u2265 0.80)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_power_report.json_with_calculated_power_value_and_p
+  kind: entity_fact
+  raw_text: Generate data/processed/power_report.json containing the calculated power
+    value and a pass/fail flag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:05Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Fit GLMM with binomial link function testing interaction between number
+    of constraints and architecture
+  claim_id: c_4b832404
+  context: T028 [US3] Implement code/analysis/glmm.py to fit GLMM with binomial link
+    function testing interaction between 'number of constraints' and 'architecture'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_GLMM_with_binomial_link_function_testing_interaction_bet
+  kind: entity_fact
+  raw_text: Implement code/analysis/glmm.py to fit GLMM with binomial link function
+    testing interaction between 'number of constraints' and 'architecture'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:37Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/research.md
+  attempts: 1
+  canonical: Monolithic baseline violation rate exceeds 60% for tasks with 8 or more
+    constraints
+  claim_id: c_30bfac07
+  context: "The execution traces reveal a clear divergence in performance as constraint\
+    \ counts rise. Monolithic Baseline: Violation rates increased exponentially with\
+    \ constraint count, reaching >60% for tasks with \u22658 constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Violation rates increased exponentially with constraint count, reaching\
+    \ >60% for tasks with \u22658 constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:28Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/research.md
+  attempts: 1
+  canonical: Dual-track architecture violation rate remains below 25% at higher constraint
+    counts
+  claim_id: c_8fc84ebd
+  context: 'Dual-Track: Violation rates remained relatively stable (<25%) even at
+    higher constraint counts, demonstrating the efficacy of the external constraint
+    store.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Violation rates remained relatively stable (<25%) even at higher constraint
+    counts, demonstrating the efficacy of the external constraint store.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:28Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/research.md
+  attempts: 1
+  canonical: Dual-track architecture reduction in log-odds of violation per constraint
+    is -0.45 with standard error 0.12
+  claim_id: c_3081f2d6
+  context: "Effect Size: The dual-track architecture showed a significant reduction\
+    \ in the log-odds of a violation per additional constraint compared to the monolithic\
+    \ baseline (\u03B2 = -0.45, SE = 0.12)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dual-track architecture showed a significant reduction in the log-odds\
+    \ of a violation per additional constraint compared to the monolithic baseline\
+    \ (\u03B2 = -0.45, SE = 0.12)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:00Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/research.md
+  attempts: 1
+  canonical: GLMM model convergence in 42 iterations with gradient norm 1.2e-6
+  claim_id: c_0aa30ec6
+  context: 'Convergence: The model converged successfully (iterations: 42, gradient
+    norm: 1.2e-6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The model converged successfully (iterations: 42, gradient norm: 1.2e-6).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:29Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/research.md
+  attempts: 1
+  canonical: Automated violation logs agreement with human annotations is 94% with
+    95% confidence interval 88% to 98%
+  claim_id: c_e51a9aef
+  context: 'To ensure the automated violation detection was accurate, a random sample
+    of 50 execution traces was manually annotated by human reviewers. Agreement Rate:
+    The automated violation logs showed 94% agreement with human annotations (95%
+    CI: [88%, 98%]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The automated violation logs showed 94% agreement with human annotations
+    (95% CI: [88%, 98%]).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:29Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_e4c790eb
+  context: Initialize Python 3.11 project with requirements.txt (transformers, datasets,
+    pandas, statsmodels, scikit-learn, pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:34Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Load dataset from adaplanbench/adaplanbench
+  claim_id: c_4d98e61b
+  context: Implement code/dataset/loader.py to fetch AdaPlanBench household tasks
+    from datasets.load_dataset('adaplanbench/adaplanbench')
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_dataset_from_adaplanbench/adaplanbench
+  kind: entity_fact
+  raw_text: The dataset loader fetches AdaPlanBench household tasks from datasets.load_dataset('adaplanbench/adaplanbench').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:56Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Filter tasks with >= 5 progressive constraints
+  claim_id: c_a104ba8e
+  context: "Implement filtering logic in code/dataset/loader.py to select tasks with\
+    \ \u22655 progressive constraint reveals"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The filtering logic selects tasks with 5 or more progressive constraint
+    reveals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:48:23Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Monolithic agent uses Phi-mini model
+  claim_id: c_6925fbc1
+  context: "Implement code/agent/monolithic.py (direct SLM prompt) using a CPU\u2011\
+    tractable small model (e.g., Phi\u2011mini) in default precision"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Monolithic_agent_uses_Phi-mini_model
+  kind: entity_fact
+  raw_text: The monolithic agent uses the Phi-mini model in default precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:49:00Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis targets effect size f-squared >= 0.15
+  claim_id: c_d448c3f7
+  context: "Implement code/analysis/power.py to perform power analysis on the filtered\
+    \ subset (target: detect medium effect size f\xB2 \u2265 0.15, power \u2265 0.80)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis targets a medium effect size f\xB2 of 0.15 or greater."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:50:00Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Power analysis targets power >= 0.80
+  claim_id: c_02c42dbf
+  context: "Implement code/analysis/power.py to perform power analysis on the filtered\
+    \ subset (target: detect medium effect size f\xB2 \u2265 0.15, power \u2265 0.80)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis targets a statistical power of 0.80 or greater.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T06:50:19Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: GLMM uses binomial link function
+  claim_id: c_cc0427fe
+  context: Implement code/analysis/glmm.py to fit GLMM with binomial link function
+    testing interaction between 'number of constraints' and 'architecture'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMM_uses_binomial_link_function
+  kind: entity_fact
+  raw_text: The GLMM analysis uses a binomial link function.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:50:44Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: SHA-256 hash computation for data files
+  claim_id: c_f5ce8b29
+  context: "Implement code/hash_artifacts.py to compute SHA\u2011256 hashes for existing\
+    \ files in data/ (if any exist) and update state YAML"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code computes SHA-256 hashes for existing files in the data directory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:51:02Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity < 15
+  claim_id: c_bd833e5d
+  context: Refactor code/agent/resolver.py to reduce cyclomatic complexity to <15
+    by extracting method parse_intent and match_constraint to separate modules
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_%3C_15
+  kind: magnitude
+  raw_text: The cyclomatic complexity of code/agent/resolver.py is targeted to be
+    reduced to less than 15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:51:24Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Quickstart validation within 6 hours
+  claim_id: c_21f48643
+  context: Run quickstart.md validation and ensure all steps complete within 6 hours
+    on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The quickstart.md validation steps are expected to complete within 6 hours
+    on CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:52:08Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: power analysis target effect size 0.15 power 0.80
+  claim_id: c_70660948
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Validation (Priority:
+    P3) ... T027 [US3] Implement code/analysis/power.py...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement code/analysis/power.py to perform power analysis on the filtered\
+    \ subset (target: detect medium effect size f\xB2 \u2265 0.15, power \u2265 0.80\
+    \ (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)))."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:53:13Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: generate power_report.json with calculated power value and pass/fail
+    flag
+  claim_id: c_25b2abe7
+  context: 'Phase 5: User Story 3 ... T027 [US3] Implement code/analysis/power.py...
+    Generate data/processed/power_report.json...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_power_report.json_with_calculated_power_value_and_p
+  kind: entity_fact
+  raw_text: Generate data/processed/power_report.json containing the calculated power
+    value and a pass/fail flag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:53:15Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: generate statistical_results.json with GLMM p-values effect sizes convergence
+    status
+  claim_id: c_19bfb727
+  context: 'Phase 5: User Story 3 ... T032 [US3] Generate data/processed/statistical_results.json...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_statistical_results.json_with_GLMM_p-values_effect
+  kind: entity_fact
+  raw_text: Generate data/processed/statistical_results.json with GLMM p-values, effect
+    sizes, convergence status; structure matches contracts/statistical-results.schema.yaml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:53:55Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: quickstart.md validation complete within 6 hours on CI
+  claim_id: c_3b1c6ee5
+  context: 'Phase N: Polish & Cross-Cutting Concerns ... T043 Run quickstart.md validation...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation and ensure all steps complete within 6 hours
+    on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:53:59Z'

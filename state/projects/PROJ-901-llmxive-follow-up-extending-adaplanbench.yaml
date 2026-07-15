@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T21:47:14.892702Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-901-llmxive-follow-up-extending-adaplanbench
-last_run_id: 512360b1-b47f-4371-be4f-1faa6b6043ce
+last_run_id: bffcfbe7-4974-4abd-9d19-ae7ab18b926d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench
 title: 'llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in
   Large Language Model Age"'
-updated_at: '2026-07-15T01:34:40.049338Z'
+updated_at: '2026-07-15T06:18:31.154555Z'
