@@ -40,7 +40,7 @@ The system MUST compute Spearman rank correlation coefficients between (a) X-ray
 
 ### User Story 3 - Threshold Identification and Sensitivity Analysis (Priority: P3)
 
-The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last two years of data (e.g., 2021-2023) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over {900, 1000, 1100} km/s (step size 100 km/s) and report how detection rates (True Positive Rate) vary on the validation set.
+The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last two years of data (e.g., the most recent available period) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over a range of high-velocity thresholds (step size 100 km/s) and report how detection rates (True Positive Rate) vary on the validation set.
 
 **Why this priority**: This provides the practical predictive value for space weather forecasting. The sensitivity analysis ensures the threshold is not arbitrarily chosen and demonstrates robustness. The hold-out set ensures validation metrics are not training artifacts.
 
@@ -70,7 +70,7 @@ The system MUST attempt to identify predictive thresholds (e.g., CME speed > 100
 - **FR-004**: System MUST compute Spearman rank correlation coefficients between flare class (log10-transformed to W/m²)→Dst and CME speed→Dst with p-values for statistical significance (See US-2)
 - **FR-005**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to control family-wise error rate at α≤0.05 across all hypothesis tests (See US-2)
 - **FR-006**: System MUST perform linear regression modeling to estimate variance explained (R²) by CME speed versus flare intensity (transformed to log10(W/m²)) as separate predictors, explicitly framing the model as a first-order approximation and calculating the Variance Inflation Factor (VIF) to assess collinearity. **If VIF > 5, the system MUST switch to separate univariate models or Ridge regression.** (See US-2)
-- **FR-007**: System MUST identify candidate predictive thresholds for severe storms (Dst≤-100 nT) with explicit justification citing the specific NOAA SWPC definition document (See US-3)
+- **FR-007**: System MUST identify candidate predictive thresholds for severe storms (Dst≤ nT) with explicit justification citing the specific NOAA SWPC definition document (See US-3)
 - **FR-008**: System MUST sweep identified thresholds over 900, 1000, and 1100 km/s (step size 100 km/s) and report variation in detection rates (True Positive Rate) (See US-3)
 - **FR-009**: System MUST frame all findings as ASSOCIATIONAL (not causal) in output documentation, specifically in `results/metrics.json`, `README.md`, and any generated reports (See US-2)
 - **FR-010**: System MUST run on CPU-only hardware without GPU/CUDA requirements, fitting within ≤7 GB RAM and ≤6 h execution time (See US-1, US-2, US-3)

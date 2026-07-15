@@ -1,0 +1,12 @@
+pandas
+numpy
+scipy
+statsmodels
+requests
+pyyaml
+pytest
+jsonschema
+flake8
+pylint
+black
+isort

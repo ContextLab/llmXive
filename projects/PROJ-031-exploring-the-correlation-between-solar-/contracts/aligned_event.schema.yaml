@@ -1,0 +1,209 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlignedEvent Schema
+description: |
+  Defines the schema for the unified dataset containing aligned solar flare events,
+  CME events, and geomagnetic storm data. This schema supports the analysis of
+  correlations between solar activity and geomagnetic storm intensities.
+definitions:
+  SolarFlareEvent:
+    type: object
+    required:
+      - flare_id
+      - flare_start_time
+      - flare_peak_time
+      - flare_end_time
+      - peak_flux
+      - flux_unit
+      - xray_class
+      - active_region
+    properties:
+      flare_id:
+        type: string
+        description: Unique identifier for the flare event (e.g., GOES ID)
+      flare_start_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of flare onset
+      flare_peak_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of flare peak flux
+      flare_end_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of flare decay end
+      peak_flux:
+        type: number
+        description: Peak X-ray flux in W/m²
+      flux_unit:
+        type: string
+        enum: ["W/m²"]
+        description: Unit of measurement for peak flux
+      xray_class:
+        type: string
+        description: GOES X-ray classification (e.g., "X1.2", "M5.0")
+      active_region:
+        type: integer
+        description: NOAA Active Region number associated with the flare
+      source:
+        type: string
+        default: "GOES"
+        description: Data source for the flare event
+
+  CMEEvent:
+    type: object
+    required:
+      - cme_id
+      - cme_time
+      - speed_km_s
+      - width_deg
+      - latitude_deg
+      - longitude_deg
+      - halo
+    properties:
+      cme_id:
+        type: string
+        description: Unique identifier for the CME event (e.g., SOHO/LASCO ID)
+      cme_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of first appearance in LASCO C2/C3
+      speed_km_s:
+        type: number
+        description: Radial speed of the CME in km/s
+      width_deg:
+        type: number
+        description: Angular width of the CME in degrees
+      latitude_deg:
+        type: number
+        description: Latitude of the CME propagation direction
+      longitude_deg:
+        type: number
+        description: Longitude of the CME propagation direction
+      halo:
+        type: boolean
+        description: True if the CME is a halo CME (Earth-directed)
+      source:
+        type: string
+        default: "SOHO/LASCO"
+        description: Data source for the CME event
+
+  GeomagneticStorm:
+    type: object
+    required:
+      - storm_id
+      - storm_start_time
+      - storm_end_time
+      - dst_min
+      - dst_min_time
+      - kp_max
+      - kp_max_time
+      - is_recurrent
+    properties:
+      storm_id:
+        type: string
+        description: Unique identifier for the geomagnetic storm
+      storm_start_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of storm onset
+      storm_end_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of storm recovery
+      dst_min:
+        type: number
+        description: Minimum Dst index value in nT
+      dst_min_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of minimum Dst value
+      kp_max:
+        type: number
+        description: Maximum Kp index during the storm
+      kp_max_time:
+        type: string
+        format: date-time
+        description: UTC timestamp of maximum Kp value
+      is_recurrent:
+        type: boolean
+        description: True if this storm is part of a recurrent activity period
+      source:
+        type: string
+        default: "NOAA SWPC"
+        description: Data source for the geomagnetic storm data
+
+  AlignedEvent:
+    type: object
+    required:
+      - aligned_id
+      - storm_ref
+      - flare_ref
+      - cme_ref
+      - time_window_days
+      - flare_present
+      - cme_present
+      - storm_present
+    properties:
+      aligned_id:
+        type: string
+        description: Unique identifier for the aligned event record
+      storm_ref:
+        $ref: '#/definitions/GeomagneticStorm'
+        description: Reference to the associated geomagnetic storm
+      flare_ref:
+        oneOf:
+          - $ref: '#/definitions/SolarFlareEvent'
+          - type: "null"
+        description: Reference to the associated solar flare (null if no match found)
+      cme_ref:
+        oneOf:
+          - $ref: '#/definitions/CMEEvent'
+          - type: "null"
+        description: Reference to the associated CME (null if no match found)
+      time_window_days:
+        type: number
+        description: Time difference in days between the storm and the matched solar event
+      flare_present:
+        type: boolean
+        description: True if a flare was found within the alignment window
+      cme_present:
+        type: boolean
+        description: True if a CME was found within the alignment window
+      storm_present:
+        type: boolean
+        default: true
+        description: Always true for this schema as storms are the anchor
+      missing_predictors:
+        type: array
+        items:
+          type: string
+          enum: ["flare_flux", "cme_speed", "cme_width", "cme_direction"]
+        description: List of missing predictor flags
+      alignment_notes:
+        type: string
+        description: Additional notes about the alignment process
+
+type: object
+properties:
+  version:
+    type: string
+    description: Schema version
+  generated_at:
+    type: string
+    format: date-time
+    description: Timestamp of dataset generation
+  total_records:
+    type: integer
+    description: Total number of aligned events
+  records:
+    type: array
+    items:
+      $ref: '#/definitions/AlignedEvent'
+    description: List of aligned event records
+
+required:
+  - version
+  - generated_at
+  - total_records
+  - records

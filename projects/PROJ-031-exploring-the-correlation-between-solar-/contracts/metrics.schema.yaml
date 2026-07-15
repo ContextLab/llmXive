@@ -1,0 +1,229 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation and Regression Metrics Schema"
+description: >
+  Schema defining the structure for statistical correlation coefficients,
+  p-values, R², VIF, and threshold metrics output by the analysis pipeline.
+type: object
+required:
+  - correlation_analysis
+  - regression_analysis
+  - threshold_analysis
+  - metadata
+properties:
+  correlation_analysis:
+    type: object
+    description: "Spearman rank correlation results between solar predictors and geomagnetic indices."
+    required:
+      - flare_flux_dst
+      - cme_speed_dst
+      - correction_method
+    properties:
+      flare_flux_dst:
+        type: object
+        description: "Correlation between log10(flare_flux) and Dst index."
+        required:
+          - spearman_rho
+          - p_value
+        properties:
+          spearman_rho:
+            type: number
+            description: "Spearman correlation coefficient."
+          p_value:
+            type: number
+            description: "Two-tailed p-value for the correlation."
+      cme_speed_dst:
+        type: object
+        description: "Correlation between CME speed and Dst index."
+        required:
+          - spearman_rho
+          - p_value
+        properties:
+          spearman_rho:
+            type: number
+            description: "Spearman correlation coefficient."
+          p_value:
+            type: number
+            description: "Two-tailed p-value for the correlation."
+      correction_method:
+        type: string
+        description: "Method used for multiple comparison correction (e.g., 'bonferroni')."
+        enum:
+          - bonferroni
+          - holm
+          - none
+      corrected_p_values:
+        type: object
+        description: "Corrected p-values if a correction method was applied."
+        properties:
+          flare_flux_dst:
+            type: number
+          cme_speed_dst:
+            type: number
+
+  regression_analysis:
+    type: object
+    description: "Linear regression metrics including R², VIF, and model selection logic."
+    required:
+      - univariate_flare
+      - univariate_cme
+      - multivariate
+      - vif_check
+      - selected_model
+    properties:
+      univariate_flare:
+        type: object
+        description: "Univariate regression of Dst ~ flare_flux."
+        required:
+          - r_squared
+          - coef
+          - p_value
+        properties:
+          r_squared:
+            type: number
+          coef:
+            type: number
+          p_value:
+            type: number
+      univariate_cme:
+        type: object
+        description: "Univariate regression of Dst ~ cme_speed."
+        required:
+          - r_squared
+          - coef
+          - p_value
+        properties:
+          r_squared:
+            type: number
+          coef:
+            type: number
+          p_value:
+            type: number
+      multivariate:
+        type: object
+        description: "Multivariate regression of Dst ~ flare_flux + cme_speed."
+        required:
+          - r_squared
+          - coef_flare
+          - coef_cme
+          - p_value_overall
+        properties:
+          r_squared:
+            type: number
+          coef_flare:
+            type: number
+          coef_cme:
+            type: number
+          p_value_overall:
+            type: number
+      vif_check:
+        type: object
+        description: "Variance Inflation Factor check for multicollinearity."
+        required:
+          - flare_vif
+          - cme_vif
+          - threshold
+          - exceeded
+        properties:
+          flare_vif:
+            type: number
+          cme_vif:
+            type: number
+          threshold:
+            type: number
+            description: "VIF threshold (e.g., 5.0)."
+          exceeded:
+            type: boolean
+            description: "True if any VIF > threshold."
+      selected_model:
+        type: string
+        description: "The model selected for reporting based on VIF logic."
+        enum:
+          - multivariate
+          - univariate_flare
+          - univariate_cme
+      selected_model_r2:
+        type: number
+        description: "R² of the selected model."
+      piecewise_r2_improvement:
+        type: number
+        description: "Improvement in R² if a piecewise model was tested and improved fit (otherwise null or 0)."
+        nullable: true
+
+  threshold_analysis:
+    type: object
+    description: "Threshold identification and sensitivity analysis results."
+    required:
+      - significant_storm_definition
+      - threshold_citation_url
+      - sensitivity_sweep
+    properties:
+      significant_storm_definition:
+        type: string
+        description: "Definition of a significant storm (e.g., 'Dst <= -50 nT')."
+      threshold_citation_url:
+        type: string
+        format: uri
+        description: "URL to the NOAA SWPC definition used for thresholds."
+      sensitivity_sweep:
+        type: array
+        description: "Results of sweeping velocity cutoffs."
+        items:
+          type: object
+          required:
+            - velocity_threshold_kms
+            - true_positive_rate
+            - sample_size
+          properties:
+            velocity_threshold_kms:
+              type: number
+            true_positive_rate:
+              type: number
+            sample_size:
+              type: integer
+      hold_out_validation:
+        type: object
+        description: "Performance on the time-series hold-out set."
+        properties:
+          train_years:
+            type: string
+          test_years:
+            type: string
+          detection_rate:
+            type: number
+
+  power_analysis:
+    type: object
+    description: "Post-hoc power analysis results."
+    required:
+      - sample_size
+      - min_detectable_effect_size
+      - power_warning_flag
+    properties:
+      sample_size:
+        type: integer
+      min_detectable_effect_size:
+        type: number
+        description: "Minimum detectable effect size (r) given N and alpha."
+      power_warning_flag:
+        type: boolean
+        description: "True if N < 30 or power is insufficient."
+
+  metadata:
+    type: object
+    description: "Metadata about the analysis run."
+    required:
+      - pipeline_version
+      - analysis_date
+      - data_source_manifest_ref
+    properties:
+      pipeline_version:
+        type: string
+      analysis_date:
+        type: string
+        format: date-time
+      data_source_manifest_ref:
+        type: string
+        description: "Reference to the source_manifest.yaml used."
+      notes:
+        type: string
+        description: "Any associational caveats or notes."

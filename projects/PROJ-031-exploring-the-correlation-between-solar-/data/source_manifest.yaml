@@ -1,0 +1,91 @@
+# Source Manifest for Solar Flare and Geomagnetic Storm Correlation Study
+# Project: PROJ-031-exploring-the-correlation-between-solar-
+# Purpose: Tracks data sources, retrieval methods, timestamps, and integrity checksums.
+#
+# This file is updated by code/ingest.py after successful data retrieval and validation.
+# Do not manually edit timestamps or checksums; use the ingestion pipeline.
+#
+# Status values:
+#   - "Pending": Source defined but not yet retrieved
+#   - "Unverified": Source retrieval failed or data validation failed (see error log)
+#   - "Verified": Source retrieved and validated successfully
+#   - "Stale": Source retrieved but data is older than expected (if applicable)
+
+metadata:
+  project_id: "PROJ-031"
+  created_at: "2023-10-27T00:00:00Z"
+  last_updated: "2023-10-27T00:00:00Z"
+  version: "1.0.0"
+
+sources:
+  goes_xray_flares:
+    description: "GOES X-ray Flare List"
+    type: "ftp"
+    url: "ftp://ftp.swpc.noaa.gov/pub/lists/flare/goes_xray_flare_list.txt"
+    retrieval_method: "wget"
+    status: "Pending"
+    last_retrieved: null
+    file_path: "data/raw/goes_xray_flares.csv"
+    checksum_sha256: null
+    record_count: null
+    notes: "Historical X-ray flare data from NOAA SWPC."
+
+  casco_cme_catalog:
+    description: "SOHO/LASCO CME Catalog"
+    type: "http"
+    url: "https://cdaw.gsfc.nasa.gov/CME_list/UNIVERSAL/2023/univ2023.txt" # Example base, dynamic year handling in code
+    retrieval_method: "requests"
+    status: "Pending"
+    last_retrieved: null
+    file_path: "data/raw/cme_catalog.csv"
+    checksum_sha256: null
+    record_count: null
+    notes: "CME speed, width, and direction data from CDAWeb."
+
+  dst_indices:
+    description: "Dst Geomagnetic Index"
+    type: "http"
+    url: "https://www.swpc.noaa.gov/products/dst"
+    retrieval_method: "requests"
+    status: "Pending"
+    last_retrieved: null
+    file_path: "data/raw/dst_indices.csv"
+    checksum_sha256: null
+    record_count: null
+    notes: "Hourly Dst index from NOAA SWPC."
+
+  kp_indices:
+    description: "Kp Geomagnetic Index"
+    type: "http"
+    url: "https://www.swpc.noaa.gov/products/kp"
+    retrieval_method: "requests"
+    status: "Pending"
+    last_retrieved: null
+    file_path: "data/raw/kp_indices.csv"
+    checksum_sha256: null
+    record_count: null
+    notes: "3-hourly Kp index from NOAA SWPC."
+
+processed_outputs:
+  aligned_events:
+    description: "Aligned Solar and Geomagnetic Events"
+    file_path: "data/processed/aligned_events.csv"
+    source_dependencies:
+      - "goes_xray_flares"
+      - "casco_cme_catalog"
+      - "dst_indices"
+      - "kp_indices"
+    status: "Pending"
+    last_generated: null
+    checksum_sha256: null
+    record_count: null
+
+  analysis_subset:
+    description: "Filtered subset for analysis (non-recurrent storms)"
+    file_path: "data/processed/analysis_subset.csv"
+    source_dependencies:
+      - "aligned_events"
+    status: "Pending"
+    last_generated: null
+    checksum_sha256: null
+    record_count: null

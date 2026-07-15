@@ -1,0 +1,2 @@
+# This directory stores raw downloaded data (e.g., CSVs from NOAA, CDAWeb).
+# Do not commit large binary files; use .gitignore for specific patterns.

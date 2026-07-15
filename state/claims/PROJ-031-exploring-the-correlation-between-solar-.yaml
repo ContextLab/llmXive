@@ -1,0 +1,16 @@
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split test years 2021-2023
+  claim_id: c_d678fe3e
+  context: 'T032 [US3] Implement time-series split logic: Train on events from an
+    earlier historical period, Test/Validate on events from 2021-2023.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test/Validate on events from 2021-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:18:08Z'
