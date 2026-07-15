@@ -20,8 +20,18 @@ from code.config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 # Test constants
 TEST_DATE_START = datetime(2023, 6, 15, 0, 0, 0)
 TEST_DATE_END = datetime(2023, 6, 15, 23, 59, 59)
-EXPECTED_OUTPUT_PATH = "projects/PROJ-300-exploring-the-relationship-between-solar/results/us1_correlation.json"
-EXPECTED_KEYS = ['pearson', 'spearman', 'p_val_permutation', 'significant_flag', 'optimal_lag', 'lag_correlation_value', 'lag_difference']
+# Adjust path to be relative to the project root where the task runs
+# The task description says `projects/PROJ-300...` but the code structure
+# implies we are running from the project root. We will use a relative path
+# that works from the project root `projects/PROJ-300-exploring-the-relationship-between-solar/`
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+EXPECTED_OUTPUT_PATH = os.path.join(RESULTS_DIR, "us1_correlation.json")
+
+EXPECTED_KEYS = [
+    'pearson', 'spearman', 'p_val_permutation', 'significant_flag', 
+    'optimal_lag', 'lag_correlation_value', 'lag_difference'
+]
 
 @pytest.fixture
 def mock_real_data():
@@ -83,20 +93,19 @@ def test_us1_full_pipeline(mock_real_data):
     """
     omni_df, themis_df = mock_real_data
 
+    # Ensure results directory exists
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
     # Mock the data fetch functions to return our realistic synthetic data
     with patch('code.data.ingest.fetch_omni_sw', return_value=omni_df), \
          patch('code.data.ingest.fetch_themis_ey', return_value=themis_df):
         
-        # Ensure results directory exists
-        results_dir = os.path.dirname(EXPECTED_OUTPUT_PATH)
-        os.makedirs(results_dir, exist_ok=True)
-
         # Run the pipeline
         try:
             result = run_pipeline(
                 start_date=TEST_DATE_START,
                 end_date=TEST_DATE_END,
-                output_dir=results_dir
+                output_dir=RESULTS_DIR
             )
         except Exception as e:
             pytest.fail(f"Pipeline execution failed: {str(e)}")

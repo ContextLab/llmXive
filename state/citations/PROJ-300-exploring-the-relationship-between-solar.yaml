@@ -9,14 +9,14 @@
   verification_status: unreachable
   verified_against_url: https://omniweb.gsfc.nasa.gov/api/
   verified_at: '2026-06-30T04:04:06.514259Z'
-- artifact_hash: bd8fe13945abd38bf70a0bb658959eb2654b08dbdc4bb2ed9725a5fdcbfd6170
+- artifact_hash: 2d6a50e1fd9b11bdb930ab30d6e97edd67dc4386fefee949f3c75bb259b624a5
   artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Earth mass - Wikipedia
+  fetched_title: null
   kind: url
-  value: https://en.wikipedia.org/wiki/Earth_mass
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Earth_mass
-  verified_at: '2026-07-15T03:25:12.932864Z'
+  value: https://oeis.org/A000040
+  verification_status: pending
+  verified_against_url: https://oeis.org/A000040
+  verified_at: '2026-07-15T04:36:38.456071Z'
