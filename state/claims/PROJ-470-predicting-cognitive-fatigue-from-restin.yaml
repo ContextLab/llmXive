@@ -1099,3 +1099,41 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T07:48:13Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Verify 50Hz line noise peak attenuation is greater than 20dB in output
+    spectrum
+  claim_id: c_a98b52ec
+  context: 'Independent Test: Run preprocessing on a single sample file; verify 50Hz
+    line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_50Hz_line_noise_peak_attenuation_is_greater_than_20dB
+  kind: magnitude
+  raw_text: Verify 50Hz line noise peak is attenuated by >20dB in output spectrum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:41:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure peak memory usage is less than 6GB via streaming data loading
+  claim_id: c_aff8b767
+  context: Implement streaming data loading in `code/preprocess.py` to ensure peak
+    memory usage < 6GB (targeting DC-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_memory_usage_is_less_than_6GB_via_streaming_data
+  kind: magnitude
+  raw_text: Implement streaming data loading in `code/preprocess.py` to ensure peak
+    memory usage < 6GB (targeting DC-001).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:41:41Z'

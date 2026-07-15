@@ -2,5 +2,9 @@
   {
     "data_file": "data/processed/complexity_metrics.csv",
     "required": []
+  },
+  {
+    "data_file": "data/processed/preprocessed_eeg.npy",
+    "required": []
   }
 ]

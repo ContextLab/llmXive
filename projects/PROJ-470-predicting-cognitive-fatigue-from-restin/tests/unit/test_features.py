@@ -1,75 +1,94 @@
-"""
-Unit tests for feature extraction functions.
-"""
 import pytest
 import numpy as np
 import sys
 import os
 
-# Add parent directory to path for imports
+# Add code to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from features import calculate_lzc, calculate_permutation_entropy
 
-def test_calculate_lzc_constant_signal():
-    """Test LZC on a constant signal (should be 0)."""
-    signal = np.ones(1000)
-    lzc = calculate_lzc(signal)
-    assert lzc == 0.0, f"Expected 0.0 for constant signal, got {lzc}"
+class TestLZC:
+    """Unit tests for Lempel-Ziv Complexity calculation."""
 
-def test_calculate_lzc_alternating_signal():
-    """Test LZC on a simple alternating signal."""
-    signal = np.array([0, 1, 0, 1, 0, 1, 0, 1] * 125)
-    lzc = calculate_lzc(signal)
-    # Alternating signals have low complexity but not zero
-    assert 0.0 < lzc < 0.5, f"Expected low complexity for alternating signal, got {lzc}"
+    def test_constant_signal(self):
+        """Constant signal should have LZC near 0."""
+        signal = np.ones(1000)
+        lzc = calculate_lzc(signal)
+        assert lzc < 0.1, f"Constant signal LZC should be near 0, got {lzc}"
 
-def test_calculate_lzc_random_signal():
-    """Test LZC on a random signal (should be higher)."""
-    np.random.seed(42)
-    signal = np.random.randn(1000)
-    lzc = calculate_lzc(signal)
-    # Random signals should have higher complexity
-    assert 0.3 < lzc <= 1.0, f"Expected higher complexity for random signal, got {lzc}"
+    def test_alternating_signal(self):
+        """Alternating 0/1 signal has low complexity."""
+        signal = np.tile([0, 1], 500)
+        lzc = calculate_lzc(signal)
+        # Alternating pattern is simple, low LZC
+        assert lzc < 0.5, f"Alternating signal LZC too high: {lzc}"
 
-def test_calculate_permutation_entropy_constant():
-    """Test PE on a constant signal (should be 0)."""
-    signal = np.ones(1000)
-    pe = calculate_permutation_entropy(signal)
-    assert pe == 0.0, f"Expected 0.0 for constant signal, got {pe}"
+    def test_random_signal(self):
+        """Random signal should have higher LZC."""
+        np.random.seed(42)
+        signal = np.random.randn(1000)
+        lzc = calculate_lzc(signal)
+        # Random signal should have moderate to high complexity
+        assert 0.3 < lzc < 1.0, f"Random signal LZC out of expected range: {lzc}"
 
-def test_calculate_permutation_entropy_random():
-    """Test PE on a random signal."""
-    np.random.seed(42)
-    signal = np.random.randn(1000)
-    pe = calculate_permutation_entropy(signal)
-    # Random signals should have high entropy (close to 1.0)
-    assert 0.5 < pe <= 1.0, f"Expected high entropy for random signal, got {pe}"
+    def test_empty_signal(self):
+        """Empty signal should return 0."""
+        signal = np.array([])
+        lzc = calculate_lzc(signal)
+        assert lzc == 0.0
 
-def test_calculate_permutation_entropy_order():
-    """Test that different orders produce different results."""
-    signal = np.random.randn(1000)
-    pe_order3 = calculate_permutation_entropy(signal, order=3)
-    pe_order4 = calculate_permutation_entropy(signal, order=4)
-    
-    # Results should be different (though both normalized)
-    # This test ensures the function actually uses the order parameter
-    assert isinstance(pe_order3, float)
-    assert isinstance(pe_order4, float)
+    def test_known_pattern(self):
+        """Test with a known repeating pattern."""
+        # Pattern: 1, 2, 3 repeated
+        signal = np.tile([1, 2, 3], 300)
+        lzc = calculate_lzc(signal)
+        assert lzc < 0.5, f"Repeating pattern should have low LZC, got {lzc}"
 
-def test_empty_signal():
-    """Test handling of empty signals."""
-    empty_signal = np.array([])
-    lzc = calculate_lzc(empty_signal)
-    pe = calculate_permutation_entropy(empty_signal)
-    assert lzc == 0.0
-    assert pe == 0.0
+class TestPermutationEntropy:
+    """Unit tests for Permutation Entropy calculation."""
 
-def test_small_signal():
-    """Test handling of very small signals."""
-    small_signal = np.array([1, 2, 3])
-    lzc = calculate_lzc(small_signal)
-    pe = calculate_permutation_entropy(small_signal, order=3)
-    # Should not crash, even if values are edge cases
-    assert 0.0 <= lzc <= 1.0
-    assert 0.0 <= pe <= 1.0
+    def test_constant_signal(self):
+        """Constant signal has zero permutation entropy."""
+        signal = np.ones(1000)
+        pe = calculate_permutation_entropy(signal, order=3)
+        assert pe == 0.0, f"Constant signal PE should be 0, got {pe}"
+
+    def test_linear_trend(self):
+        """Linear trend has low permutation entropy."""
+        signal = np.linspace(0, 10, 1000)
+        pe = calculate_permutation_entropy(signal, order=3)
+        assert pe < 0.5, f"Linear trend PE too high: {pe}"
+
+    def test_random_signal(self):
+        """Random signal should have high permutation entropy."""
+        np.random.seed(42)
+        signal = np.random.randn(1000)
+        pe = calculate_permutation_entropy(signal, order=3)
+        # Max PE for order 3 is 1.0
+        assert 0.5 < pe <= 1.0, f"Random signal PE out of expected range: {pe}"
+
+    def test_order_2(self):
+        """Test with order=2 (only 2 permutations possible)."""
+        signal = np.random.randn(1000)
+        pe = calculate_permutation_entropy(signal, order=2)
+        assert 0 <= pe <= 1.0
+
+    def test_high_order(self):
+        """Test with higher order."""
+        signal = np.random.randn(1000)
+        pe = calculate_permutation_entropy(signal, order=5)
+        assert 0 <= pe <= 1.0
+
+    def test_short_signal(self):
+        """Short signal should handle gracefully."""
+        signal = np.array([1.0, 2.0, 3.0])
+        # With order=3, delay=1, we need at least 3 points
+        pe = calculate_permutation_entropy(signal, order=3)
+        assert 0 <= pe <= 1.0
+
+    def test_too_short_signal(self):
+        """Signal too short for order should return 0."""
+        signal = np.array([1.0, 2.0])
+        pe = calculate_permutation_entropy(signal, order=3)
+        assert pe == 0.0

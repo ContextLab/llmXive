@@ -1,23 +1,33 @@
+"""
+Setup script to create the project directory structure.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Create the project directory structure for PROJ-470-predicting-cognitive-fatigue-from-restin.
-    This script ensures all required folders exist relative to the project root.
-    """
-    # Determine project root based on the current working directory or script location
-    # Assuming the script is run from the project root
-    project_root = Path.cwd()
+    # Define the project root based on the current working directory context
+    # The script is expected to be run from the project root or the code directory.
+    # We will assume the script is run from the project root 'projects/PROJ-470-...'
+    # or we need to resolve it relative to the script location if run as a module.
+    # Given the task description, we target the specific project path.
     
-    # Define the directory structure relative to project root
-    # Note: The task description mentions 'projects/PROJ-470...' but the completed tasks
-    # and execution context imply the structure should be at the root level (data/, code/, tests/)
-    # to match the paths used in download.py, preprocess.py, etc.
-    # We will create the specific project folder if it doesn't exist, but ensure the
-    # standard pipeline directories (data, code, tests, docs) exist at the root
-    # as referenced by the execution logs (e.g., 'data/raw', 'code/download.py').
+    # Determine the base directory. If run from the project root, use that.
+    # If run from code/, go up one level.
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    
+    # Verify we are in the expected project
+    expected_project_name = "PROJ-470-predicting-cognitive-fatigue-from-restin"
+    if project_root.name != expected_project_name:
+        # If not, try to find the parent that matches, or assume current dir is root
+        # For robustness, we assume the command is run from the project root
+        # but if the file is in code/, we go up.
+        pass 
+    
+    # Define the directories to create
+    # Based on T001: projects/PROJ-470.../data/raw, etc.
+    # Since script is in code/, project_root is the project root.
     
     dirs_to_create = [
         "data/raw",
@@ -26,16 +36,10 @@ def main():
         "code",
         "tests/unit",
         "tests/integration",
-        "docs",
-        # The specific project folder mentioned in T001 description
-        "projects/PROJ-470-predicting-cognitive-fatigue-from-restin"
+        "docs"
     ]
     
     created_count = 0
-    existing_count = 0
-
-    print(f"Setting up directory structure in: {project_root}")
-
     for dir_path in dirs_to_create:
         full_path = project_root / dir_path
         if not full_path.exists():
@@ -43,34 +47,10 @@ def main():
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            # Check if it's a directory, if it's a file, we might need to handle it differently
-            # but for this task, we assume valid paths
-            if full_path.is_dir():
-                existing_count += 1
-            else:
-                print(f"Warning: Path exists but is not a directory: {full_path}")
-
-    print(f"Setup complete. Created: {created_count}, Already existed: {existing_count}")
+            print(f"Directory already exists: {full_path}")
     
-    # Verify the critical paths expected by the pipeline
-    critical_paths = [
-        "data/raw",
-        "data/processed", 
-        "code",
-        "tests/unit",
-        "tests/integration"
-    ]
-    
-    missing = []
-    for p in critical_paths:
-        if not (project_root / p).exists():
-            missing.append(p)
-    
-    if missing:
-        print(f"ERROR: Critical directories missing after setup: {missing}")
-        sys.exit(1)
-    else:
-        print("All critical directories verified.")
+    print(f"Setup complete. Created {created_count} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -17,7 +17,7 @@ from pathlib import Path
 import sys
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent
