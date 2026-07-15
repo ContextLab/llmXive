@@ -1,50 +1,63 @@
-# Quickstart Guide: Plant Defense Compound Prediction Pipeline
+# Quickstart Guide for PROJ-475
+
+This guide outlines the steps to run the full pipeline for predicting plant defense compound production.
 
 ## Prerequisites
 - Python 3.11+
-- pip
-- At least 5GB free disk space
+- Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## Setup
+## Running the Pipeline
+
+The full pipeline is orchestrated by `code/main.py`. It performs:
+1. Data Ingestion (fetch or generate mock data)
+2. Data Validation (merge, listwise deletion)
+3. Preprocessing (imputation, aggregation, VIF)
+4. Model Training (LASSO/Ridge)
+5. Evaluation (Permutation test, sensitivity analysis)
+
+### Step 1: Run the Full Pipeline
+
 ```bash
-pip install -r requirements.txt
+python code/main.py
 ```
 
-## Run the Pipeline
-Execute the full pipeline from ingestion to evaluation:
+This command will:
+- Generate necessary directories (`data/raw`, `data/processed`, `figures`, `state`)
+- Execute ingestion (T010-T012)
+- Execute validation (T013-T014)
+- Execute preprocessing (T015-T016, T019-T020, T026)
+- Execute training (T022-T025)
+- Execute evaluation (T029-T033)
+- Update state file (T034)
 
-```bash
-# Step 1: Generate mock data (for testing/CI)
-python code/scripts/generate_mock_data.py
+### Step 2: Verify Outputs
 
-# Step 2: Run ingestion pipeline
-python code/data/ingestion.py
-
-# Step 3: Run validation pipeline
-python code/data/validation.py
-
-# Step 4: Run preprocessing (includes VIF analysis for T020)
-python code/data/preprocessing.py
-
-# Step 5: Run model training
-python code/models/training.py
-
-# Step 6: Run evaluation
-python code/models/evaluation.py
-
-# Step 7: Update manifest
-python code/scripts/update_manifest.py
-```
-
-## Verify Outputs
-Check that the following files exist:
+Ensure the following files are generated:
 - `data/raw/genomic_vcf.json`
 - `data/raw/env_data.json`
 - `data/raw/compound_data.json`
+- `data/processed/merged.csv`
 - `data/processed/filtered.csv`
 - `data/processed/features_vif.csv`
+- `state/PROJ-475-predicting-plant-defense-compound-produc.yaml`
 
-## Run Tests
+## Testing
+
+Run unit tests:
 ```bash
-pytest code/tests/
+python -m pytest code/tests/ -v
 ```
+
+## Configuration
+
+Edit `code/config.yaml` to modify paths, seeds, and hyperparameters.
+Ensure `verified_urls` are set correctly if fetching real data.
+
+## Troubleshooting
+
+- **Disk Space**: If you encounter `DiskSpaceError`, free up space or adjust `estimated_size` in `code/utils/io.py`.
+- **Missing Data**: If ingestion fails, check `verified_urls` in config or ensure `mock_generator` is working.
+- **VIF Errors**: Ensure `statsmodels` is installed (`pip install statsmodels`).

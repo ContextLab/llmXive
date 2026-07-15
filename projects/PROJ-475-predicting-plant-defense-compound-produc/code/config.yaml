@@ -1,0 +1,16 @@
+hyperparameters:
+  cv_folds: 5
+  lasso_alpha: 0.1
+  ridge_alpha: 1.0
+paths:
+  data_processed: data/processed
+  data_raw: data/raw
+  figures: figures
+  state: state
+seeds:
+  numpy_seed: 42
+  random_seed: 42
+verified_urls:
+  compound: ''
+  env: ''
+  genomic: ''

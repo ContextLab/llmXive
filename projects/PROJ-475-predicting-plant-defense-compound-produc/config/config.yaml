@@ -1,0 +1,28 @@
+# Configuration for Plant Defense Compound Prediction Pipeline
+# This file contains paths, hyperparameters, and verified URLs
+
+paths:
+  project_root: ""
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "data/results"
+  figures: "figures"
+  state: "state"
+  specs: "specs"
+
+hyperparameters:
+  random_seed: 42
+  test_size: 0.2
+  cv_folds: 5
+  lasso_alpha: 0.1
+  ridge_alpha: 1.0
+
+verified_urls:
+  genomic: ""  # Empty by default to trigger mock generation for CI/CD
+  env: ""
+  compound: ""
+
+seeds:
+  genomic: 42
+  env: 123
+  compound: 456

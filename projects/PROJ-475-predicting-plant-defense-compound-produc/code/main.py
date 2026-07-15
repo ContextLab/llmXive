@@ -1,10 +1,7 @@
 """
-Main entry point for the plant defense compound prediction pipeline.
-
-Orchestrates the full pipeline: Ingestion → Validation → Preprocessing → 
-Feature Engineering → Model Training → Evaluation.
-
-Constitution Principle V: Updates state file with timestamp upon completion.
+Main Pipeline Orchestrator.
+Orchestrates: Ingestion -> Validation -> Preprocessing -> Training -> Evaluation.
+Updates state file upon completion (Constitution Principle V).
 """
 import sys
 import os
@@ -18,28 +15,25 @@ from config import load_config, get_config
 
 logger = get_module_logger(__name__)
 
-def update_state_file(state_path: str = "state/PROJ-475-predicting-plant-defense-compound-produc.yaml"):
-    """
-    Update the state file with current timestamp and completion status.
+def update_state_file():
+    """Updates the state file with current timestamp (Constitution Principle V)."""
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    # Load existing state if present to preserve other keys, otherwise start fresh
+    state = {}
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE, 'r') as f:
+                state = yaml.safe_load(f) or {}
+        except Exception:
+            state = {}
     
-    Constitution Principle V: Record pipeline completion.
-    """
-    state_file = Path(state_path)
-    state_file.parent.mkdir(parents=True, exist_ok=True)
+    state['project_id'] = 'PROJ-475-predicting-plant-defense-compound-produc'
+    state['updated_at'] = datetime.now().isoformat()
+    state['status'] = 'completed'
     
-    current_state = {}
-    if state_file.exists():
-        with open(state_file, 'r') as f:
-            current_state = yaml.safe_load(f) or {}
-    
-    current_state['updated_at'] = datetime.now().isoformat()
-    current_state['last_run_status'] = 'success'
-    current_state['pipeline_version'] = '1.0.0'
-    
-    with open(state_file, 'w') as f:
-        yaml.dump(current_state, f, default_flow_style=False)
-    
-    logger.info(f"Updated state file: {state_path}")
+    with open(STATE_FILE, 'w') as f:
+        yaml.dump(state, f)
+    logger.info(f"Updated state file: {STATE_FILE}")
 
 def run_pipeline():
     """
@@ -116,12 +110,10 @@ def run_pipeline():
     logger.info("Full pipeline completed successfully")
     return True
 
-def main(config_path: Optional[str] = None):
+def main(config=None, *args, **kwargs):
     """
-    Main entry point.
-    
-    Args:
-        config_path: Optional path to configuration file.
+    Entry point for the main pipeline.
+    Accepts optional config argument and *args/**kwargs to satisfy all call sites.
     """
     configure_root_logger()
     
@@ -142,4 +134,5 @@ def main(config_path: Optional[str] = None):
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = main()
+    sys.exit(0 if success else 1)

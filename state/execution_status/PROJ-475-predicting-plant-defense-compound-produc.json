@@ -1,16 +1,18 @@
 {
   "project_id": "PROJ-475-predicting-plant-defense-compound-produc",
   "ok": false,
-  "reason": "17 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a from a URL or generate mock data.          This refactors\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ta: {e}. Falling back to mock data.\")          # Generate m\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a.\")          # Generate mock data     logger.info(f\"Genera\u2026\u201d; every produced artifact is gitignored (data/raw/genomic_vcf.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/features_vif.csv; data/processed/filtered.csv; data/raw/compound_data.json",
+  "reason": "19 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026generating deterministic mock data for CI/CD and testing en\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026verified URL or generate mock data.      Args:         data\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026unc: Function to call if mock data is needed.      Returns:\u2026\u201d; every produced artifact is gitignored (data/raw/compound_data.json, data/raw/env_data.json, data/raw/genomic_vcf.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/features_vif.csv; data/processed/filtered.csv",
   "artifacts": [
+    "data/raw/compound_data.json",
+    "data/raw/env_data.json",
     "data/raw/genomic_vcf.json"
   ],
   "failures": [
-    "python code/main.py -> rc=1\n    , OUTPUT_FILES['genomic'])\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/data/ingestion.py\", line 65, in save_data\n    json.dump(data, f, indent=2)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py\", line 179, in dump\n    for chunk in iterable:\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py\", line 430, in _iterencode\n    yield from _iterencode_list(o, _current_indent_level)\n "
+    "python code/main.py -> rc=1\n    ib/python3.11/site-packages/pandas/core/frame.py\", line 769, in __init__\n    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/.venv/lib/python3.11/site-packages/pandas/core/internals/construction.py\", line 460, in dict_to_mgr\n    return arrays_to_mgr(arrays, columns, index, dtype=dtype, consolidate=copy)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T23:56:21Z"
+  "updated_at": "2026-07-15T00:34:57Z"
 }

@@ -1,17 +1,15 @@
 """
-Data preprocessing utilities for aggregating mock/synthetic data to the population level
-and performing collinearity checks via Variance Inflation Factor (VIF).
+Data Preprocessing Module for Plant Defense Compound Prediction.
 
-This module implements the functions required by task T020:
-  * aggregate_to_population_level
-  * calculate_vif_and_flag
-and wires them into the preprocessing pipeline so that the declared output
-`data/processed/features_vif.csv` is generated.
-
-The implementation avoids any fabricated data – it works on the real
-`data/processed/filtered.csv` produced by earlier preprocessing steps.
+This module handles:
+- Loading processed data
+- Handling missing genotypes
+- Aggregating data to population level
+- Calculating VIF for collinearity check
+- Running the full preprocessing pipeline
 """
 
+import logging
 import sys
 import os
 import logging
@@ -22,23 +20,12 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-# ---------------------------------------------------------------------------
-# Logging utilities
-# ---------------------------------------------------------------------------
-try:
-    # utils.logging provides a configured logger; fall back to std lib if unavailable
-    from utils.logging import get_module_logger
-    logger = get_module_logger(__name__)
-except Exception:  # pragma: no cover
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
+from utils.logging import get_module_logger
+from utils.io import check_disk_space, DiskSpaceError
+from config import get_config
 
-# ---------------------------------------------------------------------------
-# Helper constants
-# ---------------------------------------------------------------------------
-PROCESSED_DIR = Path("data/processed")
-FILTERED_CSV = PROCESSED_DIR / "filtered.csv"
-FEATURES_VIF_CSV = PROCESSED_DIR / "features_vif.csv"
+logger = get_module_logger(__name__)
+
 
 # ---------------------------------------------------------------------------
 # Core functions
@@ -46,215 +33,304 @@ FEATURES_VIF_CSV = PROCESSED_DIR / "features_vif.csv"
 
 def load_processed_data(csv_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load the filtered dataset produced by earlier preprocessing steps.
+    Load the filtered and validated data from the processed directory.
 
-    Parameters
-    ----------
-    csv_path : Path, optional
-        Path to the CSV file. If None, defaults to ``data/processed/filtered.csv``.
+    Returns:
+        pd.DataFrame: The loaded dataset.
 
-    Returns
-    -------
-    pd.DataFrame
-        The loaded dataframe.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the CSV does not exist.
+    Raises:
+        FileNotFoundError: If the processed data file does not exist.
     """
-    path = csv_path or FILTERED_CSV
-    if not path.is_file():
-        raise FileNotFoundError(f"Processed data not found at {path}")
-    logger.info("Loading processed data from %s", path)
-    return pd.read_csv(path)
+    config = get_config()
+    data_path = Path(config.paths.processed) / "filtered.csv"
 
-def handle_missing_genotypes(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Placeholder for genotype‑specific missing‑value handling.
-    The current pipeline already performs imputation or exclusion earlier,
-    so this function simply returns the dataframe unchanged.
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data file not found: {data_path}")
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-
-    Returns
-    -------
-    pd.DataFrame
-        Unmodified dataframe (hook for future extensions).
-    """
-    # In a full implementation this would perform mean‑imputation or row exclusion.
+    logger.info(f"Loading processed data from {data_path}")
+    df = pd.read_csv(data_path)
+    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     return df
+
+
+def handle_missing_genotypes(df: pd.DataFrame, threshold: float = 0.2) -> pd.DataFrame:
+    """
+    Handle missing genotype data by imputation or exclusion.
+
+    For each population:
+    - If missingness > threshold (20%), exclude the row.
+    - Otherwise, impute missing values with the mean of the column.
+
+    Args:
+        df: Input DataFrame with genotype columns.
+        threshold: Maximum allowed missingness fraction (default 0.2).
+
+    Returns:
+        pd.DataFrame: DataFrame with missing genotypes handled.
+    """
+    logger.info("Handling missing genotypes...")
+    config = get_config()
+    genotype_cols = [col for col in df.columns if col.startswith("genotype_")]
+
+    if not genotype_cols:
+        logger.warning("No genotype columns found. Skipping imputation.")
+        return df
+
+    # Identify genotype columns to process
+    # Assuming columns are named genotype_<variant_id>
+    # We need to identify which columns are numeric and represent genotypes
+    numeric_genotype_cols = df[genotype_cols].select_dtypes(include=[np.number]).columns.tolist()
+
+    if not numeric_genotype_cols:
+        logger.warning("No numeric genotype columns found. Skipping imputation.")
+        return df
+
+    # Check missingness per population (row)
+    missing_counts = df[numeric_genotype_cols].isna().sum(axis=1)
+    total_cols = len(numeric_genotype_cols)
+    missing_fractions = missing_counts / total_cols
+
+    # Identify populations to exclude
+    exclude_mask = missing_fractions > threshold
+    excluded_count = exclude_mask.sum()
+
+    if excluded_count > 0:
+        logger.warning(f"Excluding {excluded_count} populations with missingness > {threshold*100}%")
+        # Log which populations are excluded
+        excluded_populations = df[exclude_mask]["population_id"].tolist()
+        for pop_id in excluded_populations[:10]:  # Log first 10
+            logger.debug(f"Excluding population {pop_id} due to high missingness")
+        if excluded_count > 10:
+            logger.debug(f"... and {excluded_count - 10} more")
+
+    # Filter out excluded populations
+    df_filtered = df[~exclude_mask].copy()
+
+    # Impute remaining missing values with mean
+    for col in numeric_genotype_cols:
+        col_mean = df_filtered[col].mean()
+        if pd.isna(col_mean):
+            col_mean = 0  # Fallback if all values are NaN
+        df_filtered[col] = df_filtered[col].fillna(col_mean)
+
+    # Log imputation stats
+    remaining_missing = df_filtered[numeric_genotype_cols].isna().sum().sum()
+    logger.info(f"Imputation complete. Remaining missing values: {remaining_missing}")
+
+    return df_filtered
+
 
 def aggregate_to_population_level(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate individual‑level rows to the population level.
+    Aggregate all data to population level (FR-009).
 
-    The aggregation uses the mean of all *numeric* columns for each
-    ``population_id``. Non‑numeric columns that are not identifiers are dropped.
+    This function:
+    1. Groups by population_id
+    2. Aggregates genomic data (mean of genotype columns)
+    3. Aggregates environmental data (mean of env columns)
+    4. Aggregates compound data (mean of compound columns)
+    5. Keeps population-level metadata
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe containing a ``population_id`` column.
+    Args:
+        df: Input DataFrame with individual-level data.
 
-    Returns
-    -------
-    pd.DataFrame
-        Population‑level aggregated dataframe.
+    Returns:
+        pd.DataFrame: Aggregated population-level DataFrame.
     """
+    logger.info("Aggregating data to population level...")
+
     if "population_id" not in df.columns:
-        raise KeyError("Column 'population_id' is required for aggregation.")
+        raise ValueError("Input DataFrame must contain 'population_id' column")
 
-    logger.info("Aggregating %d rows to population level.", len(df))
-    # Select numeric columns (excluding the identifier)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    # Ensure population_id is kept
-    agg_df = (
-        df.groupby("population_id")[numeric_cols]
-        .mean()
-        .reset_index()
-    )
-    logger.info(
-        "Aggregation complete: %d populations generated.", agg_df.shape[0]
-    )
-    return agg_df
+    # Identify column types
+    genotype_cols = [col for col in df.columns if col.startswith("genotype_")]
+    env_cols = [col for col in df.columns if col.startswith("env_") or col in ["temp_mean", "precip_mean", "humidity_mean", "soil_ph", "elevation"]]
+    compound_cols = [col for col in df.columns if col.startswith("compound_") or col in ["compound_concentration", "defense_score"]]
+    metadata_cols = [col for col in df.columns if col not in genotype_cols + env_cols + compound_cols and col != "population_id"]
 
-def _calculate_vif(df_numeric: pd.DataFrame) -> pd.Series:
-    """
-    Compute VIF for each numeric predictor using linear regression.
+    # Define aggregation functions
+    agg_dict = {}
 
-    Parameters
-    ----------
-    df_numeric : pd.DataFrame
-        Dataframe containing only numeric predictor columns.
+    # Genotype columns: mean
+    for col in genotype_cols:
+        agg_dict[col] = "mean"
 
-    Returns
-    -------
-    pd.Series
-        VIF values indexed by column name.
-    """
-    vif_dict = {}
-    X = df_numeric.values
-    n_cols = X.shape[1]
+    # Environmental columns: mean
+    for col in env_cols:
+        agg_dict[col] = "mean"
 
-    for i in range(n_cols):
-        y = X[:, i]
-        X_others = np.delete(X, i, axis=1)
-        model = LinearRegression()
-        model.fit(X_others, y)
-        r_squared = model.score(X_others, y)
+    # Compound columns: mean
+    for col in compound_cols:
+        agg_dict[col] = "mean"
 
-        # Guard against perfect multicollinearity
-        if r_squared >= 0.9999:
-            vif = np.inf
+    # Metadata columns: first (or mode for categorical)
+    for col in metadata_cols:
+        if df[col].dtype == "object":
+            agg_dict[col] = lambda x: x.mode().iloc[0] if len(x.mode()) > 0 else x.iloc[0]
         else:
-            vif = 1.0 / (1.0 - r_squared)
-        vif_dict[df_numeric.columns[i]] = vif
+            agg_dict[col] = "first"
 
-    return pd.Series(vif_dict)
+    # Perform aggregation
+    aggregated_df = df.groupby("population_id").agg(agg_dict).reset_index()
 
-def calculate_vif_and_flag(
-    df: pd.DataFrame,
-    thresh: float = 5.0,
-) -> pd.DataFrame:
+    logger.info(f"Aggregated {len(df)} rows to {len(aggregated_df)} populations")
+    return aggregated_df
+
+
+def calculate_vif(df: pd.DataFrame, feature_cols: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Calculate VIF for each predictor and flag those exceeding ``thresh``.
+    Calculate Variance Inflation Factor (VIF) for collinearity check.
 
-    The function writes a CSV file ``data/processed/features_vif.csv`` with
-    three columns: ``predictor``, ``VIF`` and ``high_vif`` (boolean).
+    Explicitly flags and logs predictors with VIF > 5 as required by Spec Assumption 6.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Population‑level dataframe containing predictor columns.
-    thresh : float, optional
-        VIF threshold above which a predictor is considered collinear.
-        Default is 5.0.
+    Args:
+        df: DataFrame containing features.
+        feature_cols: List of feature column names. If None, all numeric columns are used.
 
-    Returns
-    -------
-    pd.DataFrame
-        Dataframe with columns ``predictor``, ``VIF`` and ``high_vif``.
+    Returns:
+        pd.DataFrame: DataFrame with feature names and their VIF values.
     """
-    logger.info("Calculating VIF for %d predictors.", df.shape[1] - 1)  # exclude id
+    logger.info("Calculating VIF for collinearity check...")
 
-    # Exclude identifier columns from VIF calculation
-    numeric_df = df.select_dtypes(include=[np.number])
-    if "population_id" in numeric_df.columns:
-        numeric_df = numeric_df.drop(columns=["population_id"])
+    if feature_cols is None:
+        # Select numeric columns excluding target and ID columns
+        exclude_cols = ["population_id", "compound_id", "env_id", "target", "compound_concentration", "defense_score"]
+        feature_cols = [col for col in df.select_dtypes(include=[np.number]).columns if col not in exclude_cols]
 
-    if numeric_df.empty:
-        raise ValueError("No numeric predictor columns found for VIF calculation.")
+    if not feature_cols:
+        logger.warning("No feature columns found for VIF calculation.")
+        return pd.DataFrame(columns=["feature", "vif"])
 
-    vif_series = _calculate_vif(numeric_df)
+    # Remove columns with zero variance
+    feature_cols = [col for col in feature_cols if df[col].std() > 0]
 
-    vif_df = pd.DataFrame(
-        {
-            "predictor": vif_series.index,
-            "VIF": vif_series.values,
-            "high_vif": vif_series.values > thresh,
-        }
-    )
+    if len(feature_cols) < 2:
+        logger.warning("Need at least 2 features to calculate VIF.")
+        return pd.DataFrame(columns=["feature", "vif"])
 
-    # Log flagged predictors
-    flagged = vif_df[vif_df["high_vif"]]
-    if not flagged.empty:
-        logger.warning(
-            "Predictors with VIF > %s detected: %s",
-            thresh,
-            ", ".join(flagged["predictor"].tolist()),
-        )
-    else:
-        logger.info("No predictors exceeded VIF threshold of %s.", thresh)
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-    # Ensure output directory exists
-    FEATURES_VIF_CSV.parent.mkdir(parents=True, exist_ok=True)
-    vif_df.to_csv(FEATURES_VIF_CSV, index=False)
-    logger.info("VIF results written to %s", FEATURES_VIF_CSV)
+    vif_results = []
+
+    for feature in feature_cols:
+        try:
+            # Create design matrix (add constant for intercept)
+            X = df[feature_cols].copy()
+            X = sm.add_constant(X)
+
+            # Calculate VIF
+            vif = variance_inflation_factor(X.values, feature_cols.index(feature) + 1)
+            vif_results.append({"feature": feature, "vif": vif})
+
+            # Flag high VIF
+            if vif > 5:
+                logger.warning(f"High VIF detected for '{feature}': {vif:.2f} > 5.0")
+            elif vif > 10:
+                logger.error(f"Critical VIF detected for '{feature}': {vif:.2f} > 10.0 - severe multicollinearity")
+
+        except Exception as e:
+            logger.error(f"Error calculating VIF for '{feature}': {e}")
+            vif_results.append({"feature": feature, "vif": np.nan})
+
+    vif_df = pd.DataFrame(vif_results)
+    vif_df = vif_df.sort_values("vif", ascending=False)
+
+    # Log summary
+    high_vif_count = (vif_df["vif"] > 5).sum()
+    logger.info(f"VIF calculation complete. {high_vif_count} features have VIF > 5")
 
     return vif_df
 
+
 def run_preprocessing_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Execute the full preprocessing pipeline for task T020.
+    Run the full preprocessing pipeline:
+    1. Load processed data
+    2. Handle missing genotypes
+    3. Aggregate to population level
+    4. Calculate VIF
+    5. Save outputs
 
-    Steps:
-      1. Load filtered data.
-      2. (Optional) handle missing genotype data.
-      3. Aggregate to population level.
-      4. Compute VIF and flag high‑collinearity predictors.
-
-    Returns
-    -------
-    tuple(pd.DataFrame, pd.DataFrame)
-        (population_level_df, vif_results_df)
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: (filtered_df, vif_df)
     """
-    df = load_processed_data()
-    df = handle_missing_genotypes(df)
-    pop_df = aggregate_to_population_level(df)
-    vif_df = calculate_vif_and_flag(pop_df)
+    logger.info("Starting preprocessing pipeline...")
 
-    return pop_df, vif_df
-
-def main() -> int:
-    """
-    Entry point for the preprocessing script.
-
-    Returns
-    -------
-    int
-        Exit code (0 for success, non‑zero for failure).
-    """
+    # Check disk space before processing
+    config = get_config()
+    estimated_size = 100 * 1024 * 1024  # 100 MB estimate
     try:
-        run_preprocessing_pipeline()
-        logger.info("Preprocessing pipeline completed successfully.")
+        check_disk_space(estimated_size)
+    except DiskSpaceError as e:
+        logger.error(f"Disk space check failed: {e}")
+        raise
+
+    # Step 1: Load processed data
+    try:
+        df = load_processed_data()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load processed data: {e}")
+        # Try to generate mock data if in test mode
+        if config.mode == "test":
+            logger.info("Running in test mode, generating mock data...")
+            from data.mock_generator import generate_all_mock_data
+            mock_data = generate_all_mock_data()
+            # Combine mock data
+            df = pd.concat([
+                mock_data.get("genomic", pd.DataFrame()),
+                mock_data.get("env", pd.DataFrame()),
+                mock_data.get("compound", pd.DataFrame())
+            ], axis=1, join="inner")
+            if df.empty:
+                raise RuntimeError("Failed to generate mock data for preprocessing")
+        else:
+            raise
+
+    # Step 2: Handle missing genotypes
+    df_filtered = handle_missing_genotypes(df)
+
+    # Step 3: Aggregate to population level
+    df_aggregated = aggregate_to_population_level(df_filtered)
+
+    # Step 4: Calculate VIF
+    vif_df = calculate_vif(df_aggregated)
+
+    # Step 5: Save outputs
+    output_dir = Path(config.paths.processed)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save filtered data
+    filtered_path = output_dir / "filtered.csv"
+    df_filtered.to_csv(filtered_path, index=False)
+    logger.info(f"Saved filtered data to {filtered_path}")
+
+    # Save VIF results
+    vif_path = output_dir / "features_vif.csv"
+    vif_df.to_csv(vif_path, index=False)
+    logger.info(f"Saved VIF results to {vif_path}")
+
+    # Check disk space after processing
+    try:
+        check_disk_space(estimated_size)
+    except DiskSpaceError as e:
+        logger.warning(f"Disk space check after processing: {e}")
+
+    return df_filtered, vif_df
+
+
+def main():
+    """Main entry point for preprocessing module."""
+    configure_root_logger()
+    try:
+        df_filtered, vif_df = run_preprocessing_pipeline()
+        logger.info("Preprocessing pipeline completed successfully")
+        print(f"Filtered data shape: {df_filtered.shape}")
+        print(f"VIF results shape: {vif_df.shape}")
         return 0
-    except Exception as exc:  # pragma: no cover
-        logger.exception("Preprocessing pipeline failed: %s", exc)
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {e}", exc_info=True)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

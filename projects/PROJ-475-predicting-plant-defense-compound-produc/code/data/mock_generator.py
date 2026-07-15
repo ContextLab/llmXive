@@ -1,8 +1,11 @@
 """
-Mock Data Generator for CI and Testing.
+Deterministic Mock Data Generator for CI and Testing.
 
-Generates deterministic mock genomic, environmental, and compound data
-to allow pipeline execution without external API keys or network access.
+Generates synthetic but consistent data to allow for reproducible tests
+without requiring external API keys or network access.
+
+NOTE: This module is intended for CI/CD and testing purposes only.
+Production runs should use real data from verified sources.
 """
 import json
 import hashlib
@@ -10,143 +13,217 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+import logging
 
-# Seed for determinism
+from utils.logging import get_module_logger
+
+logger = get_module_logger(__name__)
+
+# Seed for deterministic generation
 MOCK_SEED = 42
+np.random.seed(MOCK_SEED)
 
-def _deterministic_hash(seed_str: str, length: int = 8) -> str:
-    """Generate a deterministic string from a seed."""
-    return hashlib.sha256(f"{MOCK_SEED}_{seed_str}".encode()).hexdigest()[:length]
-
-def generate_deterministic_population_ids(n: int) -> List[str]:
+def generate_deterministic_population_ids(n: int = 10) -> List[str]:
     """Generate deterministic population IDs."""
-    return [f"POP-{_deterministic_hash(str(i))}" for i in range(n)]
+    ids = []
+    for i in range(n):
+        # Create a deterministic hash based on index
+        h = hashlib.md5(f"pop_{i}_{MOCK_SEED}".encode()).hexdigest()[:8]
+        ids.append(f"POP_{h}")
+    return ids
 
-def generate_deterministic_env_ids(n: int) -> List[str]:
-    """Generate deterministic environmental IDs."""
-    return [f"ENV-{_deterministic_hash(str(i))}" for i in range(n)]
+def generate_deterministic_env_ids(n: int = 10) -> List[str]:
+    """Generate deterministic environment IDs."""
+    ids = []
+    for i in range(n):
+        h = hashlib.md5(f"env_{i}_{MOCK_SEED}".encode()).hexdigest()[:8]
+        ids.append(f"ENV_{h}")
+    return ids
 
-def generate_deterministic_compound_ids(n: int) -> List[str]:
+def generate_deterministic_compound_ids(n: int = 10) -> List[str]:
     """Generate deterministic compound IDs."""
-    return [f"CMP-{_deterministic_hash(str(i))}" for i in range(n)]
+    ids = []
+    for i in range(n):
+        h = hashlib.md5(f"cmp_{i}_{MOCK_SEED}".encode()).hexdigest()[:8]
+        ids.append(f"CMP_{h}")
+    return ids
 
-def generate_mock_genomic_data(n_populations: int = 10, n_snps: int = 100) -> List[Dict[str, Any]]:
+def generate_mock_genomic_data(n_populations: int = 10) -> Dict[str, Any]:
     """
-    Generate deterministic mock genomic data.
+    Generate mock genomic data.
     
-    Returns a list of dictionaries representing SNP genotypes per population.
-    Structure: [{"population_id": str, "snp_id": str, "genotype": float}, ...]
+    Args:
+        n_populations: Number of populations to generate data for.
+        
+    Returns:
+        Dictionary containing mock genomic data.
     """
-    np.random.seed(MOCK_SEED)
+    logger.info(f"Generating mock genomic data for {n_populations} populations.")
+    
     pop_ids = generate_deterministic_population_ids(n_populations)
-    data = []
     
+    # Generate mock SNP data
+    n_snps = 100
+    snp_data = {}
     for i, pop_id in enumerate(pop_ids):
-        for j in range(n_snps):
-            snp_id = f"SNP-{_deterministic_hash(f'{i}_{j}')}"
-            # Simulate genotype frequencies (0, 1, 2 alleles)
-            genotype = np.random.choice([0, 1, 2], p=[0.4, 0.4, 0.2])
-            # Add small missingness (5%)
-            if np.random.random() < 0.05:
-                genotype = None
-            data.append({
-                "population_id": pop_id,
-                "snp_id": snp_id,
-                "genotype": float(genotype) if genotype is not None else None
-            })
-    return data
+        # Generate random genotype frequencies (0, 1, 2)
+        genotypes = np.random.randint(0, 3, size=n_snps)
+        snp_data[pop_id] = {
+            "genotypes": genotypes.tolist(),
+            "snp_count": n_snps,
+            "heterozygosity": float(np.mean(genotypes == 1)),
+            "nucleotide_diversity": float(np.std(genotypes) * 0.5)
+        }
+    
+    return {
+        "metadata": {
+            "source": "mock_generator",
+            "n_populations": n_populations,
+            "n_snps": n_snps,
+            "seed": MOCK_SEED
+        },
+        "data": snp_data
+    }
 
-def generate_mock_environmental_data(n_populations: int = 10) -> List[Dict[str, Any]]:
+def generate_mock_environmental_data(n_populations: int = 10) -> Dict[str, Any]:
     """
-    Generate deterministic mock environmental data.
+    Generate mock environmental data.
     
-    Returns a list of dictionaries with environmental variables per population.
-    Structure: [{"population_id": str, "env_id": str, "temp_mean": float, "precip_mean": float, ...}]
+    Args:
+        n_populations: Number of populations to generate data for.
+        
+    Returns:
+        Dictionary containing mock environmental data.
     """
-    np.random.seed(MOCK_SEED + 1)
+    logger.info(f"Generating mock environmental data for {n_populations} populations.")
+    
     pop_ids = generate_deterministic_population_ids(n_populations)
-    data = []
+    env_ids = generate_deterministic_env_ids(n_populations)
     
-    for i, pop_id in enumerate(pop_ids):
-        env_id = generate_deterministic_env_ids(1)[0]
-        data.append({
-            "population_id": pop_id,
+    # Generate mock environmental variables
+    env_data = {}
+    for i, (pop_id, env_id) in enumerate(zip(pop_ids, env_ids)):
+        # Generate realistic-looking environmental variables
+        temp_mean = np.random.uniform(-5, 35)  # Mean annual temperature
+        temp_range = np.random.uniform(5, 30)  # Temperature range
+        precip = np.random.uniform(200, 3000)  # Annual precipitation
+        humidity = np.random.uniform(20, 90)   # Relative humidity
+        
+        env_data[pop_id] = {
             "env_id": env_id,
-            "temp_mean": float(np.random.uniform(10, 30)),
-            "precip_mean": float(np.random.uniform(500, 2000)),
-            "altitude": float(np.random.uniform(0, 2000)),
-            "source_study": f"STUDY-{_deterministic_hash(str(i))}"
-        })
-    return data
+            "temp_mean": round(temp_mean, 2),
+            "temp_range": round(temp_range, 2),
+            "precipitation": round(precip, 2),
+            "humidity": round(humidity, 2),
+            "elevation": int(np.random.uniform(0, 3000)),
+            "latitude": round(np.random.uniform(-60, 60), 4),
+            "longitude": round(np.random.uniform(-180, 180), 4)
+        }
+    
+    return {
+        "metadata": {
+            "source": "mock_generator",
+            "n_populations": n_populations,
+            "seed": MOCK_SEED
+        },
+        "data": env_data
+    }
 
-def generate_mock_compound_data(n_populations: int = 10) -> List[Dict[str, Any]]:
+def generate_mock_compound_data(n_populations: int = 10) -> Dict[str, Any]:
     """
-    Generate deterministic mock defense compound profiles.
+    Generate mock compound data.
     
-    Returns a list of dictionaries with compound concentrations per population.
-    Structure: [{"population_id": str, "compound_id": str, "concentration": float, ...}]
+    Args:
+        n_populations: Number of populations to generate data for.
+        
+    Returns:
+        Dictionary containing mock compound data.
     """
-    np.random.seed(MOCK_SEED + 2)
+    logger.info(f"Generating mock compound data for {n_populations} populations.")
+    
     pop_ids = generate_deterministic_population_ids(n_populations)
-    compounds = ["alkaloid_A", "terpenoid_B", "phenolic_C", "glucosinolate_D"]
-    data = []
+    compound_ids = generate_deterministic_compound_ids(n_populations)
     
-    for i, pop_id in enumerate(pop_ids):
-        for compound in compounds:
-            cmp_id = generate_deterministic_compound_ids(1)[0]
-            # Concentration in mg/g
-            concentration = float(np.random.uniform(0.1, 10.0))
-            # Add small missingness (5%)
-            if np.random.random() < 0.05:
-                concentration = None
-            data.append({
-                "population_id": pop_id,
-                "compound_id": cmp_id,
-                "compound_name": compound,
-                "concentration": concentration
-            })
-    return data
+    # Generate mock compound concentrations
+    compound_data = {}
+    for i, (pop_id, cmp_id) in enumerate(zip(pop_ids, compound_ids)):
+        # Generate realistic-looking compound concentrations
+        phenolics = np.random.uniform(0.1, 10.0)
+        terpenoids = np.random.uniform(0.05, 5.0)
+        alkaloids = np.random.uniform(0.01, 2.0)
+        flavonoids = np.random.uniform(0.1, 8.0)
+        
+        compound_data[pop_id] = {
+            "compound_id": cmp_id,
+            "phenolics": round(phenolics, 4),
+            "terpenoids": round(terpenoids, 4),
+            "alkaloids": round(alkaloids, 4),
+            "flavonoids": round(flavonoids, 4),
+            "total_defense": round(phenolics + terpenoids + alkaloids + flavonoids, 4)
+        }
+    
+    return {
+        "metadata": {
+            "source": "mock_generator",
+            "n_populations": n_populations,
+            "seed": MOCK_SEED
+        },
+        "data": compound_data
+    }
 
 def generate_all_mock_data(n_populations: int = 10) -> Dict[str, Any]:
     """
-    Generate all three data modalities with consistent population IDs.
+    Generate all mock data types.
     
-    Returns a dictionary containing:
-    - genomic: List[Dict]
-    - environmental: List[Dict]
-    - compounds: List[Dict]
+    Args:
+        n_populations: Number of populations to generate data for.
+        
+    Returns:
+        Dictionary containing all mock data.
     """
+    logger.info("Generating all mock data.")
+    
     return {
         "genomic": generate_mock_genomic_data(n_populations),
         "environmental": generate_mock_environmental_data(n_populations),
-        "compounds": generate_mock_compound_data(n_populations)
+        "compound": generate_mock_compound_data(n_populations)
     }
 
-def save_mock_data(data: Dict[str, Any], output_dir: Path = Path("data/raw")) -> None:
-    """Save generated mock data to JSON files."""
-    output_dir.mkdir(parents=True, exist_ok=True)
+def main() -> int:
+    """
+    Main entry point for the mock generator script.
     
-    with open(output_dir / "genomic_vcf.json", 'w') as f:
-        json.dump(data["genomic"], f, indent=2)
-    with open(output_dir / "env_data.json", 'w') as f:
-        json.dump(data["environmental"], f, indent=2)
-    with open(output_dir / "compound_data.json", 'w') as f:
-        json.dump(data["compounds"], f, indent=2)
-
-def main():
-    """Entry point for generating mock data."""
-    import logging
-    from utils.logging import configure_root_logger
-    configure_root_logger = logging.getLogger()
-    configure_root_logger.setLevel(logging.INFO)
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    configure_root_logger()
+    logger.info("Starting mock data generation.")
     
-    logger = logging.getLogger(__name__)
-    logger.info("Generating mock data...")
-    data = generate_all_mock_data()
-    save_mock_data(data)
-    logger.info("Mock data generation complete.")
-    return 0
+    try:
+        # Generate all mock data
+        data = generate_all_mock_data(n_populations=10)
+        
+        # Save to files
+        output_dir = Path("data/raw")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_dir / "genomic_vcf.json", 'w') as f:
+            json.dump(data["genomic"], f, indent=2)
+        
+        with open(output_dir / "env_data.json", 'w') as f:
+            json.dump(data["environmental"], f, indent=2)
+        
+        with open(output_dir / "compound_data.json", 'w') as f:
+            json.dump(data["compound"], f, indent=2)
+        
+        logger.info("Mock data generation completed successfully.")
+        return 0
+    except Exception as e:
+        logger.error(f"Mock data generation failed: {e}")
+        return 1
 
 if __name__ == "__main__":
     import sys
+    from utils.logging import configure_root_logger
+    configure_root_logger()
     sys.exit(main())
