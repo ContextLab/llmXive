@@ -66,7 +66,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download a subset of [deferred] public repositories from the `codeparrot/github-code` dataset on HuggingFace, ensuring the total dataset size fits within the 14 GB disk limit. (See US-1)
+- **FR-001**: System MUST download a subset of [deferred] public repositories from the `codeparrot/github-code` dataset on HuggingFace, ensuring the total dataset size fits within the available disk space constraints. (See US-1)
 - **FR-002**: System MUST run static analysis tools (CodeQL and tree-sitter) on the downloaded repositories to generate per-chunk labels for "cyclomatic complexity," "nesting depth," and "repetition ratio." (See US-1)
 - **FR-003**: System MUST process the labeled chunks through a frozen, open-weight LLM (e.g., Llama-3-8B or Mistral-7B) available via HuggingFace, recording per-token loss and prediction entropy for each chunk without GPU acceleration, completing inference within 60 seconds per chunk and total pipeline execution within 6 hours. (See US-1)
 - **FR-004**: System MUST compute Pearson and Spearman correlation coefficients between the static complexity metrics and the measured prediction difficulty across the entire dataset. (See US-1)
@@ -100,7 +100,7 @@
 
 ## Assumptions
 
-- The `codeparrot/github-code` dataset contains sufficient Python and Java code to reach the [deferred] repository target within the 14 GB disk limit.
+- The `codeparrot/github-code` dataset contains sufficient Python and Java code to reach the [deferred] repository target within a constrained disk limit.
 - The Llama-8B or Mistral-7B model can be loaded and run in inference mode on a CPU-only environment within the 6-hour time limit for the sampled dataset, with a maximum of 60 seconds per chunk.
 - Static analysis tools (CodeQL, tree-sitter) can successfully parse the majority of the downloaded code samples without requiring language-specific configuration beyond defaults.
 - The relationship between code complexity and prediction loss is not confounded by external factors such as code comments or documentation density, which are assumed to be negligible or uniformly distributed.
