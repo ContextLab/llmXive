@@ -9,17 +9,17 @@ from datetime import timedelta
 
 def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame, target_freq: str = '5min') -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Remove NaN values and resample two DataFrames to a fixed cadence.
+    Clean NaN values and resample two DataFrames to a fixed cadence.
     
     Args:
-        df1: First DataFrame (e.g., OMNI solar wind data) with 'timestamp' column.
-        df2: Second DataFrame (e.g., THEMIS electric field data) with 'timestamp' column.
-        target_freq: Target frequency string for resampling (default '5min').
-    
+        df1: First DataFrame (e.g., Solar Wind data) with 'timestamp' column.
+        df2: Second DataFrame (e.g., THEMIS data) with 'timestamp' column.
+        freq: Resampling frequency string (default '5min').
+        
     Returns:
-        Tuple of (cleaned_df1, cleaned_df2) aligned to the target frequency.
+        Tuple of (cleaned_df1, cleaned_df2) aligned on timestamp index.
     """
-    def _process_df(df: pd.DataFrame) -> pd.DataFrame:
+    def process_single(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
         
@@ -27,30 +27,23 @@ def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame, target_freq: str = 
         if 'timestamp' in df.columns:
             df = df.copy()
             df['timestamp'] = pd.to_datetime(df['timestamp'])
-            df.set_index('timestamp', inplace=True)
+            df = df.set_index('timestamp')
         
-        # Remove rows where any column is NaN
-        df_clean = df.dropna()
+        # Remove rows where all data columns are NaN
+        df = df.dropna(how='all')
         
-        # Resample to target frequency (mean for numeric data)
-        df_resampled = df_clean.resample(target_freq).mean()
+        # Resample to fixed frequency (forward fill then backward fill for gaps)
+        df = df.resample(freq).mean()
+        df = df.ffill().bfill()
         
-        # Drop any remaining NaNs introduced by resampling (e.g., empty bins)
-        df_resampled = df_resampled.dropna()
-        
-        return df_resampled
+        return df
 
-    processed_df1 = _process_df(df1)
-    processed_df2 = _process_df(df2)
-
-    # Align indices by taking the intersection of timestamps
-    common_index = processed_df1.index.intersection(processed_df2.index)
+    cleaned1 = process_single(df1)
+    cleaned2 = process_single(df2)
     
-    if len(common_index) == 0:
-        # Return empty frames with correct columns if no overlap
-        return processed_df1.iloc[:0], processed_df2.iloc[:0]
-
-    aligned_df1 = processed_df1.loc[common_index]
-    aligned_df2 = processed_df2.loc[common_index]
-
-    return aligned_df1, aligned_df2
+    # Align indices
+    common_index = cleaned1.index.intersection(cleaned2.index)
+    cleaned1 = cleaned1.loc[common_index]
+    cleaned2 = cleaned2.loc[common_index]
+    
+    return cleaned1, cleaned2
