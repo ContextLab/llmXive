@@ -41,7 +41,10 @@ _MODNOTFOUND_RE = re.compile(r"No module named ['\"]([A-Za-z_][A-Za-z0-9_]*)['\"
 _COMPUTE_INFRA_RE = re.compile(
     r"\bcuda\b|bitsandbytes|load_in_8bit|device_map|out of memory|outofmemory|"
     r"memoryerror|torch not compiled with cuda|no gpu|gpu is required|"
-    r"cuda is not available|cuda error|requires a gpu|cudnn",
+    r"cuda is not available|cuda error|requires a gpu|cudnn|"
+    # what a GPU-less box actually raises for real device="cuda" code — these are
+    # the strings the offload trigger must catch once GPU code is finally written
+    r"nvidia driver|no cuda-capable device|without gpu support|no kernel image",
     re.IGNORECASE,
 )
 

@@ -73,15 +73,23 @@ for the cap-hit path and signals `human_input_needed`.
 
 ## Rules
 
-- **Compute feasibility — every task MUST run on free CPU-only CI** (2 CPU
-  cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h). A task that needs hardware the
-  runner lacks never executes, so the project never reaches research_complete.
-  NEVER write a task that loads a model in 8-bit/4-bit quantization
-  (`load_in_8bit` / bitsandbytes REQUIRE CUDA), uses `device_map="cuda"`, trains
-  a deep net (GNN/transformer) from scratch, runs a large LLM, or processes data
-  exceeding RAM/disk. If the plan implies a heavy method, task a CPU-tractable
-  version instead: a SMALL model in DEFAULT precision on a SAMPLED dataset,
-  classical statistics, or scikit-learn — never an 8-bit/GPU model.
+- **Compute feasibility — CPU-first, with a real GPU escape hatch (do NOT fake
+  it).** The default runner is free CPU-only CI (2 cores, ~7 GB RAM, ~14 GB disk,
+  ≤6 h). When a method HAS a faithful CPU-tractable form, task that: a SMALL model
+  in default precision on a SAMPLED dataset, classical statistics, or
+  scikit-learn. Most projects fit here — prefer it, and keep data within RAM/disk.
+  BUT some methods have NO honest CPU form — running or fine-tuning a transformer
+  or diffusion model, 8-bit/4-bit inference, CUDA kernels. For those you MUST NOT
+  task a degenerate CPU imitation: a simulated/synthetic stand-in for a GPU
+  computation is fabrication and is rejected at the execution gate (the project
+  then churns forever). Instead task the REAL computation SCALED DOWN to fit ONE
+  free Kaggle GPU (~16 GB VRAM, a single ~9 h kernel): a small or 8-bit-quantized
+  model with `device="cuda"` / `load_in_8bit`, a few-hundred-example subset, a
+  handful of steps or epochs. The execution stage AUTO-OFFLOADS such work to
+  Kaggle's free GPU — it detects the GPU requirement when the CPU run errors on
+  CUDA and re-runs the SAME run-book on the GPU — so a real `device="cuda"` task
+  DOES execute and produce real results. Choose the scaled GPU form ONLY when the
+  science genuinely requires it; never a fabricated CPU imitation of a GPU method.
 - NEVER weaken a test or remove a constraint to make analyze pass —
   the constitution says "fix the code, not the test".
 - Task ordering MUST respect data flow: a task that says

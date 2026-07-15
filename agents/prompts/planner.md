@@ -82,23 +82,32 @@ every one:
     bounded by or derived from another), do NOT claim independent effects —
     report the relationship descriptively and acknowledge the collinearity.
 
-## Compute feasibility (the plan MUST be runnable on free CPU-only CI)
+## Compute feasibility (CPU-first, with a real GPU escape hatch)
 
-The implementation is executed on a GitHub Actions free-tier runner: **2 CPU
-cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job.** A plan that names a
-GPU/heavy method never runs → the project never reaches `research_complete`.
-Every library, model, and method named in plan.md / research.md / data-model.md
-/ quickstart.md MUST run there:
+The implementation runs on a GitHub Actions free-tier runner: **2 CPU cores,
+~7 GB RAM, ~14 GB disk, NO local GPU, ≤6 h per job.** Prefer methods that run
+there; a plan whose method exceeds the box AND has no honest smaller form never
+produces real results. Every library, model, and method named in plan.md /
+research.md / data-model.md / quickstart.md MUST run either on that CPU box or on
+the GPU escape hatch below:
 
-- **No GPU / CUDA**, no 8-bit/4-bit quantization (`load_in_8bit`, bitsandbytes
-  require CUDA), no `device_map="cuda"`, no GPU/mixed-precision training.
-- **No deep-net training from scratch or large-LLM inference.** A small CPU
-  model in default precision over a SAMPLED dataset is fine; pin libraries that
-  install + run on CPU (e.g. CPU-wheel `torch`, `scikit-learn`).
-- **Fit the box.** Data subset to ~7 GB RAM / ~14 GB disk; total runtime ≤6 h.
-- Prefer CPU-tractable methods. If the spec implies a heavy method, plan a
-  CPU-tractable approximation (smaller model, default precision, sampled data)
-  and say so in research.md's Decision/Rationale.
+- **CPU-first.** When a method has a faithful CPU-tractable form, plan it: a small
+  model in default precision over a SAMPLED dataset, classical statistics,
+  scikit-learn, CPU-wheel `torch`. Fit ~7 GB RAM / ~14 GB disk, ≤6 h. Most
+  projects belong here — choose it whenever it is honest.
+- **GPU escape hatch (Kaggle auto-offload).** Some methods have NO faithful CPU
+  form — running or fine-tuning a transformer or diffusion model, 8-bit/4-bit
+  inference, CUDA kernels. Do NOT plan a fake CPU imitation of these: a
+  simulated/synthetic stand-in for a GPU computation is fabrication, rejected at
+  the execution gate. Instead plan the REAL computation SCALED DOWN to fit ONE
+  free Kaggle GPU (~16 GB VRAM, one ~9 h kernel): a small or 8-bit-quantized model
+  (`device="cuda"` / `load_in_8bit`), a few-hundred-example subset, a handful of
+  steps/epochs. The execution stage AUTO-OFFLOADS GPU work to Kaggle's free GPU
+  (it detects the CUDA requirement when the CPU run errors and re-runs the same
+  run-book on the GPU), so a real `device="cuda"` plan DOES execute.
+- State the choice in research.md's Decision/Rationale: which methods run on CPU,
+  and (if any) which genuinely need the scaled GPU form. Never fabricate a CPU
+  approximation of a method that truly needs a GPU — plan the real scaled GPU run.
 
 ## Rules
 

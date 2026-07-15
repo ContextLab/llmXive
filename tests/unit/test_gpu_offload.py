@@ -453,3 +453,37 @@ def test_bare_kgat_token_derives_username_needs_no_second_secret(monkeypatch, tm
     assert creds == ("jeremy9", "KGAT_abc123def456")
     assert os.environ["KAGGLE_API_TOKEN"] == "KGAT_abc123def456"
     offload._DERIVED_USERNAME = None
+
+
+def test_compute_infra_regex_catches_common_real_gpu_absence_errors() -> None:
+    """Offload's reachability depends on this: when the implementer FINALLY writes
+    real `device="cuda"` code (per the updated planner/tasker prompts), the CPU-CI
+    run must be recognised as a compute-infra failure so it offloads. Pin the exact
+    error strings a GPU-less box raises for real GPU code."""
+    from llmxive.execution.stage import _compute_infra_failures
+
+    real_errors = [
+        "RuntimeError: Found no NVIDIA driver on your system.",
+        "RuntimeError: No CUDA GPUs are available",
+        "AssertionError: Torch not compiled with CUDA enabled",
+        "RuntimeError: No CUDA-capable device is detected",
+        "The installed version of bitsandbytes was compiled without GPU support.",
+        "RuntimeError: CUDA error: no kernel image is available",
+    ]
+    for err in real_errors:
+        assert _compute_infra_failures([f"python code/train.py -> rc=1\n{err}"]), (
+            f"real GPU-absence error not recognised as compute-infra: {err!r}"
+        )
+
+
+def test_compute_infra_regex_does_not_match_ordinary_bugs() -> None:
+    """Must NOT fire on a plain code bug (that would wrongly offload instead of
+    letting the implementer fix it)."""
+    from llmxive.execution.stage import _compute_infra_failures
+
+    for benign in [
+        "KeyError: 'accuracy'",
+        "FileNotFoundError: data/raw/x.csv",
+        "ValueError: could not convert string to float",
+    ]:
+        assert not _compute_infra_failures([f"python code/x.py -> rc=1\n{benign}"]), benign
