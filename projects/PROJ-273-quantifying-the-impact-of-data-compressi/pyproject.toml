@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantifying-the-impact-of-data-compressi"
+version = "0.1.0"
+description = "Quantifying the Impact of Data Compression on Gravitational Wave Event Reconstruction"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pandas>=2.0.0",
+    "h5py>=3.8.0",
+    "lalsimulation>=7.0.0",
+    "bilby>=2.0.0",
+    "dynesty>=2.1.0",
+    "gwosc>=0.7.0",
+    "lz4>=4.3.0",
+    "pywavelets>=1.4.0",
+    "astropy>=5.2.0",
+    "pillow>=9.5.0",
+    "pytest>=7.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-timeout>=2.2.0",
+]
+
+[project.scripts]
+setup-data-dirs = "code.setup_data_dirs:main"
+setup-project-structure = "code.setup_project_structure:main"
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+timeout = 300
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]

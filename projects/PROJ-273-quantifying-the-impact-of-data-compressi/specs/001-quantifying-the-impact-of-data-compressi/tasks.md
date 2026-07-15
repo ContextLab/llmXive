@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
-- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` including dependencies: `numpy`, `scipy`, `pandas`, `h5py`, `lalsimulation`, `bilby`, `dynesty`, `gwosc`, `lz4`, `pywavelets`, `astropy`, `pillow`, `pytest`
+- [X] T002 Initialize Python 3.11 project with `pyproject.toml` including dependencies: `numpy`, `scipy`, `pandas`, `h5py`, `lalsimulation`, `bilby`, `dynesty`, `gwosc`, `lz4`, `pywavelets`, `astropy`, `pillow`, `pytest`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -36,11 +36,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `src/utils/config.py` for random seed pinning and path management
-- [ ] T005 [P] Implement `src/utils/logging.py` with structured logging for pipeline steps
+- [X] T004 Setup `src/utils/config.py` for random seed pinning and path management
+- [X] T005 [P] Implement `src/utils/logging.py` with structured logging for pipeline steps
 - [ ] T006 Create `data/raw/`, `data/interim/`, `data/processed/` directory structure
 - [ ] T007 Setup `tests/` directory structure (`unit/`, `integration/`, `contract/`)
-- [ ] T008 Configure `pytest` with coverage thresholds and CI-compatible timeout settings (reasonable maximum duration)
+- [ ] T008 Configure `pytest` with coverage thresholds and CI-compatible timeout settings (timeout=300s)
 
 The research question is: How can continuous integration workflows be optimized for reliability and efficiency? The method is: A comparative analysis of timeout configurations across diverse CI platforms. References: Smith et al. (recent years)
 
@@ -54,26 +54,37 @@ The research question and method remain unchanged.,.
 
 **Goal**: Download real GW noise, inject synthetic CBC signals with known ground truth, and validate metadata completeness (mass, distance, spin/tilt).
 
-**Independent Test**: Can be fully tested by downloading noise, injecting signals, and verifying that the resulting files contain complete metadata and detectable SNR > 8.
+**Independent Test**: Can be fully tested by downloading real GW noise from GWOSC, injecting synthetic CBC signals using `LALSimulation` with known ground truth parameters, and verifying that the resulting files contain complete metadata and detectable SNR > 8.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: These tasks represent **writing** the test code. Execution occurs after implementation.
 > **NOTE**: Test descriptions now include explicit assertions (e.g., `assert snr > 8`) for executability.
 
-- [ ] T009 [P] [US1] **Write** unit test for `src/data/inject.py` in `tests/unit/test_inject.py` ensuring synthetic signal SNR > 8 (`assert snr > 8`)
+- [X] T009 [P] [US1] **Write** unit test for `src/data/inject.py` in `tests/unit/test_inject.py` ensuring synthetic signal SNR > 8 (`assert snr > 8`)
 - [ ] T010 [P] [US1] **Write** unit test for `src/data/validate.py` in `tests/unit/test_validate.py` checking for known true parameters (`assert 'true_parameters' in metadata`)
-- [ ] T011 [US1] Integration test for full download-inject-validate flow in `tests/integration/test_data_pipeline.py`
+- [X] T011 [US1] Integration test for full download-inject-validate flow in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch real GW noise segments from GWOSC API (e.g., O3 data)
-- [ ] T013 [P] [US1] Implement `src/data/inject.py` using `LALSimulation` to generate CBC waveforms with **known true parameters** (Mass, Spin, Distance) injected into noise for **a set of target events** (satisfying FR-001 volume via synthetic ground truth). *Note: Generates metadata with 'true_parameters', not posteriors.*
+- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch real GW noise segments from GWOSC API (e.g., O data) **only** (no injection campaigns exist). <!-- FAILED: unspecified -->
+- [ ] T013 [P] [US1] Implement `src/data/inject.py` using `LALSimulation` to generate CBC waveforms with **known true parameters** (Mass, Spin, Distance) injected into the fetched noise for **a set of target events** (satisfying FR-001 volume via synthetic ground truth). *Note: Generates metadata with 'true_parameters', not posteriors.*
 - [ ] T014 [US1] Implement `src/data/validate.py` to check for: strain time series, detector names, event timestamps, **known true parameters** (ground truth), and **spin metadata (tilt angles)** (FR-008, FR-009). *Note: Validates 'known true parameters' from synthetic injections, not posteriors.*
-- [ ] T015 [US1] Implement logic to **exclude** events missing spin metadata **before processing** and **HALT the pipeline** if the count drops below 12 valid events (FR-009)
-- [ ] T016 [US1] Create `src/data/main.py` to orchestrate the download-inject-validate pipeline for **≥15 target events** (satisfying FR-001 volume requirement)
+- [ ] T015 [US1] Implement logic to **fetch additional noise segments in batches** and inject/validate until **≥12 valid events ** with complete spin metadata are found, then exclude invalid events and proceed. *Note: Implements a loop to ensure the final analysis set meets FR-009, rather than halting on the first batch failure.*
+- [ ] T016 [US1] Create `src/data/main.py` to orchestrate the **download-inject-validate** pipeline for **≥15 target events ** (satisfying FR-001 volume requirement) and produce the validated dataset.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 4.5: Baseline Verification (Prerequisite for US3)
+
+**Goal**: Establish the `Bias_Original` baseline required for Delta_Bias calculation.
+
+- [ ] T028.1 [US3] **Load/Verify** external baseline `Bias_Original` from `data/external/baseline_bias_original.json` (pre-computed external resource). *Note: Do NOT execute on CI; load from external source as per Plan Phase 0.5 constraints.*
+- [ ] T028.2 [US3] Create `code/provenance/deviation_PE_method.md` to **record the deviation** from Spec FR-005 (LALInference) to Bilby/Dynesty (Fast PE) as required by Constitution Principle VII and Plan Complexity Tracking.
+
+**Checkpoint**: Baseline artifact and provenance record are ready for Phase 5.
 
 ---
 
@@ -97,21 +108,15 @@ The research question and method remain unchanged.,.
 - [ ] T020 [P] [US2] Implement `src/compression/lossy.py` with wrappers for:
  - Quantized floating-point (16-bit, 8-bit, 4-bit)
  - Wavelet Thresholding
- - JPEG2000 via **row-major 1D-to-2D folding** (using `pillow`; see Plan Complexity Tracking for justification of row-major over Hilbert)
- - **MUST record** the "1D-to-2D folding" deviation in a provenance file under `code/` as required by Constitution Principle VI.
+ - JPEG2000 via **row-major 1D-to-2D folding** (using `pillow`; target dimensions 2048x1024)
+ - **MUST record** the "1D-to-2D folding" deviation in a provenance file under `code/` as required by Constitution Principle VII (Modified) and Plan Complexity Tracking.
+ - **MUST implement** the corresponding **unfold** step to restore 1D data before computing reconstruction error (MSE/SNR) to ensure valid comparison with the original 1D signal (SC-001, SC-002).
+- [ ] T020.1 [US2] Implement `src/compression/unfold.py` to **unfold** 2D JPEG2000 compressed data back to 1D **before** computing reconstruction error (MSE/SNR) to ensure valid comparison with the original 1D signal (SC-001, SC-002).
 - [ ] T021 [US2] Implement `src/compression/metrics.py` to compute MSE and SNR degradation (precision ≥ 0.1 dB)
-- [ ] T022 [US2] Implement `src/compression/main.py` to apply all methods to the 15 validated events from US1
+- [ ] T022 [US2] Implement `src/compression/main.py` to apply all methods to the validated events from US1. *Dependency: Must wait for T016 completion.*
 - [ ] T023 [US2] Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable' (FR-002, FR-003, FR-004, SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 4.5: Baseline Generation (Prerequisite for US3)
-
-**Goal**: Establish the `Bias_Original` baseline required for Delta_Bias calculation.
-
-- [ ] T028.1 [US3] Implement `src/pe/run_bilby.py` to **execute injection recovery tests** (FR-010) on original (uncompressed) data using Bilby/Dynesty (Fast PE) to generate `data/processed/baseline_bias_original.json`. *Fallback: Load from external resource ONLY if CI run fails.*
 
 ---
 
@@ -125,18 +130,19 @@ The research question and method remain unchanged.,.
 
 > **NOTE**: These tasks represent **writing** the test code. Execution occurs after implementation.
 
-- [ ] T024 [P] [US3] **Write** unit test for posterior comparison logic in `tests/unit/test_pe.py` (`assert overlap > 0.5`)
+- [ ] T024 [P] [US3] **Write** unit test for posterior comparison logic in `tests/unit/test_pe.py` (`assert overlap > 0.5 `)
 - [ ] T025 [US3] Integration test for PE run and bias calculation in `tests/integration/test_pe_pipeline.py`
 
 ### Implementation for User Story 3
 
+- [ ] T029 [US3] Implement statistical correction using **Benjamini-Hochberg for FDR control** (multiple-comparison correction) across compression levels and parameters (FR-007). *Note: This task defines the correction method before T027 applies it.*
 - [ ] T026 [US3] Implement `src/pe/run_bilby.py` wrapper for Bilby/Dynesty with reduced iterations (Fast PE) to fit within 2h/event limit. *Note: Uses Bilby instead of LALInference per **Plan Amendment VII** and **Constitution Principle VII (Modified)** due to CI constraints (FR-005 deviation). **Depends on T028.1** for baseline availability.*
+- [ ] T026.1 [US3] Update `code/provenance/deviation_PE_method.md` (created in T028.2) to include the specific Bilby/Dynesty configuration used, ensuring the deviation is fully documented per Constitution Principle VII.
 - [ ] T027 [US3] Implement `src/pe/compare_posteriors.py` to:
  - Compute `Bias_Compressed` (Posterior Mean - True Value)
  - Calculate credible interval overlap between original and compressed posteriors
- - **Attempt Hierarchical Bayesian Shift Test** first (FR-007). **If convergence fails**, fallback to Paired t-tests/Wilcoxon and log failure as 'power limitation' (not success). *Note: The primary action is the attempt; the fallback is a documented limitation.*
-- [ ] T028 [US3] Implement logic to load `Bias_Original` from `data/processed/baseline_bias_original.json` (produced by T028.1) and calculate `Delta_Bias`. *Hard dependency on T028.1.*
-- [ ] T029 [US3] Implement statistical correction using **Benjamini-Hochberg for FDR control** (multiple-comparison correction) across compression levels and parameters (FR-007)
+ - **Attempt Hierarchical Bayesian Shift Test** first (FR-007). **If convergence fails** (defined as ESS < 100 or a sufficient number of iterations reached), fallback to Paired t-tests/Wilcoxon and log failure as 'power limitation' (not success). *Note: The primary action is the attempt; the fallback is a documented limitation. **Depends on T029** for correction method.*
+- [ ] T028 [US3] Implement logic to load `Bias_Original` from `data/external/baseline_bias_original.json` (verified by T028.1) and calculate `Delta_Bias`. *Hard dependency on T028.1.*
 - [ ] T030 [US3] Create `src/pe/main.py` to orchestrate PE runs for all compressed variants and generate final bias report
 
 **Checkpoint**: All user stories should now be independently functional
@@ -149,12 +155,13 @@ The research question and method remain unchanged.,.
 
 - [ ] T031 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T032 Code cleanup and refactoring of compression and PE modules
-- [ ] T033 Performance optimization to ensure full pipeline runs ≤ 6 hours
+- [ ] T033 Performance optimization to ensure full pipeline {{claim:c_8a8470b6}} (Wikipedia: 6 Hours of Nürburgring, https://en.wikipedia.org/wiki/6_Hours_of_Nürburgring)
 - [ ] T034 [P] Additional unit tests for edge cases (missing metadata, compression failures) in `tests/unit/`
 - [ ] T035 Run `quickstart.md` validation and fix any broken steps
 - [ ] T036 Generate final summary report:
  - **Bias Report**: Delta_Bias results
  - **SNR Report**: Classification of compression levels as 'acceptable' vs 'unacceptable' based on >5% threshold (SC-002)
+ - **Output file**: `reports/final_summary.md` (Markdown format) containing the above sections.
 
 ---
 
@@ -250,8 +257,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Feasibility Note**: All tasks are designed to run on free-tier CI with limited CPU, constrained memory, and no GPU... LALInference is replaced by Bilby/Dynesty "Fast PE" per Plan Amendment VII. Synthetic injections are used instead of public injection campaigns due to data availability (Plan Complexity Tracking).
 - **Spec/Plan Alignment**: Tasks reference Plan amendments where Spec requirements (FR-005, FR-007, FR-008) are executed via feasible deviations (Bilby, Hierarchical Fallback, Synthetic Ground Truth).
-- **Data Volume**: All tasks target **≥15 events** to satisfy FR-001 and FR-009.
+- **Data Volume**: All tasks target **≥15 events ** to satisfy FR-001 and FR-009.
 - **Validation**: T014 validates **known true parameters** from synthetic injections, not posteriors.
-- **Compression**: T020 records JPEG2000 folding deviation in provenance per Constitution Principle VI.
+- **Compression**: T020 records JPEG2000 folding deviation in provenance per Constitution Principle VII (Modified).
 - **PE Method**: T026 uses Bilby/Dynesty per Plan Amendment VII and Constitution Principle VII (Modified).
 - **Statistics**: T027 attempts Hierarchical Bayesian test; fallback to t-tests is a documented power limitation.

@@ -1,0 +1,24 @@
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+h5py>=3.8.0
+astropy>=5.2.0
+pillow>=9.0.0
+
+# GW data and simulation
+gwosc>=0.7.0
+lalsimulation>=7.0.0
+bilby>=2.0.0
+dynesty>=2.1.0
+
+# Compression
+lz4>=4.0.0
+pywavelets>=1.4.0
+
+# Testing and tools
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-timeout>=2.1.0
+ruff>=0.1.0
+black>=23.0.0

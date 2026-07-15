@@ -1,0 +1,28 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g., pytest.ini, pyproject.toml, or similar)\
+    \ containing coverage thresholds and a 300\u2011second timeout setting was provided,\
+    \ nor any CI workflow showing these settings. Without such artifacts, the requirement\
+    \ cannot be verified as met."
+T009:
+  c: true
+  h: 3f27a849474f402b58150182f6a5bbef820642a652c6471a8e848a13f0c90cfd
+  r: "The repository contains `tests/unit/test_inject.py`, a non\u2011empty test file\
+    \ that imports `inject_synthetic_signal` and includes `assert snr > 8.0` as required.\
+    \ The presence of the test satisfies the task specification."
+T010:
+  c: false
+  h: 6d83dcaa0a0612fefe5a6b0183ea8115a55fb589767f27f8892d22dd5c32f473
+  r: "The provided `tests/unit/test_validate.py` is truncated (ends mid\u2011function)\
+    \ and thus not a complete, runnable test suite, and the required `src/data/validate.py`\
+    \ module is missing, so the unit test cannot be executed."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files were provided that demonstrate a loop fetching\
+    \ additional noise segments in batches, validating them, and ensuring \u226512\
+    \ valid events with complete spin metadata. Without such artifacts, the requirement\
+    \ cannot be verified. The implementer must supply the actual implementation (e.g.,\
+    \ a function or module) and evidence (logs, test results, or data files) showing\
+    \ the batch\u2011fetching and validation logic works as specified."

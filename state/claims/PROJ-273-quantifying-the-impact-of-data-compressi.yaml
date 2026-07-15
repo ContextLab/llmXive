@@ -1,0 +1,1400 @@
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fetch real GW noise segments from GWOSC API
+  claim_id: c_974c23fd
+  context: Implement src/data/download.py to fetch real GW noise segments from GWOSC
+    API (e.g., O data) only (no injection campaigns exist).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_GW_noise_segments_from_GWOSC_API
+  kind: entity_fact
+  raw_text: fetch real GW noise segments from GWOSC API (e.g., O data)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:54:15Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: synthetic signal SNR greater than 8
+  claim_id: c_586951eb
+  context: Write unit test for src/data/inject.py in tests/unit/test_inject.py ensuring
+    synthetic signal SNR > 8 (assert snr > 8)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_signal_SNR_greater_than_8
+  kind: magnitude
+  raw_text: synthetic signal SNR > 8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:54:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: at least 12 valid events with complete spin metadata
+  claim_id: c_b3d39323
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found, then exclude\
+    \ invalid events and proceed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_12_valid_events_with_complete_spin_metadata
+  kind: magnitude
+  raw_text: "\u226512 valid events with complete spin metadata"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:55:14Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: at least 15 target events
+  claim_id: c_46c720d7
+  context: "Create src/data/main.py to orchestrate the download-inject-validate pipeline\
+    \ for \u226515 target events (satisfying FR-001 volume requirement) and produce\
+    \ the validated dataset."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_15_target_events
+  kind: magnitude
+  raw_text: "\u226515 target events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:55:29Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 2 hours per event limit
+  claim_id: c_44dd5809
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2h/event limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:55:53Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation greater than 5 percent
+  claim_id: c_32d3d2ce
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNR_degradation_greater_than_5_percent
+  kind: magnitude
+  raw_text: SNR degradation > 5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:56:14Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: precision greater than or equal to 0.1 decibels
+  claim_id: c_03080aa7
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Precision_greater_than_or_equal_to_0.1_decibels
+  kind: magnitude
+  raw_text: "precision \u2265 0.1 dB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:56:32Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: full pipeline runs less than or equal to 6 hours
+  claim_id: c_8a8470b6
+  context: "Performance optimization to ensure full pipeline runs \u2264 6 hours"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "On the traditional 22.810 km long Nordschleife (\"Northern Loop\") version,\
+        \ the competition took usually 44 laps (1003.64 km, since the addition of\
+        \ the Hohenrain chicane in 1967 1004.74 km) and lasted initially about 8 hours,\
+        \ since 1965 under 7 hours, since 1971 less than 6 hours. While the 1974 event\
+        \ was shortened by 25% in the wake of the oil crisis, 1976 saw a new situation\
+        \ with a divided World Sportscar Championship calendar: the Group 6 sportscars\
+        \ opened their 1976 World Sportscar Championship with a 4 April 1976 race\
+        \ for only 300 km without driver change. The new Group 5 \"Special Production\
+        \ Cars\" 1976 World Championship for Makes season would visit on 30 May, colliding\
+        \ with the 1976 Monaco Grand Prix, thus Porsche factory drivers Jacky Ickx\
+        \ and Jochen Mass as well as Hans-Joachim Stuck and others were absent from\
+        \ the  Int. XXII ADAC-1000-km-Rennen N\xFCrburgring race that was extended\
+        \ by 3 laps to 47, covered 1073.245 km and lasted 6:38 hours. In turn, the\
+        \ \"Internationales 6-Stunden-Rennen\" in July lasted only 4 hours as part\
+        \ of the European Touring Car Championship."
+      source_id: "6 Hours of N\xFCrburgring"
+      url: "https://en.wikipedia.org/wiki/6_Hours_of_N\xFCrburgring"
+      value: '47'
+    filled: true
+  kind: magnitude
+  raw_text: "runs \u2264 6 hours"
+  resolved_value: '47'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T19:56:38Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: credible interval overlap greater than 0.5
+  claim_id: c_ed745767
+  context: Write unit test for posterior comparison logic in tests/unit/test_pe.py
+    (assert overlap > 0.5)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Credible_interval_overlap_greater_than_0.5
+  kind: magnitude
+  raw_text: overlap > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:56:56Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation precision 0.1 dB
+  claim_id: c_b550adfc
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "precision \u2265 0.1 dB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Parameter estimation time limit 2 hours per event
+  claim_id: c_cf6482e7
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2h/event limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Target data volume 15 events
+  claim_id: c_3dbb2054
+  context: "All tasks target \u226515 events to satisfy FR-001 and FR-009."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226515 events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Minimum valid events with complete spin metadata 12
+  claim_id: c_38e7e071
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226512 valid events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Compression level flagged as unacceptable if SNR degradation exceeds
+    5 percent
+  claim_id: c_c2452939
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNR degradation > 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Posterior credible interval overlap threshold 0.5
+  claim_id: c_c85b3736
+  context: Write unit test for posterior comparison logic in tests/unit/test_pe.py
+    (assert overlap > 0.5 )
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: overlap > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Lossless compression levels 1, 5, and 9
+  claim_id: c_9e17da55
+  context: Implement src/compression/lossless.py with wrappers for gzip, LZ4, bzip2
+    at levels 1, 5, 9
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: compression levels 1, 5, 9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:58:59Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python version 3.11
+  claim_id: c_7ef2dc01
+  context: Initialize Python 3.11 project with pyproject.toml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:59:11Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: CI-compatible timeout setting 300 seconds
+  claim_id: c_fadfb1aa
+  context: Configure pytest with coverage thresholds and CI-compatible timeout settings
+    (timeout=300s)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout=300s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:59:28Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: pipeline fetches 12 valid events with complete spin metadata
+  claim_id: c_8f12eaf7
+  context: "T015 [US1] Implement logic to fetch additional noise segments in batches\
+    \ and inject/validate until \u226512 valid events with complete spin metadata\
+    \ are found, then exclude invalid events and proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline fetches additional noise segments until \u226512 valid events\
+    \ with complete spin metadata are found."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:59:54Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: lossless compression levels 1 5 9
+  claim_id: c_8b8481c1
+  context: T019 [P] [US2] Implement src/compression/lossless.py with wrappers for
+    gzip, LZ4, bzip2 at levels 1, 5, 9
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lossless compression wrappers are implemented at levels 1, 5, and 9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:00:20Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: lossy compression quantized floating-point 16-bit 8-bit 4-bit
+  claim_id: c_f9381a74
+  context: 'T020 [P] [US2] Implement src/compression/lossy.py with wrappers for: Quantized
+    floating-point (16-bit, 8-bit, 4-bit)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lossy compression wrappers include quantized floating-point at 16-bit,
+    8-bit, and 4-bit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:00:50Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fast PE 2 hours per event limit
+  claim_id: c_9b8e0a66
+  context: T026 [US3] Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with
+    reduced iterations (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fast PE configuration uses reduced iterations to fit within a 2-hour
+    per event limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:01:18Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian convergence ESS less than 100
+  claim_id: c_b5259a17
+  context: 'T027 [US3] Implement src/pe/compare_posteriors.py to: ... Attempt Hierarchical
+    Bayesian Shift Test first (FR-007). If convergence fails (defined as ESS < 100
+    or a sufficient number of iterations reached), fallback to Paired t-tests/Wilcoxon...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hierarchical_Bayesian_convergence_ESS_less_than_100
+  kind: magnitude
+  raw_text: Hierarchical Bayesian Shift Test convergence failure is defined as ESS
+    < 100 or a sufficient number of iterations reached.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:01:47Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation greater than 5% unacceptable
+  claim_id: c_2f607d56
+  context: T023 [US2] Add logic to flag compression levels with SNR degradation >
+    5% as 'unacceptable' (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNR_degradation_greater_than_5%25_unacceptable
+  kind: magnitude
+  raw_text: Compression levels with SNR degradation greater than 5% are flagged as
+    'unacceptable'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:02:10Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: synthetic signal SNR greater than 8
+  claim_id: c_d9ceeee2
+  context: T009 [P] [US1] Write unit test for src/data/inject.py in tests/unit/test_inject.py
+    ensuring synthetic signal SNR > 8 (assert snr > 8)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_signal_SNR_greater_than_8
+  kind: magnitude
+  raw_text: Synthetic signal SNR must be greater than 8 for validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:02:52Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation precision 0.1 dB
+  claim_id: c_bae4c55d
+  context: "T021 [US2] Implement src/compression/metrics.py to compute MSE and SNR\
+    \ degradation (precision \u2265 0.1 dB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNR_degradation_precision_0.1_dB
+  kind: magnitude
+  raw_text: SNR degradation metrics are computed with a precision of at least 0.1
+    dB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:03:38Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: project initialized Python 3.11
+  claim_id: c_3dbf6d03
+  context: T002 Initialize Python 3.11 project with pyproject.toml including dependencies...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is initialized with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:03:53Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: CI timeout 300 seconds
+  claim_id: c_67122856
+  context: T008 Configure pytest with coverage thresholds and CI-compatible timeout
+    settings (timeout=300s)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI-compatible timeout settings are configured with a value of 300s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:04:06Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby Dynesty 2 hour per event limit
+  claim_id: c_f322238c
+  context: T026 [US3] Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with
+    reduced iterations (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses a 2-hour per event limit for Bilby/Dynesty runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:04:25Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fetch real gravitational wave noise segments from GWOSC API
+  claim_id: c_c33b3150
+  context: Implement src/data/download.py to fetch real GW noise segments from GWOSC
+    API (e.g., O data) only (no injection campaigns exist).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_gravitational_wave_noise_segments_from_GWOSC_API
+  kind: entity_fact
+  raw_text: fetch real GW noise segments from GWOSC API (e.g., O data)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:00Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: use LALSimulation to generate CBC waveforms
+  claim_id: c_2858467b
+  context: Implement src/data/inject.py using LALSimulation to generate CBC waveforms
+    with known true parameters (Mass, Spin, Distance) injected into the fetched noise
+    for a set of target events.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_LALSimulation_to_generate_CBC_waveforms
+  kind: entity_fact
+  raw_text: using LALSimulation to generate CBC waveforms
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:25Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: find 12 valid events with complete spin metadata
+  claim_id: c_fcca02f7
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found, then exclude\
+    \ invalid events and proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226512 valid events with complete spin metadata are found"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:25Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: produce validated dataset for 15 target events
+  claim_id: c_36292340
+  context: "Create src/data/main.py to orchestrate the download-inject-validate pipeline\
+    \ for \u226515 target events (satisfying FR-001 volume requirement) and produce\
+    \ the validated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "produce the validated dataset for \u226515 target events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: quantize floating-point to 16-bit, 8-bit, and 4-bit
+  claim_id: c_a45ebd8e
+  context: 'Implement src/compression/lossy.py with wrappers for: Quantized floating-point
+    (16-bit, 8-bit, 4-bit)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: quantized floating-point (16-bit, 8-bit, 4-bit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:43Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: compute SNR degradation with precision of 0.1 dB
+  claim_id: c_38bd88b3
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "precision \u2265 0.1 dB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:43Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fit parameter estimation within 2 hours per event
+  claim_id: c_2129c611
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fit within 2h/event limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:56Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: flag SNR degradation greater than 5 percent as unacceptable
+  claim_id: c_8a7b680c
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_SNR_degradation_greater_than_5_percent_as_unacceptable
+  kind: magnitude
+  raw_text: SNR degradation > 5% as 'unacceptable'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:07:18Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Method is comparative analysis of timeout configurations across CI platforms
+  claim_id: c_4aa47138
+  context: 'The research question is: How can continuous integration workflows be
+    optimized for reliability and efficiency? The method is: A comparative analysis
+    of timeout configurations across diverse CI platforms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_is_comparative_analysis_of_timeout_configurations_acr
+  kind: entity_fact
+  raw_text: 'The method is: A comparative analysis of timeout configurations across
+    diverse CI platforms.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:13:36Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Citation to Smith et al. for recent years
+  claim_id: c_b56ee940
+  context: 'The method is: A comparative analysis of timeout configurations across
+    diverse CI platforms. References: Smith et al. (recent years)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_to_Smith_et_al._for_recent_years
+  kind: entity_fact
+  raw_text: 'References: Smith et al. (recent years)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:13:53Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: LALInference replaced by Bilby/Dynesty Fast PE per Plan Amendment VII
+  claim_id: c_ec5d3223
+  context: 'Feasibility Note: All tasks are designed to run on free-tier CI with limited
+    CPU, constrained memory, and no GPU... LALInference is replaced by Bilby/Dynesty
+    ''Fast PE'' per Plan Amendment VII.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LALInference_replaced_by_Bilby/Dynesty_Fast_PE_per_Plan_Amen
+  kind: entity_fact
+  raw_text: LALInference is replaced by Bilby/Dynesty 'Fast PE' per Plan Amendment
+    VII.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:14:17Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Synthetic injections used instead of public injection campaigns due to
+    data availability
+  claim_id: c_17a5e790
+  context: LALInference is replaced by Bilby/Dynesty 'Fast PE' per Plan Amendment
+    VII. Synthetic injections are used instead of public injection campaigns due to
+    data availability (Plan Complexity Tracking).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_injections_used_instead_of_public_injection_campai
+  kind: entity_fact
+  raw_text: Synthetic injections are used instead of public injection campaigns due
+    to data availability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:14:40Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fetch additional noise segments until 12 valid events with complete spin
+    metadata are found
+  claim_id: c_0a41ba5f
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found, then exclude\
+    \ invalid events and proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline is designed to fetch additional noise segments and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:15:12Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: orchestrate download-inject-validate pipeline for 15 target events
+  claim_id: c_0e5eef99
+  context: "Create src/data/main.py to orchestrate the download-inject-validate pipeline\
+    \ for \u226515 target events (satisfying FR-001 volume requirement) and produce\
+    \ the validated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline is designed to orchestrate the download-inject-validate\
+    \ pipeline for \u226515 target events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:15:12Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: flag compression levels with SNR degradation greater than 5% as unacceptable
+  claim_id: c_e59c2f83
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_compression_levels_with_SNR_degradation_greater_than_5%25
+  kind: magnitude
+  raw_text: Compression levels with SNR degradation greater than 5% are flagged as
+    unacceptable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:15:15Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian Shift Test convergence failure defined as ESS less
+    than 100
+  claim_id: c_ebf73026
+  context: If convergence fails (defined as ESS < 100 or a sufficient number of iterations
+    reached), fallback to Paired t-tests/Wilcoxon and log failure as 'power limitation'
+    (not success).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hierarchical_Bayesian_Shift_Test_convergence_failure_defined
+  kind: magnitude
+  raw_text: The Hierarchical Bayesian Shift Test is considered to have failed convergence
+    if the Effective Sample Size (ESS) is less than 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:15:33Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fast PE implementation fits within 2 hours per event limit
+  claim_id: c_790089ab
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fast PE implementation uses reduced iterations to fit within a 2-hour
+    per event limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:16:00Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation metrics computed with precision of 0.1 dB
+  claim_id: c_271294dd
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNR_degradation_metrics_computed_with_precision_of_0.1_dB
+  kind: magnitude
+  raw_text: SNR degradation metrics are computed with a precision of at least 0.1
+    dB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:16:02Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Pipeline targets 12 valid events with complete spin metadata
+  claim_id: c_3bcc20b4
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline targets \u226512 valid events with complete spin metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:17:17Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Fast PE configured for 2 hour per event limit
+  claim_id: c_749ddcdb
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fast PE configuration is set to fit within a 2h/event limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:17:30Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Hierarchical Bayesian convergence failure defined as ESS less than 100
+  claim_id: c_2204e2e8
+  context: If convergence fails (defined as ESS < 100 or a sufficient number of iterations
+    reached), fallback to Paired t-tests/Wilcoxon.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hierarchical_Bayesian_convergence_failure_defined_as_ESS_les
+  kind: magnitude
+  raw_text: The Hierarchical Bayesian Shift Test defines convergence failure as ESS
+    < 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:17:50Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Compression levels with 5 percent SNR degradation flagged as unacceptable
+  claim_id: c_66b4297a
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compression levels with SNR degradation > 5% are flagged as 'unacceptable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:17:50Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Synthetic signal SNR greater than 8 required for validity
+  claim_id: c_1b71160b
+  context: 'Independent Test: Can be fully tested by downloading real GW noise from
+    GWOSC, injecting synthetic CBC signals using LALSimulation with known ground truth
+    parameters, and verifying that the resulting files contain complete metadata and
+    detectable SNR > 8.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_signal_SNR_greater_than_8_required_for_validity
+  kind: magnitude
+  raw_text: Synthetic signal SNR must be > 8 to be considered valid.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:18:31Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation metric precision 0.1 dB
+  claim_id: c_60336e80
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The SNR degradation metric requires a precision of \u2265 0.1 dB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:18:31Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: CI timeout configured for 300 seconds
+  claim_id: c_d4a28841
+  context: Configure pytest with coverage thresholds and CI-compatible timeout settings
+    (timeout=300s)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI-compatible timeout settings are configured for 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:18:42Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Smith et al. cited regarding CI optimization
+  claim_id: c_e603d1d6
+  context: 'The research question is: How can continuous integration workflows be
+    optimized for reliability and efficiency? The method is: A comparative analysis
+    of timeout configurations across diverse CI platforms. References: Smith et al.
+    (recent years)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Smith_et_al._cited_regarding_CI_optimization
+  kind: entity_fact
+  raw_text: The research references Smith et al. from recent years regarding CI optimization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:18:55Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_67406272
+  context: Initialize Python 3.11 project with pyproject.toml including dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:19:08Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Project dependencies include numpy, scipy, pandas, h5py, lalsimulation,
+    bilby, dynesty, gwosc, lz4, pywavelets, astropy, pillow, pytest
+  claim_id: c_b7b0bd7b
+  context: 'Initialize Python 3.11 project with pyproject.toml including dependencies:
+    numpy, scipy, pandas, h5py, lalsimulation, bilby, dynesty, gwosc, lz4, pywavelets,
+    astropy, pillow, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_include_numpy,_scipy,_pandas,_h5py,_lal
+  kind: entity_fact
+  raw_text: The project depends on numpy, scipy, pandas, h5py, lalsimulation, bilby,
+    dynesty, gwosc, lz4, pywavelets, astropy, pillow, and pytest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:19:24Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Lossless compression wrappers for gzip, LZ4, bzip2 at levels 1, 5, 9
+  claim_id: c_3ade77a3
+  context: Implement src/compression/lossless.py with wrappers for gzip, LZ4, bzip2
+    at levels 1, 5, 9
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lossless compression wrappers are implemented for gzip, LZ4, and bzip2
+    at levels 1, 5, and 9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:19:36Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Quantized floating-point compression uses 16, 8, and 4 bit precision
+  claim_id: c_3f50e3e0
+  context: 'Implement src/compression/lossy.py with wrappers for: Quantized floating-point
+    (16-bit, 8-bit, 4-bit)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Quantized floating-point compression uses 16-bit, 8-bit, and 4-bit precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:19:51Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Posterior overlap test asserts overlap greater than 0.5
+  claim_id: c_80ca4e35
+  context: Write unit test for posterior comparison logic in tests/unit/test_pe.py
+    (assert overlap > 0.5 )
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Posterior_overlap_test_asserts_overlap_greater_than_0.5
+  kind: magnitude
+  raw_text: The posterior overlap test asserts overlap > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:20:07Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Baseline bias loaded from data/external/baseline_bias_original.json
+  claim_id: c_6acdb77f
+  context: Load/Verify external baseline Bias_Original from data/external/baseline_bias_original.json
+    (pre-computed external resource).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_bias_loaded_from_data/external/baseline_bias_origin
+  kind: entity_fact
+  raw_text: The baseline bias is loaded from data/external/baseline_bias_original.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:20:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: target of 12 or more valid events with spin metadata
+  claim_id: c_808e758d
+  context: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project targets \u226512 valid events with complete spin metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:09Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation threshold of 5 percent for unacceptable compression
+  claim_id: c_f50e46cb
+  context: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+    (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compression levels with SNR degradation > 5% are flagged as unacceptable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:09Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: ESS threshold of 100 for Hierarchical Bayesian convergence failure
+  claim_id: c_b1b51781
+  context: If convergence fails (defined as ESS < 100 or a sufficient number of iterations
+    reached), fallback to Paired t-tests/Wilcoxon.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hierarchical Bayesian Shift Test defines convergence failure as ESS
+    < 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:09Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 2 hour time limit per event for parameter estimation
+  claim_id: c_a2a9115b
+  context: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parameter estimation runs are limited to 2 hours per event.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 0.1 dB precision for SNR degradation metrics
+  claim_id: c_19bddcf1
+  context: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SNR degradation metrics are computed with precision \u2265 0.1 dB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: synthetic signal SNR threshold of 8
+  claim_id: c_ccaa1ac9
+  context: Write unit test for src/data/inject.py in tests/unit/test_inject.py ensuring
+    synthetic signal SNR > 8 (assert snr > 8)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic signal SNR is asserted to be > 8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:27Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: posterior overlap threshold of 0.5
+  claim_id: c_4caaa1d4
+  context: Write unit test for posterior comparison logic in tests/unit/test_pe.py
+    (assert overlap > 0.5 )
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Posterior overlap is asserted to be > 0.5 in unit tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:27Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: lossless compression MSE threshold of 0
+  claim_id: c_34c4fdbe
+  context: Write unit test for lossless compression bitwise equality in tests/unit/test_compression.py
+    (assert mse == 0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lossless compression is tested for bitwise equality (MSE == 0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:21:39Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: LALInference replaced by Bilby Dynesty per Plan Amendment VII
+  claim_id: c_ac0d448b
+  context: LALInference is replaced by Bilby/Dynesty 'Fast PE' per Plan Amendment
+    VII.
+  evidence:
+    entailment_evidence: LALInference replaced by Bilby Dynesty per Plan Amendment
+      VI
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/LALInference_replaced_by_Bilby_Dynesty_per_Plan_Amendment_VI
+  kind: entity_fact
+  raw_text: LALInference is replaced by Bilby/Dynesty per Plan Amendment VII.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T20:21:58Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for FDR control
+  claim_id: c_3fa98acf
+  context: Implement statistical correction using Benjamini-Hochberg for FDR control
+    (multiple-comparison correction) across compression levels and parameters (FR-007).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "=== Benjamini\u2013Hochberg procedure ==="
+      source_id: False discovery rate
+      url: https://en.wikipedia.org/wiki/False_discovery_rate
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction is used for FDR control.
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T20:22:08Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: CI workflow optimization for reliability and efficiency
+  claim_id: c_e7b5a7d1
+  context: 'The research question is: How can continuous integration workflows be
+    optimized for reliability and efficiency?'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_optimization_for_reliability_and_efficiency
+  kind: entity_fact
+  raw_text: The research question addresses optimizing continuous integration workflows
+    for reliability and efficiency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:22:22Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: LALInference replaced by Bilby/Dynesty Fast PE per Plan Amendment VII
+  claim_id: c_a905fa57
+  context: LALInference is replaced by Bilby/Dynesty 'Fast PE' per Plan Amendment
+    VII. Synthetic injections are used instead of public injection campaigns due to
+    data availability.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LALInference_replaced_by_Bilby/Dynesty_Fast_PE_per_Plan_Amen
+  kind: entity_fact
+  raw_text: LALInference is replaced by Bilby/Dynesty 'Fast PE' per Plan Amendment
+    VII.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:22:40Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 12 valid events with complete spin metadata
+  claim_id: c_b325bbf7
+  context: "T015 [US1] Implement logic to fetch additional noise segments in batches\
+    \ and inject/validate until \u226512 valid events with complete spin metadata\
+    \ are found, then exclude invalid events and proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to fetch additional noise segments in batches and inject/validate\
+    \ until \u226512 valid events with complete spin metadata are found"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:16Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 15 target events
+  claim_id: c_d3319bcd
+  context: "T016 [US1] Create src/data/main.py to orchestrate the download-inject-validate\
+    \ pipeline for \u226515 target events (satisfying FR-001 volume requirement) and\
+    \ produce the validated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create src/data/main.py to orchestrate the download-inject-validate pipeline\
+    \ for \u226515 target events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:16Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation precision 0.1 dB
+  claim_id: c_e4d6972b
+  context: "T021 [US2] Implement src/compression/metrics.py to compute MSE and SNR\
+    \ degradation (precision \u2265 0.1 dB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement src/compression/metrics.py to compute MSE and SNR degradation\
+    \ (precision \u2265 0.1 dB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:16Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: SNR degradation threshold 5%
+  claim_id: c_e261f449
+  context: T023 [US2] Add logic to flag compression levels with SNR degradation >
+    5% as 'unacceptable' (FR-002, FR-003, FR-004, SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add logic to flag compression levels with SNR degradation > 5% as 'unacceptable'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:17Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: 2 hours per event limit
+  claim_id: c_c06412e8
+  context: T026 [US3] Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with
+    reduced iterations (Fast PE) to fit within 2h/event limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/pe/run_bilby.py wrapper for Bilby/Dynesty with reduced iterations
+    to fit within 2h/event limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:29Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: ESS threshold 100
+  claim_id: c_b4a7778d
+  context: 'T027 [US3] Implement src/pe/compare_posteriors.py to: ... Attempt Hierarchical
+    Bayesian Shift Test first (FR-007). If convergence fails (defined as ESS < 100
+    or a sufficient number of iterations reached), fallback to Paired t-tests/Wilcoxon...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback to Paired t-tests/Wilcoxon if convergence fails defined as ESS
+    < 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:23:29Z'
