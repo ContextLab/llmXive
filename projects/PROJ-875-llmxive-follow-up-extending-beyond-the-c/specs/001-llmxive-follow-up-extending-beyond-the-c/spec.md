@@ -66,8 +66,11 @@ The researcher needs to compute the "Memory Gap" score by comparing the agent's 
 - **FR-001**: System MUST render the 3D Maze environment into a deterministic ASCII grid and a structured JSON event log for every time step, ensuring a 1:1 mapping between visual ground truth and text representation (See US-1).
 - **FR-002**: System MUST load a quantized text-only LLM (≤3B parameters) into memory using a CPU-optimized inference engine (e.g., `llama.cpp` or `bitsandbytes` in CPU mode) without requiring CUDA or GPU acceleration (See US-2).
 - **FR-003**: System MUST execute a closed-loop inference cycle where the agent receives the ASCII state and event history, outputs a move action and an updated state description, and receives the next state from the environment (See US-2).
-- **FR-004**: System MUST compute the "Memory Gap" metric by quantitatively comparing the agent's generated "mental map" against the ground-truth environment state at predefined critical decision points (See US-3).
-- **FR-005**: System MUST perform a Mann-Whitney U test to compare the distribution of "Memory Gap" scores from the text-only agent against the baseline MLLM distribution, reporting the p-value (See US-3).
+- **FR-004**: System MUST compute the "Memory Gap" metric by quantitatively comparing the agent's generated "mental map" against the ground-truth environment state at predefined critical decision points, using the algorithm defined in FR-006 (See US-3).
+- **FR-005**: System MUST perform a one-tailed Mann-Whitney U test to compare the distribution of "Memory Gap" scores from the text-only agent against the baseline MLLM distribution, testing the null hypothesis (H0) that the distributions are equal against the alternative hypothesis (H1) that the text-only distribution is strictly lower (See US-3).
+- **FR-006**: System MUST calculate the "Memory Gap" as the sum of: (1) the normalized Levenshtein distance between the agent's recalled state string and the ground-truth state string, and (2) a penalty of 1.0 for every critical item (e.g., key, door) present in the ground truth but missing from the agent's mental map (See US-3).
+- **FR-007**: System MUST validate that the "Memory Gap" metric specifically targets state variables (e.g., item locations) that are NOT visible in the current ASCII frame but must be inferred from history, ensuring the test measures retention rather than parsing accuracy (See US-3).
+- **FR-008**: System MUST re-run the baseline MLLM on the exact same ASCII inputs and RNG seeds as the text-only agent to generate a comparable baseline distribution, ensuring the statistical test compares like-for-like modalities (See US-3).
 
 ### Key Entities
 
@@ -82,11 +85,11 @@ The researcher needs to compute the "Memory Gap" score by comparing the agent's 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The "Memory Gap" score (deviation between agent map and ground truth) is measured against the baseline MLLM scores reported in the RNG-Bench paper to determine if the text-only agent outperforms the visual baseline (See US-3).
+- **SC-001**: The "Memory Gap" score (deviation between agent map and ground truth) is measured against the mean Memory Gap score derived from the baseline MLLM re-run on the same ASCII inputs to determine if the text-only agent outperforms the visual baseline (See US-3).
 - **SC-002**: The statistical significance (p-value) of the performance difference is measured against the standard threshold of p < 0.05 to validate the hypothesis that modality reduction improves retention (See US-3).
 - **SC-003**: The peak RAM consumption during the inference loop is measured against the GitHub Actions runner limit of 7 GB to ensure the method is feasible on free-tier CPU hardware (See US-2).
 - **SC-004**: The total execution time for a batch of 20 game instances is measured against the 6-hour CI job limit to ensure the research is reproducible within standard continuous integration windows (See US-2).
-- **SC-005**: The consistency of the ASCII renderer is measured against the ground-truth visual frames to ensure zero information loss in the text representation (See US-1).
+- **SC-005**: The consistency of the ASCII renderer is measured against the ASCII ground truth derived from the visual frames to ensure zero information loss (Levenshtein distance = 0) in the text representation (See US-1).
 
 ## Assumptions
 
@@ -94,5 +97,5 @@ The researcher needs to compute the "Memory Gap" score by comparing the agent's 
 - A 3B parameter model (e.g., Qwen2-3B or Llama-3-8B-Instruct 4-bit) is sufficient to demonstrate the cognitive capability difference; if a larger model is required for reasoning, the project scope is limited to the CPU-tractable 3B class.
 - The "Memory Gap" metric defined in the original RNG-Bench paper is applicable to text-based state representations and can be calculated via string comparison or semantic similarity without needing the original visual tokenization.
 - The GitHub Actions free-tier runner provides consistent 2 CPU cores and ~7 GB RAM; any variance in hardware performance is assumed to be within acceptable noise for statistical analysis.
-- The baseline MLLM scores from the RNG-Bench paper are treated as ground truth for comparison, assuming the original experimental conditions (maze complexity, step limits) are replicated exactly in the text-only setup.
+- The baseline MLLM can be adapted to process ASCII inputs (e.g., by treating ASCII as a text prompt or using a text-capable variant) to generate a valid baseline distribution for comparison.
 - The quantized model inference will not exceed the 14 GB disk space limit of the runner, including model weights and temporary cache files.

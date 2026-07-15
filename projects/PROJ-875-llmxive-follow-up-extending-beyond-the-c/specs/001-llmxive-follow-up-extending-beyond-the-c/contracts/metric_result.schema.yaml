@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricResult"
+description: "Output of the Memory Gap scoring module. Includes masking and structured diff."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the game run."
+  step:
+    type: "integer"
+    description: "The step at which the metric was calculated."
+  memory_gap:
+    type: "number"
+    description: "The calculated Memory Gap score (Structured Diff + penalties)."
+    minimum: 0.0
+  components:
+    type: "object"
+    properties:
+      structured_diff_score:
+        type: "number"
+        description: "Score from structured JSON comparison (exact match + semantic similarity)."
+      missing_items_penalty:
+        type: "number"
+        description: "Sum of penalties (1.0 per missing critical item in hidden state)."
+      false_positive_count:
+        type: "integer"
+        description: "Count of hallucinated items."
+      hidden_items_count:
+        type: "integer"
+        description: "Number of items in the ground truth that were hidden from the current view."
+      semantic_similarity_score:
+        type: "number"
+        description: "Average cosine similarity of descriptive text components."
+    required:
+      - structured_diff_score
+      - missing_items_penalty
+      - false_positive_count
+      - hidden_items_count
+  is_valid:
+    type: "boolean"
+    description: "Whether the calculation was successful."
+  masking_validated:
+    type: "boolean"
+    description: "Whether the hidden state masking logic was validated."
+  masked_ground_truth:
+    type: "object"
+    description: "The ground truth state after removing visible items (used for scoring)."
+    properties:
+      key_location:
+        type: "array"
+        items:
+          type: "integer"
+      door_state:
+        type: "string"
+    description: "Filtered ground truth containing only hidden items."
+required:
+  - run_id
+  - step
+  - memory_gap
+  - components
+  - is_valid
+  - masking_validated
+  - masked_ground_truth

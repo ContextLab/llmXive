@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StateSnapshot"
+description: "Composite object containing ASCII grid, event log, and ground truth state variables."
+type: "object"
+properties:
+  timestamp:
+    type: "integer"
+    description: "Step index in the game loop."
+  ascii_grid:
+    type: "string"
+    description: "Text representation of the 3D maze grid. '#' for walls, '.' for floor, 'M' for player."
+  event_log:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        t:
+          type: "integer"
+        event:
+          type: "string"
+          description: "Event type, e.g., 'saw_key', 'moved', 'picked_up'."
+      required:
+        - t
+        - event
+    description: "History of events leading to the current state."
+  ground_truth:
+    type: "object"
+    properties:
+      key_location:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Coordinates [x, y, z] of the key."
+      door_state:
+        type: "string"
+        enum:
+          - "closed"
+          - "open"
+        description: "Current state of the door."
+      player_pos:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Current player coordinates [x, y, z]."
+    required:
+      - key_location
+      - door_state
+      - player_pos
+    description: "Internal state variables not necessarily visible in the current ASCII frame."
+  visible_items:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        pos:
+          type: "array"
+          items:
+            type: "integer"
+    description: "Items currently visible in the ASCII frame, used to mask ground truth for retention scoring."
+required:
+  - timestamp
+  - ascii_grid
+  - event_log
+  - ground_truth
+  - visible_items
