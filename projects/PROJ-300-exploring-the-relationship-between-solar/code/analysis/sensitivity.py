@@ -1,9 +1,5 @@
 """
-Sensitivity Analysis Module.
-
-Analyzes correlation at different solar wind speed thresholds.
-
-File path: code/analysis/sensitivity.py
+Sensitivity analysis module for varying solar wind speed thresholds.
 """
 import numpy as np
 import pandas as pd
@@ -13,89 +9,92 @@ from .correlation import calculate_correlation
 from .lag_search import find_optimal_lag
 
 def analyze_thresholds(
-    df_sw: pd.DataFrame, 
+    df_vsw: pd.DataFrame,
     df_ey: pd.DataFrame,
-    optimal_lag: int
-) -> List[Dict]:
+    thresholds: List[float],
+    lag_min: int = LAG_WINDOW_MIN,
+    lag_max: int = LAG_WINDOW_MAX,
+    lag_step: int = LAG_STEP
+) -> List[Dict[str, float]]:
     """
-    Computes correlations for different solar wind speed thresholds.
-    
+    Analyzes the correlation between Vsw and Ey for subsets of data exceeding
+    specific solar wind speed thresholds.
+
     Args:
-        df_sw: Solar wind DataFrame.
-        df_ey: Ey DataFrame.
-        optimal_lag: The optimal lag to use for all thresholds.
-        
+        df_vsw: DataFrame with 'timestamp' and 'Vsw' columns.
+        df_ey: DataFrame with 'timestamp' and 'Ey' columns.
+        thresholds: List of Vsw thresholds (km/s) to filter by.
+        lag_min, lag_max, lag_step: Parameters for lag search.
+
     Returns:
-        List of dictionaries with threshold and correlation values.
+        A list of dictionaries, each containing the threshold and the resulting
+        optimal lag and correlation value.
     """
-    thresholds = [400, 500, 600] # km/s
     results = []
     
-    for t in thresholds:
-        # Filter data
-        mask = df_sw['Vsw'] >= t
-        df_sw_filtered = df_sw[mask]
-        df_ey_filtered = df_ey.loc[df_sw_filtered.index]
-        
-        if len(df_sw_filtered) < 10:
+    # Merge data first to ensure alignment
+    # We assume df_vsw and df_ey are already cleaned/resampled
+    df_merged = pd.merge_asof(
+        df_vsw.sort_values('timestamp'),
+        df_ey.sort_values('timestamp'),
+        on='timestamp',
+        direction='nearest'
+    ).dropna()
+
+    for thresh in thresholds:
+        # Filter data where Vsw > threshold
+        mask = df_merged['Vsw'] > thresh
+        subset = df_merged[mask]
+
+        if len(subset) < 10:
             results.append({
-                "threshold_km_s": t,
-                "pearson": None,
-                "n_points": len(df_sw_filtered)
+                "threshold_kms": float(thresh),
+                "n_samples": len(subset),
+                "optimal_lag_minutes": None,
+                "correlation": None,
+                "status": "insufficient_data"
             })
             continue
-        
-        # Apply lag
-        from ..data.lag import apply_lag_shift
-        df_sw_lagged = apply_lag_shift(df_sw_filtered, optimal_lag, 'Vsw')
-        
-        # Align
-        common_idx = df_sw_lagged.index.intersection(df_ey_filtered.index)
-        vsw_series = df_sw_lagged.loc[common_idx, 'Vsw']
-        ey_series = df_ey_filtered.loc[common_idx, 'Ey']
-        
-        if len(vsw_series) < 10:
+
+        # Run lag search on the subset
+        try:
+            # We need to pass the subset's Vsw and Ey series to find_optimal_lag
+            # find_optimal_lag expects (df_vsw, df_ey, ...) but internally accesses columns
+            # We need to adapt or create a temporary dataframe structure
+            # To avoid modifying find_optimal_lag signature, we create temp DFs
+            temp_vsw = subset[['timestamp', 'Vsw']].reset_index(drop=True)
+            temp_ey = subset[['timestamp', 'Ey']].reset_index(drop=True)
+            
+            optimal_lag, corr_val = find_optimal_lag(
+                temp_vsw, temp_ey, lag_min, lag_max, lag_step
+            )
+            
             results.append({
-                "threshold_km_s": t,
-                "pearson": None,
-                "n_points": len(vsw_series)
+                "threshold_kms": float(thresh),
+                "n_samples": len(subset),
+                "optimal_lag_minutes": float(optimal_lag),
+                "correlation": float(corr_val),
+                "status": "ok"
             })
-            continue
-        
-        # Calculate correlation
-        pearson, _ = calculate_correlation(vsw_series, ey_series, permutation_iterations=100)
-        
-        results.append({
-            "threshold_km_s": t,
-            "pearson": round(pearson, 4),
-            "n_points": len(vsw_series)
-        })
-    
+        except Exception as e:
+            results.append({
+                "threshold_kms": float(thresh),
+                "n_samples": len(subset),
+                "optimal_lag_minutes": None,
+                "correlation": None,
+                "status": f"error: {str(e)}"
+            })
+
     return results
 
 def run_sensitivity_sweep(
-    df_sw: pd.DataFrame, 
-    df_ey: pd.DataFrame
-) -> List[Dict]:
+    df_vsw: pd.DataFrame,
+    df_ey: pd.DataFrame,
+    thresholds: Optional[List[float]] = None
+) -> List[Dict[str, float]]:
     """
-    Runs a full sensitivity sweep including lag search for each threshold.
-    
-    Args:
-        df_sw: Solar wind DataFrame.
-        df_ey: Ey DataFrame.
-        
-    Returns:
-        List of results.
+    Convenience wrapper to run sensitivity analysis with default thresholds.
     """
-    # For simplicity, we use the global optimal lag for all thresholds in this implementation
-    # as per the task description which implies a fixed optimal lag.
-    # If we were to re-calculate optimal lag for each threshold, we would do:
-    # optimal_lag, _, _ = find_optimal_lag(df_sw_filtered, df_ey_filtered)
-    # But the task says "sweep thresholds T ... and recompute correlations",
-    # implying we use the same lag or re-optimize.
-    # We will use the global optimal lag as a first pass.
-    
-    # First, find global optimal lag
-    global_opt_lag, _, _ = find_optimal_lag(df_sw, df_ey)
-    
-    return analyze_thresholds(df_sw, df_ey, global_opt_lag)
+    if thresholds is None:
+        thresholds = [400, 500, 600]
+    return analyze_thresholds(df_vsw, df_ey, thresholds)

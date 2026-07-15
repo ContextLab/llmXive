@@ -1,6 +1,7 @@
 """
-Physics-based lag calculation and time series shifting module.
-File: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
+Physics-based lag calculation and application module.
+Implements FR-012: Calculate L_phys and apply lag shifts.
+File path: code/data/lag.py
 """
 import numpy as np
 import pandas as pd
@@ -8,70 +9,66 @@ from typing import Tuple, Optional
 from .clean import clean_and_resample
 from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
 
-def calculate_physics_lag(vsw_mean: float) -> float:
+def calculate_physics_lag(vsw_mean_km_s: float) -> float:
     """
     Calculate the physics-based propagation lag in minutes.
     
-    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / (vsw_mean * 60)
-    - Converts distance (km) to time (minutes) given velocity (km/s).
-    - Distance = K_PROPAGATION * Earth Radius * Tail Distance (in Re).
+    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / Vsw_mean
+    Then convert from seconds to minutes (divide by 60).
     
     Args:
-        vsw_mean: Mean solar wind speed in km/s.
+        vsw_mean_km_s: Mean solar wind speed in km/s.
     
     Returns:
         Lag time in minutes.
-    
-    Raises:
-        ValueError: If vsw_mean is zero or negative.
     """
-    if vsw_mean <= 0:
-        raise ValueError("Solar wind speed must be positive to calculate lag.")
+    if vsw_mean_km_s <= 0:
+        raise ValueError("Mean solar wind speed must be positive.")
     
-    # Total distance in km: K * R_earth * Tail_Dist_Re
-    # Note: Tail distance is usually in Re (Earth Radii), so we multiply by R_earth
-    total_distance_km = K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE
+    # Distance = K * R_E * Tail_Distance (in km)
+    # Time (seconds) = Distance / Speed
+    # Time (minutes) = Time (seconds) / 60
     
-    # Time in seconds = distance / speed
-    time_seconds = total_distance_km / vsw_mean
-    
-    # Convert to minutes
+    distance_km = K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE
+    time_seconds = distance_km / vsw_mean_km_s
     time_minutes = time_seconds / 60.0
     
     return time_minutes
 
-def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, time_col: str = 'timestamp') -> pd.DataFrame:
+def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, target_col: str) -> pd.DataFrame:
     """
-    Apply a time shift to a DataFrame based on a lag in minutes.
-    
-    This shifts the data forward in time (simulating propagation delay)
-    by reindexing or shifting the index.
+    Apply a time lag shift to a specific column in the DataFrame.
     
     Args:
-        df: DataFrame with a datetime index or time_col.
-        lag_minutes: Lag to apply in minutes.
-        time_col: Name of the time column if not using index (default 'timestamp').
+        df: DataFrame with a DatetimeIndex.
+        lag_minutes: Lag time in minutes.
+        target_col: Name of the column to shift.
     
     Returns:
-        Shifted DataFrame.
+        DataFrame with the shifted column.
     """
-    df = df.copy()
+    if target_col not in df.columns:
+        raise ValueError(f"Column '{target_col}' not found in DataFrame.")
     
-    # Ensure index is datetime
-    if not isinstance(df.index, pd.DatetimeIndex):
-        if time_col in df.columns:
-            df = df.set_index(time_col)
-            df.index = pd.to_datetime(df.index)
-        else:
-            raise ValueError("DataFrame must have a datetime index or specified time_col.")
+    # Convert lag to frequency string for shift
+    # We assume the index is already resampled to a regular interval (e.g., 5min)
+    # Calculate number of periods to shift
+    freq = pd.infer_freq(df.index)
+    if freq is None:
+        # Fallback if frequency cannot be inferred, assume 5min
+        freq = '5min'
     
-    # Shift the index forward by lag_minutes
-    # We create a new index that is shifted
-    shifted_index = df.index + pd.Timedelta(minutes=lag_minutes)
+    freq_delta = pd.Timedelta(freq)
+    lag_delta = pd.Timedelta(minutes=lag_minutes)
     
-    # Create a new DataFrame with the shifted index
-    # We keep the original values but associate them with the new time
+    # Calculate shift count (can be float, but shift() expects int, so we interpolate)
+    # For simplicity in this pipeline, we shift by the nearest integer number of periods
+    shift_count = int(round(lag_delta / freq_delta))
+    
+    if shift_count == 0:
+        return df.copy()
+    
     df_shifted = df.copy()
-    df_shifted.index = shifted_index
+    df_shifted[target_col] = df_shifted[target_col].shift(shift_count)
     
     return df_shifted
