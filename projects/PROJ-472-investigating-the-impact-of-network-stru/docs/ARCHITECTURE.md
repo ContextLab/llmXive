@@ -1,80 +1,71 @@
 # System Architecture
 
-## High-Level Design
+## High-Level Overview
 
-The llmXive pipeline is designed as a sequence of independent, testable stages. Each stage corresponds to a User Story (US) and produces artifacts that feed into the next.
+The pipeline is designed as a modular, stage-based workflow. Each stage corresponds to a User Story and can be executed independently or as part of the full chain.
 
-```
-[Setup] -> [Foundational] -> [US1: Data Pipeline] -> [US2: Metrics] -> [US3: Stats]
-```
-
-## Module Structure
-
-```
-code/
-├── config.py # Global configuration and hyperparameters
-├── data/
-│ ├── models.py # Data classes (Participant, Connectome, Avalanche)
-│ ├── download.py # OpenNeuro data fetching
-│ ├── preprocess_dMRI.py # Tractography to connectome conversion
-│ ├── simulate_EEG.py # Wilson-Cowan EEG simulation
-│ ├── quality_control.py # QC checks and reporting
-│ └── store.py # Unified data storage/loading
-├── analysis/
-│ ├── metrics.py # NetworkX/BCTpy metrics
-│ ├── avalanches.py # Avalanche detection logic
-│ ├── fitting.py # Power-law model fitting
-│ ├── stats.py # Correlations and permutation tests
-│ ├── sensitivity.py # Threshold sweeps
-│ ├── export_metrics.py # CSV export logic
-│ └── report.py # Final report generation
-├── utils/
-│ ├── logger.py # Structured logging
-│ ├── env_config.py #.env loading
-│ └── data_setup.py # Checksum and directory management
-└── main.py # Orchestration entry point
+```mermaid
+graph TD
+ A[Setup & Config] --> B[Data Pipeline US1]
+ B --> C{Real EEG?}
+ C -- Yes --> D[Real EEG Preprocess]
+ C -- No --> E[Simulate EEG]
+ D --> F[Analysis US2]
+ E --> F
+ F --> G[Statistics US3]
+ G --> H[Report Generation]
+ H --> I[Validation]
 ```
 
-## Data Flow Diagram
+## Module Responsibilities
 
-1. **Raw Data**: OpenNeuro ds003813 (dMRI) -> `data/raw/`
-2. **Processed Connectomes**: `data/processed/connectomes/` (Adjacency matrices)
-3. **Simulated EEG**: `data/processed/eeg/` (Time-series)
-4. **QC Reports**: `data/processed/qc/`
-5. **Metrics**: `data/results/network_metrics.csv`
-6. **Avalanches**: `data/results/avalanche_events.csv`
-7. **Final Stats**: `data/results/correlation_report.csv`
+### 1. `code/config.py`
+- **Role**: Central configuration hub.
+- **Responsibilities**: Defines paths, seeds, and Wilson-Cowan parameters. Ensures deterministic runs.
 
-## Dependency Management
+### 2. `code/data/` (US1)
+- **Role**: Data acquisition and preprocessing.
+- **Modules**:
+ - `download.py`: Fetches raw dMRI/EEG. Implements fallback logic.
+ - `preprocess_dMRI.py`: Converts tractography to adjacency matrices.
+ - `simulate_EEG.py`: Generates synthetic time-series.
+ - `store.py`: Persists processed data to disk.
 
-Dependencies are pinned in `code/requirements.txt`. Key libraries:
-- `mne`: EEG processing and simulation support.
-- `networkx`, `bctpy`: Graph analysis.
-- `powerlaw`: Statistical fitting.
-- `pandas`, `numpy`: Data manipulation.
-- `python-dotenv`: Environment configuration.
+### 3. `code/analysis/` (US2 & US3)
+- **Role**: Metric computation and statistical inference.
+- **Modules**:
+ - `metrics.py`: Graph theory metrics (Degree, Clustering, Rich-Club).
+ - `avalanches.py`: Spatiotemporal event detection.
+ - `fitting.py`: Power-law model fitting.
+ - `stats.py`: Correlation, permutation tests, VIF.
+ - `sensitivity.py`: Threshold robustness sweep.
+ - `report.py`: Final report generation with causal language check.
+
+### 4. `code/utils/`
+- **Role**: Shared utilities.
+- **Modules**:
+ - `logger.py`: Structured logging and custom exceptions.
+ - `env_config.py`: Environment variable management.
+ - `data_setup.py`: Checksum verification.
+
+### 5. `code/main.py`
+- **Role**: Orchestration.
+- **Responsibilities**: Parses arguments, runs the pipeline stages, handles the "Null Result Protocol" if N < 10.
+
+## Data Flow
+
+1. **Input**: Raw dMRI (`.tck`) and EEG (`.fif`) in `data/raw/`.
+2. **Processing**:
+ - dMRI -> `preprocess_dMRI.py` -> `data/processed/connectomes/` (`.npy`).
+ - EEG -> `simulate_EEG.py` -> `data/processed/eeg/` (`.csv`).
+3. **Analysis**:
+ - Connectomes -> `metrics.py` -> `data/results/metrics.csv`.
+ - EEG -> `avalanches.py` -> `data/results/avalanches/`.
+ - Metrics + Fits -> `stats.py` -> `data/results/correlation_report.csv`.
+4. **Output**: `data/results/report.md`.
 
 ## Error Handling Strategy
 
-- **Structured Logging**: All modules use `utils/logger.py` for consistent logging.
-- **Fail Fast**: Critical errors (e.g., missing data) halt execution immediately.
-- **QC Gates**: Data must pass QC (SNR, connectivity) before analysis proceeds.
-- **Null Result Protocol**: If insufficient data remains after QC, the pipeline halts and generates a "Pipeline Validated" report.
-
-## Scalability
-
-- **Parallelism**: US1, US2, and US3 can run in parallel if data is pre-staged.
-- **Multiprocessing**: Permutation tests in `stats.py` use `multiprocessing` to handle large N.
-- **Memory**: Large matrices are processed in chunks where possible.
-
-## Security & Privacy
-
-- No PII is stored; only subject IDs and anonymous data.
-- Environment variables (API keys) are loaded from `.env` and never committed.
-- Data integrity verified via checksums in `utils/data_setup.py`.
-
-## Future Extensibility
-
-- **Real Data Integration**: Pipeline supports swapping simulated EEG for real recordings.
-- **Additional Metrics**: `metrics.py` is designed for easy extension of new graph metrics.
-- **Visualization**: `report.py` can be extended to generate interactive plots.
+- **Fail Loudly**: If real data is required but missing, raise `DataLoadError` immediately.
+- **Graceful Degradation**: If real EEG is missing, switch to simulation (primary path).
+- **Validation**: If N < 10, trigger `run_null_result_protocol` to generate a null report instead of a correlation report.

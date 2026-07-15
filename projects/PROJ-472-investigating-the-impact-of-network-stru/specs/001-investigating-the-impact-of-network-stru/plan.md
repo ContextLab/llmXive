@@ -9,7 +9,7 @@ This project investigates the associational relationship between anatomical brai
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `mne`, `networkx`, `powerlaw`, `scipy`, `pandas`, `numpy`, `scikit-learn`, `huggingface_hub`, `openneuro-py`, `bctpy`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`) with CSV/Parquet/JSON formats.  
 **Testing**: `pytest` for unit tests on metric computation; integration tests for pipeline end-to-end.  
@@ -95,7 +95,11 @@ tests/
 The specific value to remove/generalize: 'A-scale'
 
 Rewritten passage:
-The study addresses the research question: How does the resolution of cortical parcellation influence the topological properties of functional connectivity networks? The method involves constructing adjacency matrices based on varying parcellation scales to assess structural stability. References: (Smith et al., 2020; DOI: 10.1016/j.neuroimage.2020.116789; arXiv:2103.01234). using MRtrix3.
+The study addresses the research question: How does the resolution of cortical parcellation influence the topological properties of functional connectivity networks? The method involves constructing adjacency matrices based on varying parcellation scales to assess structural stability. References: (Smith et al., n.d.
+
+The specific value to remove/generalize: 'n.d.'
+
+Rewritten passage:; DOI: 10.1016/j.neuroimage.2020.116789; arXiv:2103.01234). using MRtrix3.
 - **Output**: JSON/CSV `Participant` entity with `subject_id`, `adjacency_matrix`, and `structural_metrics`.
 - **Simulation**: `simulate_EEG.py` generates synthetic time-series from adjacency matrices using a linear neural mass model.
 

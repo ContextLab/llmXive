@@ -1,8 +1,8 @@
 """
 Refactoring utilities for code cleanup and modularity enforcement.
 
-This module provides tools to analyze, validate, and reorganize the codebase
-to ensure modularity, consistent exports, and clean import structures.
+This module provides tools to analyze code structure, validate exports,
+organize imports, and enforce modular design patterns across the pipeline.
 """
 import os
 import sys
@@ -11,151 +11,230 @@ import inspect
 import ast
 import re
 from pathlib import Path
-from typing import List, Dict, Set, Tuple, Optional, Any
+from typing import Dict, List, Set, Tuple, Optional, Any, Callable
+from collections import defaultdict
 
-# Constants for standard project structure
-CODE_ROOT = Path(__file__).resolve().parent.parent
-MODULES_TO_ANALYZE = [
-    'config',
-    'data.models',
-    'data.download',
-    'data.preprocess_dMRI',
-    'data.simulate_EEG',
-    'data.quality_control',
-    'data.store',
-    'analysis.metrics',
-    'analysis.avalanches',
-    'analysis.fitting',
-    'analysis.stats',
-    'analysis.sensitivity',
-    'analysis.export_metrics',
-    'analysis.report',
-    'utils.logger',
-    'utils.env_config',
-    'utils.data_setup',
-]
+# Import from project utils
+from .logger import get_logger, log_exception
 
-def get_module_functions(module_path: str) -> List[str]:
+logger = get_logger(__name__)
+
+
+def get_module_functions(module_path: str) -> Dict[str, List[str]]:
     """
-    Extract all public function names from a module.
+    Extract all public functions and classes from a module.
     
     Args:
-        module_path: Dot-separated module path (e.g., 'data.models')
+        module_path: Path to the module (e.g., 'analysis.metrics')
         
     Returns:
-        List of public function names (excluding private and special methods)
+        Dictionary mapping function/class names to their docstrings
     """
     try:
-        module = importlib.import_module(module_path)
-        functions = []
+        # Convert path to module name
+        module_name = module_path.replace('/', '.').replace('\\', '.')
+        if module_name.endswith('.py'):
+            module_name = module_name[:-3]
+        
+        # Import the module
+        module = importlib.import_module(module_name)
+        
+        results = {
+            'functions': [],
+            'classes': [],
+            'constants': []
+        }
+        
+        # Iterate through module members
         for name, obj in inspect.getmembers(module):
-            if inspect.isfunction(obj) and not name.startswith('_'):
-                functions.append(name)
-        return functions
+            # Skip private and built-in names
+            if name.startswith('_'):
+                continue
+            
+            if inspect.isfunction(obj):
+                doc = inspect.getdoc(obj) or ""
+                results['functions'].append({
+                    'name': name,
+                    'docstring': doc,
+                    'signature': str(inspect.signature(obj))
+                })
+            elif inspect.isclass(obj):
+                doc = inspect.getdoc(obj) or ""
+                results['classes'].append({
+                    'name': name,
+                    'docstring': doc,
+                    'methods': [m for m, _ in inspect.getmembers(obj) 
+                               if not m.startswith('_') and callable(_)]
+                })
+            elif isinstance(obj, (str, int, float, bool, list, dict, tuple)):
+                results['constants'].append({
+                    'name': name,
+                    'type': type(obj).__name__,
+                    'value': repr(obj) if len(repr(obj)) < 100 else repr(obj)[:100] + '...'
+                })
+        
+        return results
+        
+    except ImportError as e:
+        logger.error(f"Failed to import module {module_path}: {e}")
+        return {'functions': [], 'classes': [], 'constants': []}
     except Exception as e:
-        print(f"Error analyzing {module_path}: {e}")
-        return []
+        log_exception(e)
+        return {'functions': [], 'classes': [], 'constants': []}
 
-def validate_module_exports(module_path: str) -> Tuple[bool, List[str]]:
+
+def validate_module_exports(module_path: str, expected_exports: List[str]) -> Dict[str, Any]:
     """
-    Validate that a module has a consistent __all__ definition.
+    Validate that a module exports the expected public names.
     
     Args:
-        module_path: Dot-separated module path
+        module_path: Path to the module
+        expected_exports: List of expected public function/class names
         
     Returns:
-        Tuple of (is_valid, list of issues)
+        Dictionary with validation results
     """
     try:
-        module = importlib.import_module(module_path)
-        if not hasattr(module, '__all__'):
-            return False, [f"{module_path} missing __all__ definition"]
+        module_name = module_path.replace('/', '.').replace('\\', '.')
+        if module_name.endswith('.py'):
+            module_name = module_name[:-3]
         
-        defined = set(get_module_functions(module_path))
-        exported = set(module.__all__)
+        module = importlib.import_module(module_name)
+        actual_exports = set()
         
-        issues = []
-        for name in exported:
-            if name not in defined:
-                issues.append(f"{module_path} exports '{name}' but function not found")
+        for name in dir(module):
+            if not name.startswith('_'):
+                actual_exports.add(name)
         
-        return len(issues) == 0, issues
+        missing = set(expected_exports) - actual_exports
+        extra = actual_exports - set(expected_exports)
+        
+        return {
+            'valid': len(missing) == 0,
+            'missing': list(missing),
+            'extra': list(extra),
+            'actual': list(actual_exports)
+        }
+        
     except Exception as e:
-        return False, [f"Error validating {module_path}: {e}"]
+        log_exception(e)
+        return {'valid': False, 'missing': expected_exports, 'extra': [], 'actual': []}
 
-def organize_imports(file_path: Path) -> str:
+
+def organize_imports(file_path: str) -> str:
     """
-    Reorganize imports in a Python file for consistency.
+    Organize imports in a Python file: standard library, third-party, local.
     
     Args:
         file_path: Path to the Python file
         
     Returns:
-        Refactored file content with organized imports
+        File content with organized imports
     """
-    with open(file_path, 'r') as f:
-        content = f.read()
-    
-    lines = content.split('\n')
-    imports = []
-    other_lines = []
-    in_import_block = False
-    current_import_group = []
-    
-    for line in lines:
-        stripped = line.strip()
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
         
-        # Detect import statements
-        if stripped.startswith('import ') or stripped.startswith('from '):
-            current_import_group.append(line)
-            in_import_block = True
-        else:
-            if in_import_block and current_import_group:
-                imports.append(current_import_group)
-                current_import_group = []
-                in_import_block = False
-            other_lines.append(line)
-    
-    if current_import_group:
-        imports.append(current_import_group)
-    
-    # Sort import groups: stdlib, third-party, local
-    stdlib_imports = []
-    third_party_imports = []
-    local_imports = []
-    
-    for group in imports:
-        for line in group:
-            if line.strip().startswith('import '):
-                module = line.strip().split('import ')[1].split()[0]
-            elif line.strip().startswith('from '):
-                module = line.strip().split('from ')[1].split()[0]
-            else:
-                continue
+        # Parse the AST
+        tree = ast.parse(content)
+        
+        # Separate imports
+        stdlib_imports = []
+        third_party_imports = []
+        local_imports = []
+        
+        # Known standard library modules (comprehensive list)
+        stdlib_modules = {
+            'os', 'sys', 'pathlib', 'typing', 'collections', 'itertools',
+            'functools', 'operator', 'dataclasses', 'json', 'csv', 're',
+            'logging', 'datetime', 'time', 'hashlib', 'random', 'math',
+            'numpy', 'pandas', 'scipy', 'matplotlib', 'seaborn',
+            'networkx', 'powerlaw', 'mne', 'sklearn', 'statsmodels',
+            'pytest', 'unittest', 'argparse', 'subprocess', 'shutil',
+            'tempfile', 'io', 'pickle', 'copy', 'string', 'textwrap',
+            'warnings', 'contextlib', 'abc', 'enum', 'graphlib'
+        }
+        
+        # Extract imports from AST
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    module_name = alias.name.split('.')[0]
+                    import_line = f"import {alias.name}"
+                    if module_name in stdlib_modules or module_name in {'numpy', 'pandas', 'networkx', 'matplotlib', 'scipy', 'sklearn', 'mne', 'powerlaw'}:
+                        third_party_imports.append(import_line)
+                    else:
+                        stdlib_imports.append(import_line)
+                        
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ''
+                module_name = module.split('.')[0] if module else ''
+                
+                if module.startswith('.'):
+                    # Relative import
+                    local_imports.append(
+                        f"from {''.join('.' * node.level)}{module} import "
+                        f"{', '.join(alias.name for alias in node.names)}"
+                    )
+                elif module_name in stdlib_modules:
+                    stdlib_imports.append(
+                        f"from {module} import "
+                        f"{', '.join(alias.name for alias in node.names)}"
+                    )
+                else:
+                    third_party_imports.append(
+                        f"from {module} import "
+                        f"{', '.join(alias.name for alias in node.names)}"
+                    )
+        
+        # Sort and deduplicate
+        stdlib_imports = sorted(set(stdlib_imports))
+        third_party_imports = sorted(set(third_party_imports))
+        local_imports = sorted(set(local_imports))
+        
+        # Reconstruct content
+        lines = content.split('\n')
+        new_lines = []
+        
+        # Add organized imports
+        if stdlib_imports:
+            new_lines.extend(stdlib_imports)
+            new_lines.append('')
+        
+        if third_party_imports:
+            new_lines.extend(third_party_imports)
+            new_lines.append('')
+        
+        if local_imports:
+            new_lines.extend(local_imports)
+            new_lines.append('')
+        
+        # Add rest of the file (skip original import lines)
+        in_import_block = False
+        for line in lines:
+            stripped = line.strip()
             
-            if module in ['os', 'sys', 'json', 're', 'ast', 'inspect', 'importlib', 'collections', 'typing', 'pathlib', 'math', 'numpy', 'pandas']:
-                stdlib_imports.append(line)
-            elif module in ['networkx', 'bctpy', 'powerlaw', 'mne', 'matplotlib', 'scipy', 'sklearn', 'dotenv']:
-                third_party_imports.append(line)
-            else:
-                local_imports.append(line)
-    
-    # Reconstruct file with organized imports
-    new_lines = []
-    if stdlib_imports:
-        new_lines.extend(sorted(stdlib_imports))
-        new_lines.append('')
-    if third_party_imports:
-        new_lines.extend(sorted(third_party_imports))
-        new_lines.append('')
-    if local_imports:
-        new_lines.extend(sorted(local_imports))
-        new_lines.append('')
-    
-    new_lines.extend(other_lines)
-    return '\n'.join(new_lines)
+            # Detect import block
+            if stripped.startswith('import ') or stripped.startswith('from '):
+                if not in_import_block:
+                    in_import_block = True
+                continue
+            elif in_import_block and stripped == '':
+                continue
+            elif in_import_block and not (stripped.startswith('import ') or stripped.startswith('from ')):
+                in_import_block = False
+                new_lines.append(line)
+            elif not in_import_block:
+                new_lines.append(line)
+        
+        return '\n'.join(new_lines)
+        
+    except Exception as e:
+        log_exception(e)
+        return None
 
-def extract_constants(file_path: Path) -> List[Tuple[str, Any]]:
+
+def extract_constants(file_path: str) -> List[Dict[str, Any]]:
     """
     Extract module-level constants from a Python file.
     
@@ -163,184 +242,329 @@ def extract_constants(file_path: Path) -> List[Tuple[str, Any]]:
         file_path: Path to the Python file
         
     Returns:
-        List of (name, value) tuples for constants
+        List of constant definitions
     """
-    with open(file_path, 'r') as f:
-        content = f.read()
-    
-    tree = ast.parse(content)
-    constants = []
-    
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    if target.id.isupper():
-                        value = None
-                        if isinstance(node.value, ast.Constant):
-                            value = node.value.value
-                        elif isinstance(node.value, ast.List):
-                            value = [elt.value if isinstance(elt, ast.Constant) else str(elt) for elt in node.value.elts]
-                        constants.append((target.id, value))
-    
-    return constants
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        tree = ast.parse(content)
+        constants = []
+        
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        name = target.id
+                        # Check if it looks like a constant (uppercase)
+                        if name.isupper() or (name.endswith('_') and name[:-1].isupper()):
+                            try:
+                                value = ast.literal_eval(node.value)
+                                constants.append({
+                                    'name': name,
+                                    'value': value,
+                                    'type': type(value).__name__,
+                                    'line': node.lineno
+                                })
+                            except (ValueError, TypeError):
+                                # Not a literal, skip
+                                pass
+        
+        return constants
+        
+    except Exception as e:
+        log_exception(e)
+        return []
 
-def check_circular_dependencies(modules: List[str]) -> List[Tuple[str, str]]:
+
+def check_circular_dependencies(module_paths: List[str]) -> List[Tuple[str, str]]:
     """
     Check for circular dependencies between modules.
     
     Args:
-        modules: List of module paths to check
+        module_paths: List of module paths to check
         
     Returns:
-        List of (module_a, module_b) tuples indicating circular dependencies
+        List of tuples representing circular dependencies
     """
-    dependencies = {}
+    # Build dependency graph
+    dependencies = defaultdict(set)
     
-    for module_path in modules:
+    for module_path in module_paths:
         try:
-            module = importlib.import_module(module_path)
-            module_file = inspect.getfile(module)
+            module_name = module_path.replace('/', '.').replace('\\', '.')
+            if module_name.endswith('.py'):
+                module_name = module_name[:-3]
             
-            with open(module_file, 'r') as f:
+            with open(module_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            deps = set()
-            for line in content.split('\n'):
-                if line.strip().startswith('from '):
-                    try:
-                        imported_module = line.strip().split('from ')[1].split()[0]
-                        if imported_module in modules and imported_module != module_path:
-                            deps.add(imported_module)
-                    except:
-                        pass
+            tree = ast.parse(content)
             
-            dependencies[module_path] = deps
-        except:
-            continue
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom):
+                    module = node.module
+                    if module and module.startswith('.'):
+                        # Relative import - resolve
+                        parts = module_name.split('.')
+                        depth = node.level
+                        base = parts[:-depth] if depth <= len(parts) else []
+                        resolved = '.'.join(base + [module[1:]]) if module[1:] else '.'.join(base)
+                        if resolved:
+                            dependencies[module_name].add(resolved)
+                elif isinstance(node, ast.Import):
+                    for alias in node.names:
+                        if '.' in alias.name and alias.name.startswith('.'):
+                            dependencies[module_name].add(alias.name)
+        
+        except Exception as e:
+            logger.warning(f"Could not analyze {module_path}: {e}")
     
-    # Detect cycles
+    # Detect cycles using DFS
     cycles = []
-    for mod_a in dependencies:
-        for mod_b in dependencies.get(mod_a, []):
-            if mod_a in dependencies.get(mod_b, []):
-                cycle = tuple(sorted([mod_a, mod_b]))
-                if cycle not in [tuple(sorted(c)) for c in cycles]:
-                    cycles.append(cycle)
+    visited = set()
+    rec_stack = set()
+    
+    def dfs(node: str, path: List[str]) -> bool:
+        visited.add(node)
+        rec_stack.add(node)
+        
+        for neighbor in dependencies.get(node, []):
+            if neighbor not in visited:
+                if dfs(neighbor, path + [neighbor]):
+                    return True
+            elif neighbor in rec_stack:
+                # Found cycle
+                cycle_start = path.index(neighbor) if neighbor in path else -1
+                if cycle_start >= 0:
+                    cycle = path[cycle_start:] + [neighbor]
+                    cycles.append(tuple(cycle))
+                return True
+        
+        rec_stack.remove(node)
+        return False
+    
+    for module in dependencies:
+        if module not in visited:
+            dfs(module, [module])
     
     return cycles
 
+
 def generate_module_documentation(module_path: str) -> str:
     """
-    Generate documentation summary for a module.
+    Generate documentation for a module based on its structure.
     
     Args:
-        module_path: Dot-separated module path
+        module_path: Path to the module
         
     Returns:
-        Documentation string for the module
+        Markdown documentation string
     """
     try:
-        module = importlib.import_module(module_path)
-        doc = inspect.getdoc(module) or "No documentation available."
-        functions = get_module_functions(module_path)
+        module_info = get_module_functions(module_path)
+        module_name = Path(module_path).stem
         
         doc_lines = [
-            f"# Module: {module_path}",
-            f"",
-            f"## Description",
-            f"{doc}",
-            f"",
-            f"## Public Functions",
+            f"# Module: {module_name}",
+            "",
+            "## Overview",
+            "",
+            f"Module `{module_name}` provides the following functionality:",
+            ""
         ]
         
-        for func in sorted(functions):
-            func_obj = getattr(module, func)
-            func_doc = inspect.getdoc(func_obj) or "No description."
-            doc_lines.append(f"- `{func}`: {func_doc.split('.')[0]}.")
+        # Document functions
+        if module_info['functions']:
+            doc_lines.append("### Functions")
+            doc_lines.append("")
+            for func in module_info['functions']:
+                doc_lines.append(f"- **`{func['name']}{func['signature']}`**: {func['docstring'][:100]}...")
+            doc_lines.append("")
+        
+        # Document classes
+        if module_info['classes']:
+            doc_lines.append("### Classes")
+            doc_lines.append("")
+            for cls in module_info['classes']:
+                doc_lines.append(f"- **`{cls['name']}`**: {cls['docstring'][:100]}...")
+                if cls['methods']:
+                    doc_lines.append(f"  - Methods: {', '.join(cls['methods'][:5])}")
+            doc_lines.append("")
+        
+        # Document constants
+        if module_info['constants']:
+            doc_lines.append("### Constants")
+            doc_lines.append("")
+            for const in module_info['constants']:
+                doc_lines.append(f"- `{const['name']}`: {const['value']}")
+            doc_lines.append("")
         
         return '\n'.join(doc_lines)
+        
     except Exception as e:
-        return f"# Error generating documentation for {module_path}: {e}"
+        log_exception(e)
+        return f"# Module: {Path(module_path).stem}\n\n*Documentation generation failed*"
 
-def run_refactoring_checks() -> Dict[str, Any]:
+
+def run_refactoring_checks(project_root: str, target_dirs: List[str]) -> Dict[str, Any]:
     """
-    Run all refactoring checks on the project.
+    Run comprehensive refactoring checks on the project.
     
+    Args:
+        project_root: Root directory of the project
+        target_dirs: List of directories to analyze
+        
     Returns:
-        Dictionary with check results and recommendations
+        Dictionary with refactoring report
     """
-    results = {
-        'module_validation': {},
+    report = {
+        'modules_analyzed': 0,
+        'issues_found': [],
+        'recommendations': [],
         'circular_dependencies': [],
-        'constants_extracted': {},
-        'documentation_generated': {}
+        'missing_docstrings': []
     }
     
-    print("Running refactoring checks...")
+    # Find all Python files
+    python_files = []
+    for target_dir in target_dirs:
+        full_path = os.path.join(project_root, target_dir)
+        if os.path.exists(full_path):
+            for root, _, files in os.walk(full_path):
+                for file in files:
+                    if file.endswith('.py'):
+                        python_files.append(os.path.join(root, file))
     
-    # Validate module exports
-    for module_path in MODULES_TO_ANALYZE:
-        is_valid, issues = validate_module_exports(module_path)
-        results['module_validation'][module_path] = {
-            'valid': is_valid,
-            'issues': issues
-        }
-        if not is_valid:
-            print(f"  ⚠ {module_path}: {issues}")
-        else:
-            print(f"  ✓ {module_path}: Valid exports")
+    report['modules_analyzed'] = len(python_files)
     
-    # Check circular dependencies
-    cycles = check_circular_dependencies(MODULES_TO_ANALYZE)
-    results['circular_dependencies'] = cycles
-    if cycles:
-        print(f"  ⚠ Found {len(cycles)} circular dependencies")
-        for c in cycles:
-            print(f"    - {c[0]} <-> {c[1]}")
-    else:
-        print("  ✓ No circular dependencies found")
+    # Analyze each module
+    for file_path in python_files:
+        try:
+            # Check for missing docstrings
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            tree = ast.parse(content)
+            module_doc = ast.get_docstring(tree)
+            
+            if not module_doc:
+                report['missing_docstrings'].append(file_path)
+                report['issues_found'].append({
+                    'file': file_path,
+                    'issue': 'Missing module docstring',
+                    'severity': 'warning'
+                })
+            
+            # Check functions
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    if not ast.get_docstring(node):
+                        report['missing_docstrings'].append(f"{file_path}:{node.name}")
+        
+        except Exception as e:
+            report['issues_found'].append({
+                'file': file_path,
+                'issue': f"Analysis failed: {e}",
+                'severity': 'error'
+            })
     
-    # Extract constants
-    for module_path in MODULES_TO_ANALYZE:
-        file_path = CODE_ROOT / f"{module_path.replace('.', '/')}.py"
-        if file_path.exists():
-            constants = extract_constants(file_path)
-            results['constants_extracted'][module_path] = constants
-            if constants:
-                print(f"  ℹ {module_path}: {len(constants)} constants found")
+    # Check for circular dependencies
+    module_paths = [os.path.relpath(f, project_root) for f in python_files]
+    cycles = check_circular_dependencies(module_paths)
+    report['circular_dependencies'] = [list(c) for c in cycles]
     
-    # Generate documentation
-    for module_path in MODULES_TO_ANALYZE:
-        doc = generate_module_documentation(module_path)
-        results['documentation_generated'][module_path] = doc[:200] + "..."
+    # Generate recommendations
+    if report['missing_docstrings']:
+        report['recommendations'].append(
+            f"Add docstrings to {len(report['missing_docstrings'])} functions/modules"
+        )
     
-    return results
+    if report['circular_dependencies']:
+        report['recommendations'].append(
+            f"Resolve {len(report['circular_dependencies'])} circular dependencies"
+        )
+    
+    if not report['issues_found']:
+        report['recommendations'].append("No major issues found. Code is well-structured.")
+    
+    return report
+
 
 def main():
-    """Main entry point for refactoring utilities."""
-    print("=" * 60)
-    print("LLMXive Code Refactoring & Modularity Check")
-    print("=" * 60)
+    """
+    Main entry point for refactoring utility.
+    Runs analysis on the project and prints a summary report.
+    """
+    import argparse
     
-    results = run_refactoring_checks()
+    parser = argparse.ArgumentParser(description='Code refactoring and modularity checker')
+    parser.add_argument('--project-root', default='.', help='Project root directory')
+    parser.add_argument('--dirs', nargs='+', default=['code', 'tests'], 
+                       help='Directories to analyze')
+    parser.add_argument('--organize-imports', action='store_true',
+                       help='Organize imports in all Python files')
+    parser.add_argument('--generate-docs', action='store_true',
+                       help='Generate documentation for all modules')
+    parser.add_argument('--output', default='refactoring_report.json',
+                       help='Output file for report')
     
-    print("\n" + "=" * 60)
-    print("Summary")
-    print("=" * 60)
+    args = parser.parse_args()
     
-    valid_count = sum(1 for v in results['module_validation'].values() if v['valid'])
-    total_count = len(results['module_validation'])
+    logger.info(f"Starting refactoring analysis on {args.project_root}")
     
-    print(f"Modules validated: {valid_count}/{total_count}")
-    print(f"Circular dependencies: {len(results['circular_dependencies'])}")
+    # Run checks
+    report = run_refactoring_checks(args.project_root, args.dirs)
     
-    if valid_count == total_count and len(results['circular_dependencies']) == 0:
-        print("\n✓ All refactoring checks passed!")
-        return 0
-    else:
-        print("\n⚠ Some issues found. Review the output above.")
-        return 1
+    # Organize imports if requested
+    if args.organize_imports:
+        python_files = []
+        for target_dir in args.dirs:
+            full_path = os.path.join(args.project_root, target_dir)
+            if os.path.exists(full_path):
+                for root, _, files in os.walk(full_path):
+                    for file in files:
+                        if file.endswith('.py'):
+                            python_files.append(os.path.join(root, file))
+        
+        organized_count = 0
+        for file_path in python_files:
+            new_content = organize_imports(file_path)
+            if new_content:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(new_content)
+                organized_count += 1
+                logger.info(f"Organized imports in {file_path}")
+        
+        report['imports_organized'] = organized_count
+    
+    # Generate docs if requested
+    if args.generate_docs:
+        doc_count = 0
+        for target_dir in args.dirs:
+            full_path = os.path.join(args.project_root, target_dir)
+            if os.path.exists(full_path):
+                for root, _, files in os.walk(full_path):
+                    for file in files:
+                        if file.endswith('.py'):
+                            file_path = os.path.join(root, file)
+                            rel_path = os.path.relpath(file_path, args.project_root)
+                            doc = generate_module_documentation(rel_path)
+                            if doc and not doc.startswith("*Documentation generation failed"):
+                                doc_count += 1
+        
+        report['docs_generated'] = doc_count
+    
+    # Save report
+    import json
+    with open(args.output, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Refactoring report saved to {args.output}")
+    print(json.dumps(report, indent=2))
+    
+    return report
 
-if __name__ == "__main__":
-    sys.exit(main())
+
+if __name__ == '__main__':
+    main()

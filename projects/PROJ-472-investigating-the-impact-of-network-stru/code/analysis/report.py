@@ -1,301 +1,234 @@
-"""
-Final Report Generator for Neural Avalanche Dynamics Study.
-
-This module generates the final research report, ensuring all findings are
-framed strictly as associational relationships between structural network metrics
-and neural avalanche statistics, in compliance with FR-010.
-"""
-
 import os
 import sys
 import json
 import pandas as pd
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from datetime import datetime
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
+# Local imports matching the provided API surface
 from config import get_data_root
-from utils.logger import get_logger, log_pipeline_start, log_pipeline_end
-from analysis.stats import load_metrics_data, compute_spearman_correlations, run_permutation_test, apply_holm_bonferroni_correction
-from analysis.fitting import generate_fitting_report
-from analysis.sensitivity import run_sensitivity_pipeline
-from data.quality_control import calculate_pipeline_completeness
+from utils.logger import get_logger, AnalysisError
 
+# Initialize logger
 logger = get_logger(__name__)
 
+# Causal keywords to enforce associational framing (FR-010)
+CAUSAL_KEYWORDS = [
+    "causes", "caused", "cause", "causing",
+    "drives", "driven", "drive", "driving",
+    "leads to", "led to",
+    "determines", "determined",
+    "results in", "resulted in",
+    "induces", "induced",
+    "forces", "forced",
+    "triggers", "triggered",
+    "influences"  # Often ambiguous, but flagged for review in strict associational context if used as direct causation
+]
 
-def load_correlation_results(results_dir: Path) -> Optional[pd.DataFrame]:
-    """
-    Load the correlation analysis results from the stats module output.
-    """
-    corr_file = results_dir / "correlation_report.csv"
-    if not corr_file.exists():
-        logger.warning(f"Correlation results file not found: {corr_file}")
-        return None
+def load_correlation_results() -> Dict[str, Any]:
+    """Loads correlation analysis results from the stored CSV."""
+    data_root = get_data_root()
+    results_path = data_root / "results" / "correlation_report.csv"
+    
+    if not results_path.exists():
+        logger.warning(f"Correlation results file not found at {results_path}. Returning empty dict.")
+        return {}
     
     try:
-        df = pd.read_csv(corr_file)
-        logger.info(f"Loaded {len(df)} correlation results from {corr_file}")
-        return df
+        df = pd.read_csv(results_path)
+        # Convert to list of dicts for easier processing if needed
+        return df.to_dict(orient='records')
     except Exception as e:
         logger.error(f"Failed to load correlation results: {e}")
-        return None
+        raise
 
-
-def load_fitting_results(results_dir: Path) -> Optional[pd.DataFrame]:
-    """
-    Load the power-law fitting results.
-    """
-    fitting_file = results_dir / "fitting_results.csv"
-    if not fitting_file.exists():
-        logger.warning(f"Fitting results file not found: {fitting_file}")
-        return None
+def load_fitting_results() -> Dict[str, Any]:
+    """Loads power-law fitting results."""
+    data_root = get_data_root()
+    results_path = data_root / "results" / "fitting_results.json"
+    
+    if not results_path.exists():
+        logger.warning(f"Fitting results file not found at {results_path}. Returning empty dict.")
+        return {}
     
     try:
-        df = pd.read_csv(fitting_file)
-        logger.info(f"Loaded {len(df)} fitting results from {fitting_file}")
-        return df
+        with open(results_path, 'r') as f:
+            return json.load(f)
     except Exception as e:
         logger.error(f"Failed to load fitting results: {e}")
-        return None
+        raise
 
-
-def load_sensitivity_results(results_dir: Path) -> Optional[pd.DataFrame]:
-    """
-    Load the sensitivity analysis results.
-    """
-    sens_file = results_dir / "sensitivity_analysis.csv"
-    if not sens_file.exists():
-        logger.warning(f"Sensitivity results file not found: {sens_file}")
-        return None
+def load_sensitivity_results() -> Dict[str, Any]:
+    """Loads sensitivity analysis results."""
+    data_root = get_data_root()
+    results_path = data_root / "results" / "sensitivity_analysis.json"
+    
+    if not results_path.exists():
+        logger.warning(f"Sensitivity results file not found at {results_path}. Returning empty dict.")
+        return {}
     
     try:
-        df = pd.read_csv(sens_file)
-        logger.info(f"Loaded {len(df)} sensitivity results from {sens_file}")
-        return df
+        with open(results_path, 'r') as f:
+            return json.load(f)
     except Exception as e:
         logger.error(f"Failed to load sensitivity results: {e}")
-        return None
+        raise
 
-
-def format_associational_statement(
-    metric_name: str, 
-    avalanche_metric: str, 
-    rho: float, 
-    p_val: float, 
-    corrected_p: float, 
-    is_significant: bool
-) -> str:
+def format_associational_statement(metric_name: str, correlation: float, p_value: float) -> str:
     """
-    Formats a scientific statement ensuring the language is strictly associational.
-    Avoids causal verbs like 'causes', 'drives', or 'leads to'.
+    Formats a statistical finding as an associational statement.
+    Explicitly avoids causal language.
     """
-    direction = "positive" if rho > 0 else "negative"
-    significance_phrase = "statistically significant" if is_significant else "not statistically significant"
+    direction = "positive" if correlation > 0 else "negative"
+    significance = "statistically significant" if p_value < 0.05 else "not statistically significant"
     
-    statement = (
-        f"A {direction} {significance_phrase} Spearman rank correlation (rho={rho:.3f}, "
-        f"p={p_val:.4f}, corrected p={corrected_p:.4f}) was observed between "
-        f"{metric_name} and {avalanche_metric}. "
-        f"These data suggest an association, but do not imply causation."
+    return (
+        f"A {direction} correlation was observed between {metric_name} and the avalanche exponent "
+        f"(r = {correlation:.3f}, p = {p_value:.4f}). This association is {significance}."
     )
-    return statement
 
-
-def generate_executive_summary(
-    corr_df: pd.DataFrame, 
-    fitting_df: pd.DataFrame, 
-    sensitivity_df: pd.DataFrame,
-    qc_completeness: float
-) -> str:
-    """
-    Generates a high-level summary of the study findings.
-    """
-    summary_lines = [
-        "## Executive Summary",
-        "",
-        f"**Study Scope**: Analysis of {len(corr_df)} participants with valid structural and simulated EEG data.",
-        f"**Pipeline Completeness**: {qc_completeness:.1%} of subjects passed all quality control checks.",
-        "",
-        "### Key Findings",
-        ""
-    ]
-
-    # Summarize correlations
-    significant_corrs = corr_df[corr_df['is_significant']]
-    if not significant_corrs.empty:
-        summary_lines.append(
-            f"Significant associations were identified between structural network properties "
-            f"(specifically {', '.join(significant_corrs['structural_metric'].unique())}) "
-            f"and neural avalanche statistics (specifically {', '.join(significant_corrs['avalanche_metric'].unique())})."
-        )
-        summary_lines.append(
-            "All reported relationships are associational in nature, consistent with the "
-            "observational design of this simulation-based study."
-        )
-    else:
-        summary_lines.append(
-            "No statistically significant associations were found between the structural "
-            "network metrics and neural avalanche statistics after multiple comparison correction."
-        )
-
-    # Fitting summary
-    if fitting_df is not None and not fitting_df.empty:
-        best_models = fitting_df['best_model'].value_counts()
-        summary_lines.append("")
-        summary_lines.append(f"### Power-Law Fitting Results")
-        summary_lines.append(f"Among {len(fitting_df)} subjects, the best-fitting models were distributed as follows:")
-        for model, count in best_models.items():
-            summary_lines.append(f"- {model}: {count} subjects ({count/len(fitting_df)*100:.1f}%)")
-
-    # Sensitivity summary
-    if sensitivity_df is not None and not sensitivity_df.empty:
-       summary_lines.append("")
-       summary_lines.append("### Robustness Analysis")
-       summary_lines.append(
-           "Sensitivity analysis across threshold multipliers indicated that the observed "
-           "associations are robust to variations in the avalanche detection threshold "
-           "(see detailed sensitivity plots in the appendices)."
-       )
-
-    return "\n".join(summary_lines)
-
-
-def generate_detailed_results(corr_df: pd.DataFrame) -> str:
-    """
-    Generates the detailed results section with specific statistical values.
-    """
-    lines = [
-        "## Detailed Statistical Results",
-        "",
-        "The following table presents the Spearman rank correlation coefficients, "
-        "raw p-values, and Holm-Bonferroni corrected p-values for all tested pairs.",
-        "",
-        "| Structural Metric | Avalanche Metric | Rho (ρ) | Raw P-value | Corrected P-value | Significant? |",
-        "|---|---|---|---|---|---|"
-    ]
-
-    for _, row in corr_df.iterrows():
-        sig_marker = "Yes" if row['is_significant'] else "No"
-        lines.append(
-            f"| {row['structural_metric']} | {row['avalanche_metric']} | "
-            f"{row['rho']:.3f} | {row['p_value']:.4f} | {row['corrected_p']:.4f} | {sig_marker} |"
-        )
+def generate_executive_summary(results: Dict[str, Any]) -> str:
+    """Generates a high-level summary of the findings."""
+    if not results:
+        return "No correlation results available to summarize."
     
+    summary_parts = []
+    for item in results:
+        metric = item.get('metric', 'Unknown Metric')
+        corr = item.get('correlation', 0.0)
+        p_val = item.get('p_value', 1.0)
+        
+        statement = format_associational_statement(metric, corr, p_val)
+        summary_parts.append(statement)
+    
+    return "\n\n".join(summary_parts)
+
+def generate_detailed_results(correlation_data: List[Dict], fitting_data: Dict, sensitivity_data: Dict) -> str:
+    """Generates the detailed body of the report."""
+    lines = []
+    lines.append("## Detailed Results")
     lines.append("")
     
-    # Add interpretative text
-    lines.append("### Interpretation")
-    for _, row in corr_df.iterrows():
-        statement = format_associational_statement(
-            row['structural_metric'],
-            row['avalanche_metric'],
-            row['rho'],
-            row['p_value'],
-            row['corrected_p'],
-            row['is_significant']
-        )
-        lines.append(f"- {statement}")
+    lines.append("### Structural-Avalanche Associations")
+    for item in correlation_data:
+        metric = item.get('metric', 'N/A')
+        corr = item.get('correlation', 'N/A')
+        p_val = item.get('p_value', 'N/A')
+        ci_low = item.get('ci_low', 'N/A')
+        ci_high = item.get('ci_high', 'N/A')
+        
+        lines.append(f"- **{metric}**: r={corr}, p={p_val}, 95% CI [{ci_low}, {ci_high}]")
     
+    lines.append("")
+    lines.append("### Power-Law Fit Quality")
+    # Assuming fitting_data is a dict of subject_id -> stats or similar structure
+    if isinstance(fitting_data, dict):
+        count = len(fitting_data)
+        lines.append(f"- Analyzed {count} subjects for power-law fit convergence.")
+    
+    lines.append("")
+    lines.append("### Sensitivity Analysis")
+    if sensitivity_data:
+        lines.append("- Stability of exponents across thresholds (0.70, 0.75, 0.80) was assessed.")
+    else:
+        lines.append("- No sensitivity data available.")
+        
     return "\n".join(lines)
 
+def _validate_text_for_causal_language(text: str) -> None:
+    """
+    Scans text for causal keywords. Raises RuntimeError if found.
+    This enforces FR-010 and US-3 requirements.
+    """
+    text_lower = text.lower()
+    found_causal = []
+    
+    for keyword in CAUSAL_KEYWORDS:
+        # Use word boundaries to avoid false positives on substrings (e.g., "causes" inside "precursors")
+        # Simple regex check for the keyword surrounded by non-word chars or start/end
+        pattern = r'\b' + re.escape(keyword) + r'\b'
+        if re.search(pattern, text_lower):
+            found_causal.append(keyword)
+    
+    if found_causal:
+        unique_found = list(set(found_causal))
+        raise RuntimeError(
+            f"Associational Framing Violation: The report text contains causal language "
+            f"which is forbidden by FR-010. Found keywords: {unique_found}. "
+            f"Please rephrase the generated text to use associational terms (e.g., 'associated with', 'correlated with')."
+        )
 
-def generate_report(
-    output_path: Path, 
-    include_detailed_results: bool = True
-) -> Path:
+def generate_report(output_path: Optional[Path] = None) -> Path:
     """
-    Orchestrates the generation of the final research report.
+    Generates the final research report, validating for associational framing.
     
-    Args:
-        output_path: Path where the report (JSON/Markdown) will be saved.
-        include_detailed_results: Whether to include the full table of correlations.
-        
-    Returns:
-        Path to the generated report file.
+    Steps:
+    1. Load results.
+    2. Generate text content.
+    3. VALIDATE: Scan for causal keywords.
+    4. Write to file.
     """
-    log_pipeline_start("Report Generation", logger)
-    
     data_root = get_data_root()
-    results_dir = data_root / "results"
+    if output_path is None:
+        output_path = data_root / "results" / "final_report.md"
+    
+    logger.info("Generating final research report...")
     
     # Load data
-    corr_df = load_correlation_results(results_dir)
-    fitting_df = load_fitting_results(results_dir)
-    sensitivity_df = load_sensitivity_results(results_dir)
+    correlation_data = load_correlation_results()
+    fitting_data = load_fitting_results()
+    sensitivity_data = load_sensitivity_results()
     
-    if corr_df is None:
-        logger.error("Cannot generate report: Correlation results are missing.")
-        log_pipeline_end("Report Generation", logger, success=False)
-        raise FileNotFoundError("Missing correlation results. Run stats analysis first.")
+    # Generate content
+    executive_summary = generate_executive_summary(correlation_data)
+    detailed_results = generate_detailed_results(correlation_data, fitting_data, sensitivity_data)
     
-    # Calculate QC completeness
-    qc_completeness = calculate_pipeline_completeness()
+    # Construct full report text
+    report_content = [
+        "# Neural Avalanche Dynamics and Network Structure Report",
+        "",
+        "## Executive Summary",
+        executive_summary,
+        "",
+        detailed_results,
+        "",
+        "## Conclusion",
+        "This study investigated the association between structural network properties and neural avalanche dynamics. "
+        "All findings are presented as correlational associations and do not imply causal directionality."
+    ]
     
-    # Build Report Content
-    report_content = {
-        "title": "Investigation of Network Structure Impact on Neural Avalanche Dynamics",
-        "generated_at": datetime.now().isoformat(),
-        "methodology_note": (
-            "This study utilizes simulated EEG data derived from structural connectomes. "
-            "All conclusions are framed as associational relationships."
-        ),
-        "executive_summary": generate_executive_summary(
-            corr_df, fitting_df, sensitivity_df, qc_completeness
-        )
-    }
+    full_text = "\n".join(report_content)
     
-    if include_detailed_results:
-        report_content["detailed_results"] = generate_detailed_results(corr_df)
+    # VALIDATION STEP: Enforce Associational Framing (T032)
+    logger.info("Validating report for causal language compliance...")
+    try:
+        _validate_text_for_causal_language(full_text)
+        logger.info("Associational framing validation passed.")
+    except RuntimeError as e:
+        logger.error(f"Validation failed: {e}")
+        raise e
     
-    # Save as JSON (machine readable) and Markdown (human readable)
-    output_path = Path(output_path)
+    # Write to file
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(full_text)
     
-    # Save JSON
-    json_path = output_path.with_suffix('.json')
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(report_content, f, indent=2)
-    
-    # Save Markdown
-    md_path = output_path.with_suffix('.md')
-    with open(md_path, 'w', encoding='utf-8') as f:
-        f.write(f"# {report_content['title']}\n\n")
-        f.write(f"**Generated**: {report_content['generated_at']}\n\n")
-        f.write(f"{report_content['methodology_note']}\n\n")
-        f.write(report_content['executive_summary'])
-        f.write("\n\n")
-        if include_detailed_results:
-            f.write(report_content['detailed_results'])
-    
-    logger.info(f"Report generated successfully: {md_path}")
-    log_pipeline_end("Report Generation", logger, success=True)
-    
-    return md_path
-
+    logger.info(f"Report successfully generated and validated at {output_path}")
+    return output_path
 
 def main():
-    """
-    Entry point for the report generation script.
-    """
-    from config import ensure_directories
-    ensure_directories()
-    
-    data_root = get_data_root()
-    output_file = data_root / "results" / "final_research_report"
-    
+    """Entry point for the report generation script."""
     try:
-        report_path = generate_report(output_file)
-        print(f"Final report generated at: {report_path}")
-        return 0
+        output_file = generate_report()
+        print(f"Report generated: {output_file}")
+    except RuntimeError as e:
+        # Re-raise the validation error so the pipeline halts
+        print(f"Report generation failed due to validation error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Report generation failed: {e}", exc_info=True)
-        return 1
-
+        logger.error(f"Unexpected error during report generation: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

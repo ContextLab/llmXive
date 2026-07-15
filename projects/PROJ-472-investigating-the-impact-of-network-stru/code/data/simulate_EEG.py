@@ -1,318 +1,283 @@
-"""
-Simulation of synthetic EEG time-series from structural connectomes using Wilson-Cowan dynamics.
-
-This module generates resting-state EEG-like signals by simulating neural population
-dynamics on a structural graph. It applies MNE-Python preprocessing (band-pass filtering
-and downsampling) to mimic real-data pipelines.
-"""
 import os
 import sys
 import numpy as np
 import pandas as pd
 import mne
+import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Optional, Any
+import logging
+import hashlib
+from datetime import datetime
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import from project API surface
+from config import get_data_root, ensure_directories
+from data.models import Participant, StructuralConnectome, AvalancheRecord
+from utils.logger import get_logger, log_pipeline_start, log_pipeline_end, handle_exceptions, SimulationError
+from utils.env_config import get_simulation_seed
+from data.store import load_connectome_matrix
 
-from config import get_data_root, SIMULATION_PARAMS
-from utils.logger import get_logger, SimulationError
-from data.models import Participant, StructuralConnectome
-
+# Configure logging
 logger = get_logger(__name__)
+
+# Wilson-Cowan Parameters (Default, can be overridden by config)
+DEFAULT_WC_PARAMS = {
+    "excitatory_gain": 1.0,
+    "inhibitory_gain": 1.0,
+    "time_constant_exc": 10.0,
+    "time_constant_inh": 20.0,
+    "external_input_exc": 0.5,
+    "external_input_inh": 0.5,
+    "noise_std": 0.01,
+    "dt": 0.001,
+    "duration": 10.0,  # seconds
+    "sampling_rate": 250  # Hz (downsampled to this later)
+}
 
 class WilsonCowanSimulator:
     """
-    Simulates neural activity using the Wilson-Cowan equations on a given structural graph.
-
-    The Wilson-Cowan model describes the dynamics of excitatory (E) and inhibitory (I)
-    populations. For this simulation, we focus on the excitatory population activity
-    as a proxy for BOLD/EEG signal generation, coupled via the structural connectome.
+    Simulates neural activity using Wilson-Cowan equations on a structural connectome.
     """
-
-    def __init__(
-        self,
-        connection_strength: float = 1.2,
-        time_constant: float = 10.0,
-        external_input: float = 0.5,
-        noise_level: float = 0.1,
-        dt: float = 0.1,
-        duration: float = 1000.0,
-        seed: int = 42
-    ):
-        """
-        Initialize the simulator with Wilson-Cowan parameters.
-
-        Args:
-            connection_strength: Strength of excitatory connections.
-            time_constant: Time constant for the neural dynamics.
-            external_input: Constant external drive to the system.
-            noise_level: Standard deviation of Gaussian noise.
-            dt: Time step for integration.
-            duration: Total simulation duration in ms.
-            seed: Random seed for reproducibility.
-        """
-        self.connection_strength = connection_strength
-        self.time_constant = time_constant
-        self.external_input = external_input
-        self.noise_level = noise_level
-        self.dt = dt
-        self.duration = duration
+    def __init__(self, params: Optional[Dict[str, float]] = None, seed: Optional[int] = None):
+        self.params = {**DEFAULT_WC_PARAMS, **(params or {})}
         self.seed = seed
-
-        self.rng = np.random.default_rng(seed)
-        self.n_steps = int(duration / dt)
-        logger.info(f"Initialized WilsonCowanSimulator: {self.n_steps} steps, dt={dt}ms")
-
-    def _sigmoid(self, x: np.ndarray) -> np.ndarray:
-        """Sigmoid activation function with numerical stability."""
-        # Clip to avoid overflow in exp
-        x = np.clip(x, -500, 500)
-        return 1.0 / (1.0 + np.exp(-x))
-
-    def simulate(self, adjacency_matrix: np.ndarray) -> np.ndarray:
-        """
-        Run the Wilson-Cowan simulation.
-
-        Args:
-            adjacency_matrix: N x N structural connectivity matrix.
-
-        Returns:
-            N x T array of excitatory population activity (E).
-        """
-        n_nodes = adjacency_matrix.shape[0]
-        logger.info(f"Running Wilson-Cowan simulation on graph with {n_nodes} nodes.")
-
-        # Initialize state (E: excitatory activity)
-        # Start with small random perturbation to break symmetry
-        E = self.rng.uniform(0.0, 0.1, size=n_nodes)
+        self.rng = np.random.default_rng(self.seed)
         
-        # Pre-compute constants
-        tau = self.time_constant
-        w_e = self.connection_strength
-        I_ext = self.external_input
-        noise_sigma = self.noise_level
+        # Validate parameters
+        if self.params["dt"] <= 0:
+            raise SimulationError("Time step (dt) must be positive.")
+        if self.params["duration"] <= 0:
+            raise SimulationError("Duration must be positive.")
 
-        # Time series storage
-        signal_history = np.zeros((n_nodes, self.n_steps))
+    def _sigmoid(self, x: np.ndarray, gain: float) -> np.ndarray:
+        """Sigmoid activation function."""
+        return 1.0 / (1.0 + np.exp(-gain * x))
 
-        for t in range(self.n_steps):
-            # Input from other nodes (weighted sum)
-            input_from_network = adjacency_matrix @ E
+    def simulate(self, connectivity_matrix: np.ndarray, num_nodes: int) -> np.ndarray:
+        """
+        Run Wilson-Cowan simulation for a given connectivity matrix.
+        
+        Args:
+            connectivity_matrix: Adjacency matrix of structural connectome (N x N).
+            num_nodes: Number of nodes in the network.
+        
+        Returns:
+            np.ndarray: Time series of neural activity (num_nodes x num_timepoints).
+        """
+        dt = self.params["dt"]
+        T = self.params["duration"]
+        num_steps = int(T / dt)
+        
+        # Initialize state variables (E: Excitatory, I: Inhibitory)
+        E = np.zeros((num_nodes, num_steps))
+        I = np.zeros((num_nodes, num_steps))
+        
+        # Initial conditions (small random perturbation)
+        E[:, 0] = self.rng.uniform(0.01, 0.02, num_nodes)
+        I[:, 0] = self.rng.uniform(0.01, 0.02, num_nodes)
+        
+        # Parameters
+        J = self.params["excitatory_gain"] * connectivity_matrix
+        W = self.params["inhibitory_gain"] * connectivity_matrix
+        tau_E = self.params["time_constant_exc"]
+        tau_I = self.params["time_constant_inh"]
+        I_ext_E = self.params["external_input_exc"]
+        I_ext_I = self.params["external_input_exc"]
+        noise_std = self.params["noise_std"]
+        
+        # Time integration
+        for t in range(1, num_steps):
+            # Noise term
+            noise_E = self.rng.normal(0, noise_std, num_nodes)
+            noise_I = self.rng.normal(0, noise_std, num_nodes)
             
-            # Total input to excitatory population
-            # Wilson-Cowan: tau * dE/dt = -E + S(w_EE * E - w_EI * I + I_ext)
-            # Simplified: We assume I is slaved to E or fixed, focusing on E dynamics driven by structure
-            # Effective input = w * (network input) + external + noise
-            total_input = w_e * input_from_network + I_ext + self.rng.normal(0, noise_sigma, n_nodes)
+            # Wilson-Cowan equations
+            dE = (1.0 / tau_E) * (
+                -E[:, t-1] + self._sigmoid(J @ E[:, t-1] - W @ I[:, t-1] + I_ext_E + noise_E, 1.0)
+            )
+            dI = (1.0 / tau_I) * (
+                -I[:, t-1] + self._sigmoid(J @ E[:, t-1] - W @ I[:, t-1] + I_ext_I + noise_I, 1.0)
+            )
             
-            # Dynamics
-            dE = (-E + self._sigmoid(total_input)) / tau
-            E = E + dE * self.dt
-            
-            # Store state
-            signal_history[:, t] = E
+            E[:, t] = E[:, t-1] + dt * dE
+            I[:, t] = I[:, t-1] + dt * dI
+        
+        # Return excitatory activity as proxy for BOLD/EEG signal
+        return E
 
-        logger.info("Simulation completed.")
-        return signal_history
-
-def load_connectome(subject_id: str) -> np.ndarray:
+def load_connectome(subject_id: str, data_root: Path) -> np.ndarray:
     """
-    Load the structural connectome matrix for a given subject.
-
-    Args:
-        subject_id: The subject identifier (e.g., 'sub-001').
-
-    Returns:
-        Numpy array representing the adjacency matrix.
-
-    Raises:
-        FileNotFoundError: If the connectome file does not exist.
+    Load preprocessed connectome matrix for a subject.
     """
-    data_root = get_data_root()
-    # Expected path based on T010/T013 workflow: data/processed/connectomes/
-    connectome_path = data_root / "processed" / "connectomes" / f"{subject_id}_connectome.npy"
+    store_path = data_root / "processed" / "connectomes"
+    file_path = store_path / f"{subject_id}_connectome.npy"
     
-    if not connectome_path.exists():
-        raise FileNotFoundError(f"Connectome file not found for subject {subject_id} at {connectome_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Connectome not found for subject {subject_id} at {file_path}")
     
-    logger.info(f"Loading connectome from {connectome_path}")
-    matrix = np.load(connectome_path)
-    return matrix
+    return np.load(file_path)
 
 def simulate_eeg_for_subject(
     subject_id: str,
-    sample_rate_original: float = 1000.0,
-    sample_rate_target: float = 250.0,
-    low_freq: float = 1.0,
-    high_freq: float = 40.0,
-    ch_names: Optional[List[str]] = None
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    data_root: Path,
+    params: Optional[Dict[str, Any]] = None,
+    seed: Optional[int] = None
+) -> Dict[str, Any]:
     """
-    Generate synthetic EEG time-series for a subject.
-
-    1. Loads the structural connectome.
-    2. Simulates Wilson-Cowan dynamics.
-    3. Treats node activity as EEG channel signals.
-    4. Applies MNE-Python band-pass filtering (1-40 Hz).
-    5. Downsamples the signal.
-
-    Args:
-        subject_id: Subject identifier.
-        sample_rate_original: Original simulation sample rate (Hz).
-        sample_rate_target: Target sample rate after downsampling (Hz).
-        low_freq: Lower cutoff for band-pass filter (Hz).
-        high_freq: Upper cutoff for band-pass filter (Hz).
-        ch_names: Optional list of channel names. If None, generates generic names.
-
-    Returns:
-        Tuple of (DataFrame with processed signals, metadata dict).
+    Simulate EEG time-series for a single subject and save metadata.
+    
+    This function implements the primary path for data generation when real EEG is unavailable.
+    It logs the random seed and Wilson-Cowan parameters to ensure reproducibility.
     """
-    # 1. Load Connectome
+    if seed is None:
+        seed = get_simulation_seed()
+    
+    logger.info(f"Starting EEG simulation for subject {subject_id} with seed {seed}")
+    
+    # Initialize simulator
+    simulator = WilsonCowanSimulator(params=params, seed=seed)
+    
+    # Load connectome
     try:
-        adj_matrix = load_connectome(subject_id)
+        connectivity_matrix = load_connectome(subject_id, data_root)
+        num_nodes = connectivity_matrix.shape[0]
     except FileNotFoundError as e:
-        logger.error(str(e))
-        raise SimulationError(f"Failed to load connectome for {subject_id}") from e
-
-    n_nodes = adj_matrix.shape[0]
-
-    # 2. Simulate Dynamics
-    simulator = WilsonCowanSimulator(
-        connection_strength=SIMULATION_PARAMS["connection_strength"],
-        time_constant=SIMULATION_PARAMS["time_constant"],
-        external_input=SIMULATION_PARAMS["external_input"],
-        noise_level=SIMULATION_PARAMS["noise_level"],
-        dt=SIMULATION_PARAMS["dt"],
-        duration=SIMULATION_PARAMS["duration"],
-        seed=int(subject_id.replace("sub-", "")) if subject_id.startswith("sub-") else 42
-    )
+        logger.error(f"Failed to load connectome for {subject_id}: {e}")
+        raise SimulationError(f"Cannot simulate EEG: missing connectome for {subject_id}") from e
     
-    raw_signal = simulator.simulate(adj_matrix) # Shape: (nodes, time_steps)
+    # Run simulation
+    raw_activity = simulator.simulate(connectivity_matrix, num_nodes)
     
-    # Calculate time vector
-    total_time_ms = SIMULATION_PARAMS["duration"]
-    # The simulation dt is in ms? The config says 0.1. Assuming ms for neural sims.
-    # If dt=0.1ms, then 1000ms duration = 10000 steps.
-    # Sample rate = 1000 steps / 1 sec = 1000 Hz.
-    # Let's assume the simulation output is effectively sampled at 1/dt (in Hz if dt is sec, or 1000/dt if dt is ms).
-    # Given dt=0.1, if ms -> 10kHz? No, usually neural sims dt=0.1ms -> 10kHz.
-    # But config duration=1000.0 (likely ms). 
-    # Let's assume the output is effectively sampled at 1000 Hz (1ms resolution) for EEG mimicry.
-    # We will explicitly set the original SFreq to 1000.0 Hz as per task requirement for downsampling.
-    # If the simulation dt is 0.1ms, we might need to decimate or just treat it as high freq.
-    # To match "simulate_EEG" requirement, we treat the output as high-freq neural data.
-    # Let's assume the raw_signal corresponds to a sampling rate of 1000 Hz (1ms steps) for simplicity
-    # or derive it: 1 / (dt * 1e-3) if dt is ms. 
-    # If dt=0.1ms, rate = 10000 Hz. 
-    # Let's assume the task implies we generate a signal that we then downsample.
-    # We will assume the simulation dt=0.1 implies 10000 Hz if unit is ms, but standard Wilson Cowan often uses dt=0.1s?
-    # The config says dt=0.1, duration=1000.0. If duration is ms, and dt is ms -> 10000 steps.
-    # Let's assume the simulation output is effectively 1000 Hz (1ms) for EEG context.
-    # We will set the original sample rate to 1000.0 Hz for the MNE object.
-    original_sfreq = 1000.0 
-
-    # 3. Prepare MNE Data
-    if ch_names is None:
-        ch_names = [f"EEG{i:03d}" for i in range(n_nodes)]
+    # Downsample to 250 Hz (if simulation rate was higher)
+    # Assuming simulation was at 1/dt Hz
+    sim_rate = 1.0 / simulator.params["dt"]
+    if sim_rate > simulator.params["sampling_rate"]:
+        # Simple decimation for demonstration; in production use scipy.signal.decimate
+        factor = int(sim_rate / simulator.params["sampling_rate"])
+        downsampled_activity = raw_activity[:, ::factor]
+        final_rate = sim_rate // factor
+    else:
+        downsampled_activity = raw_activity
+        final_rate = sim_rate
     
-    # Create MNE Info
-    info = mne.create_info(ch_names=ch_names, sfreq=original_sfreq, ch_types='eeg')
+    # Apply band-pass filter (1-40 Hz) using MNE
+    # Create MNE Info object
+    info = mne.create_info(ch_names=[f"Node_{i}" for i in range(num_nodes)], sfreq=final_rate, ch_types='eeg')
+    raw_data = mne.io.RawArray(downsampled_activity.astype(np.float64), info)
     
-    # Transpose to (channels, times) for MNE
-    # raw_signal is (nodes, time)
-    data = raw_signal.astype(np.float64)
+    # Filter
+    raw_data.filter(l_freq=1.0, h_freq=40.0, method='fir', verbose=False)
     
-    # Apply arbitrary scale to mimic microvolts (Wilson Cowan is dimensionless usually)
-    data = data * 100.0  # Scale to ~100 uV range
-
-    raw = mne.io.RawArray(data, info)
+    # Extract filtered data
+    filtered_data = raw_data.get_data()
     
-    logger.info(f"Created MNE RawArray: {raw.n_channels} channels, {raw.n_times} samples, sfreq={raw.info['sfreq']}")
-
-    # 4. Preprocessing: Band-pass Filter (1-40 Hz)
-    logger.info(f"Applying band-pass filter: {low_freq}-{high_freq} Hz")
-    raw.filter(l_freq=low_freq, h_freq=high_freq, method='fir', fir_design='firwin')
-
-    # 5. Preprocessing: Downsample
-    logger.info(f"Downsampling from {original_sfreq} Hz to {sample_rate_target} Hz")
-    raw.resample(sample_rate_target)
-
-    # 6. Convert to DataFrame
-    # MNE stores data as (n_channels, n_times)
-    df_data = raw.get_data()
-    times = raw.times
+    # Save simulated EEG to processed storage
+    output_dir = data_root / "processed" / "eeg"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / f"{subject_id}_simulated_eeg.npy"
+    np.save(output_file, filtered_data)
     
-    df = pd.DataFrame(df_data.T, columns=ch_names)
-    df['time'] = times
-    
-    # Reorder to put time first
-    cols = ['time'] + ch_names
-    df = df[cols]
-
-    metadata = {
+    # --- REPRODUCTION LOGIC FOR T030 ---
+    # Log and save simulation parameters to metadata file
+    metadata_entry = {
         "subject_id": subject_id,
-        "original_sfreq": original_sfreq,
-        "target_sfreq": sample_rate_target,
-        "n_channels": n_nodes,
-        "n_samples": len(times),
-        "filter_range": f"{low_freq}-{high_freq}Hz",
-        "sim_params": SIMULATION_PARAMS
+        "timestamp": datetime.utcnow().isoformat(),
+        "random_seed": seed,
+        "wilson_cowan_params": simulator.params,
+        "simulation_rate": sim_rate,
+        "final_sampling_rate": final_rate,
+        "num_nodes": num_nodes,
+        "num_timepoints": filtered_data.shape[1],
+        "source_file": str(output_file),
+        "params_hash": hashlib.sha256(json.dumps(simulator.params, sort_keys=True).encode()).hexdigest()
+    }
+    
+    metadata_path = data_root / "processed" / "simulation_metadata.json"
+    
+    # Load existing metadata if it exists
+    all_metadata = []
+    if metadata_path.exists():
+        try:
+            with open(metadata_path, 'r') as f:
+                all_metadata = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning(f"Existing metadata file {metadata_path} is corrupted. Overwriting.")
+            all_metadata = []
+    
+    # Append new entry
+    all_metadata.append(metadata_entry)
+    
+    # Write back
+    with open(metadata_path, 'w') as f:
+        json.dump(all_metadata, f, indent=2)
+    
+    logger.info(f"Simulation complete for {subject_id}. Metadata saved to {metadata_path}")
+    logger.debug(f"Parameters used: {simulator.params}")
+    
+    return {
+        "subject_id": subject_id,
+        "output_file": str(output_file),
+        "metadata_file": str(metadata_path),
+        "shape": filtered_data.shape,
+        "seed": seed
     }
 
-    logger.info(f"Successfully processed EEG for {subject_id}. Output shape: {df.shape}")
-    return df, metadata
+def run_pipeline(subject_ids: List[str], data_root: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """
+    Run simulation pipeline for a list of subjects.
+    """
+    if data_root is None:
+        data_root = get_data_root()
+    
+    ensure_directories(data_root)
+    
+    results = []
+    for subject_id in subject_ids:
+        try:
+            result = simulate_eeg_for_subject(subject_id, data_root)
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Failed to simulate EEG for {subject_id}: {e}")
+            # Continue processing other subjects
+            results.append({"subject_id": subject_id, "error": str(e)})
+    
+    return results
 
+@handle_exceptions
 def main():
     """
-    Main entry point to run the EEG simulation pipeline.
-    Generates data for all subjects found in the processed connectomes directory.
+    Entry point for the simulation script.
     """
-    logger.info("Starting EEG Simulation Pipeline (T011)")
+    log_pipeline_start("simulate_EEG")
     
+    # Get subject IDs from config or command line (simplified for this task)
+    # In a real scenario, this would read from a manifest or config
     data_root = get_data_root()
-    connectome_dir = data_root / "processed" / "connectomes"
-    output_dir = data_root / "processed" / "eeg"
     
+    # Example: If we had a list of subjects from T009/T010
+    # For now, we assume the caller passes the list or it's derived from existing files
+    # We will scan the processed connectomes directory to find subjects
+    connectome_dir = data_root / "processed" / "connectomes"
     if not connectome_dir.exists():
-        logger.error(f"Connectome directory not found: {connectome_dir}")
+        logger.error("Connectome directory not found. Run preprocess_dMRI first.")
         sys.exit(1)
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Identify subjects
-    connectome_files = list(connectome_dir.glob("sub-*_connectome.npy"))
+    subject_ids = [f.stem.replace("_connectome", "") for f in connectome_dir.glob("*_connectome.npy")]
     
-    if not connectome_files:
-        logger.warning("No connectome files found. Skipping simulation.")
-        return
-
-    logger.info(f"Found {len(connectome_files)} subjects to process.")
-
-    for conn_file in connectome_files:
-        subject_id = conn_file.stem.replace("_connectome", "")
-        logger.info(f"Processing subject: {subject_id}")
-        
-        try:
-            df, meta = simulate_eeg_for_subject(subject_id)
-            
-            output_path = output_dir / f"{subject_id}_eeg_processed.csv"
-            df.to_csv(output_path, index=False)
-            logger.info(f"Saved processed EEG to {output_path}")
-            
-            # Save metadata
-            meta_path = output_dir / f"{subject_id}_meta.json"
-            import json
-            with open(meta_path, 'w') as f:
-                json.dump(meta, f, indent=2)
-                
-        except Exception as e:
-            logger.error(f"Failed to process {subject_id}: {e}", exc_info=True)
-            # Continue with next subject rather than halting whole pipeline
-            continue
-
-    logger.info("EEG Simulation Pipeline completed.")
+    if not subject_ids:
+        logger.warning("No subjects found in connectome directory.")
+        sys.exit(0)
+    
+    logger.info(f"Found {len(subject_ids)} subjects to simulate.")
+    
+    results = run_pipeline(subject_ids, data_root)
+    
+    # Summary
+    successful = sum(1 for r in results if "error" not in r)
+    logger.info(f"Simulation pipeline complete. {successful}/{len(subject_ids)} successful.")
+    
+    log_pipeline_end("simulate_EEG")
+    return results
 
 if __name__ == "__main__":
     main()
