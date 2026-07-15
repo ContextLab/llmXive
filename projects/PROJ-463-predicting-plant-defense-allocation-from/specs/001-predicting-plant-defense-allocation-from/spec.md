@@ -37,7 +37,7 @@ As a researcher, I want to compute differential expression between herbivore tre
 **Acceptance Scenarios**:
 
 1. **Given** normalized TPM matrices with ≥2 biological replicates per condition, **When** DESeq2 is run with FDR < 0.05 and |log₂FC| > 1 thresholds, **Then** a list of DE genes with signed log₂FC values is produced for each herbivore type (chewing vs piercing‑sucking)
-2. **Given** DE genes across multiple studies, **When** the top 200 common DE genes are selected (based on aggregate significance within the training fold), **Then** a herbivore‑response vector is derived with consistent gene ordering across species
+2. **Given** DE genes across multiple studies, **When** a subset of common differentially expressed (DE) genes is selected. (based on aggregate significance within the training fold), **Then** a herbivore‑response vector is derived with consistent gene ordering across species
 3. **Given** species with insufficient replicates (<2 per condition), **When** filtering is applied, **Then** those species are excluded and the exclusion is logged for traceability
 
 ---
@@ -84,7 +84,7 @@ As a researcher, I want to train regularized linear models (Elastic Net) and ran
 - **FR-010**: System MUST apply family‑wise error correction (Holm-Bonferroni) when testing >1 hypothesis (See US-3)
 - **FR-011**: System MUST attempt to integrate alternative public sources (e.g., Phenoscape, GBIF trait extensions, or specific literature repositories) via a fallback lookup if the primary source (TRY) lacks data for a species. "Target species" is defined as the set of unique plant species present in the final RNA-seq dataset after initial QC filtering (US-1). If the total number of species missing data from *all* sources (primary + fallback) exceeds 30% of the target species, the system MUST halt the modeling phase, log the exclusion count, and raise a `human_input_needed` flag (See US-3)
 - **FR-012**: System MUST perform pathway-level aggregation (e.g., KEGG/GO) to reduce the herbivore-response vector from 200 genes to ≤50 pathway-level features before model training to address the small-n, large-p problem (See US-3)
-- **FR-016**: System MUST perform a power analysis prior to modeling. If the available number of species (n) is less than 15 (calculated to detect R²=0.3 with α=0.05 and β=0.2), the system MUST halt and report "Insufficient statistical power for reliable prediction" (See US-3)
+- **FR-016**: System MUST perform a power analysis prior to modeling. If the available number of species is relatively small… (calculated to detect R²=0.3 with α=0.05 and β=0.2), the system MUST halt and report "Insufficient statistical power for reliable prediction" (See US-3)
 - **FR-017**: System MUST validate the predictive model against a phylogenetic null model. The system MUST generate a null distribution of R² values by shuffling species labels across the phylogenetic tree (sufficient iterations) and report if the observed R² exceeds the 95th percentile of this null distribution (See US-3)
 
 ### Key Entities *(include if feature involves data)*

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to predict plant defense allocation (chemical vs. physical) using tissue-specific transcriptomic responses to herbivory. The system downloads and preprocesses public RNA-seq data (FASTQ), performs differential expression analysis (DESeq2), constructs herbivore-response vectors, and trains regularized models (Elastic Net, Random Forest) to predict a derived Defense Allocation Index.
+This feature implements a computational pipeline to predict plant defense allocation (chemical vs. physical) using tissue-specific transcriptomic responses to herbivory. The system downloads and preprocesses public RNA-seq data (FASTQ), performs differential expression analysis (DESeq), constructs herbivore-response vectors, and trains regularized models (Elastic Net, Random Forest) to predict a derived Defense Allocation Index.
 
 **Current Status**: **Structural Prototype**. Due to the absence of verified plant herbivory RNA-seq datasets in the provided "Verified datasets" block, the current implementation uses **synthetic data** to validate the code structure, schema compliance, and statistical logic (LOSO, PGLS, Power Analysis). The scientific hypothesis *cannot* be validated until verified real data is provided.
 
@@ -121,7 +121,7 @@ No violations detected. The plan adheres to the constraint of CPU-only execution
 1.  **Differential Expression (FR-004)**: Run DESeq2 (FDR < 0.05, |log₂FC| > 1) for each species-tissue pair.
 2.  **Herbivore-Response Vector (FR-005)**:
     -   Select a subset of common DE genes (ranked by aggregate -log10(p-value)).
-    -   **Leakage Prevention**: Exclude genes directly involved in the synthesis of the measured defense traits (e.g., CYP79D16 for glucosinolates) from the predictor set.
+    -   **Leakage Prevention**: Exclude genes directly involved in the synthesis of the measured defense traits (e.g., CYPD16 for glucosinolates) from the predictor set.
 3.  **Pathway Aggregation (FR-012)**:
     -   Map DE genes to KEGG/GO pathways.
     -   **Robustness Check**: Filter pathways to those with ≥3 mapped genes in *all* target species.

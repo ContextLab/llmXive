@@ -1,0 +1,30 @@
+# This file is an alias for the ruff configuration defined in pyproject.toml.
+# We keep a dedicated .ruff.toml for clarity in some CI environments,
+# but the primary configuration lives in pyproject.toml.
+# This file intentionally mirrors the [tool.ruff] section of pyproject.toml
+# to ensure ruff picks it up if run without the --config flag in some setups.
+
+line-length = 88
+target-version = "py311"
+src = ["code/src", "code/tests", "code"]
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "C901",
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true

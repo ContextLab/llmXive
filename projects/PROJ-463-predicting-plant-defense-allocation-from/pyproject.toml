@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plant-defense-allocation"
+version = "0.1.0"
+description = "Predicting plant defense allocation from publicly available transcriptomic data"
+requires-python = ">=3.11"
+dependencies = [
+    "rpy2>=3.5.14",
+    "biopython>=1.84",
+    "scikit-learn>=1.5.2",
+    "ete3>=3.1.3",
+    "pydantic>=2.9.2",
+    "numpy>=1.26.4",
+    "pandas>=2.2.3",
+    "requests>=2.32.3",
+    "pytest>=8.3.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.9",
+    "black>=24.8.0",
+    "pytest>=8.3.3",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["code/src", "code/tests", "code"]
+extend-exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (black handles this)
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # assert allowed in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

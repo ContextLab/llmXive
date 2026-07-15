@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plant-defense-allocation"
+version = "0.1.0"
+description = "Predicting plant defense allocation from transcriptomic data"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24.0,<2.0.0",
+    "pandas>=2.0.0,<3.0.0",
+    "scipy>=1.10.0,<2.0.0",
+    "scikit-learn>=1.2.0,<2.0.0",
+    "matplotlib>=3.7.0,<4.0.0",
+    "seaborn>=0.12.0,<1.0.0",
+    "biopython>=1.81,<2.0.0",
+    "ete3>=3.1.0,<4.0.0",
+    "rpy2>=3.5.0,<4.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "requests>=2.31.0,<3.0.0",
+    "tqdm>=4.65.0,<5.0.0",
+    "pytest>=7.3.0,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=src --cov-report=term-missing"
