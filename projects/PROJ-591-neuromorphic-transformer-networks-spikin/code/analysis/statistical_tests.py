@@ -1,270 +1,276 @@
+"""
+Statistical analysis module for comparing baseline and spiking transformer models.
+
+Implements paired t-tests, multiple comparison corrections (Bonferroni, Holm-Bonferroni),
+and report generation for the Neuromorphic Transformer project.
+"""
+
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
 from scipy import stats
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional
+from utils.logging_config import setup_logging
 
-def load_metrics_data(baseline_path: str, spiking_path: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+# Initialize logger
+logger = setup_logging("analysis.statistical_tests")
+
+
+def load_metrics_data(
+    baseline_path: str,
+    spiking_path: str
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Load baseline and spiking metrics from CSV files.
-    
+
     Args:
         baseline_path: Path to baseline_metrics.csv
         spiking_path: Path to spiking_metrics.csv
-        
+
     Returns:
         Tuple of (baseline_df, spiking_df)
-        
+
     Raises:
-        FileNotFoundError: If required CSV files do not exist
-        ValueError: If required columns are missing
+        FileNotFoundError: If the specified files do not exist.
+        ValueError: If required columns are missing.
     """
     if not os.path.exists(baseline_path):
         raise FileNotFoundError(f"Baseline metrics file not found: {baseline_path}")
     if not os.path.exists(spiking_path):
         raise FileNotFoundError(f"Spiking metrics file not found: {spiking_path}")
-        
+
     baseline_df = pd.read_csv(baseline_path)
     spiking_df = pd.read_csv(spiking_path)
-    
-    required_cols = ['seed', 'epoch', 'perplexity', 'energy_per_token_kWh']
+
+    required_cols = ["seed", "perplexity", "energy_per_token_kWh"]
     for col in required_cols:
         if col not in baseline_df.columns:
             raise ValueError(f"Missing column '{col}' in baseline metrics")
         if col not in spiking_df.columns:
             raise ValueError(f"Missing column '{col}' in spiking metrics")
-            
+
+    logger.info(f"Loaded {len(baseline_df)} baseline records and {len(spiking_df)} spiking records")
     return baseline_df, spiking_df
 
-def prepare_paired_data(baseline_df: pd.DataFrame, spiking_df: pd.DataFrame) -> pd.DataFrame:
+
+def prepare_paired_data(
+    baseline_df: pd.DataFrame,
+    spiking_df: pd.DataFrame
+) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
     """
-    Prepare paired data for statistical testing by matching on seed and epoch.
-    
+    Prepare paired data arrays for t-tests by matching on 'seed'.
+
     Args:
-        baseline_df: Baseline metrics DataFrame
-        spiking_df: Spiking metrics DataFrame
-        
+        baseline_df: Baseline metrics dataframe.
+        spiking_df: Spiking metrics dataframe.
+
     Returns:
-        DataFrame with paired rows (baseline and spiking metrics side-by-side)
+        Dictionary mapping metric name to (baseline_values, spiking_values) tuple.
     """
-    # Merge on seed and epoch to create paired data
-    paired_df = pd.merge(
-        baseline_df[['seed', 'epoch', 'perplexity', 'energy_per_token_kWh']],
-        spiking_df[['seed', 'epoch', 'perplexity', 'energy_per_token_kWh']],
-        on=['seed', 'epoch'],
-        suffixes=('_baseline', '_spiking')
+    # Merge on seed to ensure pairing
+    merged = pd.merge(
+        baseline_df[["seed", "perplexity", "energy_per_token_kWh"]],
+        spiking_df[["seed", "perplexity", "energy_per_token_kWh"]],
+        on="seed",
+        suffixes=("_baseline", "_spiking")
     )
-    return paired_df
 
-def run_paired_ttest(paired_df: pd.DataFrame, metric: str) -> Dict[str, Any]:
-    """
-    Perform paired t-test on a specific metric.
-    
-    Args:
-        paired_df: DataFrame with paired baseline and spiking metrics
-        metric: Name of the metric column (e.g., 'perplexity', 'energy_per_token_kWh')
-        
-    Returns:
-        Dictionary with t-statistic, p-value, and confidence interval
-    """
-    baseline_vals = paired_df[f'{metric}_baseline'].values
-    spiking_vals = paired_df[f'{metric}_spiking'].values
-    
-    # Remove any NaN values
-    mask = ~(np.isnan(baseline_vals) | np.isnan(spiking_vals))
-    baseline_clean = baseline_vals[mask]
-    spiking_clean = spiking_vals[mask]
-    
-    if len(baseline_clean) < 2:
-        return {
-            't_statistic': None,
-            'p_value': None,
-            'mean_diff': None,
-            'confidence_interval': None,
-            'n_samples': len(baseline_clean)
-        }
-        
-    t_stat, p_val = stats.ttest_rel(baseline_clean, spiking_clean)
-    mean_diff = np.mean(baseline_clean - spiking_clean)
-    
-    # 95% confidence interval for the mean difference
-    se = np.std(baseline_clean - spiking_clean, ddof=1) / np.sqrt(len(baseline_clean))
-    ci_low = mean_diff - 1.96 * se
-    ci_high = mean_diff + 1.96 * se
-    
-    return {
-        't_statistic': float(t_stat),
-        'p_value': float(p_val),
-        'mean_diff': float(mean_diff),
-        'confidence_interval': [float(ci_low), float(ci_high)],
-        'n_samples': int(len(baseline_clean))
+    if len(merged) == 0:
+        raise ValueError("No matching seeds found between baseline and spiking datasets.")
+
+    logger.info(f"Prepared {len(merged)} paired records for statistical testing")
+
+    paired_data = {
+        "perplexity": (
+            merged["perplexity_baseline"].values,
+            merged["perplexity_spiking"].values
+        ),
+        "energy_per_token_kWh": (
+            merged["energy_per_token_kWh_baseline"].values,
+            merged["energy_per_token_kWh_spiking"].values
+        )
     }
+    return paired_data
 
-def apply_bonferroni_correction(p_values: List[float]) -> List[float]:
+
+def run_paired_ttest(
+    baseline_values: np.ndarray,
+    spiking_values: np.ndarray,
+    alternative: str = "two-sided"
+) -> Dict[str, float]:
+    """
+    Run a paired t-test on two arrays.
+
+    Args:
+        baseline_values: Array of baseline metric values.
+        spiking_values: Array of spiking metric values.
+        alternative: Type of alternative hypothesis ('two-sided', 'less', 'greater').
+
+    Returns:
+        Dictionary with 'statistic' and 'pvalue'.
+    """
+    if len(baseline_values) != len(spiking_values):
+        raise ValueError("Input arrays must have the same length for paired t-test")
+
+    if len(baseline_values) < 2:
+        raise ValueError("Paired t-test requires at least 2 samples")
+
+    statistic, pvalue = stats.ttest_rel(baseline_values, spiking_values, alternative=alternative)
+    return {"statistic": float(statistic), "pvalue": float(pvalue)}
+
+
+def apply_bonferroni_correction(
+    pvalues: List[float],
+    num_tests: int = None
+) -> List[float]:
     """
     Apply Bonferroni correction for multiple hypothesis testing.
-    
+
     Args:
-        p_values: List of raw p-values from hypothesis tests
-        
+        pvalues: List of raw p-values.
+        num_tests: Number of tests performed. Defaults to len(pvalues).
+
     Returns:
-        List of corrected p-values
+        List of corrected p-values.
     """
-    n_tests = len(p_values)
-    if n_tests == 0:
+    if num_tests is None:
+        num_tests = len(pvalues)
+
+    if num_tests == 0:
         return []
-        
-    corrected = [min(p * n_tests, 1.0) for p in p_values]
+
+    corrected = [min(p * num_tests, 1.0) for p in pvalues]
     return corrected
 
-def apply_holm_bonferroni_correction(p_values: List[float]) -> List[float]:
+
+def apply_holm_bonferroni_correction(
+    pvalues: List[float]
+) -> List[float]:
     """
-    Apply Holm-Bonferroni correction (step-down method) for multiple hypothesis testing.
-    
-    This is more powerful than Bonferroni while still controlling family-wise error rate.
-    
+    Apply Holm-Bonferroni correction (step-down method).
+
     Args:
-        p_values: List of raw p-values from hypothesis tests
-        
+        pvalues: List of raw p-values.
+
     Returns:
-        List of corrected p-values
+        List of corrected p-values.
     """
-    n_tests = len(p_values)
-    if n_tests == 0:
+    n = len(pvalues)
+    if n == 0:
         return []
-        
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p = [p_values[i] for i in sorted_indices]
-    
-    corrected_sorted = []
-    for i, p in enumerate(sorted_p):
-        # Holm-Bonferroni: p * (n - i)
-        corrected_p = min(p * (n_tests - i), 1.0)
-        corrected_sorted.append(corrected_p)
-        
-    # Reorder to original sequence
-    corrected = [0.0] * n_tests
-    for i, orig_idx in enumerate(sorted_indices):
-        corrected[orig_idx] = corrected_sorted[i]
-        
+
+    # Sort p-values with original indices
+    sorted_indices = np.argsort(pvalues)
+    sorted_pvalues = [pvalues[i] for i in sorted_indices]
+
+    corrected = [0.0] * n
+    alpha = 0.05
+
+    for i, p in enumerate(sorted_pvalues):
+        adjusted_p = min(p * (n - i), 1.0)
+        # Holm's method: ensure monotonicity
+        if i > 0:
+            adjusted_p = max(adjusted_p, corrected[sorted_indices[i-1]])
+        corrected[sorted_indices[i]] = adjusted_p
+
     return corrected
+
 
 def generate_statistical_report(
-    baseline_path: str,
-    spiking_path: str,
-    output_path: str,
-    correction_method: str = 'holm_bonferroni'
+    paired_data: Dict[str, Tuple[np.ndarray, np.ndarray]],
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Generate a comprehensive statistical analysis report.
-    
+    Generate a comprehensive statistical report comparing baseline and spiking models.
+
     Args:
-        baseline_path: Path to baseline_metrics.csv
-        spiking_path: Path to spiking_metrics.csv
-        output_path: Path to save the report JSON
-        correction_method: 'bonferroni' or 'holm_bonferroni'
-        
+        paired_data: Dictionary of paired metrics.
+        output_path: Path to save the JSON report.
+
     Returns:
-        Dictionary containing the full statistical analysis results
+        The report dictionary.
     """
-    # Load and prepare data
-    baseline_df, spiking_df = load_metrics_data(baseline_path, spiking_path)
-    paired_df = prepare_paired_data(baseline_df, spiking_df)
-    
-    # Run paired t-tests
-    perplexity_result = run_paired_ttest(paired_df, 'perplexity')
-    energy_result = run_paired_ttest(paired_df, 'energy_per_token_kWh')
-    
-    # Collect raw p-values
-    raw_p_values = []
-    test_names = []
-    
-    if perplexity_result['p_value'] is not None:
-        raw_p_values.append(perplexity_result['p_value'])
-        test_names.append('perplexity')
-    if energy_result['p_value'] is not None:
-        raw_p_values.append(energy_result['p_value'])
-        test_names.append('energy_per_token_kWh')
-        
-    # Apply correction
-    if correction_method == 'bonferroni':
-        corrected_p_values = apply_bonferroni_correction(raw_p_values)
-    elif correction_method == 'holm_bonferroni':
-        corrected_p_values = apply_holm_bonferroni_correction(raw_p_values)
-    else:
-        raise ValueError(f"Unknown correction method: {correction_method}")
-        
-    # Build report
     report = {
-        'correction_method': correction_method,
-        'n_tests': len(raw_p_values),
-        'n_samples': perplexity_result['n_samples'],
-        'tests': {}
+        "test_type": "Paired T-Test",
+        "corrections": ["Bonferroni", "Holm-Bonferroni"],
+        "results": {}
     }
-    
-    for i, (name, raw_p, corrected_p) in enumerate(zip(test_names, raw_p_values, corrected_p_values)):
-        result = perplexity_result if name == 'perplexity' else energy_result
-        report['tests'][name] = {
-            'raw_p_value': raw_p,
-            'corrected_p_value': corrected_p,
-            't_statistic': result['t_statistic'],
-            'mean_diff': result['mean_diff'],
-            'confidence_interval': result['confidence_interval'],
-            'significant_at_0.05': corrected_p < 0.05,
-            'significant_at_0.01': corrected_p < 0.01
+
+    raw_pvalues = []
+
+    for metric_name, (baseline_vals, spiking_vals) in paired_data.items():
+        logger.info(f"Running paired t-test for {metric_name}")
+        t_result = run_paired_ttest(baseline_vals, spiking_vals)
+        raw_pvalues.append(t_result["pvalue"])
+
+        # Calculate mean difference
+        mean_diff = np.mean(baseline_vals - spiking_vals)
+        mean_baseline = np.mean(baseline_vals)
+        mean_spiking = np.mean(spiking_vals)
+
+        report["results"][metric_name] = {
+            "t_statistic": t_result["statistic"],
+            "p_value_raw": t_result["pvalue"],
+            "mean_baseline": float(mean_baseline),
+            "mean_spiking": float(mean_spiking),
+            "mean_difference": float(mean_diff),
+            "interpretation": "Significant" if t_result["pvalue"] < 0.05 else "Not Significant"
         }
-        
+
+    # Apply corrections
+    bonferroni_corrected = apply_bonferroni_correction(raw_pvalues)
+    holm_corrected = apply_holm_bonferroni_correction(raw_pvalues)
+
+    report["correction_results"] = {
+        "bonferroni": {
+            "corrected_pvalues": bonferroni_corrected,
+            "significant_count": sum(1 for p in bonferroni_corrected if p < 0.05)
+        },
+        "holm_bonferroni": {
+            "corrected_pvalues": holm_corrected,
+            "significant_count": sum(1 for p in holm_corrected if p < 0.05)
+        }
+    }
+
     # Save report
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
-        
+
+    logger.info(f"Statistical report saved to {output_path}")
     return report
 
+
 def main():
-    """Main entry point for statistical analysis with multiple testing correction."""
+    """
+    Main entry point for running statistical analysis from command line.
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description='Statistical analysis with multiple testing correction')
-    parser.add_argument('--baseline', type=str, default='data/processed/baseline_metrics.csv',
-                      help='Path to baseline metrics CSV')
-    parser.add_argument('--spiking', type=str, default='data/processed/spiking_metrics.csv',
-                      help='Path to spiking metrics CSV')
-    parser.add_argument('--output', type=str, default='data/results/statistical_correction_report.json',
-                      help='Path to save correction report')
-    parser.add_argument('--method', type=str, choices=['bonferroni', 'holm_bonferroni'],
-                      default='holm_bonferroni', help='Correction method to use')
-                      
+
+    parser = argparse.ArgumentParser(description="Run statistical analysis on model metrics")
+    parser.add_argument("--baseline", type=str, default="data/processed/baseline_metrics.csv",
+                        help="Path to baseline metrics CSV")
+    parser.add_argument("--spiking", type=str, default="data/processed/spiking_metrics.csv",
+                        help="Path to spiking metrics CSV")
+    parser.add_argument("--output", type=str, default="data/results/statistical_report.json",
+                        help="Output path for JSON report")
+
     args = parser.parse_args()
-    
-    print(f"Loading data from {args.baseline} and {args.spiking}")
+
     try:
-        report = generate_statistical_report(
-            args.baseline,
-            args.spiking,
-            args.output,
-            args.method
-        )
-        print(f"Statistical correction report saved to {args.output}")
-        print(f"Correction method: {args.method}")
-        print(f"Number of tests: {report['n_tests']}")
-        print(f"Number of samples: {report['n_samples']}")
-        
-        for test_name, test_result in report['tests'].items():
-            print(f"\n{test_name}:")
-            print(f"  Raw p-value: {test_result['raw_p_value']:.6f}")
-            print(f"  Corrected p-value: {test_result['corrected_p_value']:.6f}")
-            print(f"  Significant (α=0.05): {test_result['significant_at_0.05']}")
-            
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+        baseline_df, spiking_df = load_metrics_data(args.baseline, args.spiking)
+        paired_data = prepare_paired_data(baseline_df, spiking_df)
+        report = generate_statistical_report(paired_data, args.output)
+
+        print(f"Analysis complete. Report saved to: {args.output}")
+        print(f"Significant results (Bonferroni): {report['correction_results']['bonferroni']['significant_count']}")
+
     except Exception as e:
-        print(f"Error during analysis: {e}")
+        logger.error(f"Analysis failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

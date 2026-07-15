@@ -123,13 +123,16 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T027 [P] Documentation updates in `docs/` including the "CPU Proxy" caveat for energy metrics
-- [ ] T028 Code cleanup and refactoring <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T029 [P] Performance optimization across all stories (ensure <6h total runtime) <!-- ATOMIZE: requested -->
-- [ ] T030 [P] Additional unit tests in `code/tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T028 Code cleanup and refactoring <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T029 [P] Performance optimization across all stories (ensure <6h total runtime) <!-- ATOMIZE: requested -->
+- [X] T030 [P] Additional unit tests in `code/tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [ ] T031 Run `quickstart.md` validation
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [X] T031 Run `quickstart.md` validation
 
 ---
 

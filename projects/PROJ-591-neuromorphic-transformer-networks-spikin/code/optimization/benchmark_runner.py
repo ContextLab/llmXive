@@ -1,7 +1,6 @@
 """
-Benchmark runner for performance optimization validation (Task T029).
-Measures total runtime for baseline and spiking training across seeds
-to ensure the project completes within the 6-hour wall-clock budget.
+Benchmark runner for performance optimization validation.
+Measures total runtime across baseline and spiking training runs to ensure <6h total.
 """
 import os
 import sys
@@ -9,162 +8,236 @@ import time
 import json
 import argparse
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Dict, List, Any, Optional
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Import training runners
+from run_baseline_seeds import run_all_seeds as run_baseline_seeds_main
+from run_spiking_seeds import run_all_seeds as run_spiking_seeds_main
+from utils.logging_config import setup_logging, get_logger
 
-from main import run_baseline_training, run_spiking_training, TrainingConfig
-from metrics.perplexity import log_perplexity_to_csv
-from metrics.energy_logger import EnergyLogger
-from data.dataset_loader import get_wikitext_dataloader
+# Setup logging
+logger = get_logger("benchmark_runner")
 
-# Configuration for optimization validation
-# Reduced epochs for benchmarking to ensure < 6h total runtime while still
-# validating the pipeline works end-to-end
-BENCHMARK_CONFIG = {
-    "num_seeds": 3,  # Reduced from 5 for benchmarking
-    "epochs_baseline": 3,
-    "epochs_spiking": 3,
-    "batch_size": 32,
-    "lr": 1e-3,
-    "max_runtime_hours": 6.0,
-    "output_path": "data/results/benchmark_report.json"
-}
+def run_single_benchmark(
+    name: str,
+    runner_func: callable,
+    config: Dict[str, Any],
+    output_path: str
+) -> Dict[str, Any]:
+    """
+    Run a single benchmark (baseline or spiking) and record timing.
 
-def run_single_benchmark(seed: int, config: TrainingConfig, model_type: str) -> Dict[str, Any]:
-    """Run a single training benchmark and return timing metrics."""
+    Args:
+        name: Name of the benchmark (e.g., "baseline", "spiking")
+        runner_func: Function to run the benchmark
+        config: Configuration dictionary for the run
+        output_path: Path to save results
+
+    Returns:
+        Dictionary with timing results
+    """
+    logger.info(f"Starting benchmark: {name}")
     start_time = time.time()
-    
+
     try:
-        if model_type == "baseline":
-            results = run_baseline_training(seed, config)
-        else:
-            results = run_spiking_training(seed, config)
-        
+        # Run the benchmark
+        runner_func(config)
         end_time = time.time()
         duration = end_time - start_time
-        
-        return {
-            "seed": seed,
-            "model_type": model_type,
+
+        result = {
+            "name": name,
             "status": "success",
             "duration_seconds": duration,
-            "final_perplexity": results.get("final_perplexity", None),
-            "epochs_completed": results.get("epochs_completed", 0)
+            "duration_hours": duration / 3600,
+            "timestamp": datetime.now().isoformat(),
+            "config": config
         }
+
+        logger.info(f"Benchmark {name} completed in {duration:.2f} seconds ({duration/3600:.2f} hours)")
+
     except Exception as e:
         end_time = time.time()
         duration = end_time - start_time
-        return {
-            "seed": seed,
-            "model_type": model_type,
+
+        result = {
+            "name": name,
             "status": "failed",
+            "duration_seconds": duration,
+            "duration_hours": duration / 3600,
+            "timestamp": datetime.now().isoformat(),
             "error": str(e),
-            "duration_seconds": duration
+            "config": config
         }
 
-def run_full_benchmark():
-    """Run the full benchmark suite across seeds and model types."""
-    print("=" * 60)
-    print("PERFORMANCE OPTIMIZATION BENCHMARK (Task T029)")
-    print("=" * 60)
-    
-    config = TrainingConfig(
-        batch_size=BENCHMARK_CONFIG["batch_size"],
-        learning_rate=BENCHMARK_CONFIG["lr"],
-        max_epochs=BENCHMARK_CONFIG["epochs_baseline"],  # Will be overridden per model
-        early_stopping_patience=2
-    )
-    
-    results = []
-    total_start = time.time()
-    
-    # Run baseline benchmarks
-    print("\n[1/2] Running Baseline Transformer Benchmarks...")
-    for seed in range(1, BENCHMARK_CONFIG["num_seeds"] + 1):
-        print(f"  Seed {seed}...")
-        config.max_epochs = BENCHMARK_CONFIG["epochs_baseline"]
-        result = run_single_benchmark(seed, config, "baseline")
-        results.append(result)
-        print(f"    -> {result['duration_seconds']:.2f}s ({result['status']})")
-    
-    # Run spiking benchmarks
-    print("\n[2/2] Running Spiking Transformer Benchmarks...")
-    for seed in range(1, BENCHMARK_CONFIG["num_seeds"] + 1):
-        print(f"  Seed {seed}...")
-        config.max_epochs = BENCHMARK_CONFIG["epochs_spiking"]
-        result = run_single_benchmark(seed, config, "spiking")
-        results.append(result)
-        print(f"    -> {result['duration_seconds']:.2f}s ({result['status']})")
-    
-    total_end = time.time()
-    total_duration = total_end - total_start
-    
-    # Calculate statistics
-    baseline_durations = [r["duration_seconds"] for r in results if r["model_type"] == "baseline" and r["status"] == "success"]
-    spiking_durations = [r["duration_seconds"] for r in results if r["model_type"] == "spiking" and r["status"] == "success"]
-    
-    baseline_avg = sum(baseline_durations) / len(baseline_durations) if baseline_durations else 0
-    spiking_avg = sum(spiking_durations) / len(spiking_durations) if spiking_durations else 0
-    
-    estimated_total_hours = (baseline_avg * BENCHMARK_CONFIG["epochs_baseline"] + 
-                             spiking_avg * BENCHMARK_CONFIG["epochs_spiking"]) * BENCHMARK_CONFIG["num_seeds"] / 3600.0
-    
-    # Generate report
-    report = {
-        "timestamp": datetime.now().isoformat(),
-        "config": BENCHMARK_CONFIG,
-        "individual_results": results,
-        "statistics": {
-            "total_runtime_seconds": total_duration,
-            "baseline_avg_duration_seconds": baseline_avg,
-            "spiking_avg_duration_seconds": spiking_avg,
-            "estimated_full_run_hours": estimated_total_hours,
-            "max_allowed_hours": BENCHMARK_CONFIG["max_runtime_hours"],
-            "within_budget": estimated_total_hours <= BENCHMARK_CONFIG["max_runtime_hours"]
-        },
-        "optimization_notes": [
-            "Reduced epoch count for benchmarking (3 epochs vs full training)",
-            "Reduced seed count for benchmarking (3 seeds vs 5 seeds)",
-            "Early stopping enabled to prevent unnecessary epochs",
-            "CPU-only execution enforced (no GPU overhead)",
-            "Batch size optimized for memory constraints"
-        ]
-    }
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(BENCHMARK_CONFIG["output_path"])
+        logger.error(f"Benchmark {name} failed after {duration:.2f} seconds: {e}")
+
+    # Save results
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    return result
+
+def run_full_benchmark(
+    baseline_config: Optional[Dict[str, Any]] = None,
+    spiking_config: Optional[Dict[str, Any]] = None,
+    output_dir: str = "data/results"
+) -> Dict[str, Any]:
+    """
+    Run full benchmark suite (baseline + spiking) and aggregate results.
+
+    Args:
+        baseline_config: Configuration for baseline training
+        spiking_config: Configuration for spiking training
+        output_dir: Directory to save results
+
+    Returns:
+        Aggregated results dictionary
+    """
+    if baseline_config is None:
+        baseline_config = {
+            "num_seeds": 3,
+            "epochs": 3,
+            "batch_size": 32,
+            "lr": 1e-3,
+            "early_stopping_patience": 2
+        }
+
+    if spiking_config is None:
+        spiking_config = {
+            "num_seeds": 3,
+            "epochs": 3,
+            "batch_size": 32,
+            "lr": 1e-3,
+            "time_steps": 5,
+            "beta": 0.9,
+            "early_stopping_patience": 2
+        }
+
     os.makedirs(output_dir, exist_ok=True)
-    
-    # Save report
-    with open(BENCHMARK_CONFIG["output_path"], "w") as f:
-        json.dump(report, f, indent=2)
-    
-    print("\n" + "=" * 60)
-    print("BENCHMARK RESULTS")
-    print("=" * 60)
-    print(f"Total Benchmark Runtime: {total_duration:.2f}s ({total_duration/60:.2f}m)")
-    print(f"Estimated Full Run Time: {estimated_total_hours:.2f} hours")
-    print(f"Budget Limit: {BENCHMARK_CONFIG['max_runtime_hours']} hours")
-    print(f"Status: {'PASS' if report['statistics']['within_budget'] else 'FAIL'}")
-    print(f"Report saved to: {BENCHMARK_CONFIG['output_path']}")
-    print("=" * 60)
-    
-    return report
+
+    # Run baseline benchmark
+    baseline_output = os.path.join(output_dir, "baseline_benchmark.json")
+    baseline_result = run_single_benchmark(
+        "baseline",
+        run_baseline_seeds_main,
+        baseline_config,
+        baseline_output
+    )
+
+    # Run spiking benchmark
+    spiking_output = os.path.join(output_dir, "spiking_benchmark.json")
+    spiking_result = run_single_benchmark(
+        "spiking",
+        run_spiking_seeds_main,
+        spiking_config,
+        spiking_output
+    )
+
+    # Aggregate results
+    total_duration = baseline_result["duration_seconds"] + spiking_result["duration_seconds"]
+    total_hours = total_duration / 3600
+
+    aggregated = {
+        "baseline": baseline_result,
+        "spiking": spiking_result,
+        "total_duration_seconds": total_duration,
+        "total_duration_hours": total_hours,
+        "meets_6h_requirement": total_hours < 6.0,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    # Save aggregated results
+    aggregated_output = os.path.join(output_dir, "benchmark_summary.json")
+    with open(aggregated_output, 'w') as f:
+        json.dump(aggregated, f, indent=2)
+
+    logger.info(f"Full benchmark completed. Total time: {total_hours:.2f} hours")
+    logger.info(f"Meets 6h requirement: {aggregated['meets_6h_requirement']}")
+
+    return aggregated
 
 def main():
-    parser = argparse.ArgumentParser(description="Run performance optimization benchmarks")
-    parser.add_argument("--seeds", type=int, default=3, help="Number of seeds to test")
-    parser.add_argument("--epochs", type=int, default=3, help="Number of epochs per run")
+    """Main entry point for benchmark runner."""
+    parser = argparse.ArgumentParser(description="Run performance benchmarks")
+    parser.add_argument(
+        "--num-seeds",
+        type=int,
+        default=3,
+        help="Number of random seeds to use (default: 3)"
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=3,
+        help="Number of epochs per run (default: 3)"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/results",
+        help="Output directory for results (default: data/results)"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help="Batch size (default: 32)"
+    )
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=1e-3,
+        help="Learning rate (default: 1e-3)"
+    )
+
     args = parser.parse_args()
-    
-    # Update config with command line args
-    BENCHMARK_CONFIG["num_seeds"] = args.seeds
-    BENCHMARK_CONFIG["epochs_baseline"] = args.epochs
-    BENCHMARK_CONFIG["epochs_spiking"] = args.epochs
-    
-    run_full_benchmark()
+
+    # Setup configurations
+    baseline_config = {
+        "num_seeds": args.num_seeds,
+        "epochs": args.epochs,
+        "batch_size": args.batch_size,
+        "lr": args.lr,
+        "early_stopping_patience": 2
+    }
+
+    spiking_config = {
+        "num_seeds": args.num_seeds,
+        "epochs": args.epochs,
+        "batch_size": args.batch_size,
+        "lr": args.lr,
+        "time_steps": 5,
+        "beta": 0.9,
+        "early_stopping_patience": 2
+    }
+
+    # Run benchmark
+    results = run_full_benchmark(
+        baseline_config=baseline_config,
+        spiking_config=spiking_config,
+        output_dir=args.output_dir
+    )
+
+    # Print summary
+    print("\n" + "="*60)
+    print("BENCHMARK SUMMARY")
+    print("="*60)
+    print(f"Baseline duration: {results['baseline']['duration_hours']:.2f} hours")
+    print(f"Spiking duration:  {results['spiking']['duration_hours']:.2f} hours")
+    print(f"Total duration:    {results['total_duration_hours']:.2f} hours")
+    print(f"Meets 6h target:   {results['meets_6h_requirement']}")
+    print("="*60)
+
+    if not results['meets_6h_requirement']:
+        print("\nWARNING: Total runtime exceeds 6 hours!")
+        print("Consider reducing num_seeds or epochs for faster execution.")
+        sys.exit(1)
+    else:
+        print("\nSUCCESS: Total runtime is within 6-hour budget.")
+        sys.exit(0)
 
 if __name__ == "__main__":
+    setup_logging()
     main()
