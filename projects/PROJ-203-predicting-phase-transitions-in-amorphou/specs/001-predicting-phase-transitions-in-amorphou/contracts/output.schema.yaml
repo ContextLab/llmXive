@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the model evaluation and interpretation results."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      model_type:
+        type: string
+        description: "e.g., RandomForestRegressor"
+      training_date:
+        type: string
+        format: date-time
+      dataset_size:
+        type: integer
+        description: "Number of samples used for training"
+  metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+        description: "Root Mean Square Error for Tg prediction"
+      null_model_rmse:
+        type: number
+        description: "RMSE of the null model (mean predictor) for significance comparison"
+      roc_auc:
+        type: number
+        description: "Area Under ROC Curve for crystallization classification"
+      cv_scores:
+        type: array
+        items:
+          type: number
+        description: "Cross-validation fold scores"
+      threshold_sensitivity:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+              description: "Threshold value in K"
+            accuracy:
+              type: number
+            fpr:
+              type: number
+            class_balance:
+              type: number
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+        family_specific:
+          type: boolean
+          description: "True if this feature is specific to a family"
+        corrected_p_value:
+          type: number
+          description: "Bonferroni/FDR corrected p-value from permutation tests"
+  collinearity_diagnostic:
+    type: object
+    properties:
+      vif_values:
+        type: object
+        additionalProperties:
+          type: number
+        description: "Variance Inflation Factor for each predictor"
+      report_path:
+        type: string
+        description: "Path to detailed collinearity report"
+      collinearity_status:
+        type: string
+        description: "Status of collinearity (e.g., 'No high VIF', 'High VIF detected')"
+  significance_tests:
+    type: object
+    properties:
+      permutation_p_value:
+        type: number
+        description: "P-value from permutation test"
+      is_significant:
+        type: boolean
+        description: "True if p < 0.05"
+  multiple_comparison:
+    type: array
+    items:
+      type: object
+      properties:
+        comparison_pair:
+          type: string
+          description: "e.g., 'Oxide vs Sulfide'"
+        p_value:
+          type: number
+        corrected_p_value:
+          type: number
+required:
+  - metadata
+  - metrics
+  - feature_importance
+  - collinearity_diagnostic
+  - significance_tests
+  - multiple_comparison
+additionalProperties: false

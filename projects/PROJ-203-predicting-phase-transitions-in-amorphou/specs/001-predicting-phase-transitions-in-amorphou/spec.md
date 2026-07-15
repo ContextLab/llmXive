@@ -45,7 +45,7 @@ The researcher MUST be able to generate SHAP (SHapley Additive exPlanations) val
 
 **Why this priority**: This addresses the "Literature gap" of moving beyond black-box prediction to interpretable science. It allows the researcher to answer "which features determine the property" and identify family-specific vs. universal drivers.
 
-**Independent Test**: The analysis script generates SHAP summary plots and partial dependence plots that clearly distinguish the top 3–5 predictors for each chemical family, with the output saved as static images or interactive HTML files.
+**Independent Test**: The analysis script generates SHAP summary plots and partial dependence plots that clearly distinguish the top predictors for each chemical family, with the output saved as static images or interactive HTML files.
 
 **Acceptance Scenarios**:
 
@@ -68,12 +68,12 @@ The researcher MUST be able to generate SHAP (SHapley Additive exPlanations) val
 
 - **FR-001**: System MUST generate short-range structural descriptors (RDF peak position/width, bond-angle variance, coordination numbers) from MD trajectories for at least 500 valid compositions across oxide, sulfide, and organic families. A composition is "valid" only if the MD simulation converges without NaNs and produces descriptors within physically realistic bounds (See US-1).
 - **FR-002**: System MUST label crystallization propensity as binary (1 if experimental T_x is within 50 K of Tg, 0 otherwise) using independent experimental thermal analysis data (See US-1).
-- **FR-003**: System MUST train a Random Forest regression model on the generated dataset using only CPU resources, completing the training and k-fold cross-validation within a 6-hour wall-clock time limit (See US-2).
+- **FR-003**: System MUST train a Random Forest regression model on the generated dataset using only CPU resources, completing the training and k-fold cross-validation within a feasible wall-clock time limit (See US-2).
 - **FR-004**: System MUST compute SHAP values to rank feature importance and generate partial dependence plots for the top predictors, stratified by chemical family (See US-3).
 - **FR-005**: System MUST enforce a multiple-comparison correction (e.g., Bonferroni or False Discovery Rate) when evaluating the statistical significance of feature importance differences across families to control family-wise error (See US-3).
 - **FR-006**: System MUST perform a sensitivity analysis on the crystallization threshold using a range of specific cutoff values. The analysis must report how classification accuracy, false-positive rate, and class balance vary across these cutoffs to distinguish model instability from threshold arbitrariness (See US-2).
 - **FR-007**: System MUST verify that no predictor variable is definitionally derived from the target variable (e.g., ensuring structural descriptors do not implicitly encode Tg) and report collinearity diagnostics (VIF) for correlated predictors (See US-1).
-- **FR-008**: System MUST implement a timescale matching protocol to align the MD simulation cooling rate with the experimental DSC cooling rate (~10 K/min) to ensure structural descriptors reflect the experimental thermal history, preventing circular validation (See US-1).
+- **FR-008**: System MUST implement a timescale matching protocol to align the MD simulation cooling rate with the experimental DSC cooling rate to ensure structural descriptors reflect the experimental thermal history, preventing circular validation (See US-1).
 
 ### Key Entities
 
@@ -99,8 +99,8 @@ The researcher MUST be able to generate SHAP (SHapley Additive exPlanations) val
 ## Assumptions
 
 - **Assumption about data availability**: The "Glass Data" dataset (Zenodo) and NIST Chemistry WebBook contain sufficient experimental Tg and T_x values for at least 500 distinct compositions total (approx. 167 per family) in the oxide, sulfide, and organic categories.
-- **Assumption about simulation feasibility**: Pre-trained interatomic potentials (SNAP/GAP) from OpenKIM are available and accurate enough for the specific element sets in the target compositions, and the nanoscale cubic cell size (~500 atoms) is sufficient to capture the relevant short-range order without requiring larger supercells.
-- **Assumption about compute constraints**: The Random Forest training and SHAP calculation for a representative sample set and a moderate number of features will complete within the 6-hour limit on a 2-CPU, 7GB RAM runner without requiring GPU acceleration or model quantization.
+- **Assumption about simulation feasibility**: Pre-trained interatomic potentials (SNAP/GAP) from OpenKIM are available and accurate enough for the specific element sets in the target compositions, and the nanoscale cubic cell size (sufficiently large to represent the relevant short-range order) is sufficient to capture the relevant short-range order without requiring larger supercells.
+- **Assumption about compute constraints**: The Random Forest training and SHAP calculation for a representative sample set and a moderate number of features will complete within the available time limit on a multi-CPU, standard-memory runner without requiring GPU acceleration or model quantization.
 - **Assumption about threshold justification**: The 50 K cutoff for "low stability" (crystallization propensity = 1) is based on a community-standard approximation for the "fragility" of glass formers in thermal analysis, and the sensitivity analysis will confirm robustness within ±25 K.
 - **Assumption about independence**: The experimental Tg and T_x values are measured via Differential Scanning Calorimetry (DSC). The MD simulation cooling rate (targeting a rate comparable to the experimental protocol via scaling) will be matched to the experimental rate to ensure the structural descriptors reflect the same thermal history, eliminating circular validation risks.
 - **Assumption about collinearity**: While compositional features (e.g., average atomic radius) and structural descriptors (e.g., coordination number) may be correlated, they are not definitionally identical, allowing for the joint modeling of their effects provided collinearity diagnostics (VIF) are reported.

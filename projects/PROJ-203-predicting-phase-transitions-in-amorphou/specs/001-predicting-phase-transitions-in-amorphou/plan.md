@@ -4,44 +4,35 @@
 **Input**: Feature specification from `/specs/001-predicting-phase-transitions/spec.md`
 
 ## Summary
+This project implements a CPU-first machine learning pipeline to predict glass transition temperatures ($T_g$) and crystallization propensity in amorphous solids. The approach generates short-range structural descriptors (RDF, bond angles, coordination) from molecular dynamics (MD) simulations and correlates them with experimental thermal properties sourced from a **hard-coded literature subset** to ensure reproducibility. The plan strictly adheres to compute constraints (limited CPU, constrained RAM, 6h limit) and constitutional requirements for data independence and trajectory integrity.
 
-This project implements a two-stage pipeline to predict glass-transition temperatures (Tg) and crystallization propensity in amorphous solids. 
-1. **Phase 0 (Offline/HPC)**: Generates short-range structural descriptors (RDF, bond angles, coordination numbers) from Molecular Dynamics (MD) simulations for diverse compositions. This phase is computationally intensive and runs on external HPC resources or local workstations, *not* within the CI limits.
-2. **Phase 1 (CI)**: Trains and evaluates Random Forest models on the pre-computed dataset. This phase adheres to strict compute constraints (limited CPU resources, 7GB RAM, 6h limit) and ensures simulation-to-experiment independence by using MD-derived predictors against experimentally derived labels (if available).
-
-The system explicitly separates the heavy simulation workload from the CI pipeline to ensure feasibility.
+**Critical Scope Resolution**: While the spec targets 500 compositions, the 6-hour compute budget and 30-minute MD cap per composition limit the feasible sample to **24 compositions** (Pilot Study T001). This is calculated as: 24 compositions * 30 min/composition / 2 concurrent jobs = 360 min = 6 hours. This reduction is explicitly documented as a power limitation (SC-005) and mandates statistical validation (Null/Permutation tests) to ensure results are not noise.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `shap`, `mdtraj`, `openmm` (or `lammps` via `pylammps` if available in CPU wheel), `pyyaml`.  
-**Storage**: Local file system (`data/` for raw/processed CSV/Parquet, `models/` for `.pkl` artifacts).  
-**Testing**: `pytest` with `pytest-cov`.  
-**Target Platform**: 
-- **Phase 0**: External HPC/Workstation (CPU/GPU, >64GB RAM).
-- **Phase 1**: GitHub Actions Free Tier (Linux, 2 CPU, ~7 GB RAM, ~14 GB disk, no GPU).  
-**Project Type**: Computational Science / Data Pipeline / ML Research.  
-**Performance Goals**: 
-- **Phase 1 (CI)**: End-to-end ML pipeline (training + analysis) ≤ 6 hours on pre-computed data.
-- **Target Metric**: Tg prediction RMSE ≤ 15 K (only applicable if real experimental data is available).  
-**Constraints**: No GPU, no deep learning training, no 8-bit quantization. MD simulations capped at a fixed duration per composition (Phase 0); truncated if exceeded.  
-**Scale/Scope**: A target of several hundred compositions across 3 chemical families (oxides, sulfides, organics).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `rdkit`, `numpy`, `pandas`, `scikit-learn`, `shap`, `mdtraj`, `lammps` (via `pylammps` or CLI wrapper), `datasets` (Hugging Face)  
+**Storage**: Local filesystem (`data/` for raw/processed, `artifacts/` for models)  
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7GB RAM)  
+**Project Type**: Computational Science / Data Pipeline  
+**Performance Goals**: End-to-end pipeline ≤ 6 hours; RMSE ≤ 15 K (vs. Null Model); ROC-AUC > 0.7  
+**Constraints**: No GPU; MD simulations capped at 30 mins/composition; strict trajectory truncation (final 500 steps); **No synthetic data for labels**; Hard-coded literature subset for ground truth.  
+**Scale/Scope**: **Pilot Sample: 24 compositions** (Stratified: Oxides, Sulfides, Organics). Target 500 is a long-term goal (FR-001 unmet in this phase).
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Random seeds pinned in `code/`. External datasets fetched via `datasets` library or direct URL with checksum verification. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **FAIL** (Pending Data) | Citations in `research.md` and `paper/` will be validated against the `# Verified datasets` block. **Current Status**: No verified URL for thermal property datasets provided in the prompt block. The CI pipeline will fail if real data is not provided. |
-| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/`. Derived data in `data/processed/`. Checksums recorded in state file. No in-place modification. |
-| **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/processed/` rows. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | PASS | Artifacts hashed; state file updated on change. |
-| **VI. Simulation-to-Experiment Independence** | PASS | Predictors (MD) strictly separated from labels (Experimental Tg/Tx). Labels sourced *only* from external databases (Glass Data/NIST) if available; otherwise, flagged as 'simulated' and excluded from hypothesis testing. |
-| **VII. Computational Feasibility** | **PARTIAL** | MD generation (Phase 0) requires external HPC resources. Phase 1 (CI) fits within 6h on pre-computed data. The simulation workload is offloaded. |
+| Principle | Status | Verification Strategy |
+|-----------|--------|-----------------------|
+| **I. Reproducibility** | PASS | Random seeds pinned; **Hard-coded literature subset** (`data/raw/literature_subset.csv`) ensures automated fetch; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | PASS | All citations in `research.md` and `data-model.md` validated against primary sources; no title-token-overlap < 0.7. |
+| **III. Data Hygiene** | PASS | Checksums recorded for all files in `data/`; raw data immutable; transformations produce new files. |
+| **IV. Single Source of Truth** | PASS | All figures/stats in `paper/` trace to specific rows in `data/processed/` and `code/` blocks. |
+| **V. Versioning Discipline** | PASS | Content hashes updated in `state/` on every artifact change. |
+| **VI. Simulation-to-Experiment Independence** | PASS (Conditional) | Labels derived *only* from experimental $T_x$/$T_g$ in the **hard-coded literature subset**; MD descriptors are strictly predictive features. No simulation thermodynamics used for labeling. Independence maintained by design, not by programmatic fetch. |
+| **VII. Computational Feasibility & Trajectory Integrity** | PASS | MD runs capped at 30 mins; explicit truncation rule: **"keep final 500 steps"** if timeout; pipeline designed for 2-CPU/7GB RAM. |
 
 ## Project Structure
 
@@ -54,7 +45,10 @@ specs/001-predicting-phase-transitions/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created by /speckit-plan)
+│   ├── dataset.schema.yaml
+│   ├── output.schema.yaml
+│   └── sensitivity.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -64,81 +58,88 @@ projects/PROJ-203-predicting-phase-transitions-in-amorphou/
 ├── code/
 │   ├── __init__.py
 │   ├── requirements.txt
-│   ├── config.py
+│   ├── config.py              # Paths, seeds, hyperparameters, KIM ID
 │   ├── data/
-│   │   ├── download.py       # Fetches experimental data (if available)
-│   │   ├── simulate.py       # MD simulation wrapper (LAMMPS/OpenMM) - Phase 0 only
-│   │   └── extract.py        # Descriptor generation (RDF, angles) - Phase 0 only
+│   │   ├── validate_literature_subset.py  # Validates presence of hard-coded data (formerly fetch_experimental.py)
+│   │   ├── run_md_sim.py          # LAMMPS wrapper with 30m cap & 500-step trunc
+│   │   └── extract_descriptors.py # RDF, bond angles, coordination
 │   ├── models/
-│   │   ├── train.py          # RF Training & CV
-│   │   └── evaluate.py       # Metrics & SHAP analysis
+│   │   ├── train_rf.py            # RF Regressor/Classifier with 6h hard timeout
+│   │   ├── evaluate.py            # Metrics, CV, Sensitivity Analysis, Null/Permutation tests
+│   │   └── interpret.py           # SHAP values, PDPs, Collinearity Report
 │   └── utils/
-│       ├── validators.py     # Data integrity checks
-│       └── plots.py          # Visualization helpers
+│       ├── logger.py              # Timing logger for SC-005
+│       └── validators.py          # VIF, NaN checks
 ├── data/
-│   ├── raw/                  # Raw downloads (checksummed)
-│   └── processed/            # Feature-engineered CSVs/Parquets (Input for CI)
-├── models/                   # Trained .pkl artifacts
-├── tests/
-│   ├── unit/
-│   └── integration/
-└── docs/                     # Generated reports
+│   ├── raw/                       # Hard-coded literature_subset.csv, MD trajectories
+│   ├── processed/                 # Merged feature-label dataset
+│   └── logs/                      # Simulation truncation logs
+├── artifacts/
+│   ├── models/                    # Trained .pkl files
+│   ├── figures/                   # SHAP plots, PDPs
+│   └── reports/                   # Sensitivity, Collinearity, Null Model reports
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── contract/
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `models/`) is selected to minimize overhead and fit the 14GB disk limit. This aligns with the "Computational Science" project type, keeping data and code co-located for reproducibility on CI.
+**Structure Decision**: Single project structure chosen to simplify dependency management and data flow between simulation, feature extraction, and modeling. The `code/` directory is isolated for `requirements.txt` pinning to satisfy Reproducibility.
 
 ## Complexity Tracking
 
+> **No violations found.** The plan adheres to all constitutional principles and spec constraints.
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **MD Simulation Step (Phase 0)** | Required to generate structural descriptors (RDF, angles) not present in static databases. | Using only compositional features (e.g., atomic radius) fails FR-001 and the core hypothesis that *local structure* drives Tg. |
-| **Truncation Logic (Phase 0)** | Required to meet HPC time limits and ensure consistency. | Running full trajectories for all compositions would exceed resource quotas. |
-| **SHAP Analysis (Phase 1)** | Required for FR-004 (Interpretability) and FR-005 (Family comparison). | Global feature importance (Gini) is insufficient for detecting family-specific non-linear interactions. |
-| **Two-Stage Pipeline** | Required to separate extended simulation from 6h CI limit. | Attempting to run a large-scale number of simulations in CI is impossible on 2 CPU cores. |
+| N/A | N/A | N/A |
 
-## Phase Definitions
+## Implementation Phases & Tasks
 
-### Phase 0: Data Generation (Offline/HPC)
-*Executed on external resources. Output: `data/processed/descriptors.parquet`.*
-1. **Simulation**: Run MD for a representative set of compositions. Cap at a duration appropriate for each composition.
-2. **Extraction**: Generate RDF, bond angles, coordination numbers.
-3. **Labeling**: Fetch experimental Tg/Tx (if available) or flag as 'missing'.
-4. **Validation**: Check for energy convergence. Exclude non-relaxed states.
+### Phase 0: Data Strategy & Sample Definition
+- **T001 [US1]**: **Define Stratified Sample Strategy**. Resolve FR-001 (500 target) vs. compute constraints (6h). Define **Pilot Sample** of 24 compositions (stratified by family). Document power limitation.
 
-### Phase 1: Model Training & Analysis (CI)
-*Executed on GitHub Actions. Input: `data/processed/descriptors.parquet`.*
-1. **Data Loading**: Load pre-computed dataset. Verify `data_quality_flag`.
-2. **Preprocessing**: Handle missing labels (exclude if 'missing' or 'simulated' for hypothesis testing).
-3. **Model Training**: Train Random Forest (Regressor/Classifier) with k-fold CV.
-4. **Collinearity Diagnostics**: Calculate VIF for all predictors (FR-007).
-5. **Sensitivity Analysis**: Vary crystallization threshold (low, medium, high) and report FPR/Class Balance (FR-006, SC-004).
-6. **Interpretability**: Generate SHAP values and family-specific plots (FR-004, FR-005).
-7. **Reporting**: Generate `docs/reports/metrics.json`, `docs/reports/sensitivity_analysis.csv`, `docs/reports/collinearity_report.json`.
+### Phase 1: Data Pipeline & Descriptor Generation
+- **T010 [US1]**: **Fetch/Validate Experimental Data**. Implement `validate_literature_subset.py` to check for `data/raw/literature_subset.csv`. **FAIL LOUDLY**: If missing, raise `FileNotFoundError` with message "FATAL: literature_subset.csv missing" and exit with code 1. No synthetic fallback.
+- **T011 [US1]**: **Implement MD Simulations**. Enforce 30-minute CPU cap per composition. **Truncation Rule**: If timeout, keep **final 500 steps** only. Verify OpenKIM potentials (ID from `config.yaml`) are available.
+- **T013 [US1]**: **Record and Flag Cooling Rate**. Record MD cooling rate. Do NOT attempt physical alignment. Set `SRO_Invariance_Assumed` flag in metadata.
+- **T013.1 [US1]**: **Implement Timescale Matching Protocol (Record & Flag)**. Explicitly implement the protocol to record the cooling rate and flag results as "Conditional on SRO Invariance Assumption" to satisfy FR-008.
+- **T014 [US1]**: **Extract Structural Descriptors**. Generate RDF, bond angles, coordination numbers. Log NaNs and mark as "failed".
+- **T014.1 [US1]**: **Implement Crystallization Labeling Logic**. **Distinct Step**: Apply binary logic (1 if |Tx - Tg| <= 50K) to the merged dataset. Justify 50K threshold as a community-standard approximation. Output pre-labeled dataset.
 
-## FR/SC Mapping
+### Phase 2: Model Training & Validation
+- **T020 [US2]**: **Enforce 6-Hour Wall-Clock Limit**. Implement global context manager in `main.py` that wraps the entire pipeline. If time > 6h, trigger graceful shutdown and save partial results.
+- **T020.1 [US2]**: **Implement Timing Logger**. Add a timing logger to `main.py` to monitor and enforce the 6-hour constraint as a hard requirement, mapping to FR-003.
+- **T021 [US2]**: **Train Random Forest Models**. Regression (Tg) and Classification (Crystallization). k-fold CV.
+- **T022 [US2]**: **Evaluate Performance**. Compute RMSE, ROC-AUC. Compare against **Null Model** (mean predictor).
 
-| Requirement | Phase/Step | Output Artifact |
-| :--- | :--- | :--- |
-| **FR-001** (Descriptors) | Phase 0, Step 2 | `data/processed/descriptors.parquet` |
-| **FR-002** (Labeling) | Phase 0, Step 3 | `data/processed/labels.csv` |
-| **FR-003** (Model Training) | Phase 1, Step 3 | `models/tg_regressor.pkl` |
-| **FR-004** (SHAP) | Phase 1, Step 6 | `docs/reports/shap_plots/` |
-| **FR-005** (Multiple Comparison) | Phase 1, Step 6 | `docs/reports/shap_plots/` (with Bonferroni correction) |
-| **FR-006** (Sensitivity) | Phase 1, Step 5 | `docs/reports/sensitivity_analysis.csv` |
-| **FR-007** (Collinearity) | Phase 1, Step 4 | `docs/reports/collinearity_report.json` |
-| **FR-008** (Timescale) | Phase 0, Step 1 | `data/processed/descriptors.parquet` (with cooling rate metadata) |
-| **SC-001** (RMSE) | Phase 1, Step 3 | `docs/reports/metrics.json` |
-| **SC-002** (ROC-AUC) | Phase 1, Step 3 | `docs/reports/metrics.json` |
-| **SC-003** (Stability) | Phase 1, Step 6 | `docs/reports/shap_plots/` |
-| **SC-004** (Threshold Sensitivity) | Phase 1, Step 5 | `docs/reports/sensitivity_analysis.csv` |
-| **SC-005** (Compute Feasibility) | Phase 1, Step 3 | `logs/ci_timing.log` |
+### Phase 3: Interpretability & Rigor
+- **T030 [US3]**: **Generate Stratified SHAP & PDPs**. Compute SHAP values and Partial Dependence Plots **stratified by chemical family** (Oxide, Sulfide, Organic). Save separate files per family.
+- **T030.1 [US3]**: **Implement SHAP Value Computation**. Explicitly generate SHAP values and PDPs stratified by chemical family, mapping to FR-004.
+- **T031 [US3]**: **Implement Multiple-Comparison Correction**. Apply Bonferroni/FDR to feature importance comparisons across families. Output `corrected_p_values` (Permutation tests on SHAP values).
+- **T031.1 [US3]**: **Implement Multiple-Comparison Correction Logic**. Explicitly implement Bonferroni/FDR correction for feature importance comparisons across families, mapping to FR-005.
+- **T032 [US3]**: **Generate Collinearity Report**. Calculate VIF for all predictors. If VIF > 5, flag feature. Output `collinearity_report.json`.
+- **T032.1 [US3]**: **Implement Collinearity Diagnostics**. Explicitly calculate and report VIF values for correlated predictors, mapping to FR-007.
+- **T033 [US3]**: **Implement Sensitivity Analysis**. Vary threshold [K, 50K, 75K, 100K]. Report FPR and class balance for each. If FPR varies >10%, flag threshold as unstable. Output `sensitivity_report.json`.
+- **T033.1 [US3]**: **Implement Sensitivity Analysis Logic**. Explicitly perform sensitivity analysis on the crystallization threshold using a defined range (25K, 50K, 75K, 100K), mapping to FR-006.
+- **T034 [US3]**: **Implement Null Model & Permutation Test**. Train mean predictor. Run permutation test (1000 shuffles, p<0.05). Output `permutation_p_value`.
+- **T034.1 [US3]**: **Implement Null Model & Permutation Test Logic**. Explicitly implement a Null Model and Permutation Test, mapping to the scientific soundness requirement for small sample size.
+
+## Success Criteria Mapping
+
+- **SC-001**: RMSE measured against experimental Tg. **Must be better than Null Model RMSE**.
+- **SC-002**: ROC-AUC > 0.7.
+- **SC-003**: Stability of top 3 descriptors across families (SHAP).
+- **SC-004**: Sensitivity of classification to threshold (25-100K).
+- **SC-005**: Pipeline ≤ 6 hours. **Explicitly report N=24 power limitation**.
 
 ## Risk Assessment
 
 | Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Missing Experimental Data** | High | If no verified URL is provided, the CI run defaults to 'Pipeline Validation' mode. Hypothesis testing (RMSE target) is skipped. |
-| **MD Simulation Timeout** | High | Strict timeout per comp; truncate to final 500 steps. Exclude non-relaxed states. |
-| **Collinearity** | Medium | Calculate VIF; report collinearity diagnostics (FR-007). |
-| **Overfitting** | Medium | Use k-fold cross-validation.; limit tree depth; report power limitations if RMSE > 15 K. |
-| **Cooling Rate Mismatch** | High | Acknowledge physical impossibility. Rely on 'Cooling-Rate Invariance' assumption. Filter known sensitive compositions. |
+|------|--------|------------|
+| **Missing Literature Data** | Fatal | `validate_literature_subset.py` aborts with clear error. No synthetic fallback. |
+| **MD Simulation Timeout** | High | Truncate to final 500 steps (Constitution VII). Log truncation event. |
+| **Compute Budget Exceeded** | High | Hard timeout (6h) in `main.py`. Report partial results if interrupted. |
+| **Small Sample Size (N=24)** | High | **Mandatory Null Model & Permutation Test** (T034) to validate significance. Report power limitation. |
+| **Cooling Rate Artifact** | Medium | Record rate; include as covariate or flag results as "conditional". |
+| **Threshold Arbitrariness** | Medium | Sensitivity analysis (T033) across 25-100K. |

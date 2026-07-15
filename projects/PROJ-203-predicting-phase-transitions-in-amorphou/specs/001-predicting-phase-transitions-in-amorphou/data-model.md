@@ -1,71 +1,75 @@
-# Data Model: Predicting Phase Transitions in Amorphous Solids
+# Data Model: Predicting Phase Transitions in Amorphous Solids Using Machine Learning
 
-## Entity Relationship Diagram (Conceptual)
+## Entity Definitions
 
-```mermaid
-erDiagram
-    COMPOSITION ||--|{ STRUCTURAL_DESCRIPTOR : has
-    COMPOSITION ||--|{ THERMAL_PROPERTY : has
-    COMPOSITION ||--|{ SIMULATION_RUN : generates
-    SIMULATION_RUN ||--|{ STRUCTURAL_DESCRIPTOR : produces
-    MODEL_OUTPUT ||--|{ PREDICTION : generates
-```
+### Composition
+Represents a specific chemical formula.
+- `composition_id`: Unique identifier (string).
+- `formula`: Chemical formula (string, e.g., "SiO2").
+- `family`: Chemical family (enum: "oxide", "sulfide", "organic").
+- `element_fractions`: Dict of element -> fraction.
+- `avg_atomic_radius`: Float (Å).
+- `electronegativity_variance`: Float.
 
-## Schema Definitions
+### StructuralDescriptor
+Derived from MD simulation.
+- `descriptor_id`: Unique ID (string).
+- `composition_id`: Foreign key.
+- `rdf_peak_position`: Float (Å).
+- `rdf_peak_width`: Float (Å).
+- `bond_angle_variance`: Float.
+- `coordination_number`: Float.
+- `simulation_status`: Enum ("success", "truncated", "failed").
+- `truncated_steps`: Integer (if truncated, else 0).
+- `cooling_rate`: Float (K/min) - **Recorded for artifact control**.
+- `SRO_Invariance_Assumed`: Boolean - **Flag for conditional results**.
 
-### 1. Composition
-Represents a unique chemical formula.
-- `composition_id`: String (Unique ID, e.g., "SiO2_001")
-- `formula`: String (e.g., "SiO2")
-- `family`: String (Enum: "oxide", "sulfide", "organic")
-- `element_fractions`: JSON (e.g., {"Si": 0.33, "O": 0.67})
-- `avg_atomic_radius`: Float
-- `electronegativity_variance`: Float
-
-### 2. StructuralDescriptor
-Quantitative metrics derived from MD.
-- `descriptor_id`: String
-- `composition_id`: String (FK)
-- `rdf_peak_position`: Float (Angstroms)
-- `rdf_peak_width`: Float (Angstroms)
-- `bond_angle_variance`: Float
-- `coordination_number`: Float
-- `is_truncated`: Boolean (True if sim was cut)
-- `source`: String ("LAMMPS", "OpenMM")
-- `cooling_rate`: Float (K/s, recorded for invariance check)
-
-### 3. ThermalProperty
+### ThermalProperty
 Experimental ground truth.
-- `property_id`: String
-- `composition_id`: String (FK)
-- `Tg`: Float (Kelvin)
-- `Tx`: Float (Kelvin)
-- `crystallization_label`: Integer (0 or 1)
-- `source_database`: String ("Glass Data", "NIST", "Simulated")
-- `data_quality_flag`: String (Enum: "verified", "missing", "simulated", "unverified")
-  - **Note**: Rows with `data_quality_flag` = "missing", "simulated", or "unverified" are **excluded** from hypothesis testing (Phase 1, Step 2). They may be used for Pipeline Validation only.
+- `thermal_id`: Unique ID (string).
+- `composition_id`: Foreign key.
+- `Tg`: Float (K).
+- `Tx`: Float (K).
+- `crystallization_label`: Integer (0 or 1).
+  - Logic: `1` if `abs(Tx - Tg) <= threshold`, else `0`.
+- `source`: String ("Literature Subset").
 
-### 4. ModelOutput
-Results of training and inference.
-- `model_id`: String
-- `metric_rmse`: Float
-- `metric_roc_auc`: Float
-- `feature_importance`: JSON (Map of feature name to score)
-- `shap_values`: JSON (Compressed representation)
-- `timestamp`: ISO8601
+### ModelPerformance
+Output of training.
+- `model_id`: Unique ID.
+- `family`: Chemical family (or "all").
+- `rmse`: Float.
+- `roc_auc`: Float.
+- `feature_importance`: List of (feature, score).
+- `cv_scores`: List of floats.
+- `null_model_rmse`: Float - **Baseline for significance**.
+- `permutation_p_value`: Float - **Significance test**.
+- `corrected_p_values`: List of (comparison_pair, p_value) - **FR-005 compliance**.
+- `vif_values`: Dict - **FR-007 compliance**.
+- `collinearity_status`: String (e.g., "No high VIF", "High VIF detected").
+
+### SensitivityAnalysis
+Output of threshold sensitivity.
+- `threshold_k`: Float.
+- `accuracy`: Float.
+- `fpr`: Float.
+- `class_balance`: Float.
+- `stability_flag`: Boolean (True if FPR varies >10% across thresholds).
 
 ## Data Flow
 
-1. **Raw Input**: `data/raw/compositions.csv` (List of 500 formulas).
-2. **Simulation**: `code/data/simulate.py` -> `data/raw/trajectories/` (LAMMPS dumps).
-3. **Extraction**: `code/data/extract.py` -> `data/processed/descriptors.csv`.
-4. **Labeling**: `code/data/download.py` (Fetches Tg/Tx) -> `data/processed/labels.csv`.
-5. **Merge**: `code/data/merge.py` -> `data/processed/final_dataset.parquet`.
-6. **Modeling**: `code/models/train.py` -> `models/` and `data/processed/metrics.json`.
+1. **Input**: `data/raw/literature_subset.csv` (Hard-coded) + `data/raw/compositions.csv` (User provided list).
+2. **Simulation**: `run_md_sim.py` generates trajectories -> `data/raw/md_trajectories/`.
+3. **Feature Extraction**: `extract_descriptors.py` -> `data/processed/descriptors.csv`.
+4. **Labeling**: `merge_labels.py` (T014) -> `data/processed/labels.csv`.
+5. **Merge**: Join descriptors and labels -> `data/processed/final_dataset.csv`.
+6. **Modeling**: `train_rf.py` -> `artifacts/models/`.
+7. **Interpretation**: `interpret.py` -> `artifacts/figures/`, `artifacts/reports/`.
 
-## Constraints
+## Data Quality Constraints
 
-- **Missing Data**: Rows with `data_quality_flag` != "verified" are dropped for hypothesis testing.
-- **Truncation**: `is_truncated=True` rows are included but flagged in analysis.
-- **Units**: All temperatures in Kelvin; distances in Angstroms.
-- **Verification**: The pipeline MUST reject any row with `data_quality_flag` = "unverified" from the training set.
+- **Missing Values**: Rows with missing $T_g$ or $T_x$ are **excluded**.
+- **NaNs**: MD simulations producing NaNs are marked "failed" and excluded.
+- **Truncation**: Truncated simulations are flagged but included (with metadata).
+- **Independence**: Labels are never derived from MD simulation thermodynamics.
+- **Reproducibility**: `data/raw/literature_subset.csv` is checksummed and immutable.

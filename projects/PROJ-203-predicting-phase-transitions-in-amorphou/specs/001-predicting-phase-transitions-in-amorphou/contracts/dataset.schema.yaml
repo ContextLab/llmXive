@@ -1,73 +1,86 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Final Dataset Schema
-description: Schema for the merged dataset containing composition, structural descriptors, and experimental thermal properties.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Dataset Schema"
+description: "Schema for the merged dataset containing structural descriptors and experimental thermal properties."
 type: object
 properties:
-  composition_id:
-    type: string
-    description: "Unique identifier for the composition (e.g., 'SiO2_001')."
-  formula:
-    type: string
-    description: "Chemical formula (e.g., 'SiO2')."
-  family:
-    type: string
-    enum:
-      - oxide
-      - sulfide
-      - organic
-    description: "Chemical family of the composition."
-  rdf_peak_position:
-    type: number
-    description: "Position of the first RDF peak in Angstroms."
-  rdf_peak_width:
-    type: number
-    description: "Width of the first RDF peak in Angstroms."
-  bond_angle_variance:
-    type: number
-    description: "Variance of bond angle distribution."
-  coordination_number:
-    type: number
-    description: "Average coordination number."
-  is_truncated:
-    type: boolean
-    description: "True if the MD simulation was truncated due to time limits."
-  cooling_rate:
-    type: number
-    description: "MD cooling rate in K/s (e.g., 1e10)."
-  Tg:
-    type: number
-    description: "Experimental glass transition temperature in Kelvin."
-  Tx:
-    type: number
-    description: "Experimental crystallization temperature in Kelvin."
-  crystallization_label:
-    type: integer
-    enum:
-      - 0
-      - 1
-    description: "Binary label: 1 if (Tx - Tg) <= 50 K, else 0."
-  source_database:
-    type: string
-    description: "Source of the experimental data (e.g., 'Glass Data', 'NIST', 'Simulated')."
-  data_quality_flag:
-    type: string
-    enum:
-      - verified
-      - missing
-      - simulated
-      - unverified
-    description: "Verification status of the experimental data. Only 'verified' rows are used for hypothesis testing."
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Schema version"
+      generated_at:
+        type: string
+        format: date-time
+      source_data:
+        type: array
+        items:
+          type: string
+          description: "Paths to source files (e.g., literature_subset.csv, descriptors.csv)"
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        composition_id:
+          type: string
+          description: "Unique identifier for the composition"
+        formula:
+          type: string
+          description: "Chemical formula"
+        family:
+          type: string
+          enum:
+            - "oxide"
+            - "sulfide"
+            - "organic"
+        rdf_peak_position:
+          type: number
+          description: "Position of the first RDF peak (Å)"
+        rdf_peak_width:
+          type: number
+          description: "Width of the first RDF peak (Å)"
+        bond_angle_variance:
+          type: number
+          description: "Variance of bond angles"
+        coordination_number:
+          type: number
+          description: "Average coordination number"
+        simulation_status:
+          type: string
+          enum:
+            - "success"
+            - "truncated"
+            - "failed"
+        cooling_rate:
+          type: number
+          description: "MD cooling rate (K/min) for artifact control"
+        Tg:
+          type: number
+          description: "Experimental glass transition temperature (K)"
+        Tx:
+          type: number
+          description: "Experimental crystallization temperature (K)"
+        crystallization_label:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: "Binary label: 1 if Tx - Tg <= 50K, else 0"
+        source:
+          type: string
+          description: "Source of experimental data (Literature Subset)"
+      required:
+        - composition_id
+        - formula
+        - family
+        - Tg
+        - Tx
+        - crystallization_label
+        - simulation_status
+        - cooling_rate
+      additionalProperties: false
 required:
-  - composition_id
-  - formula
-  - family
-  - rdf_peak_position
-  - rdf_peak_width
-  - bond_angle_variance
-  - coordination_number
-  - Tg
-  - Tx
-  - crystallization_label
-  - source_database
-  - data_quality_flag
+  - metadata
+  - data
 additionalProperties: false

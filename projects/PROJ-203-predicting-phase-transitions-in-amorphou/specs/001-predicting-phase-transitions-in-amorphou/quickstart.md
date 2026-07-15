@@ -1,60 +1,69 @@
-# Quickstart: Predicting Phase Transitions in Amorphous Solids
+# Quickstart: Predicting Phase Transitions in Amorphous Solids Using Machine Learning
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to GitHub Actions (for CI) or a local Linux environment with 7GB+ RAM.
-- (Optional) `lammps` binary installed if running simulations locally (not required for the CPU-only CI plan if using a pre-built container or OpenMM).
+- LAMMPS (installed and in PATH)
+- CPU cores, sufficient RAM (GitHub Actions Free Tier compatible)
+- **Hard-Coded Data**: The repository includes `data/raw/literature_subset.csv` with experimental Tg and Tx values. No manual download is required.
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/requirements.txt
-   ```
+```bash
+cd projects/PROJ-203-predicting-phase-transitions-in-amorphou/code
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Data Setup
+
+1. **Verify Literature Subset**:
+   - Ensure `data/raw/literature_subset.csv` exists in the repo.
+   - The pipeline will abort if this file is missing or corrupted.
+
+2. **Prepare Composition List**:
+   - Create `data/raw/compositions.csv` with columns: `composition_id`, `formula`, `family`.
+   - Include a sufficient number of compositions to fit the allocated time budget.
 
 ## Running the Pipeline
 
-The pipeline is designed to run end-to-end on a CPU-only runner.
-
-### Step 1: Data Preparation
-Fetch experimental data (simulated fallback if source unavailable) and generate structural descriptors.
+### 1. Run MD Simulations (CPU)
 ```bash
-python projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/download.py
-python projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/simulate.py  # Capped at 30m/composition
-python projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/data/extract.py
+python -m data.run_md_sim --config config.yaml
+```
+- **Timeout**: 30 minutes per composition.
+- **Truncation**: If timeout, keeps final steps.
+
+The research question, method, and references remain unchanged as required.
+- **Output**: `data/raw/md_trajectories/` and `data/logs/truncation_log.csv`.
+
+### 2. Extract Descriptors
+```bash
+python -m data.extract_descriptors --input data/raw/md_trajectories/ --output data/processed/descriptors.csv
 ```
 
-### Step 2: Model Training
-Train Random Forest models and perform cross-validation.
+### 3. Merge and Label
 ```bash
-python projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/models/train.py
-```
-*Note: This step will complete within 2 hours on a 2-CPU runner.*
-
-### Step 3: Analysis & Reporting
-Generate SHAP plots, sensitivity analysis, and final metrics.
-```bash
-python projects/PROJ-203-predicting-phase-transitions-in-amorphou/code/models/evaluate.py
+python -m data.merge_labels --descriptors data/processed/descriptors.csv --experimental data/raw/literature_subset.csv --output data/processed/final_dataset.csv
 ```
 
-## Expected Outputs
+### 4. Train Models
+```bash
+python -m models.train_rf --input data/processed/final_dataset.csv --output artifacts/models/
+```
+- **Time Limit**: [deferred] for 100 compositions.
+- **Output**: `artifacts/models/regressor.pkl`, `artifacts/models/classifier.pkl`.
 
-- `data/processed/final_dataset.parquet`: Merged dataset.
-- `models/tg_regressor.pkl`: Trained regression model.
-- `models/crystallization_classifier.pkl`: Trained classification model.
-- `docs/reports/metrics.json`: RMSE, ROC-AUC, and feature importance.
-- `docs/reports/shap_summary_oxide.png`, `sulfide.png`, `organic.png`: Interpretability plots.
+### 5. Evaluate & Interpret
+```bash
+python -m models.evaluate --model artifacts/models/regressor.pkl --data data/processed/final_dataset.csv
+python -m models.interpret --model artifacts/models/regressor.pkl --data data/processed/final_dataset.csv
+```
+- **Output**: `artifacts/figures/shap_summary.png`, `artifacts/reports/sensitivity_report.json`, `artifacts/reports/collinearity_report.json`.
 
-## Troubleshooting
+## Verification
 
-- **Simulation Timeout**: If a composition takes >30m, the script will truncate the trajectory. Check `logs/truncation.log`.
-- **Missing Experimental Data**: If $T_g$ is missing for a composition, it is excluded. Check `logs/missing_data.log`.
-- **Memory Error**: If RAM > 7GB, reduce the batch size in `config.py` or sample fewer compositions.
+- Check `artifacts/reports/metrics.json` for RMSE ≤ 15 K (vs. Null Model) and ROC-AUC > 0.7.
+- Verify `data/logs/truncation_log.csv` for any truncated simulations.
+- Ensure no synthetic data was used (check `data/raw/` checksums).

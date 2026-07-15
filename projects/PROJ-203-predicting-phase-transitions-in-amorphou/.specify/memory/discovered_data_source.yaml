@@ -1,0 +1,18 @@
+status: none
+intent: download Glass Transition Database experimental Tg values Materials Project
+  reference python package dataset
+required_fields:
+- composition
+- chemical_formula
+- rdf_peak_positions
+- rdf_peak_widths
+- bond_angle_variance
+- coordination_numbers
+- experimental_Tg
+- crystallization_label
+- source_database
+- simulation_convergence_flag
+- truncated_simulation_flag
+cache_key: 2b9deaf8d9c6a7c8528b505f64721922b52d3e58aa3b504e1732715f5bc9f7ff
+searched_at: '2026-07-15T22:37:22.742808+00:00'
+retry_count: 1
