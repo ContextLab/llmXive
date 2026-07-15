@@ -30,10 +30,10 @@
   - Entities from data-model.md
   - Endpoints from contracts/
   
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
+  Tasks MUST be organized by user story so each story can:
+  - Be implemented independently
+  - Be tested independently
+  - Be delivered as an MVP increment
   
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`)
-- [ ] T002 Initialize Python project with dependencies (`pandas`, `numpy`, `scipy`, `networkx`, `requests`, `tqdm`, `pyyaml`, `llama-cpp-python`) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/requirements.txt`
+- [ ] T002 Initialize Python project with dependencies (`pandas`, `numpy`, `scipy`, `networkx`, `requests`, `tqdm`, `pyyaml`, `llama-cpp-python`, `datasets`, `sentence-transformers`, `timeout-decorator`, `pytest`, `statsmodels`) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
 
 ---
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement robust graph construction and noise injection utilities in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/graph_utils.py`
-- [ ] T005 [P] Implement core LLM inference engine wrapper using `llama-cpp-python` (CPU only) with a **quantized model (e.g., Phi-3-mini-Q4_K_M)** for **real inference** (NO mocks) and **logging token counts and latency** as primary metrics in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/engine.py`
-- [ ] T006 Implement hard timeout enforcement logic (30 min/task) that logs the timeout event and **proceeds to the next task without hanging** in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/engine.py`
+- [ ] T004 [P] Implement robust graph construction and noise injection utilities in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/graph_utils.py`. **Constraint**: Inject random edges at fixed density **ONLY** into the relevant subgraph nodes/edges to prevent confounding (Constitution VII). **Produces** utilities consumed by T012a.
+- [ ] T005 [P] Implement core LLM inference engine wrapper using `llama-cpp-python` (CPU only) with a **quantized model**. **Requirements**: 1) Download from HuggingFace repo `bartowski/Phi-3-mini-4k-instruct-GGUF` file `Phi-3-mini-4k-instruct-q4.gguf`. 2) Verify the .gguf file size is < 7GB before loading. 3) Check system available memory. 4) Wrap the LLM inference call with a **hard timeout** (30 min) to prevent hanging. 5) Log token counts and latency as primary metrics. Include a configuration mechanism (e.g., `config.yaml`) to allow model selection in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/engine.py`.
+- [ ] T006 Implement hard timeout enforcement logic (fixed duration per task) that logs the timeout event and **proceeds to the next task without hanging** in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/utils/timeout.py`
 - [ ] T007 Create base data structures for Task, Memory Graph, and Execution Log in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/__init__.py`
 - [ ] T008 [P] Setup unit test framework (`pytest`) and configure `tests/` directory structure
 
@@ -78,10 +78,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement data download script to fetch LoCoMo benchmark subset and synthetic noisy graph dataset from public URLs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/download_data.py`
-- [ ] T012 [US1] Implement "Full" active reconstruction algorithm (traverse entire relevant subgraph) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full_reconstruction.py`
+- [ ] T011 [P] [US1] Implement data download script to fetch LoCoMo benchmark subset from HuggingFace (`datasets.load_dataset("locomotask", ...)` or verified URL). **Requirement**: Implement a **retry mechanism with exponential backoff** and a **verified local cache fallback** to ensure the pipeline completes without manual intervention (FR-001). **Do NOT fail loudly**; handle transient network errors gracefully. in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data/downloader.py`
+- [ ] T011a [US1] **Generate synthetic noisy graph dataset** from the LoCoMo source. **Requirement**: Apply noise injection (random edges at fixed density) **ONLY** into the relevant subgraph for specific LoCoMo task IDs to ensure traceability for FR-005. **Output**: `data/processed/noisy_graphs.json` linked to LoCoMo task IDs. **Dependencies**: Requires T004 (noise utilities) and T011 (data download). in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data/graph_builder.py`
+- [ ] T012 [US1] Implement "Full" active reconstruction algorithm (traverse entire relevant subgraph) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/full.py`
 - [ ] T013 [US1] Implement baseline execution runner that logs `task_id`, `accuracy`, `nodes_visited`, `latency_ms` to `data/processed/baseline_results.csv`
-- [ ] T014 [US1] Add robust error handling for disconnected graphs and degenerate inputs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full_reconstruction.py`
+- [ ] T013a [US1] Add robust error handling for **degenerate graphs** (zero edges or single node) for the **Full** strategy. **Requirement**: Handle without division-by-zero errors and report a specific "degenerate" flag in results. in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/full.py`
+- [ ] T014 [US1] Add robust error handling for disconnected graphs and degenerate inputs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/full.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,11 +102,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy_traversal.py`
-- [ ] T018 [US2] Implement "Greedy" traversal heuristic (select top-k confidence edges) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/greedy_traversal.py`
+- [ ] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/lazy.py`
+- [ ] T017a [US2] Add robust error handling for **degenerate graphs** (zero edges or single node) for the **Lazy** strategy. **Requirement**: Handle without division-by-zero errors and report a specific "degenerate" flag in results. in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/lazy.py`
+- [ ] T018 [US2] Implement "Greedy" traversal heuristic (select top-k confidence edges) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/greedy.py`
+- [ ] T018a [US2] Add robust error handling for **degenerate graphs** (zero edges or single node) for the **Greedy** strategy. **Requirement**: Handle without division-by-zero errors and report a specific "degenerate" flag in results. in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/greedy.py`
 - [ ] T019 [US2] Implement execution runners for Lazy and Greedy strategies logging to `data/processed/lazy_results.csv` and `data/processed/greedy_results.csv`
-- [ ] T020 [US2] Implement sensitivity analysis sweep for **Lazy heuristic evidence threshold** (values **0.5, 0.7, 0.9**) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/partial_traversal.py`
-- [ ] T021 [US2] Add logic to handle "unreachable target" cases by defaulting to full traversal or flagging "unresolved" in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy_traversal.py`
+- [ ] T020 [US2] Implement sensitivity analysis sweep for **Lazy heuristic evidence threshold** (values **0.5, 0.7, 0.9**) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/lazy.py`. **Output**: `data/processed/sensitivity_analysis.csv`.
+- [ ] T021 [US2] Add logic to handle "unreachable target" cases by defaulting to full traversal or flagging "unresolved" in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/agents/lazy.py`
+- [ ] T012a [US2] **Apply noise injection to LoCoMo graph subset** for robustness testing. **Requirement**: Inject random edges at a fixed density **ONLY** into the relevant subgraph (not the entire graph) using utilities from T004. **Output**: `data/processed/noisy_graphs.json` linked to LoCoMo task IDs. **Dependencies**: Requires T004 (noise utilities) and T011 (data download). **Note**: This task is moved from Phase 3 to Phase 4 to align with the robustness analysis in US3. in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data/graph_builder.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,15 +124,16 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T022 [P] [US3] Unit test for paired t-test/Wilcoxon implementation on mock data in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
-- [ ] T023 [P] [US3] Unit test for Pearson correlation calculation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
+- [ ] T023 [P] [US3] Unit test for Point-Biserial correlation calculation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement statistical analysis script (paired t-test/Wilcoxon) comparing heuristic vs. baseline accuracy on the LoCoMo dataset in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
-- [ ] T024b [US3] Implement robustness check: paired t-test/Wilcoxon on the **synthetic noisy graph dataset** comparing heuristic vs. baseline to verify reduced-depth strategies do not fail under perturbation, outputting `data/processed/noisy_graph_stats.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
-- [ ] T025 [US3] Implement correlation analysis script (Pearson) between traversal depth and success rate in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
+- [ ] T024 [US3] Implement statistical analysis script (paired t-test/Wilcoxon) comparing heuristic vs. baseline accuracy on the LoCoMo dataset in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/statistics.py`
+- [ ] T024b [US3] Implement robustness check: **Compare heuristic vs. baseline accuracy on the NOISY dataset specifically** (generated by T012a with inflated irrelevant edges) to verify reduced-depth strategies do not fail under perturbation, outputting `data/processed/noisy_graph_stats.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/statistics.py`.
+- [ ] T025 [US3] Implement correlation analysis script (Point-Biserial correlation) between traversal depth (nodes_visited) and binary success rate (0/1) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/statistics.py`. **Output**: `data/processed/correlation_results.csv`.
+- [ ] T027a [US3] Implement binning logic: **bin tasks into groups by `nodes_visited`** (sorted ascending), **calculate mean accuracy per bin**, and store results in `data/processed/binned_accuracy.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/statistics.py`.
+- [ ] T027b [US3] Implement inflection point identification: **Read p-values from T024/T024b results**. **Find the first bin where mean accuracy < 95% of baseline accuracy**. **Include conditional logic**: report inflection point **ONLY IF** the trend is statistically significant (p < 0.05); otherwise, report "No significant inflection point detected". **Output**: 1) `docs/results.md` (human readable). 2) `data/processed/inflection_point.json` (structured: bin data, significance flag, inflection point value) for programmatic verification (SC-004). in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/statistics.py`.
 - [ ] T026 [US3] Implement report generator to output p-values, test statistics, and inflection points to `docs/results.md`
-- [ ] T027 [US3] Add logic to identify the specific complexity threshold where **accuracy drops below 95% of the baseline** (if statistically significant) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -164,6 +170,9 @@
 
 ### Within Each User Story
 
+- **Ordering Note**: T011 (Data Download) MUST complete before T012 and T013 (Implementation). The [P] tag on T011 indicates it is independent of other Phase 3 tasks, but the runner must enforce T011 -> T012/T013.
+- T011a (Noisy Graph Gen) depends on T011 and T004.
+- T012a (Noisy Graph Gen for Robustness) depends on T011 and T004.
 - Tests (if included) MUST be written and FAIL before implementation
 - Models before services
 - Services before endpoints

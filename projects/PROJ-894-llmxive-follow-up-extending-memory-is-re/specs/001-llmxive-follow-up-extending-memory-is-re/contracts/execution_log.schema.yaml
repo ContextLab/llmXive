@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Execution Log Schema"
-description: "Schema for the output CSV/JSON of the strategy execution engine. Validates FR-001 through FR-007."
+description: "Schema for the output CSV/JSON of the strategy execution engine. Validates FR-001 through FR-007 and Constitution Principle VI."
 type: "object"
 properties:
   task_id:
@@ -26,22 +26,29 @@ properties:
     type: "number"
     minimum: 0.0
     description: "Total execution time in seconds."
+  token_count:
+    type: "integer"
+    minimum: 0
+    description: "Total tokens generated/consumed (Constitution Principle VI)."
   status:
     type: "string"
     enum:
-      - "Success"
-      - "Timeout"
-      - "Error"
-      - "Unresolved"
+      - "completed"
+      - "timeout"
+      - "error"
+      - "unresolved"
+      - "degenerate"
+      - "invalid_graph"
     description: "Execution outcome status."
   error_message:
     type: "string"
-    description: "Error details if status is not Success."
+    description: "Error details if status is not completed."
 required:
   - task_id
   - strategy
   - accuracy
   - nodes_visited
   - inference_time_seconds
+  - token_count
   - status
 additionalProperties: false

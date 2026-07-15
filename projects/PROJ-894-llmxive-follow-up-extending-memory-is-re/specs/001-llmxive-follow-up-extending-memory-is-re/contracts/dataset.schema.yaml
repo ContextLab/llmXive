@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LoCoMo Benchmark Dataset Schema"
+description: "Schema for the input LoCoMo benchmark CSV file."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  question:
+    type: string
+    description: "The multi-hop reasoning question."
+  context:
+    type: string
+    description: "The full context text or concatenated paragraphs."
+  answer:
+    type: string
+    description: "The ground truth answer."
+required:
+  - task_id
+  - question
+  - context
+  - answer
+additionalProperties: true

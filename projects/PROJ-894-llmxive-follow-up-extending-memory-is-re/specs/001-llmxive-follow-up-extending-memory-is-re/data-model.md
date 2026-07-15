@@ -2,69 +2,92 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline. All data is stored in CSV or Parquet format for compatibility with `pandas` and `numpy`.
+This document defines the data structures used for input (datasets), intermediate processing (graphs), and output (results) for the graph memory traversal study.
 
-## Entities
+## Input Data
 
-### 1. Task
-Represents a single reasoning query from the benchmark.
-*   **Source**: LoCoMo CSV.
-*   **Derivation**: Raw row mapped to `Task` object.
+### 1. LoCoMo Benchmark Task
+**Source**: `Aman279/Locomo` (HuggingFace)  
+**Format**: Dataset object (converted to DataFrame)  
+**Schema**:
+- `task_id`: string (unique identifier)
+- `question`: string (the multi-hop query)
+- `context`: string (the full context text or list of paragraphs)
+- `answer`: string (ground truth answer)
+- `metadata`: JSON (optional, e.g., difficulty, source)
 
-### 2. MemoryGraph
-A directed graph representing the agent's reconstructed memory for a specific task.
-*   **Source**: Constructed dynamically from Task Context.
-*   **Derivation**: `graph_builder.py` extracts entities and relations.
+### 2. Synthetic Noise Parameters
+**Source**: Config file (`config.yaml`)  
+**Format**: YAML  
+**Schema**:
+- `noise_density`: float (fraction of random edges to add, e.g., 0.05)
+- `random_seed`: integer (for reproducibility)
+- `subgraph_radius`: integer (max hops to consider for noise injection, default 3)
 
-### 3. ExecutionLog
-The result of running a specific strategy on a specific task.
-*   **Source**: `runner.py` output.
-*   **Derivation**: Aggregated metrics from inference and traversal.
+## Intermediate Data
 
-### 4. StatisticalReport
-Aggregated results of hypothesis testing.
-*   **Source**: `stats.py` output.
-*   **Derivation**: Computed from `ExecutionLog` files.
+### 3. Memory Graph
+**Format**: `networkx.DiGraph` serialized to JSON or Pickle (for internal use) or represented as an edge list in `data/processed/`.  
+**Attributes**:
+- **Nodes**:
+  - `node_id`: string
+  - `text`: string (the fact/content)
+  - `position`: integer (index in original context)
+- **Edges**:
+  - `source`: string (node_id)
+  - `target`: string (node_id)
+  - `weight`: float (similarity score or confidence)
+  - `type`: string ("original" or "noise")
 
-## Schema Definitions
+## Output Data
 
-### Task Schema
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `task_id` | string | Unique identifier from LoCoMo. |
-| `question` | string | The multi-hop reasoning question. |
-| `context` | string | The raw text context used to build the graph. |
-| `ground_truth` | string | The correct answer (for accuracy calculation). |
-| `split` | string | Train/Test split (if available). |
+### 4. Execution Log (Results)
+**Format**: CSV (`data/processed/results.csv`)  
+**Schema**:
+- `task_id`: string
+- `strategy`: string (one of: "Full", "Lazy", "Greedy")
+- `accuracy`: float (0.0 or 1.0)
+- `nodes_visited`: integer
+- `inference_time_seconds`: float
+- `token_count`: integer (total tokens generated/consumed)
+- `status`: string ("completed", "timeout", "unresolved", "degenerate", "invalid_graph")
+- `noise_variant`: boolean (true if run on noisy graph)
 
-### ExecutionLog Schema
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `task_id` | string | Reference to the task. |
-| `strategy` | string | "Full", "Lazy", or "Greedy". |
-| `accuracy` | float | 1.0 if answer matches ground truth, 0.0 otherwise. |
-| `nodes_visited` | integer | Count of nodes traversed during reconstruction. |
-| `edges_explored` | integer | Count of edges traversed. |
-| `latency_seconds` | float | Total time taken for the task (inference + traversal). |
-| `token_count` | integer | Total tokens generated/consumed. |
-| `status` | string | "COMPLETED", "TIMEOUT", "ERROR", "DEGENERATE". |
-| `error_message` | string | Optional error details if status != COMPLETED. |
+### 5. Statistical Report
+**Format**: JSON (`data/processed/statistics.json`)  
+**Schema**:
+- `baseline_accuracy`: float
+- `baseline_nodes_avg`: float
+- `lazy_accuracy`: float
+- `lazy_nodes_avg`: float
+- `lazy_accuracy_delta`: float
+- `lazy_nodes_reduction_pct`: float
+- `lazy_p_value`: float
+- `lazy_test_statistic`: float
+- `greedy_accuracy`: float
+- `greedy_nodes_avg`: float
+- `greedy_accuracy_delta`: float
+- `greedy_nodes_reduction_pct`: float
+- `greedy_p_value`: float
+- `greedy_test_statistic`: float
+- `point_biserial_correlation`: float (Baseline only)
+- `complexity_threshold_nodes`: float (LOESS estimated threshold, or null)
+- `timeout_count`: integer
+- `total_tasks`: integer
+- `power_analysis_note`: string (if N < 30)
 
-### StatisticalReport Schema
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `comparison` | string | e.g., "Lazy_vs_Full". |
-| `test_type` | string | "t-test" or "wilcoxon". |
-| `p_value` | float | Significance value. |
-| `test_statistic` | float | t-statistic or W-statistic. |
-| `correlation_coeff` | float | Pearson r for depth vs. accuracy. |
-| `inflection_point` | integer | Nodes visited where accuracy < 95% baseline (or null). |
-| `sample_size` | integer | Number of tasks in the comparison. |
+## Data Flow Diagram
 
-## Data Flow
-
-1.  **Ingestion**: `data_loader.py` reads LoCoMo CSV → `Task` objects.
-2.  **Graph Construction**: `graph_builder.py` converts `Task` → `MemoryGraph`.
-3.  **Execution**: `runner.py` iterates strategies → produces `ExecutionLog` rows (CSV).
-4.  **Analysis**: `stats.py` reads `ExecutionLog` CSVs → produces `StatisticalReport` (JSON/CSV).
-5.  **Reporting**: `report.py` aggregates `StatisticalReport` into final `results_summary.md`.
+```mermaid
+graph TD
+    A[LoCoMo HF Dataset] --> B(Data Downloader)
+    B --> C[Raw Data]
+    C --> D[Graph Builder]
+    D --> E[Memory Graph (Clean)]
+    D --> F[Memory Graph (Noisy)]
+    E --> G[Traversal Engine]
+    F --> G
+    G --> H[Execution Log CSV]
+    H --> I[Statistical Analyzer]
+    I --> J[Statistical Report JSON]
+```

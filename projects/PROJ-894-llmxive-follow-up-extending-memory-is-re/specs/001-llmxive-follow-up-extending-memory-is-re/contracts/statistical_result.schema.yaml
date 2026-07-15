@@ -12,7 +12,7 @@ properties:
       - "Paired t-test"
       - "Wilcoxon signed-rank test"
       - "Point-Biserial correlation"
-      - "Logistic Regression"
+      - "LOESS Smoothing"
     description: "Statistical test performed."
   p_value:
     type: "number"
@@ -26,15 +26,19 @@ properties:
     type: "number"
     minimum: -1.0
     maximum: 1.0
-    description: "Point-Biserial correlation coefficient or regression odds ratio for depth vs. binary success."
-  threshold_point:
+    description: "Point-Biserial correlation coefficient (Baseline only) or regression odds ratio for depth vs. binary success."
+  complexity_threshold_nodes:
     type: "number"
     nullable: true
-    description: "Inflection point in nodes_visited where accuracy drops (if significant)."
+    description: "Estimated complexity threshold (nodes_visited) where accuracy drops (if significant)."
   significance_level:
     type: "number"
     default: 0.05
     description: "Alpha level used for significance testing."
+  power_analysis_note:
+    type: "string"
+    nullable: true
+    description: "Note on power limitations if N < 30."
 required:
   - comparison_pair
   - test_type

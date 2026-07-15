@@ -41,6 +41,7 @@ properties:
       - "TIMEOUT"
       - "ERROR"
       - "DEGENERATE"
+      - "INVALID_GRAPH"
     description: "Execution status."
   error_message:
     type: "string"
@@ -51,5 +52,6 @@ required:
   - accuracy
   - nodes_visited
   - latency_seconds
+  - token_count
   - status
 additionalProperties: false

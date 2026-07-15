@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Log Schema"
+description: "Schema for the results CSV containing traversal metrics and accuracy."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  strategy:
+    type: string
+    description: "The traversal strategy used."
+    enum:
+      - "Full"
+      - "Lazy"
+      - "Greedy"
+  accuracy:
+    type: number
+    description: "Accuracy score (0.0 or 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  nodes_visited:
+    type: integer
+    description: "Number of nodes visited during traversal."
+    minimum: 0
+  inference_time_seconds:
+    type: number
+    description: "Time taken for the task in seconds."
+    minimum: 0.0
+  token_count:
+    type: integer
+    description: "Total tokens generated/consumed."
+    minimum: 0
+  status:
+    type: string
+    description: "Execution status."
+    enum:
+      - "completed"
+      - "timeout"
+      - "unresolved"
+      - "degenerate"
+      - "invalid_graph"
+  noise_variant:
+    type: boolean
+    description: "Whether the task was run on a noisy graph."
+required:
+  - task_id
+  - strategy
+  - accuracy
+  - nodes_visited
+  - inference_time_seconds
+  - token_count
+  - status
+  - noise_variant
+additionalProperties: true

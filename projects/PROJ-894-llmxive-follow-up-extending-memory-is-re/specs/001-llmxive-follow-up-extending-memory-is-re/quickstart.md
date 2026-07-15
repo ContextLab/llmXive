@@ -2,77 +2,76 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Access to the verified dataset URLs (internet required).
-*   Sufficient disk space (for model weights and data).
-*   CPU-only environment (no GPU required, but no GPU support).
+- Python 3.11+
+- Git
+- Access to a terminal with network connectivity (for downloading datasets)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-894-llmxive-follow-up-extending-memory-is-re
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+1. **Clone the repository** (or navigate to the project directory):
+   ```bash
+   cd projects/PROJ-894-llmxive-follow-up-extending-memory-is-re
+   ```
 
-2.  **Install Dependencies**:
-    ```bash
-    # Ensure llama-cpp-python is installed with CPU support (no CUDA)
-    CMAKE_ARGS="-DLLAMA_METAL=off -DLLAMA_CUDA=off" pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `llama-cpp-python` to a version with CPU wheels.*
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Download Model**:
-    Place a 4-bit quantized model (e.g., `Phi-3-mini-Q4_K_M.gguf`) in `code/models/`.
-    *   *Source*: HuggingFace (e.g., `MaziyarPanahi/Phi-3-mini-4k-instruct-GGUF`).
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+
+   *Note: `requirements.txt` includes `pandas`, `networkx`, `scipy`, `numpy`, `datasets`, `tqdm`, and `pytest`.*
 
 ## Running the Pipeline
 
-### 1. Data Preparation
-Downloads LoCoMo and generates synthetic noisy graphs.
+### 1. Download Data
+The pipeline automatically downloads the LoCoMo dataset on first run. To manually trigger download:
 ```bash
-python -m code.data_loader --download --generate-noisy
+python code/data/downloader.py
+```
+*Data will be saved to `data/raw/`.*
+
+### 2. Execute Baseline (Full Strategy)
+Run the baseline strategy on the clean dataset:
+```bash
+python code/main.py --strategy Full --dataset clean
 ```
 
-### 2. Run Baseline (Full Strategy)
-Executes the "Full" active reconstruction on LoCoMo.
+### 3. Execute Heuristics (Lazy & Greedy)
+Run the heuristic strategies:
 ```bash
-python -m code.runner --strategy Full --tasks locomo --timeout 1800
+python code/main.py --strategy Lazy --dataset clean
+python code/main.py --strategy Greedy --dataset clean
 ```
-*Output*: `data/processed/baseline_full_results.csv`
 
-### 3. Run Heuristics (Lazy & Greedy)
+### 4. Run Robustness Test (Noisy Graph)
+Run the baseline and heuristics on the synthetic noisy graph:
 ```bash
-# Lazy Strategy
-python -m code.runner --strategy Lazy --threshold 0.7 --tasks locomo --timeout 1800
-
-# Greedy Strategy
-python -m code.runner --strategy Greedy --top_k 5 --tasks locomo --timeout 1800
+python code/main.py --strategy Full --dataset noisy
+python code/main.py --strategy Lazy --dataset noisy
+python code/main.py --strategy Greedy --dataset noisy
 ```
-*Output*: `data/processed/lazy_results.csv`, `data/processed/greedy_results.csv`
 
-### 4. Robustness Check (Noisy Graphs)
+### 5. Generate Statistical Report
+Once all execution logs are generated, run the analysis:
 ```bash
-python -m code.runner --strategy Lazy --tasks noisy_graphs --timeout 1800
+python code/analysis/statistics.py
 ```
-*Output*: `data/processed/noisy_lazy_results.csv`
+*Output: `data/processed/statistics.json` and `data/processed/results.csv`.*
 
-### 5. Statistical Analysis
-Runs t-tests, correlation analysis, and threshold detection.
-```bash
-python -m code.stats --input data/processed/ --baseline baseline_full_results.csv
-```
-*Output*: `data/processed/statistical_report.json`
+## Testing
 
-### 6. Generate Final Report
+Run the unit and integration tests:
 ```bash
-python -m code.report --output docs/results_summary.md
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
-*   **Timeout Errors**: If a task exceeds a predefined time threshold, it is logged as `TIMEOUT` and the pipeline proceeds. Check `data/processed/logs.txt` for details.
-*   **Memory Errors**: If RAM usage exceeds the available system memory, reduce the batch size in `config.py` or use a smaller model.
-*   **Graph Construction Failures**: Degenerate graphs (0 edges) are handled gracefully; check `status` column in results CSV.
+- **Timeout Errors**: If a task exceeds 30 minutes, it will be logged as "TIMEOUT". The pipeline will continue to the next task.
+- **Missing Data**: Ensure `data/raw/` contains `locomo.csv`. If missing, re-run the downloader.
+- **Memory Issues**: If you encounter memory errors, reduce the `batch_size` in `config.yaml` (if applicable) or ensure no other heavy processes are running.

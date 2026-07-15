@@ -1,11 +1,11 @@
-- artifact_hash: 7878dfe11d6e7a400d2d94378aac21e0df3ef08a67dad76a3adff3254bef7dfa
+- artifact_hash: a61625b71eece550839e5bc28ae1d83c668ec99b036654546c82f476a240173b
   artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: "Aman279/Locomo \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://huggingface.co/datasets/google-research/locomo/resolve/main/locomo.csv`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/google-research/locomo/resolve/main/locomo.csv
-  verified_at: '2026-07-13T11:57:13.075140Z'
+  value: https://huggingface.co/datasets/Aman279/Locomo`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/Aman279/Locomo
+  verified_at: '2026-07-15T10:15:09.359180Z'
