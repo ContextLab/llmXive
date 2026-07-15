@@ -1,0 +1,29 @@
+# Python 3.11 dependencies for llmXive: The Impact of Visual Complexity on Cognitive Load
+# Pinned versions to ensure reproducibility across environments.
+
+# Core Data & Numerical Computing
+numpy>=1.26.0,<2.0.0
+pandas>=2.1.0,<3.0.0
+
+# Image Processing & Computer Vision (CPU optimized)
+opencv-python-headless>=4.8.0,<5.0.0
+pillow>=10.0.0,<11.0.0
+
+# Deep Learning & Object Detection (YOLOv8)
+ultralytics>=8.0.0,<9.0.0
+
+# Statistical Analysis & Modeling
+statsmodels>=0.14.0,<1.0.0
+scikit-learn>=1.3.0,<2.0.0
+
+# Web Interface & Data Fetching
+streamlit>=1.28.0,<2.0.0
+requests>=2.31.0,<3.0.0
+
+# HuggingFace Datasets (Required for T014/T032)
+datasets>=2.14.0,<3.0.0
+
+# Testing & Quality (Optional but recommended for T018a, T041)
+pytest>=7.4.0,<8.0.0
+ruff>=0.1.0,<1.0.0
+black>=23.0.0,<24.0.0

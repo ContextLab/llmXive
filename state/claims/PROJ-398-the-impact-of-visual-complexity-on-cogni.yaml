@@ -1,0 +1,147 @@
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/docs/spec_alignment_report.md
+  attempts: 1
+  canonical: no contradictions detected between tasks.md and spec.md
+  claim_id: c_6fb8b84d
+  context: "Summary: \u2705 No contradictions detected \u2013 the task list in `tasks.md`\
+    \ aligns with the identifiers referenced in `spec.md`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_contradictions_detected_between_tasks.md_and_spec.md
+  kind: entity_fact
+  raw_text: "\u2705 No contradictions detected \u2013 the task list in `tasks.md`\
+    \ aligns with the identifiers referenced in `spec.md`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:07:50Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from train split of HuggingFace video-conference-backgrounds
+    dataset
+  claim_id: c_2d8660b3
+  context: Implement src/metrics/fetch_stimuli.py to download the first 500 items
+    from the 'train' split of the HuggingFace video-conference-backgrounds dataset
+    via datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download the first 500 items from the 'train' split of the HuggingFace
+    `video-conference-backgrounds` dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:12:03Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download 500 items from HuggingFace video-conference-backgrounds train
+    split
+  claim_id: c_bb1606d1
+  context: Phase 2 includes a task to fetch real stimuli for the pilot by downloading
+    the first 500 items from the train split of the HuggingFace video-conference-backgrounds
+    dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/metrics/fetch_stimuli.py to download the first 500 items
+    from the 'train' split of the HuggingFace video-conference-backgrounds dataset
+    via datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:13:20Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 20 participants for pilot study
+  claim_id: c_1d60a86e
+  context: Phase 3 aims to conduct a human pilot study where a cohort of 20 participants
+    rates background images for visual complexity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity to validate automated metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:14:24Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 50 to 100 participants for main study
+  claim_id: c_a5039297
+  context: Phase 7 describes the main study execution, targeting the recruitment of
+    between 50 and 100 real participants to collect the final dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the recruitment of n=50-100 real participants, manage the live
+    data collection pipeline via the deployed app, and ensure all collected data is
+    stored as "Real Human Data".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:15:06Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants for pilot study
+  claim_id: c_a4e1f5a4
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:16:03Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from dataset
+  claim_id: c_f3680ff3
+  context: 'Fetch Real Stimuli (Pilot): Implement src/metrics/fetch_stimuli.py to
+    download the first 500 items from the ''train'' split of the HuggingFace video-conference-backgrounds
+    dataset via datasets.load_dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/metrics/fetch_stimuli.py to download the first 500 items
+    from the 'train' split of the HuggingFace video-conference-backgrounds dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:16:57Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 50 to 100 participants for main study
+  claim_id: c_f04934c2
+  context: 'Conduct Main Study: Execute the recruitment of n=50-100 real participants,
+    manage the live data collection pipeline via the deployed app (T011d), and ensure
+    all collected data is stored as "Real Human Data".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the recruitment of n=50-100 real participants, manage the live\
+    \ data collection pipeline via the deployed app (T011d), and ensure all collected\
+    \ data (NASA\u2011TLX, reaction times) is stored as \"Real Human Data\" in data/measurements/raw/main_study_sessions.csv."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:17:27Z'

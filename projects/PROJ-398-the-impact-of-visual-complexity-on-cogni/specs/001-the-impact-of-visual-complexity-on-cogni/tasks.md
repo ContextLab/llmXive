@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
 **Input**: Design documents from `/specs/001-visual-complexity-cognitive-load/`
@@ -22,9 +26,7 @@
 
 ## Phase 0: Specification Alignment (Critical Prerequisite)
 
-**Purpose**: Resolve contradictions between Spec and Tasks before implementation begins.
-
-*Note: T000 has been removed. The spec NFR-001 remains the source of truth. Implementation tasks (e.g., T019) will adapt to meet the constraint (e.g., by resizing internally) without modifying the spec text.*
+- [ ] T000 [P] Perform a spec‑task alignment review: compare `spec.md` against the drafted `tasks.md`, flag any contradictions, and produce `docs/spec_alignment_report.md`.
 
 ---
 
@@ -34,7 +36,7 @@
 
 - [ ] T001a [P] Create code directory structure (`src/lib/`, `src/metrics/`, `src/experiment/`, `src/analysis/`, `tests/`)
 - [ ] T001b [P] Create data directory structure (`data/stimuli/`, `data/processed/`, `data/measurements/`, `data/raw/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `flask`, `unsplash-api`) in `requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`ultralytics`, `opencv-python-headless`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`, `pillow`, `requests`, `streamlit`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -46,187 +48,164 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/lib/utils.py` containing `set_global_seed()` and checksum utilities
-- [ ] T005 [P] Create base directory structure for `data/stimuli/`, `data/processed/`, and `data/measurements/` with READMEs
-- [ ] T014 [US0] **Fetch Real Stimuli (Pilot)**: Implement `src/metrics/fetch_stimuli.py` to Download a representative set of real background images from the **HuggingFace 'video-conference-backgrounds' dataset**. **Specific Source**: Use `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')` to fetch raw images. **Clarification**: This dataset provides raw images; the Human Pilot Study (T011-T012) will generate the human ratings required for SC-001. **Dependency**: Must be completed before T010-T013 and T019.
-- [ ] T014b [US0] **Verify Stimuli Checksum**: Implement `src/metrics/verify_stimuli.py` to compute and record the SHA-256 checksum of the downloaded stimuli in `state/artifact_hashes`. **Constraint**: This task MUST ONLY compute checksums. **Dependency**: Must run immediately after T014.
-- [ ] T014c [US0] **Validate Stimulus Content**: Implement `src/metrics/validate_stimuli.py` to verify that downloaded images are meeting backgrounds using a specific heuristic: run a lightweight face detector (e.g., `opencv-face`) and require >0 faces or common office elements (e.g., detected text) to satisfy SC-001. **Dependency**: Must run immediately after T014b.
-- [ ] T032 [US2] **Fetch Real Meeting Clips (Main Study)**: Implement `src/experiment/fetch_clips.py` to download real meeting background frames/clips from the **Verified HuggingFace 'video-conference-backgrounds' dataset**. **Specific Source**: Use `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')`. **Clarification**: While the dataset provides frames, these will be used as the visual stimuli for the main study (US-2). If video clips are strictly required by the experimental design, this task will fetch the corresponding video files if available in the dataset; otherwise, static frames will be presented as stimuli. **Dependency**: Must be completed before T029.
-- [ ] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute the SHA-256 checksum of the downloaded clips, record the specific dataset URL and version ID in `state/artifact_hashes` and `research.md` to satisfy Constitution Principle II (Verified Accuracy). **Dependency**: Must run immediately after T032.
-- [ ] T032c [US2] **Curate Meeting Backgrounds**: Implement `src/experiment/curate_clips.py` to filter the fetched clips to ensure they strictly meet the "meeting background" criteria defined in the methodology (e.g., excluding non-meeting scenes, verifying face presence) before use in the main study. **Dependency**: Must run after T032b.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [~] T014 [US0] **Fetch Real Stimuli (Pilot)**: Implement `src/metrics/fetch_stimuli.py` to download the first 500 items from the 'train' split of the HuggingFace `video-conference-backgrounds` dataset via `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')`.
+- [~] T014b [US0] **Verify Stimuli Checksum**: Implement `src/metrics/verify_stimuli.py` to compute and record the SHA‑256 checksum of each downloaded stimulus in `state/artifact_hashes`.
+- [~] T014c [US0] **Validate Stimuli Readability**: Implement `src/metrics/validate_stimuli.py` to ensure each image is readable and meets a minimum resolution of 640×360 pixels; log any failures to `logs/validate_stimuli.log`.
+- [ ] T014c_test [US0] **Unit test for T014c**: Verify that `validate_stimuli.py` correctly identifies readable images and rejects corrupted or undersized files.
+- [~] T032 [US2] **Fetch Real Meeting Clips (Main Study)**: Implement `src/experiment/fetch_clips.py` to download meeting background frames/clips from the same HuggingFace dataset.
+- [~] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute SHA‑256 checksums of clips and record dataset URL and version ID in `research.md`.
+- [ ] T032b_test [US2] **Test verification metadata**: Add a unit test that asserts `research.md` contains the expected `dataset_url` and `version_id` fields after T032b runs.
+- [~] T032c [US2] **Curate Meeting Backgrounds**: Implement `src/experiment/curate_clips.py` to filter fetched clips based on technical criteria (resolution ≥ 640×360, duration ≤ 10 s) and output `data/processed/curated_clips.csv`.
+- [ ] T032c_test [US2] **Integration test for T032c**: Ensure `curated_clips.csv` is created and contains only clips meeting the specified criteria.
 
 ---
 
 ## Phase 3: User Story 0 - Conduct Human Pilot Study for Metric Validation (Priority: P0) 🎯 MVP
 
-**Goal**: Recruit a small cohort (n=20) to rate background images for perceived visual complexity to validate automated metrics (SC-001).
+**Goal**: Recruit a small cohort (n=20) to rate background images for perceived visual complexity to validate automated metrics (SC‑001). [UNRESOLVED-CLAIM: c_a4e1f5a4 — status=not_enough_info]
 
-**Independent Test**: Run the pilot study interface, collect 20 human ratings, and verify that the resulting dataset correlates (r > 0.5) with automated metrics computed on the same images.
+**Independent Test**: Run the pilot study interface, collect 20 human ratings, and verify that the resulting dataset correlates (r > 0.5) with automated metrics.
 
 ### Implementation for User Story 0
 
-- [ ] T012 [US0] Implement data persistence for human ratings: save to `data/measurements/human_ratings.csv` with `image_id`, `participant_id`, `complexity_score`. **Dependency**: T014.
-- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute correlation between human ratings and automated metrics (entropy, variance, object count). **Dependency**: T012.
-- [ ] T013 [US0] Generate validation report (scatter plot + p-value) in `data/derived/pilot_validation_report.md`. **Dependency**: T010.
-- [ ] T011 [US0] Implement `src/experiment/pilot_interface.py` (Flask) to present images and collect complexity ratings from participants (Local UI only).
-- [ ] T011b [US0] **Recruitment State Manager**: Implement `src/experiment/recruitment.py` to manage local recruitment state (participant IDs, status) and generate static invitation email templates for the n=20 cohort. **Clarification**: This task creates the local scaffolding for recruitment; external platform integration (Prolific/MTurk) is handled via manual export ingestion in T011c. The output of this task feeds directly into T011c to ensure a continuous data flow.
-- [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to parse external recruitment exports (CSV format: `participant_id, completion_code, complexity_score`) and map them to the internal schema (`image_id`, `participant_id`, `complexity_score`) for `data/measurements/human_ratings.csv`. **Dependency**: T011b. This task must ensure the ingestion process seamlessly links with T011b's state management to support the "Independent Test" flow.
+- [~] T011 [US0] **Remote Pilot Interface**: Implement `src/experiment/pilot_interface.py` (Streamlit) to present images and collect complexity ratings (1-10) via a **Streamlit Cloud** deployment to facilitate remote recruitment of a cohort (n=20). The app must be publicly accessible.
+- [ ] T011b [US0] **Recruitment State Manager**: Implement `src/experiment/recruitment.py` to manage participant IDs and generate static invitation templates.
+- [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to parse external recruitment CSV exports and map them to `data/measurements/human_ratings.csv`.
+- [ ] T011d [US0] **Deployment Configuration**: Implement `src/experiment/deploy.py` to configure and deploy the Streamlit app to a public URL (e.g., Streamlit Cloud) and generate the recruitment link for distribution.
+- [ ] T012 [US0] Implement data persistence for human ratings: save to `data/measurements/human_ratings.csv` with columns `image_id`, `participant_id`, `complexity_score`.
+- [ ] T010 [US0] Implement `src/metrics/validate.py` to compute Pearson correlation between human ratings and automated metrics (entropy, variance, object count).
+- [ ] T013 [US0] Generate validation report (scatter plot + p‑value) in `data/derived/pilot_validation_report.md`.
+- [ ] T013b [US0] **Automated Pilot Gate**: Implement `src/experiment/pilot_gate.py` to check the pilot correlation; if r < 0.5, exit with a non-zero code to block downstream tasks (US-1/US-2) until the issue is resolved.
+- [ ] T007 [P] [US0] Unit test `test_ingest_human_ratings` in `tests/test_metrics.py`.
+- [ ] T008 [P] [US0] Unit test `test_correlation_calculation` in `tests/test_metrics.py`.
+- [ ] T009 [P] [US0] Integration test `test_pilot_study_data_flow` in `tests/test_metrics.py`.
 
-### Tests for User Story 0
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation. The task list order is logical; in practice, tests are written before code.**
-
-- [ ] T007 [P] [US0] Unit test `test_ingest_human_ratings` for data ingestion of human ratings in `tests/test_metrics.py`
-- [ ] T008 [P] [US0] Unit test `test_correlation_calculation` for correlation calculation (Pearson's r) between human scores and automated metrics in `tests/test_metrics.py`
-- [ ] T009 [P] [US0] Integration test `test_pilot_study_data_flow` for pilot study data flow (Rating -> Storage -> Correlation) in `tests/test_metrics.py`
-
-**Checkpoint**: At this point, User Story 0 should be fully functional and testable independently
+**Checkpoint**: User Story 0 should be fully functional and testable independently.
 
 ---
 
 ## Phase 4: User Story 1 - Compute Visual Complexity Metrics (Priority: P1)
 
-**Goal**: Extract quantitative visual complexity metrics (image entropy, color variance, object detection counts) from background frames using a CPU-compatible pipeline.
+**Goal**: Extract quantitative visual complexity metrics (image entropy, color variance, object detection counts) from background frames using a CPU‑compatible pipeline.
 
 **Independent Test**: Run the metric extraction script on a static set of diverse background images and verify that the output JSON contains valid numerical values without errors.
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `src/metrics/extract.py` to compute image entropy, color variance, and object detection counts using **YOLOv8n** on **CPU only**. **Acceptance Criteria**: Accept 1080p input images (1920x1080) but perform internal inference on a 640x640 resized copy to meet the NFR-001 (30s constraint). Verify that the **total** pipeline time (I/O + Resize + Inference) for 10 images is <30s and RAM <2GB. Explicitly enforce CPU-only execution and YOLOv8n usage. **Output Schema**: The output CSV (`data/processed/metrics.csv`) MUST strictly adhere to the `BackgroundFrame` JSON schema defined in the spec (columns: `frame_id`, `entropy`, `color_variance`, `object_count`).
-- [ ] T019a [US1] **Performance Verification**: Implement `tests/test_metrics_performance.py` to explicitly verify the <30s total pipeline time and <2GB RAM for T019. This test MUST produce a log artifact `data/derived/performance_log.txt` containing the exact timing and memory usage metrics.
-- [ ] T020 [US1] Add logic to handle images with no detectable objects gracefully (return 0 count, no crash)
-- [ ] T021 [US1] Implement data persistence: save computed metrics to `data/processed/metrics.csv` with `frame_id`, `entropy`, `color_variance`, `object_count`
-- [ ] T022 [US1] **Validate against human**: Implement `src/metrics/validate_against_human.py` to re-run correlation check on the full pilot dataset (US0) and flag if r < 0.5 (SC-001). **Dependency**: Requires T010 (US0) and T012 (US0) to be complete. **Note**: This task explicitly depends on the completion of US0.
-- [ ] T023 [US1] **Fallback Object Detection**: Implement a fallback mechanism in `src/metrics/extract.py` using **torchvision.models.ssd300_vgg16** (CPU-compatible) if YOLOv8n fails, ensuring the output remains 'object detection counts' as required by FR-001. **Constraint**: MUST verify that this fallback model meets NFR-001 constraints (30s for 10 images, <2GB RAM) during implementation. **Output Mapping**: Must map SSD output to the `BackgroundFrame` schema.
+- [ ] T019 [US1] **Metric Extraction**: Implement `src/metrics/extract.py` to compute entropy, color variance, and object detection counts using YOLOv8n. Accept 1080p input but resize internally to 640×640 **to fulfill NFR-001** (process 10x 1080p images < 30s, RAM < 2GB). Output `data/processed/metrics.csv` adhering to the `BackgroundFrame` schema and produce `data/derived/performance_log.txt` with timing/RAM stats.
+- [ ] T019a [US1] **Performance Verification**: Add `tests/test_metrics_performance.py` to assert the <30 s / <2 GB constraints and produce `data/derived/performance_log.txt`.
+- [ ] T020 [US1] Add logic to handle images with no detectable objects gracefully (object count = 0).
+- [ ] T021 [US1] Persist computed metrics to `data/processed/metrics.csv`.
+- [ ] T022 [US1] **Optional Validation Against Pilot**: Re‑run correlation check on the full pilot dataset and flag if r < 0.5; this task can be executed after US0 but does not block US1 completion.
+- [ ] T023 [US1] **Fallback Object Detection**: Implement fallback using `torchvision.models.ssd300_vgg16` if YOLOv8n fails; ensure fallback also meets NFR‑001 constraints.
+- [ ] T023_perf_test [US1] **Performance test for fallback**: Verify fallback model respects <30 s / <2 GB limits.
+- [ ] T015 [P] [US1] Unit test `test_entropy_calculation` in `tests/test_metrics.py`.
+- [ ] T016 [P] [US1] Unit test `test_color_variance_calculation` in `tests/test_metrics.py`.
+- [ ] T017 [P] [US1] Integration test `test_yolov8n_cpu_inference` in `tests/test_metrics.py`.
+- [ ] T018 [P] [US1] Contract test `test_blank_background_edge_case` in `tests/test_metrics.py`.
+- [ ] T018a [P] [US1] Setup isolated test data directories in `tests/data/`.
 
-### Tests for User Story 1
-
-- [ ] T015 [P] [US1] Unit test `test_entropy_calculation` for entropy calculation in `tests/test_metrics.py`
-- [ ] T016 [P] [US1] Unit test `test_color_variance_calculation` for color variance calculation in `tests/test_metrics.py`
-- [ ] T017 [P] [US1] Integration test `test_yolov8n_cpu_inference` for YOLOv8n CPU inference on 1080p batch in `tests/test_metrics.py` (verify < 30s runtime, < 2GB RAM; MUST use isolated temporary directories and model cache isolation to ensure parallel safety)
-- [ ] T018 [P] [US1] Contract test `test_blank_background_edge_case` for "blank background" edge case (zero object count) in `tests/test_metrics.py` (MUST use isolated temporary directories to ensure parallel safety)
-- [ ] T018a [P] [US1] Setup isolated test data directories in `tests/data/` and populate with dummy images for T017/T018 isolation
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: User Story 1 should be fully functional and testable independently.
 
 ---
 
 ## Phase 5: User Story 2 - Administer Cognitive Load Assessment (Priority: P2)
 
-**Goal**: Present meeting clips to participants and capture their cognitive load response via the NASA-TLX self-report scale and a post-task reaction-time task.
+**Goal**: Present meeting clips to participants and capture their cognitive load response via the NASA‑TLX self‑report scale and a post-task reaction-time task.
 
-**Independent Test**: Simulate a participant session where a clip is shown, the NASA-TLX form is submitted, and the reaction-time task is completed, verifying that the resulting data record links the participant ID, clip ID, and response metrics correctly.
+**Independent Test**: Simulate a participant session where a clip is shown, the NASA‑TLX form is submitted, and the reaction-time task is completed, verifying correct data linkage.
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement `src/experiment/counterbalance.py` to generate Latin Square designs for clip ordering (FR-002c)
-- [ ] T028 [US2] Implement `src/experiment/tasks.py` to handle the baseline reaction-time task (FR-002b) and experimental trials
-- [ ] T029 [US2] Implement `src/experiment/server.py` (Flask) to present clips, capture NASA-TLX scores, and record reaction times (FR-002). **Dependency**: Requires T032 (clips) to be complete. **Requirement**: MUST load the counterbalanced sequence generated by T027 and present clips in that exact order to satisfy FR-002c. The server MUST NOT present clips randomly; it must strictly enforce the pre-calculated order.
-- [ ] T030 [US2] Add logic to flag incomplete records (missing TLX or RT) for exclusion in the generated dataset
-- [ ] T031 [US2] Save generated participant sessions to `data/measurements/raw/participant_sessions.csv` with `participant_id`, `clip_id`, `nasa_tlx_score`, `reaction_time`, `accuracy`, `baseline_rt`, `rt_difference`
+- [ ] T027 [US2] **Counterbalance Generator**: Implement `src/experiment/counterbalance.py` to generate Latin Square designs for the *main study* stimuli and output `data/processed/counterbalance_order.json` to be consumed by T029.
+- [ ] T028 [US2] **Baseline Task Handler**: Implement `src/experiment/tasks.py` to handle the baseline reaction‑time task using a **low-complexity or neutral stimulus** loaded specifically from `data/stimuli/neutral/` (FR‑002b) and experimental trials.
+- [ ] T029 [US2] **Session Server**: Implement `src/experiment/server.py` (Flask) to present clips, capture NASA‑TLX scores, and record reaction times (FR‑002). Must load the counterbalanced sequence from `data/processed/counterbalance_order.json` (T027) and enforce the exact order.
+- [ ] T030 [US2] Add logic to flag incomplete records (missing TLX or RT) for exclusion.
+- [ ] T031 [US2] Save participant sessions to `data/measurements/raw/participant_sessions.csv` with required columns.
+- [ ] T055 [US2] **Generate Task‑Difficulty Metadata**: Assign a difficulty level (e.g., low, medium, high) to each curated clip based on predefined heuristics (e.g., number of visual elements) and store in `data/processed/clip_difficulty.csv`.
+- [ ] T024 [P] [US2] Unit test `test_latin_square_counterbalancing` in `tests/test_experiment.py`.
+- [ ] T025 [P] [US2] Integration test `test_baseline_reaction_time_task` in `tests/test_experiment.py`.
+- [ ] T026 [P] [US2] Test `test_missing_data_flagging` in `tests/test_experiment.py`.
 
-### Tests for User Story 2
-
-- [ ] T024 [P] [US2] Unit test `test_latin_square_counterbalancing` for Latin Square counterbalancing logic in `tests/test_experiment.py`
-- [ ] T025 [P] [US2] Integration test `test_baseline_reaction_time_task` for baseline reaction-time task logic in `tests/test_experiment.py`
-- [ ] T026 [P] [US2] Test `test_missing_data_flagging` for missing data flagging logic (exclusion vs. imputation) in `tests/test_experiment.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: User Stories 1 AND 2 should both work independently.
 
 ---
 
 ## Phase 6: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Execute linear mixed-effects models to correlate visual complexity metrics with cognitive load outcomes, controlling for task difficulty and participant ID, while applying multiple-comparison corrections and checking for multicollinearity.
+**Goal**: Execute linear mixed‑effects models to correlate visual complexity metrics with cognitive load outcomes, controlling for task difficulty and participant ID, while applying multiple-comparison corrections and checking for multicollinearity.
 
-**Independent Test**: Run the analysis script on a pre-generated synthetic dataset with known correlations and verify that the output report correctly identifies the significant predictors, reports adjusted p-values, and includes multicollinearity diagnostics.
+**Independent Test**: Run the analysis script on a pre-generated synthetic dataset with known correlations and verify correct identification of significant predictors, adjusted p-values, and multicollinearity diagnostics.
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement data integration logic to merge `data/processed/metrics.csv` and `data/measurements/raw/participant_sessions.csv` into a single analysis-ready dataframe. **Dependency**: Must wait for completion of T021 and T031.
-- [ ] T037 [US3] Implement `src/analysis/models.py` to execute linear mixed-effects models with visual complexity as predictor and cognitive load as outcome (FR-003)
-- [ ] T038 [US3] Implement VIF calculation in `src/analysis/models.py`; if VIF > 5, flag instability and trigger PCA fallback (FR-003)
-- [ ] T039 [US3] Implement PCA fallback mechanism in `src/analysis/models.py`: If VIF > 5, combine predictors via PCA to reduce multicollinearity
-- [ ] T040 [US3] Implement Benjamini-Hochberg correction for multiple hypothesis tests in `src/analysis/corrections.py` (FR-004)
-- [ ] T041 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep p-value thresholds across a range of conventional significance levels and report effect size stability. **Output Requirement**: Must explicitly calculate and report **BOTH** the **count of significant predictors** AND the **standard deviation of effect sizes** (column name: `sd_effect_size`) across thresholds. This metric MUST be written to `data/derived/sensitivity_report.csv` in columns named `count_significant_predictors` and `sd_effect_size`.
-- [ ] T042 [P] [US3] Implement `src/analysis/null_sim.py` to run a null-simulation (effect size = 0) to calculate and report the observed family-wise error rate (FWER) (FR-007). **Requirement**: MUST isolate this simulation from the main analysis pipeline and explicitly label all output artifacts as "Pipeline Validation" to distinguish from primary outcomes.
-- [ ] T043 [US3] Implement `src/analysis/report_gen.py` to generate the final report with fixed effect estimates, confidence intervals, adjusted p-values, VIF scores, and FWER
+- [ ] T036 [US3] **Data Integration**: Merge `data/processed/metrics.csv`, `data/processed/clip_difficulty.csv`, and `data/measurements/raw/participant_sessions.csv` into `data/processed/analysis_input.csv`. [DEPENDS ON T021, T031, T055]
+- [ ] T036_test [US3] **Integration test**: Verify that `analysis_input.csv` contains all required columns and rows after the merge.
+- [ ] T037 [US3] Implement `src/analysis/models.py` to run linear mixed‑effects models with visual complexity as predictor and cognitive load as outcome (FR‑003).
+- [ ] T038 [US3] Implement VIF calculation in `src/analysis/models.py`; flag any predictor with VIF > 5.
+- [ ] T039 [US3] Implement PCA fallback in `src/analysis/models.py` when VIF > 5.
+- [ ] T040 [US3] Implement Benjamini‑Hochberg correction in `src/analysis/corrections.py` (FR‑004).
+- [ ] T041 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep p‑value thresholds {0.01,0.05,0.1} and output `data/derived/sensitivity_report.csv` with columns `count_significant_predictors` and `sd_effect_size`.
+- [ ] T042 [US3] **Null-Simulation (Pipeline Validation)**: Implement `src/analysis/null_sim.py` to run a null‑simulation (effect size = 0) and report observed FWER; **output results to `data/derived/validation_only/`** and label all outputs as "Pipeline Validation" to strictly isolate from primary analysis.
+- [ ] T042b [US3] **Null-Simulation Isolation**: Implement `src/analysis/isolate_null.py` to move null-simulation results to `data/derived/validation_only/` and add a gating check to ensure these are excluded from the primary hypothesis report.
+- [ ] T043 [US3] **Report Generation**: Implement `src/analysis/report_gen.py` to generate the final report with fixed‑effect estimates, confidence intervals, adjusted p‑values, VIF scores, and FWER. **Explicitly exclude** any data from `data/derived/validation_only/` from the primary hypothesis section and include stability metrics (count of significant predictors and SD of effect sizes) as required by FR-005b.
+- [ ] T054 [US3] **Complexity‑TLX Correlation**: Compute Pearson correlation (including p‑value) between aggregated visual‑complexity scores and NASA‑TLX scores; output `data/derived/complexity_tlx_correlation.csv`.
+- [ ] T033 [P] [US3] Unit test `test_benjamini_hochberg_correction` in `tests/test_analysis.py`.
+- [ ] T034 [P] [US3] Unit test `test_vif_calculation` in `tests/test_analysis.py`.
+- [ ] T035 [P] [US3] Integration test `test_full_analysis_pipeline` in `tests/test_analysis.py`.
 
-### Tests for User Story 3
-
-- [ ] T033 [P] [US3] Unit test `test_benjamini_hochberg_correction` for Benjamini-Hochberg correction implementation in `tests/test_analysis.py`
-- [ ] T034 [P] [US3] Unit test `test_vif_calculation` for VIF calculation and threshold flagging (>5) in `tests/test_analysis.py`
-- [ ] T035 [P] [US3] Integration test `test_full_analysis_pipeline` for full pipeline (Metrics + Participant Data -> Model -> Report) in `tests/test_analysis.py`
-
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional.
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: Main Study Execution (Priority: P3)
+
+**Goal**: Conduct the main study with real human participants to collect the final dataset for hypothesis testing.
+
+### Implementation for User Story 4
+
+- [ ] T056 [US4] **Conduct Main Study**: Execute the recruitment of n=50-100 real participants, manage the live data collection pipeline via the deployed app (T011d), and ensure all collected data (NASA-TLX, reaction times) is stored as "Real Human Data" in `data/measurements/raw/main_study_sessions.csv`.
+
+---
+
+## Phase 8: Polish & Cross‑Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Update `docs/quickstart.md` with specific CPU-only setup instructions and YOLOv8n installation steps
-- [ ] T045 [P] Update `docs/data-model.md` with new entity attributes and metric definitions
-- [ ] T046 [P] Update `docs/contracts/` with final API/Interface definitions
-- [ ] T047 [P] Additional unit tests for edge cases (skewed distributions, attention check failures) in `tests/`
-- [ ] T048a [P] **Automated Reproducibility Script**: Implement `src/cli/validate_quickstart.py`. This script MUST: 1) Spin up a fresh temp directory, 2) Install dependencies, 3) **Pin the random seed** for both the data subset selection (e.g., 'select first 5 images sorted by filename') and all analysis steps, 4) Run T014 (Fetch HuggingFaceM4/video-conference-backgrounds), T019 (Extract Metrics), T036-T043 (Analysis) on a **real, small, pre-seeded subset** of the actual project data (e.g., 5 images from the fetched stimuli, 2 simulated participants) to validate the pipeline, and 5) Verify checksums of derived artifacts against `state/artifact_hashes`. **Note**: This uses real data (subset) to satisfy Constitution Principle I, not mock data.
-- [ ] T048b [P] **Automated Reproducibility Test**: Implement `tests/test_quickstart.py` to assert that T048a exits with code 0 and produces the expected artifacts (`data/derived/performance_log.txt`, `data/derived/sensitivity_report.csv`, etc.).
+- [ ] T044 [P] Update `docs/quickstart.md` with specific CPU‑only setup instructions and YOLOv8n installation steps.
+- [ ] T045 [P] Update `docs/data-model.md` with new entity attributes and metric definitions.
+- [ ] T046 [P] Update `docs/contracts/` with final API/Interface definitions.
+- [ ] T047 [P] Additional unit tests for edge cases (skewed distributions, attention‑check failures) in `tests/`.
+- [ ] T048a [P] **Automated Reproducibility Orchestrator**: Run sub‑tasks T048a1‑T048a4 and T048b sequentially to validate the entire pipeline on a real, small subset of data.
+- [ ] T048a1 [P] Set up a fresh temporary directory, install dependencies, and pin random seeds.
+- [ ] T048a2 [P] Execute T014, T019, and T036‑T043 on a 5‑image / 2‑participant subset.
+- [ ] T048a3 [P] Verify checksums of derived artifacts against `state/artifact_hashes`.
+- [ ] T048a4 [P] Summarize reproducibility outcomes in `data/derived/reproducibility_summary.md`.
+- [ ] T048b [P] **Automated Reproducibility Test**: Assert that T048a exits with code 0 and that expected artifacts (`performance_log.txt`, `sensitivity_report.csv`, etc.) are present.
 
 ---
 
-## Dependencies & Execution Order
+## Phase Dependencies
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes all data fetching tasks (T014, T032)**.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **US0 (P0)**: Must be completed first to validate metrics before US1/US2 proceed to main study.
-  - **US1 (P1)**: Depends on US0 validation (metrics must be proven valid).
-  - **US2 (P2)**: Can run in parallel with US1 (once US1 metrics logic is stable) but requires real stimuli (US0/US1 fetch).
-  - **US3 (P3)**: Must wait for US1 (metrics) and US2 (data) to be generated before running the model.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 0 (P0)**: Can start after Foundational (Phase 2).
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) + US0 validation passed.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) + US0/US1 stimuli fetch complete.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Must** wait for US1 (metrics) and US2 (data) to be generated before running the model.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation (in practice).
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- **Setup (Phase 1)**: No dependencies – can start immediately.
+- **Foundational (Phase 2)**: Depends on Setup; blocks all user stories.
+- **User Stories (Phase 3‑6)**: Depend on Foundational.
+ - US0 must complete before optional validation tasks (T022) but does not block US1.
+ - US1 can run after Foundational; validation (T022) is optional.
+ - US2 can run after Foundational and after clips are curated (T032c).
+ - US3 runs after US1 (metrics) and US2 (participant data) are available.
+ - Main Study (Phase 7) runs after US2 is fully deployed.
+- **Polish (Phase 8)**: Depends on all prior phases.
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 and US2 can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- US3 (Analysis) depends on data generation from US1 and US2, so it must run sequentially after them. **Note**: T041 and T042 are marked [P] as they are independent of each other.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test test_entropy_calculation in tests/test_metrics.py"
-Task: "Unit test test_color_variance_calculation in tests/test_metrics.py"
-Task: "Integration test test_yolov8n_cpu_inference in tests/test_metrics.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement src/metrics/extract.py"
-Task: "Implement src/metrics/validate_against_human.py"
-```
+- All Setup tasks marked [P] can run in parallel.
+- All Foundational tasks marked [P] can run in parallel (except explicit order between fetch, verify, validate).
+- US1 and US2 can run in parallel once Foundational is complete.
+- Tests within each story are parallelizable.
+- Analysis sub‑tasks (T036‑T043) can run in parallel where dependencies allow.
 
 ---
 
@@ -234,51 +213,30 @@ Task: "Implement src/metrics/validate_against_human.py"
 
 ### MVP First (User Story 0 & 1 Only)
 
-1. Complete Phase 0: Spec Alignment (Note: T000 removed, spec remains source of truth)
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes data fetch)
-4. Complete Phase 3: User Story 0 (Pilot Validation)
-5. Complete Phase 4: User Story 1 (Metric Extraction)
-6. **STOP and VALIDATE**: Test US0/US1 independently on sample images and ensure metrics correlate with human ratings (r > 0.5).
-7. Deploy/demo if ready.
+1. Complete Phase 0 (spec‑task alignment).
+2. Complete Phase 1 (Setup).
+3. Complete Phase 2 (Foundational).
+4. Complete Phase 3 (Pilot Validation).
+5. Complete Phase 4 (Metric Extraction).
+6. **STOP and VALIDATE**: Ensure pilot correlation r > 0.5.
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 0 (Pilot) → Validate metrics → Deploy/Demo (MVP!)
-3. Add User Story 1 (Metrics) → Test independently → Deploy/Demo
-4. Add User Story 2 (Data Collection) → Test independently → Deploy/Demo
-5. Add User Story 3 (Analysis) → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 0 (Pilot) & User Story 1 (Metrics)
-   - Developer B: User Story 2 (Data Collection)
-   - Developer C: User Story 3 (Analysis - waits for A & B data)
-3. Stories complete and integrate independently
+1. Setup + Foundational → foundation ready.
+2. Parallel work:
+ - Developer A: US0 & US1.
+ - Developer B: US2.
+ - Developer C: US3 (waits for data).
+3. Integrate and demo each story independently.
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing (in practice)
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: Ensure all YOLO inference is CPU-only; do not use `load_in_8bit` or `device_map="cuda"`.
-- **CRITICAL**: All data must be real or procedurally generated with verified seeds; no hardcoded fake values.
-- **CRITICAL**: Dataset fetch tasks (T014, T032) must use real, reachable URLs or Python-package-based fetch (e.g., `datasets.load_dataset`), not "download from UCI" without specifics.
-- **CRITICAL**: NFR-001 compliance is achieved by processing 1080p input but performing internal inference on 640x640 resized copies, with total pipeline time (I/O+Resize+Inference) <30s (per T019 description).
-- **CRITICAL**: T048a must use a real, small subset of project data for reproducibility, not mock data, to satisfy Constitution Principle I.
-- **CRITICAL**: T041 must explicitly output `sd_effect_size` column.
-- **CRITICAL**: T029 must enforce the counterbalanced sequence from T027.
-- **CRITICAL**: T023 fallback must meet NFR-001 constraints.
-- **CRITICAL**: T042 must isolate and label pipeline validation results.
+- All YOLO inference is CPU‑only; no `load_in_8bit` or CUDA usage.
+- All data are real; no fabricated inputs.
+- NFR‑001 is met by resizing to 640×640 internally as a performance optimization for 1080p input.
+- T048a orchestrates reproducibility without violating the "no synthetic data" rule.
+- T054 fulfills SC‑002; T055 fulfills FR‑003's task‑difficulty control.
+- Redundant directory creation removed; race conditions eliminated.
+- Every task now has a concrete deliverable and, where appropriate, a corresponding test.
