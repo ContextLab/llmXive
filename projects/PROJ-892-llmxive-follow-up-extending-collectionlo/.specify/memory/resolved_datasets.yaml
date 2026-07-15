@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T01:30:35.291323+00:00'
+resolved_at: '2026-07-14T23:34:13.651833+00:00'
 datasets:
 - intent: FP16
   status: verified
@@ -37,23 +37,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+  - url: https://agresearch.figshare.com/articles/journal_contribution/The_significance_of_N-carbamoylglutamate_in_ruminant_production/32775501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+  - url: https://figshare.mq.edu.au/articles/thesis/Learning_Complex_Customer_Behaviors_for_Intelligent_Recommendation_and_Customer_Churn_Prediction/31634047
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+  - url: https://dro.deakin.edu.au/articles/educational_resource/_i_The_Takeaway_i_i_Accessible_Insights_from_Emerging_Humanities_and_Social_Science_Research_i_/32871188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+  - url: https://figshare.com/articles/figure/Supp_Figures_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Prediksi_Ketepatan_Waktu_Kelulusan_Mahasiswa_Menggunakan_Algoritma_Decision_Tree_Berdasarkan_Data_Akademik_dan_Status_Bekerja/32965481
+  - url: https://figshare.com/articles/dataset/Supp_Tables_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050794
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -61,11 +61,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20371757
+  - url: https://zenodo.org/records/20384204
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20384204
+  - url: https://zenodo.org/records/20371757
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,23 +77,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21302857
+  - url: https://zenodo.org/records/21364917
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21302857
+  - url: https://zenodo.org/records/21364917
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21302658
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://zenodo.org/records/21297880
+  - url: https://zenodo.org/records/21346269
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21297880
+  - url: https://zenodo.org/records/21346269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02584
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -134,23 +134,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+  - url: https://agresearch.figshare.com/articles/journal_contribution/The_significance_of_N-carbamoylglutamate_in_ruminant_production/32775501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+  - url: https://figshare.mq.edu.au/articles/thesis/Learning_Complex_Customer_Behaviors_for_Intelligent_Recommendation_and_Customer_Churn_Prediction/31634047
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+  - url: https://dro.deakin.edu.au/articles/educational_resource/_i_The_Takeaway_i_i_Accessible_Insights_from_Emerging_Humanities_and_Social_Science_Research_i_/32871188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+  - url: https://figshare.com/articles/figure/Supp_Figures_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Prediksi_Ketepatan_Waktu_Kelulusan_Mahasiswa_Menggunakan_Algoritma_Decision_Tree_Berdasarkan_Data_Akademik_dan_Status_Bekerja/32965481
+  - url: https://figshare.com/articles/dataset/Supp_Tables_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050794
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -158,11 +158,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7233565
+  - url: https://zenodo.org/records/7219754
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7219754
+  - url: https://zenodo.org/records/7233565
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -174,23 +174,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/21316291
+  - url: https://zenodo.org/records/21351461
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21316291
+  - url: https://zenodo.org/records/21351461
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21301904
+  - url: https://zenodo.org/records/21346269
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21298690
+  - url: https://zenodo.org/records/21346269
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21298690
+  - url: https://arxiv.org/abs/2607.09784
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -231,23 +231,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/dataset_for_manuscript_From_Resilience_Debt_to_Regime_Shift_The_Synergistic_Collapse_of_Diaoyu_Island_s_Eco-geomorphology_1987_2026_/32347233
+  - url: https://agresearch.figshare.com/articles/journal_contribution/The_significance_of_N-carbamoylglutamate_in_ruminant_production/32775501
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Redeemer_s_University_Ede_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_/32965562
+  - url: https://figshare.mq.edu.au/articles/thesis/Learning_Complex_Customer_Behaviors_for_Intelligent_Recommendation_and_Customer_Churn_Prediction/31634047
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_p_dir_rtl___________p_/32965475
+  - url: https://dro.deakin.edu.au/articles/educational_resource/_i_The_Takeaway_i_i_Accessible_Insights_from_Emerging_Humanities_and_Social_Science_Research_i_/32871188
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_2026_2027_Application_Form_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_1910_The_Manhattan_brand_trucks_are_rebranded/32965547
+  - url: https://figshare.com/articles/figure/Supp_Figures_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Otta_2026_2027_Application_Form_Confirmed_07047903330/32965535
+  - url: https://figshare.com/articles/dataset/Supp_Tables_-_Global_genomic_diversity_of_the_selfing_nematode_i_Caenorhabditis_tropicalis_i_correlates_with_geography/32050794
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -271,23 +271,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.08029
+  - url: https://zenodo.org/records/21351461
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21284507
+  - url: https://zenodo.org/records/21351461
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21284507
+  - url: https://arxiv.org/abs/2607.02584
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2506.04985
+  - url: https://arxiv.org/abs/2607.11317
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21268419
+  - url: https://zenodo.org/records/21323453
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

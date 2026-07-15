@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: GenerationResult
-description: Schema for the generated image metrics CSV (converted to JSON for validation).
+description: Schema for the generated image metrics (CSV converted to JSON for validation).
 type: object
 properties:
   run_id:
@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the generation run."
   prompt_id:
     type: string
-    description: "Foreign key to the EffectPrompt."
+    description: "Foreign key to the prompt in data/prompts.txt."
   quantization_level:
     type: string
     enum:
@@ -16,37 +16,45 @@ properties:
       - "INT8"
       - "INT4"
     description: "The quantization level used for this generation."
+  effect_id:
+    type: string
+    description: "Identifier of the visual effect (e.g., 'oil_painting')."
+  prompt:
+    type: string
+    description: "The text prompt used for generation."
   image_path:
     type: string
     description: "Relative path to the generated image file."
-  clip_similarity:
+  cosine_similarity:
     type: number
-    description: "Cosine similarity between prompt and image embeddings."
+    description: "Cosine similarity between prompt and image embeddings (CLIP)."
   lpips_distance:
     type: number
     description: "LPIPS distance from the FP16 baseline image."
-  icbs_score:
+  cesr_score:
     type: number
-    description: "Image-Cluster Bleeding Score (max similarity to non-target effect image clusters)."
-  delta_icbs:
+    description: "Cross‑Effect Similarity Ratio (mean similarity to BaselineFP16ReferenceImages of other effects)."
+  style_classifier_score:
     type: number
-    description: "Delta ICBS (ICBS_Quantized - ICBS_FP16) to isolate noise-induced bleeding."
-  isolated_rank:
-    type: number
-    description: "The rank of the LoRA subspace for this specific effect, extracted via isolation and SVD."
+    description: "Probability that the image matches its intended style according to a lightweight WikiArt classifier."
+  checksum:
+    type: string
+    description: "SHA‑256 hash of the image file."
   timestamp:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp of generation."
+    description: "ISO‑8601 timestamp of generation."
 required:
   - run_id
   - prompt_id
   - quantization_level
+  - effect_id
+  - prompt
   - image_path
-  - clip_similarity
+  - cosine_similarity
   - lpips_distance
-  - icbs_score
-  - delta_icbs
-  - isolated_rank
+  - cesr_score
+  - style_classifier_score
+  - checksum
   - timestamp
 additionalProperties: false

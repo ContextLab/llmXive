@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for data/analysis_results.json"
+type: object
+required:
+  - bayesian_model
+  - correlation_analysis
+properties:
+  bayesian_model:
+    type: object
+    required:
+      - quantization_effects
+      - posterior_width_check
+    properties:
+      quantization_effects:
+        type: object
+        additionalProperties:
+          type: object
+          required:
+            - mean
+            - ci_95
+            - prob_neg
+          properties:
+            mean:
+              type: number
+            ci_95:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+            prob_neg:
+              type: number
+              minimum: 0
+              maximum: 1
+      posterior_width_check:
+        type: object
+        required:
+          - int8_width
+          - int4_width
+          - status
+        properties:
+          int8_width:
+            type: number
+          int4_width:
+            type: number
+          status:
+            type: string
+            enum:
+              - "Valid"
+              - "Underpowered"
+  correlation_analysis:
+    type: object
+    required:
+      - rank_vs_bleeding
+    properties:
+      rank_vs_bleeding:
+        type: object
+        required:
+          - coefficient
+          - ci_95
+          - significant
+        properties:
+          coefficient:
+            type: number
+          ci_95:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          significant:
+            type: boolean
+  metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      version:
+        type: string
+additionalProperties: false

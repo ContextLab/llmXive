@@ -2,80 +2,59 @@
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.11+
+- 7 GB + RAM (Free‑Tier GitHub Actions compatible)
 - Git
-- 16GB+ RAM (Recommended for CPU loading, though GB is the minimum target)
-- GitHub Actions Runner (Free Tier)
 
 ## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-892-llmxive-follow-up-extending-collectionlo
-   ```
-
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: Ensure `torch` is installed for CPU only (no CUDA).*
+```bash
+git clone <repo-url>
+cd projects/PROJ-892-llmxive-follow-up-extending-collectionlo
+python -m venv venv
+source venv/bin/activate
+pip install -r code/requirements.txt
+```
 
 ## Configuration
 
-1. **Edit `code/config.yaml`**:
-   - Set `base_model`: e.g., `runwayml/stable-diffusion-v1-5`
-   - Set `adapter_model`: e.g., `user/collection-lora-multi-effect`
-   - Set `prompts`: List of distinct effect prompts.
+Edit `code/config.yaml` to adjust (if needed):
 
-The research question remains: [Research Question].
-The method remains: [Method].
-The references remain: [References].
-   - Set `seeds`: Fixed list of integers for reproducibility.
-
-2. **Verify Model Availability**:
-   Ensure the specified adapter and base model are accessible on HuggingFace.
-
-## Running the Pipeline
-
-### 1. Data Generation & Metric Computation
-Run the main script to generate images and compute metrics:
-```bash
-python code/main.py --mode generate
+```yaml
+seed: 12345
+prompts_file: data/prompts.txt            # 5 lines, each "effect_id<TAB>prompt"
+quantization_levels: ["FP16", "INT8", "INT4"]
+base_model_id: "stabilityai/stable-diffusion-1-5"
+adapter_model_id: "user/collectionlora-multi-teacher-onp"
+inference_steps: 50
 ```
-- This will download models (if missing), quantize, generate images, and compute CosSim, LPIPS, and CESR.
-- Output: `data/results.csv`, `data/generated/`.
 
-### 2. Statistical Analysis
-Run the Bayesian analysis:
-```bash
-python code/main.py --mode analyze
-```
-- This reads `data/results.csv` and runs the hierarchical model.
-- Output: `data/analysis_results.json`, plots in `data/plots/`.
+*The prompts file already contains a deterministic one‑to‑one mapping of effects to prompts (FR‑009).*
 
-### 3. Verification
-Check the state manifest:
+## Running the Full Pipeline
+
 ```bash
-cat state/artifacts.yaml
+python code/main.py
 ```
-Verify that all generated files have SHA-256 hashes.
+
+The script executes the following ordered phases:
+
+1. **Constitution amendment** (creates PR to replace ANOVA with BHM).  
+2. **Foundational** – load models, compute & persist LoRA subspace ranks.  
+3. **Baseline generation** – FP16 images *with* LoRA and LoRA‑free reference images.  
+4. **Quantization** – INT8 / INT4 adapters via `torch.ao.quantization`; skips level if backend unavailable.  
+5. **Metric extraction** – CLIP similarity, LPIPS, style‑classifier score, CESR.  
+6. **Statistical analysis** – Bayesian hierarchical model & correlation analysis.  
+7. **Reporting** – `data/report.md` summarises all results.
+
+## Validation
+
+- Run unit tests: `pytest tests/unit/`.  
+- Contract validation: `pytest tests/contract/`.  
+- Verify SHA‑256 hashes in `state/artifact_hashes.yaml`.  
 
 ## Troubleshooting
 
-- **OOM Error**: If `MemoryError` occurs, the script will log "Quantization Failure" and skip the level. Ensure no other heavy processes are running.
-- **Backend Unavailable**: If `torch.ao.quantization` fails, check `torch` version. Fallback to standard `torch` quantization or manual rounding for INT4.
-- **Slow Runtime**: Reduce `num_inference_steps` in `config.yaml` from 50 to 20.
-- **Underpowered Analysis**: If the correlation analysis is flagged as "Underpowered" or "PredictorInsufficientVariance", the results are exploratory and should be interpreted with caution.
-
-## Expected Output
-
-- `data/results.csv`: Contains multiple rows (prompts × levels) with metrics.
-- `data/analysis_results.json`: Contains posterior distributions and correlation coefficients.
-- `state/artifacts.yaml`: Checksums for all artifacts.
+- **OOM (Exit 137)**: The pipeline logs “Quantization Failure – level X skipped” and continues.  
+- **Quantization backend missing**: Logs “Quantization Backend Unavailable – skipping INT8/INT4”. No fallback is attempted, preserving noise‑isolation (Principle VI).  
+- **Slow runtime**: Reduce `inference_steps` (minimum 30 recommended) or decrease number of effects (minimum 5 required by the spec).  
