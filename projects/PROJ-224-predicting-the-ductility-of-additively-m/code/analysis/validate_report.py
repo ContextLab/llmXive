@@ -1,9 +1,9 @@
 """
-Validate that the final report renders as PDF/Markdown within the time budget.
+Validation script for the final report generation (Task T036).
 
-This script executes the reporting pipeline and measures the time taken to
-generate the final report artifacts. It ensures the process completes within
-the 30-second CI budget.
+This script validates that the final report (Markdown/PDF) can be rendered
+within the 30-second time budget on a CI system. It runs the reporting
+script, measures execution time, and verifies the output artifacts exist.
 """
 import os
 import sys
@@ -15,140 +15,153 @@ from pathlib import Path
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Time budget constants
-REPORT_RENDER_BUDGET_SECONDS = 30
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-REPORT_SCRIPT = PROJECT_ROOT / "code" / "analysis" / "reporting.py"
-REPORT_OUTPUT_DIR = PROJECT_ROOT / "data" / "reports"
-REPORT_MARKDOWN = REPORT_OUTPUT_DIR / "final_report.md"
-REPORT_PDF = REPORT_OUTPUT_DIR / "final_report.pdf"
+def ensure_output_directory(output_dir: str) -> bool:
+    """Ensure the output directory exists."""
+    path = Path(output_dir)
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Output directory ensured: {output_dir}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to create output directory {output_dir}: {e}")
+        return False
 
-def ensure_output_directory():
-    """Ensure the report output directory exists."""
-    REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {REPORT_OUTPUT_DIR}")
-
-def run_reporting_script():
+def run_reporting_script(script_path: str, output_dir: str, timeout_seconds: int = 30) -> bool:
     """
-    Execute the reporting script to generate the final report.
+    Run the reporting script and measure execution time.
+    
+    Args:
+        script_path: Path to the reporting script (code/analysis/reporting.py)
+        output_dir: Directory where the report should be generated
+        timeout_seconds: Maximum allowed execution time in seconds
     
     Returns:
-        tuple: (success: bool, duration: float, output: str)
+        True if the script completes within the time budget, False otherwise.
     """
-    logger.info(f"Starting report generation script: {REPORT_SCRIPT}")
-    start_time = time.time()
+    cmd = [sys.executable, script_path, "--output-dir", output_dir]
+    logger.info(f"Running reporting script: {' '.join(cmd)}")
     
+    start_time = time.time()
     try:
-        # Run the reporting script
         result = subprocess.run(
-            [sys.executable, str(REPORT_SCRIPT)],
-            cwd=PROJECT_ROOT,
+            cmd,
             capture_output=True,
             text=True,
-            timeout=REPORT_RENDER_BUDGET_SECONDS + 10  # Add buffer
+            timeout=timeout_seconds
         )
+        elapsed = time.time() - start_time
         
-        duration = time.time() - start_time
-        output = result.stdout + result.stderr
+        logger.info(f"Reporting script completed in {elapsed:.2f} seconds")
         
-        if result.returncode != 0:
-            logger.error(f"Reporting script failed with return code {result.returncode}")
-            logger.error(f"Error output: {result.stderr}")
-            return False, duration, output
-        
-        logger.info(f"Reporting script completed successfully in {duration:.2f}s")
-        return True, duration, output
-
+        if result.returncode == 0:
+            if elapsed <= timeout_seconds:
+                logger.info(f"SUCCESS: Report generated within {timeout_seconds}s budget ({elapsed:.2f}s)")
+                return True
+            else:
+                logger.error(f"FAILURE: Report generation exceeded {timeout_seconds}s budget ({elapsed:.2f}s)")
+                return False
+        else:
+            logger.error(f"FAILURE: Reporting script failed with return code {result.returncode}")
+            if result.stderr:
+                logger.error(f"stderr: {result.stderr}")
+            return False
+            
     except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
-        logger.error(f"Reporting script timed out after {REPORT_RENDER_BUDGET_SECONDS}s")
-        return False, duration, "Timeout: Script exceeded time budget"
+        elapsed = time.time() - start_time
+        logger.error(f"FAILURE: Reporting script timed out after {timeout_seconds}s")
+        return False
     except Exception as e:
-        duration = time.time() - start_time
-        logger.error(f"Error running reporting script: {str(e)}")
-        return False, duration, str(e)
+        elapsed = time.time() - start_time
+        logger.error(f"FAILURE: Exception while running reporting script: {e}")
+        return False
 
-def verify_report_artifacts():
+def verify_report_artifacts(output_dir: str, expected_files: list) -> bool:
     """
     Verify that the expected report artifacts were created.
     
+    Args:
+        output_dir: Directory to check for artifacts
+        expected_files: List of expected filenames (relative to output_dir)
+    
     Returns:
-        bool: True if artifacts exist, False otherwise
+        True if all expected files exist, False otherwise.
     """
-    artifacts_exist = True
+    all_exist = True
+    for filename in expected_files:
+        file_path = Path(output_dir) / filename
+        if file_path.exists():
+            logger.info(f"Verified: {file_path} exists")
+        else:
+            logger.error(f"MISSING: Expected file {file_path} does not exist")
+            all_exist = False
     
-    # Check for Markdown report
-    if REPORT_MARKDOWN.exists():
-        file_size = REPORT_MARKDOWN.stat().st_size
-        logger.info(f"Markdown report exists: {REPORT_MARKDOWN} ({file_size} bytes)")
-    else:
-        logger.warning(f"Markdown report not found: {REPORT_MARKDOWN}")
-        artifacts_exist = False
-    
-    # Check for PDF report (if generated)
-    if REPORT_PDF.exists():
-        file_size = REPORT_PDF.stat().st_size
-        logger.info(f"PDF report exists: {REPORT_PDF} ({file_size} bytes)")
-    else:
-        logger.info(f"PDF report not generated (optional): {REPORT_PDF}")
-        # PDF generation might be optional depending on environment
-        # We consider the task successful if Markdown is generated
-    
-    return artifacts_exist
+    return all_exist
 
-def validate_report_rendering():
+def validate_report_rendering(output_dir: str = "data/reports", timeout_seconds: int = 30) -> bool:
     """
-    Main validation function for report rendering.
+    Main validation function for Task T036.
+    
+    Validates that the final report renders as PDF/Markdown within the time budget.
+    
+    Args:
+        output_dir: Directory for report output
+        timeout_seconds: Maximum allowed rendering time
     
     Returns:
-        int: Exit code (0 for success, 1 for failure)
+        True if validation passes, False otherwise.
     """
-    logger.info("=" * 60)
-    logger.info("Starting Report Rendering Validation")
-    logger.info("=" * 60)
-    logger.info(f"Time Budget: {REPORT_RENDER_BUDGET_SECONDS} seconds")
-    logger.info(f"Output Directory: {REPORT_OUTPUT_DIR}")
+    logger.info("Starting Report Rendering Validation (Task T036)")
     
     # Ensure output directory exists
-    ensure_output_directory()
+    if not ensure_output_directory(output_dir):
+        return False
+    
+    # Define paths
+    script_path = "code/analysis/reporting.py"
+    if not os.path.exists(script_path):
+        logger.error(f"Reporting script not found: {script_path}")
+        return False
+    
+    # Define expected output files
+    expected_files = [
+        "final_report.md",
+        "final_report.pdf"  # Optional, depends on configuration
+    ]
     
     # Run the reporting script
-    success, duration, output = run_reporting_script()
+    success = run_reporting_script(script_path, output_dir, timeout_seconds)
     
     if not success:
-        logger.error("Report generation failed!")
-        logger.error(f"Duration: {duration:.2f}s")
-        return 1
+        logger.error("Report generation failed or timed out.")
+        return False
     
-    # Verify artifacts were created
-    if not verify_report_artifacts():
-        logger.error("Report artifacts not found!")
-        return 1
+    # Verify artifacts
+    # Note: PDF generation might be optional depending on environment
+    # We primarily validate Markdown existence
+    if not verify_report_artifacts(output_dir, ["final_report.md"]):
+        logger.error("Required report artifacts are missing.")
+        return False
     
-    # Check if within time budget
-    if duration > REPORT_RENDER_BUDGET_SECONDS:
-        logger.error(f"Report generation exceeded time budget!")
-        logger.error(f"Duration: {duration:.2f}s > Budget: {REPORT_RENDER_BUDGET_SECONDS}s")
-        return 1
-    
-    logger.info("=" * 60)
-    logger.info("VALIDATION SUCCESSFUL")
-    logger.info(f"Report generated in {duration:.2f}s (within {REPORT_RENDER_BUDGET_SECONDS}s budget)")
-    logger.info(f"Markdown: {REPORT_MARKDOWN}")
-    if REPORT_PDF.exists():
-        logger.info(f"PDF: {REPORT_PDF}")
-    logger.info("=" * 60)
-    
-    return 0
+    logger.info("Report Rendering Validation PASSED")
+    return True
 
 def main():
     """Entry point for the validation script."""
-    exit_code = validate_report_rendering()
-    sys.exit(exit_code)
+    output_dir = os.environ.get("REPORT_OUTPUT_DIR", "data/reports")
+    timeout = int(os.environ.get("REPORT_TIMEOUT_SECONDS", "30"))
+    
+    success = validate_report_rendering(output_dir=output_dir, timeout_seconds=timeout)
+    
+    if success:
+        print("VALIDATION_RESULT: PASS")
+        sys.exit(0)
+    else:
+        print("VALIDATION_RESULT: FAIL")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

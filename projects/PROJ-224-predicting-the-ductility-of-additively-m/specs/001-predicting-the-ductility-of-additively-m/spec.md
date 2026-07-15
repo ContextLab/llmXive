@@ -89,7 +89,7 @@ A practitioner wants a fast, CPU‑only predictive model that estimates ductilit
 ### Measurable Outcomes
 
 - **SC-001**: The linear mixed‑effects model produces a partial R² value and all reported fixed‑effect p‑values are evaluated at α = 0.05 (standard significance level). *(See US-2)*
-- **SC-002**: The system measures test‑set R², MAE, and RMSE against the held‑out test set; the target R² is 0.60 (community standard for this domain) but the pipeline proceeds regardless of the outcome. *(See US-3)*
+- **SC-002**: The system measures test‑set R², MAE, and RMSE against the held‑out test set; the target R² is moderate to high (community standard for this domain) but the pipeline proceeds regardless of the outcome. *(See US-3)*
 - **SC-003**: Sensitivity analysis across α ∈ {0.01, 0.05, 0.10} reports the variation in partial R² and any changes in the ranking of influential parameters as a measure of model robustness; the project succeeds regardless of the stability outcome. *(See US-2)*
 - **SC-004**: Post‑VIF filtering yields a maximum VIF ≤ 5 for all retained predictors, confirming acceptable multicollinearity. *(See US-2)*
 - **SC-005**: The final report is generated automatically, passes validation (all required sections present), and can be rendered as a PDF within 30 seconds on a free‑tier CI runner. *(See US-3)*

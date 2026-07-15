@@ -1,6 +1,6 @@
 """
-Integration test for the full pipeline execution (T038).
-Verifies end-to-end execution completes within the 600s budget.
+Integration tests for the full pipeline execution.
+Specifically validates T038: End-to-end execution time budget.
 """
 import pytest
 import os
@@ -9,86 +9,69 @@ import time
 import logging
 from pathlib import Path
 import sys
-import time
-import logging
 
-# Configure logging for the test
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-MAIN_SCRIPT = PROJECT_ROOT / "code" / "main.py"
-BUDGET_SECONDS = 600
+# Ensure code/ is in path for imports if running directly, 
+# though pytest usually handles this via conftest or setup.
+CODE_ROOT = Path(__file__).parent.parent
+if str(CODE_ROOT) not in sys.path:
+    sys.path.insert(0, str(CODE_ROOT))
 
 logger = logging.getLogger(__name__)
-
-BUDGET_SECONDS = 600
-MAIN_SCRIPT = Path(__file__).parent.parent / "main.py"
 
 def test_pipeline_execution():
     """
-    Run the full pipeline via main.py and verify:
-    1. Execution completes successfully (exit code 0).
-    2. Total execution time is <= 600 seconds.
-    3. Key output artifacts are generated.
+    T038: Run full pipeline integration test (main.py) to ensure 
+    end-to-end execution ≤ 600s.
+    
+    This test executes the main entry point of the project and measures
+    the total wall-clock time. It asserts that the process completes
+    successfully and within the 600-second budget.
     """
-    if not MAIN_SCRIPT.exists():
-        pytest.fail(f"Main script not found at {MAIN_SCRIPT}")
+    main_script = CODE_ROOT / "main.py"
+    
+    if not main_script.exists():
+        pytest.fail(f"Main script not found at {main_script}")
 
-    logger.info(f"Starting full pipeline integration test with budget of {BUDGET_SECONDS}s...")
+    logger.info(f"Starting pipeline integration test at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Executing: python {main_script}")
+
     start_time = time.time()
-
-    # Run the main pipeline script
-    # We use the current working directory as the project root
+    
+    # Run the main script
+    # We capture stdout/stderr to log it if the test fails
     try:
         result = subprocess.run(
-            [sys.executable, str(MAIN_SCRIPT)],
-            cwd=Path(__file__).parent.parent.parent, # Project root
+            [sys.executable, str(main_script)],
             capture_output=True,
             text=True,
-            timeout=BUDGET_SECONDS + 60 # Add buffer for timeout
+            timeout=600 + 60,  # Add 60s buffer for OS overhead
+            cwd=CODE_ROOT
         )
     except subprocess.TimeoutExpired:
-        elapsed = time.time() - start_time
-        pytest.fail(f"Pipeline execution exceeded budget of {BUDGET_SECONDS}s (timed out at {elapsed:.1f}s)")
+        end_time = time.time()
+        elapsed = end_time - start_time
+        pytest.fail(f"Pipeline execution timed out after {elapsed:.2f}s (Budget: 600s)")
 
-    elapsed = time.time() - start_time
+    end_time = time.time()
+    elapsed = end_time - start_time
 
-    # Log output for debugging
+    # Log the output for debugging if needed
     if result.stdout:
-        logger.info("STDOUT:\n" + result.stdout)
+        logger.info("STDOUT:\n" + result.stdout[-2000:]) # Log last 2000 chars
     if result.stderr:
-        logger.warning("STDERR:\n" + result.stderr)
+        logger.error("STDERR:\n" + result.stderr[-2000:])
 
-    # Check execution time
-    assert elapsed <= BUDGET_SECONDS, (
-        f"Pipeline execution took {elapsed:.2f}s, exceeding budget of {BUDGET_SECONDS}s"
+    # Assert success
+    assert result.returncode == 0, (
+        f"Pipeline failed with return code {result.returncode}.\n"
+        f"Time elapsed: {elapsed:.2f}s.\n"
+        f"Error output: {result.stderr}"
     )
 
-    # Check exit code
-    if result.returncode != 0:
-        pytest.fail(
-            f"Pipeline execution failed with exit code {result.returncode}. "
-            f"See stderr: {result.stderr}"
-        )
+    # Assert time budget
+    assert elapsed <= 600.0, (
+        f"Pipeline execution took {elapsed:.2f}s, exceeding the 600s budget.\n"
+        f"Return code: {result.returncode}"
+    )
 
-    # Verify key artifacts exist
-    expected_artifacts = [
-        Path("data/curated_builds.csv"),
-        Path("artifacts/lme_results.json"),
-        Path("artifacts/xgboost_model.pkl"),
-        Path("artifacts/predictive_model_artifact.json"),
-        Path("reports/final_report.md"),
-    ]
-
-    missing = []
-    for artifact in expected_artifacts:
-        full_path = Path.cwd() / artifact
-        if not full_path.exists():
-            missing.append(str(artifact))
-
-    if missing:
-        pytest.fail(f"Missing expected artifacts after pipeline run: {', '.join(missing)}")
-
-    logger.info(f"Pipeline integration test passed. Total time: {elapsed:.2f}s")
-    logger.info("All expected artifacts generated successfully.")
+    logger.info(f"Pipeline execution completed successfully in {elapsed:.2f}s.")

@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-224-predicting-the-ductility-of-additively-m
-last_run_id: 1839dfa2-68b9-4f78-a8ea-cc178efe2bd1
+last_run_id: 63da3214-0a09-4ed1-920c-660cdb43c564
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m
 title: Predicting the Ductility of Additively Manufactured Nickel-Based Superalloys
-updated_at: '2026-07-01T01:11:07.898663Z'
+updated_at: '2026-07-15T14:55:40.477971Z'

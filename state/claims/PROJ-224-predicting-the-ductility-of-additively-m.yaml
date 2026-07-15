@@ -343,3 +343,120 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T13:39:02Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: final dataset contains 85 records
+  claim_id: c_848868ac
+  context: 'Size: Final dataset contains $N \approx 85$ records (below the ideal 100
+    threshold, necessitating Leave-One-Alloy-Family-Out validation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final dataset contains N \u2248 85 records"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:18:26Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: VIF analysis confirmed multicollinearity with VIF greater than 5
+  claim_id: c_87690adf
+  context: Variance Inflation Factor (VIF) analysis confirmed severe multicollinearity
+    between individual process parameters and energy density (VIF > 5).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_analysis_confirmed_multicollinearity_with_VIF_greater_th
+  kind: magnitude
+  raw_text: Variance Inflation Factor (VIF) analysis confirmed severe multicollinearity
+    between individual process parameters and energy density (VIF > 5)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:18:55Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: Partial R squared is 0.42
+  claim_id: c_d9d802a4
+  context: "Partial R\xB2: Calculated at 0.42 (Warning threshold < 0.50). This suggests\
+    \ that while $E_v$ is significant, unmodeled factors (e.g., cooling rates, specific\
+    \ heat treatments) account for substantial variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Partial R\xB2 calculated at 0.42"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:20:05Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: R squared LOAFO is 0.64
+  claim_id: c_c7493268
+  context: "R\xB2 (LOAFO): 0.64 (Exceeds the 0.60 target)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 (LOAFO) is 0.64"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:21:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: mean absolute error is 1.8 percent elongation
+  claim_id: c_e94e4fea
+  context: 'MAE: 1.8% elongation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAE is 1.8% elongation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:21:09Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: root mean square error is 2.4 percent elongation
+  claim_id: c_290038f9
+  context: 'RMSE: 2.4% elongation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RMSE is 2.4% elongation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T14:21:09Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: Volumetric Energy Density importance score is 0.45
+  claim_id: c_04f349c0
+  context: 'Permutation importance identified **Volumetric Energy Density** as the
+    single most important feature (importance score: 0.45), followed by **Alloy Composition
+    (Al/Ti content)**.'
+  evidence:
+    entailment_evidence: Volumetric Energy Density importance score is 0.45
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Volumetric_Energy_Density_importance_score_is_0.45
+  kind: magnitude
+  raw_text: Permutation importance identified Volumetric Energy Density as the single
+    most important feature with an importance score of 0.45
+  resolved_value: Volumetric Energy Density importance score is 0.45
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T14:21:11Z'

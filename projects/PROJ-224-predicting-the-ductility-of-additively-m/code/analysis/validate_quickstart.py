@@ -1,180 +1,177 @@
-"""
-Task T039: Run quickstart.md validation.
-
-This script validates the quickstart.md documentation by:
-1. Parsing the quickstart.md file to extract command blocks.
-2. Verifying that referenced files (scripts, data, artifacts) exist.
-3. Simulating or executing key commands to ensure they run without error.
-4. Reporting validation status.
-
-Expected output: A validation report printed to stdout and a JSON summary saved to data/validation_results.json.
-"""
 import os
 import sys
 import time
 import json
 import logging
 import subprocess
-import re
 from pathlib import Path
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def parse_commands_from_markdown(md_path: Path) -> list[str]:
+def parse_commands_from_markdown(file_path: Path) -> list:
     """
-    Parse code blocks from markdown file that look like shell commands.
-    Returns a list of command strings.
+    Parses a markdown file to extract shell commands intended for execution.
+    Looks for code blocks marked with 'bash' or 'sh'.
     """
-    if not md_path.exists():
-        logger.error(f"quickstart.md not found at {md_path}")
-        return []
-    
-    with open(md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Extract code blocks (assuming shell commands are in ```bash or ```sh blocks)
-    # Also look for generic ``` blocks if no language specified
-    pattern = r'```(?:bash|sh)?\n(.*?)```'
-    matches = re.findall(pattern, content, re.DOTALL)
-    
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
     commands = []
-    for match in matches:
-        lines = match.strip().split('\n')
-        for line in lines:
-            line = line.strip()
-            if line and not line.startswith('#'):
-                commands.append(line)
-    
+    in_code_block = False
+    current_command = []
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped.startswith('```bash') or stripped.startswith('```sh'):
+                in_code_block = True
+                continue
+            if stripped.startswith('```'):
+                if in_code_block:
+                    if current_command:
+                        cmd_str = ' '.join(current_command)
+                        if cmd_str:
+                            commands.append(cmd_str)
+                        current_command = []
+                    in_code_block = False
+                continue
+
+            if in_code_block:
+                # Skip empty lines within a command block if they separate logical steps,
+                # but here we assume a continuous block represents a sequence or a single command.
+                # We'll join lines to handle multi-line commands if necessary, or treat as sequence.
+                # For simplicity in quickstart validation, we treat non-empty lines as part of the command.
+                if stripped:
+                    current_command.append(stripped)
+
     return commands
 
-def check_file_exists(path_str: str, base_dir: Path) -> bool:
-    """Check if a referenced file exists relative to base_dir."""
-    full_path = base_dir / path_str
-    return full_path.exists()
+def check_file_exists(file_path: str, base_dir: Path) -> bool:
+    """Checks if a relative file path exists from the base directory."""
+    full_path = base_dir / file_path
+    if full_path.exists():
+        logger.info(f"Found: {full_path}")
+        return True
+    else:
+        logger.warning(f"Missing: {full_path}")
+        return False
 
-def run_command(cmd: str, timeout: int = 60) -> tuple[bool, str]:
+def run_command(cmd: str, timeout: int = 300) -> dict:
     """
-    Execute a command and return (success, output).
+    Executes a shell command and returns the result status and output.
     """
+    logger.info(f"Executing: {cmd}")
+    start_time = time.time()
     try:
         result = subprocess.run(
             cmd,
             shell=True,
+            cwd=Path.cwd(),
             capture_output=True,
             text=True,
-            timeout=timeout,
-            cwd=Path.cwd()
+            timeout=timeout
         )
-        output = result.stdout + result.stderr
-        success = result.returncode == 0
-        return success, output
+        elapsed = time.time() - start_time
+        return {
+            "command": cmd,
+            "success": result.returncode == 0,
+            "return_code": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "elapsed_seconds": elapsed
+        }
     except subprocess.TimeoutExpired:
-        return False, f"Command timed out after {timeout}s"
+        logger.error(f"Command timed out after {timeout}s: {cmd}")
+        return {
+            "command": cmd,
+            "success": False,
+            "return_code": -1,
+            "stdout": "",
+            "stderr": f"Timeout expired after {timeout} seconds",
+            "elapsed_seconds": timeout
+        }
     except Exception as e:
-        return False, str(e)
+        logger.error(f"Error running command: {e}")
+        return {
+            "command": cmd,
+            "success": False,
+            "return_code": -1,
+            "stdout": "",
+            "stderr": str(e),
+            "elapsed_seconds": 0
+        }
 
-def validate_quickstart():
-    """Main validation logic."""
-    start_time = time.time()
-    project_root = Path.cwd()
-    quickstart_path = project_root / "quickstart.md"
-    results = {
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "file_exists": False,
-        "commands_found": 0,
-        "commands_passed": 0,
-        "commands_failed": 0,
-        "checks": [],
-        "total_time_seconds": 0.0
+def validate_quickstart(quickstart_path: str = "quickstart.md") -> dict:
+    """
+    Main validation routine for quickstart.md.
+    1. Parses commands.
+    2. Checks file existence for any 'ls', 'cat', or explicit path checks.
+    3. Runs commands.
+    4. Aggregates results.
+    """
+    base_dir = Path.cwd()
+    qs_path = base_dir / quickstart_path
+
+    if not qs_path.exists():
+        return {
+            "status": "failed",
+            "error": f"quickstart.md not found at {qs_path}",
+            "results": []
+        }
+
+    commands = parse_commands_from_markdown(qs_path)
+    logger.info(f"Found {len(commands)} commands in {quickstart_path}")
+
+    results = []
+    all_passed = True
+
+    for cmd in commands:
+        # Simple heuristic: if command is just a path or 'ls path', check existence
+        # This is a lightweight check before running potentially destructive commands
+        # In a real scenario, we might parse the command more deeply.
+        # For now, we just run it and capture output.
+        res = run_command(cmd)
+        results.append(res)
+        if not res["success"]:
+            all_passed = False
+            # Log the error but continue to validate other steps if possible
+            # unless it's a critical dependency failure.
+            # For T039, we just report the status.
+
+    summary = {
+        "status": "passed" if all_passed else "failed",
+        "total_commands": len(commands),
+        "passed_commands": sum(1 for r in results if r["success"]),
+        "failed_commands": sum(1 for r in results if not r["success"]),
+        "details": results
     }
 
-    # 1. Check if quickstart.md exists
-    if not quickstart_path.exists():
-        logger.error("quickstart.md not found in project root.")
-        results["file_exists"] = False
-        results["error"] = "quickstart.md not found"
-    else:
-        logger.info("quickstart.md found.")
-        results["file_exists"] = True
-        
-        # 2. Parse commands
-        commands = parse_commands_from_markdown(quickstart_path)
-        results["commands_found"] = len(commands)
-        logger.info(f"Found {len(commands)} potential commands in quickstart.md.")
+    # Write the validation log to data/
+    log_path = base_dir / "data" / "quickstart_validation_log.json"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
 
-        # 3. Validate and Run commands
-        for cmd in commands:
-            check_result = {
-                "command": cmd,
-                "passed": False,
-                "reason": ""
-            }
+    logger.info(f"Validation log written to {log_path}")
+    logger.info(f"Final Status: {summary['status']}")
 
-            # Pre-check: Does the script/file referenced exist?
-            # Simple heuristic: if command starts with 'python code/', check file
-            if cmd.startswith("python code/"):
-                parts = cmd.split()
-                if len(parts) >= 2:
-                    script_path = parts[1]
-                    if not check_file_exists(script_path, project_root):
-                        check_result["reason"] = f"Referenced script not found: {script_path}"
-                        results["checks"].append(check_result)
-                        results["commands_failed"] += 1
-                        continue
-
-            # Execute command
-            logger.info(f"Executing: {cmd}")
-            success, output = run_command(cmd, timeout=30) # Short timeout for validation
-            
-            if success:
-                check_result["passed"] = True
-                results["commands_passed"] += 1
-            else:
-                check_result["passed"] = False
-                check_result["reason"] = output[:200] # Truncate long output
-                results["commands_failed"] += 1
-
-            results["checks"].append(check_result)
-
-    # 4. Summary
-    elapsed = time.time() - start_time
-    results["total_time_seconds"] = elapsed
-    
-    # Save results
-    output_dir = project_root / "data"
-    output_dir.mkdir(exist_ok=True)
-    output_file = output_dir / "validation_results.json"
-    
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Validation completed in {elapsed:.2f}s. Results saved to {output_file}")
-    logger.info(f"Passed: {results['commands_passed']}, Failed: {results['commands_failed']}")
-
-    # Print summary to stdout for immediate feedback
-    print("\n--- Quickstart Validation Summary ---")
-    print(f"File Found: {results['file_exists']}")
-    print(f"Commands Found: {results['commands_found']}")
-    print(f"Passed: {results['commands_passed']}")
-    print(f"Failed: {results['commands_failed']}")
-    if results['commands_failed'] > 0:
-        print("\nFailed Commands:")
-        for check in results['checks']:
-            if not check['passed']:
-                print(f"  - {check['command']}")
-                print(f"    Reason: {check['reason']}")
-    print("------------------------------------")
-
-    return 0 if results['commands_failed'] == 0 else 1
+    return summary
 
 def main():
-    """Entry point."""
-    sys.exit(validate_quickstart())
+    """Entry point for the quickstart validation script."""
+    logger.info("Starting quickstart validation (Task T039)...")
+    result = validate_quickstart("quickstart.md")
+
+    if result["status"] == "failed":
+        logger.error("Quickstart validation failed.")
+        sys.exit(1)
+    else:
+        logger.info("Quickstart validation passed.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,6 @@
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., validation log, report, or updated quickstart.md) is provided
+    to demonstrate that the quickstart.md validation was actually executed; the claim
+    lacks any concrete evidence. The required output is missing.
