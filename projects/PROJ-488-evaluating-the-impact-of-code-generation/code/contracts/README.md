@@ -1,45 +1,93 @@
-# Contracts Module Documentation
+# Contracts Module
 
-This directory contains the formal contracts for the `PROJ-488-evaluating-the-impact-of-code-generation` pipeline.
+This module provides a contract-based validation system for the llmXive pipeline,
+ensuring data integrity, API consistency, and runtime correctness.
 
 ## Overview
 
-Contracts ensure that data, APIs, and validation logic remain consistent and correct throughout the pipeline execution.
+The contracts system implements three types of validations:
 
-## Structure
-
-- `data_contracts.py`: Defines schemas and validators for data models (CodeSnippet, MetricScore, etc.).
-- `api_contracts.py`: Defines the expected CLI interface and function signatures.
-- `validation_contracts.py`: Implements pre-condition and post-condition checks for pipeline stages.
-- `__init__.py`: Exports public contract interfaces.
-- `README.md`: This file.
+1. **Data Contracts**: Validate data structures against defined schemas
+2. **API Contracts**: Validate function signatures and CLI arguments
+3. **Validation Contracts**: Validate preconditions and postconditions
 
 ## Usage
 
-Import contracts in pipeline stages to enforce rules:
+### Data Contracts
 
 ```python
-from code.contracts import validate_preconditions, validate_postconditions, CodeSnippetContract
+from contracts import validate_data_contract
 
-def my_stage(config):
- validate_preconditions("my_stage", config)
- #... logic...
- validate_postconditions("my_stage", config, result)
+# Validate a code snippet
+snippet_data = {
+ 'id': '123',
+ 'source': 'codesearchnet',
+ 'code': 'def foo(): pass',
+ 'length': 15,
+ 'language': 'python'
+}
+
+is_valid = validate_data_contract('code_snippet', snippet_data)
 ```
 
-## Data Models
+### API Contracts
 
-All data contracts align with the definitions in `code/data_model.py`:
-- `CodeSnippet`
-- `MetricScore`
-- `DatasetGroup`
-- `MetricResult`
+```python
+from contracts import CLIContract
 
-## Validation Rules
+contract = CLIContract(
+ stage_name='metric_extraction',
+ required_args=['input_path', 'output_path'],
+ optional_args={'verbose': bool}
+)
 
-- **Pre-conditions**: Check existence of input files, directory permissions, and required config keys.
-- **Post-conditions**: Verify output file creation, non-empty content, and schema compliance.
+parser = contract.create_parser()
+args = parser.parse_args()
+is_valid = contract.validate(args)
+```
 
-## Error Handling
+### Validation Contracts
 
-Violations raise `ContractViolationError`, which should be caught and logged by the main pipeline controller.
+```python
+from contracts import run_contract_check, file_exists
+
+def process_data():
+ # Processing logic
+ return result
+
+preconditions = {
+ 'input_file_exists': lambda: file_exists('/path/to/input')
+}
+
+postconditions = {
+ 'output_created': lambda: file_exists('/path/to/output')
+}
+
+result = run_contract_check(
+ contract_name='process_data',
+ preconditions=preconditions,
+ postconditions=postconditions,
+ execution_func=process_data
+)
+```
+
+## Contract Violations
+
+When a contract is violated, a `ContractViolationError` is raised with:
+- Contract name
+- Error message
+- Details dictionary
+- Timestamp
+
+## Configuration
+
+Contract behavior can be configured via `contracts_config.py`:
+
+```python
+from contracts import update_contract_config
+
+update_contract_config({
+ 'strict_mode': False,
+ 'raise_on_violation': False
+})
+```

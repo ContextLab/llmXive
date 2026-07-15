@@ -1,122 +1,183 @@
 """
-Validation Contracts: Pre-conditions and Post-conditions for pipeline stages.
+Validation Contracts Module
 
-This module implements the checks that must pass before a stage runs
-(pre-conditions) and checks that must pass after a stage completes
-(post-conditions) to ensure data integrity.
+Defines preconditions, postconditions, and runtime validation
+contracts for pipeline stages.
+
+Contracts:
+- ContractViolationError: Exception raised when a contract is violated
+- validate_preconditions: Check preconditions before execution
+- validate_postconditions: Check postconditions after execution
+- run_contract_check: Execute a full contract check
+- File/Directory existence validators
+- Data quality validators (no NaN, minimum counts, etc.)
 """
+
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-
 from ..logging_config import get_logger
 from ..data_model import MetricResult
 
-logger = get_logger("contracts.validation")
+logger = get_logger(__name__)
+
 
 class ContractViolationError(Exception):
-    """Raised when a pre-condition or post-condition is violated."""
-    pass
-
-def validate_preconditions(stage_name: str, config: Dict[str, Any]) -> bool:
-    """
-    Checks pre-conditions for a given stage.
+    """Exception raised when a contract validation fails."""
     
-    Pre-conditions:
-    - Input directories exist.
-    - Required configuration keys are present.
-    - Previous stages have produced expected artifacts (if applicable).
-    """
-    logger.info(f"Validating pre-conditions for stage: {stage_name}")
-    
-    # Check input directory
-    if 'input_dir' in config:
-        input_path = Path(config['input_dir'])
-        if not input_path.exists():
-            msg = f"Pre-condition failed: Input directory {input_path} does not exist"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-    
-    # Check output directory write permission
-    if 'output_dir' in config:
-        output_path = Path(config['output_dir'])
-        if output_path.exists() and not os.access(output_path, os.W_OK):
-            msg = f"Pre-condition failed: Cannot write to output directory {output_path}"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-            
-    # Stage-specific checks
-    if stage_name == 'metrics':
-        if 'snippets_file' not in config:
-            msg = "Pre-condition failed: 'snippets_file' required for metrics stage"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-            
-    logger.debug(f"Pre-conditions for {stage_name} validated successfully")
-    return True
-
-def validate_postconditions(stage_name: str, config: Dict[str, Any], result: Any) -> bool:
-    """
-    Checks post-conditions after a stage completes.
-    
-    Post-conditions:
-    - Output files were created.
-    - Output files are non-empty.
-    - Output data conforms to schema (e.g., CSV headers).
-    """
-    logger.info(f"Validating post-conditions for stage: {stage_name}")
-    
-    if 'output_dir' not in config:
-        logger.warning("Post-condition check skipped: No output_dir in config")
-        return True
+    def __init__(self, contract_name: str, message: str, details: Optional[Dict[str, Any]] = None):
+        self.contract_name = contract_name
+        self.message = message
+        self.details = details or {}
+        self.timestamp = datetime.now().isoformat()
         
-    output_path = Path(config['output_dir'])
+        super().__init__(f"[{contract_name}] {message}")
+
+
+def validate_preconditions(contract_name: str, preconditions: Dict[str, Any]) -> bool:
+    """
+    Validate preconditions before executing a pipeline stage.
     
-    # Generic check: Did any file get created?
-    if stage_name in ['ingestion', 'metrics', 'stats']:
-        files = list(output_path.glob("*"))
-        if not files:
-            msg = f"Post-condition failed: No files created in {output_path}"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-            
-    # Specific check for metrics stage (CSV validation)
-    if stage_name == 'metrics':
-        csv_files = list(output_path.glob("*.csv"))
-        if not csv_files:
-            msg = f"Post-condition failed: No CSV files created in {output_path}"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-            
-        # Validate one CSV header
-        from .data_contracts import MetricResultContract
-        import pandas as pd
-        
-        sample_csv = csv_files[0]
+    Args:
+        contract_name: Name of the contract being validated
+        preconditions: Dict of precondition name -> validator function
+    
+    Returns:
+        bool: True if all preconditions pass
+    
+    Raises:
+        ContractViolationError: If any precondition fails
+    """
+    for name, validator in preconditions.items():
         try:
-            df = pd.read_csv(sample_csv)
-            if not MetricResultContract.validate_csv_header(list(df.columns)):
-                msg = f"Post-condition failed: {sample_csv} has invalid headers"
-                logger.error(msg)
-                raise ContractViolationError(msg)
+            if not validator():
+                raise ContractViolationError(
+                    contract_name,
+                    f"Precondition '{name}' failed"
+                )
         except Exception as e:
-            msg = f"Post-condition failed: Could not read/validate {sample_csv}: {str(e)}"
-            logger.error(msg)
-            raise ContractViolationError(msg)
-            
-    logger.debug(f"Post-conditions for {stage_name} validated successfully")
+            logger.error(f"Precondition check error for '{name}': {e}")
+            raise ContractViolationError(
+                contract_name,
+                f"Precondition '{name}' raised exception: {str(e)}"
+            )
+    
     return True
 
-def run_contract_check(stage_name: str, config: Dict[str, Any], func: callable) -> Any:
+
+def validate_postconditions(contract_name: str, postconditions: Dict[str, Any]) -> bool:
     """
-    Wrapper to enforce contracts around a stage function.
+    Validate postconditions after executing a pipeline stage.
+    
+    Args:
+        contract_name: Name of the contract being validated
+        postconditions: Dict of postcondition name -> validator function
+    
+    Returns:
+        bool: True if all postconditions pass
+    
+    Raises:
+        ContractViolationError: If any postcondition fails
     """
-    validate_preconditions(stage_name, config)
+    for name, validator in postconditions.items():
+        try:
+            if not validator():
+                raise ContractViolationError(
+                    contract_name,
+                    f"Postcondition '{name}' failed"
+                )
+        except Exception as e:
+            logger.error(f"Postcondition check error for '{name}': {e}")
+            raise ContractViolationError(
+                contract_name,
+                f"Postcondition '{name}' raised exception: {str(e)}"
+            )
+    
+    return True
+
+
+def run_contract_check(contract_name: str, preconditions: Dict[str, Any], 
+                       postconditions: Dict[str, Any], 
+                       execution_func: callable) -> Any:
+    """
+    Run a full contract check around an execution function.
+    
+    Args:
+        contract_name: Name of the contract
+        preconditions: Pre-execution validators
+        postconditions: Post-execution validators
+        execution_func: Function to execute between checks
+    
+    Returns:
+        The result of execution_func
+    
+    Raises:
+        ContractViolationError: If pre or post conditions fail
+    """
+    validate_preconditions(contract_name, preconditions)
+    
     try:
-        result = func(config)
-        validate_postconditions(stage_name, config, result)
+        result = execution_func()
+        validate_postconditions(contract_name, postconditions)
         return result
-    except ContractViolationError as e:
-        logger.critical(f"Contract violation in {stage_name}: {str(e)}")
+    except ContractViolationError:
         raise
+    except Exception as e:
+        logger.error(f"Execution error in contract {contract_name}: {e}")
+        raise ContractViolationError(
+            contract_name,
+            f"Execution failed: {str(e)}"
+        )
+
+
+# File and Directory Validators
+
+def file_exists(path: str) -> bool:
+    """Validator: Check if a file exists."""
+    exists = os.path.isfile(path)
+    if not exists:
+        logger.error(f"File does not exist: {path}")
+    return exists
+
+
+def directory_exists(path: str) -> bool:
+    """Validator: Check if a directory exists."""
+    exists = os.path.isdir(path)
+    if not exists:
+        logger.error(f"Directory does not exist: {path}")
+    return exists
+
+
+def not_empty(value: Any) -> bool:
+    """Validator: Check if a value is not empty."""
+    is_empty = not bool(value)
+    if is_empty:
+        logger.error("Value is empty")
+    return not is_empty
+
+
+def valid_metric_result(result: MetricResult) -> bool:
+    """Validator: Check if a MetricResult is valid."""
+    from ..data_model import validate_metric_result
+    is_valid = validate_metric_result(result)
+    if not is_valid:
+        logger.error("MetricResult validation failed")
+    return is_valid
+
+
+def sample_count_minimum(data: List[Any], minimum: int) -> bool:
+    """Validator: Check if sample count meets minimum requirement."""
+    count = len(data)
+    if count < minimum:
+        logger.error(f"Sample count {count} is below minimum {minimum}")
+    return count >= minimum
+
+
+def no_nan_values(data: List[float]) -> bool:
+    """Validator: Check that a list contains no NaN values."""
+    import math
+    has_nan = any(math.isnan(x) for x in data if isinstance(x, float))
+    if has_nan:
+        logger.error("Data contains NaN values")
+    return not has_nan

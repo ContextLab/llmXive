@@ -5,19 +5,20 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 import yaml
 
-STATE_DIR = Path("state")
-PROJECT_STATE_FILE = STATE_DIR / "projects" / "PROJ-488-evaluating-the-impact-of-code-generation.yaml"
+import logging
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
+STATE_FILE_PATH = Path("state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml")
+
+def ensure_state_directory():
+    """Ensure the state directory exists."""
+    STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured state directory exists at {STATE_FILE_PATH.parent}")
 
 def compute_file_hash(file_path: Union[str, Path]) -> str:
-    """
-    Compute SHA-256 hash of a file.
-    
-    Args:
-        file_path: Path to the file
-    
-    Returns:
-        Hex string of the SHA-256 hash
-    """
+    """Compute SHA-256 hash of a file."""
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -29,295 +30,183 @@ def compute_file_hash(file_path: Union[str, Path]) -> str:
     return sha256_hash.hexdigest()
 
 def compute_directory_hash(dir_path: Union[str, Path]) -> str:
-    """
-    Compute a combined hash for all files in a directory.
-    
-    Args:
-        dir_path: Path to the directory
-    
-    Returns:
-        Hex string of the combined SHA-256 hash
-    """
+    """Compute a combined SHA-256 hash for all files in a directory."""
     dir_path = Path(dir_path)
-    if not dir_path.exists():
-        raise FileNotFoundError(f"Directory not found: {dir_path}")
+    if not dir_path.exists() or not dir_path.is_dir():
+        raise NotADirectoryError(f"Directory not found: {dir_path}")
     
     combined_hash = hashlib.sha256()
-    
-    # Sort files for deterministic ordering
-    files = sorted(dir_path.rglob("*"))
-    for file_path in files:
+    for file_path in sorted(dir_path.rglob("*")):
         if file_path.is_file():
-          # Include relative path in hash
-          rel_path = file_path.relative_to(dir_path)
-          combined_hash.update(str(rel_path).encode('utf-8'))
-          # Include file content hash
-          file_hash = compute_file_hash(file_path)
-          combined_hash.update(file_hash.encode('utf-8'))
+            file_hash = compute_file_hash(file_path)
+            combined_hash.update(file_hash.encode())
     
     return combined_hash.hexdigest()
 
-def load_state_file(state_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Load state from YAML file.
+def load_state_file() -> Dict[str, Any]:
+    """Load the state YAML file, creating it if it doesn't exist."""
+    ensure_state_directory()
     
-    Args:
-        state_path: Optional path to state file. Defaults to project state file.
-    
-    Returns:
-        Dictionary containing state data
-    """
-    if state_path is None:
-        state_path = PROJECT_STATE_FILE
-    else:
-        state_path = Path(state_path)
-    
-    if not state_path.exists():
-        return {
+    if not STATE_FILE_PATH.exists():
+        initial_state = {
             "project_id": "PROJ-488-evaluating-the-impact-of-code-generation",
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat(),
+            "status": "active",
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
+            "amendment_status": {},
             "artifacts": {},
-            "figures": {},
-            "metrics": {},
-            "statistics": {},
-            "amendment_status": {}
+            "pipeline_stages": {}
         }
+        save_state_file(initial_state)
+        return initial_state
     
-    with open(state_path, 'r') as f:
+    with open(STATE_FILE_PATH, "r") as f:
         return yaml.safe_load(f)
 
-def save_state_file(state_path: Union[str, Path], state: Dict[str, Any]) -> None:
-    """
-    Save state to YAML file.
+def save_state_file(state: Dict[str, Any]):
+    """Save the state dictionary to the YAML file."""
+    ensure_state_directory()
     
-    Args:
-        state_path: Path to state file
-        state: State dictionary to save
-    """
-    state_path = Path(state_path)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_path, 'w') as f:
+    with open(STATE_FILE_PATH, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-
-def update_state_with_artifact(
-    state: Dict[str, Any],
-    artifact_type: str,
-    artifact_name: str,
-    artifact_path: Union[str, Path],
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Update state with a new artifact entry.
     
-    Args:
-        state: Current state dictionary
-        artifact_type: Type of artifact (e.g., 'metric', 'figure', 'dataset')
-        artifact_name: Name/identifier for the artifact
-        artifact_path: Path to the artifact file
-        metadata: Optional additional metadata
-    
-    Returns:
-        Updated state dictionary
-    """
-    artifact_path = Path(artifact_path)
-    
-    if artifact_type not in state:
-        state[artifact_type] = {}
-    
-    try:
-        file_hash = compute_file_hash(artifact_path)
-    except FileNotFoundError:
-        file_hash = None
-    
-    entry = {
-        "path": str(artifact_path),
-        "hash": file_hash,
-        "updated_at": datetime.now().isoformat()
-    }
-    
-    if metadata:
-        entry.update(metadata)
-    
-    state[artifact_type][artifact_name] = entry
-    state["updated_at"] = datetime.now().isoformat()
-    
-    return state
+    logger.info(f"State file saved to {STATE_FILE_PATH}")
 
 def update_state_timestamp(state: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Update the timestamp in the state.
-    
-    Args:
-        state: Current state dictionary
-    
-    Returns:
-        Updated state dictionary
-    """
-    state["updated_at"] = datetime.now().isoformat()
+    """Update the updated_at timestamp in the state dictionary."""
+    state["updated_at"] = datetime.utcnow().isoformat()
+    logger.info(f"Updated state timestamp to {state['updated_at']}")
     return state
 
-def register_artifact_hash(
-    state: Dict[str, Any],
-    artifact_type: str,
-    artifact_name: str,
-    artifact_hash: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Register an artifact hash in state without computing it.
+def update_state_with_artifact(state: Dict[str, Any], artifact_name: str, artifact_path: Union[str, Path], artifact_type: str = "file") -> Dict[str, Any]:
+    """Add or update an artifact entry in the state."""
+    artifact_path = Path(artifact_path)
     
-    Args:
-        state: Current state dictionary
-        artifact_type: Type of artifact
-        artifact_name: Name/identifier for the artifact
-        artifact_hash: Pre-computed hash
-        metadata: Optional additional metadata
+    if "artifacts" not in state:
+        state["artifacts"] = {}
     
-    Returns:
-        Updated state dictionary
-    """
-    if artifact_type not in state:
-        state[artifact_type] = {}
+    if artifact_name not in state["artifacts"]:
+        state["artifacts"][artifact_name] = {}
     
-    entry = {
-        "hash": artifact_hash,
-        "updated_at": datetime.now().isoformat()
+    artifact_info = {
+        "path": str(artifact_path),
+        "type": artifact_type,
+        "hash": compute_file_hash(artifact_path) if artifact_type == "file" else compute_directory_hash(artifact_path),
+        "added_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat()
     }
     
-    if metadata:
-        entry.update(metadata)
-    
-    state[artifact_type][artifact_name] = entry
-    state["updated_at"] = datetime.now().isoformat()
-    
+    state["artifacts"][artifact_name] = artifact_info
+    logger.info(f"Updated state with artifact: {artifact_name} ({artifact_type})")
     return state
 
-def get_artifact_state(state: Dict[str, Any], artifact_type: str, artifact_name: str) -> Optional[Dict[str, Any]]:
-    """
-    Get state information for a specific artifact.
+def register_artifact_hash(state: Dict[str, Any], artifact_name: str, artifact_hash: str):
+    """Register a pre-computed hash for an artifact."""
+    if "artifacts" not in state:
+        state["artifacts"] = {}
     
-    Args:
-        state: Current state dictionary
-        artifact_type: Type of artifact
-        artifact_name: Name/identifier for the artifact
+    if artifact_name in state["artifacts"]:
+        state["artifacts"][artifact_name]["hash"] = artifact_hash
+        state["artifacts"][artifact_name]["updated_at"] = datetime.utcnow().isoformat()
+    else:
+        state["artifacts"][artifact_name] = {
+            "hash": artifact_hash,
+            "registered_at": datetime.utcnow().isoformat()
+        }
     
-    Returns:
-        Artifact state dictionary or None if not found
-    """
-    if artifact_type in state and artifact_name in state[artifact_type]:
-        return state[artifact_type][artifact_name]
-    return None
+    logger.info(f"Registered artifact hash for: {artifact_name}")
+    return state
 
-def verify_artifact_integrity(state: Dict[str, Any], artifact_type: str, artifact_name: str) -> bool:
-    """
-    Verify the integrity of an artifact by comparing stored hash with current hash.
-    
-    Args:
-        state: Current state dictionary
-        artifact_type: Type of artifact
-        artifact_name: Name/identifier for the artifact
-    
-    Returns:
-        True if integrity verified, False otherwise
-    """
-    artifact_info = get_artifact_state(state, artifact_type, artifact_name)
-    if not artifact_info or "path" not in artifact_info or "hash" not in artifact_info:
+def get_artifact_state(state: Dict[str, Any], artifact_name: str) -> Optional[Dict[str, Any]]:
+    """Retrieve the state of a specific artifact."""
+    if "artifacts" not in state:
+        return None
+    return state["artifacts"].get(artifact_name)
+
+def verify_artifact_integrity(state: Dict[str, Any], artifact_name: str) -> bool:
+    """Verify the integrity of an artifact by recomputing its hash."""
+    artifact_info = get_artifact_state(state, artifact_name)
+    if not artifact_info:
+        logger.error(f"Artifact not found in state: {artifact_name}")
         return False
     
-    try:
-        current_hash = compute_file_hash(artifact_info["path"])
-        return current_hash == artifact_info["hash"]
-    except FileNotFoundError:
+    artifact_path = Path(artifact_info["path"])
+    if not artifact_path.exists():
+        logger.error(f"Artifact file not found: {artifact_path}")
         return False
+    
+    current_hash = compute_file_hash(artifact_path) if artifact_info["type"] == "file" else compute_directory_hash(artifact_path)
+    
+    if current_hash != artifact_info["hash"]:
+        logger.error(f"Artifact integrity check failed for {artifact_name}. Expected: {artifact_info['hash']}, Got: {current_hash}")
+        return False
+    
+    logger.info(f"Artifact integrity verified for {artifact_name}")
+    return True
 
-def update_state_after_pipeline_stage(stage_name: str, artifacts: Dict[str, List[Dict[str, str]]]) -> None:
+def update_state_after_pipeline_stage(state: Dict[str, Any], stage_name: str, stage_status: str = "completed", details: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Update state after a pipeline stage completes.
-    
-    Args:
-        stage_name: Name of the pipeline stage
-        artifacts: Dictionary mapping artifact types to lists of artifact info
+    Update the state file to record the completion of a pipeline stage.
+    This function updates the 'updated_at' timestamp and records stage-specific details.
     """
-    state = load_state_file()
-    
     if "pipeline_stages" not in state:
         state["pipeline_stages"] = {}
     
-    stage_info = {
-        "completed_at": datetime.now().isoformat(),
-        "artifacts": artifacts
+    stage_record = {
+        "status": stage_status,
+        "completed_at": datetime.utcnow().isoformat(),
+        "details": details or {}
     }
     
-    state["pipeline_stages"][stage_name] = stage_info
+    state["pipeline_stages"][stage_name] = stage_record
+    state = update_state_timestamp(state)
     
-    # Update individual artifacts
-    for artifact_type, artifact_list in artifacts.items():
-        for artifact in artifact_list:
-            if "name" in artifact and "path" in artifact:
-                update_state_with_artifact(state, artifact_type, artifact["name"], artifact["path"])
-    
-    state["updated_at"] = datetime.now().isoformat()
-    save_state_file(PROJECT_STATE_FILE, state)
+    logger.info(f"Recorded pipeline stage completion: {stage_name} ({stage_status})")
+    return state
 
-def update_state_after_stage(stage_name: str, stage_artifact_path: Optional[Union[str, Path]] = None) -> None:
+def update_state_after_stage(stage_name: str, stage_status: str = "completed", details: Optional[Dict[str, Any]] = None):
     """
-    Updates the state YAML with an 'updated_at' timestamp after a pipeline stage.
-    If an artifact path is provided, it also registers the artifact hash.
-    
-    Args:
-        stage_name: Name of the pipeline stage (e.g., 'ingestion', 'metrics', 'analysis').
-        stage_artifact_path: Optional path to the main output artifact of this stage.
+    Convenience function to load state, update for a stage, and save.
+    Used by scripts to automatically update the state YAML after a stage.
     """
     state = load_state_file()
-    
-    # Update the global timestamp
-    state["updated_at"] = datetime.now().isoformat()
-    
-    # Log stage completion in the artifacts section if path provided
-    if stage_artifact_path:
-        artifact_path = Path(stage_artifact_path)
-        if artifact_path.exists():
-            if artifact_path.is_file():
-                file_hash = compute_file_hash(artifact_path)
-                artifact_key = str(artifact_path.relative_to(PROJECT_ROOT))
-            else:
-                file_hash = compute_directory_hash(artifact_path)
-                artifact_key = str(artifact_path.relative_to(PROJECT_ROOT))
-            
-            state["artifacts"][artifact_key] = {
-                "type": "stage_output",
-                "stage": stage_name,
-                "hash": file_hash,
-                "updated_at": state["updated_at"]
-            }
-        else:
-            # Log that the stage completed but artifact not found yet
-            state["stages"] = state.get("stages", {})
-            state["stages"][stage_name] = {
-                "status": "completed",
-                "updated_at": state["updated_at"],
-                "artifact_found": False
-            }
-    else:
-        # Just timestamp update for stages without a single main artifact
-        state["stages"] = state.get("stages", {})
-        state["stages"][stage_name] = {
-            "status": "completed",
-            "updated_at": state["updated_at"]
-        }
-    
+    state = update_state_after_pipeline_stage(state, stage_name, stage_status, details)
     save_state_file(state)
 
 def main():
-    """Main entry point for state tracker module."""
-    print("State Tracker Module")
-    print(f"Project State File: {PROJECT_STATE_FILE}")
+    """
+    CLI entry point for state tracker operations.
+    Usage: python -m code.state_tracker [command] [args]
+    """
+    import argparse
     
-    # Load and display current state
-    state = load_state_file()
-    print(json.dumps(state, indent=2))
+    parser = argparse.ArgumentParser(description="State Tracker CLI")
+    subparsers = parser.add_subparsers(dest="command", help="Commands")
+    
+    # Command: update-stage
+    parser_stage = subparsers.add_parser("update-stage", help="Update state after a pipeline stage")
+    parser_stage.add_argument("stage_name", help="Name of the pipeline stage")
+    parser_stage.add_argument("--status", default="completed", help="Status of the stage (default: completed)")
+    parser_stage.add_argument("--details", type=str, default="{}", help="JSON string of details")
+    
+    # Command: verify
+    parser_verify = subparsers.add_parser("verify", help="Verify artifact integrity")
+    parser_verify.add_argument("artifact_name", help="Name of the artifact to verify")
+    
+    args = parser.parse_args()
+    
+    if args.command == "update-stage":
+        details = json.loads(args.details)
+        update_state_after_stage(args.stage_name, args.status, details)
+        print(f"State updated for stage: {args.stage_name}")
+    
+    elif args.command == "verify":
+        state = load_state_file()
+        success = verify_artifact_integrity(state, args.artifact_name)
+        print(f"Verification {'passed' if success else 'failed'} for artifact: {args.artifact_name}")
+    
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

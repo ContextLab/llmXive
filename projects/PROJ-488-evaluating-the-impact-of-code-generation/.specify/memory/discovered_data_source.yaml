@@ -1,0 +1,12 @@
+status: none
+intent: download CodeSearchNet, CodeParrot CodeGen, HumanEval, and MBPP datasets via
+  huggingface datasets python package dataset
+required_fields:
+- code
+- language
+- function_name
+- docstring
+- repo_name
+- file_path
+- original_url
+- metadata

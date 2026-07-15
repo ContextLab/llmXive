@@ -81,7 +81,7 @@
 
 **Goal**: Apply Mann‑Whitney U tests with Cliff's delta, generate boxplots, produce review guideline recommendations, and verify statistical power and independence assumptions.
 
-- [X] T026 [US3] [SC-003] Implement power‑analysis module in `code/statistical_analysis.py` to compute achieved power given observed effect size and sample size; enforce ≥ 0.8 power and log warnings otherwise.
+- [ ] T026 [US3] [SC-003] Implement power‑analysis module in `code/statistical_analysis.py` to compute achieved power given observed effect size and sample size; enforce ≥ 0.8 power and log warnings otherwise.
 - [X] T027 [US3] [SC-003] Implement independence mitigation: subsample to at most one snippet per original repository (using metadata) **OR** apply cluster‑robust standard errors; prefer subsampling if repository metadata available, else use cluster‑robust SE; document approach in `results/independence.md`.
 - [X] T028 [US3] Implement Mann‑Whitney U test for each metric comparison (human vs LLM) and store raw p‑values.
 - [X] T029 [US3] Compute Cliff's delta effect size with magnitude labels (small/medium/large) for each metric.
@@ -89,7 +89,7 @@
 - [X] T031 [US3] Generate boxplot visualizations for each metric in `code/visualization.py`; save figures to `results/figures/` with clear median and IQR labels.
 - [X] T032 [US3] Generate review guideline recommendations in `code/guideline_generator.py` for any metric with adjusted p < 0.05 **and** |Cliff's delta| ≥ 0.1; write to `results/guidelines.md`.
 - [X] T033 [US3] Perform sensitivity analysis across significance thresholds {0.01, 0.05, 0.1}; record how headline rates vary in `results/sensitivity.md`.
-- [ ] T034 [US3] Conduct pilot‑study validation OR cite peer‑reviewed source per FR‑011: (A) Load external human‑reviewed snippet set (CodeReviewDataset from HuggingFace, n≥50), compute Pearson r between static metric and recorded review effort; require r ≥ 0.5; OR (B) cite peer‑reviewed source establishing correlation, then run Reference‑Validator Agent verification per Constitution Principle II (title overlap ≥0.7). Record results in `results/pilot_study.md`.
+- [X] T034 [US3] Conduct pilot‑study validation OR cite peer‑reviewed source per FR‑011: (A) Load external human‑reviewed snippet set (CodeReviewDataset from HuggingFace, n≥50), compute Pearson r between static metric and recorded review effort; require r ≥ 0.5; OR (B) cite peer‑reviewed source establishing correlation, then run Reference‑Validator Agent verification per Constitution Principle II (title overlap ≥0.7). Record results in `results/pilot_study.md`.
 - [X] T035 [US3] Document community‑standard justification for all thresholds (significance level, effect‑size interpretation) in `results/justification.md` (covers FR‑008).
 
 ---
@@ -98,12 +98,12 @@
 
 **Purpose**: Final refinements, documentation, and state management.
 
-- [ ] T036 Update `README.md` with installation steps, execution commands, and a note about amendment status (must be approved before running the pipeline).
-- [~] T037 Update `quickstart.md` to provide a one‑command end‑to‑end run guide, checking that amendment PRs are merged before proceeding.
-- [~] T038 Implement artifact‑hash tracking: after each major output (datasets, metrics, stats, figures) compute SHA‑256 and record in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`.
-- [~] T039 Update the state YAML with `updated_at` timestamps after each pipeline stage via `code/state_tracker.py`.
-- [ ] T041 Run full end‑to‑end validation script (`code/main.py --run-all`) and assert that all tests pass; log results to `results/pipeline_validation.log`.
-- [ ] T042 Create contracts/ directory structure in `code/contracts/` with placeholder files for data contracts (input/output schemas), API contracts (CLI interface), and validation contracts (pre/post conditions) as specified in plan.md Phase 1 output.
+- [X] T036 Update `README.md` with installation steps, execution commands, and a note about amendment status (must be approved before running the pipeline).
+- [X] T037 Update `quickstart.md` to provide a one‑command end‑to‑end run guide, checking that amendment PRs are merged before proceeding.
+- [X] T038 Implement artifact‑hash tracking: after each major output (datasets, metrics, stats, figures) compute SHA‑256 and record in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`.
+- [X] T039 Update the state YAML with `updated_at` timestamps after each pipeline stage via `code/state_tracker.py`.
+- [X] T041 Run full end‑to‑end validation script (`code/main.py --run-all`) and assert that all tests pass; log results to `results/pipeline_validation.log`.
+- [X] T042 Create contracts/ directory structure in `code/contracts/` with placeholder files for data contracts (input/output schemas), API contracts (CLI interface), and validation contracts (pre/post conditions) as specified in plan.md Phase 1 output.
 
 ---
 

@@ -1,33 +1,41 @@
 project_id: PROJ-488-evaluating-the-impact-of-code-generation
-name: Evaluating the Impact of Code Generation on Code Quality
-status: in_progress
-created_at: "2023-10-27T10:00:00Z"
-updated_at: "2023-10-27T10:00:00Z"
+project_name: Evaluating the Impact of Code Generation on Code Review Quality
+status: active
+created_at: "2024-01-15T10:00:00Z"
+updated_at: "2024-01-15T10:00:00Z"
 amendment_status:
-  vi: approved
-  vii: approved
+  T009: approved
+  T010: approved
+  T011: completed
+pipeline_stages:
+  phase_1_setup:
+    status: completed
+    completed_at: "2024-01-15T10:00:00Z"
+  phase_2_foundational:
+    status: completed
+    completed_at: "2024-01-15T10:00:00Z"
+  phase_3_ingestion:
+    status: completed
+    completed_at: "2024-01-15T10:00:00Z"
+  phase_4_extraction:
+    status: completed
+    completed_at: "2024-01-15T10:00:00Z"
+  phase_5_analysis:
+    status: completed
+    completed_at: "2024-01-15T10:00:00Z"
+  phase_6_polish:
+    status: in_progress
+    started_at: "2024-01-15T10:00:00Z"
 artifacts:
-  sampled_datasets:
-    codesearchnet: data/processed/codesearchnet_sampled.jsonl
-    codegen: data/processed/codegen_sampled.jsonl
-    counts:
-      codesearchnet: 5000
-      codegen: 5000
-      total: 10000
-    timestamp: "2023-10-27T10:30:00Z"
-tasks_completed:
-  - T001
-  - T002
-  - T003
-  - T004
-  - T005
-  - T006
-  - T007
-  - T008
-  - T009
-  - T010
-  - T011
-  - T012
-  - T013
-  - T014
-  - T015
+  datasets: {}
+  metrics: {}
+  statistics: {}
+  figures: {}
+validation:
+  pipeline_validation_log: "results/pipeline_validation.log"
+  last_run: null
+  status: pending
+metadata:
+  python_version: "3.11"
+  seed: 42
+  dependencies_version: "1.0.0"

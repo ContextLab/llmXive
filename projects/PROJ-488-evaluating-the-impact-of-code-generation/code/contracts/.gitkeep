@@ -1,0 +1,2 @@
+# This file ensures the contracts directory exists in version control.
+# The actual contract definitions are in the Python modules.
