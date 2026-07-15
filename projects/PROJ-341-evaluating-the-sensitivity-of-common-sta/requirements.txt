@@ -9,4 +9,4 @@ requests
 ucimlrepo
 openml
 pytest
-pyyaml
+pytest-cov

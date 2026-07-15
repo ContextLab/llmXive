@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations.
+**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations. [UNRESOLVED-CLAIM: c_6cfa6c83 — status=not_enough_info]
 
 **Independent Test**: {{claim:c_46a368b8}}
 
@@ -81,13 +81,13 @@
 ### Implementation for User Story 1
 
 - [X] T012b [US1] Refactor `code/simulation/test_runner.py` to accept `alpha` as a dynamic parameter instead of hardcoding 0.05; this enables SC-004 sensitivity analysis (FR-002, SC-004)
-- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; verify runtime of the full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml` (FR-001, Constitution VI)
-- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5 and route to fallback logic(FR-007); MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002, FR-007)
+- [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; verify runtime of the full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml` [UNRESOLVED-CLAIM: c_a927f9ac — status=not_enough_info] (FR-001, Constitution VI)
+- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5 and route to fallback logic [UNRESOLVED-CLAIM: c_e243bade — status=not_enough_info](FR-007); MUST flag n < 30 for normality warnings [UNRESOLVED-CLAIM: c_abea95d8 — status=not_enough_info]; supports dynamic alpha (FR-002, FR-007)
 - [X] T013 [US1] Implement logic in `code/simulation/chi_squared_utils.py` to detect expected cell counts < 5 (Wikipedia: Chi-squared test, https://en.wikipedia.org/wiki/Chi-squared_test) and apply Yates' correction or Fisher's Exact Test (FR-007, Edge Cases)
 - [X] T013b [US1] Implement logic in `code/simulation/test_runner.py` to flag sample sizes n < 30 as "small sample warning" where normality assumptions are severely violated (Edge Cases)
 - [X] T014a [US1] Create `code/main.py` skeleton with argument parsing for sample size, effect size, test type, and alpha
 - [X] T014b [US1] Implement parameter loop logic in `code/main.py` to iterate through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred] iterations per condition (FR-001)
-- [ ] T016 [US1] Write output results to `data/simulation/p_values_raw.csv` containing sample size, effect size, test type, raw p-values, and hypothesis state
+- [X] T016 [US1] Write output results to `data/simulation/p_values_raw.csv` containing sample size, effect size, test type, raw p-values, and hypothesis state
 - [X] T017 [US1] Implement aggregation logic to calculate empirical Type I (p < alpha when null true) and Type II (p > alpha when alt true) error rates per condition (FR-002)
 - [ ] T018 [US1] Save aggregated error rates to `data/simulation/error_rates_summary.csv`
 
@@ -132,13 +132,13 @@
 
 ### Implementation for User Story 3
 
-- [X] T029a [US3] Implement `code/analysis/validator.py` to download the UCI Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
-- [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
-- [X] T029c [US3] Implement `code/analysis/validator.py` to download the UCI Adult (Census Income) dataset using `ucimlrepo` with the dataset ID corresponding to the Adult dataset. (FR-006)
+- [X] T029a [US3] Implement `code/analysis/validator.py` to download the UCI Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding dataset identifier [UNRESOLVED-CLAIM: c_bea89f7e — status=not_enough_info]. (FR-006)
+- [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier [UNRESOLVED-CLAIM: c_8a76a6e4 — status=not_enough_info]. (FR-006)
+- [X] T029c [US3] Implement `code/analysis/validator.py` to download the UCI Adult (Census Income) dataset using `ucimlrepo` with the dataset ID corresponding to the Adult dataset [UNRESOLVED-CLAIM: c_eb379707 — status=not_enough_info]. (FR-006)
 - [ ] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III)
 - [X] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
 - [ ] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
-- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10, and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
+- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10 [UNRESOLVED-CLAIM: c_eb69ec5a — status=not_enough_info], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
 - [ ] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json` <!-- FAILED: unspecified -->
 - [X] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
 
@@ -250,5 +250,5 @@ With multiple developers:
 - **Compute Constraint**: Ensure all simulation tasks (T012, T014, T015) use vectorization or batch processing to stay within 6h/2CPU limits. Do not use 8-bit quantization or GPU.
 - **Alpha Constraint**: T012b must be completed before T012 to ensure dynamic alpha support for SC-004.
 - **Data Flow Constraint**: T016 (output CSV) must complete before T020 (threshold calculation) and T031 (validation) can execute.
-- **Real-Data Constraint**: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric IDs (197, 198, 522) to fetch datasets, not generic "download from UCI" instructions.
+- **Real-Data Constraint**: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric IDs (197, 198, 522) to fetch datasets [UNRESOLVED-CLAIM: c_e2b856d2 — status=not_enough_info], not generic "download from UCI" instructions.
 - **Note on Spec.md**: This is a plan-root cause. The tasks enforce the [deferred] minimum as per FR-001.
