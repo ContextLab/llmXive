@@ -1,5 +1,5 @@
-'|code exit if label missing no':
-  quote: 2 2
-  source_id: A290772
-  url: https://oeis.org/A290772
-  value: '2'
+'|label permutation shuffle test time':
+  quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe rmutations"
+  source_id: '1411.7565'
+  url: https://arxiv.org/abs/1411.7565
+  value: '100'
