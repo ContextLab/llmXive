@@ -13,7 +13,7 @@ A researcher needs to initialize and train a visual quantization codebook using 
 
 **Why this priority**: This is the foundational step. Without a successfully trained codebook on the low-resolution data, no high-resolution evaluation can occur. It validates the "training" phase of the hypothesis on CPU-only hardware.
 
-**Independent Test**: The system can be tested by running the training loop on a representative sample of COCO pairs., verifying that the codebook converges (loss decreases) and that the resulting quantized tokens can be reconstructed into 64x64 images with a PSNR > 15 dB, all within the 6-hour CPU time limit on a 2-core, 7GB RAM runner.
+**Independent Test**: The system can be tested by running the training loop on a representative sample of COCO pairs., verifying that the codebook converges (loss decreases) and that the resulting quantized tokens can be reconstructed into 64x64 images with a PSNR > 15 dB, all within the -hour CPU time limit on a multi-core, 7GB RAM runner.
 
 **Acceptance Scenarios**:
 1. **Given** the COCO dataset is downloaded and resized to 64x64, **When** the training loop executes on the CPU with frozen ViQ encoder weights, **Then** the codebook loss converges and the model saves a valid checkpoint.
@@ -27,7 +27,7 @@ A researcher needs to evaluate the trained low-resolution codebook on high-resol
 
 **Why this priority**: This directly tests the core hypothesis regarding "resolution shift" and the trade-off between semantic invariance and pixel fidelity. It is the primary experimental validation.
 
-**Independent Test**: The system can be tested by processing a batch of 50 high-resolution images (1024x1024) from ImageNet-1K and ChestX-ray14, generating reconstructions, and calculating the mean PSNR and SSIM. The test passes if the metrics are computed and the correlation with texture complexity (high-frequency energy) is plotted.
+**Independent Test**: The system can be tested by processing a batch of high-resolution images (1024x1024) from ImageNet-1K and ChestX-ray14, generating reconstructions, and calculating the mean PSNR and SSIM. The test passes if the metrics are computed and the correlation with texture complexity (high-frequency energy) is plotted.
 
 **Acceptance Scenarios**:
 1. **Given** a trained low-res codebook and a 1024x1024 image from ImageNet-1K or ChestX-ray14, **When** the image is encoded and decoded without resizing (validating resolution-invariant architecture), **Then** the system outputs a reconstructed image and calculates a PSNR value.

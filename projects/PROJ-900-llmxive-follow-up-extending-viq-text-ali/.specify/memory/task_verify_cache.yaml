@@ -1,0 +1,28 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/`, `data/processed/`, `data/results/`,\
+    \ `code/`, or `tests/` directories (each containing a `.gitkeep` file) was provided;\
+    \ the claim lacks any artifact showing these folders exist. The implementer must\
+    \ add the directories with non\u2011empty `.gitkeep` placeholder files."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
+    for ruff/black, `.ruff.toml`, or CI scripts invoking these tools) were provided,
+    nor any evidence that the tools have been set up and run. The required artifacts
+    are missing, so the task is not satisfied.
+T014:
+  c: false
+  h: f377d6e928eeab2a71f3bc0b26224c86509dc5e75e2c7172ed3b093c18c6e08a
+  r: "The repository contains `code/train.py`, but the shown portion ends before any\
+    \ checkpoint\u2011saving code and the expected output file `data/results/codebook_v0.pth`\
+    \ is absent. Consequently, the required checkpoint\u2011saving logic is not present\
+    \ and the artifact the task demanded does not exist."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log output was presented showing that training loss,
+    reconstruction loss, and codebook usage statistics are now being logged. The required
+    artifact (e.g., updated training script with logging statements or sample log
+    files) is missing, so the task is not satisfied.

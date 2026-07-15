@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T21:10:30.946638Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-900-llmxive-follow-up-extending-viq-text-ali
-last_run_id: 2ace809a-d454-4928-b45f-06da6ac6cf0f
+last_run_id: f7f9fff8-5c62-413c-ab10-c54dd6757874
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali
 title: 'llmXive follow-up: extending "ViQ: Text-Aligned Visual Quantized Representations
   at Any Resolution"'
-updated_at: '2026-07-14T02:41:06.313794Z'
+updated_at: '2026-07-15T16:47:40.149516Z'
