@@ -1,18 +1,14 @@
 {
   "project_id": "PROJ-475-predicting-plant-defense-compound-produc",
   "ok": false,
-  "reason": "19 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026generating deterministic mock data for CI/CD and testing en\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026verified URL or generate mock data.      Args:         data\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026unc: Function to call if mock data is needed.      Returns:\u2026\u201d; every produced artifact is gitignored (data/raw/compound_data.json, data/raw/env_data.json, data/raw/genomic_vcf.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/features_vif.csv; data/processed/filtered.csv",
+  "reason": "25 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/mock_generator.py: metric `concentration` assigned from an RNG draw (line 99); code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rified URLs or generates mock data for CI/testing. \"\"\" impo\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t configured. Generating mock data.\")     # Generate mock d\u2026\u201d; 4 declared deliverable(s) absent: data/processed/filtered.csv; data/raw/compound_data.json; data/raw/env_data.json",
   "artifacts": [
-    "data/raw/compound_data.json",
-    "data/raw/env_data.json",
-    "data/raw/genomic_vcf.json"
+    "code/data/raw/genomic_vcf.json"
   ],
-  "failures": [
-    "python code/main.py -> rc=1\n    ib/python3.11/site-packages/pandas/core/frame.py\", line 769, in __init__\n    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/.venv/lib/python3.11/site-packages/pandas/core/internals/construction.py\", line 460, in dict_to_mgr\n    return arrays_to_mgr(arrays, columns, index, dtype=dtype, consolidate=copy)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-  ],
-  "fix_rounds": 4,
+  "failures": [],
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 6,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T00:34:57Z"
+  "updated_at": "2026-07-15T12:02:48Z"
 }

@@ -1,6 +1,6 @@
 """
 Model Training Module.
-Loads data, determines CV strategy, trains LASSO/Ridge models, and extracts predictors.
+Handles CV strategy, model training, and predictor extraction.
 """
 import logging
 import sys
@@ -8,38 +8,32 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import Ridge, Lasso
-from sklearn.model_selection import cross_val_score, LeaveOneOut, KFold
-from sklearn.preprocessing import StandardScaler
 
 from utils.logging import get_module_logger
 from config import get_config
 
 logger = get_module_logger(__name__)
-PROCESSED_DIR = Path("data/processed")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 def load_processed_data() -> pd.DataFrame:
-    """Loads the final processed features."""
-    path = PROCESSED_DIR / "features_final.csv"
-    if not path.exists():
-        # Fallback to filtered.csv if features_final not created
-        path = PROCESSED_DIR / "filtered.csv"
-    return pd.read_csv(path)
+    """Loads the filtered dataset."""
+    config = get_config()
+    input_path = PROJECT_ROOT / config.paths.processed / "filtered.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. Run preprocessing first.")
+    return pd.read_csv(input_path)
 
-def determine_cv_strategy(n_samples: int) -> Union[KFold, LeaveOneOut]:
-    """
-    Determines CV strategy based on sample size.
-    5-fold if N >= 30, LOOCV if N < 30.
-    """
+def determine_cv_strategy(n_samples: int) -> str:
+    """Determines CV strategy based on sample size."""
     if n_samples >= 30:
-        return KFold(n_splits=5, shuffle=True, random_state=42)
+        return 'kfold'
     else:
-        return LeaveOneOut()
+        return 'loocv'
 
 def check_study_covariate_condition(df: pd.DataFrame) -> bool:
     """
     Checks if unique_studies >= N-1.
-    Returns True if condition is met (global Z-score mode).
+    If true, 'source_study' should be excluded.
     """
     if 'source_study' not in df.columns:
         return False
@@ -47,102 +41,85 @@ def check_study_covariate_condition(df: pd.DataFrame) -> bool:
     n = len(df)
     return unique_studies >= (n - 1)
 
-def train_model(X: np.ndarray, y: np.ndarray, cv_strategy) -> Tuple[Any, float]:
-    """
-    Trains a LASSO/Ridge model with cross-validation.
-    Returns the best model and mean CV score.
-    """
-    # Try Lasso first
-    model = Lasso(alpha=0.1, random_state=42, max_iter=10000)
+def train_model():
+    """Trains the LASSO/Ridge model."""
+    logger.info("Starting Model Training")
     
     try:
-        scores = cross_val_score(model, X, y, cv=cv_strategy, scoring='r2')
-        mean_score = np.mean(scores)
-        logger.info(f"Lasso CV R2: {mean_score:.4f}")
-        model.fit(X, y)
-        return model, mean_score
+        df = load_processed_data()
     except Exception as e:
-        logger.warning(f"Lasso failed: {e}. Trying Ridge.")
-        model = Ridge(alpha=1.0, random_state=42)
-        scores = cross_val_score(model, X, y, cv=cv_strategy, scoring='r2')
-        mean_score = np.mean(scores)
-        logger.info(f"Ridge CV R2: {mean_score:.4f}")
-        model.fit(X, y)
-        return model, mean_score
-
-def extract_top_predictors(model, feature_names: List[str], top_n: int = 10) -> List[Tuple[str, float]]:
-    """
-    Extracts top predictors by absolute coefficient magnitude.
-    """
-    coefs = model.coef_
-    if len(coefs) != len(feature_names):
-        logger.warning("Coefficient count mismatch.")
-        return []
-    
-    abs_coefs = np.abs(coefs)
-    indices = np.argsort(abs_coefs)[::-1][:top_n]
-    
-    predictors = []
-    for i in indices:
-        predictors.append((feature_names[i], coefs[i]))
-    
-    return predictors
-
-def main():
-    """
-    Entry point for training script.
-    Loads data, trains model, saves results.
-    """
-    from utils.logging import configure_root_logger
-    configure_root_logger()
-    
-    logger.info("Starting model training.")
-    
-    df = load_processed_data()
-    
-    # Prepare features and target
-    # Target: mean_concentration
-    # Features: all numeric except IDs and target
-    target_col = 'mean_concentration'
-    if target_col not in df.columns:
-        logger.error(f"Target column {target_col} not found.")
+        logger.error(f"Failed to load data: {e}")
         return
 
-    feature_cols = [c for c in df.select_dtypes(include=[np.number]).columns if c != target_col and c != 'population_id']
+    if df.empty:
+        logger.error("Dataset is empty.")
+        return
+
+    # Prepare features and target
+    # Assume 'compound_concentration' is target, or last numeric col
+    target_col = 'compound_concentration' if 'compound_concentration' in df.columns else df.select_dtypes(include=[np.number]).columns[-1]
+    feature_cols = [c for c in df.columns if c != target_col and c != 'population_id' and c != 'env_id' and c != 'compound_id']
     
-    if not feature_cols:
+    if len(feature_cols) == 0:
         logger.error("No features found.")
         return
 
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    # Handle NaNs
-    mask = ~(np.isnan(X).any(axis=1) | np.isnan(y))
-    X = X[mask]
-    y = y[mask]
-    
-    if len(X) == 0:
-        logger.error("No valid samples after NaN removal.")
-        return
+    X = df[feature_cols].fillna(0)
+    y = df[target_col].fillna(0)
 
-    # Scale
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    n_samples = len(X)
+    cv_strategy = determine_cv_strategy(n_samples)
+    logger.info(f"CV Strategy: {cv_strategy} (N={n_samples})")
+
+    # Check study condition
+    if check_study_covariate_condition(df):
+        logger.info("Study condition met: Excluding 'source_study' if present.")
+        if 'source_study' in feature_cols:
+            X = X.drop(columns=['source_study'])
+
+    # Train Model
+    from sklearn.linear_model import RidgeCV
+    from sklearn.model_selection import cross_val_score, LeaveOneOut, KFold
     
-    # CV Strategy
-    cv = determine_cv_strategy(len(X))
+    # Use RidgeCV for simplicity and stability
+    model = RidgeCV(alphas=[0.1, 1.0, 10.0])
     
-    # Train
-    model, score = train_model(X_scaled, y, cv)
-    
-    # Extract predictors
-    predictors = extract_top_predictors(model, feature_cols)
-    logger.info("Top predictors:")
-    for name, coef in predictors:
-        logger.info(f"  {name}: {coef:.4f}")
-    
-    logger.info("Training completed.")
+    if cv_strategy == 'loocv':
+        cv = LeaveOneOut()
+    else:
+        cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+    try:
+        scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        logger.info(f"CV R2 Scores: {scores}")
+        logger.info(f"Mean CV R2: {scores.mean():.4f}")
+        
+        # Fit on full data for predictor extraction
+        model.fit(X, y)
+        
+        # Save model coefficients
+        coef_df = pd.DataFrame({
+            'feature': X.columns,
+            'coefficient': model.coef_
+        })
+        coef_df = coef_df.sort_values(by='coefficient', key=abs, ascending=False)
+        
+        output_path = PROJECT_ROOT / "data" / "processed" / "model_coefficients.csv"
+        coef_df.to_csv(output_path, index=False)
+        logger.info(f"Model coefficients saved to {output_path}")
+
+    except Exception as e:
+        logger.error(f"Model training failed: {e}")
+        raise
+
+def extract_top_predictors(coef_df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    """Extracts top N predictors by absolute coefficient magnitude."""
+    return coef_df.head(top_n)
+
+def main(*args, **kwargs):
+    """Entry point for training script."""
+    configure_root_logger()
+    train_model()
 
 if __name__ == "__main__":
     main()

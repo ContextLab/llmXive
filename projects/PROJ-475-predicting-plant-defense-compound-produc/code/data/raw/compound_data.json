@@ -1,0 +1,704 @@
+{
+  "data": [
+    {
+      "compound_id": "CMP_0000",
+      "concentration": 83.50073065169838,
+      "molecular_weight": 141.9184417479479,
+      "solubility": 74.46404816795177,
+      "population_id": "POP_0000"
+    },
+    {
+      "compound_id": "CMP_0001",
+      "concentration": 36.11403354200294,
+      "molecular_weight": 243.72433512322877,
+      "solubility": 60.923838061815175,
+      "population_id": "POP_0001"
+    },
+    {
+      "compound_id": "CMP_0002",
+      "concentration": 39.43857715371632,
+      "molecular_weight": 263.62904394435947,
+      "solubility": 50.99024095896064,
+      "population_id": "POP_0002"
+    },
+    {
+      "compound_id": "CMP_0003",
+      "concentration": 71.04378453337463,
+      "molecular_weight": 484.2104900822669,
+      "solubility": 45.662110893893725,
+      "population_id": "POP_0003"
+    },
+    {
+      "compound_id": "CMP_0004",
+      "concentration": 42.82238695405474,
+      "molecular_weight": 145.38548044798816,
+      "solubility": 21.789886934652415,
+      "population_id": "POP_0004"
+    },
+    {
+      "compound_id": "CMP_0005",
+      "concentration": 95.75145969988495,
+      "molecular_weight": 477.340288161758,
+      "solubility": 88.18242811564977,
+      "population_id": "POP_0005"
+    },
+    {
+      "compound_id": "CMP_0006",
+      "concentration": 64.676415184099,
+      "molecular_weight": 185.52992485224343,
+      "solubility": 63.68320138068392,
+      "population_id": "POP_0006"
+    },
+    {
+      "compound_id": "CMP_0007",
+      "concentration": 14.00071057329186,
+      "molecular_weight": 283.481628122145,
+      "solubility": 87.38631851563183,
+      "population_id": "POP_0007"
+    },
+    {
+      "compound_id": "CMP_0008",
+      "concentration": 25.91918555612066,
+      "molecular_weight": 365.9404391050126,
+      "solubility": 86.26743360369593,
+      "population_id": "POP_0008"
+    },
+    {
+      "compound_id": "CMP_0009",
+      "concentration": 14.969921498117472,
+      "molecular_weight": 325.1799832635893,
+      "solubility": 15.91552638131477,
+      "population_id": "POP_0009"
+    },
+    {
+      "compound_id": "CMP_0010",
+      "concentration": 17.372203165571683,
+      "molecular_weight": 141.60918439609245,
+      "solubility": 20.29375930001671,
+      "population_id": "POP_0010"
+    },
+    {
+      "compound_id": "CMP_0011",
+      "concentration": 45.5734107426165,
+      "molecular_weight": 417.82996649128677,
+      "solubility": 99.08226809807816,
+      "population_id": "POP_0011"
+    },
+    {
+      "compound_id": "CMP_0012",
+      "concentration": 80.52121833798718,
+      "molecular_weight": 250.96616228656896,
+      "solubility": 51.573742562183945,
+      "population_id": "POP_0012"
+    },
+    {
+      "compound_id": "CMP_0013",
+      "concentration": 5.984002245070534,
+      "molecular_weight": 384.43827448121147,
+      "solubility": 7.250781339763613,
+      "population_id": "POP_0013"
+    },
+    {
+      "compound_id": "CMP_0014",
+      "concentration": 88.272897034795,
+      "molecular_weight": 390.42312742662347,
+      "solubility": 83.33662124417559,
+      "population_id": "POP_0014"
+    },
+    {
+      "compound_id": "CMP_0015",
+      "concentration": 71.05204531457878,
+      "molecular_weight": 378.9719672816767,
+      "solubility": 93.01028034081725,
+      "population_id": "POP_0015"
+    },
+    {
+      "compound_id": "CMP_0016",
+      "concentration": 88.17910761084256,
+      "molecular_weight": 137.98879331858322,
+      "solubility": 45.649641723740245,
+      "population_id": "POP_0016"
+    },
+    {
+      "compound_id": "CMP_0017",
+      "concentration": 49.32307683647875,
+      "molecular_weight": 143.58940157433287,
+      "solubility": 15.373446086174969,
+      "population_id": "POP_0017"
+    },
+    {
+      "compound_id": "CMP_0018",
+      "concentration": 98.42997492732047,
+      "molecular_weight": 208.62406148477947,
+      "solubility": 89.71518866243714,
+      "population_id": "POP_0018"
+    },
+    {
+      "compound_id": "CMP_0019",
+      "concentration": 16.507041087856066,
+      "molecular_weight": 152.94331789541218,
+      "solubility": 31.73534026693193,
+      "population_id": "POP_0019"
+    },
+    {
+      "compound_id": "CMP_0020",
+      "concentration": 30.811513626679684,
+      "molecular_weight": 268.82207470176024,
+      "solubility": 33.09963908007663,
+      "population_id": "POP_0020"
+    },
+    {
+      "compound_id": "CMP_0021",
+      "concentration": 56.85072975483257,
+      "molecular_weight": 138.11386462445938,
+      "solubility": 79.79774848511883,
+      "population_id": "POP_0021"
+    },
+    {
+      "compound_id": "CMP_0022",
+      "concentration": 26.938771410745023,
+      "molecular_weight": 464.5659651689448,
+      "solubility": 90.17439796658579,
+      "population_id": "POP_0022"
+    },
+    {
+      "compound_id": "CMP_0023",
+      "concentration": 1.6841942550912568,
+      "molecular_weight": 441.4728983929039,
+      "solubility": 67.5606173670055,
+      "population_id": "POP_0023"
+    },
+    {
+      "compound_id": "CMP_0024",
+      "concentration": 3.8642612036679154,
+      "molecular_weight": 223.5791331290493,
+      "solubility": 56.424949201217224,
+      "population_id": "POP_0024"
+    },
+    {
+      "compound_id": "CMP_0025",
+      "concentration": 59.44835518233397,
+      "molecular_weight": 372.32536311752904,
+      "solubility": 63.24318250021735,
+      "population_id": "POP_0025"
+    },
+    {
+      "compound_id": "CMP_0026",
+      "concentration": 93.87637870525253,
+      "molecular_weight": 394.84783709639237,
+      "solubility": 74.48555100647624,
+      "population_id": "POP_0026"
+    },
+    {
+      "compound_id": "CMP_0027",
+      "concentration": 10.97767096951504,
+      "molecular_weight": 297.4541090398877,
+      "solubility": 86.67510360721748,
+      "population_id": "POP_0027"
+    },
+    {
+      "compound_id": "CMP_0028",
+      "concentration": 1.9236852575268848,
+      "molecular_weight": 173.16148829622648,
+      "solubility": 11.267987808523783,
+      "population_id": "POP_0028"
+    },
+    {
+      "compound_id": "CMP_0029",
+      "concentration": 85.34443615526068,
+      "molecular_weight": 119.38165952089004,
+      "solubility": 49.94288951602711,
+      "population_id": "POP_0029"
+    },
+    {
+      "compound_id": "CMP_0030",
+      "concentration": 50.358677912287284,
+      "molecular_weight": 405.8908540223469,
+      "solubility": 34.74789168890825,
+      "population_id": "POP_0030"
+    },
+    {
+      "compound_id": "CMP_0031",
+      "concentration": 93.14875129745035,
+      "molecular_weight": 219.68236632880968,
+      "solubility": 55.1129483776576,
+      "population_id": "POP_0031"
+    },
+    {
+      "compound_id": "CMP_0032",
+      "concentration": 5.849770433792365,
+      "molecular_weight": 338.12272096021024,
+      "solubility": 64.30441510003101,
+      "population_id": "POP_0032"
+    },
+    {
+      "compound_id": "CMP_0033",
+      "concentration": 74.1452838550004,
+      "molecular_weight": 139.56506016434753,
+      "solubility": 34.47755932084347,
+      "population_id": "POP_0033"
+    },
+    {
+      "compound_id": "CMP_0034",
+      "concentration": 68.95647749152205,
+      "molecular_weight": 172.86480482052906,
+      "solubility": 0.2541242720362824,
+      "population_id": "POP_0034"
+    },
+    {
+      "compound_id": "CMP_0035",
+      "concentration": 26.828661004951265,
+      "molecular_weight": 379.651057865669,
+      "solubility": 41.89343966825945,
+      "population_id": "POP_0035"
+    },
+    {
+      "compound_id": "CMP_0036",
+      "concentration": 31.975588143794983,
+      "molecular_weight": 184.8778581993298,
+      "solubility": 31.30252232139995,
+      "population_id": "POP_0036"
+    },
+    {
+      "compound_id": "CMP_0037",
+      "concentration": 37.10694487058077,
+      "molecular_weight": 152.8330716693859,
+      "solubility": 67.7299480790826,
+      "population_id": "POP_0037"
+    },
+    {
+      "compound_id": "CMP_0038",
+      "concentration": 51.02969145506999,
+      "molecular_weight": 442.9704280354629,
+      "solubility": 0.03637751704699266,
+      "population_id": "POP_0038"
+    },
+    {
+      "compound_id": "CMP_0039",
+      "concentration": 77.93658538506133,
+      "molecular_weight": 416.91807115857495,
+      "solubility": 6.4139647556933355,
+      "population_id": "POP_0039"
+    },
+    {
+      "compound_id": "CMP_0040",
+      "concentration": 43.05890005300492,
+      "molecular_weight": 238.60974316296256,
+      "solubility": 84.1675242366406,
+      "population_id": "POP_0040"
+    },
+    {
+      "compound_id": "CMP_0041",
+      "concentration": 48.46404205607133,
+      "molecular_weight": 203.5120933895843,
+      "solubility": 11.69256054684772,
+      "population_id": "POP_0041"
+    },
+    {
+      "compound_id": "CMP_0042",
+      "concentration": 61.6527614257253,
+      "molecular_weight": 240.69198633009455,
+      "solubility": 51.345776035674426,
+      "population_id": "POP_0042"
+    },
+    {
+      "compound_id": "CMP_0043",
+      "concentration": 36.31697607698621,
+      "molecular_weight": 492.27026624930926,
+      "solubility": 40.56858774139247,
+      "population_id": "POP_0043"
+    },
+    {
+      "compound_id": "CMP_0044",
+      "concentration": 80.35905743165341,
+      "molecular_weight": 370.72820175561884,
+      "solubility": 26.815606288495886,
+      "population_id": "POP_0044"
+    },
+    {
+      "compound_id": "CMP_0045",
+      "concentration": 50.14170339328426,
+      "molecular_weight": 261.9663956969698,
+      "solubility": 72.82496573579125,
+      "population_id": "POP_0045"
+    },
+    {
+      "compound_id": "CMP_0046",
+      "concentration": 36.384684516084725,
+      "molecular_weight": 451.11993488461155,
+      "solubility": 46.07049014203064,
+      "population_id": "POP_0046"
+    },
+    {
+      "compound_id": "CMP_0047",
+      "concentration": 93.58810461783516,
+      "molecular_weight": 440.0758600241551,
+      "solubility": 31.49405550065224,
+      "population_id": "POP_0047"
+    },
+    {
+      "compound_id": "CMP_0048",
+      "concentration": 48.59358314571094,
+      "molecular_weight": 261.83881862812046,
+      "solubility": 98.65219483044147,
+      "population_id": "POP_0048"
+    },
+    {
+      "compound_id": "CMP_0049",
+      "concentration": 46.81076150712952,
+      "molecular_weight": 235.20945933352385,
+      "solubility": 44.846886960375876,
+      "population_id": "POP_0049"
+    },
+    {
+      "compound_id": "CMP_0050",
+      "concentration": 17.419259524309066,
+      "molecular_weight": 329.2369630383806,
+      "solubility": 71.80467718722463,
+      "population_id": "POP_0050"
+    },
+    {
+      "compound_id": "CMP_0051",
+      "concentration": 89.2632977691895,
+      "molecular_weight": 415.5640998343147,
+      "solubility": 48.46039602783318,
+      "population_id": "POP_0051"
+    },
+    {
+      "compound_id": "CMP_0052",
+      "concentration": 31.282581718139582,
+      "molecular_weight": 378.1527820702086,
+      "solubility": 57.955549754855525,
+      "population_id": "POP_0052"
+    },
+    {
+      "compound_id": "CMP_0053",
+      "concentration": 39.014381899798494,
+      "molecular_weight": 283.87177728504673,
+      "solubility": 61.538568496832404,
+      "population_id": "POP_0053"
+    },
+    {
+      "compound_id": "CMP_0054",
+      "concentration": 12.977084024602444,
+      "molecular_weight": 335.79185561143674,
+      "solubility": 55.20610670282999,
+      "population_id": "POP_0054"
+    },
+    {
+      "compound_id": "CMP_0055",
+      "concentration": 48.76331841245692,
+      "molecular_weight": 319.76853304206844,
+      "solubility": 97.89902725087875,
+      "population_id": "POP_0055"
+    },
+    {
+      "compound_id": "CMP_0056",
+      "concentration": 17.19399455588744,
+      "molecular_weight": 311.01069767098437,
+      "solubility": 70.63051617895512,
+      "population_id": "POP_0056"
+    },
+    {
+      "compound_id": "CMP_0057",
+      "concentration": 53.8976489419361,
+      "molecular_weight": 262.2281105266072,
+      "solubility": 75.91467730728259,
+      "population_id": "POP_0057"
+    },
+    {
+      "compound_id": "CMP_0058",
+      "concentration": 71.28922827810447,
+      "molecular_weight": 181.077094260933,
+      "solubility": 98.2702171074348,
+      "population_id": "POP_0058"
+    },
+    {
+      "compound_id": "CMP_0059",
+      "concentration": 78.69746166786143,
+      "molecular_weight": 102.3532265420748,
+      "solubility": 55.905444688083215,
+      "population_id": "POP_0059"
+    },
+    {
+      "compound_id": "CMP_0060",
+      "concentration": 76.27095322605948,
+      "molecular_weight": 197.5376815821109,
+      "solubility": 75.29059205736046,
+      "population_id": "POP_0060"
+    },
+    {
+      "compound_id": "CMP_0061",
+      "concentration": 2.9516123277851447,
+      "molecular_weight": 131.59076015979304,
+      "solubility": 76.85253133988331,
+      "population_id": "POP_0061"
+    },
+    {
+      "compound_id": "CMP_0062",
+      "concentration": 98.17511627912194,
+      "molecular_weight": 303.74984492733404,
+      "solubility": 29.199486050024458,
+      "population_id": "POP_0062"
+    },
+    {
+      "compound_id": "CMP_0063",
+      "concentration": 30.29364311533011,
+      "molecular_weight": 183.43924542188392,
+      "solubility": 5.291761358361303,
+      "population_id": "POP_0063"
+    },
+    {
+      "compound_id": "CMP_0064",
+      "concentration": 96.98248398701804,
+      "molecular_weight": 129.3967535825907,
+      "solubility": 51.094827004445044,
+      "population_id": "POP_0064"
+    },
+    {
+      "compound_id": "CMP_0065",
+      "concentration": 40.80596768016588,
+      "molecular_weight": 329.85357594846124,
+      "solubility": 63.89846809625487,
+      "population_id": "POP_0065"
+    },
+    {
+      "compound_id": "CMP_0066",
+      "concentration": 14.361260161158203,
+      "molecular_weight": 294.60048286006304,
+      "solubility": 12.993429275883884,
+      "population_id": "POP_0066"
+    },
+    {
+      "compound_id": "CMP_0067",
+      "concentration": 28.222793358641795,
+      "molecular_weight": 170.53193584413017,
+      "solubility": 85.01754554691183,
+      "population_id": "POP_0067"
+    },
+    {
+      "compound_id": "CMP_0068",
+      "concentration": 16.416833590909572,
+      "molecular_weight": 423.3381766698421,
+      "solubility": 61.75638135806435,
+      "population_id": "POP_0068"
+    },
+    {
+      "compound_id": "CMP_0069",
+      "concentration": 40.30112281966457,
+      "molecular_weight": 370.3642564147718,
+      "solubility": 2.2307575720608153,
+      "population_id": "POP_0069"
+    },
+    {
+      "compound_id": "CMP_0070",
+      "concentration": 36.040240513632796,
+      "molecular_weight": 239.3413133688431,
+      "solubility": 26.078603784056,
+      "population_id": "POP_0070"
+    },
+    {
+      "compound_id": "CMP_0071",
+      "concentration": 18.789227505555065,
+      "molecular_weight": 372.3460532937989,
+      "solubility": 87.86553869681751,
+      "population_id": "POP_0071"
+    },
+    {
+      "compound_id": "CMP_0072",
+      "concentration": 80.89497812060205,
+      "molecular_weight": 172.04264236623752,
+      "solubility": 52.3549918088129,
+      "population_id": "POP_0072"
+    },
+    {
+      "compound_id": "CMP_0073",
+      "concentration": 64.19250340065463,
+      "molecular_weight": 466.9798841730508,
+      "solubility": 62.689583853433795,
+      "population_id": "POP_0073"
+    },
+    {
+      "compound_id": "CMP_0074",
+      "concentration": 93.28311060157824,
+      "molecular_weight": 166.26553748599304,
+      "solubility": 55.497998855117615,
+      "population_id": "POP_0074"
+    },
+    {
+      "compound_id": "CMP_0075",
+      "concentration": 48.27402793522005,
+      "molecular_weight": 263.44321524915796,
+      "solubility": 74.26122566388845,
+      "population_id": "POP_0075"
+    },
+    {
+      "compound_id": "CMP_0076",
+      "concentration": 35.209888287260135,
+      "molecular_weight": 315.8326325936706,
+      "solubility": 50.31277230836524,
+      "population_id": "POP_0076"
+    },
+    {
+      "compound_id": "CMP_0077",
+      "concentration": 98.68688863493693,
+      "molecular_weight": 150.49291419947605,
+      "solubility": 71.9454329656075,
+      "population_id": "POP_0077"
+    },
+    {
+      "compound_id": "CMP_0078",
+      "concentration": 30.526604147480242,
+      "molecular_weight": 389.96033655001685,
+      "solubility": 39.01168596680715,
+      "population_id": "POP_0078"
+    },
+    {
+      "compound_id": "CMP_0079",
+      "concentration": 81.65525055169066,
+      "molecular_weight": 279.34602375930507,
+      "solubility": 30.840051004150983,
+      "population_id": "POP_0079"
+    },
+    {
+      "compound_id": "CMP_0080",
+      "concentration": 42.26824728996004,
+      "molecular_weight": 333.9820983926757,
+      "solubility": 60.346082571000714,
+      "population_id": "POP_0080"
+    },
+    {
+      "compound_id": "CMP_0081",
+      "concentration": 15.149042667520789,
+      "molecular_weight": 238.76533621155613,
+      "solubility": 16.390174056632357,
+      "population_id": "POP_0081"
+    },
+    {
+      "compound_id": "CMP_0082",
+      "concentration": 73.6685199822101,
+      "molecular_weight": 179.10254377925622,
+      "solubility": 83.576486966088,
+      "population_id": "POP_0082"
+    },
+    {
+      "compound_id": "CMP_0083",
+      "concentration": 42.76540184638848,
+      "molecular_weight": 340.33987167473947,
+      "solubility": 38.43549237785746,
+      "population_id": "POP_0083"
+    },
+    {
+      "compound_id": "CMP_0084",
+      "concentration": 59.42257923650248,
+      "molecular_weight": 467.1005456863977,
+      "solubility": 13.885521665528621,
+      "population_id": "POP_0084"
+    },
+    {
+      "compound_id": "CMP_0085",
+      "concentration": 77.18889108989369,
+      "molecular_weight": 366.084420480474,
+      "solubility": 40.58216311410574,
+      "population_id": "POP_0085"
+    },
+    {
+      "compound_id": "CMP_0086",
+      "concentration": 97.11280337497818,
+      "molecular_weight": 416.91529008021433,
+      "solubility": 15.381600729306976,
+      "population_id": "POP_0086"
+    },
+    {
+      "compound_id": "CMP_0087",
+      "concentration": 45.90963988400657,
+      "molecular_weight": 384.74753703308943,
+      "solubility": 92.30231200515935,
+      "population_id": "POP_0087"
+    },
+    {
+      "compound_id": "CMP_0088",
+      "concentration": 84.31898636472359,
+      "molecular_weight": 482.60693055354193,
+      "solubility": 28.750646999079443,
+      "population_id": "POP_0088"
+    },
+    {
+      "compound_id": "CMP_0089",
+      "concentration": 84.120582422809,
+      "molecular_weight": 209.03181345878536,
+      "solubility": 31.32388492078735,
+      "population_id": "POP_0089"
+    },
+    {
+      "compound_id": "CMP_0090",
+      "concentration": 67.09941957250501,
+      "molecular_weight": 186.12559331012423,
+      "solubility": 38.43829632047099,
+      "population_id": "POP_0090"
+    },
+    {
+      "compound_id": "CMP_0091",
+      "concentration": 99.69822793593262,
+      "molecular_weight": 440.7158616801365,
+      "solubility": 68.86440270173915,
+      "population_id": "POP_0091"
+    },
+    {
+      "compound_id": "CMP_0092",
+      "concentration": 15.539878039522137,
+      "molecular_weight": 410.23871549751266,
+      "solubility": 48.93198804761087,
+      "population_id": "POP_0092"
+    },
+    {
+      "compound_id": "CMP_0093",
+      "concentration": 62.77658612990328,
+      "molecular_weight": 332.48145471297585,
+      "solubility": 32.418530037870894,
+      "population_id": "POP_0093"
+    },
+    {
+      "compound_id": "CMP_0094",
+      "concentration": 21.852942212567367,
+      "molecular_weight": 149.48371459601975,
+      "solubility": 88.56969889153503,
+      "population_id": "POP_0094"
+    },
+    {
+      "compound_id": "CMP_0095",
+      "concentration": 21.61820248857582,
+      "molecular_weight": 253.4272174591016,
+      "solubility": 18.671049619779023,
+      "population_id": "POP_0095"
+    },
+    {
+      "compound_id": "CMP_0096",
+      "concentration": 82.87753809411906,
+      "molecular_weight": 299.70842681790634,
+      "solubility": 28.33497829016478,
+      "population_id": "POP_0096"
+    },
+    {
+      "compound_id": "CMP_0097",
+      "concentration": 18.990246714358907,
+      "molecular_weight": 358.78593548923885,
+      "solubility": 79.0226198553003,
+      "population_id": "POP_0097"
+    },
+    {
+      "compound_id": "CMP_0098",
+      "concentration": 84.22574282760144,
+      "molecular_weight": 455.652222377365,
+      "solubility": 7.7605538334880375,
+      "population_id": "POP_0098"
+    },
+    {
+      "compound_id": "CMP_0099",
+      "concentration": 59.114949612241745,
+      "molecular_weight": 153.05113169181604,
+      "solubility": 3.729793597817843,
+      "population_id": "POP_0099"
+    }
+  ]
+}

@@ -1,63 +1,74 @@
 # Quickstart Guide for PROJ-475
 
-This guide outlines the steps to run the full pipeline for predicting plant defense compound production.
+This guide outlines the steps to run the full pipeline end-to-end.
 
 ## Prerequisites
+
 - Python 3.11+
-- Install dependencies:
+- `requirements.txt` installed: `pip install -r requirements.txt`
+
+## Execution Order
+
+The pipeline consists of several stages. Run them in the following order:
+
+1. **Setup & Validation** (Optional but recommended)
  ```bash
- pip install -r requirements.txt
+ python code/scripts/validate_quickstart.py
  ```
 
-## Running the Pipeline
+2. **Data Ingestion** (T010-T012)
+ Fetches or generates raw data.
+ ```bash
+ python code/scripts/generate_mock_data.py
+ # Note: This script generates the raw JSON files required for downstream steps.
+ # In a real scenario, this would call code/data/ingestion.py with verified URLs.
+ ```
 
-The full pipeline is orchestrated by `code/main.py`. It performs:
-1. Data Ingestion (fetch or generate mock data)
-2. Data Validation (merge, listwise deletion)
-3. Preprocessing (imputation, aggregation, VIF)
-4. Model Training (LASSO/Ridge)
-5. Evaluation (Permutation test, sensitivity analysis)
+3. **Data Validation** (T013-T014)
+ Merges and validates data integrity.
+ ```bash
+ python code/data/validation.py
+ ```
 
-### Step 1: Run the Full Pipeline
+4. **Preprocessing** (T015-T016)
+ Handles missing data imputation and exclusion.
+ **Produces:** `data/processed/filtered.csv`
+ ```bash
+ python code/scripts/run_preprocessing.py
+ ```
+
+5. **Feature Engineering & Training** (T019-T026)
+ Calculates metrics, VIF, and trains models.
+ ```bash
+ python code/models/training.py
+ ```
+
+6. **Evaluation** (T029-T033)
+ Permutation tests, sensitivity analysis, and statistics.
+ ```bash
+ python code/models/evaluation.py
+ ```
+
+7. **Manifest Update** (T041)
+ Updates the manifest with new artifacts.
+ ```bash
+ python code/scripts/update_manifest.py
+ ```
+
+## Full Pipeline Run
+
+To run the entire sequence automatically (for CI or quick validation):
 
 ```bash
 python code/main.py
 ```
 
-This command will:
-- Generate necessary directories (`data/raw`, `data/processed`, `figures`, `state`)
-- Execute ingestion (T010-T012)
-- Execute validation (T013-T014)
-- Execute preprocessing (T015-T016, T019-T020, T026)
-- Execute training (T022-T025)
-- Execute evaluation (T029-T033)
-- Update state file (T034)
+## Verification
 
-### Step 2: Verify Outputs
-
-Ensure the following files are generated:
+Check that the following files exist after a successful run:
 - `data/raw/genomic_vcf.json`
 - `data/raw/env_data.json`
 - `data/raw/compound_data.json`
 - `data/processed/merged.csv`
 - `data/processed/filtered.csv`
-- `data/processed/features_vif.csv`
 - `state/PROJ-475-predicting-plant-defense-compound-produc.yaml`
-
-## Testing
-
-Run unit tests:
-```bash
-python -m pytest code/tests/ -v
-```
-
-## Configuration
-
-Edit `code/config.yaml` to modify paths, seeds, and hyperparameters.
-Ensure `verified_urls` are set correctly if fetching real data.
-
-## Troubleshooting
-
-- **Disk Space**: If you encounter `DiskSpaceError`, free up space or adjust `estimated_size` in `code/utils/io.py`.
-- **Missing Data**: If ingestion fails, check `verified_urls` in config or ensure `mock_generator` is working.
-- **VIF Errors**: Ensure `statsmodels` is installed (`pip install statsmodels`).

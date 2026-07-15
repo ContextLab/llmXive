@@ -8,3 +8,4 @@ scipy
 pytest
 ruff
 black
+statsmodels  # auto-added: imported by run-book but missing from venv
