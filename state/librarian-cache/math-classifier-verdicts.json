@@ -1467,6 +1467,10 @@
     "classified_at": "2026-07-11T01:27:38Z",
     "verdict": false
   },
+  "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn::1.6.0": {
+    "classified_at": "2026-07-15T21:40:25Z",
+    "verdict": false
+  },
   "PROJ-945-llmxive-follow-up-extending-enterprisecl::1.6.0": {
     "classified_at": "2026-07-06T16:45:02Z",
     "verdict": false

@@ -1,0 +1,751 @@
+{
+  "fetched_at": "2026-07-15T21:40:50Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.776,
+    "ended_at": "2026-07-15T21:40:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "omnimodal world models for robotics"
+        ],
+        [
+          2,
+          "multimodal foundation models for physical AI"
+        ],
+        [
+          3,
+          "embodied AI world models"
+        ],
+        [
+          4,
+          "sim-to-real transfer in multimodal learning"
+        ],
+        [
+          5,
+          "vision-language-action models for physical agents"
+        ],
+        [
+          6,
+          "generative world models for autonomous systems"
+        ],
+        [
+          7,
+          "multimodal reinforcement learning with world models"
+        ],
+        [
+          8,
+          "physical AI perception and planning models"
+        ],
+        [
+          9,
+          "video-language-action pretraining for robotics"
+        ],
+        [
+          10,
+          "large multimodal models for embodied agents"
+        ],
+        [
+          11,
+          "universal world models for robot control"
+        ],
+        [
+          12,
+          "multimodal generative models for physical simulation"
+        ],
+        [
+          13,
+          "vision-language-action transformers for robotics"
+        ],
+        [
+          14,
+          "cross-modal world models for physical intelligence"
+        ],
+        [
+          15,
+          "foundation models for embodied physical AI"
+        ],
+        [
+          16,
+          "multimodal imitation learning with world models"
+        ],
+        [
+          17,
+          "generative pretraining for robot world understanding"
+        ],
+        [
+          18,
+          "unified multimodal architectures for physical tasks"
+        ],
+        [
+          19,
+          "world model-based planning for autonomous robots"
+        ],
+        [
+          20,
+          "large-scale multimodal learning for physical environments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" computer science": 0,
+        "omnimodal world models for robotics": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "world model physics simulation embodiment",
+      "OmniModal generative video robotics control",
+      "physical AI digital twin neural rendering",
+      "downstream task evaluation physical reasoning",
+      "data contamination synthetic training world model"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.20503"
+      ]
+    },
+    "per_query_hit_count": {
+      "OmniModal generative video robotics control": 3,
+      "data contamination synthetic training world model": 3,
+      "downstream task evaluation physical reasoning": 3,
+      "llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" computer science": 3,
+      "physical AI digital twin neural rendering": 3,
+      "world model physics simulation embodiment": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1904.09266",
+          "rationale": "The paper focuses on cryptographic security mechanisms (Merkle trees) for robotic swarms, which is a distinct construct from the user's question regarding \"Omnimodal World Models\" and physical AI simulation. While both involve robotics, the paper addresses data integrity and secret cooperation rather than the generative modeling, multimodal perception, or physical dynamics simulation central to the \"Cosmos 3\" follow-up, failing to meet the criteria for same-mechanism evidence or domain overlap.",
+          "title": "Secure and secret cooperation in robotic swarms"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-15T21:39:57Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"cosmos 3: omnimodal world models for physical ai\" computer science",
+      "raw": "llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-15T21:40:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-15T21:40:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-15T21:40:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-07-15T21:40:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-07-15T21:40:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dual quaternion algebra and its application to robotics have gained considerable interest in the last two decades. Dual quaternions have great geometric appeal and easily capture physical phenomena inside an algebraic framework that is useful for both robot modeling and control. Mathematical objects, such as points, lines, planes, infinite cylinders, spheres, coordinate systems, twists, and wrenches are all well defined as dual quaternions. Therefore, simple operators are used to represent those objects in different frames and operations such as inner products and cross products are used to extract useful geometric relationships between them. Nonetheless, the dual quaternion algebra is not widespread as it could be, mostly because efficient and easy-to-use computational tools are not abundant and usually are restricted to the particular algebra of quaternions. To bridge this gap between theory and implementation, this paper introduces DQ Robotics, a library for robot modeling and control using dual quaternion algebra that is easy to use and intuitive enough to be used for self-study and education while being computationally efficient for deployment on real applications.",
+          "claimed_authors": [
+            "Bruno Vilhena Adorno",
+            "Murilo Marques Marinho"
+          ],
+          "claimed_title": "DQ Robotics: a Library for Robot Modeling and Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11612"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='DQ Robotics: a Library for Robot Modeling and Control')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This position paper explores the integration of Artificial Intelligence (AI) into force-controlled robotic tasks within the scope of advanced manufacturing, a cornerstone of Industry 4.0. AI's role in enhancing robotic manipulators - key drivers in the Fourth Industrial Revolution - is rapidly leading to significant innovations in smart manufacturing. The objective of this article is to frame these innovations in practical force-controlled applications - e.g. deburring, polishing, and assembly tasks like peg-in-hole (PiH) - highlighting their necessity for maintaining high-quality production standards. By reporting on recent AI-based methodologies, this article contrasts them and identifies current challenges to be addressed in future research. The analysis concludes with a perspective on future research directions, emphasizing the need for common performance metrics to validate AI techniques, integration of various enhancements for performance optimization, and the importance of validating them in relevant scenarios. These future directions aim to provide consistency with already adopted approaches, so as to be compatible with manufacturing standards, increasing the relevance of AI-driven methods in both academic and industrial contexts.",
+          "claimed_authors": [
+            "Vincenzo Petrone",
+            "Enrico Ferrentino",
+            "Pasquale Chiacchio"
+          ],
+          "claimed_title": "On the role of Artificial Intelligence methods in modern force-controlled manufacturing robotic tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.16828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='On the role of Artificial Intelligence methods in modern force-controlled manufacturing robotic tasks')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The successful operation of mobile robots requires them to adapt rapidly to environmental changes. To develop an adaptive decision-making tool for mobile robots, we propose a novel algorithm that combines meta-reinforcement learning (meta-RL) with model predictive control (MPC). Our method employs an off-policy meta-RL algorithm as a baseline to train a policy using transition samples generated by MPC when the robot detects certain events that can be effectively handled by MPC, with its explicit use of robot dynamics. The key idea of our method is to switch between the meta-learned policy and the MPC controller in a randomized and event-triggered fashion to make up for suboptimal MPC actions caused by the limited prediction horizon. During meta-testing, the MPC module is deactivated to significantly reduce computation time in motion control. We further propose an online adaptation scheme that enables the robot to infer and adapt to a new task within a single trajectory. The performance of our method has been demonstrated through simulations using a nonlinear car-like vehicle model with (i) synthetic movements of obstacles, and (ii) real-world pedestrian motion data. The simulation results indicate that our method outperforms other algorithms in terms of learning efficiency and navigation quality.",
+          "claimed_authors": [
+            "Jaeuk Shin",
+            "Astghik Hakobyan",
+            "Mingyu Park",
+            "Yeoneung Kim",
+            "Gihun Kim",
+            "Insoon Yang"
+          ],
+          "claimed_title": "Infusing model predictive control into meta-reinforcement learning for mobile robots in dynamic environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.07120"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Infusing model predictive control into meta-reinforcement learning for mobile robots in dynamic environments')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Establishing digital twins is a non-trivial endeavour especially when users face significant challenges in creating them from scratch. Ready availability of reusable models, data and tool assets, can help with creation and use of digital twins. A number of digital twin frameworks exist to facilitate creation and use of digital twins. In this paper we propose a digital twin framework to author digital twin assets, create digital twins from reusable assets and make the digital twins available as a service to other users. The proposed framework automates the management of reusable assets, storage, provision of compute infrastructure, communication and monitoring tasks. The users operate at the level of digital twins and delegate rest of the work to the digital twin as a service framework.",
+          "claimed_authors": [
+            "Prasad Talasila",
+            "Cláudio Gomes",
+            "Peter Høgh Mikkelsen",
+            "Santiago Gil Arboleda",
+            "Eduard Kamburjan",
+            "Peter Gorm Larsen"
+          ],
+          "claimed_title": "Digital Twin as a Service (DTaaS): A Platform for Digital Twin Developers and Users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.07244"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Digital Twin as a Service (DTaaS): A Platform for Digital Twin Developers and Users')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many fields have been affected by the introduction of concepts such as sensors, industry 4.0, internet of things, machine learning and artificial intelligence in recent years. As a result of the interaction of cyber physical systems with these concepts, digital twin model has emerged. The concept of digital twin has been used in many areas with its emergence. The use of this model has made significant gains, especially in decision making processes. The gains in decision making processes contribute to every field and cause changes in terms of cost. In this study, the historical development of the concept of digital twin has been mentioned and general information about the usage areas of digital twin has been given. In the light of this information, the cost effect of the digital twin model, therefore its appearance from the cost accounting window and its use as a cost reduction method were evaluated. This study was carried out in order to shed light on the studies with the insufficient resources in the Turkish literature and the cost accounting perspective.",
+          "claimed_authors": [
+            "Suleyman Yukcu",
+            "Omer Aydin"
+          ],
+          "claimed_title": "Digital Twin As A Cost Reduction Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.14109"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Digital Twin As A Cost Reduction Method')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Industry 4.0 represents a major technological shift that has the potential to transform the manufacturing industry, making it more efficient, productive, and sustainable. Smart farming is a concept that involves the use of advanced technologies to improve the efficiency and sustainability of agricultural practices. Industry 4.0 and smart farming are closely related, as many of the technologies used in smart farming are also used in Industry 4.0. Digital twins have the potential for cost-effective software development of such applications. With our Digital Twin Prototype approach, all sensor interfaces are integrated into the development process, and their inputs and outputs of the emulated hardware match those of the real hardware. The emulators respond to the same commands and return identically formatted data packages as their real counterparts, making the Digital Twin Prototype a valid source of a digital shadow, i.e. the Digital Twin Prototype is a prototype of the physical twin and can replace it for automated testing of the digital twin software. In this paper, we present a case study for employing our Digital Twin Prototype approach to automated testing of software for improving the making of silage with a smart farming application. Besides automated testing with continuous integration, we also discuss continuous deployment of modular Docker containers in this context.",
+          "claimed_authors": [
+            "Alexander Barbie",
+            "Wilhelm Hasselbring",
+            "Malte Hansen"
+          ],
+          "claimed_title": "Enabling Automated Integration Testing of Smart Farming Applications via Digital Twin Prototypes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.05748"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Enabling Automated Integration Testing of Smart Farming Applications via Digital Twin Prototypes')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents our submission to the MRL 2025 Shared Task on Multilingual Physical Reasoning Datasets. The objective of the shared task is to create manually-annotated evaluation data in the physical commonsense reasoning domain, for languages other than English, following a format similar to PIQA. Our contribution, FormaMentis, is a novel benchmark for physical commonsense reasoning that is grounded in Italian language and culture. The data samples in FormaMentis are created by expert annotators who are native Italian speakers and are familiar with local customs and norms. The samples are additionally translated into English, while preserving the cultural elements unique to the Italian context.",
+          "claimed_authors": [
+            "Marco De Santis",
+            "Lisa Alazraki"
+          ],
+          "claimed_title": "Culturally Grounded Physical Commonsense Reasoning in Italian and English: A Submission to the MRL 2025 Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22631"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Culturally Grounded Physical Commonsense Reasoning in Italian and English: A Submission to the MRL 2025 Shared Task')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we explore the possibility of using synthetically generated data for video-based gesture recognition with large pre-trained models. We consider whether these models have sufficiently robust and expressive representation spaces to enable \"training-free\" classification. Specifically, we utilize various state-of-the-art video encoders to extract features for use in k-nearest neighbors classification, where the training data points are derived from synthetic videos only. We compare these results with another training-free approach -- zero-shot classification using text descriptions of each gesture. In our experiments with the RoCoG-v2 dataset, we find that using synthetic training videos yields significantly lower classification accuracy on real test videos compared to using a relatively small number of real training videos. We also observe that video backbones that were fine-tuned on classification tasks serve as superior feature extractors, and that the choice of fine-tuning data has a substantial impact on k-nearest neighbors performance. Lastly, we find that zero-shot text-based classification performs poorly on the gesture recognition task, as gestures are not easily described through natural language.",
+          "claimed_authors": [
+            "Arun Reddy",
+            "Ketul Shah",
+            "Corban Rivera",
+            "William Paul",
+            "Celso M. De Melo",
+            "Rama Chellappa"
+          ],
+          "claimed_title": "An Evaluation of Large Pre-Trained Models for Gesture Recognition using Synthetic Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.02152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Cosmos 3: Omnimodal World Models for Physical AI\" ', candidate_title='An Evaluation of Large Pre-Trained Models for Gesture Recognition using Synthetic Videos')",
+        "failed_at": "2026-07-15T21:40:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxiao Long",
+            "Qingrui Zhao",
+            "Kaiwen Zhang",
+            "Zihao Zhang",
+            "Dingrui Wang",
+            "Yumeng Liu",
+            "Zhengjie Shu",
+            "Yi Lu",
+            "Shouzheng Wang",
+            "Xinzhe Wei",
+            "Wei Li",
+            "Wei Yin",
+            "Yao Yao",
+            "Jia Pan",
+            "Qiu Shen",
+            "Ruigang Yang",
+            "Xun Cao",
+            "Qionghai Dai"
+          ],
+          "title": "A Survey: Learning Embodied Intelligence from Physical Simulators and World Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.00917",
+        "summary": "The pursuit of artificial general intelligence (AGI) has placed embodied intelligence at the forefront of robotics research. Embodied intelligence focuses on agents capable of perceiving, reasoning, and acting within the physical world. Achieving robust embodied intelligence requires not only advanced perception and control, but also the ability to ground abstract cognition in real-world interactions. Two foundational technologies, physical simulators and world models, have emerged as critical enablers in this quest. Physical simulators provide controlled, high-fidelity environments for training and evaluating robotic agents, allowing safe and efficient development of complex behaviors. In contrast, world models empower robots with internal representations of their surroundings, enabling predictive planning and adaptive decision-making beyond direct sensory input. This survey systematically reviews recent advances in learning embodied AI through the integration of physical simulators and world models. We analyze their complementary roles in enhancing autonomy, adaptability, and generalization in intelligent robots, and discuss the interplay between external simulation and internal modeling in bridging the gap between simulated training and real-world deployment. By synthesizing current progress and identifying open challenges, this survey aims to provide a comprehensive perspective on the path toward more capable and generalizable embodied AI systems. We also maintain an active repository that contains up-to-date literature and open-source projects at https://github.com/NJU3DV-LoongGroup/Embodied-World-Models-Survey.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.00917",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T21:40:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Gemini Robotics Team",
+            "Krzysztof Choromanski",
+            "Coline Devin",
+            "Yilun Du",
+            "Debidatta Dwibedi",
+            "Ruiqi Gao",
+            "Abhishek Jindal",
+            "Thomas Kipf",
+            "Sean Kirmani",
+            "Isabel Leal",
+            "Fangchen Liu",
+            "Anirudha Majumdar",
+            "Andrew Marmon",
+            "Carolina Parada",
+            "Yulia Rubanova",
+            "Dhruv Shah",
+            "Vikas Sindhwani",
+            "Jie Tan",
+            "Fei Xia",
+            "Ted Xiao",
+            "Sherry Yang",
+            "Wenhao Yu",
+            "Allan Zhou"
+          ],
+          "title": "Evaluating Gemini Robotics Policies in a Veo World Simulator",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.10675",
+        "summary": "Generative world models hold significant potential for simulating interactions with visuomotor policies in varied environments. Frontier video models can enable generation of realistic observations and environment interactions in a scalable and general manner. However, the use of video models in robotics has been limited primarily to in-distribution evaluations, i.e., scenarios that are similar to ones used to train the policy or fine-tune the base video model. In this report, we demonstrate that video models can be used for the entire spectrum of policy evaluation use cases in robotics: from assessing nominal performance to out-of-distribution (OOD) generalization, and probing physical and semantic safety. We introduce a generative evaluation system built upon a frontier video foundation model (Veo). The system is optimized to support robot action conditioning and multi-view consistency, while integrating generative image-editing and multi-view completion to synthesize realistic variations of real-world scenes along multiple axes of generalization. We demonstrate that the system preserves the base capabilities of the video model to enable accurate simulation of scenes that have been edited to include novel interaction objects, novel visual backgrounds, and novel distractor objects. This fidelity enables accurately predicting the relative performance of different policies in both nominal and OOD conditions, determining the relative impact of different axes of generalization on policy performance, and performing red teaming of policies to expose behaviors that violate physical or semantic safety constraints. We validate these capabilities through 1600+ real-world evaluations of eight Gemini Robotics policy checkpoints and five tasks for a bimanual manipulator.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.10675",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T21:40:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthew Lisondra",
+            "Beno Benhabib",
+            "Goldie Nejat"
+          ],
+          "title": "Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.20503",
+        "summary": "Rapid advancements in foundation models, including Large Language Models, Vision-Language Models, Multimodal Large Language Models, and Vision-Language-Action Models, have opened new avenues for embodied AI in mobile service robotics. By combining foundation models with the principles of embodied AI, where intelligent systems perceive, reason, and act through physical interaction, mobile service robots can achieve more flexible understanding, adaptive behavior, and robust task execution in dynamic real-world environments. Despite this progress, embodied AI for mobile service robots continues to face fundamental challenges related to the translation of natural language instructions into executable robot actions, multimodal perception in human-centered environments, uncertainty estimation for safe decision-making, and computational constraints for real-time onboard deployment. In this paper, we present the first systematic review focused specifically on the integration of foundation models in mobile service robotics. We analyze how recent advances in foundation models address these core challenges through language-conditioned control, multimodal sensor fusion, uncertainty-aware reasoning, and efficient model scaling. We further examine real-world applications in domestic assistance, healthcare, and service automation, highlighting how foundation models enable context-aware, socially responsive, and generalizable robot behaviors. Beyond technical considerations, we discuss ethical, societal, and human-interaction implications associated with deploying foundation model-enabled service robots in human environments. Finally, we outline future research directions emphasizing reliability and lifelong adaptation, privacy-aware and resource-constrained deployment, and governance and human-in-the-loop frameworks required for safe, scalable, and trustworthy mobile service robotics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.20503",
+          "http_status": 200,
+          "pdf_sample_score": 0.2914,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T21:40:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Gemini Robotics Team",
+            "Saminda Abeyruwan",
+            "Joshua Ainslie",
+            "Jean-Baptiste Alayrac",
+            "Montserrat Gonzalez Arenas",
+            "Travis Armstrong",
+            "Ashwin Balakrishna",
+            "Robert Baruch",
+            "Maria Bauza",
+            "Michiel Blokzijl",
+            "Steven Bohez",
+            "Konstantinos Bousmalis",
+            "Anthony Brohan",
+            "Thomas Buschmann",
+            "Arunkumar Byravan",
+            "Serkan Cabi",
+            "Ken Caluwaerts",
+            "Federico Casarini",
+            "Oscar Chang",
+            "Jose Enrique Chen",
+            "Xi Chen",
+            "Hao-Tien Lewis Chiang",
+            "Krzysztof Choromanski",
+            "David D'Ambrosio",
+            "Sudeep Dasari",
+            "Todor Davchev",
+            "Coline Devin",
+            "Norman Di Palo",
+            "Tianli Ding",
+            "Adil Dostmohamed",
+            "Danny Driess",
+            "Yilun Du",
+            "Debidatta Dwibedi",
+            "Michael Elabd",
+            "Claudio Fantacci",
+            "Cody Fong",
+            "Erik Frey",
+            "Chuyuan Fu",
+            "Marissa Giustina",
+            "Keerthana Gopalakrishnan",
+            "Laura Graesser",
+            "Leonard Hasenclever",
+            "Nicolas Heess",
+            "Brandon Hernaez",
+            "Alexander Herzog",
+            "R. Alex Hofer",
+            "Jan Humplik",
+            "Atil Iscen",
+            "Mithun George Jacob",
+            "Deepali Jain",
+            "Ryan Julian",
+            "Dmitry Kalashnikov",
+            "M. Emre Karagozler",
+            "Stefani Karp",
+            "Chase Kew",
+            "Jerad Kirkland",
+            "Sean Kirmani",
+            "Yuheng Kuang",
+            "Thomas Lampe",
+            "Antoine Laurens",
+            "Isabel Leal",
+            "Alex X. Lee",
+            "Tsang-Wei Edward Lee",
+            "Jacky Liang",
+            "Yixin Lin",
+            "Sharath Maddineni",
+            "Anirudha Majumdar",
+            "Assaf Hurwitz Michaely",
+            "Robert Moreno",
+            "Michael Neunert",
+            "Francesco Nori",
+            "Carolina Parada",
+            "Emilio Parisotto",
+            "Peter Pastor",
+            "Acorn Pooley",
+            "Kanishka Rao",
+            "Krista Reymann",
+            "Dorsa Sadigh",
+            "Stefano Saliceti",
+            "Pannag Sanketi",
+            "Pierre Sermanet",
+            "Dhruv Shah",
+            "Mohit Sharma",
+            "Kathryn Shea",
+            "Charles Shu",
+            "Vikas Sindhwani",
+            "Sumeet Singh",
+            "Radu Soricut",
+            "Jost Tobias Springenberg",
+            "Rachel Sterneck",
+            "Razvan Surdulescu",
+            "Jie Tan",
+            "Jonathan Tompson",
+            "Vincent Vanhoucke",
+            "Jake Varley",
+            "Grace Vesom",
+            "Giulia Vezzani",
+            "Oriol Vinyals",
+            "Ayzaan Wahid",
+            "Stefan Welker",
+            "Paul Wohlhart",
+            "Fei Xia",
+            "Ted Xiao",
+            "Annie Xie",
+            "Jinyu Xie",
+            "Peng Xu",
+            "Sichun Xu",
+            "Ying Xu",
+            "Zhuo Xu",
+            "Yuxiang Yang",
+            "Rui Yao",
+            "Sergey Yaroshenko",
+            "Wenhao Yu",
+            "Wentao Yuan",
+            "Jingwei Zhang",
+            "Tingnan Zhang",
+            "Allan Zhou",
+            "Yuxiang Zhou"
+          ],
+          "title": "Gemini Robotics: Bringing AI into the Physical World",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.20020",
+        "summary": "Recent advancements in large multimodal models have led to the emergence of remarkable generalist capabilities in digital domains, yet their translation to physical agents such as robots remains a significant challenge. This report introduces a new family of AI models purposefully designed for robotics and built upon the foundation of Gemini 2.0. We present Gemini Robotics, an advanced Vision-Language-Action (VLA) generalist model capable of directly controlling robots. Gemini Robotics executes smooth and reactive movements to tackle a wide range of complex manipulation tasks while also being robust to variations in object types and positions, handling unseen environments as well as following diverse, open vocabulary instructions. We show that with additional fine-tuning, Gemini Robotics can be specialized to new capabilities including solving long-horizon, highly dexterous tasks, learning new short-horizon tasks from as few as 100 demonstrations and adapting to completely novel robot embodiments. This is made possible because Gemini Robotics builds on top of the Gemini Robotics-ER model, the second model we introduce in this work. Gemini Robotics-ER (Embodied Reasoning) extends Gemini's multimodal reasoning capabilities into the physical world, with enhanced spatial and temporal understanding. This enables capabilities relevant to robotics including object detection, pointing, trajectory and grasp prediction, as well as multi-view correspondence and 3D bounding box predictions. We show how this novel combination can support a variety of robotics applications. We also discuss and address important safety considerations related to this new class of robotics foundation models. The Gemini Robotics family marks a substantial step towards developing general-purpose robots that realizes AI's potential in the physical world.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.20020",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T21:40:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"cosmos 3: omnimodal world models for physical ai\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

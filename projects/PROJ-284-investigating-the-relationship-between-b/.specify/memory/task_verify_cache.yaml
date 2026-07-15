@@ -1,0 +1,17 @@
+T023a:
+  c: false
+  h: 44a7136c1aa06d08ab58c8b9c00c42c9f72124b1f37c5b73ac88138f0ac0af31
+  r: "The provided `correlations.py` only contains a partial implementation that saves\
+    \ the PCA loadings but never computes or writes the factor scores, and the expected\
+    \ output files `data/analysis/pca_loadings.csv` and `data/analysis/factor_scores.csv`\
+    \ are absent from the repository. Consequently the task\u2019s required artifacts\
+    \ are missing and the implementation is incomplete."
+T023b:
+  c: false
+  h: 0199faf2f72ba85d146c539e6cbeb4b0dac2b0255bd57878398d38ce5b162464
+  r: "The repository contains `code/analysis/correlations.py`, but the shown code\
+    \ only loads metrics and runs PCA; it does not merge the raw metric columns with\
+    \ the PCA factor scores nor write a `full_metrics.csv`. Moreover, the required\
+    \ output file `data/analysis/full_metrics.csv` is absent from the project. The\
+    \ task\u2019s core requirement\u2014producing a combined CSV with all metrics\
+    \ and PCA factors\u2014is therefore not met."

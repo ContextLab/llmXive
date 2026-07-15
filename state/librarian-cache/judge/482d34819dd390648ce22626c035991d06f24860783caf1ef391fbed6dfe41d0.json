@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.20503",
+  "judged_at": "2026-07-15T21:40:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"cosmos 3: omnimodal world models for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it reviews the integration of foundation models (including multimodal world models) into embodied AI and mobile service robots, which is the direct application domain and mechanism of the \"Cosmos 3\" paper the user is extending. It provides the necessary canonical literature on the \"Physical AI\" and \"Omnimodal\" aspects of the user's specific follow-up question.",
+  "relevant": true
+}

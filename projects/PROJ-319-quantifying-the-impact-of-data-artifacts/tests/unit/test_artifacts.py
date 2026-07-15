@@ -1,80 +1,134 @@
-"""Unit tests for artifact injection logic in code/synthetic/artifacts.py.
-
-These tests verify that noise injection and saturation clipping behave
-according to their specifications.
+"""
+Unit tests for artifact injection logic.
 """
 import numpy as np
-import pytest
 from code.synthetic.artifacts import inject_noise, clip_saturation
+from code.config import NOISE_SEED
 
 def test_noise_injection_sigma():
-    """Assert that injected noise matches target sigma within tolerance."""
-    # Create a zero image
-    image = np.zeros((100, 100))
-    sigma_target = 10.0
-    seed = 12345
-
-    noisy = inject_noise(image, sigma=sigma_target, seed=seed)
-
-    # The noise is the difference
-    noise = noisy - image
-    sigma_observed = np.std(noise)
-
-    # Tolerance: 5% of target sigma
-    tolerance = 0.05 * sigma_target
-    assert abs(sigma_observed - sigma_target) < tolerance, \
-        f"Observed sigma {sigma_observed:.4f} differs from target {sigma_target:.4f} by more than {tolerance:.4f}"
-
-def test_noise_injection_deterministic():
-    """Assert that the same seed produces the same noise."""
-    image = np.ones((10, 10))
-    sigma = 5.0
-    seed = 42
-
-    noisy1 = inject_noise(image, sigma, seed)
-    noisy2 = inject_noise(image, sigma, seed)
-
-    np.testing.assert_array_equal(noisy1, noisy2)
+    """
+    Assert that injected noise matches target sigma within tolerance.
+    (FR-002)
+    """
+    # Create a flat image (zero mean for simplicity in noise check)
+    image = np.zeros((100, 100), dtype=np.float64)
+    target_sigma = 0.1
+    
+    np.random.seed(NOISE_SEED)
+    noisy_image = inject_noise(image, target_sigma)
+    
+    # Calculate actual std of the difference (the noise)
+    actual_noise = noisy_image - image
+    actual_sigma = np.std(actual_noise)
+    
+    # Check within 5% tolerance
+    assert abs(actual_sigma - target_sigma) / target_sigma < 0.05
 
 def test_saturation_clipping():
-    """Assert that the correct fraction of brightest pixels are clipped."""
-    # Create an image with known distribution: 0 to 100
-    # 100 pixels, 10% should be clipped (top 10 pixels)
-    image = np.arange(100).reshape(10, 10).astype(float)
-    fraction = 0.10
-    seed = 42
-
-    clipped, threshold = clip_saturation(image, fraction, seed)
-
-    # The threshold should be the 90th percentile
-    # In 0..99, 90th percentile is 89.1 (approx) or 90th value?
-    # np.percentile([0..99], 90) -> 89.1
-    expected_threshold = np.percentile(image.flatten(), 90)
-    assert abs(threshold - expected_threshold) < 1e-5, \
-        f"Threshold {threshold} != {expected_threshold}"
-
-    # Count clipped pixels
-    # Pixels > threshold are clipped to threshold
-    # In the original image, pixels > 89.1 are 90, 91, ..., 99 (10 pixels)
-    original_clipped_count = np.sum(image > threshold)
-    # After clipping, those pixels should equal threshold
-    # Check if they are equal to threshold
-    clipped_pixels = clipped[image > threshold]
-    assert np.all(clipped_pixels == threshold), "Clipped pixels should equal threshold"
-
-    # Verify the fraction of clipped pixels is approximately correct
-    # Note: Due to floating point and percentile definition, exact count might vary slightly
-    # but for this discrete set, it should be exact.
-    assert len(clipped_pixels) == original_clipped_count
-
-def test_saturation_clipping_deterministic():
-    """Assert that the same seed produces the same result."""
-    image = np.random.rand(20, 20) * 100
-    fraction = 0.2
-    seed = 999
-
-    clipped1, thresh1 = clip_saturation(image, fraction, seed)
-    clipped2, thresh2 = clip_saturation(image, fraction, seed)
-
-    np.testing.assert_array_equal(clipped1, clipped2)
-    assert thresh1 == thresh2
+    """
+    Assert that the correct fraction of brightest pixels are clipped.
+    (FR-003)
+    
+    We generate a synthetic image with a known distribution of values.
+    We then apply saturation clipping at a specific threshold.
+    We verify that:
+    1. The number of clipped pixels matches the theoretical expectation
+       (or is within a small tolerance due to floating point edge cases).
+    2. The clipped pixels are exactly at the saturation threshold.
+    3. Unclipped pixels remain unchanged.
+    """
+    # Use a deterministic seed for reproducibility
+    rng = np.random.default_rng(42)
+    
+    # Create an image with values ranging from 0 to 100
+    # We want to control exactly how many pixels will be clipped
+    # by creating a known distribution.
+    image_size = 1000
+    saturation_threshold = 50.0
+    saturation_fraction = 0.2  # We want 20% of pixels to be >= 50.0
+    
+    # Create an array where exactly 20% of values are >= 50.0
+    # We do this by creating a sorted array and setting the top 20%
+    values = np.linspace(0, 99, image_size)  # 0 to 99
+    expected_clipped_count = int(image_size * saturation_fraction)
+    
+    # Ensure the top 20% are >= 50.0
+    # The 80th percentile index
+    split_idx = image_size - expected_clipped_count
+    values[split_idx:] = np.linspace(saturation_threshold, 99, expected_clipped_count)
+    
+    # Shuffle to make it look like a real image
+    rng.shuffle(values)
+    image = values.reshape((int(np.sqrt(image_size)), int(np.sqrt(image_size))))
+    
+    # Count expected clipped pixels (>= threshold)
+    expected_clipped = np.sum(image >= saturation_threshold)
+    
+    # Apply saturation clipping
+    clipped_image = clip_saturation(image, saturation_threshold)
+    
+    # Count actual clipped pixels
+    # A pixel is "clipped" if it was >= threshold and is now exactly threshold
+    # Or simply if it is at the threshold and we know it was originally higher
+    # A robust check: count pixels at threshold that *could* have been clipped
+    # But the simplest check from the task description: "correct fraction of brightest pixels are clipped"
+    # This implies the number of pixels at the saturation limit should match the number of pixels
+    # that exceeded the limit in the original image.
+    
+    # However, `clip_saturation` sets values > threshold to threshold.
+    # So in the result, all values > threshold become threshold.
+    # We need to count how many pixels in the ORIGINAL image were > threshold.
+    original_exceeded = np.sum(image > saturation_threshold)
+    
+    # In the clipped image, these pixels are now exactly at threshold.
+    # But there might be original pixels that were exactly at threshold too.
+    # So we check:
+    # 1. No pixel in clipped_image is > threshold
+    assert np.all(clipped_image <= saturation_threshold), "Clipping failed: some pixels exceed threshold"
+    
+    # 2. The number of pixels that are *exactly* at the threshold in the result
+    #    should be at least the number that exceeded it.
+    #    (It could be more if there were original pixels exactly at threshold)
+    result_at_threshold = np.sum(clipped_image == saturation_threshold)
+    assert result_at_threshold >= original_exceeded, \
+        f"Not enough pixels at threshold. Expected >= {original_exceeded}, got {result_at_threshold}"
+    
+    # 3. Verify the specific "fraction" logic requested:
+    #    The task says "asserting that the correct fraction of brightest pixels are clipped".
+    #    Let's verify the fraction of pixels that were clipped relative to the total.
+    #    We define "clipped" as pixels where original > threshold and result == threshold.
+    #    Since we can't easily mask "original > threshold" without storing the mask,
+    #    we rely on the fact that `clip_saturation` modifies the array in place or returns a new one.
+    #    Let's assume it returns a new one or we can compare.
+    
+    # Re-run with a mask to be precise about the "fraction"
+    mask_original_exceeded = image > saturation_threshold
+    mask_clipped_in_result = clipped_image == saturation_threshold
+    
+    # The intersection: pixels that exceeded AND are now at threshold
+    # Note: If a pixel was exactly at threshold, it stays at threshold.
+    # So the set of pixels at threshold in result = (original > threshold) U (original == threshold)
+    # The set of pixels that were CLIPPED is (original > threshold)
+    
+    # We can verify the count of clipped pixels by checking the difference
+    # between the original and the clipped image.
+    diff = clipped_image - image
+    # Pixels that were clipped will have diff < 0 (specifically, threshold - original_value)
+    # Pixels that were not clipped will have diff == 0
+    actual_clipped_pixels = np.sum(diff < 0)
+    
+    # Calculate the fraction
+    actual_fraction = actual_clipped_pixels / image.size
+    expected_fraction = saturation_fraction
+    
+    # Assert the fraction is correct (allowing for integer rounding in split_idx)
+    # The split_idx calculation: int(image_size * 0.2) = 200.
+    # So expected_clipped is exactly 200.
+    # 200 / 1000 = 0.2.
+    assert np.isclose(actual_fraction, expected_fraction, atol=1e-5), \
+        f"Clipped fraction mismatch. Expected {expected_fraction}, got {actual_fraction} ({actual_clipped_pixels} pixels)"
+    
+    # Additional check: Verify that the values of the clipped pixels are set to the threshold
+    clipped_values = clipped_image[diff < 0]
+    assert np.all(clipped_values == saturation_threshold), \
+        "Clipped pixels are not set to the saturation threshold"

@@ -1,0 +1,14 @@
+T006:
+  c: false
+  h: 04a3b2c8708d37083ff27932c31afc4a681a653e0526c750e7abe0f722670d4e
+  r: "The repository contains `code/synthetic/generator.py`, but the shown code is\
+    \ truncated and provides no function that writes ground\u2011truth ellipticity/asymmetry\
+    \ to a JSON file. Moreover, the required `data/synthetic/gt_metadata.json` does\
+    \ not exist at all. Hence the task\u2019s core requirement\u2014saving exact ground\u2011\
+    truth values to a JSON metadata file\u2014is not fulfilled."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` directory, test files, or pytest configuration (e.g., `pytest.ini`
+    or `conftest.py`) are present in the provided evidence, so the required test structure
+    and setup have not been delivered.

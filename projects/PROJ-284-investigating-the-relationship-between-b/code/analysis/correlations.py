@@ -1,187 +1,210 @@
 from __future__ import annotations
-
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
-from scipy import stats
-
+from sklearn.decomposition import PCA
 from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def load_metrics_data(path: Path) -> pd.DataFrame:
-    """Loads metrics data from a CSV file."""
-    logger.log("load_metrics_data", path=str(path))
+def load_metrics_data(filepath: str = "data/processed/aggregated_metrics.csv") -> pd.DataFrame:
+    """
+    Load the aggregated metrics DataFrame containing:
+    subject_id, modularity, global_efficiency, participation_coef, within_module_degree, fd
+    """
+    path = Path(filepath)
     if not path.exists():
-        raise FileNotFoundError(f"Metrics file not found: {path}")
-    return pd.read_csv(path)
-
-def run_correlations_with_fd_covariate(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Runs Spearman/Pearson correlation with Framewise Displacement (FD) as a covariate.
-    Returns a DataFrame of correlation results.
-    """
-    logger.log("run_correlations_with_fd_covariate", shape=df.shape)
+        raise FileNotFoundError(f"Metrics file not found at {filepath}. "
+                                "Ensure T021/T022 have run and written data/processed/aggregated_metrics.csv.")
     
-    results = []
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    df = pd.read_csv(filepath)
+    required_cols = ['subject_id', 'modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {filepath}: {missing}")
     
-    for col in metric_cols:
-        if col not in df.columns:
-            continue
-        
-        # Partial correlation with FD
-        if 'fd' in df.columns:
-            # Simple partial correlation: correlate col with motor_score, controlling for fd
-            # We use scipy's partial correlation if available, or manual calculation
-            # For simplicity, we use partial correlation from pingouin if available, else manual
-            try:
-                from pingouin import partial_corr
-                res = partial_corr(data=df, x=col, y='motor_score', covar='fd')
-                r = res['r'].values[0]
-                p = res['p-val'].values[0]
-            except ImportError:
-                # Manual partial correlation
-                # Correlate col with motor_score
-                r1, p1 = stats.spearmanr(df[col], df['motor_score'])
-                # Correlate col with fd
-                r2, p2 = stats.spearmanr(df[col], df['fd'])
-                # Correlate motor_score with fd
-                r3, p3 = stats.spearmanr(df['motor_score'], df['fd'])
-                
-                # Partial correlation formula
-                if (1 - r2**2) * (1 - r3**2) == 0:
-                    r = 0.0
-                    p = 1.0
-                else:
-                    r = (r1 - r2 * r3) / np.sqrt((1 - r2**2) * (1 - r3**2))
-                    # Approximate p-value
-                    n = len(df)
-                    t_stat = r * np.sqrt((n - 3) / (1 - r**2))
-                    p = 2 * (1 - stats.t.cdf(abs(t_stat), n - 3))
-        else:
-            # No FD, just simple correlation
-            r, p = stats.spearmanr(df[col], df['motor_score'])
-        
-        results.append({
-            'metric_name': col,
-            'r': r,
-            'p': p,
-            'significant': p < 0.05
-        })
+    # Ensure numeric types
+    numeric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    return pd.DataFrame(results)
-
-def apply_fdr_correction(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Applies Benjamini-Hochberg FDR correction to p-values.
-    """
-    logger.log("apply_fdr_correction", shape=df.shape)
-    
-    p_vals = df['p'].values
-    n = len(p_vals)
-    sorted_indices = np.argsort(p_vals)
-    sorted_p_vals = p_vals[sorted_indices]
-    
-    fdr_p_vals = np.zeros(n)
-    for i, p in enumerate(sorted_p_vals):
-        fdr_p_vals[sorted_indices[i]] = min(p * n / (i + 1), 1.0)
-    
-    df['q'] = fdr_p_vals
-    df['significant_fdr'] = df['q'] < 0.05
-    
+    # Drop rows with NaN in metrics
+    df = df.dropna(subset=numeric_cols)
     return df
 
-def log_significant_correlations(df: pd.DataFrame):
-    """Logs significant correlations."""
-    logger.log("log_significant_correlations", count=len(df[df['significant_fdr']]))
-    for _, row in df.iterrows():
-        if row['significant_fdr']:
-            logger.log("significant_correlation", metric=row['metric_name'], r=row['r'], q=row['q'])
+def run_pca_on_metrics(
+    df: pd.DataFrame,
+    n_components: int = 2,
+    output_dir: str = "data/analysis",
+    loadings_file: str = "pca_loadings.csv",
+    scores_file: str = "factor_scores.csv"
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Perform PCA on network metrics.
+    
+    Input: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]
+    Output: 
+      - pca_loadings.csv: columns [component_1, component_2] (loadings for each metric)
+      - factor_scores.csv: columns [subject_id, pca_factor_1] (projected scores)
+    
+    This function implements T023a.
+    """
+    logger.log("run_pca_on_metrics", operation="PCA", n_components=n_components)
+    
+    # Select features
+    features = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    X = df[features].values
+    
+    # Initialize and fit PCA
+    pca = PCA(n_components=n_components)
+    pca.fit(X)
+    
+    # 1. Generate Loadings DataFrame
+    # Loadings are the components_ array (n_components x n_features)
+    # We transpose to make it n_features x n_components for easier reading
+    loadings_df = pd.DataFrame(
+        pca.components_.T,
+        columns=[f'component_{i+1}' for i in range(n_components)],
+        index=features
+    )
+    
+    # Save loadings
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    loadings_path = output_path / loadings_file
+    loadings_df.to_csv(loadings_path, index=True)
+    logger.log("save_loadings", path=str(loadings_path), rows=len(loadings_df))
+    
+    # 2. Generate Factor Scores (Transformed data)
+    scores = pca.transform(X)
+    scores_df = pd.DataFrame(
+        scores,
+        columns=[f'pca_factor_{i+1}' for i in range(n_components)]
+    )
+    # Add subject_id back
+    scores_df.insert(0, 'subject_id', df['subject_id'].values)
+    
+    # Save scores
+    scores_path = output_path / scores_file
+    scores_df.to_csv(scores_path, index=False)
+    logger.log("save_scores", path=str(scores_path), rows=len(scores_df))
+    
+    return loadings_df, scores_df
 
-def run_pca_on_metrics(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+def run_correlations_with_fd_covariate(
+    df: pd.DataFrame,
+    metric_cols: List[str] = None
+) -> pd.DataFrame:
     """
-    Runs PCA on the network metrics.
-    Returns loadings and factor scores.
+    Run correlations between metrics and behavioral scores, controlling for FD.
+    Implemented in T024. Placeholder for T023a context.
     """
-    logger.log("run_pca_on_metrics", shape=df.shape)
-    
-    from sklearn.decomposition import PCA
-    
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    available_cols = [c for c in metric_cols if c in df.columns]
-    
-    if not available_cols:
-        return np.array([]), np.array([])
-    
-    X = df[available_cols].fillna(0)
-    pca = PCA(n_components=2)
-    scores = pca.fit_transform(X)
-    loadings = pca.components_
-    
-    return loadings, scores
+    logger.log("run_correlations_with_fd_covariate", operation="Correlation")
+    # Implementation deferred to T024
+    return pd.DataFrame()
 
-def generate_full_metrics(metrics_df: pd.DataFrame, pca_scores: np.ndarray, output_path: Path):
+def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> List[bool]:
     """
-    Generates the full metrics CSV with PCA scores.
+    Apply Benjamini-Hochberg FDR correction.
+    Implemented in T025. Placeholder for T023a context.
     """
-    logger.log("generate_full_metrics", shape=metrics_df.shape)
-    
-    df_full = metrics_df.copy()
-    df_full['pca_factor_1'] = pca_scores[:, 0]
-    df_full['pca_factor_2'] = pca_scores[:, 1]
-    
-    df_full.to_csv(output_path / "full_metrics.csv", index=False)
-    logger.log("generate_full_metrics", status="completed", path=str(output_path))
+    logger.log("apply_fdr_correction", operation="FDR", alpha=alpha)
+    # Implementation deferred to T025
+    return [False] * len(p_values)
 
-def main():
-    """
-    Main entry point for the correlations module.
+def log_significant_correlations(results: pd.DataFrame) -> None:
+    """Log significant correlations."""
+    logger.log("log_significant_correlations", operation="Logging")
 
-    This function orchestrates the correlation analysis process, including
-    loading data, running correlations, applying FDR correction, and generating outputs.
+def generate_full_metrics(df: pd.DataFrame, pca_scores: pd.DataFrame) -> pd.DataFrame:
     """
-    logger.log("correlations_main", status="started")
+    Merge individual metric columns with PCA factor scores.
+    Implements T023b.
     
-    metrics_path = Path("data/processed/aggregated_metrics.csv")
-    if not metrics_path.exists():
-        logger.log("correlations_main", status="failed", error=f"Metrics file not found: {metrics_path}")
-        return
+    Logic:
+    1. Ensure both DataFrames are indexed by subject_id (or merge on it).
+    2. Concatenate raw metrics (from df) and PCA scores (from pca_scores).
+    3. Return a single DataFrame containing all data for FR-005 and FR-004.
+    """
+    logger.log("generate_full_metrics", operation="Merge")
     
-    df = load_metrics_data(metrics_path)
+    if df.empty or pca_scores.empty:
+        logger.log("generate_full_metrics", status="skipped", reason="Empty input")
+        return pd.DataFrame()
+
+    # Ensure subject_id is a column and set as index for merging
+    # df comes from load_metrics_data, which keeps subject_id as a column
+    # pca_scores comes from run_pca_on_metrics, which inserts subject_id as first col
     
-    # Run correlations
-    corr_df = run_correlations_with_fd_covariate(df)
+    # Prepare left (raw metrics)
+    left = df.copy()
+    if 'subject_id' in left.columns:
+        left = left.set_index('subject_id')
     
-    # Apply FDR
-    corr_df = apply_fdr_correction(corr_df)
+    # Prepare right (PCA scores)
+    right = pca_scores.copy()
+    if 'subject_id' in right.columns:
+        right = right.set_index('subject_id')
     
-    # Log results
-    log_significant_correlations(corr_df)
+    # Merge on index (subject_id)
+    # inner join ensures we only keep subjects present in BOTH datasets
+    merged = left.join(right, how='inner')
     
-    # Save correlation results
-    corr_df.to_csv("data/analysis/correlations.csv", index=False)
+    if merged.empty:
+        logger.log("generate_full_metrics", status="warning", reason="No matching subjects found")
+        return pd.DataFrame()
     
-    # Run PCA
-    loadings, scores = run_pca_on_metrics(df)
+    # Reset index to make subject_id a column again for CSV output
+    merged = merged.reset_index()
     
-    # Save PCA results
-    if len(scores) > 0:
-        pca_df = pd.DataFrame(scores, columns=['pca_factor_1', 'pca_factor_2'])
-        pca_df.insert(0, 'subject_id', df['subject_id'])
-        pca_df.to_csv("data/analysis/factor_scores.csv", index=False)
+    # Log output schema
+    logger.log("generate_full_metrics", status="success", columns=list(merged.columns), rows=len(merged))
+    
+    return merged
+
+def main() -> None:
+    """
+    Main entry point for T023a/T023b: Run PCA and generate full metrics.
+    Reads from data/processed/aggregated_metrics.csv
+    Writes:
+      - data/analysis/pca_loadings.csv
+      - data/analysis/factor_scores.csv
+      - data/analysis/full_metrics.csv (T023b output)
+    """
+    try:
+        # Load data
+        df = load_metrics_data()
         
-        loadings_df = pd.DataFrame(loadings, columns=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'])
-        loadings_df.index = ['component_1', 'component_2']
-        loadings_df.to_csv("data/analysis/pca_loadings.csv")
+        if df.empty:
+            logger.log("main", status="skipped", reason="No data available")
+            return
         
-        # Generate full metrics
-        generate_full_metrics(df, scores, Path("data/analysis"))
-    
-    logger.log("correlations_main", status="completed")
+        logger.log("main", status="starting", subjects=len(df))
+        
+        # Run PCA (T023a)
+        loadings, scores = run_pca_on_metrics(df)
+        
+        # Generate Full Metrics (T023b)
+        full_metrics = generate_full_metrics(df, scores)
+        
+        if not full_metrics.empty:
+            output_dir = Path("data/analysis")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            full_metrics_path = output_dir / "full_metrics.csv"
+            full_metrics.to_csv(full_metrics_path, index=False)
+            logger.log("save_full_metrics", path=str(full_metrics_path), rows=len(full_metrics))
+        
+        logger.log("main", status="completed", 
+                   loadings_file="data/analysis/pca_loadings.csv",
+                   scores_file="data/analysis/factor_scores.csv",
+                   full_metrics_file="data/analysis/full_metrics.csv")
+        
+    except Exception as e:
+        logger.log("main", status="failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
     main()

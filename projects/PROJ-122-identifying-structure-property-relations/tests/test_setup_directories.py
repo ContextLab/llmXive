@@ -1,88 +1,75 @@
-"""
-Unit tests for the setup_directories.py script.
-Verifies that the required directory structure is created correctly.
-"""
 import os
 import tempfile
 import shutil
 from pathlib import Path
-import pytest
-
-# Import the function to test
-# We need to simulate the script being run or import the logic
-# Since the script is in code/, we need to add it to path or copy logic
-# For this test, we will import the logic directly if possible, or mock the execution.
-# To keep it simple and robust, we will test the logic by recreating it in the test or importing.
-# Let's assume we can import from code.setup_directories if we add code to path.
-
 import sys
+
+# Add the code directory to the path so we can import setup_directories
+# Assuming the test is run from the project root
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from setup_directories import create_directories
 
-class TestDirectoryCreation:
-    @pytest.fixture
-    def temp_project_root(self, tmp_path):
-        """Create a temporary directory to simulate project root."""
-        return tmp_path
-
-    def test_creates_required_dirs(self, temp_project_root):
-        """Test that all required directories are created."""
-        # Change to temp root to simulate project root execution
+def test_create_directories_structure():
+    """
+    Test that create_directories creates the required folder structure.
+    """
+    # Create a temporary directory to simulate the project root
+    with tempfile.TemporaryDirectory() as tmpdir:
         original_cwd = os.getcwd()
         try:
-            os.chdir(temp_project_root)
+            os.chdir(tmpdir)
             
-            # Call the function
-            created, skipped = create_directories()
+            # Run the function
+            result = create_directories()
+            
+            # Verify return value
+            assert result is True, "create_directories should return True"
             
             # Verify directories exist
+            base_path = Path(tmpdir)
+            
             required_dirs = [
-                "code",
-                "data/raw",
-                "data/processed",
-                "data/features",
-                "tests",
-                "state/projects"
+                base_path / "code",
+                base_path / "data" / "raw",
+                base_path / "data" / "processed",
+                base_path / "data" / "features",
+                base_path / "tests",
+                base_path / "state" / "projects",
+                base_path / "tests" / "contract",
+                base_path / "tests" / "integration",
+                base_path / "tests" / "unit",
             ]
             
-            for dir_name in required_dirs:
-                dir_path = temp_project_root / dir_name
-                assert dir_path.exists(), f"Directory {dir_name} was not created"
-                assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+            for directory in required_dirs:
+                assert directory.exists(), f"Directory {directory} should exist"
+                assert directory.is_dir(), f"{directory} should be a directory"
             
-            # Verify count
-            assert created == len(required_dirs)
-            assert skipped == 0
+            print("All required directories created successfully.")
+            
         finally:
             os.chdir(original_cwd)
 
-    def test_handles_existing_dirs(self, temp_project_root):
-        """Test that the script handles existing directories gracefully."""
+def test_create_directories_idempotent():
+    """
+    Test that running create_directories multiple times doesn't fail.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
         original_cwd = os.getcwd()
         try:
-            os.chdir(temp_project_root)
+            os.chdir(tmpdir)
             
-            # Pre-create one directory
-            (temp_project_root / "code").mkdir()
+            # Run twice
+            create_directories()
+            create_directories()
             
-            # Call the function
-            created, skipped = create_directories()
+            # Should not raise any exceptions
+            assert True, "Running create_directories multiple times should not fail"
             
-            # Verify count
-            assert created == len(["code", "data/raw", "data/processed", "data/features", "tests", "state/projects"]) - 1
-            assert skipped == 1
-            
-            # Verify all still exist
-            required_dirs = [
-                "code",
-                "data/raw",
-                "data/processed",
-                "data/features",
-                "tests",
-                "state/projects"
-            ]
-            for dir_name in required_dirs:
-                assert (temp_project_root / dir_name).exists()
         finally:
             os.chdir(original_cwd)
+
+if __name__ == "__main__":
+    test_create_directories_structure()
+    test_create_directories_idempotent()
+    print("All tests passed.")

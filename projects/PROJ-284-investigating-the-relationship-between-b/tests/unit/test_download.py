@@ -1,156 +1,142 @@
-"""Unit tests for the data download module.
+"""Unit tests for data download functionality.
 
-This module contains contract tests for the HCP/ADHD data fetching logic.
-It mocks external API calls to verify that the system correctly handles
-success and failure scenarios without requiring network access during
-unit testing.
+This module contains contract tests for the HCP data fetcher.
+It mocks the HCP API to verify correct behavior without network access.
 """
-
 import os
-import unittest
-from unittest.mock import patch, MagicMock, mock_open
-from pathlib import Path
-import nibabel as nib
+import tempfile
+from unittest.mock import patch, MagicMock
+import pytest
 import numpy as np
+from pathlib import Path
 
-# Import the module under test
-# We import the function directly to test it in isolation
-from code.data.download import fetch_adhd_dataset, check_ica_fix_availability
+# Import the function we are testing from the actual implementation
+from code.data.download import fetch_adhd_dataset
+from code.logging_config import get_logger
 
 
-class TestDownloadContract(unittest.TestCase):
-    """Contract tests for the download module.
+logger = get_logger(__name__)
 
-    These tests verify that the download logic adheres to the specified
-    interface and behavior, ensuring that the pipeline can fetch data
-    correctly when real credentials and network are available.
+
+def test_fetch_returns_nifti_on_success():
+    """Contract test: Mocks HCP API, verifies NIfTI return.
+
+    This test ensures that when the HCP API (or in this case, the ADHD dataset
+    fetcher from nilearn) returns successfully, the function correctly
+    identifies and returns paths to NIfTI files.
+
+    It validates:
+    1. The function returns a dictionary with expected keys.
+    2. The 'func' or 'scans' key contains a list of file paths.
+    3. The file paths end with .nii or .nii.gz.
+    4. The function handles the real data structure from nilearn's fetch_adhd.
     """
+    # Mock the nilearn.datasets.fetch_adhd function to return a controlled structure
+    # that mimics the real return value but without downloading.
+    mock_phenotypic_data = [
+        {
+            "Subject": "1",
+            "Rest1": "path/to/sub-1_func.nii.gz",
+            "age": 10,
+            "sex": "M"
+        },
+        {
+            "Subject": "2",
+            "Rest1": "path/to/sub-2_func.nii.gz",
+            "age": 12,
+            "sex": "F"
+        }
+    ]
 
-    @patch('code.data.download.datasets')
-    @patch('code.data.download.os.path.exists')
-    def test_fetch_returns_nifti_on_success(self, mock_exists, mock_datasets):
-        """Contract test: fetch_returns_nifti_on_success.
+    # Create a mock bunch object that mimics nilearn's return structure
+    mock_bunch = MagicMock()
+    mock_bunch.phenotypic = mock_phenotypic_data
+    # The real fetch_adhd returns a list of paths in 'func' if available,
+    # or we derive them from phenotypic if the mock is minimal.
+    # In the real implementation, fetch_adhd returns a dict with 'func' keys.
+    # We simulate the successful fetch result structure.
+    mock_bunch.func = ["path/to/sub-1_func.nii.gz", "path/to/sub-2_func.nii.gz"]
+    mock_bunch.data_dir = "/mock/data/dir"
 
-        Verifies that when the HCP/ADHD API returns a successful response,
-        the fetch function returns a list of NIfTI file paths.
+    with patch('code.data.download.datasets.fetch_adhd', return_value=mock_bunch):
+        # Call the function under test
+        result = fetch_adhd_dataset(subjects=["1", "2"])
 
-        This test mocks the nilearn datasets module to simulate a successful
-        download without actually contacting the network.
+        # Assertions
+        assert result is not None, "Result should not be None on success"
+        assert "phenotypic" in result, "Result must contain 'phenotypic' key"
+        assert "func" in result, "Result must contain 'func' key (NIfTI paths)"
 
-        Expected behavior:
-        1. The function calls the underlying dataset fetcher.
-        2. The function returns a list of file paths (strings or Path objects).
-        3. Each returned path points to a valid NIfTI file (verified by existence check).
-        """
-        # Setup: Mock the datasets.fetch_adhd to return a mock bunch
-        mock_bunch = MagicMock()
-        mock_bunch.func = [
-            "/mock/path/sub-01_task-rest_bold.nii.gz",
-            "/mock/path/sub-02_task-rest_bold.nii.gz"
-        ]
-        mock_bunch.phenotypic = MagicMock()
-        mock_bunch.phenotypic.columns = ["Subject", "Age"]
-        mock_bunch.phenotypic.to_csv = MagicMock()
+        # Verify the NIfTI paths are present and valid
+        func_paths = result["func"]
+        assert isinstance(func_paths, list), "func paths should be a list"
+        assert len(func_paths) == 2, "Should have 2 NIfTI paths for 2 subjects"
 
-        mock_datasets.fetch_adhd.return_value = mock_bunch
-        mock_exists.return_value = True  # Pretend files exist on disk
+        for path in func_paths:
+            assert path.endswith(".nii") or path.endswith(".nii.gz"), \
+                f"Path {path} must be a valid NIfTI file"
+            assert os.path.isabs(path) or path.startswith("path/to/"), \
+                f"Path {path} should be a valid path string"
 
-        # Also mock the actual file check if needed, but here we rely on the mock path
-        # The function should return the list of files from mock_bunch.func
+        # Verify phenotypic data is preserved
+        phenotypic = result["phenotypic"]
+        assert len(phenotypic) == 2, "Should have 2 phenotypic records"
+        assert phenotypic[0]["Subject"] == "1"
+        assert phenotypic[1]["Subject"] == "2"
 
-        # Execute: Call the function under test
-        # Note: fetch_adhd_dataset wraps datasets.fetch_adhd
-        result = fetch_adhd_dataset(subject_ids=["100307", "100909"], data_dir="/tmp/test_data")
+        logger.log("test_fetch_returns_nifti_on_success", status="passed")
 
-        # Assert: Verify the result is a list of paths
-        self.assertIsInstance(result, list, "fetch_adhd_dataset should return a list of file paths")
-        self.assertEqual(len(result), 2, "Should return 2 file paths for 2 subjects")
+def test_fetch_handles_missing_subjects():
+    """Contract test: Verify behavior when requested subjects are not found.
 
-        # Verify that the paths are strings or Path objects
-        for path in result:
-            self.assertIsInstance(path, (str, Path), "Each result item must be a path string or Path object")
+    This test ensures the function handles cases where the requested subject IDs
+    do not exist in the available dataset, without crashing.
+    """
+    mock_phenotypic_data = [
+        {"Subject": "1", "Rest1": "path/to/sub-1_func.nii.gz", "age": 10, "sex": "M"}
+    ]
+    mock_bunch = MagicMock()
+    mock_bunch.phenotypic = mock_phenotypic_data
+    mock_bunch.func = ["path/to/sub-1_func.nii.gz"]
 
-        # Verify that the underlying fetcher was called
-        mock_datasets.fetch_adhd.assert_called_once()
+    with patch('code.data.download.datasets.fetch_adhd', return_value=mock_bunch):
+        # Request a subject that doesn't exist
+        result = fetch_adhd_dataset(subjects=["999"])
 
-    @patch('code.data.download.datasets')
-    def test_fetch_handles_empty_dataset(self, mock_datasets):
-        """Contract test: Verify behavior when dataset is empty.
+        # Should return empty lists or None for missing data, not crash
+        assert result is not None
+        assert len(result.get("func", [])) == 0, "Should return empty list for missing subjects"
+        assert len(result.get("phenotypic", [])) == 0, "Should return empty list for missing subjects"
 
-        Ensures the function handles the case where no files are returned
-        without crashing.
-        """
-        mock_bunch = MagicMock()
-        mock_bunch.func = []
-        mock_bunch.phenotypic = MagicMock()
-        mock_bunch.phenotypic.columns = []
-        mock_datasets.fetch_adhd.return_value = mock_bunch
+        logger.log("test_fetch_handles_missing_subjects", status="passed")
 
-        result = fetch_adhd_dataset(subject_ids=[], data_dir="/tmp/test_data")
+def test_fetch_preserves_data_integrity():
+    """Contract test: Verify that data types and structures are preserved.
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(len(result), 0)
+    Ensures that the function does not inadvertently corrupt or alter the
+    structure of the data returned by the underlying fetcher.
+    """
+    mock_phenotypic_data = [
+        {
+            "Subject": "1",
+            "Rest1": "path/to/sub-1_func.nii.gz",
+            "age": 10.5,
+            "sex": "M",
+            "extra_field": "value"
+        }
+    ]
+    mock_bunch = MagicMock()
+    mock_bunch.phenotypic = mock_phenotypic_data
+    mock_bunch.func = ["path/to/sub-1_func.nii.gz"]
 
-    @patch('code.data.download.os')
-    def test_check_ica_fix_availability_logic(self, mock_os):
-        """Contract test: Verify ICA-FIX availability check logic.
+    with patch('code.data.download.datasets.fetch_adhd', return_value=mock_bunch):
+        result = fetch_adhd_dataset(subjects=["1"])
 
-        Simulates the filesystem check for ICA-FIX processed data availability.
-        """
-        # Scenario 1: ICA-FIX directory exists
-        mock_os.path.join.return_value = "/mock/ica_fix_dir"
-        mock_os.path.exists.return_value = True
-        
-        # We need to mock the specific path check inside the function
-        # Since we can't easily mock the internal logic without refactoring,
-        # we verify the contract by ensuring the function returns a boolean
-        
-        # Re-mock to simulate the internal check
-        with patch.object(mock_os.path, 'exists', return_value=True):
-            # The function should return True if the path exists
-            # Note: This test is a bit abstract because the actual implementation
-            # might have specific logic. We are verifying the contract that
-            # it returns a boolean based on existence.
-            pass 
-        
-        # Let's test the actual function behavior with a known path
-        # We will mock the specific path check
-        with patch('code.data.download.os.path.exists', return_value=True):
-            result = check_ica_fix_availability()
-            self.assertIsInstance(result, bool)
-            self.assertTrue(result)
+        # Check that all original fields are preserved
+        phenotypic = result["phenotypic"][0]
+        assert phenotypic["Subject"] == "1"
+        assert phenotypic["age"] == 10.5
+        assert phenotypic["sex"] == "M"
+        assert phenotypic["extra_field"] == "value"
 
-        with patch('code.data.download.os.path.exists', return_value=False):
-            result = check_ica_fix_availability()
-            self.assertIsInstance(result, bool)
-            self.assertFalse(result)
-
-    @patch('code.data.download.datasets')
-    def test_fetch_with_specific_subjects(self, mock_datasets):
-        """Contract test: Verify fetching with specific subject IDs.
-
-        Ensures that the function correctly filters or requests specific subjects.
-        """
-        mock_bunch = MagicMock()
-        # Simulate data for specific subjects
-        mock_bunch.func = [
-            "/data/sub-100307_task-rest_bold.nii.gz",
-            "/data/sub-100909_task-rest_bold.nii.gz"
-        ]
-        mock_bunch.phenotypic = MagicMock()
-        mock_bunch.phenotypic.columns = ["Subject"]
-        mock_bunch.phenotypic.to_csv = MagicMock()
-        
-        mock_datasets.fetch_adhd.return_value = mock_bunch
-
-        # Call with specific subjects
-        subjects = ["100307", "100909"]
-        result = fetch_adhd_dataset(subject_ids=subjects, data_dir="/tmp/data")
-
-        self.assertEqual(len(result), 2)
-        # Verify the filenames contain the subject IDs
-        for path in result:
-            self.assertTrue(any(sub_id in str(path) for sub_id in subjects))
-
-if __name__ == '__main__':
-    unittest.main()
+        logger.log("test_fetch_preserves_data_integrity", status="passed")

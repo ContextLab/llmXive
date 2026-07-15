@@ -1,223 +1,221 @@
-"""
-Statistical testing module for quantifying artifact impact.
-
-Implements two-sample t-tests with Bonferroni correction to compare
-metric distributions between artifact-injected and clean baselines.
-"""
 import csv
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
-
 import numpy as np
 from scipy import stats
-from statsmodels.stats.multitest import multipletests
 
+from metrics.asymmetry import calculate_asymmetry
+import config
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-
-def perform_two_sample_ttest(
-    group_a: np.ndarray,
-    group_b: np.ndarray,
-    alternative: str = "two-sided"
-) -> Dict[str, Any]:
+def perform_two_sample_ttest(sample1: np.ndarray, sample2: np.ndarray) -> Dict[str, float]:
     """
-    Perform an independent two-sample t-test.
+    Perform an independent two-sample t-test between two groups.
     
     Args:
-        group_a: First sample array (e.g., artifact-injected measurements).
-        group_b: Second sample array (e.g., clean baseline measurements).
-        alternative: Hypothesis alternative ('two-sided', 'greater', 'less').
-        
+        sample1: Array of values for the first group (e.g., clean asymmetry).
+        sample2: Array of values for the second group (e.g., saturated asymmetry).
+    
     Returns:
-        Dictionary containing t-statistic, p-value, and descriptive stats.
+        Dictionary containing 't_statistic' and 'p_value'.
     """
-    if len(group_a) == 0 or len(group_b) == 0:
-        raise ValueError("Input arrays cannot be empty.")
-
-    t_stat, p_val = stats.ttest_ind(
-        group_a, group_b, 
-        equal_var=False,  # Welch's t-test for potentially different variances
-        alternative=alternative
-    )
-
+    if len(sample1) < 2 or len(sample2) < 2:
+        raise ValueError("Both samples must have at least 2 observations for a t-test.")
+    
+    t_stat, p_val = stats.ttest_ind(sample1, sample2, equal_var=False) # Welch's t-test
+    
     return {
-        "t_statistic": float(t_stat),
-        "p_value": float(p_val),
-        "n_a": len(group_a),
-        "n_b": len(group_b),
-        "mean_a": float(np.mean(group_a)),
-        "mean_b": float(np.mean(group_b)),
-        "std_a": float(np.std(group_a)),
-        "std_b": float(np.std(group_b))
+        't_statistic': float(t_stat),
+        'p_value': float(p_val)
     }
 
-
-def apply_bonferroni_correction(
-    p_values: List[float],
-    alpha: float = 0.05
-) -> Tuple[List[float], List[bool]]:
+def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
     """
     Apply Bonferroni correction to a list of p-values.
     
     Args:
         p_values: List of raw p-values from multiple tests.
-        alpha: Significance threshold.
-        
-    Returns:
-        Tuple of (adjusted_p_values, boolean_rejection_flags).
-    """
-    if not p_values:
-        return [], []
-        
-    # Using statsmodels for robust correction
-    # method='bonferroni' multiplies p-values by number of tests
-    adjusted_pvals, reject, _, _ = multipletests(
-        p_values, 
-        alpha=alpha, 
-        method='bonferroni'
-    )
+        alpha: Desired significance level (default 0.05).
     
-    return [float(p) for p in adjusted_pvals], [bool(r) for r in reject]
-
+    Returns:
+        Dictionary containing 'adjusted_alpha', 'significant_indices' (list of indices where p < adjusted_alpha),
+        and 'is_overall_significant' (boolean).
+    """
+    n_tests = len(p_values)
+    if n_tests == 0:
+        return {
+            'adjusted_alpha': 0.0,
+            'significant_indices': [],
+            'is_overall_significant': False,
+            'raw_p_values': p_values
+        }
+    
+    adjusted_alpha = alpha / n_tests
+    significant_indices = [i for i, p in enumerate(p_values) if p < adjusted_alpha]
+    
+    return {
+        'adjusted_alpha': adjusted_alpha,
+        'significant_indices': significant_indices,
+        'is_overall_significant': len(significant_indices) > 0,
+        'raw_p_values': p_values
+    }
 
 def run_noise_sweep_statistics(
-    results_data: List[Dict[str, Any]],
-    baseline_group: np.ndarray,
-    output_path: Path
-) -> Path:
+    clean_asymmetries: np.ndarray,
+    saturated_asymmetries_by_level: Dict[float, np.ndarray]
+) -> Dict[str, Any]:
     """
-    Run statistical tests comparing noise-injected groups against baseline.
+    Run statistical tests comparing clean asymmetry against asymmetry at various saturation levels.
     
     Args:
-        results_data: List of dicts containing 'sigma' and 'ellipticity_values'.
-        baseline_group: Array of ellipticity measurements from clean images.
-        output_path: Path to save the CSV results.
-        
+        clean_asymmetries: Array of asymmetry values from clean (no saturation) synthetic images.
+        saturated_asymmetries_by_level: Dictionary mapping saturation fraction (float) to array of asymmetry values.
+    
     Returns:
-        Path to the generated CSV file.
+        Dictionary containing test results for each level and Bonferroni correction summary.
     """
-    raw_p_values = []
-    test_results = []
+    results = []
+    p_values = []
     
-    logger.info(f"Running statistical tests against baseline (n={len(baseline_group)})")
-
-    for row in results_data:
-        sigma = row.get("sigma")
-        injected_values = np.array(row.get("ellipticity_values", []))
+    logger.info(f"Running t-tests for {len(saturated_asymmetries_by_level)} saturation levels against clean baseline.")
+    
+    # Sort levels for consistent output order
+    sorted_levels = sorted(saturated_asymmetries_by_level.keys())
+    
+    for level in sorted_levels:
+        saturated_data = saturated_asymmetries_by_level[level]
         
-        if len(injected_values) == 0:
-            logger.warning(f"Skipping sigma={sigma} due to empty data")
-            continue
-
         # Perform t-test
-        test_res = perform_two_sample_ttest(injected_values, baseline_group)
-        test_res["sigma"] = sigma
-        raw_p_values.append(test_res["p_value"])
-        test_results.append(test_res)
+        test_result = perform_two_sample_ttest(clean_asymmetries, saturated_data)
         
-        logger.info(
-            f"Sigma {sigma:.4f}: t={test_res['t_statistic']:.4f}, "
-            f"p={test_res['p_value']:.6f}"
-        )
-
-    if not raw_p_values:
-        raise ValueError("No valid test results to process.")
-
+        results.append({
+            'saturation_level': level,
+            'clean_n': len(clean_asymmetries),
+            'saturated_n': len(saturated_data),
+            'clean_mean': float(np.mean(clean_asymmetries)),
+            'saturated_mean': float(np.mean(saturated_data)),
+            't_statistic': test_result['t_statistic'],
+            'p_value': test_result['p_value']
+        })
+        p_values.append(test_result['p_value'])
+        
+        logger.info(f"Level {level:.2f}: t={test_result['t_statistic']:.4f}, p={test_result['p_value']:.4e}")
+    
     # Apply Bonferroni correction
-    adjusted_p_values, reject_flags = apply_bonferroni_correction(raw_p_values)
+    bonferroni_result = apply_bonferroni_correction(p_values)
     
-    # Update results with adjusted values
-    for res, adj_p, rej in zip(test_results, adjusted_p_values, reject_flags):
-        res["p_value_bonferroni"] = adj_p
-        res["is_significant"] = rej
-
-    # Write to CSV
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Attach significance flag to individual results
+    for i, res in enumerate(results):
+        res['is_significant_after_bonferroni'] = i in bonferroni_result['significant_indices']
     
-    fieldnames = [
-        "sigma", "t_statistic", "p_value", "p_value_bonferroni", 
-        "is_significant", "n_a", "n_b", "mean_a", "mean_b", 
-        "std_a", "std_b"
-    ]
-    
-    with open(output_path, mode='w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(test_results)
-        
-    logger.info(f"Statistical results written to {output_path}")
-    return output_path
-
+    return {
+        'individual_tests': results,
+        'bonferroni_summary': bonferroni_result
+    }
 
 def main():
     """
-    Entry point for running statistical tests on noise sweep data.
-    
-    This function assumes that:
-    1. Synthetic data has been generated and noise injected (T014).
-    2. Ellipticity has been measured for all runs.
-    3. Ground truth and baseline data are available.
-    
-    For demonstration in this task, we construct a mock dataset 
-    representing the output of T014 and T013 to ensure the logic works.
-    In a real pipeline, these would be loaded from `data/processed/`.
+    Main entry point to execute the statistical analysis for User Story 2.
+    Expects processed data files in data/processed/ as generated by T021/T022.
     """
-    import json
-    from setup_dirs import get_project_root
+    project_root = config.get_project_root()
+    processed_dir = project_root / "data" / "processed"
+    output_csv = processed_dir / "saturation_sweep_stats.csv"
+    summary_log = processed_dir / "saturation_sweep_stats_summary.json"
+    
+    logger.info(f"Starting statistical analysis for saturation sweep.")
+    logger.info(f"Output will be written to: {output_csv}")
+    
+    # Load data
+    # Expected files: clean_asymmetry.csv, saturation_sweep.csv (from T024 logic or similar)
+    # For this task, we assume the pipeline (T022) has generated per-level files or a combined CSV.
+    # Given T021 generates files per level, we construct the dataset dynamically.
+    
+    clean_asymmetries = []
+    saturated_asymmetries_by_level = {}
+    
+    # Load clean baseline (assuming T015/T022 generated a specific baseline or we generate one on the fly if missing)
+    # However, per T006/T022 flow, we should load from existing artifacts.
+    # Let's assume 'clean_asymmetry_baseline.csv' exists from the clean run.
+    clean_file = processed_dir / "clean_asymmetry_baseline.csv"
+    if clean_file.exists():
+        with open(clean_file, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                clean_asymmetries.append(float(row['asymmetry']))
+    else:
+        logger.warning(f"Clean baseline file {clean_file} not found. Generating synthetic clean data for demonstration (FAILS REAL DATA CONSTRAINT).")
+        # In a real run, this should crash or require the file. 
+        # Since we cannot fabricate data, we must ensure this path is unreachable or raises.
+        # But for the purpose of this task implementation, we assume the file exists as per T022 completion.
+        # If it doesn't exist, the real execution will fail, which is the desired behavior for "fail loudly".
+        raise FileNotFoundError(f"Required clean baseline data not found at {clean_file}. T022 must run first.")
 
-    project_root = get_project_root()
-    logs_dir = project_root / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
+    # Load saturated data
+    # T021 produces data/processed/noise_sweep_{sigma}.fits for noise, but T021 description says saturation sweep.
+    # T021 description: "implement sweep logic across 0.0 to 0.5... save results to data/processed/saturation_sweep.csv" (from T024 desc, T021 implies file creation).
+    # Let's assume T021/T022 creates a master CSV or individual files.
+    # Based on T024, we expect a master CSV: data/processed/saturation_sweep.csv
+    master_csv = processed_dir / "saturation_sweep.csv"
     
-    output_csv = logs_dir / "stats_results.csv"
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    if not master_csv.exists():
+        # Fallback: try to load individual files if master doesn't exist
+        # Pattern: data/processed/saturation_{level}.csv or similar
+        logger.info("Master sweep file not found. Attempting to load individual level files.")
+        for level in config.SATURATION_LEVELS:
+            level_file = processed_dir / f"saturation_{level:.2f}_asymmetry.csv"
+            if level_file.exists():
+                with open(level_file, 'r') as f:
+                    reader = csv.DictReader(f)
+                    saturated_asymmetries_by_level[level] = [float(row['asymmetry']) for row in reader]
+    else:
+        # Load from master CSV
+        with open(master_csv, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                level = float(row['saturation_fraction'])
+                asym = float(row['asymmetry'])
+                if level not in saturated_asymmetries_by_level:
+                    saturated_asymmetries_by_level[level] = []
+                saturated_asymmetries_by_level[level].append(asym)
+
+    if not saturated_asymmetries_by_level:
+        raise FileNotFoundError("No saturation data found. Ensure T021/T022 has generated the sweep data.")
+
+    # Run analysis
+    analysis_results = run_noise_sweep_statistics(
+        np.array(clean_asymmetries),
+        saturated_asymmetries_by_level
     )
-
-    # Simulate loading results from previous steps (T014/T013)
-    # In a real scenario, this would load from data/processed/noise_sweep_*.fits
-    # and data/synthetic/gt_metadata.json
     
-    # Mock data generation to satisfy the "Real Data" constraint:
-    # We simulate the *structure* of real data flow. 
-    # The actual values would come from the measured ellipticity of 
-    # the synthetic nebulae generated in T006 and processed in T014.
+    # Write CSV output
+    with open(output_csv, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            'saturation_level', 'clean_n', 'saturated_n', 'clean_mean', 'saturated_mean',
+            't_statistic', 'p_value', 'is_significant_after_bonferroni'
+        ])
+        writer.writeheader()
+        for res in analysis_results['individual_tests']:
+            writer.writerow(res)
     
-    # Setup a synthetic baseline (clean ellipticity measurements)
-    # Assuming ground truth ellipticity is ~0.2, with measurement noise
-    np.random.seed(42) 
-    baseline_ellipticities = np.random.normal(loc=0.20, scale=0.01, size=50)
+    # Log summary
+    logger.info("Analysis complete.")
+    logger.info(f"Bonferroni Adjusted Alpha: {analysis_results['bonferroni_summary']['adjusted_alpha']:.4e}")
+    logger.info(f"Significant levels: {analysis_results['bonferroni_summary']['significant_indices']}")
     
-    # Simulate noise-injected groups with increasing bias
-    results_data = []
-    sigmas = [0.01, 0.05, 0.10]
-    
-    for i, sigma in enumerate(sigmas):
-        # Simulate bias increase proportional to sigma
-        bias_shift = sigma * 0.5 
-        injected_ellipticities = np.random.normal(
-            loc=0.20 + bias_shift, 
-            scale=0.01 + (sigma * 0.05), 
-            size=50
-        )
-        results_data.append({
-            "sigma": sigma,
-            "ellipticity_values": injected_ellipticities.tolist()
-        })
-
-    try:
-        run_noise_sweep_statistics(
-            results_data=results_data,
-            baseline_group=baseline_ellipticities,
-            output_path=output_csv
-        )
-        print(f"Success: Results written to {output_csv}")
-    except Exception as e:
-        logger.error(f"Statistical analysis failed: {e}")
-        raise
+    # Save summary JSON for programmatic access
+    import json
+    with open(project_root / "data" / "processed" / "saturation_sweep_stats_summary.json", 'w') as f:
+        json.dump(analysis_results, f, indent=2)
+        
+    return analysis_results
 
 if __name__ == "__main__":
     main()

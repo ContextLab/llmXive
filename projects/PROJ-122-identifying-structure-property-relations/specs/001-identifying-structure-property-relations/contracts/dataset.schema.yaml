@@ -1,126 +1,144 @@
-# Dataset Schema Definition for Polymer Blend Structure-Property Relationships
-# PROJ-122: Identifying Structure-Property Relations
-# This schema defines the structure of the harmonized dataset used for model training.
-# All fields are required unless marked as optional.
-# Units are strictly enforced: Temperature in Kelvin, Modulus in GPa.
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PolymerBlendDataset"
-description: "Harmonized dataset of polymer blends containing SMILES, composition, and properties."
-
+$schema: http://json-schema.org/draft-07/schema#
+title: PolymerBlendDatasetSchema
+description: |
+  JSON Schema defining the structure of the harmonized polymer blend dataset
+  ingested from NIST, Polymer Database, and Materials Project.
+  This schema is used for validation during the data ingestion phase (US1).
 type: object
-properties:
-  metadata:
-    type: object
-    description: "Dataset provenance and processing metadata"
-    properties:
-      version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-        description: "Semantic version of the dataset schema"
-      generated_at:
-        type: string
-        format: date-time
-        description: "ISO 8601 timestamp of dataset generation"
-      sources:
-        type: array
-        items:
-          type: string
-        description: "List of source databases (e.g., NIST, PolymerDB, MaterialsProject)"
-      record_count:
-        type: integer
-        minimum: 0
-        description: "Total number of records in the dataset"
-      checksum:
-        type: string
-        pattern: "^[a-fA-F0-9]{64}$"
-        description: "SHA-256 checksum of the raw data file"
-    required:
-      - version
-      - generated_at
-      - sources
-      - record_count
-      - checksum
-
-  records:
-    type: array
-    description: "List of polymer blend records"
-    items:
-      type: object
-      properties:
-        record_id:
-          type: string
-          description: "Unique identifier for the record"
-        
-        source:
-          type: string
-          enum: ["NIST", "PolymerDB", "MaterialsProject", "Custom"]
-          description: "Origin database of the record"
-        
-        # Structure
-        smiles_component_a:
-          type: string
-          description: "SMILES string for Polymer Component A"
-        smiles_component_b:
-          type: string
-          description: "SMILES string for Polymer Component B"
-        
-        composition_weight_fraction_a:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Weight fraction of Component A (0.0 to 1.0)"
-        composition_weight_fraction_b:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Weight fraction of Component B (0.0 to 1.0)"
-          # Note: sum of a and b must be within tolerance of 1.0 (validated in code)
-
-        # Properties
-        tg_measured_kelvin:
-          type: number
-          exclusiveMinimum: 0.0
-          description: "Measured Glass Transition Temperature in Kelvin"
-        
-        modulus_gpa:
-          type: number
-          exclusiveMinimum: 0.0
-          description: "Young's Modulus in GPa"
-        
-        # Optional: Experimental conditions
-        measurement_temp_kelvin:
-          type: number
-          exclusiveMinimum: 0.0
-          description: "Temperature at which modulus was measured (K)"
-        heating_rate_k_min:
-          type: number
-          description: "Heating rate during Tg measurement (K/min)"
-        
-        # Validation flags (populated during ingestion)
-        rdkit_valid:
-          type: boolean
-          description: "True if SMILES parsed successfully by RDKit"
-        composition_valid:
-          type: boolean
-          description: "True if weight fractions sum to ~1.0 within tolerance"
-        unit_harmonized:
-          type: boolean
-          description: "True if all units were converted to standard (K, GPa)"
-        
-      required:
-        - record_id
-        - source
-        - smiles_component_a
-        - smiles_component_b
-        - composition_weight_fraction_a
-        - composition_weight_fraction_b
-        - tg_measured_kelvin
-        - modulus_gpa
-        - rdkit_valid
-        - composition_valid
-        - unit_harmonized
-
 required:
   - metadata
   - records
+properties:
+  metadata:
+    type: object
+    required:
+      - schema_version
+      - generated_at
+      - source_files
+      - total_records
+      - valid_records
+      - checksum
+    properties:
+      schema_version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: Semantic version of this schema definition
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset generation
+      source_files:
+        type: array
+        items:
+          type: string
+        description: List of raw file paths or URLs used for ingestion
+      total_records:
+        type: integer
+        minimum: 0
+        description: Total number of raw records attempted
+      valid_records:
+        type: integer
+        minimum: 0
+        description: Number of records passing validation
+      checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: SHA-256 checksum of the processed JSON file
+  records:
+    type: array
+    description: List of validated polymer blend records
+    items:
+      $ref: "#/$defs/polymer_blend_record"
+$defs:
+  polymer_blend_record:
+    type: object
+    description: A single validated polymer blend entry
+    required:
+      - id
+      - source
+      - components
+      - properties
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the record (source-specific ID or generated UUID)
+      source:
+        type: string
+        enum: ["NIST", "PolymerDatabase", "MaterialsProject"]
+        description: Origin database of the record
+      components:
+        type: array
+        minItems: 1
+        description: List of polymer components in the blend
+        items:
+          type: object
+          required:
+            - smiles
+            - weight_fraction
+            - name
+          properties:
+            smiles:
+              type: string
+              pattern: "^[A-Za-z0-9@#$%&*()\\[\\]\\{\\}\\-+=\\~\\.]+$"
+              description: Canonical SMILES string of the polymer
+              # Note: Actual validation of chemical validity is done by RDKit in code
+            name:
+              type: string
+              description: Common name or IUPAC name of the polymer
+            weight_fraction:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Weight fraction of this component in the blend
+      properties:
+        type: object
+        required:
+          - Tg_measured
+          - Tg_unit
+          - Modulus_measured
+          - Modulus_unit
+        properties:
+          Tg_measured:
+            type: number
+            description: Measured Glass Transition Temperature
+          Tg_unit:
+            type: string
+            enum: ["K", "C"]
+            description: Unit of Tg (Celsius or Kelvin)
+          Tg_predicted_fox:
+            type: number
+            nullable: true
+            description: Predicted Tg using Fox equation (optional, computed later)
+          Tg_predicted_gordon_taylor:
+            type: number
+            nullable: true
+            description: Predicted Tg using Gordon-Taylor equation (optional, computed later)
+          Modulus_measured:
+            type: number
+            description: Measured Young's Modulus
+          Modulus_unit:
+            type: string
+            enum: ["GPa", "Pa", "MPa"]
+            description: Unit of Modulus
+          Modulus_predicted:
+            type: number
+            nullable: true
+            description: Predicted Modulus (optional, computed later)
+          Tg_residual:
+            type: number
+            nullable: true
+            description: Residual (Measured - Predicted) for ML target (computed in US2)
+      quality_flags:
+        type: array
+        items:
+          type: string
+          enum:
+            - "smiles_valid"
+            - "weight_fraction_sum_ok"
+            - "unit_harmonized"
+            - "missing_data"
+        description: Flags indicating data quality checks passed
+      raw_data:
+        type: object
+        description: Original raw data fields before harmonization (for traceability)
+        additionalProperties: true

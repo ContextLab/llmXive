@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T023a** — The provided `correlations.py` only contains a partial implementation that saves the PCA loadings but never computes or writes the factor scores, and the expected output files `data/analysis/pca_loadings.csv` and `data/analysis/factor_scores.csv` are absent from the repository. Consequently the task’s required artifacts are missing and the implementation is incomplete.
+- **T023b** — The repository contains `code/analysis/correlations.py`, but the shown code only loads metrics and runs PCA; it does not merge the raw metric columns with the PCA factor scores nor write a `full_metrics.csv`. Moreover, the required output file `data/analysis/full_metrics.csv` is absent from the project. The task’s core requirement—producing a combined CSV with all metrics and PCA factors—is therefore not met.

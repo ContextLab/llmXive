@@ -1,0 +1,49 @@
+T010:
+  c: false
+  h: fbff17a2e18218e74750f19137ce75c79d1b88f11ec990c3ba7128a90498a12e
+  r: "The repository contains `code/01_data_acquisition.py`, but the script does not\
+    \ produce the required output file \u2013 `data/raw/pristine_structures.csv` is\
+    \ absent. Consequently the task of querying \u226550 pristine graphene and MoS\u2082\
+    \ structures and caching them locally is not fulfilled. The missing CSV (and any\
+    \ associated query logic) must be added for the task to be complete."
+T011:
+  c: false
+  h: d344cd8fc577d4b36ff3502d20fe82a74562f5190b0d8c1b696305df20444d5b
+  r: "The required dataset file `data/raw/defect_dataset_2022.csv` does not exist,\
+    \ and the provided `code/01_data_acquisition.py` (as shown) contains no visible\
+    \ logic for downloading that CSV or verifying its columns and row count. Consequently\
+    \ the task\u2019s core requirement is unmet."
+T012:
+  c: false
+  h: 3452f58824114bef6a0c1156cb74af65439c1cd67a038ad8e83214464c8a0818
+  r: The repository contains `code/01_data_acquisition.py` and the synthetic generator
+    module, but the required fallback CSV file `data/raw/synthetic_defect_fallback.csv`
+    is missing, and the shown portion of `01_data_acquisition.py` does not demonstrate
+    the fallback logic, data generation, saving to the specified path, or setting
+    `data_source = 'synthetic'`. These essential artifacts are absent, so the task
+    is not fully satisfied.
+T013:
+  c: false
+  h: b9c7fc12a3be47ee74f84d81fdd08d271a17bfa1562fb17c64f20912b7dd7fcd
+  r: "The generator script exists and contains a primary\u2011mode function with seed\u202F\
+    =\u202F42 and analytical formulas, but no evidence shows it writes the generated\
+    \ data to `data/raw/synthetic_train.csv` (the CSV file is missing). The required\
+    \ output artifact is absent, so the task is not fully satisfied."
+T014:
+  c: false
+  h: c6a969319d0e41f7b62ee63e76d8f15239d44a5dd0c448b679a0427ff48f0eb0
+  r: "The repository contains `src/generators/synthetic_data_generator.py`, but the\
+    \ file is truncated and does not show a function that runs the Hold\u2011Out Mode\
+    \ GP surrogate and writes its results to `data/raw/synthetic_holdout.csv`. Moreover,\
+    \ the required output file `data/raw/synthetic_holdout.csv` is absent. Both the\
+    \ implementation and the expected output artifact are missing."
+T018:
+  c: false
+  h: 48e5635e32b025975b7db78b6f08441eb55831ea10863ce70ba596652d4564d7
+  r: "The repository lacks the required input file `data/raw/pristine_structures.csv`\
+    \ and the expected output files `data/processed/features.csv` and `targets.csv`.\
+    \ Moreover, the provided `code/02_data_processing.py` contains placeholder logic\
+    \ (e.g., default reference values, truncated normalization) and does not implement\
+    \ exclusion of entries with missing references, proper logging, one\u2011hot encoding,\
+    \ or saving of the processed CSVs. Consequently, the task\u2019s specifications\
+    \ are not met."

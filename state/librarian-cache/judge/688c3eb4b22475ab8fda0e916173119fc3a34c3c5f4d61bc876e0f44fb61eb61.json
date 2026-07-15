@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.20020",
+  "judged_at": "2026-07-15T21:40:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"cosmos 3: omnimodal world models for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (omnimodal/physical world models for robotics) and domain (translating large multimodal models to physical agents) as the user's question, serving as a canonical prior work for the \"Cosmos 3\" follow-up context.",
+  "relevant": true
+}

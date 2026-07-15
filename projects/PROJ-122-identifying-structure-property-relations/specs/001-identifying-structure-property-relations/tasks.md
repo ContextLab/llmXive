@@ -43,12 +43,12 @@
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`)
 - [ ] T001a [P] Create directory structure: `code/`, `data/raw/`, `data/processed/`, `data/features/`, `tests/`, `state/projects/`
-- [ ] T001b [P] Create `code/requirements.txt` with pinned dependencies (pandas, rdkit, scikit-learn, xgboost, shap, pyyaml, requests, joblib, psutil)
+- [X] T001b [P] Create `code/requirements.txt` with pinned dependencies (pandas, rdkit, scikit-learn, xgboost, shap, pyyaml, requests, joblib, psutil)
 - [ ] T001c [P] Create `tests/` directory structure: `contract/`, `integration/`, `unit/`
 - [ ] T001d [P] Create `state/projects/` directory structure and placeholder `PROJ-122-identifying-structure-property-relations.yaml`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [~] T003 [P] Configure linting (flake8/black) and formatting tools
-- [~] T004 [P] Initialize `.gitignore` and `pytest` configuration
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T004 [P] Initialize `.gitignore` and `pytest` configuration
 
 ---
 
@@ -60,7 +60,7 @@
 
 - [ ] T005 Create data schema definitions in `specs/001-structure-property-relationships/contracts/dataset.schema.yaml`
 - [ ] T006 Create output schema definitions in `specs/001-structure-property-relationships/contracts/output.schema.yaml`
-- [ ] T007 Implement base logging infrastructure in `code/utils/logger.py`
+- [X] T007 Implement base logging infrastructure in `code/utils/logger.py`
 - [X] T008 Implement deterministic random seed pinning in `code/utils/seeds.py`
 - [X] T009 Implement checksum utility for raw data in `code/utils/checksum.py`
 
@@ -85,13 +85,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement API fetcher with exponential backoff (limited number of retries) in `code/01_ingest.py`
-- [ ] T015 [US1] Implement unit harmonization logic (Tg to Kelvin, Modulus to GPa) in `code/01_ingest.py`
-- [ ] T016 [US1] Implement weight-fraction validation and exclusion logic in `code/01_ingest.py`
-- [ ] T017 [US1] Implement SMILES validation and RDKit parsing in `code/01_ingest.py`
-- [ ] T018 [US1] Implement data quality report generation (`data_quality_report.json`) in `code/01_ingest.py`
-- [ ] T019 [US1] Implement "Data Verification Gate" in `code/01_ingest.py`: **Invoke Reference-Validator Agent** to verify existence and accessibility of specific dataset URLs containing SMILES, Composition, Tg, and Modulus before ingestion; halt with clear error if no verified source is found (FR-015, FR-019).
-- [ ] T019b [US1] Implement weight-fraction tolerance sensitivity sweep in `code/01_ingest.py`: Run validation with thresholds defined in `config.py` (configurable list, not hardcoded) and log the impact on valid record counts and pass rate percentage per threshold to `tolerance_sensitivity_report.json` (FR-014).
+- [X] T014 [US1] Implement API fetcher with exponential backoff (limited number of retries) in `code/01_ingest.py` <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement unit harmonization logic (Tg to Kelvin, Modulus to GPa) in `code/01_ingest.py`
+- [X] T016 [US1] Implement weight-fraction validation and exclusion logic in `code/01_ingest.py`
+- [X] T017 [US1] Implement SMILES validation and RDKit parsing in `code/01_ingest.py`
+- [X] T018 [US1] Implement data quality report generation (`data_quality_report.json`) in `code/01_ingest.py`
+- [X] T019 [US1] Implement "Data Verification Gate" in `code/01_ingest.py`: **Invoke Reference-Validator Agent** to verify existence and accessibility of specific dataset URLs containing SMILES, Composition, Tg, and Modulus before ingestion; halt with clear error if no verified source is found (FR-015, FR-019). <!-- ATOMIZE: requested -->
+- [X] T019b [US1] Implement weight-fraction tolerance sensitivity sweep in `code/01_ingest.py`: Run validation with thresholds defined in `config.py` (configurable list, not hardcoded) and log the impact on valid record counts and pass rate percentage per threshold to `tolerance_sensitivity_report.json` (FR-014).
 - [ ] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES + Composition + Tg + Modulus). If failure rate > 50%, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013, Plan Gate 1).
 - [ ] T020 [US1] Save raw data to `data/raw/` with SHA-256 checksums in `state/`
 - [ ] T020b [US1] Update Single Source of Truth: Write final artifact hashes to `state/projects/PROJ-122-identifying-structure-property-relations.yaml` (FR-018, Constitution).

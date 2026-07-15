@@ -5,60 +5,28 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-polymer-blends"
 version = "0.1.0"
-description = "Automated science pipeline for identifying structure-property relations in polymer blends"
+description = "Identifying Structure-Property Relations in Polymer Blends"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0.0",
-    "rdkit>=2023.9.0",
-    "scikit-learn>=1.3.0",
-    "xgboost>=2.0.0",
-    "shap>=0.43.0",
-    "pyyaml>=6.0",
-    "requests>=2.31.0",
-    "joblib>=1.3.0",
-    "psutil>=5.9.0",
+    "pandas==2.2.3",
+    "rdkit==2024.3.5",
+    "scikit-learn==1.5.2",
+    "xgboost==2.1.1",
+    "shap==0.46.0",
+    "pyyaml==6.0.2",
+    "requests==2.32.3",
+    "joblib==1.4.2",
+    "psutil==6.0.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.1.0",
-    "black>=23.12.1",
-    "isort>=5.13.2",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
+    "pytest>=8.0.0",
+    "black>=24.0.0",
+    "flake8>=7.0.0"
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["setup_directories", "setup_state", "verify_env"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]

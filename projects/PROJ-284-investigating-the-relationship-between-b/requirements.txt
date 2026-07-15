@@ -9,6 +9,5 @@ nilearn==0.10.2
 requests==2.31.0
 pytest==7.4.0
 statsmodels==0.14.1
-# Additional dependencies required for CI validation
-tqdm==4.66.0
-# The logging_config module is already provided; no extra packages needed.
+scipy==1.11.4
+psutil==5.9.0

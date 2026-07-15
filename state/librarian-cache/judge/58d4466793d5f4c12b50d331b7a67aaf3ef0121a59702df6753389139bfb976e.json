@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.00917",
+  "judged_at": "2026-07-15T21:40:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"cosmos 3: omnimodal world models for physical ai\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the specific domain of \"world models\" and \"physical simulators\" in embodied AI, which are the core mechanisms and technologies explicitly named in the user's question regarding the \"Cosmos 3\" follow-up. Even though it is a survey rather than a specific extension of the Cosmos 3 model, it provides the essential literature review context and state-of-the-art baseline that a researcher extending this work",
+  "relevant": true
+}

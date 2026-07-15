@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scikit-image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scikit-image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels ranging from low to moderate, saturation range from a baseline to 0.5 in 0.05 increments (derived from spec assumptions on typical instrumental variations) (FR-002, FR-003, SC-003)
+- [X] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels ranging from low to moderate, saturation range from a baseline to 0.5 in 0.05 increments (derived from spec assumptions on typical instrumental variations) (FR-002, FR-003, SC-003)
 - [X] T005 [P] Implement `code/io/loader.py` to validate FITS headers (WCS, exposure, filter), abort on missing metadata, and **log the specific missing fields** for traceability (FR-008, FR-009)
-- [~] T006 [P] Create `code/synthetic/generator.py` to generate synthetic planetary nebulae with known ground-truth ellipticity and asymmetry (no GPU, CPU-only) **and save these exact ground-truth values to a JSON metadata file** (e.g., `data/synthetic/gt_metadata.json`) to serve as the Single Source of Truth (Constitution Principle IV)
+- [ ] T006 [P] Create `code/synthetic/generator.py` to generate synthetic planetary nebulae with known ground-truth ellipticity and asymmetry (no GPU, CPU-only) **and save these exact ground-truth values to a JSON metadata file** (e.g., `data/synthetic/gt_metadata.json`) to serve as the Single Source of Truth (Constitution Principle IV)
 - [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with checksums for reproducibility (FR-008)
-- [~] T008 [P] Setup `tests/unit/` structure and `pytest` configuration
+- [ ] T008 [P] Setup `tests/unit/` structure and `pytest` configuration
 - [ ] T009 [P] **CRITICAL**: Acquire, vet, checksum, and process a small set of real HST images (MAST) for manual validation as required by Constitution Principle VII; store in `data/validation/` and create `data/validation/validation_manifest.json` (Plan: Constitution Check Principle VII)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -90,7 +90,7 @@
 - [X] T014 [US1] Implement `code/synthetic/artifacts.py` noise injection function: **iterate** over sigma levels [0.01, 0.05, 0.10] * median signal, save results to `data/processed/noise_sweep_{sigma}.fits` (FR-002) <!-- FAILED: unspecified -->
 - [~] T016 [US1] Implement statistical test logic: **Two-sample t-test** with Bonferroni correction; output p-values to `logs/stats_results.csv` (FR-005)
 - [ ] T015 [US1] Create `code/main.py` pipeline step to: load clean image -> inject noise -> measure ellipticity -> **load ground truth from `data/synthetic/gt_metadata.json`** -> compute bias -> log results (FR-001, FR-008)
-- [ ] T017 [US1] Add logging for noise parameters, seeds, and bias results to `logs/research.log`
+- [~] T017 [US1] Add logging for noise parameters, seeds, and bias results to `logs/research.log`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,14 +104,14 @@
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for saturation clipping logic in `tests/unit/test_artifacts.py`: **Function `test_saturation_clipping`** asserting that the correct fraction of brightest pixels are clipped (FR-003)
-- [ ] T019 [P] [US2] Unit test for asymmetry calculation in `tests/unit/test_asymmetry.py`: **Function `test_asymmetry_conselice`** asserting that the A-statistic matches the Conselice (2003) definition (FR-004)
+- [X] T018 [P] [US2] Unit test for saturation clipping logic in `tests/unit/test_artifacts.py`: **Function `test_saturation_clipping`** asserting that the correct fraction of brightest pixels are clipped (FR-003)
+- [X] T019 [P] [US2] Unit test for asymmetry calculation in `tests/unit/test_asymmetry.py`: **Function `test_asymmetry_conselice`** asserting that the A-statistic matches the Conselice (2003) definition (FR-004)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/metrics/asymmetry.py` using Conselice (2003) definition with robust centering (FR-004)
-- [ ] T023 [US2] Implement statistical test logic to compare saturated vs. clean asymmetry with Bonferroni correction (FR-005)
-- [ ] T021 [US2] Implement `code/synthetic/artifacts.py` saturation clipping function: **implement sweep logic** across **0.0 to 0.5 in 0.05 increments** (FR-003)
+- [X] T020 [P] [US2] Implement `code/metrics/asymmetry.py` using Conselice (2003) definition with robust centering (FR-004)
+- [~] T023 [US2] Implement statistical test logic to compare saturated vs. clean asymmetry with Bonferroni correction (FR-005)
+- [X] T021 [US2] Implement `code/synthetic/artifacts.py` saturation clipping function: **implement sweep logic** across **0.0 to 0.5 in 0.05 increments** (FR-003)
 - [ ] T022 [US2] Create `code/main.py` pipeline step to: load clean image -> inject saturation -> measure asymmetry -> **load ground truth from `data/synthetic/gt_metadata.json`** -> compute bias -> log results (FR-001, FR-008)
 - [ ] T024 [US2] Implement sensitivity analysis sweep: **range to 0.5, step 0.05**; output CSV `data/processed/saturation_sweep.csv` with columns [saturation_fraction, asymmetry_mean, asymmetry_std]; **generate statistical summary** to verify p < 0.05 and monotonic trends (SC-003)
 
@@ -129,7 +129,7 @@
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for regression model output schema in `tests/contract/test_regression.py`
+- [X] T025 [P] [US3] Contract test for regression model output schema in `tests/contract/test_regression.py`
 - [ ] T026 [P] [US3] Unit test for correction application logic in `tests/unit/test_validation.py`
 
 ### Implementation for User Story 3

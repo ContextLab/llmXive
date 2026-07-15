@@ -5,27 +5,94 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Cosmos 3: Omnimodal World Models for Physical AI"
 
-## Summary of the prior work
-The paper introduces Cosmos 3, a unified mixture-of-transformers architecture capable of processing and generating language, image, video, audio, and action sequences simultaneously for Physical AI. It establishes a new state-of-the-art by subsuming diverse modalities into a single framework, enabling versatile applications ranging from text-to-image generation to embodied agent policy learning. The authors validate this approach through extensive benchmarks and release their code, models, and synthetic datasets to accelerate open research in omnimodal world modeling.
+**Field**: computer science
 
-## Proposed extension
-How does the "omnimodal" capability of Cosmos 3 degrade when the action modality is replaced with high-level symbolic reasoning (e.g., logical constraints or formal verification states) rather than continuous control signals, and can a lightweight, CPU-only proxy model trained on the paper's released synthetic datasets predict these reasoning failures? This question matters because it tests the generalizability of the unified architecture beyond physical dynamics into abstract cognitive domains, offering a tractable way to evaluate the model's "world understanding" without requiring expensive GPU-based video generation or robotic simulation.
+## Research question
+
+How does the representational capacity of omnimodal world models degrade when transitioning from continuous physical control actions to discrete high-level symbolic reasoning tasks, and can this "modality gap" be quantified using only the synthetic data released with such models?
+
+## Motivation
+
+Current world models like Cosmos 3 demonstrate state-of-the-art performance in physical AI but are primarily optimized for continuous, low-level control signals. It remains unclear whether the unified architecture inherently supports abstract logical constraints or if performance collapses when the action space shifts to symbolic domains. Quantifying this gap is critical for understanding the limits of current multimodal unification and determining if separate architectural components are required for cognitive versus physical reasoning.
+
+## Literature gap analysis
+
+### What we searched
+We queried Semantic Scholar, arXiv, and OpenAlex using terms including "omnimodal world models symbolic reasoning," "physical AI logical constraints," "world model action space degradation," and "embodied AI formal verification." The search focused on papers published in 2025-2026 that discuss the intersection of generative world models and non-continuous action spaces.
+
+### What is known
+- [A Survey: Learning Embodied Intelligence from Physical Simulators and World Models (2025)](https://arxiv.org/abs/2507.00917) — Establishes that current embodied intelligence research heavily prioritizes visuomotor policies and physical simulation, with little discussion on integrating formal logical constraints into the action generation loop.
+- [Evaluating Gemini Robotics Policies in a Veo World Simulator (2025)](https://arxiv.org/abs/2512.10675) — Demonstrates the use of generative world models for simulating visuomotor interactions but does not evaluate model performance when the target action is a discrete logical state or constraint satisfaction problem.
+- [Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review (2025)](https://arxiv.org/abs/2505.20503) — Reviews the application of foundation models to physical agents but notes a prevailing focus on continuous control and perception rather than high-level symbolic planning.
+- [Gemini Robotics: Bringing AI into the Physical World (2025)](https://arxiv.org/abs/2503.20020) — Highlights the transition of digital generalist models to physical agents but does not address the specific failure modes or performance degradation when the action modality is replaced by symbolic reasoning.
+
+### What is NOT known
+No published work has empirically measured the performance drop of a unified omnimodal architecture when the "action" modality is swapped from continuous vectors to discrete symbolic tokens. Specifically, there is no benchmark or analysis quantifying whether these models can maintain logical consistency across multimodal inputs (text, video) when the output is a formal verification state.
+
+### Why this gap matters
+Understanding this gap is essential for determining if "omnimodal" models are truly general or if they are effectively specialized physical simulators that fail at abstract reasoning. Filling this gap would provide a clear boundary for the applicability of current world models in domains requiring logical rigor, such as automated code generation or safety-critical system verification.
+
+### How this project addresses the gap
+This project will utilize the synthetic datasets released with Cosmos 3 to explicitly construct a benchmark where the action modality is filtered and re-labeled as discrete logical constraints. By training a lightweight proxy model to predict logical consistency violations, we will generate the first quantitative evidence of performance degradation in the symbolic domain compared to the physical domain.
+
+## Expected results
+
+We expect to observe a significant performance drop (quantified by a lower accuracy in predicting valid logical states compared to valid physical actions) when the model is evaluated on symbolic reasoning tasks. The results will likely show that while the model maintains high coherence in visual and textual inputs, its ability to generate or validate discrete logical constraints degrades, confirming a specific modality gap in the unified architecture.
 
 ## Methodology sketch
-We will utilize the curated synthetic datasets released with Cosmos 3, specifically filtering for instances where the "action" modality corresponds to discrete logical operations or constraint satisfaction problems. We will train a distilled, encoder-only Transformer variant (compatible with CPU inference) to map the multimodal input (text, image, video context) directly to a binary label indicating whether the original Cosmos 3 model's action output violated a pre-defined logical consistency check. The expected result is a performance curve showing that while the model excels at continuous physical control, its ability to maintain logical consistency drops significantly when the action space is symbolic, thereby identifying a specific modality gap in the current omnimodal framework.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the Cosmos 3 synthetic dataset release (via the official GitHub repository linked in the paper) and filter for instances containing "action" sequences.
+- **Data Transformation**: Map continuous action vectors to discrete symbolic tokens by clustering continuous outputs and assigning logical labels (e.g., "constraint satisfied," "constraint violated") based on a predefined set of logical rules applied to the context.
+- **Proxy Model Construction**: Initialize a lightweight, encoder-only Transformer model (e.g., DistilBERT or a small BERT variant) compatible with CPU-only inference (≤7GB RAM).
+- **Training Setup**: Train the proxy model to map the multimodal input (text description + video frames sampled from the dataset) to a binary label indicating logical consistency (0 = violation, 1 = valid).
+- **Baseline Comparison**: Establish a baseline by training the same proxy model on the original continuous control tasks (mapped to discrete success/failure) to measure the relative performance gap.
+- **Evaluation**: Compute accuracy, F1-score, and AUC-ROC on a held-out test set of symbolic reasoning instances.
+- **Statistical Analysis**: Perform a paired t-test comparing the proxy model's performance on symbolic tasks versus physical tasks to determine if the degradation is statistically significant.
+- **Error Analysis**: Analyze misclassified samples to identify whether failures correlate with specific types of logical constraints or visual ambiguities.
 
-- **Cosmos 3: Omnimodal World Models for Physical AI** — Aditi, Niket Agarwal, Arslan Ali, Jon Allen, Martin Antolini, Adeline Aubame, Alisson Azzolini, Junjie Bai, Maciej Bala, Yogesh Balaji, Josh Bapst, Aarti Basant, Mukesh Beladiya, Mohammad Qazim Bhat, Zaid Pervaiz Bhat, Dan Blick, Vanni Brighella, Han Cai, Tiffany Cai, Eric Cameracci, Jiaxin Cao, Yulong Cao, Mark Carlson, Carlos Casanova, Ting-Yun Chang, Yan Chang, Yu-Wei Chao, Prithvijit Chattopadhyay, Roshan Chaudhari, Chieh-Yun Chen, Junyu Chen, Ke Chen, Qizhi Chen, Wenkai Chen, Xiaotong Chen, Yu Chen, An-Chieh Cheng, Click Cheng, Xiu Chia, Jeana Choi, Chaeyeon Chung, Wenyan Cong, Yin Cui, Magdalena Dadela, Nalin Dadhich, Wenliang Dai, Joyjit Daw, Alperen Degirmenci, Rodrigo Vieira Del Monte, Robert Denomme, Sameer Dharur, Marco Di Lucca, Ke Ding, Wenhao Ding, Yifan Ding, Yuzhu Dong, Nicole Drumheller, Yilun Du, Aigul Dzhumamuratova, Aleksandr Efitorov, Hamid Eghbalzadeh, Naomi Eigbe, Imad El Hanafi, Hassan Eslami, Benedikt Falk, Jiaojiao Fan, Jim Fan, Amol Fasale, Sergiy Fefilatyev, Liang Feng, Francesco Ferroni, Sanja Fidler, Xiao Fu, Vikram Fugro, Prashant Gaikwad, TJ Galda, Katelyn Gao, Yihuai Gao, Wenhang Ge, Sreyan Ghosh, Arushi Goel, Vivek Goel, Akash Gokul, Rama Govindaraju, Jinwei Gu, Miguel Guerrero, Elfie Guo, Aryaman Gupta, Siddharth Gururani, Hugo Hadfield, Song Han, Ankur Handa, Zekun Hao, Mohammad Harrim, Ali Hassani, Nathan Hayes-Roth, Yufan He, Chris Helvig, Cyrus Hogg, Madison Huang, Michael Huang, Sophia Huang, Yufan Huang, Jacob Huffman, DeLesley Hutchins, Suneel Indupuru, Boris Ivanovic, Arihant Jain, Joel Jang, Ryan Ji, Yanan Jian, Dongfu Jiang, Jingyi Jin, Atharva Joshi, Nikhilesh Joshi, Pranjali Joshi, Jaehun Jung, Weiwei Kang, Scott Kassekert, Jan Kautz, Ashna Khetan, Julia Kiczka, Slawek Kierat, Gwanghyun Kim, Kuno Kim, Sunny Kim, Kezhi Kong, Xin Kong, Zhifeng Kong, Tomasz Kornuta, Egor Krivov, Hui Kuang, Saurav Kumar, Chia-Wen Kuo, George Kurian, Wojciech Kutak, JF Lafleche, Himangshu Lahkar, Omar Laymoun, Jayjun Lee, Sanggil Lee, Gabriele Leone, Boyi Li, Freya Li, Jiajun Li, Jinfeng Li, Ling Li, Pengcheng Li, Shangru Li, Tingle Li, Xiaolong Li, Xuan Li, Zhaoshuo Li, Zhiqi Li, Hao Liang, Maosheng Liao, Chen-Hsuan Lin, Tsung-Yi Lin, Ming-Yu Liu, Sifei Liu, Zihan Liu, Hai Loc Lu, Xiangyu Lu, Alice Luo, Ruipu Luo, Wenjie Luo, Jiangran Lyu, Martin Ding Ma, Nic Ma, Qianli Ma, Dawid Majchrowski, Louis Marcoux, Miguel Martin, Qing Miao, Ashkan Mirzaei, Shreyas Misra, Kaichun Mo, Durra Mohsin, Hyejin Moon, Pawel Morkisz, Saeid Motiian, Kirill Motkov, Seungjun Nah, Yashraj Narang, Deepak Narayanan, Thabang Ngazimbi, Julian Ouyang, David Page, Yatian Pang, Sehwi Park, Mahesh Patekar, Mostofa Patwary, Marco Pavone, Trung Pham, Wei Ping, Soha Pouya, Shrimai Prabhumoye, Varun Praveen, Delin Qu, Hesam Rabeti, Morteza Ramezanali, Marilyn Reeb, Xuanchi Ren, Kristen Rumley, Wojciech Rymer, Jun Saito, Yeongho Seol, John Shao, Piyush Shekdar, Tianwei Shen, Humphrey Shi, Min Shi, Stella Shi, Kevin Shih, Mohammad Shoeybi, Mateusz Sieniawski, Shuran Song, Alexander Sotelo, Amir Sotoodeh, Sunil Srinivasa, Vignesh Srinivasakumar, Bartosz Stefaniak, Rahul Heinrich Steiger, Shangkun Sun, Jiaxiang Tang, Shitao Tang, Yangyang Tang, Yue Tang, Tolou Tavakkoli, Kayley Ting, Krzysztof Tomala, Wei-Cheng Tseng, Jibin Varghese, Sergei Vasilev, Thomas Volk, Raju Wagwani, Roger Waleffe, Andrew Z. Wang, Boxiang Wang, Haoxiang Wang, Qiao Wang, Shihao Wang, Shijie Wang, Ting-Chun Wang, Yan Wang, Yu Wang, David Wehr, Fangyin Wei, Xinshuo Weng, Jay Zhangjie Wu, Kedi Wu, Hongchi Xia, Summer Xiao, Tianjun Xiao, Kevin Xie, Daguang Xu, Jiashu Xu, Mengyao Xu, Ruqing Xu, Xingqian Xu, Yao Xu, Dinghao Yang, Dong Yang, Hans Yang, Xiaodong Yang, Xuning Yang, Yichu Yang, Yurong You, Zhiding Yu, Hao Yuan, Simon Yuen, Xiaohui Zeng, Pengcuo Zeren, Cindy Zha, Haotian Zhang, Jenny Zhang, Jing Zhang, Liangkai Zhang, Paris Zhang, Shun Zhang, Xuanmeng Zhang, Zhizheng Zhang, Ann Zhao, Yilin Zhao, Yuliya Zhautouskaya, Charles Zhou, Fengzhe Zhou, Shilin Zhu, Yuke Zhu, Dima Zhylko, Artur Zolkowski. https://arxiv.org/abs/2606.02800.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_02800,
-  title = {Cosmos 3: Omnimodal World Models for Physical AI},
-  author = {Aditi and Niket Agarwal and Arslan Ali and Jon Allen and Martin Antolini and Adeline Aubame and Alisson Azzolini and Junjie Bai and Maciej Bala and Yogesh Balaji and Josh Bapst and Aarti Basant and Mukesh Beladiya and Mohammad Qazim Bhat and Zaid Pervaiz Bhat and Dan Blick and Vanni Brighella and Han Cai and Tiffany Cai and Eric Cameracci and Jiaxin Cao and Yulong Cao and Mark Carlson and Carlos Casanova and Ting-Yun Chang and Yan Chang and Yu-Wei Chao and Prithvijit Chattopadhyay and Roshan Chaudhari and Chieh-Yun Chen and Junyu Chen and Ke Chen and Qizhi Chen and Wenkai Chen and Xiaotong Chen and Yu Chen and An-Chieh Cheng and Click Cheng and Xiu Chia and Jeana Choi and Chaeyeon Chung and Wenyan Cong and Yin Cui and Magdalena Dadela and Nalin Dadhich and Wenliang Dai and Joyjit Daw and Alperen Degirmenci and Rodrigo Vieira Del Monte and Robert Denomme and Sameer Dharur and Marco Di Lucca and Ke Ding and Wenhao Ding and Yifan Ding and Yuzhu Dong and Nicole Drumheller and Yilun Du and Aigul Dzhumamuratova and Aleksandr Efitorov and Hamid Eghbalzadeh and Naomi Eigbe and Imad El Hanafi and Hassan Eslami and Benedikt Falk and Jiaojiao Fan and Jim Fan and Amol Fasale and Sergiy Fefilatyev and Liang Feng and Francesco Ferroni and Sanja Fidler and Xiao Fu and Vikram Fugro and Prashant Gaikwad and TJ Galda and Katelyn Gao and Yihuai Gao and Wenhang Ge and Sreyan Ghosh and Arushi Goel and Vivek Goel and Akash Gokul and Rama Govindaraju and Jinwei Gu and Miguel Guerrero and Elfie Guo and Aryaman Gupta and Siddharth Gururani and Hugo Hadfield and Song Han and Ankur Handa and Zekun Hao and Mohammad Harrim and Ali Hassani and Nathan Hayes-Roth and Yufan He and Chris Helvig and Cyrus Hogg and Madison Huang and Michael Huang and Sophia Huang and Yufan Huang and Jacob Huffman and DeLesley Hutchins and Suneel Indupuru and Boris Ivanovic and Arihant Jain and Joel Jang and Ryan Ji and Yanan Jian and Dongfu Jiang and Jingyi Jin and Atharva Joshi and Nikhilesh Joshi and Pranjali Joshi and Jaehun Jung and Weiwei Kang and Scott Kassekert and Jan Kautz and Ashna Khetan and Julia Kiczka and Slawek Kierat and Gwanghyun Kim and Kuno Kim and Sunny Kim and Kezhi Kong and Xin Kong and Zhifeng Kong and Tomasz Kornuta and Egor Krivov and Hui Kuang and Saurav Kumar and Chia-Wen Kuo and George Kurian and Wojciech Kutak and JF Lafleche and Himangshu Lahkar and Omar Laymoun and Jayjun Lee and Sanggil Lee and Gabriele Leone and Boyi Li and Freya Li and Jiajun Li and Jinfeng Li and Ling Li and Pengcheng Li and Shangru Li and Tingle Li and Xiaolong Li and Xuan Li and Zhaoshuo Li and Zhiqi Li and Hao Liang and Maosheng Liao and Chen-Hsuan Lin and Tsung-Yi Lin and Ming-Yu Liu and Sifei Liu and Zihan Liu and Hai Loc Lu and Xiangyu Lu and Alice Luo and Ruipu Luo and Wenjie Luo and Jiangran Lyu and Martin Ding Ma and Nic Ma and Qianli Ma and Dawid Majchrowski and Louis Marcoux and Miguel Martin and Qing Miao and Ashkan Mirzaei and Shreyas Misra and Kaichun Mo and Durra Mohsin and Hyejin Moon and Pawel Morkisz and Saeid Motiian and Kirill Motkov and Seungjun Nah and Yashraj Narang and Deepak Narayanan and Thabang Ngazimbi and Julian Ouyang and David Page and Yatian Pang and Sehwi Park and Mahesh Patekar and Mostofa Patwary and Marco Pavone and Trung Pham and Wei Ping and Soha Pouya and Shrimai Prabhumoye and Varun Praveen and Delin Qu and Hesam Rabeti and Morteza Ramezanali and Marilyn Reeb and Xuanchi Ren and Kristen Rumley and Wojciech Rymer and Jun Saito and Yeongho Seol and John Shao and Piyush Shekdar and Tianwei Shen and Humphrey Shi and Min Shi and Stella Shi and Kevin Shih and Mohammad Shoeybi and Mateusz Sieniawski and Shuran Song and Alexander Sotelo and Amir Sotoodeh and Sunil Srinivasa and Vignesh Srinivasakumar and Bartosz Stefaniak and Rahul Heinrich Steiger and Shangkun Sun and Jiaxiang Tang and Shitao Tang and Yangyang Tang and Yue Tang and Tolou Tavakkoli and Kayley Ting and Krzysztof Tomala and Wei-Cheng Tseng and Jibin Varghese and Sergei Vasilev and Thomas Volk and Raju Wagwani and Roger Waleffe and Andrew Z. Wang and Boxiang Wang and Haoxiang Wang and Qiao Wang and Shihao Wang and Shijie Wang and Ting-Chun Wang and Yan Wang and Yu Wang and David Wehr and Fangyin Wei and Xinshuo Weng and Jay Zhangjie Wu and Kedi Wu and Hongchi Xia and Summer Xiao and Tianjun Xiao and Kevin Xie and Daguang Xu and Jiashu Xu and Mengyao Xu and Ruqing Xu and Xingqian Xu and Yao Xu and Dinghao Yang and Dong Yang and Hans Yang and Xiaodong Yang and Xuning Yang and Yichu Yang and Yurong You and Zhiding Yu and Hao Yuan and Simon Yuen and Xiaohui Zeng and Pengcuo Zeren and Cindy Zha and Haotian Zhang and Jenny Zhang and Jing Zhang and Liangkai Zhang and Paris Zhang and Shun Zhang and Xuanmeng Zhang and Zhizheng Zhang and Ann Zhao and Yilin Zhao and Yuliya Zhautouskaya and Charles Zhou and Fengzhe Zhou and Shilin Zhu and Yuke Zhu and Dima Zhylko and Artur Zolkowski},
-  year = {2026},
-  eprint = {2606.02800},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.02800},
-  url = {https://arxiv.org/abs/2606.02800}
-}
-```
+- Reviewed existing ideas: None found in the immediate corpus (this is a new brainstorm).
+- Closest match: None (similarity sketch: N/A).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-15T21:40:50Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Cosmos 3: Omnimodal World Models for Physical AI" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Cosmos 3: Omnimodal World Models for Physical AI" computer science | 0 |
+| 1 | omnimodal world models for robotics | 4 |
+| 2 | multimodal foundation models for physical AI | 0 |
+| 3 | embodied AI world models | 0 |
+| 4 | sim-to-real transfer in multimodal learning | 0 |
+| 5 | vision-language-action models for physical agents | 0 |
+| 6 | generative world models for autonomous systems | 0 |
+| 7 | multimodal reinforcement learning with world models | 0 |
+| 8 | physical AI perception and planning models | 0 |
+| 9 | video-language-action pretraining for robotics | 0 |
+| 10 | large multimodal models for embodied agents | 0 |
+| 11 | universal world models for robot control | 0 |
+| 12 | multimodal generative models for physical simulation | 0 |
+| 13 | vision-language-action transformers for robotics | 0 |
+| 14 | cross-modal world models for physical intelligence | 0 |
+| 15 | foundation models for embodied physical AI | 0 |
+| 16 | multimodal imitation learning with world models | 0 |
+| 17 | generative pretraining for robot world understanding | 0 |
+| 18 | unified multimodal architectures for physical tasks | 0 |
+| 19 | world model-based planning for autonomous robots | 0 |
+| 20 | large-scale multimodal learning for physical environments | 0 |
+
+### Verified citations
+
+1. **A Survey: Learning Embodied Intelligence from Physical Simulators and World Models** (2025). Xiaoxiao Long, Qingrui Zhao, Kaiwen Zhang, Zihao Zhang, Dingrui Wang, et al.. arXiv. [2507.00917](https://arxiv.org/abs/2507.00917). PDF-sampled: No.
+2. **Evaluating Gemini Robotics Policies in a Veo World Simulator** (2025).  Gemini Robotics Team, Krzysztof Choromanski, Coline Devin, Yilun Du, Debidatta Dwibedi, et al.. arXiv. [2512.10675](https://arxiv.org/abs/2512.10675). PDF-sampled: No.
+3. **Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review** (2025). Matthew Lisondra, Beno Benhabib, Goldie Nejat. arXiv. [2505.20503](https://arxiv.org/abs/2505.20503). PDF-sampled: No.
+4. **Gemini Robotics: Bringing AI into the Physical World** (2025).  Gemini Robotics Team, Saminda Abeyruwan, Joshua Ainslie, Jean-Baptiste Alayrac, Montserrat Gonzalez Arenas, et al.. arXiv. [2503.20020](https://arxiv.org/abs/2503.20020). PDF-sampled: No.

@@ -1,0 +1,35 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `tests/`, `state/`)
+    being present on disk is provided; the artifact list is empty, so the project
+    structure has not been demonstrated.
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`code/`, `data/raw/`, `data/processed/`, `data/features/`, `tests/`,
+    `state/projects/`) actually exist; without such artifacts the claim cannot be
+    confirmed.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `tests/` directory (with sub\u2011directories\
+    \ `contract/`, `integration/`, and `unit/`) actually exists in the repository;\
+    \ the response contains only the task description and no file listings or screenshots\
+    \ showing the required directory structure. The implementer must add the specified\
+    \ directories (and optionally placeholder test files) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only the feature specification and no actual linting
+    configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or
+    CI integration scripts). There is no evidence that flake8 or Black have been installed,
+    configured, or invoked, so the task requirement is not met.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file or pytest configuration (e.g., `pytest.ini`, `pyproject.toml`
+    with `[tool.pytest]`, or `conftest.py`) was presented in the evidence, so the
+    required artifacts are missing. The task cannot be considered done until these
+    files are created and contain appropriate content.

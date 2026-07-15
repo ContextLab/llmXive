@@ -1,8 +1,11 @@
-# Python
+# Data directories (exclude all data, including raw, processed, synthetic, validation)
+data/
+
+# Python cache and compiled files
 __pycache__/
-*.py[cod]
-$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
 build/
 develop-eggs/
@@ -19,35 +22,29 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Logs
-*.log
 logs/
+*.log
 
-# Data (per project spec)
-data/
-
-# IDE
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Testing
+# Testing and coverage
 .pytest_cache/
 .coverage
 htmlcov/
+coverage.xml
+.mypy_cache/
 
-# Environment
-.venv/
-venv/
-ENV/
+# Jupyter notebooks
+.ipynb_checkpoints/
 
-# Jupyter
-.ipynb_checkpoints
+# OS specific
+Thumbs.db
+.DS_Store
