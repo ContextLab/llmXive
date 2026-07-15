@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DefectSample"
+description: "Schema for raw defect coordinate and thermal conductivity data"
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample"
+  material_type:
+    type: string
+    enum:
+      - "graphene"
+      - "MoS2"
+      - "other"
+    description: "Type of 2D material"
+  defect_coordinates:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+    description: "List of [x, y] coordinates for defects"
+  thermal_conductivity:
+    type: number
+    description: "Thermal conductivity in W/mK"
+  source_dataset:
+    type: string
+    description: "Name of the source dataset"
+required:
+  - sample_id
+  - material_type
+  - defect_coordinates
+  - thermal_conductivity
+additionalProperties: false

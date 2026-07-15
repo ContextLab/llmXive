@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TopologyGraph"
+description: "Schema for network graph representation of defect samples"
+type: object
+properties:
+  sample_id:
+    type: string
+  node_count:
+    type: integer
+    minimum: 0
+  edge_count:
+    type: integer
+    minimum: 0
+  clustering_coefficient:
+    type: number
+    minimum: 0
+    maximum: 1
+  average_path_length:
+    type: number
+    description: "NaN if disconnected or zero defects"
+  lcc_fraction:
+    type: number
+    minimum: 0
+    maximum: 1
+  percolation_threshold:
+    type: number
+    description: "Critical distance (nm) where LCC fraction exceeds 0.5"
+    minimum: 0
+  is_connected:
+    type: boolean
+  degree_distribution:
+    type: array
+    items:
+      type: array
+      items:
+        type: integer
+      minItems: 2
+      maxItems: 2
+    description: "List of [degree, frequency] pairs"
+  metadata:
+    type: object
+    properties:
+      flags:
+        type: array
+        items:
+          type: string
+        description: "e.g., 'disconnected', 'zero_defects'"
+    additionalProperties: true
+required:
+  - sample_id
+  - node_count
+  - edge_count
+  - clustering_coefficient
+  - average_path_length
+  - lcc_fraction
+  - percolation_threshold
+  - is_connected
+  - degree_distribution
+  - metadata
+additionalProperties: false

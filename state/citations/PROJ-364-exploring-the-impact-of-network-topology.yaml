@@ -1,1 +1,46 @@
-[]
+- artifact_hash: 58e3ac60cc3ca8360c636a18fa7fceb2ddb3f7a24be37e6624a8cadd559d754d
+  artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Extracting band structure characteristics of GaSb/InAs core-shell
+    nanowires from thermoelectric properties
+  kind: doi
+  value: 10.1103/PhysRevB.95.115420
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1103/physrevb.95.115420
+  verified_at: '2026-07-15T12:10:55.134955Z'
+- artifact_hash: 58e3ac60cc3ca8360c636a18fa7fceb2ddb3f7a24be37e6624a8cadd559d754d
+  artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Braiding properties of Majorana Kramers pairs
+  kind: doi
+  value: 10.1103/PhysRevB.93.045417
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1103/physrevb.93.045417
+  verified_at: '2026-07-15T12:10:55.134955Z'
+- artifact_hash: 0c88b54f87ef7f82e46d28ad1443ffade18061fe3aeb2fb991bd622b68ad912c
+  artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Extracting band structure characteristics of GaSb/InAs core-shell
+    nanowires from thermoelectric properties
+  kind: doi
+  value: 10.1103/PhysRevB.95.115420
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1103/physrevb.95.115420
+  verified_at: '2026-07-15T12:11:38.545366Z'
+- artifact_hash: 0c88b54f87ef7f82e46d28ad1443ffade18061fe3aeb2fb991bd622b68ad912c
+  artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Braiding properties of Majorana Kramers pairs
+  kind: doi
+  value: 10.1103/PhysRevB.93.045417
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1103/physrevb.93.045417
+  verified_at: '2026-07-15T12:11:38.545366Z'

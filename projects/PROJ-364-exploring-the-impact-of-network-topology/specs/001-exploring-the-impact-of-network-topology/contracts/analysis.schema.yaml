@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for statistical analysis results"
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the topological metric"
+  correlation_coefficient:
+    type: number
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni or FDR corrected p-value"
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "[lower, upper] 95% CI"
+  regression_model_params:
+    type: object
+    description: "Parameters of the fitted regression model"
+  regression_r_squared:
+    type: number
+  sensitivity_analysis:
+    type: object
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: number
+        description: "Thresholds tested (e.g., 1.5x, 2.0x, 2.5x)"
+      correlation_sd:
+        type: number
+        description: "Standard deviation of correlation across thresholds"
+required:
+  - metric_name
+  - correlation_coefficient
+  - p_value
+  - adjusted_p_value
+  - confidence_interval
+  - regression_model_params
+  - regression_r_squared
+  - sensitivity_analysis
+additionalProperties: false
