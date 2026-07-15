@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InferenceResult",
+  "description": "Schema for the result of a single inference run, containing generated image metadata and fidelity metrics.",
+  "type": "object",
+  "required": [
+    "sample_id",
+    "generation_mode",
+    "expert_id",
+    "image_path",
+    "fidelity_metrics"
+  ],
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Reference to the original sample ID."
+    },
+    "generation_mode": {
+      "type": "string",
+      "description": "The mode used for generation.",
+      "enum": ["tree_predicted", "teacher_baseline"]
+    },
+    "expert_id": {
+      "type": "integer",
+      "description": "The expert ID used for generation.",
+      "minimum": 0
+    },
+    "image_path": {
+      "type": "string",
+      "description": "Relative path to the generated image file under data/results/."
+    },
+    "fidelity_metrics": {
+      "type": "object",
+      "description": "Metrics comparing this generation to the baseline.",
+      "properties": {
+        "clip_score": {
+          "type": "number",
+          "description": "CLIP similarity score."
+        },
+        "fid_score": {
+          "type": "number",
+          "description": "Fréchet Inception Distance score."
+        }
+      },
+      "required": ["clip_score", "fid_score"]
+    }
+  },
+  "additionalProperties": false
+}

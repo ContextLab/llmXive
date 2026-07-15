@@ -1,0 +1,94 @@
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: FID score of 12.4532 for static decision trees replacing DanceOPD teacher
+    model
+  claim_id: c_51261fa1
+  context: Table 2. Degradation Metrics showing FID Score value and interpretation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FID Score | 12.4532
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:16:15Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: CLIP score of 0.7821 for static decision trees replacing DanceOPD teacher
+    model
+  claim_id: c_9bad373d
+  context: Table 2. Degradation Metrics showing CLIP Score value and interpretation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CLIP Score | 0.7821
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:16:40Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: FID degradation of 2.3410 when replacing DanceOPD teacher model with
+    static decision trees
+  claim_id: c_5b838960
+  context: "Table 2. Degradation Metrics showing \u0394FID value and interpretation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u0394FID (Degradation) | 2.3410"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:16:58Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: CLIP degradation of -0.0543 when replacing DanceOPD teacher model with
+    static decision trees
+  claim_id: c_097d1ac6
+  context: "Table 2. Degradation Metrics showing \u0394CLIP value and interpretation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u0394CLIP (Degradation) | -0.0543"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:17:18Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: FID bootstrap test p-value of 0.0012
+  claim_id: c_c9c62a33
+  context: Section 3. Statistical Significance reporting FID Bootstrap Test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'FID Bootstrap Test: p-value = 0.0012'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:17:39Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/results/fidelity_summary.md
+  attempts: 1
+  canonical: CLIP paired t-test p-value of 0.0034
+  claim_id: c_fab8ab63
+  context: Section 3. Statistical Significance reporting CLIP Paired t-test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CLIP Paired t-test: p-value = 0.0034'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:17:57Z'

@@ -1,0 +1,4 @@
+# Extends pyproject.toml for specific overrides if needed, 
+# but primarily we rely on pyproject.toml. 
+# This file exists to satisfy tooling that looks for .ruff.toml explicitly.
+extend = "pyproject.toml"

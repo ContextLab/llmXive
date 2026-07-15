@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionTreeMetadata",
+  "description": "Schema for metadata associated with trained Decision Tree models in the llmXive pipeline.",
+  "type": "object",
+  "required": [
+    "depth",
+    "model_type",
+    "file_path",
+    "sha256",
+    "size_bytes",
+    "accuracy"
+  ],
+  "properties": {
+    "depth": {
+      "type": "integer",
+      "description": "The maximum depth of the decision tree.",
+      "minimum": 1
+    },
+    "model_type": {
+      "type": "string",
+      "description": "The type of the model class.",
+      "const": "DecisionTreeClassifier"
+    },
+    "file_path": {
+      "type": "string",
+      "description": "Relative path to the saved model file."
+    },
+    "sha256": {
+      "type": "string",
+      "description": "SHA256 hash of the model file contents.",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "size_bytes": {
+      "type": "integer",
+      "description": "Size of the model file in bytes.",
+      "minimum": 0
+    },
+    "accuracy": {
+      "type": "number",
+      "description": "Validation accuracy of the model.",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "training_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the model was trained."
+    },
+    "hyperparameters": {
+      "type": "object",
+      "description": "Additional hyperparameters used during training.",
+      "properties": {
+        "criterion": {"type": "string"},
+        "splitter": {"type": "string"},
+        "random_state": {"type": "integer"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T008** — The provided `check_weights.py` contains only stub functions (`verify_ground_truth`, `main`) and does not implement the required verification logic or exit codes. Additionally, the required `data/raw/weights_manifest.json` and `data/raw/teacher_ground_truth.parquet` files are absent, so the script cannot perform the checks it is supposed to. The task is therefore not fulfilled.
+- **T009** — No JSON schema files for `TeacherRoutingDataset`, `InferenceResult`, or `DecisionTreeMetadata` were presented in `specs/contracts/`; the required artifacts are missing, so the task is not satisfied.
+- **T010** — No unit test file `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_data_schema.py` was provided or shown; without the actual test code we cannot verify that it validates the required data schema. The required artifact is missing.
+- **T011** — No integration test file `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_data_generation.py` was presented, nor any code, test cases, or output showing that the data generation pipeline is exercised and validated. Without the actual test artifact, the claim cannot be confirmed.
+- **T012** — The required file `code/_data_streaming.py` does not exist, so no implementation of the stratified sampling, batch writing, CPU‑time monitoring, or partial‑result saving is present. The task’s core artifact is missing.

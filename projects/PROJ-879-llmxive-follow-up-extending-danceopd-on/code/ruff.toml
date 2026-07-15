@@ -1,0 +1,26 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length
+line-length = 100
+
+# Linting rules
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # Line too long (handled by formatter/black)
+    "B008", # Do not perform function call in argument defaults (often needed for config)
+    "C901", # Too complex
+]
+
+# Per-file ignores if necessary
+[tool.ruff.lint.per-file-ignores]
+"code/main.py" = ["F401"] # Unused imports in entry point are often used for side effects
