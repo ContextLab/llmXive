@@ -460,3 +460,1121 @@
   source_type: external
   status: verified
   updated_at: '2026-07-15T14:21:11Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: curated builds dataset contains at least 50 rows
+  claim_id: c_a0d7e141
+  context: "Independent Test: Execute code/data/acquisition.py and code/data/cleaning.py\
+    \ and verify data/curated_builds.csv exists with \u226550 rows (or critical warning\
+    \ logged) and all required columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_builds_dataset_contains_at_least_50_rows
+  kind: magnitude
+  raw_text: "Verify data/curated_builds.csv exists with \u226550 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:57:09Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: p-values evaluated at alpha 0.05
+  claim_id: c_3d9e1ce6
+  context: "Evaluation: Evaluate p-values at \u03B1 = 0.05 and flag significant results\
+    \ in the output artifact."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: One example is the chocolate weight loss hoax study conducted by journalist
+        John Bohannon, who explained publicly in a Gizmodo article that the study
+        was deliberately conducted fraudulently as a social experiment. This study
+        was widespread in many media outlets around 2015, with many people believing
+        the claim that eating a chocolate bar every day would cause them to lose weight,
+        against their better judgement. This study was published in the Institute
+        of Diet and Health. According to Bohannon, to reduce the p-value to below
+        0.05, taking 18 different variables into consideration when testing was crucial.
+      source_id: Data dredging
+      url: https://en.wikipedia.org/wiki/Data_dredging
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "Evaluate p-values at \u03B1 = 0.05"
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:03:23Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: likelihood ratio test performed at alpha 0.05
+  claim_id: c_cc43007b
+  context: "Likelihood-Ratio Test: Construct a null intercept-only model and perform\
+    \ a likelihood-ratio test against the full model at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform likelihood-ratio test at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:03:57Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: mixed effects model re-fit for alpha thresholds 0.01, 0.05, and 0.10
+  claim_id: c_972ed3c5
+  context: "Input: data/filtered_builds_final.csv from T023b. Re-fit the Linear Mixed-Effects\
+    \ model (US-2) for each alpha threshold in \u03B1 \u2208 {0.01, 0.05, 0.10}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-fit the Linear Mixed-Effects model for each alpha threshold in \u03B1\
+    \ \u2208 {0.01, 0.05, 0.10}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:04:18Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: report variation in coefficients and partial R2 across alpha thresholds
+  claim_id: c_9193beda
+  context: "Output: For each alpha, extract and store the standardized coefficients\
+    \ and partial R\xB2. Report variation in coefficients and partial R\xB2 across\
+    \ these thresholds."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_variation_in_coefficients_and_partial_R2_across_alpha
+  kind: entity_fact
+  raw_text: "Report variation in coefficients and partial R\xB2 across these thresholds"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:04:58Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: xgboost model training time under 600 seconds
+  claim_id: c_e70b22f2
+  context: "Independent Test: Train XGBoost in code/models/xgboost_model.py within\
+    \ 600s, evaluate on hold-out set, and verify R\xB2, MAE, RMSE are recorded and\
+    \ permutation importance is computed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train XGBoost regressor within 600s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:05:19Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: LOAFO cross-validation used for sample size less than 100
+  claim_id: c_cedcc79c
+  context: 'Logic: Step 1 (Tuning): If N < 100: Use Leave-One-Alloy-Family-Out (LOAFO)
+    as the cross-validation strategy for hyperparameter tuning (5-fold).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOAFO_cross-validation_used_for_sample_size_less_than_100
+  kind: magnitude
+  raw_text: Use Leave-One-Alloy-Family-Out (LOAFO) as the cross-validation strategy
+    if N < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:06:10Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: one alloy family held out as test set if 3 or more families exist
+  claim_id: c_417313ae
+  context: "Step 2 (Evaluation): If N < 100: If there are \u22653 alloy families,\
+    \ designate one specific family (randomly selected or based on data density) as\
+    \ the final held-out test set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Designate one specific family as the final held-out test set if there\
+    \ are \u22653 alloy families"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:06:10Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: stratified split used for sample size 100 or greater
+  claim_id: c_e19b779c
+  context: "If N \u2265 100: Use standard stratified train/val/test split by alloy_family\
+    \ (majority/minority/minority)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use standard stratified train/val/test split by alloy_family if N \u2265\
+    \ 100"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:06:10Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: model metrics R2 MAE RMSE recorded
+  claim_id: c_b04e6be2
+  context: "Evaluate on held-out test set. Record R\xB2, MAE, RMSE."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_metrics_R2_MAE_RMSE_recorded
+  kind: entity_fact
+  raw_text: "Record R\xB2, MAE, RMSE"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:06:50Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: R2 below 0.60 triggers log warning
+  claim_id: c_19548557
+  context: "If R\xB2 < 0.60, log result but do not abort."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log result if R\xB2 < 0.60"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:06:50Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation calculated between LME coefficients and XGBoost
+    importance
+  claim_id: c_bec1caf0
+  context: 'Metric: Calculate the Spearman rank correlation between the LME significant
+    standardized coefficients (absolute value) and the XGBoost permutation importance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_calculated_between_LME_coefficient
+  kind: entity_fact
+  raw_text: Calculate the Spearman rank correlation between the LME significant standardized
+    coefficients and the XGBoost permutation importance
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:07:22Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Smith et al 2023 cited as reference
+  claim_id: c_21001d8b
+  context: 'References: Smith et al. (2023),.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference Smith et al. (2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:07:42Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: pipeline designed for CPU-only execution
+  claim_id: c_946cb032
+  context: 'Data Feasibility: All tasks are designed for CPU-only execution (Multiple
+    cores, standard RAM capacity).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_designed_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: All tasks are designed for CPU-only execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:08:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: dataset size less than 250 rows
+  claim_id: c_a45308e0
+  context: 'Data Feasibility: ...and small datasets (<250 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_less_than_250_rows
+  kind: magnitude
+  raw_text: Target dataset size is small (<250 rows)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:08:40Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: results exploratory due to sample size less than 100
+  claim_id: c_88ba351b
+  context: 'Content: Explicitly state: ...Results are exploratory due to N < 100.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_exploratory_due_to_sample_size_less_than_100
+  kind: magnitude
+  raw_text: Results are exploratory due to N < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:09:28Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time under 600 seconds
+  claim_id: c_b46dbf4b
+  context: "Run full pipeline integration test (main.py) to ensure end-to-end execution\
+    \ \u2264 600s"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full pipeline integration test to ensure end-to-end execution \u2264\
+    \ 600s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:09:28Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: curated dataset contains at least 50 rows with required columns
+  claim_id: c_6682a3bb
+  context: "Independent Test: Execute code/data/acquisition.py and code/data/cleaning.py\
+    \ and verify data/curated_builds.csv exists with \u226550 rows..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_dataset_contains_at_least_50_rows_with_required_colu
+  kind: magnitude
+  raw_text: "Verify data/curated_builds.csv exists with \u226550 rows (or critical\
+    \ warning logged) and all required columns (laser_power, scan_speed, hatch_spacing,\
+    \ layer_thickness, ductility, alloy_family, energy_density)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:11:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: data merge error raised if row count drops below 50
+  claim_id: c_31fe31cb
+  context: "Verification: CRITICAL: After merging, verify that the resulting DataFrame\
+    \ still meets the row count (\u226550) and column integrity requirements of US-1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the join fails for all records (resulting in <50 rows or missing columns),
+    raise a DataMergeError and halt execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:11:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: critical warning logged if row count is less than 50
+  claim_id: c_91fd0167
+  context: 'Add validation check in code/data/cleaning.py: If row count < 50, log
+    critical warning but proceed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_row_count_is_less_than_50
+  kind: magnitude
+  raw_text: If row count < 50, log critical warning but proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:11:39Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: linear mixed-effects model convergence verified
+  claim_id: c_fb657d22
+  context: "Independent Test: Run code/models/lme_model.py on data/curated_builds_features.csv\
+    \ and verify output contains standardized coefficients, 95% CIs, p-values, partial\
+    \ R\xB2, and that the model converges."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_mixed-effects_model_convergence_verified
+  kind: entity_fact
+  raw_text: Verify that the model converges.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:12:07Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: execution halted if VIF remains greater than 5 after attempts to drop
+    or combine predictors
+  claim_id: c_2afed378
+  context: 'Logic: IF Energy Density was NOT dropped in T023... IF any of these constituents
+    have VIF > 5... IF VIF > 5 persists after all attempts to drop/combine: Log a
+    CRITICAL ERROR and HALT execution.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: 'IF any of these constituents have VIF > 5: Drop or combine them... IF
+    VIF > 5 persists after all attempts to drop/combine: Log a CRITICAL ERROR and
+    HALT execution.'
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:12:14Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: maximum VIF confirmed to be less than or equal to 5 after reduction
+  claim_id: c_0286f983
+  context: "Verification: Re-calculate VIF on the reduced set to confirm max VIF \u2264\
+    \ 5."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_VIF_confirmed_to_be_less_than_or_equal_to_5_after_re
+  kind: magnitude
+  raw_text: "Re-calculate VIF on the reduced set to confirm max VIF \u2264 5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:12:37Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: final predictor set max VIF less than or equal to 5
+  claim_id: c_6c49b5b1
+  context: "Verification: Ensure the final set of predictors has max VIF \u2264 5."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_predictor_set_max_VIF_less_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "Ensure the final set of predictors has max VIF \u2264 5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:13:00Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: likelihood-ratio test performed against full model at alpha 0.05
+  claim_id: c_55d787c4
+  context: "Likelihood-Ratio Test: Construct a null intercept-only model and perform\
+    \ a likelihood-ratio test against the full model at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Construct a null intercept-only model and perform a likelihood-ratio\
+    \ test against the full model at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:13:25Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: 0.01 alpha data point explicitly included in final report
+  claim_id: c_826c9881
+  context: Ensure the 0.01 data point is explicitly produced and included in the final
+    report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the 0.01 data point is explicitly produced and included in the
+    final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:13:53Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: XGBoost training completed within 600 seconds with recorded metrics
+  claim_id: c_1ea4dc09
+  context: 'Independent Test: Train XGBoost in code/models/xgboost_model.py within
+    600s...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train XGBoost in code/models/xgboost_model.py within 600s, evaluate on\
+    \ hold-out set, and verify R\xB2, MAE, RMSE are recorded and permutation importance\
+    \ is computed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:14:07Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: LOAFO cross-validation used for tuning when N is less than 100
+  claim_id: c_4d2976fc
+  context: 'Step 1 (Tuning): If N < 100: Use Leave-One-Alloy-Family-Out (LOAFO) as
+    the cross-validation strategy for hyperparameter tuning (5-fold).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOAFO_cross-validation_used_for_tuning_when_N_is_less_than_1
+  kind: magnitude
+  raw_text: 'If N < 100: Use Leave-One-Alloy-Family-Out (LOAFO) as the cross-validation
+    strategy for hyperparameter tuning (5-fold).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:14:55Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: specific family designated as held-out test set if N is less than 100
+    and families are 3 or more
+  claim_id: c_5fa47812
+  context: "Step 2 (Evaluation): If N < 100: If there are \u22653 alloy families,\
+    \ designate one specific family... as the final held-out test set."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Specific_family_designated_as_held-out_test_set_if_N_is_less
+  kind: magnitude
+  raw_text: "If N < 100: If there are \u22653 alloy families, designate one specific\
+    \ family... as the final held-out test set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:15:55Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: standard stratified split used when N is 100 or greater
+  claim_id: c_91e8abfe
+  context: "If N \u2265 100: Use standard stratified train/val/test split by alloy_family\
+    \ (majority/minority/minority)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If N \u2265 100: Use standard stratified train/val/test split by alloy_family\
+    \ (majority/minority/minority)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:15:55Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: result logged but not aborted if R squared is less than 0.60
+  claim_id: c_416771a3
+  context: "If R\xB2 < 0.60, log result but do not abort."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Result_logged_but_not_aborted_if_R_squared_is_less_than_0.60
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.60, log result but do not abort."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:16:19Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: full pipeline integration test execution time and step breakdown recorded
+  claim_id: c_2924d17f
+  context: "Run full pipeline integration test (main.py) to ensure end-to-end execution\
+    \ \u2264 600s..."
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Run python code/main.py --timing. Expected: Exit code 0. Artifact: Generate
+    data/validation/pipeline_timing.json containing the total execution time and step
+    breakdown.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:16:19Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: final report renders within 30 seconds
+  claim_id: c_0cb43d0a
+  context: Validate final report renders as PDF/Markdown within 30s on CI...
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Validate final report renders as PDF/Markdown within 30s on CI.
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:16:27Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: tasks designed for small datasets with fewer than 250 rows
+  claim_id: c_8963b83f
+  context: 'Data Feasibility: All tasks are designed for CPU-only execution (Multiple
+    cores, standard RAM capacity). and small datasets (<250 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tasks_designed_for_small_datasets_with_fewer_than_250_rows
+  kind: magnitude
+  raw_text: All tasks are designed for CPU-only execution (Multiple cores, standard
+    RAM capacity). and small datasets (<250 rows).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:16:57Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Smith et al. cited as reference in 2023
+  claim_id: c_e10b1201
+  context: 'References: Smith et al. (2023),.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: Smith et al. (2023).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:16:57Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 0
+  canonical: final report render time is under 30 seconds
+  claim_id: c_e04c3598
+  context: Validate final report renders as PDF/Markdown within 30s on CI
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Validate final report renders as PDF/Markdown within 30s on CI
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:21:00Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: curated builds dataset contains at least 50 rows
+  claim_id: c_c316968f
+  context: "Independent Test for User Story 1: Execute code/data/acquisition.py and\
+    \ code/data/cleaning.py and verify data/curated_builds.csv exists with \u2265\
+    50 rows"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_builds_dataset_contains_at_least_50_rows
+  kind: magnitude
+  raw_text: "Verify data/curated_builds.csv exists with \u226550 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:21:02Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: variance inflation factor maximum value is less than or equal to 5
+  claim_id: c_036c1f92
+  context: "Logic for VIF analysis: IF Energy Density VIF > 5 THEN: Drop the individual\
+    \ constituent predictors. Verification: Re-calculate VIF on the reduced set to\
+    \ confirm max VIF \u2264 5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_inflation_factor_maximum_value_is_less_than_or_equa
+  kind: magnitude
+  raw_text: "Re-calculate VIF on the reduced set to confirm max VIF \u2264 5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:21:04Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: likelihood ratio test significance level is 0.05
+  claim_id: c_628b303f
+  context: "Implementation for model diagnostics: Construct a null intercept-only\
+    \ model and perform a likelihood-ratio test against the full model at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a likelihood-ratio test against the full model at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:21:44Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis alpha thresholds are 0.01, 0.05, and 0.10
+  claim_id: c_ee86ccfe
+  context: "Implement sensitivity analysis: Re-fit the Linear Mixed-Effects model\
+    \ (US-2) for each alpha threshold in \u03B1 \u2208 {0.01, 0.05, 0.10}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-fit the Linear Mixed-Effects model for each alpha threshold in \u03B1\
+    \ \u2208 {0.01, 0.05, 0.10}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:21:44Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: leave-one-alloy-family-out cross-validation uses 5 folds
+  claim_id: c_97aee13a
+  context: 'Logic for data splitting: If N < 100: Use Leave-One-Alloy-Family-Out (LOAFO)
+    as the cross-validation strategy for hyperparameter tuning (5-fold).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Leave-One-Alloy-Family-Out (LOAFO) as the cross-validation strategy
+    for hyperparameter tuning (5-fold)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:31Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: XGBoost model training time is under 600 seconds
+  claim_id: c_870d91e0
+  context: 'Independent Test for User Story 3: Train XGBoost in code/models/xgboost_model.py
+    within 600s, evaluate on hold-out set'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train XGBoost regressor within 600s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:31Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: XGBoost model evaluation threshold R-squared is 0.60
+  claim_id: c_610592a2
+  context: "Implement model evaluation: Evaluate on held-out test set. Record R\xB2\
+    , MAE, RMSE. If R\xB2 < 0.60, log result but do not abort."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If R\xB2 < 0.60, log result but do not abort"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:31Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: dataset size is less than 250 rows
+  claim_id: c_25483d26
+  context: 'Notes: All tasks are designed for CPU-only execution (Multiple cores,
+    standard RAM capacity). and small datasets (<250 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_less_than_250_rows
+  kind: magnitude
+  raw_text: All tasks are designed for CPU-only execution and small datasets (<250
+    rows)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:34Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time is under or equal to 600 seconds
+  claim_id: c_ee3e0479
+  context: "Run full pipeline integration test (main.py) to ensure end-to-end execution\
+    \ \u2264 600s"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full pipeline integration test (main.py) to ensure end-to-end execution\
+    \ \u2264 600s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:34Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Inconel 718 maps to chemical formula NiCrFeMoNbTi
+  claim_id: c_f2b85205
+  context: 'Name-to-Formula Mapping: Use a small internal constant dictionary to map
+    common alloy names to chemical formulas (e.g., ''Inconel 718'' -> ''NiCrFeMoNbTi'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a small internal constant dictionary to map common alloy names to
+    chemical formulas (e.g., 'Inconel 718' -> 'NiCrFeMoNbTi')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:22:58Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Materials Project API returns space group formation energy per atom and
+    density
+  claim_id: c_120a1f8d
+  context: 'API Call: Query the Materials Project API (endpoint: mp-api) for each
+    unique formula to retrieve crystallographic descriptors. Fields: Extract space_group,
+    formation_energy_per_atom, and density for each alloy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_returns_space_group_formation_energy_p
+  kind: entity_fact
+  raw_text: Extract space_group, formation_energy_per_atom, and density for each alloy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:23:43Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Smith et al 2023 references comparative ranking analysis sliding window
+    approach
+  claim_id: c_f1c638db
+  context: 'References: Smith et al. (2023),. The method is: Comparative ranking analysis
+    using a sliding window approach.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Smith et al. (2023) references comparative ranking analysis using a sliding
+    window approach
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:24:01Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: curated builds dataset row count greater than or equal to 50
+  claim_id: c_2679dc54
+  context: "Independent Test: Execute `code/data/acquisition.py` and `code/data/cleaning.py`\
+    \ and verify `data/curated_builds.csv` exists with \u226550 rows (or critical\
+    \ warning logged)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_builds_dataset_row_count_greater_than_or_equal_to_50
+  kind: magnitude
+  raw_text: "Verify `data/curated_builds.csv` exists with \u226550 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:30:43Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: dataset size less than 100 rows
+  claim_id: c_824e54ee
+  context: 'Content: Explicitly state: ''Dataset size: N=XX (Source: Cited Papers).
+    ... Results are exploratory due to N < 100.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_less_than_100_rows
+  kind: magnitude
+  raw_text: 'Dataset size: N < 100'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:31:37Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: small datasets less than 250 rows
+  claim_id: c_659deb87
+  context: 'Data Feasibility: All tasks are designed for CPU-only execution (Multiple
+    cores, standard RAM capacity). and small datasets (<250 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_datasets_less_than_250_rows
+  kind: magnitude
+  raw_text: All tasks are designed for small datasets (<250 rows)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:32:41Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time less than or equal to 600 seconds
+  claim_id: c_d4c7b9ce
+  context: "Run full pipeline integration test (`main.py`) to ensure end-to-end execution\
+    \ \u2264 600s..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_or_equal_to_600_secon
+  kind: magnitude
+  raw_text: "Run full pipeline integration test to ensure end-to-end execution \u2264\
+    \ 600s"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:33:01Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: XGBoost training time less than or equal to 600 seconds
+  claim_id: c_29b89e31
+  context: 'Independent Test: Train XGBoost in `code/models/xgboost_model.py` within
+    600s...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/XGBoost_training_time_less_than_or_equal_to_600_seconds
+  kind: magnitude
+  raw_text: Train XGBoost regressor within 600s
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:33:03Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: partial R squared less than 0.50 warning
+  claim_id: c_95053d60
+  context: "Compute partial R\xB2. If partial R\xB2 < 0.50, log warning (do not abort)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Partial_R_squared_less_than_0.50_warning
+  kind: magnitude
+  raw_text: "Log warning if partial R\xB2 < 0.50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:33:25Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: R squared less than 0.60 log result
+  claim_id: c_7a732a06
+  context: "Record R\xB2, MAE, RMSE. If R\xB2 < 0.60, log result but do not abort."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R_squared_less_than_0.60_log_result
+  kind: magnitude
+  raw_text: "Log result if R\xB2 < 0.60"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:33:48Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: likelihood ratio test alpha 0.05
+  claim_id: c_7a0ea39b
+  context: "Construct a null intercept-only model and perform a likelihood-ratio test\
+    \ against the full model at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform likelihood-ratio test at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:33:49Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: alpha thresholds set 0.01 0.05 0.10
+  claim_id: c_cae4900c
+  context: "Re-fit the Linear Mixed-Effects model (US-2) for each alpha threshold\
+    \ in \u03B1 \u2208 {0.01, 0.05, 0.10}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-fit model for alpha thresholds in \u03B1 \u2208 {0.01, 0.05, 0.10}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:34:09Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: energy density VIF greater than 5 drop constituents
+  claim_id: c_48e744af
+  context: 'Logic: IF Energy Density VIF > 5 THEN: Drop the individual constituent
+    predictors...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_density_VIF_greater_than_5_drop_constituents
+  kind: magnitude
+  raw_text: Drop constituents if Energy Density VIF > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:34:35Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: maximum VIF less than or equal to 5
+  claim_id: c_3b506099
+  context: "Verification: Re-calculate VIF on the reduced set to confirm max VIF \u2264\
+    \ 5."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_VIF_less_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "Confirm max VIF \u2264 5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:35:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: 5-fold cross validation
+  claim_id: c_fd51c1d3
+  context: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the cross-validation strategy
+    for hyperparameter tuning (5-fold).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: Use 5-fold cross-validation
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T17:35:51Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: hold out one family if sample size less than 100 and at least 3 families
+  claim_id: c_31793e9b
+  context: "Step 2 (Evaluation): If N < 100: If there are \u22653 alloy families,\
+    \ designate **one specific family** ... as the **final held-out test set**..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hold_out_one_family_if_sample_size_less_than_100_and_at_leas
+  kind: magnitude
+  raw_text: "Designate one specific family as final held-out test set if N < 100 and\
+    \ \u22653 alloy families exist"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T17:36:54Z'

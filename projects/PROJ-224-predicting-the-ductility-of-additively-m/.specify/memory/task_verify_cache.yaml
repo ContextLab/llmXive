@@ -1,3 +1,16 @@
+T020:
+  c: false
+  h: 67751f68dd9e1ef21283a51b8e818d760fb8b8889c1600b00a824f8607175c92
+  r: The required artifact `data/curated_builds_features.csv` does not exist on disk,
+    so no dataset is available to meet the size, column, or versioning requirements.
+    The implementer must create and place the CSV file in the specified location.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON or CSV file containing the MixedEffectsResult (with metrics, convergence\
+    \ status, random\u2011effect estimates, and significance flags) was presented.\
+    \ The evidence section contains no artifact paths or file contents, so the required\
+    \ output is missing."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

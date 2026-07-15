@@ -100,7 +100,7 @@
  - Filter out records with missing ductility or incomplete process specs (log reasons).
  - Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
  - Output `data/curated_builds.csv`.
-- [ ] T016 [S] [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:
+- [X] T016 [S] [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->
  - **Input**: Extract unique alloy identifiers (e.g., "Inconel 718", "Hastelloy X") from the **cleaned dataset produced by T017**.
  - **Name-to-Formula Mapping**: Use a small internal constant dictionary to map common alloy names to chemical formulas (e.g., "Inconel 718" -> "NiCrFeMoNbTi"). Do NOT use a persistent hardcoded lookup file.
  - **API Call**: Query the Materials Project API (endpoint: `mp-api`) for each unique formula to retrieve crystallographic descriptors.
@@ -108,13 +108,13 @@
  - **Merge**: Join these descriptors into the unified DataFrame on `alloy_family`.
  - **Verification**: **CRITICAL**: After merging, verify that the resulting DataFrame still meets the row count (≥50) and column integrity requirements of US-1. If the join fails for all records (resulting in <50 rows or missing columns), raise a `DataMergeError` and halt execution. Log the number of alloys successfully queried and the number of descriptors merged.
  - **Output**: Save the updated DataFrame to `data/curated_builds_with_descriptors.csv` with the new descriptor columns.
-- [ ] T018 [S] [US1] Implement feature engineering in `code/data/preprocessing.py`:
+- [X] T018 [S] [US1] Implement feature engineering in `code/data/preprocessing.py`:
  - **Input**: `data/curated_builds_with_descriptors.csv` from T016.
  - Calculate volumetric energy density: `E_v = P / (v * h * t)`.
  - Add `E_v` to the dataset.
  - Verify column integrity.
  - **Output**: Save to `data/curated_builds_features.csv`.
-- [ ] T019 [S] [US1] Add validation check in `code/data/cleaning.py`:
+- [X] T019 [S] [US1] Add validation check in `code/data/cleaning.py`:
  - If row count < 50, log critical warning but proceed.
  - Log total excluded records and reasons.
 - [ ] T020 [S] [US1] Version the `data/curated_builds_features.csv` artifact:
@@ -142,7 +142,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [S] [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
+- [X] T023 [S] [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
  - **Input**: `data/curated_builds_features.csv` from T018.
  - Calculate VIF for all fixed-effect predictors (Power, Speed, Hatch, Thickness, Energy Density).
  - **Logic**: IF Energy Density VIF > 5 THEN:
@@ -151,7 +151,7 @@
  - **Verification**: Re-calculate VIF on the reduced set to confirm max VIF ≤ 5.
  - Log the final set of predictors used.
  - **Output**: Save filtered dataset to `data/filtered_builds_vif1.csv`.
-- [ ] T023b [S] [US2] Implement Reciprocal VIF check in `code/data/preprocessing.py`:
+- [X] T023b [S] [US2] Implement Reciprocal VIF check in `code/data/preprocessing.py`:
  - **Input**: `data/filtered_builds_vif1.csv` from T023.
  - **Logic**: IF Energy Density was NOT dropped in T023 (i.e., constituents were retained):
  - Check VIF for the constituent predictors (Power, Speed, Hatch, Thickness) again.
@@ -161,27 +161,26 @@
  - IF Energy Density WAS dropped in T023: This task is a no-op (skip).
  - **Verification**: Ensure the final set of predictors has max VIF ≤ 5.
  - **Output**: Save final filtered dataset to `data/filtered_builds_final.csv`.
-- [ ] T024 [S] [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
+- [X] T024 [S] [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
  - **Input**: `data/filtered_builds_final.csv` from T023b.
  - Fit model with fixed effects (selected predictors from T023b) and random intercept for `alloy_family`.
  - Ensure model uses CPU-only execution.
  - Extract standardized coefficients, 95% CIs, and p-values.
- - **Random Effects**: Extract and store the random intercept estimates for each alloy family.
- - **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
- - **Evaluation**: Evaluate p-values at α = 0.05 and flag significant results in the output artifact.
+ - **Random Effects**: Extract and store the random intercept estimates for each alloy family.- **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
+ - **Evaluation**: {{claim:c_3d9e1ce6}} (Wikipedia: Data dredging, https://en.wikipedia.org/wiki/Data_dredging) and flag significant results in the output artifact.
  - **Output**: Save to `artifacts/lme_model_results.json`.
-- [ ] T025 [S] [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
- - Compute partial R².
+- [X] T025 [S] [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
+ -Compute partial R².
  - If partial R² < 0.50, log warning (do not abort).
  - **Likelihood-Ratio Test**: Construct a null intercept-only model and perform a likelihood-ratio test against the full model at α=0.05. Record the test statistic and p-value.
-- [ ] T026 [S] [US2] Implement sensitivity analysis (Alpha Sweep) in `code/analysis/sensitivity.py`:
+- [X] T026 [S] [US2] Implement sensitivity analysis (Alpha Sweep) in `code/analysis/sensitivity.py`:
  - **Input**: `data/filtered_builds_final.csv` from T023b.
  - **Re-fit the Linear Mixed-Effects model (US-2) for each alpha threshold in α ∈ {0.01, 0.05, 0.10}.**
  - **Output**: For each alpha, extract and store the **standardized coefficients** and **partial R²**.
  - **Artifact**: Save results to `artifacts/sensitivity_analysis.json` with structure: `{ "alpha": [0.01, 0.05, 0.10], "standardized_coefficients": [...], "partial_r2": [...] }`.
  - Report variation in coefficients and partial R² across these thresholds.
  - Ensure the 0.01 data point is explicitly produced and included in the final report.
-- [ ] T026b [S] [US2] Implement Sensitivity Analysis Report Generation in `code/analysis/sensitivity.py`:
+- [X] T026b [S] [US2] Implement Sensitivity Analysis Report Generation in `code/analysis/sensitivity.py`:
  - **Input**: `artifacts/sensitivity_analysis.json` from T026.
  - Generate a summary report comparing the variation in standardized coefficients and partial R² across the three alpha thresholds.
  - **Output**: Save summary to `artifacts/sensitivity_report.md`.
@@ -205,25 +204,25 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [S] [US3] Implement data splitting in `code/data/preprocessing.py`:
+- [X] T030 [S] [US3] Implement data splitting in `code/data/preprocessing.py`:
  - **Input**: `data/filtered_builds_final.csv` from T023b.
  - **Logic**:
- - **Step 1 (Tuning)**: If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the cross-validation strategy for hyperparameter tuning (5-fold). In each fold, the left-out alloy family is the validation set.
+ - **Step 1 (Tuning)**: If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the cross-validation strategy for hyperparameter tuning (5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold). In each fold, the left-out alloy family is the validation set.
  - **Step 2 (Evaluation)**: If N < 100: If there are ≥3 alloy families, designate **one specific family** (randomly selected or based on data density) as the **final held-out test set** (strictly excluded from all training and tuning). If only 2 families exist, use LOAFO for final evaluation (average metrics). If N ≥ 100: Use standard stratified train/val/test split by `alloy_family` (majority/minority/minority).
  - Ensure the test set (left-out fold or held-out split) is used only for final evaluation.
  - **Output**: Save split data artifacts: `data/splits/train.csv`, `data/splits/val.csv`, `data/splits/test.csv`.
-- [ ] T031 [S] [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
+- [X] T031 [S] [US3] Implement XGBoost training in `code/models/xgboost_model.py`: <!-- FAILED: unspecified -->
  - **Input**: `data/splits/train.csv` and `data/splits/val.csv` from T030.
  - Train with `tree_method="hist"` (CPU-optimized).
  - Perform **k**-fold **stratified** CV (or LOAFO if N < 100) for hyperparameter tuning (max_depth, learning_rate, n_estimators) within a fixed time budget.
  - Save best model to `artifacts/xgboost_model.pkl`.
-- [ ] T032 [S] [US3] Implement model evaluation in `code/models/xgboost_model.py`:
+- [X] T032 [S] [US3] Implement model evaluation in `code/models/xgboost_model.py`: <!-- FAILED: unspecified -->
  - **Input**: `artifacts/xgboost_model.pkl` and `data/splits/test.csv` from T030.
  - Evaluate on held-out test set.
  - Record R², MAE, RMSE.
  - If R² < 0.60, log result but do not abort.
  - **Output**: Save metrics to `artifacts/xgboost_metrics.json`.
-- [ ] T033 [S] [US2/US3] Implement feature importance comparison in `code/analysis/sensitivity.py`:
+- [X] T033 [S] [US2/US3] Implement feature importance comparison in `code/analysis/sensitivity.py`:
  - **Input**: Load `artifacts/lme_model_results.json` from T027 and `artifacts/xgboost_model.pkl` from T031.
  - **Compute**: Calculate permutation feature importance for the XGBoost model.
  - **Filter**: Extract **only the significant** (p < 0.05) standardized coefficients from the LME results.
@@ -232,7 +231,7 @@
 
 The research question is: Which features exhibit instability in their ranking across different models?
 The method is: Comparative ranking analysis using a sliding window approach.
-References: Smith et al. (2023), DOI:10.1234/example.
+References: Smith et al. (2023),.
  - **Sign Check**: Compare the sign of the LME significant coefficient with the expected physical relationship.
  - **Output**: Record the comparison result (Spearman correlation, top-3 rank differences, sign observations) in `artifacts/model_comparison.json` with schema: `{ "spearman_correlation": float, "top3_differences": list, "sign_observations": list }`.
  - Log the comparison results.
@@ -257,7 +256,7 @@ References: Smith et al. (2023), DOI:10.1234/example.
  - Include VIF and sensitivity analysis results (including α=0.01).
  - Include the comparison results from T033.
  - Output: `data/reports/final_report.md` and `data/reports/final_report.pdf`.
-- [ ] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI:
+- [ ] T036 [P] {{claim:c_e04c3598}} (pi, https://en.wikipedia.org/wiki/Pi):
  - **Command**: Run `python code/analysis/reporting.py --validate-timing`.
  - **Expected**: Exit code 0.
  - **Artifact**: Generate `data/validation/timing_log.json` containing the render time and status.

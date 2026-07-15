@@ -68,8 +68,20 @@ def map_alloy_flags(df):
 def add_validation_checks(df):
     """Add validation checks and log reasons for exclusion."""
     logger.info("Adding validation checks...")
-    # Log total excluded records
-    logger.info(f"Total records in dataset: {len(df)}")
+    
+    # Task T019: Add validation check for row count
+    row_count = len(df)
+    if row_count < 50:
+        logger.critical(f"Dataset row count ({row_count}) is below the minimum threshold of 50. Proceeding with critical warning.")
+    else:
+        logger.info(f"Dataset row count ({row_count}) meets the minimum threshold of 50.")
+    
+    # Log total excluded records and reasons (aggregated from previous steps)
+    # Note: Since we don't track individual exclusion reasons in this simple flow,
+    # we log the final count and the fact that filtering occurred in filter_missing_values.
+    logger.info(f"Total records in final dataset: {row_count}")
+    logger.info(f"Exclusion reasons: Missing values in required columns (see previous logs).")
+    
     return df
 
 def main():
