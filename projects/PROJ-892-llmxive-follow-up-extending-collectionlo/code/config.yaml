@@ -1,0 +1,40 @@
+# Configuration for Quantization Robustness of Multi-Effect LoRA Adapters
+# This file contains distinct effect prompts and seed values for deterministic generation.
+# Prompts are designed to test specific visual effects (lighting, texture, style)
+# to measure concept adherence and bleeding during quantization.
+
+# Seed for deterministic generation across all runs
+base_seed: 42
+
+# List of distinct effect prompts
+# Each prompt targets a specific visual effect to be controlled by a LoRA adapter
+prompts:
+  - "a portrait of a woman, cinematic lighting, volumetric fog, 8k"
+  - "a landscape of mountains, heavy rainstorm, wet surfaces, dramatic clouds"
+  - "a close-up of a robot, rusted metal texture, peeling paint, industrial decay"
+  - "a fantasy creature, glowing bioluminescent patterns, dark forest background"
+  - "an abstract composition, oil painting style, thick impasto brushstrokes, vibrant colors"
+  - "a cyberpunk city street, neon signs, rain-slicked pavement, night time"
+  - "a medieval knight, chainmail armor, weathered steel, battlefield dust"
+  - "a watercolor painting of flowers, soft edges, pastel colors, paper texture"
+  - "a sci-fi spaceship, metallic hull, engine glow, space debris background"
+  - "a surreal dream scene, melting clocks, floating objects, impossible geometry"
+
+# Generation parameters
+generation_params:
+  width: 512
+  height: 512
+  num_inference_steps: 20
+  guidance_scale: 7.5
+
+# Quantization levels to test
+quantization_levels:
+  - fp16
+  - int8
+  - int4
+
+# Output directories
+output_dirs:
+  generated_images: "data/generated"
+  references: "data/references"
+  results: "data/results.csv"
