@@ -1,0 +1,169 @@
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: sample size of 50 or more per region count bin from ParaDLC-Bench dataset
+  claim_id: c_63525815
+  context: "Implement code/synthetic/generator.py to orchestrate T046-T049: loop through\
+    \ a sampled subset of ParaDLC-Bench (n\u226550 per bin) and generate images for\
+    \ region counts 20, 25, 30, 35, 40, 45, and 50"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "loop through a sampled subset of ParaDLC-Bench (n\u226550 per bin)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:07:57Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: region counts of 20, 25, 30, 35, 40, 45, and 50
+  claim_id: c_e3ba8585
+  context: Create configuration module code/config.py defining paths, random seeds
+    (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: region counts (20, 25, 30, 35, 40, 45, 50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:10:56Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: peak resident set size limit of 7 GB
+  claim_id: c_1a468037
+  context: Add error handling in code/main.py for memory limits (Peak RSS < 7GB) using
+    the logic from T014b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak RSS < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:10:56Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: default tipping point threshold of 0.9
+  claim_id: c_223ff487
+  context: Implement logic in code/analysis/plotting.py to calculate and mark the
+    'tipping point' where parallel coherence drops below the threshold defined in
+    config.py (default 0.9) of the sequential baseline
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: default 0.9
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T02:10:56Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: pipeline execution time target of 6 hours on CPU
+  claim_id: c_f8456d6e
+  context: 'Performance optimization: Ensure batch size and sample size are tuned
+    to complete within 6 hours on CPU'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: complete within 6 hours on CPU
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T02:11:14Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: enforce memory limit of 7GB peak RSS
+  claim_id: c_69a0161e
+  context: 'Phase 4: User Story 1 implementation, T023 description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_memory_limit_of_7GB_peak_RSS
+  kind: entity_fact
+  raw_text: Implement logic in `code/main.py` for error handling for memory limits
+    (Peak RSS < 7GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:15:42Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: calculate tipping point where parallel coherence drops below configurable
+    threshold
+  claim_id: c_65a99a7a
+  context: 'Phase 5: User Story 3 implementation, T033 description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_tipping_point_where_parallel_coherence_drops_below
+  kind: entity_fact
+  raw_text: Implement `code/analysis/plotting.py` to calculate and mark the 'tipping
+    point' where parallel coherence drops below the threshold defined in `config.py`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:17:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: plot Inference Time vs Semantic Coherence Score from degradation_curve.csv
+  claim_id: c_d8d38995
+  context: 'Phase 5: User Story 3 implementation, T032 description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_Inference_Time_vs_Semantic_Coherence_Score_from_degrada
+  kind: entity_fact
+  raw_text: Implement `code/analysis/plotting.py` to read `data/processed/degradation_curve.csv`
+    and plot Inference Time (x) vs. Semantic Coherence Score (y)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:17:48Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: generate pareto_frontier.png with distinct lines for Parallel and Sequential
+    methods
+  claim_id: c_e8ff95e0
+  context: 'Phase 5: User Story 3 implementation, T034 description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_pareto_frontier.png_with_distinct_lines_for_Paralle
+  kind: entity_fact
+  raw_text: Implement `code/analysis/plotting.py` to generate `data/processed/pareto_frontier.png`
+    with distinct lines for Parallel and Sequential methods
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:18:10Z'

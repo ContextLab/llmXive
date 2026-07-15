@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T02:23:28.180941Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-833-llmxive-follow-up-extending-perceptiondl
-last_run_id: ea2e659d-70f7-4b22-a39b-815fd1705a8c
+last_run_id: ec5f31ac-ae89-4a12-8aa2-b01552fcf938
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl
 title: 'llmXive follow-up: extending "PerceptionDLM: Parallel Region Perception with
   Multimodal Diffusion La"'
-updated_at: '2026-07-12T06:43:42.080988Z'
+updated_at: '2026-07-15T02:18:33.113095Z'

@@ -1,0 +1,10 @@
+torch
+transformers
+diffusers
+spacy
+pandas
+scikit-learn
+matplotlib
+datasets
+huggingface_hub
+psutil

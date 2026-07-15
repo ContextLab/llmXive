@@ -9,11 +9,11 @@
 
 ### User Story 1 - Parallel vs. Sequential Coherence Degradation Analysis (Priority: P1)
 
-The researcher needs to run the core comparative experiment where the PerceptionDLM model processes images with 20–50 regions in parallel batches (simulating context overflow) and compare the semantic coherence of the output against a sequential autoregressive baseline. This is the primary research question: determining if and how coherence degrades non-linearly as region count exceeds the native context window.
+The researcher needs to run the core comparative experiment where the PerceptionDLM model processes images with multiple regions in parallel batches (simulating context overflow) and compare the semantic coherence of the output against a sequential autoregressive baseline. This is the primary research question: determining if and how coherence degrades non-linearly as region count exceeds the native context window.
 
 **Why this priority**: This addresses the central hypothesis of the project (the "coherence tax"). Without this data, the project cannot validate or refute the claim of non-linear degradation. It is the minimum viable product for the research inquiry.
 
-**Independent Test**: The system can be tested by executing the analysis pipeline on a single synthetic image with 30 regions, generating both parallel and sequential outputs, and computing the Semantic Coherence Score, BLEU-4, and the degradation curve. If the scores are generated and the degradation curve can be plotted, the core functionality is valid.
+**Independent Test**: The system can be tested by executing the analysis pipeline on a single synthetic image with multiple regions, generating both parallel and sequential outputs, and computing the Semantic Coherence Score, BLEU-4, and the degradation curve. If the scores are generated and the degradation curve can be plotted, the core functionality is valid.
 
 **Acceptance Scenarios**:
 
@@ -28,7 +28,7 @@ The researcher needs a mechanism to programmatically synthesize "overflow" test 
 
 **Why this priority**: This is a prerequisite for User Story 1. Without a dataset that explicitly exceeds the 8–16 region native context window, the degradation analysis cannot be performed. It enables the specific stress-testing required by the research question.
 
-**Independent Test**: The system can be tested by running the dataset generation script on a small subset of 5 images and verifying that the output contains images with exactly 20, 30, and 50 bounding boxes respectively, and that no boxes overlap.
+**Independent Test**: The system can be tested by running the dataset generation script on a small subset of images and verifying that the output contains images with exactly 20, 30, and 50 bounding boxes respectively, and that no boxes overlap.
 
 **Acceptance Scenarios**:
 

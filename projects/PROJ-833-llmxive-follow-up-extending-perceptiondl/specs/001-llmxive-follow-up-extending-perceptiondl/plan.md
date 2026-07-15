@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational research pipeline to quantify the "structural consistency tax" of the PerceptionDLM model when processing images with 20–50 regions in parallel, simulating context overflow. The system generates synthetic overflow datasets using the verified COCO-Stuff dataset, executes parallel batched inference versus a sequential autoregressive baseline (using the SAME PerceptionDLM model), calculates a "Geometric Consistency Score" based on spatial relation consistency, and visualizes the Pareto frontier to identify the tipping point where parallel efficiency is outweighed by consistency loss. The entire pipeline is constrained to run on a CPU-only GitHub Actions runner with a limited number of cores and constrained memory..
+This feature implements a computational research pipeline to quantify the "structural consistency tax" of the PerceptionDLM model when processing images with A variable number of regions in parallel, simulating context overflow. The system generates synthetic overflow datasets using the verified COCO-Stuff dataset, executes parallel batched inference versus a sequential autoregressive baseline (using the SAME PerceptionDLM model), calculates a "Geometric Consistency Score" based on spatial relation consistency, and visualizes the Pareto frontier to identify the tipping point where parallel efficiency is outweighed by consistency loss. The entire pipeline is constrained to run on a CPU-only GitHub Actions runner with a limited number of cores and constrained memory..
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This feature implements a computational research pipeline to quantify the "struc
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete regression analysis (n≥50 images per bin) within 6 hours; Peak RSS < 7 GB.  
 **Constraints**: No GPU/CUDA; no 8-bit quantization; strict memory limits; synthetic data generation must guarantee non-overlapping bounding boxes.  
-**Scale/Scope**: A variable number of region-count bins (20, 30, 50 regions), 50 images per bin (total synthetic samples).
+**Scale/Scope**: A variable number of region-count bins (e.g., 30, 50 regions), A representative number of images per bin (total synthetic samples).
 
 ## Constitution Check
 
@@ -25,12 +25,12 @@ This feature implements a computational research pipeline to quantify the "struc
 
 | Principle | Compliance Status | Implementation Strategy |
 |-----------|-------------------|-------------------------|
-| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/` (e.g., `random.seed(42)`). Dataset fetched via `huggingface_hub` with specific revision. |
+| **I. Reproducibility** | **Compliant** | Random seeds pinned in `code/` (e.g., `random.seed()`). Dataset fetched via `huggingface_hub` with specific revision. |
 | **II. Verified Accuracy** | **Compliant** | All citations verified. Dataset URL (COCO-Stuff) validated in `research.md`. No unverified sources used. |
 | **III. Data Hygiene** | **Compliant** | Raw data (source images) preserved; synthetic derivations written to new files with checksums recorded in `state/`. |
 | **IV. Single Source of Truth** | **Compliant** | All metrics (Geometric Consistency Score, BLEU-4) computed by code and stored in CSV; no hand-typed numbers in paper. |
 | **V. Versioning Discipline** | **Compliant** | Artifacts hashed (specifically `data/synthetic/*.json`, `data/processed/*.csv`); `state/` file updated with checksums. |
-| **VI. Context-Overflow Characterization** | **Compliant** | Synthetic generation logic explicitly creates 20–50 non-overlapping boxes (mandated by US-2, FR-001) to trigger fragmentation. |
+| **VI. Context-Overflow Characterization** | **Compliant** | Synthetic generation logic explicitly creates A moderate number of non-overlapping boxes (mandated by US-2, FR-001) to trigger fragmentation. |
 | **VII. Parallelism vs. Coherence Trade-off** | **Compliant** | Pipeline compares parallel (batched) vs. sequential (same model, context-reset) modes and generates Pareto frontier plot. |
 
 ## Project Structure
@@ -89,7 +89,7 @@ projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Synthetic Data Generation** | Native datasets lack 20–50 region images. | Using existing small-region images would fail to test the "overflow" hypothesis (US-2). |
+| **Synthetic Data Generation** | Native datasets lack sufficient region images. | Using existing small-region images would fail to test the "overflow" hypothesis (US-2). |
 | **Dual Inference Engines (Same Model)** | Must compare Parallel vs. Sequential modes of the SAME model. | Using a different model (e.g., LLaVA) would introduce architecture confounds (US-1). |
 | **Geometric Consistency Metric** | Human labels unavailable for synthetic data. | Using generic BLEU alone ignores spatial relations, failing SC-001 (now Geometric Consistency). |
 | **Increased Sample Size** | A limited number of samples per bin was underpowered for non-linear regression. | Increasing the number of samples per bin improves power.; fallback to a predefined minimum threshold if memory/time constraints hit. |
