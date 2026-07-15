@@ -1,8 +1,7 @@
 """
-State management module for tracking simulation progress and results.
-Implements the Constitution Principle V: State updates with SHA-256 checksums.
+Module to update the project state file with artifact hashes.
+Implements T038: Calculate SHA-256 of simulation_results.csv and update state YAML.
 """
-
 import os
 import hashlib
 import yaml
@@ -10,150 +9,120 @@ from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-# Project root relative to code directory
-PROJECT_ROOT = Path(__file__).parent.parent
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE = STATE_DIR / "PROJ-332-exploring-the-influence-of-network-topol.yaml"
+STATE_FILE_PATH = "state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml"
 
 def calculate_sha256(file_path: str) -> str:
     """
-    Calculate SHA-256 hash of a file.
+    Calculate the SHA-256 hash of a file.
     
     Args:
-        file_path: Path to the file to hash
+        file_path: Path to the file to hash.
         
     Returns:
-        Hexadecimal SHA-256 hash string
-        
-    Raises:
-        FileNotFoundError: If the file does not exist
-        IOError: If the file cannot be read
+        Hexadecimal string of the SHA-256 hash.
     """
     sha256_hash = hashlib.sha256()
-    
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-            
+        # Read file in chunks to handle large files
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_state() -> Dict[str, Any]:
+def load_state(state_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load the project state file.
+    Load the state YAML file.
     
+    Args:
+        state_path: Optional path to state file. Defaults to STATE_FILE_PATH.
+        
     Returns:
-        Dictionary containing project state
-        
-    Raises:
-        FileNotFoundError: If state file does not exist
-        yaml.YAMLError: If state file is invalid YAML
+        Dictionary containing the state data.
     """
-    if not STATE_FILE.exists():
-        # Initialize empty state if file doesn't exist
-        state = {
+    path = state_path or STATE_FILE_PATH
+    if not os.path.exists(path):
+        # Initialize a new state file if it doesn't exist
+        return {
             "project_id": "PROJ-332-exploring-the-influence-of-network-topol",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
             "artifact_hashes": {},
-            "tasks_completed": [],
-            "last_run": None
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }
-        # Ensure directory exists
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        with open(STATE_FILE, "w") as f:
-            yaml.dump(state, f, default_flow_style=False)
-        return state
-        
-    with open(STATE_FILE, "r") as f:
-        state = yaml.safe_load(f)
-        
-    return state
+    
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
 
 def update_state(
     artifact_name: str,
     artifact_path: str,
-    task_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    task_id: str,
+    state_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Update project state with new artifact hash and metadata.
+    Update the state file with the hash of a new or modified artifact.
     
     Args:
-        artifact_name: Name of the artifact (e.g., "simulation_results.csv")
-        artifact_path: Full path to the artifact file
-        task_id: Optional task ID that produced this artifact
-        metadata: Optional additional metadata to store
+        artifact_name: Name of the artifact (e.g., "simulation_results.csv").
+        artifact_path: Path to the artifact file.
+        task_id: ID of the task that produced/modified the artifact.
+        state_path: Optional path to state file. Defaults to STATE_FILE_PATH.
         
     Returns:
-        Updated state dictionary
+        Updated state dictionary.
         
     Raises:
-        FileNotFoundError: If artifact file does not exist
+        FileNotFoundError: If the artifact file does not exist.
     """
-    state = load_state()
-    
-    # Calculate hash
     if not os.path.exists(artifact_path):
         raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    
+    state = load_state(state_path)
+    
+    # Calculate hash
+    file_hash = calculate_sha256(artifact_path)
+    
+    # Update artifact_hashes
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {}
         
-    artifact_hash = calculate_sha256(artifact_path)
-    
-    # Update artifact hashes
     state["artifact_hashes"][artifact_name] = {
-        "hash": artifact_hash,
-        "path": artifact_path,
-        "updated_at": datetime.now(timezone.utc).isoformat()
+        "hash": file_hash,
+        "task_id": task_id,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "path": artifact_path
     }
-    
-    if task_id:
-        if "tasks_completed" not in state:
-            state["tasks_completed"] = []
-        if task_id not in state["tasks_completed"]:
-            state["tasks_completed"].append(task_id)
-    
-    if metadata:
-        if "metadata" not in state:
-            state["metadata"] = {}
-        state["metadata"].update(metadata)
     
     # Update timestamp
     state["updated_at"] = datetime.now(timezone.utc).isoformat()
-    state["last_run"] = datetime.now(timezone.utc).isoformat()
     
     # Write back to file
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    with open(STATE_FILE, "w") as f:
+    path = state_path or STATE_FILE_PATH
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    
+    with open(path, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
         
     return state
 
 def main():
     """
-    Main entry point for state update CLI.
-    Usage: python update_state.py <artifact_name> <artifact_path> [task_id]
+    Command-line entry point to update state for a specific artifact.
+    Usage: python update_state.py <artifact_path> <artifact_name> <task_id>
     """
-    import sys
-    
-    if len(sys.argv) < 3:
-        print("Usage: python update_state.py <artifact_name> <artifact_path> [task_id]")
+    if len(sys.argv) != 4:
+        print("Usage: python update_state.py <artifact_path> <artifact_name> <task_id>")
         sys.exit(1)
         
-    artifact_name = sys.argv[1]
-    artifact_path = sys.argv[2]
-    task_id = sys.argv[3] if len(sys.argv) > 3 else None
+    artifact_path = sys.argv[1]
+    artifact_name = sys.argv[2]
+    task_id = sys.argv[3]
     
     try:
         state = update_state(artifact_name, artifact_path, task_id)
         print(f"State updated successfully for {artifact_name}")
         print(f"Hash: {state['artifact_hashes'][artifact_name]['hash']}")
-        print(f"Updated at: {state['updated_at']}")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"Error updating state: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
+    import sys
     main()

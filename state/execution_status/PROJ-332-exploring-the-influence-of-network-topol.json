@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-332-exploring-the-influence-of-network-topol",
+  "ok": false,
+  "reason": "3 command(s) failed: python code/main.py --run-single --seed 42 (rc=1); python code/main.py --run-grid (rc=1); python code/main.py --sensitivity-only (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --run-single --seed 42 -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has",
+    "python code/main.py --run-grid -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has no attribut",
+    "python code/main.py --sensitivity-only -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has no "
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-15T11:19:19Z"
+}

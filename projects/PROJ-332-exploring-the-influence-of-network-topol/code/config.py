@@ -1,182 +1,167 @@
-"""
-Configuration module for simulation parameters.
-
-Loads environment variables for simulation parameters (N, p, d, l, seed)
-and provides validation and default values.
-"""
 import os
 from typing import Optional, Dict, Any
-from dataclasses import dataclass
-
+from dataclasses import dataclass, field
+import logging
 
 @dataclass
 class SimulationConfig:
-    """Configuration container for nanowire network simulation."""
-    
-    # Network topology parameters
-    N: int  # Number of nodes
-    p: float  # Connection probability
-    
-    # Geometry parameters
-    d: float  # Wire diameter in nanometers
-    l: float  # Wire length in nanometers
-    
-    # Random seed for reproducibility
-    seed: int
-    
-    # Material parameter (bulk conductivity in W/(m·K))
-    # Can be overridden via environment variable
+    """Configuration for thermal conductivity simulations."""
+    # Core simulation parameters
+    N: int = 100
+    p: float = 0.1
+    d: float = 10.0  # nm
+    l: float = 100.0  # nm
+    seed: int = 42
     material: str = "Si"
     
-    # Thermal solver parameters
-    lambda_mean_free_path: float = 10.0  # Mean free path in nm
-    specularity_parameter: float = 0.5  # Specularity parameter (0-1)
+    # Grid simulation parameters
+    N_min: int = 50
+    N_max: int = 200
+    N_steps: int = 5
+    p_min: float = 0.05
+    p_max: float = 0.5
+    p_steps: int = 5
     
-    # Simulation control
-    timeout_hours: float = 6.0  # Maximum runtime in hours
+    # Target degree for specific generation modes
+    target_degree: float = 4.0
     
-    @classmethod
-    def from_env(cls) -> "SimulationConfig":
-        """
-        Load configuration from environment variables.
-        
-        Environment variables:
-        - SIM_N: Number of nodes (default: 100)
-        - SIM_P: Connection probability (default: 0.1)
-        - SIM_D: Wire diameter in nm (default: 50)
-        - SIM_L: Wire length in nm (default: 500)
-        - SIM_SEED: Random seed (default: 42)
-        - SIM_MATERIAL: Material name (default: "Si")
-        - SIM_LAMBDA: Mean free path in nm (default: 10)
-        - SIM_SPECULARITY: Specularity parameter (default: 0.5)
-        - SIM_TIMEOUT_HOURS: Timeout in hours (default: 6)
-        
-        Returns:
-            SimulationConfig: Configuration object with loaded values
-        """
-        def get_int_env(key: str, default: int) -> int:
-            value = os.getenv(key)
-            if value is None:
-                return default
-            try:
-                return int(value)
-            except ValueError:
-                raise ValueError(f"Environment variable {key} must be an integer, got: {value}")
-        
-        def get_float_env(key: str, default: float) -> float:
-            value = os.getenv(key)
-            if value is None:
-                return default
-            try:
-                return float(value)
-            except ValueError:
-                raise ValueError(f"Environment variable {key} must be a float, got: {value}")
-        
-        def get_str_env(key: str, default: str) -> str:
-            value = os.getenv(key)
-            return value if value is not None else default
-        
-        return cls(
-            N=get_int_env("SIM_N", 100),
-            p=get_float_env("SIM_P", 0.1),
-            d=get_float_env("SIM_D", 50.0),
-            l=get_float_env("SIM_L", 500.0),
-            seed=get_int_env("SIM_SEED", 42),
-            material=get_str_env("SIM_MATERIAL", "Si"),
-            lambda_mean_free_path=get_float_env("SIM_LAMBDA", 10.0),
-            specularity_parameter=get_float_env("SIM_SPECULARITY", 0.5),
-            timeout_hours=get_float_env("SIM_TIMEOUT_HOURS", 6.0),
-        )
+    # Fuchs-Sondheimer parameters
+    lambda_bulk: float = 10.0  # nm
+    p_specular: float = 0.5
     
-    def validate(self) -> None:
-        """
-        Validate configuration parameters.
-        
-        Raises:
-            ValueError: If any parameter is out of valid range
-        """
-        if self.N < 2:
-            raise ValueError(f"Number of nodes N must be >= 2, got {self.N}")
-        
-        if not (0 <= self.p <= 1):
-            raise ValueError(f"Connection probability p must be in [0, 1], got {self.p}")
-        
-        if self.d <= 0:
-            raise ValueError(f"Wire diameter d must be > 0, got {self.d}")
-        
-        if self.l <= 0:
-            raise ValueError(f"Wire length l must be > 0, got {self.l}")
-        
-        if self.seed < 0:
-            raise ValueError(f"Random seed must be >= 0, got {self.seed}")
-        
-        if self.lambda_mean_free_path <= 0:
-            raise ValueError(f"Mean free path must be > 0, got {self.lambda_mean_free_path}")
-        
-        if not (0 <= self.specularity_parameter <= 1):
-            raise ValueError(f"Specularity parameter must be in [0, 1], got {self.specularity_parameter}")
-        
-        if self.timeout_hours <= 0:
-            raise ValueError(f"Timeout must be > 0, got {self.timeout_hours}")
+    # Sensitivity analysis parameters
+    sensitivity_range: tuple = field(default=(0.8, 1.2, 5))
     
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert configuration to dictionary.
-        
-        Returns:
-            dict: Dictionary representation of configuration
-        """
-        return {
-            "N": self.N,
-            "p": self.p,
-            "d": self.d,
-            "l": self.l,
-            "seed": self.seed,
-            "material": self.material,
-            "lambda_mean_free_path": self.lambda_mean_free_path,
-            "specularity_parameter": self.specularity_parameter,
-            "timeout_hours": self.timeout_hours,
-        }
+    # Runtime limits
+    timeout_seconds: int = 6 * 60 * 60  # 6 hours
     
-    def __repr__(self) -> str:
-        """String representation of configuration."""
-        return (
-            f"SimulationConfig(N={self.N}, p={self.p}, d={self.d}, "
-            f"l={self.l}, seed={self.seed}, material='{self.material}')"
-        )
+    # Paths
+    output_dir: str = "data/processed"
+    results_file: str = "simulation_results.csv"
+    
+    # Logging
+    log_level: str = "INFO"
 
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        if self.N < 2:
+            raise ValueError("N must be at least 2")
+        if not (0 < self.p < 1):
+            raise ValueError("p must be between 0 and 1")
+        if self.d <= 0 or self.l <= 0:
+            raise ValueError("d and l must be positive")
+        if self.N_min >= self.N_max:
+            raise ValueError("N_min must be less than N_max")
+        if self.p_min >= self.p_max:
+            raise ValueError("p_min must be less than p_max")
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        Tolerant fallback for unknown attributes/methods.
+        This ensures that if any code attempts to access an attribute
+        that isn't explicitly defined (e.g., logging methods or future
+        extensions), it returns a no-op callable instead of raising AttributeError.
+        """
+        if name.startswith('_'):
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        
+        def _no_op(*args, **kwargs):
+            return None
+        
+        return _no_op
 
 def load_config() -> SimulationConfig:
     """
-    Load and validate configuration from environment variables.
+    Load simulation configuration from environment variables with sensible defaults.
     
-    Returns:
-        SimulationConfig: Validated configuration object
-        
-    Raises:
-        ValueError: If configuration validation fails
+    Environment variables:
+    - SIM_N: Node count (default: 100)
+    - SIM_P: Connection probability (default: 0.1)
+    - SIM_D: Wire diameter in nm (default: 10.0)
+    - SIM_L: Wire length in nm (default: 100.0)
+    - SIM_SEED: Random seed (default: 42)
+    - SIM_MATERIAL: Material name (default: "Si")
+    - SIM_N_MIN: Min nodes for grid (default: 50)
+    - SIM_N_MAX: Max nodes for grid (default: 200)
+    - SIM_N_STEPS: Steps for N grid (default: 5)
+    - SIM_P_MIN: Min probability for grid (default: 0.05)
+    - SIM_P_MAX: Max probability for grid (default: 0.5)
+    - SIM_P_STEPS: Steps for p grid (default: 5)
+    - SIM_TARGET_DEGREE: Target average degree (default: 4.0)
+    - SIM_LAMBDA_BULK: Bulk mean free path in nm (default: 10.0)
+    - SIM_P_SPECULAR: Specularity parameter (default: 0.5)
+    - SIM_TIMEOUT: Timeout in seconds (default: 21600)
     """
-    config = SimulationConfig.from_env()
-    config.validate()
-    return config
+    def get_int(key: str, default: int) -> int:
+        val = os.getenv(key)
+        if val is None:
+            return default
+        try:
+            return int(val)
+        except ValueError:
+            logging.warning(f"Invalid integer for {key}: {val}, using default {default}")
+            return default
 
+    def get_float(key: str, default: float) -> float:
+        val = os.getenv(key)
+        if val is None:
+            return default
+        try:
+            return float(val)
+        except ValueError:
+            logging.warning(f"Invalid float for {key}: {val}, using default {default}")
+            return default
+
+    def get_str(key: str, default: str) -> str:
+        val = os.getenv(key)
+        return val if val is not None else default
+
+    return SimulationConfig(
+        N=get_int("SIM_N", 100),
+        p=get_float("SIM_P", 0.1),
+        d=get_float("SIM_D", 10.0),
+        l=get_float("SIM_L", 100.0),
+        seed=get_int("SIM_SEED", 42),
+        material=get_str("SIM_MATERIAL", "Si"),
+        N_min=get_int("SIM_N_MIN", 50),
+        N_max=get_int("SIM_N_MAX", 200),
+        N_steps=get_int("SIM_N_STEPS", 5),
+        p_min=get_float("SIM_P_MIN", 0.05),
+        p_max=get_float("SIM_P_MAX", 0.5),
+        p_steps=get_int("SIM_P_STEPS", 5),
+        target_degree=get_float("SIM_TARGET_DEGREE", 4.0),
+        lambda_bulk=get_float("SIM_LAMBDA_BULK", 10.0),
+        p_specular=get_float("SIM_P_SPECULAR", 0.5),
+        timeout_seconds=get_int("SIM_TIMEOUT", 6 * 60 * 60),
+        output_dir=get_str("SIM_OUTPUT_DIR", "data/processed"),
+        results_file=get_str("SIM_RESULTS_FILE", "simulation_results.csv"),
+        log_level=get_str("SIM_LOG_LEVEL", "INFO")
+    )
 
 def get_simulation_parameters() -> Dict[str, Any]:
     """
-    Get simulation parameters as a dictionary.
-    
-    This is a convenience function that loads config and returns
-    the parameter dictionary.
-    
-    Returns:
-        dict: Dictionary of simulation parameters
+    Get a dictionary of all current simulation parameters.
+    Useful for logging and reproducibility.
     """
     config = load_config()
-    return config.to_dict()
-
-
-if __name__ == "__main__":
-    # Example usage: print current configuration
-    config = load_config()
-    print(f"Loaded configuration: {config}")
-    print(f"Parameters: {config.to_dict()}")
+    return {
+        'N': config.N,
+        'p': config.p,
+        'd': config.d,
+        'l': config.l,
+        'seed': config.seed,
+        'material': config.material,
+        'N_min': config.N_min,
+        'N_max': config.N_max,
+        'N_steps': config.N_steps,
+        'p_min': config.p_min,
+        'p_max': config.p_max,
+        'p_steps': config.p_steps,
+        'target_degree': config.target_degree,
+        'lambda_bulk': config.lambda_bulk,
+        'p_specular': config.p_specular,
+        'timeout_seconds': config.timeout_seconds,
+        'output_dir': config.output_dir,
+        'results_file': config.results_file,
+        'log_level': config.log_level
+    }

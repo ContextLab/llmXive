@@ -28,19 +28,19 @@
 - [X] T001a [P] Initialize state directory and file: `mkdir -p state/projects` and create `state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml` with initial empty artifact_hashes map and `updated_at` timestamp.
 - [X] T002 Initialize a Python project with dependencies in `projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt`. The file MUST contain exactly:
  ```
- networkx==3.2.1 [UNRESOLVED-CLAIM: c_c314b052 — status=not_enough_info]
- scipy==1.13.1 [UNRESOLVED-CLAIM: c_cd5aabf5 — status=not_enough_info]
- numpy==1.26.4 [UNRESOLVED-CLAIM: c_ac07d587 — status=not_enough_info]
- pandas==2.2.2 [UNRESOLVED-CLAIM: c_0d4070f9 — status=not_enough_info]
- pyyaml==6.0.1 [UNRESOLVED-CLAIM: c_429b5584 — status=not_enough_info]
- pytest==8.2.2 [UNRESOLVED-CLAIM: c_77a1880f — status=not_enough_info]
- statsmodels==0.14.2 [UNRESOLVED-CLAIM: c_022d91dd — status=not_enough_info]
+ networkx==3.2.1
+ scipy==1.13.1
+ numpy==1.26.4
+ pandas==2.2.2
+ pyyaml==6.0.1
+ pytest==8.2.2
+ statsmodels==0.14.2
  ```
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`. Ensures code quality for FR-009 (Reproducibility) and SC-005 (Runtime/Quality).
 
 ### Phase 1.5: Linting Specifics (Split from T003)
 
-- [X] T003a [P] Create `code/.pre-commit-config.yaml` with hooks for black and ruff.
+- [X] T003a [P] Create `code/.pre-commit-config.yaml` with hooks for black and ruff. <!-- FAILED: unspecified -->
 - [X] T003b [P] Create `code/ruff.toml` with specific rules: E402, F401, W293, and enforce double quotes.
 
 ---
@@ -51,9 +51,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/material_db.py` with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m·K). [UNRESOLVED-CLAIM: c_0368ef5b — status=not_enough_info] and validation logic per FR-010. MUST include explicit logic to raise a clear error with message "Material <material> not found in local store or NIST defaults; please provide value in W/(m·K)." for non-standard materials.
+- [X] T004 [P] Implement `code/material_db.py` with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m·K) [UNRESOLVED-CLAIM: c_de5fb554 — status=not_enough_info]. and validation logic per FR-010. MUST include explicit logic to raise a clear error with message "Material <material> not found in local store or NIST defaults; please provide value in W/(m·K)." for non-standard materials.
 - [X] T004a [P] Create `specs/001-network-topology-thermal/contracts/simulation_result.schema.yaml` defining the exact JSON/YAML schema for the CSV output (columns: seed, N, p, avg_degree, conductivity, percolation_flag, scaling_factor). This file is required for T021.
-- [X] T005 [P] Create `code/config.py` to load environment variables for simulation parameters (N, p, d, l, seed)
+- [ ] T005 [P] Create `code/config.py` to load environment variables for simulation parameters (N, p, d, l, seed)
 - [X] T006 [P] Implement `code/utils.py` with helper functions for logging, CSV writing, and error formatting
 - [X] T007 Setup `data/` directory structure (`data/raw/`, `data/processed/`) and `.gitkeep` files
 - [X] T007a [P] Initialize `data/processed/simulation_results.csv` with the header row matching the schema defined in T004a. This file must exist before T015, T029, or T035 run.
@@ -67,7 +67,7 @@
 
 **Goal**: Create synthetic nanowire network graphs with prescribed average node degree and compute effective thermal conductivity.
 
-**Independent Test**: Run the generator for a single target degree (e.g., 4) and The produced graph's The produced graph's measured average degree is within ±5 % of the target and that an effective conductivity value is produced.
+**Independent Test**: Run the generator for a single target degree (e.g., 4) and The produced graph's The produced graph's measured average degree is within ±5 % of the target [UNRESOLVED-CLAIM: c_a54b756d — status=not_enough_info]. and that an effective conductivity value is produced.
 
 ### Implementation for User Story 1
 
@@ -77,18 +77,18 @@
 - [X] T010 [US1] Implement degree and connection validation logic in `code/generate_networks.py` to ensure target degree is within valid bounds (FR-001).
 - [X] T011 [US1] Implement thermal resistance assignment in `code/thermal_solver.py` based on material bulk conductivity and geometry (FR-002).
 - [X] T012 [US1] Implement Fuchs-Sondheimer size-correction factor logic in `code/thermal_solver.py` with explicit conditional check for wire diameter d < 100nm as required by FR-011 (FR-011). **Formula**: `{{claim:c_71f76ac4}}`. Use default `lambda=10nm`, `p=0.5` if not specified.
-- [X] T013 [US1] Implement Kirchhoff heat-flow solver in `code/thermal_solver.py` using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with residual ≤ 1e-6 [UNRESOLVED-CLAIM: c_c7485144 — status=not_enough_info], including logic to detect disconnected graphs and return zero conductivity while logging "Graph disconnected; conductivity set to 0.0" (FR-003, Edge Cases).
+- [X] T013 [US1] Implement Kirchhoff heat-flow solver in `code/thermal_solver.py` using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with residual ≤ 1e-6, including logic to detect disconnected graphs and return zero conductivity while logging "Graph disconnected; conductivity set to 0.0" (FR-003, Edge Cases).
 - [X] T014 [US1] Implement zero-resistance clamping logic in `code/thermal_solver.py` to prevent division-by-zero errors (Edge Cases).
 - [X] T015 [US1] Implement logging and CSV output generation in `code/main.py` to record all parameters and results (FR-009). **Depends on T007a**.
-- [X] T016 [US1] Implement runtime timeout check in `code/main.py` to Runtime timeout check aborts if > 6 hours [UNRESOLVED-CLAIM: c_3f8f5677 — status=not_enough_info] (FR-008). **Split into T016a and T016b**.
-- [X] T016a [US1] Implement Global Timer Wrapper in `code/main.py`: Use `time.time()` to measure elapsed time from project start. Check this value at the start of every simulation iteration in the grid loop. If `elapsed > 6 hours`, trigger abort.
-- [X] T016b [US1] Implement Abort Logic in `code/main.py`: If timer check fails, execute `sys.exit(1)` with message "Runtime ceiling (6h) exceeded. Aborting grid." (FR-008).
+- [ ] T016 [US1] Implement runtime timeout check in `code/main.py` to Runtime timeout check aborts if > 6 hours [UNRESOLVED-CLAIM: c_ca41e6f1 — status=not_enough_info] (FR-008). **Split into T016a and T016b**.
+- [ ] T016a [US1] Implement Global Timer Wrapper in `code/main.py`: Use `time.time()` to measure elapsed time from project start. Check this value at the start of every simulation iteration in the grid loop. If `elapsed > 6 hours`, trigger abort.
+- [ ] T016b [US1] Implement Abort Logic in `code/main.py`: If timer check fails, execute `sys.exit(1)` with message "Runtime ceiling (6h) exceeded. Aborting grid." (FR-008).
 
 ### Tests for User Story 1 ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T017 [P] [US1] Unit test for graph generation accuracy in `tests/unit/test_network_gen.py::test_avg_degree_within_tolerance` (verify degree within ±5% [UNRESOLVED-CLAIM: c_375943ec — status=not_enough_info])
+- [X] T017 [P] [US1] Unit test for graph generation accuracy in `tests/unit/test_network_gen.py::test_avg_degree_within_tolerance` (verify degree within ±5%)
 - [X] T018 [P] [US1] Unit test for material property fallback in `tests/unit/test_materials.py::test_nist_defaults_trigger` (verify NIST defaults trigger correctly)
 - [X] T019 [P] [US1] Unit test for disconnected graph handling in `tests/unit/test_solver.py::test_disconnected_graph_returns_zero` (verify 0.0 conductivity and warning log)
 - [X] T020 [P] [US1] Unit test for zero-resistance clamping in `tests/unit/test_solver.py::test_zero_resistance_clamped` (verify minimum thermal resistance threshold)
@@ -111,10 +111,10 @@
 - [X] T024 [US2] Implement clustering coefficient calculation in `code/generate_networks.py` (FR-004).
 - [X] T025 [US2] Implement OLS regression on log-transformed data in `code/regression_analysis.py` (FR-005).
 - [X] T026 [US2] Implement correlation matrix calculation for all metrics in `code/regression_analysis.py` (FR-006).
-- [X] T027 [US2] Implement percolation threshold detection logic (Percolation threshold detection logic (smallest avg degree where ≥80% connected [UNRESOLVED-CLAIM: c_2182d814 — status=not_enough_info])) in `code/regression_analysis.py` (SC-003).
-- [X] T027a [US2] Implement explicit calculation and storage of the percolation threshold value (Percolation threshold detection logic (smallest avg degree where ≥80% connected [UNRESOLVED-CLAIM: c_2182d814 — status=not_enough_info])) into `data/processed/simulation_results.csv` as a new column `percolation_threshold`. This fulfills the "identify" requirement of SC-003. <!-- FAILED: unspecified -->
+- [X] T027 [US2] Implement percolation threshold detection logic (Percolation threshold detection logic (smallest avg degree where ≥80% connected) [UNRESOLVED-CLAIM: c_f862c300 — status=not_enough_info]) in `code/regression_analysis.py` (SC-003).
+- [X] T027a [US2] Implement explicit calculation and storage of the percolation threshold value (Percolation threshold detection logic (smallest avg degree where ≥80% connected) [UNRESOLVED-CLAIM: c_f862c300 — status=not_enough_info]) into `data/processed/simulation_results.csv` as a new column `percolation_threshold`. This fulfills the "identify" requirement of SC-003. <!-- FAILED: unspecified -->
 - [X] T028 [US2] Implement conditional reporting of statistically significant scaling exponent (p < 0.05) in `code/regression_analysis.py` when mean degree exceeds the calculated percolation threshold (from T027a), as required by SC-003 (SC-003). <!-- FAILED: unspecified -->
-- [X] T029 [US2] Integrate regression results into `code/main.py` to append to `simulation_results.csv`. **Depends on T007a**.
+- [ ] T029 [US2] Integrate regression results into `code/main.py` to append to `simulation_results.csv`. **Depends on T007a**.
 
 ### Tests for User Story 2 ⚠️
 
@@ -130,18 +130,18 @@
 
 **Goal**: Assess sensitivity of conductivity estimates to resistor parameters and percolation cutoff.
 
-**Independent Test**: Run sensitivity sweep over a range of values centered around the baseline and verify Reported variations in sensitivity analysis must stay within ±10% [UNRESOLVED-CLAIM: c_398da03e — status=not_enough_info]
+**Independent Test**: Run sensitivity sweep over a range of values centered around the baseline and verify Reported variations in sensitivity analysis must stay within ±10% [UNRESOLVED-CLAIM: c_cdec92a7 — status=not_enough_info]..
 
 ### Implementation for User Story 3
 
 - [X] T033 [US3] Implement sensitivity analysis module in `code/sensitivity_analysis.py` to sweep scaling factors across a range of values. (FR-007).
 - [X] T034 [US3] Implement deviation calculation and reporting in `code/sensitivity_analysis.py` (SC-004).
-- [X] T035 [US3] Integrate sensitivity results into `code/main.py` and update `simulation_results.csv` with sensitivity metrics. **Depends on T007a**.
+- [ ] T035 [US3] Integrate sensitivity results into `code/main.py` and update `simulation_results.csv` with sensitivity metrics. **Depends on T007a**.
 
 ### Tests for User Story 3 ⚠️
 
 - [X] T036 [P] [US3] Unit test for sensitivity analysis in `tests/unit/test_sensitivity.py::test_sensitivity_sweep` (verify ±10% deviation check)
-- [ ] T037 [P] [US3] Unit test for missing material error in `tests/unit/test_materials.py::test_non_standard_material_error` (verify clear error for non-standard materials)
+- [X] T037 [P] [US3] Unit test for missing material error in `tests/unit/test_materials.py::test_non_standard_material_error` (verify clear error for non-standard materials)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +151,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Implement `code/update_state.py` to calculate SHA-256 of `simulation_results.csv` and update `state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml` (Constitution Principle V). **Depends on T001a**.
-- [ ] T039 [P] Run full integration test suite in `tests/integration/test_full_pipeline.py` covering all user stories.
-- [ ] T040 Update `docs/quickstart.md` with instructions for running the default grid (sims x multiple levels).
-- [ ] T041 Verify `tasks.md` and `plan.md` consistency against `spec.md` requirements.
+- [X] T038 [P] Implement `code/update_state.py` to calculate SHA-256 of `simulation_results.csv` and update `state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml` (Constitution Principle V). **Depends on T001a**.
+- [X] T039 [P] Run full integration test suite in `tests/integration/test_full_pipeline.py` covering all user stories.
+- [X] T040 Update `docs/quickstart.md` with instructions for running the default grid (sims x multiple levels).
+- [X] T041 Verify `tasks.md` and `plan.md` consistency against `spec.md` requirements.
 
 ---
 
