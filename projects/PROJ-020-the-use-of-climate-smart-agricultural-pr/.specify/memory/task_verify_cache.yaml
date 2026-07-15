@@ -1,0 +1,7 @@
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a validation log, test report, or reproduced output from\
+    \ executing `quickstart.md` is provided; the implementer did not supply any evidence\
+    \ that the quickstart workflow was run or that end\u2011to\u2011end reproducibility\
+    \ was verified. The required validation output is missing."

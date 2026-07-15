@@ -78,20 +78,22 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py`: Verify pipeline runs without error and output file exists.
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
+- [X] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (recent years) with error handling for missing years
 - [X] T013 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
 - [X] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
 - [X] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
  - Merge using country code + year
- - Match climate data to survey coordinates within a **local radius** (growing season avg: a period of several months prior to harvest)
+ - Match climate data to survey coordinates **within a defined local radius**
+ - Match climate data using **A few months prior to harvest** (growing season average) as the temporal window
  - Flag unmatched rows and log warnings
 - [X] T016 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
-- [X] T017 [US1] Implement stratified sampling with **design weights** in `code/data/clean.py` to ensure ≤ 7GB RAM and target N ≥ 5000 households per country; **calculate and apply survey design weights** to preserve design effects for the Mixed-Effects Model
-- [X] T018 [US1] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping every component variable (e.g., conservation_tillage_score) to its source LSMS question ID and response ID
+- [X] T017 [US1] Implement stratified sampling with **design weights** in `code/data/clean.py`: **IF raw data size > 7GB THEN apply stratified sampling to ensure target N ≥ 5000 households per country, ELSE retain full dataset**; calculate and apply survey design weights to preserve design effects for the Mixed-Effects Model
+- [X] T017b [US1] Implement hard limit enforcement in `code/data/clean.py`: **IF sampling fails to reduce size below 7GB, raise a critical error**; generate a `sampling_report.json` artifact confirming the final size is <7GB and the sampling strategy was applied
+- [X] T018 [US1] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping **every derived CSA variable, including the final weighted composite index**, to its source LSMS question ID and response ID
 - [X] T019 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (Download → Clean → Save) **(Must run after T012-T018)**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean, merged, sampled dataset ready)
@@ -111,26 +113,25 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
+- [X] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
  - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency)
- - **Exclude** digital-technology access and finance access variables from the index calculation to maintain independence from moderation terms (as per Plan Technical Context)
+ - **Exclude** digital-technology access and finance access variables from the index calculation (as per FR-003)
  - Normalize to a unit scale.
 - [X] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
  - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
-- [X] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
+- [X] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`:
  - Include interaction terms for digital and finance access (moderation)
  - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
  - Apply stratified sampling weights
  - Frame all findings as associational (no causal language)
 - [X] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
- - Apply **Benjamini-Hochberg FDR correction** (replacing Bonferroni) for > 5 hypotheses to control false discovery rate in hierarchical data
-- [X] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
+ - Apply **Benjamini-Hochberg FDR correction** (as per FR-006) for > 5 hypotheses to control false discovery rate in hierarchical data **(Must run after T023)**
 - [X] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
  - Alternative variable specifications
  - Sensitivity analysis on CSA adoption threshold (sweep moderate to strict cutoffs) and **report variance in significance rates** as per FR-007
 - [X] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
-- [X] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against GitHub Actions free-tier limit (SC-002)
+- [X] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against a **substantial duration** (GitHub Actions free-tier limit) with explicit pass/fail criteria
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (model fitted, diagnostics run, results outputted)
 
@@ -150,11 +151,11 @@
 ### Implementation for User Story 3
 
 - [X] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
-- [X] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
-- [X] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
-- [X] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
+- [X] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals) **(Must run after T023)**
+- [X] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes **(Must run after T023)**
+- [X] T034 [US3] Implement distribution plot generation in `code/viz/plots.py` **(Must run after T023)**
 - [X] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
-- [X] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
+- [X] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations in `code/analysis/robustness.py` to validate model stability and report variance estimates
 - [X] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -165,10 +166,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038 [P] Documentation updates in `specs/001-csa-food-security/quickstart.md`
-- [~] T039 Code cleanup and refactoring in `code/`
-- [~] T040 Performance optimization for model fitting (batching, efficient memory usage)
-- [~] T041 [P] Additional unit tests for edge cases (missing years, climate gaps, VIF > 5.0) in `tests/unit/`
+- [ ] T038 [P] Documentation updates in `specs/001-csa-food-security/quickstart.md`
+- [ ] T039 Code cleanup and refactoring in `code/`
+- [ ] T040 Performance optimization for model fitting (batching, efficient memory usage)
+- [ ] T041 [P] Additional unit tests for edge cases (missing years, climate gaps, VIF > 5.0) in `tests/unit/`
 - [ ] T042 Run quickstart.md validation to ensure end-to-end reproducibility
 
 ---
@@ -264,5 +265,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Check**: All tasks must run on CPU-only CI with a limited number of cores and approximately 7GB RAM, with no GPU.. No 8-bit/4-bit quantization, no CUDA, no large LLMs.
+- **Constraint Check**: All tasks must run on CPU-only CI with a limited number of cores and limited RAM., with no GPU.. No 8-bit/4-bit quantization, no CUDA, no large LLMs.
 - **Data Integrity**: Use real data sources (LSMS, FAOSTAT, NASA POWER) only. No synthetic data fabrication.

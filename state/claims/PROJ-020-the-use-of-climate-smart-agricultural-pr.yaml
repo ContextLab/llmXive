@@ -439,3 +439,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T04:58:16Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: project targets Kenya, India, Vietnam with data up to 2023
+  claim_id: c_c0971047
+  context: Implement LSMS downloader in code/data/download.py targeting Kenya, India,
+    Vietnam (-2023) with error handling for missing years
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets Kenya, India, and Vietnam with data up to 2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:19:51Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: stratified sampling targets N >= 5000 households per country
+  claim_id: c_dc372309
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/stratified_sampling_targets_N_%3E=_5000_households_per_country
+  kind: magnitude
+  raw_text: The stratified sampling strategy targets a sample size of at least 5000
+    households per country.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:20:40Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: merged dataset contains >= 95% valid records
+  claim_id: c_8bcc3c80
+  context: "Execute code/data/pipeline.py and verify data/processed/merged_sample.parquet\
+    \ contains \u2265 95% valid records, no missing values in key predictors after\
+    \ imputation, and matches the schema."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/merged_dataset_contains_%3E=_95%25_valid_records
+  kind: magnitude
+  raw_text: The data processing pipeline is designed to ensure the merged dataset
+    contains at least 95% valid records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:21:04Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: system designed for <= 7GB RAM limit
+  claim_id: c_4dec2e5c
+  context: "Implement stratified sampling with design weights in code/data/clean.py\
+    \ to ensure \u2264 7GB RAM and target N \u2265 5000 households per country"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/system_designed_for_%3C=_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: The system is designed to run within a RAM limit of approximately 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:21:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied for > 5 hypotheses
+  claim_id: c_cec89a16
+  context: Apply Benjamini-Hochberg FDR correction (replacing Bonferroni) for > 5
+    hypotheses to control false discovery rate in hierarchical data
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_applied_for_%3E_5_hypotheses
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg FDR correction is applied when there are more than
+    5 hypotheses.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:28:10Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: predictors flagged if VIF > 5.0
+  claim_id: c_eb74b4aa
+  context: Calculate VIF for all predictors. Flag predictors exceeding VIF > 5.0 (log
+    warning, do not auto-exclude mediators)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/predictors_flagged_if_VIF_%3E_5.0
+  kind: magnitude
+  raw_text: Predictors exceeding a Variance Inflation Factor (VIF) score greater than
+    5.0 are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:29:02Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: timeout retry triggered if process > 6 hours
+  claim_id: c_ca017b03
+  context: Implement timeout handling in code/analysis/model.py to log state and attempt
+    a reduced-batch retry if > 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model fitting process includes a timeout handling mechanism that triggers
+    a reduced-batch retry if the process exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:29:18Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: climate data interpolation allowed for gaps <= 3 months
+  claim_id: c_355e792b
+  context: "Implement NASA POWER climate downloader in code/data/download.py using\
+    \ requests and nearest-neighbor spatial interpolation for gaps \u2264 3 months"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The climate data matching logic allows for gaps of up to 3 months for
+    nearest-neighbor spatial interpolation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:29:35Z'

@@ -1,9 +1,1 @@
-? 'T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py`
-  <!-- FAILED: unspecified -->'
-: 2
-? 'T011 [P] [US1] Integration test for download and merge pipeline in `tests/integration/test_data_pipeline.py`
-  <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
-: 1
-? T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya,
-  India, Vietnam (-2023) with error handling for missing years
-: 1
+T042: 2

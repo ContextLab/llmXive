@@ -17,7 +17,7 @@ As a researcher, I need to download, clean, and merge the LSMS microdata, FAOSTA
 
 **Acceptance Scenarios**:
 
-1. **Given** the target countries (Kenya, India, Vietnam) and years (2015-2023), **When** the data pipeline runs, **Then** the merged dataset contains records for all specified regions and the system reports the missingness rate and applies a defined imputation strategy.
+1. **Given** the target countries (Kenya, India, Vietnam) and recent years, **When** the data pipeline runs, **Then** the merged dataset contains records for all specified regions and the system reports the missingness rate and applies a defined imputation strategy.
 2. **Given** the merged dataset, **When** the data integrity check runs, **Then** the system flags any rows where climate data cannot be matched to survey coordinates within a defined proximity radius.
 
 ---
@@ -44,7 +44,7 @@ As a researcher, I need to generate scatter plots, coefficient plots, regional m
 
 **Why this priority**: This ensures the results are interpretable and robust. It delivers the final evidence package for review.
 
-**Independent Test**: Can be fully tested by executing the reporting module and verifying that 4 distinct plot types (scatter, coefficient, map, distribution) are generated and that robustness check results are logged.
+**Independent Test**: Can be fully tested by executing the reporting module and verifying that Multiple distinct plot types (scatter, coefficient, map, distribution) are generated and that robustness check results are logged.
 
 **Acceptance Scenarios**:
 
@@ -57,15 +57,15 @@ As a researcher, I need to generate scatter plots, coefficient plots, regional m
 
 - What happens when LSMS data for a specific year (e.g., 2019) is missing for a target country? The system MUST log a warning and proceed with available years without failing.
 - How does the system handle climate data gaps? The system MUST interpolate missing climate values using nearest-neighbor spatial interpolation if gaps are ≤ 3 months.
-- What happens if VIF exceeds 5.0? The system MUST flag the specific predictors and log a warning for manual review; it MUST NOT automatically exclude variables that are required mediators per Constitution Principle VII.
+- What happens if VIF exceeds the conventional threshold for multicollinearity.? The system MUST flag the specific predictors and log a warning for manual review; it MUST NOT automatically exclude variables that are required mediators per Constitution Principle VII.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download LSMS microdata for Kenya, India, and Vietnam covering survey years 2015 through 2023 (See US-1).
-- **FR-002**: System MUST merge datasets using country code and survey year as primary keys, ensuring climate data matches survey coordinates within 50km using the growing season average (3 months prior to harvest) as the temporal window (See US-1).
-- **FR-003**: System MUST construct the CSA adoption index as a weighted composite score based on practice intensity and quality (conservation tillage, crop diversification, irrigation efficiency), normalized to 0-1 scale, and include digital-technology access and finance access variables in the index calculation (See US-2).
+- **FR-002**: System MUST merge datasets using country code and survey year as primary keys, ensuring climate data matches survey coordinates within 50km using the growing season average (a defined temporal window prior to harvest) as the temporal window (See US-1).
+- **FR-003**: System MUST construct the CSA adoption index as a weighted composite score based on practice intensity and quality (conservation tillage, crop diversification, irrigation efficiency), normalized to a unit interval scale, and include digital-technology access and finance access variables in the index calculation (See US-2).
 - **FR-004**: System MUST frame all statistical findings as associational relationships, explicitly avoiding causal language in output summaries (See US-3).
 - **FR-005**: System MUST limit dataset size to ≤ 7 GB RAM by applying stratified sampling to achieve a target N ≥ 5000 households per country if raw data exceeds memory limits (See US-1).
 - **FR-006**: System MUST apply Bonferroni correction for multiple comparisons when testing > 5 hypotheses to control family-wise error rate (See US-2).
@@ -98,6 +98,8 @@ As a researcher, I need to generate scatter plots, coefficient plots, regional m
 
 - The World Bank LSMS dataset contains validated dietary diversity scores (HDDS) for all target countries and years; if caloric adequacy variables are missing, the system defaults to HDDS.
 - Climate data from NASA POWER can be spatially matched to LSMS survey coordinates with sufficient resolution (≤ 0.5 degrees).
-- The analysis assumes a sample size of at least 5000 households per country provides sufficient statistical power for Mixed-Effects Regression with 5 predictors.
+- The analysis assumes a sample size of at least 5000 households per country provides sufficient statistical power for Mixed-Effects Regression with multiple predictors
+
+The research question, method, and references remain unchanged as per the planning document requirements..
 - Digital access and finance access variables are available as binary or ordinal indicators in the LSMS survey modules.
 - The GitHub Actions free-tier runner provides sufficient disk space to store the intermediate merged dataset before sampling.

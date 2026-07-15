@@ -1,118 +1,178 @@
-# Quickstart Guide: Climate-Smart Agriculture & Food Security Analysis
+# Quickstart Guide: Climate-Smart Agriculture Analysis Pipeline
 
-This guide provides step-by-step instructions to reproduce the full research pipeline for analyzing the impact of Climate-Smart Agricultural (CSA) practices on food security in rural areas.
+This guide provides instructions for setting up and running the full analysis pipeline
+for the study: **"The Use of Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security and Livelihoods"**.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- 7GB+ available RAM
-- Internet connection (for data download)
-- Valid API access for LSMS, FAOSTAT, and NASA POWER (if required by specific endpoints)
+- pip (Python package manager)
+- At least 8GB RAM available (7GB limit enforced by config)
+- Internet connection for data download
 
-## 1. Environment Setup
+## 1. Project Setup
 
-Navigate to the project root and install dependencies:
-
-```bash
-cd code
-pip install -r requirements.txt
-```
-
-Ensure the following directories exist (run if missing):
+### Clone and Install Dependencies
 
 ```bash
-python setup_directories.py
+# Ensure you are in the project root
+cd PROJ-020-the-use-of-climate-smart-agricultural-pr
+
+# Install dependencies
+pip install -r code/requirements.txt
 ```
 
-## 2. Configuration
-
-Set environment variables or edit `code/.env` (if present) to define:
-
-- `TARGET_COUNTRIES`: Comma-separated list (e.g., `KE,IN,VN`)
-- `TARGET_YEARS`: Comma-separated list (e.g., `2020,2021,2022`)
-- `DATA_DIR`: Absolute path to the data directory
-
-Example `.env`:
-```
-TARGET_COUNTRIES=KE,IN,VN
-TARGET_YEARS=2020,2021,2022
-DATA_DIR=/path/to/project/data
-```
-
-## 3. Data Pipeline Execution
-
-Run the full data ingestion, cleaning, and sampling pipeline:
+### Verify Environment Setup
 
 ```bash
-python main.py --stage data
+# Run setup scripts to create directory structure
+python code/data/setup_directories.py
+
+# Configure environment variables (optional, defaults to Kenya, India, Vietnam)
+export TARGET_COUNTRIES="KEN,IND,VNM"
+export TARGET_YEARS="2015,2016,2017,2018,2019,2020"
+export MAX_RAM_GB=7
 ```
 
-This will:
-1. Download raw data from LSMS, FAOSTAT, and NASA POWER.
-2. Clean, merge, and impute missing values.
-3. Apply stratified sampling with design weights.
-4. Save the final dataset to `data/processed/merged_sample.parquet`.
+## 2. Data Ingestion Pipeline (User Story 1)
 
-**Output**: `data/processed/merged_sample.parquet`
-
-## 4. Statistical Modeling
-
-Run the mixed-effects regression, mediation analysis, and robustness checks:
+This stage downloads raw data from LSMS, NASA POWER, and FAOSTAT, then cleans, merges, and samples the data.
 
 ```bash
-python main.py --stage analysis
+# Run the full data pipeline
+python code/main.py --stage download_clean
 ```
 
-This will:
-1. Construct the CSA Index (excluding digital/finance access).
-2. Fit Mixed-Effects models with interaction terms.
-3. Apply Benjamini-Hochberg FDR correction.
-4. Perform bootstrap resampling and leave-one-region-out validation.
-5. Save model results to `data/processed/model_results.json` and `data/processed/diagnostics.json`.
+**Outputs:**
+- `data/raw/`: Raw downloaded files (JSON, CSV)
+- `data/processed/merged_sample.parquet`: Final analysis-ready dataset
+- `state/checksums.json`: Data integrity checksums
+- `state/provenance.json`: Mapping of derived variables to source IDs
 
-**Output**: `data/processed/model_results.json`, `data/processed/diagnostics.json`
+**Expected Results:**
+- Dataset with ≥ 5,000 households per country
+- ≤ 7GB RAM usage during processing
+- No missing values in key predictors (after imputation)
 
-## 5. Visualization
+## 3. Statistical Modeling (User Story 2)
 
-Generate plots and robustness reports:
+Fit Mixed-Effects Regression models to quantify relationships between CSA adoption and food security.
 
 ```bash
-python main.py --stage viz
+# Run the modeling pipeline
+python code/main.py --stage model_analysis
 ```
 
-This will:
-1. Create scatter plots (CSA Index vs. Food Security).
-2. Generate coefficient plots with confidence intervals.
-3. Produce regional maps of CSA adoption.
-4. Save figures to `figures/`.
+**Outputs:**
+- `data/processed/model_results.json`: Standardized coefficients, p-values, VIF scores
+- `data/processed/robustness_results.json`: Bootstrap and leave-one-region-out results
+- `state/model_state.json`: Checkpoint state for timeout recovery
 
-**Output**: `figures/scatter_plot.png`, `figures/coefficient_plot.png`, `figures/regional_map.png`
+**Key Features:**
+- Benjamini-Hochberg FDR correction for multiple hypotheses
+- Mediation analysis for digital and finance access
+- Interaction terms for moderation effects
+- Robustness checks with variance reporting
 
-## 6. Validation & Testing
+## 4. Visualization and Reporting (User Story 3)
 
-Run the test suite to verify data integrity and model correctness:
+Generate publication-quality plots and robustness reports.
 
 ```bash
+# Run the visualization pipeline
+python code/main.py --stage viz_report
+```
+
+**Outputs:**
+- `figures/scatter_csa_food_security.png`: CSA Index vs. Food Security
+- `figures/coefficient_plot.png`: Standardized coefficients with confidence intervals
+- `figures/regional_map.png`: Spatial distribution of CSA adoption
+- `figures/distribution_plots.png`: Variable distributions
+- `data/processed/robustness_report.md`: Detailed robustness analysis
+
+## 5. Running Individual Components
+
+For development and debugging, you can run individual modules:
+
+```bash
+# Download specific data sources
+python code/data/download.py --source lsms --country KEN --year 2020
+python code/data/download.py --source nasa_power --lat 0.5 --lon 37.0 --start 2020-01-01 --end 2020-12-31
+python code/data/download.py --source faostat --indicator "Crop Production Index"
+
+# Clean and merge data
+python code/data/clean.py --input data/raw --output data/processed
+
+# Calculate CSA index
+python code/data/features.py --input data/processed/merged_sample.parquet
+
+# Run diagnostics
+python code/analysis/diagnostics.py --input data/processed/merged_sample.parquet
+
+# Fit model
+python code/analysis/model.py --input data/processed/merged_sample.parquet
+
+# Generate plots
+python code/viz/plots.py --input data/processed/model_results.json
+```
+
+## 6. Testing
+
+Run the test suite to verify pipeline integrity:
+
+```bash
+# Run all tests
 pytest tests/ -v
-```
 
-Key tests include:
-- Schema validation (`tests/contract/test_dataset_schema.py`)
-- Data pipeline integration (`tests/integration/test_data_pipeline.py`)
-- Model diagnostics (`tests/unit/test_diagnostics.py`)
-- FDR correction verification (`tests/unit/test_model_correction.py`)
+# Run specific test categories
+pytest tests/unit/ -v # Unit tests
+pytest tests/integration/ -v # Integration tests
+pytest tests/contract/ -v # Contract tests
+```
 
 ## 7. Troubleshooting
 
-- **RAM Issues**: If the process exceeds 7GB, reduce `TARGET_YEARS` or sample size in `code/utils/config.py`.
-- **Missing Data**: Ensure API keys are set if required for LSMS/FAOSTAT/NASA POWER.
-- **Timeouts**: The model stage includes automatic retry logic for long-running tasks.
+### Common Issues
+
+**Issue: "Missing data for country X"**
+- LSMS surveys are not available for all years. The pipeline automatically skips missing years and logs warnings.
+
+**Issue: "VIF > 5.0 for predictor Y"**
+- This indicates multicollinearity. The pipeline flags these predictors but does not auto-exclude them. Review the collinearity report.
+
+**Issue: "Model fitting timeout"**
+- The pipeline attempts a reduced-batch retry. Check `state/model_state.json` for recovery points.
+
+**Issue: "Memory limit exceeded"**
+- Ensure `MAX_RAM_GB` is set correctly. The pipeline enforces this limit and may downcast data types.
+
+### Logs
+
+All pipeline logs are written to `state/logs/` with timestamps:
+- `download_YYYYMMDD_HHMMSS.log`
+- `clean_YYYYMMDD_HHMMSS.log`
+- `model_YYYYMMDD_HHMMSS.log`
+- `viz_YYYYMMDD_HHMMSS.log`
 
 ## 8. Reproducibility
 
-To ensure full reproducibility:
-- Use the pinned versions in `requirements.txt`.
-- Run the pipeline in the order: Data → Analysis → Viz.
-- Checksums for raw data are stored in `state/checksums.json`.
+To ensure reproducibility:
+1. Use the pinned dependencies in `code/requirements.txt`
+2. Set the same `TARGET_COUNTRIES` and `TARGET_YEARS` environment variables
+3. Use the same random seed (default: 42) for sampling and bootstrapping
+4. Verify data checksums in `state/checksums.json`
 
-For detailed API documentation, refer to the docstrings in `code/` modules.
+## 9. Next Steps
+
+After running the pipeline:
+1. Review the robustness report in `data/processed/robustness_report.md`
+2. Examine the visualization outputs in `figures/`
+3. Validate findings against the user stories in `specs/001-csa-food-security/spec.md`
+4. Prepare results for publication or stakeholder review
+
+## Support
+
+For issues or questions, refer to:
+- `specs/001-csa-food-security/plan.md` for project requirements
+- `specs/001-csa-food-security/data-model.md` for data schema
+- `code/README.md` for detailed module documentation

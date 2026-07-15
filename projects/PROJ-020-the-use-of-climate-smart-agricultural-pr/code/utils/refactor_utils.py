@@ -1,7 +1,3 @@
-"""
-Refactored utility functions for code cleanup and standardization.
-Consolidates common patterns used across the data and analysis pipelines.
-"""
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -15,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def standardize_dataframe_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Standardize column names: lowercase, replace spaces with underscores, strip whitespace.
+    Standardize column names: lowercase, replace spaces with underscores, strip special chars.
     
     Args:
         df: Input DataFrame
@@ -23,149 +19,140 @@ def standardize_dataframe_columns(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with standardized column names
     """
-    df_standardized = df.copy()
-    df_standardized.columns = (
-        df_standardized.columns
-        .str.lower()
-        .str.replace(r'\s+', '_', regex=True)
-        .str.strip()
-    )
-    return df_standardized
+    if df is None or df.empty:
+        logger.warning("Received empty or None DataFrame in standardize_dataframe_columns")
+        return df if df is not None else pd.DataFrame()
+        
+    # Create mapping of old to new names
+    col_mapping = {}
+    for col in df.columns:
+        new_col = str(col).lower().replace(" ", "_").replace("-", "_").strip("_")
+        # Remove special characters except underscores
+        new_col = "".join(c if c.isalnum() or c == "_" else "" for c in new_col)
+        col_mapping[col] = new_col
+        
+    # Rename columns
+    df_renamed = df.rename(columns=col_mapping)
+    logger.info(f"Standardized {len(col_mapping)} column names")
+    return df_renamed
 
 
-def validate_dataframe_schema(
-    df: pd.DataFrame,
-    required_columns: List[str],
-    optional_columns: Optional[List[str]] = None,
-    strict: bool = False
-) -> Dict[str, Any]:
+def validate_dataframe_schema(df: pd.DataFrame, required_columns: List[str], 
+                              optional_columns: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    Validate that a DataFrame contains required columns and optionally report on extra columns.
+    Validate that a DataFrame contains required columns and optionally check types.
     
     Args:
-        df: Input DataFrame
+        df: DataFrame to validate
         required_columns: List of column names that must exist
         optional_columns: List of column names that may exist
-        strict: If True, fail if any unexpected columns are present
         
     Returns:
-        Dictionary with validation results:
-        - 'valid': bool
-        - 'missing_columns': List[str]
-        - 'unexpected_columns': List[str]
-        - 'total_columns': int
+        Dictionary with validation results: {
+            'valid': bool,
+            'missing_required': List[str],
+            'extra_columns': List[str],
+            'column_types': Dict[str, str]
+        }
     """
     result = {
         'valid': True,
-        'missing_columns': [],
-        'unexpected_columns': [],
-        'total_columns': len(df.columns)
+        'missing_required': [],
+        'extra_columns': [],
+        'column_types': {}
     }
     
+    if df is None or df.empty:
+        result['valid'] = False
+        result['missing_required'] = required_columns
+        return result
+        
     current_columns = set(df.columns)
     required_set = set(required_columns)
-    optional_set = set(optional_columns) if optional_columns else set()
     
-    # Check for missing required columns
+    # Check required columns
     missing = required_set - current_columns
     if missing:
-        result['missing_columns'] = list(missing)
         result['valid'] = False
-        logger.warning(f"Missing required columns: {missing}")
-    
-    # Check for unexpected columns
-    if strict:
-        expected = required_set | optional_set
-        unexpected = current_columns - expected
-        if unexpected:
-            result['unexpected_columns'] = list(unexpected)
-            result['valid'] = False
-            logger.warning(f"Unexpected columns in strict mode: {unexpected}")
-    
+        result['missing_required'] = list(missing)
+        
+    # Check optional columns presence
+    if optional_columns:
+        optional_set = set(optional_columns)
+        present_optional = optional_set & current_columns
+        result['extra_columns'] = list(present_optional)
+        
+    # Record column types
+    for col in df.columns:
+        dtype = str(df[col].dtype)
+        result['column_types'][col] = dtype
+        
     return result
 
 
-def safe_column_access(
-    df: pd.DataFrame,
-    column: str,
-    default: Any = None,
-    raise_on_missing: bool = False
-) -> pd.Series:
+def safe_column_access(df: pd.DataFrame, column: str, default: Any = None) -> pd.Series:
     """
-    Safely access a column, returning a default value or raising an error if missing.
+    Safely access a column, returning default if column doesn't exist.
     
     Args:
         df: Input DataFrame
         column: Column name to access
-        default: Default value to return if column is missing
-        raise_on_missing: If True, raise KeyError instead of returning default
+        default: Default value to return if column missing
         
     Returns:
-        pd.Series containing the column data
-        
-    Raises:
-        KeyError: If column is missing and raise_on_missing is True
+        Series if column exists, else a Series of default values matching df length
     """
-    if column not in df.columns:
-        if raise_on_missing:
-            raise KeyError(f"Column '{column}' not found in DataFrame")
+    if df is None or column not in df.columns:
         logger.warning(f"Column '{column}' not found, returning default")
-        return pd.Series([default] * len(df), index=df.index)
+        return pd.Series([default] * len(df)) if df is not None else pd.Series([default])
     return df[column]
 
 
-def drop_constant_columns(
-    df: pd.DataFrame,
-    threshold: float = 0.0
-) -> pd.DataFrame:
+def drop_constant_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drop columns that have constant values or near-constant values.
+    Remove columns that have only one unique value (constant columns).
     
     Args:
         df: Input DataFrame
-        threshold: Fraction of unique values threshold (0.0 = only truly constant)
         
     Returns:
         DataFrame with constant columns removed
     """
-    df_clean = df.copy()
-    columns_to_drop = []
-    
-    for col in df_clean.columns:
-        if df_clean[col].nunique() == 1:
-            columns_to_drop.append(col)
-        elif threshold > 0:
-            unique_ratio = df_clean[col].nunique() / len(df_clean)
-            if unique_ratio <= threshold:
-                columns_to_drop.append(col)
-    
-    if columns_to_drop:
-        logger.info(f"Dropping {len(columns_to_drop)} constant/near-constant columns: {columns_to_drop}")
-        df_clean = df_clean.drop(columns=columns_to_drop)
-    
-    return df_clean
+    if df is None or df.empty:
+        return df if df is not None else pd.DataFrame()
+        
+    constant_cols = []
+    for col in df.columns:
+        if df[col].nunique() <= 1:
+            constant_cols.append(col)
+            
+    if constant_cols:
+        logger.info(f"Dropping {len(constant_cols)} constant columns: {constant_cols}")
+        return df.drop(columns=constant_cols)
+    return df
 
 
-def format_large_number(n: Union[int, float]) -> str:
+def format_large_number(num: float, precision: int = 2) -> str:
     """
-    Format large numbers with appropriate suffixes (K, M, B, T).
+    Format large numbers with SI suffixes (K, M, B, T).
     
     Args:
-        n: Number to format
+        num: Number to format
+        precision: Decimal places
         
     Returns:
-        Formatted string
+        Formatted string with suffix
     """
-    if n >= 1e12:
-        return f"{n/1e12:.2f}T"
-    elif n >= 1e9:
-        return f"{n/1e9:.2f}B"
-    elif n >= 1e6:
-        return f"{n/1e6:.2f}M"
-    elif n >= 1e3:
-        return f"{n/1e3:.2f}K"
-    else:
-        return f"{n:.2f}"
+    if abs(num) < 1000:
+        return f"{num:.{precision}f}"
+        
+    suffixes = ['', 'K', 'M', 'B', 'T']
+    magnitude = 0
+    while abs(num) >= 1000 and magnitude < len(suffixes) - 1:
+        num /= 1000.0
+        magnitude += 1
+        
+    return f"{num:.{precision}f}{suffixes[magnitude]}"
 
 
 def ensure_directory_exists(path: Union[str, Path]) -> Path:
@@ -173,7 +160,7 @@ def ensure_directory_exists(path: Union[str, Path]) -> Path:
     Ensure a directory exists, creating it if necessary.
     
     Args:
-        path: Path to directory
+        path: Directory path to ensure exists
         
     Returns:
         Path object for the directory
@@ -184,38 +171,32 @@ def ensure_directory_exists(path: Union[str, Path]) -> Path:
     return dir_path
 
 
-def write_json_with_timestamp(
-    data: Dict[str, Any],
-    output_path: Union[str, Path],
-    timestamp_format: str = "%Y%m%d_%H%M%S"
-) -> Path:
+def write_json_with_timestamp(data: Dict[str, Any], output_path: Union[str, Path], 
+                             filename_prefix: str = "output") -> Path:
     """
     Write JSON data to a file with a timestamp in the filename.
     
     Args:
-        data: Dictionary to serialize to JSON
-        output_path: Base path for output file
-        timestamp_format: Format string for timestamp
+        data: Dictionary to serialize as JSON
+        output_path: Directory to write file to
+        filename_prefix: Prefix for the filename
         
     Returns:
         Path to the created file
     """
-    output_path = Path(output_path)
-    timestamp = datetime.now().strftime(timestamp_format)
-    stem = output_path.stem
-    suffix = output_path.suffix
+    dir_path = ensure_directory_exists(output_path)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{filename_prefix}_{timestamp}.json"
+    file_path = dir_path / filename
     
-    new_filename = f"{stem}_{timestamp}{suffix}"
-    final_path = output_path.parent / new_filename
-    
-    with open(final_path, 'w', encoding='utf-8') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, default=str)
-    
-    logger.info(f"Wrote JSON to {final_path}")
-    return final_path
+        
+    logger.info(f"Wrote JSON to {file_path}")
+    return file_path
 
 
-def calculate_memory_usage(df: pd.DataFrame) -> Dict[str, float]:
+def calculate_memory_usage(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Calculate memory usage statistics for a DataFrame.
     
@@ -223,45 +204,49 @@ def calculate_memory_usage(df: pd.DataFrame) -> Dict[str, float]:
         df: Input DataFrame
         
     Returns:
-        Dictionary with memory usage stats in MB
+        Dictionary with memory usage stats: {
+            'total_memory_bytes': int,
+            'total_memory_mb': float,
+            'per_column_memory': Dict[str, int]
+        }
     """
-    total_memory = df.memory_usage(deep=True).sum() / (1024 * 1024)
-    per_column = {col: mem / (1024 * 1024) for col, mem in df.memory_usage(deep=True).items()}
+    if df is None or df.empty:
+        return {
+            'total_memory_bytes': 0,
+            'total_memory_mb': 0.0,
+            'per_column_memory': {}
+        }
+        
+    per_column = {}
+    total_bytes = 0
     
+    for col in df.columns:
+        col_bytes = df[col].memory_usage(deep=True)
+        per_column[col] = col_bytes
+        total_bytes += col_bytes
+        
     return {
-        'total_mb': total_memory,
-        'per_column_mb': per_column,
-        'num_rows': len(df),
-        'num_columns': len(df.columns)
+        'total_memory_bytes': total_bytes,
+        'total_memory_mb': total_bytes / (1024 * 1024),
+        'per_column_memory': per_column
     }
 
 
-def log_dataframe_info(df: pd.DataFrame, logger_name: str = "data_utils") -> None:
+def log_dataframe_info(df: pd.DataFrame, logger_name: str = "dataframe") -> None:
     """
-    Log comprehensive information about a DataFrame.
+    Log summary information about a DataFrame.
     
     Args:
-        df: Input DataFrame
+        df: DataFrame to log info about
         logger_name: Name of the logger to use
     """
+    if df is None or df.empty:
+        logger.warning("Cannot log info for None or empty DataFrame")
+        return
+        
     log = logging.getLogger(logger_name)
-    memory_info = calculate_memory_usage(df)
-    
     log.info(f"DataFrame shape: {df.shape}")
-    log.info(f"Total memory usage: {memory_info['total_mb']:.2f} MB")
-    log.info(f"Number of rows: {memory_info['num_rows']}")
-    log.info(f"Number of columns: {memory_info['num_columns']}")
-    
-    log.debug("Column memory usage:")
-    for col, mem in memory_info['per_column_mb'].items():
-        log.debug(f"  {col}: {mem:.4f} MB")
-    
-    log.debug("Column dtypes:")
-    for col, dtype in df.dtypes.items():
-        log.debug(f"  {col}: {dtype}")
-    
-    log.debug("Missing values per column:")
-    missing_counts = df.isnull().sum()
-    for col, count in missing_counts.items():
-        if count > 0:
-            log.debug(f"  {col}: {count} ({100*count/len(df):.2f}%)")
+    log.info(f"Memory usage: {calculate_memory_usage(df)['total_memory_mb']:.2f} MB")
+    log.info(f"Columns: {list(df.columns)}")
+    log.info(f"Null counts:\n{df.isnull().sum()}")
+    log.info(f"Data types:\n{df.dtypes}")

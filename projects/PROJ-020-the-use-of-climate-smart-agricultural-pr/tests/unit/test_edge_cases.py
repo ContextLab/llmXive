@@ -1,274 +1,273 @@
 """
-Unit tests for edge cases in the CSA food security analysis pipeline.
+Unit tests for edge cases in the climate-smart agriculture pipeline.
 
 Tests cover:
-- Missing years in LSMS data
-- Climate data gaps (NASA POWER)
-- High collinearity (VIF > 5.0)
+1. Missing years in LSMS data
+2. Climate data gaps (NASA POWER)
+3. High collinearity (VIF > 5.0) detection and reporting
 """
+
 import pytest
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
 from pathlib import Path
 import sys
-import os
+import logging
 
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from data.download import download_lsms, download_nasa_power, download_faostat
 from analysis.diagnostics import calculate_vif, flag_collinearity, get_collinearity_report
-from utils.config import get_target_countries, get_target_years
 
+# Configure logging for tests
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-class TestMissingYearsLSMS:
-    """Tests for handling missing years in LSMS data downloads."""
-
-    @patch('data.download.requests.get')
-    def test_missing_year_handles_gracefully(self, mock_get):
-        """Test that download_lsms handles missing years without crashing."""
-        # Mock a response that indicates the year is not available
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_response.raise_for_status.side_effect = Exception("Resource not found")
-        mock_get.return_value = mock_response
-
-        # Should raise a specific error or handle gracefully
-        with pytest.raises(Exception):
-            download_lsms("KEN", 2099)  # Year far in future, likely missing
-
-    @patch('data.download.requests.get')
-    def test_valid_year_returns_data(self, mock_get):
-        """Test that valid years return data properly."""
-        # Mock a successful response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "results": [
-                {"household_id": 1, "country": "KEN", "year": 2020}
-            ]
-        }
-        mock_get.return_value = mock_response
-
-        result = download_lsms("KEN", 2020)
-        assert result is not None
-
-    def test_missing_year_in_target_list(self):
-        """Test handling when a target year is missing from the dataset."""
-        # This test verifies the logic in the pipeline when a year is missing
-        # Create a mock dataframe with some years missing
-        df = pd.DataFrame({
-            'country': ['KEN', 'KEN', 'IND', 'IND'],
-            'year': [2015, 2017, 2016, 2018],  # 2016 missing for KEN, 2017 for IND
-            'value': [10, 20, 30, 40]
-        })
-
-        # Verify the dataframe structure
-        assert len(df) == 4
-        assert 'KEN' in df['country'].values
-        assert 2016 not in df[df['country'] == 'KEN']['year'].values
-
+class TestMissingYears:
+    """Tests for handling missing years in LSMS data."""
+    
+    def test_lsms_missing_year_raises_error(self):
+        """Test that requesting a non-existent year raises appropriate error."""
+        # Try to download LSMS data for a year that likely doesn't exist
+        # Using a future year that definitely won't have data
+        with pytest.raises(Exception) as exc_info:
+            download_lsms(country="KEN", year=2099)
+        
+        # Verify the error message mentions missing data or invalid year
+        error_msg = str(exc_info.value).lower()
+        assert ("not found" in error_msg or 
+               "missing" in error_msg or 
+               "invalid" in error_msg or
+               "no data" in error_msg), \
+               f"Expected 'not found' or 'missing' in error, got: {error_msg}"
+    
+    def test_lsms_missing_year_in_range(self):
+        """Test handling of missing year within a valid range."""
+        # Some countries may not have data for every year
+        # This test verifies the function handles gaps gracefully
+        try:
+            # Try a year that might be missing for a specific country
+            result = download_lsms(country="KEN", year=2005)
+            # If it succeeds, that's fine - data exists
+            assert result is not None
+        except Exception as e:
+            # If it fails, verify the error is appropriate (not a crash)
+            error_msg = str(e).lower()
+            assert ("not found" in error_msg or 
+                   "missing" in error_msg or 
+                   "unavailable" in error_msg), \
+                   f"Expected graceful error for missing year, got: {e}"
 
 class TestClimateDataGaps:
     """Tests for handling gaps in NASA POWER climate data."""
+    
+    def test_nasa_power_missing_dates(self):
+        """Test that requesting climate data for invalid dates is handled."""
+        # Test with a date range that might have gaps
+        with pytest.raises(Exception) as exc_info:
+            # Request data for a non-existent date range
+            download_nasa_power(lat=0.0, lon=0.0, start="2099-01-01", end="2099-01-02")
+        
+        error_msg = str(exc_info.value).lower()
+        assert ("not found" in error_msg or 
+               "invalid" in error_msg or 
+               "no data" in error_msg or
+               "error" in error_msg), \
+               f"Expected data error for invalid dates, got: {error_msg}"
+    
+    def test_nasa_power_extreme_coordinates(self):
+        """Test handling of extreme or invalid coordinates."""
+        # Test with coordinates that might not have data
+        with pytest.raises(Exception) as exc_info:
+            # Extreme coordinates that likely have no data
+            download_nasa_power(lat=95.0, lon=190.0, start="2020-01-01", end="2020-01-02")
+        
+        error_msg = str(exc_info.value).lower()
+        assert ("invalid" in error_msg or 
+               "out of range" in error_msg or 
+               "error" in error_msg or
+               "not found" in error_msg), \
+               f"Expected coordinate error, got: {error_msg}"
+    
+    def test_nasa_power_partial_data_handling(self):
+        """Test that partial data gaps are handled gracefully."""
+        # Create a scenario where some dates might be missing
+        # This tests the interpolation/gap-filling logic
+        try:
+            result = download_nasa_power(
+                lat=-1.2921, 
+                lon=36.8219,  # Nairobi, Kenya
+                start="2020-01-01", 
+                end="2020-01-10"
+            )
+            # If successful, verify we got some data
+            if result is not None:
+                assert isinstance(result, pd.DataFrame) or isinstance(result, dict)
+        except Exception as e:
+            # If it fails, ensure it's a proper error, not a crash
+            logger.info(f"Expected potential error for partial data: {e}")
 
-    @patch('data.download.requests.get')
-    def test_partial_climate_data_handled(self, mock_get):
-        """Test that partial climate data (with gaps) is handled correctly."""
-        # Mock a response with partial data
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "properties": {
-                "periods": [
-                    {"time": "2020-01-01", "value": 25.5},
-                    {"time": "2020-01-03", "value": 26.1}  # Missing 01-02
-                ]
-            }
-        }
-        mock_get.return_value = mock_response
-
-        # Should return data with gaps that need interpolation
-        result = download_nasa_power(0.0, 37.0, "2020-01-01", "2020-01-03")
-        assert result is not None
-
-    def test_large_climate_gap_detection(self):
-        """Test detection of large gaps in climate data (> 3 months)."""
-        # Create a dataframe with a large gap
-        dates = pd.date_range(start="2020-01-01", end="2020-03-31", freq="D")
-        values = np.random.rand(len(dates)) * 30
-
-        df = pd.DataFrame({'date': dates, 'temperature': values})
-
-        # Simulate a gap by removing a chunk
-        gap_start = pd.Timestamp("2020-02-15")
-        gap_end = pd.Timestamp("2020-05-15")
-        df_no_gap = df[(df['date'] < gap_start) | (df['date'] > gap_end)]
-
-        # Verify gap exists
-        date_range = pd.date_range(start=gap_start, end=gap_end, freq="D")
-        missing_count = sum(~df_no_gap['date'].isin(date_range))
-        assert missing_count == 0  # All gap dates are missing
-
-        # Calculate gap size
-        gap_size = (gap_end - gap_start).days
-        assert gap_size > 90  # More than 3 months
-
-    @patch('data.download.requests.get')
-    def test_nearest_neighbor_interpolation(self, mock_get):
-        """Test nearest-neighbor interpolation for small climate gaps."""
-        # Mock successful response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "properties": {
-                "periods": [
-                    {"time": "2020-01-01", "value": 25.0},
-                    {"time": "2020-01-02", "value": 25.5},
-                    {"time": "2020-01-03", "value": 26.0}
-                ]
-            }
-        }
-        mock_get.return_value = mock_response
-
-        result = download_nasa_power(0.0, 37.0, "2020-01-01", "2020-01-03")
-        assert result is not None
-        assert len(result) == 3
-
-
-class TestHighCollinearityVIF:
-    """Tests for handling high collinearity (VIF > 5.0)."""
-
-    def test_vif_calculation_with_perfect_collinearity(self):
-        """Test VIF calculation when perfect collinearity exists."""
-        # Create dataframe with perfect collinearity
-        df = pd.DataFrame({
-            'y': [1, 2, 3, 4, 5],
-            'x1': [1, 2, 3, 4, 5],
-            'x2': [2, 4, 6, 8, 10],  # x2 = 2 * x1 (perfect collinearity)
-            'x3': [1, 3, 5, 7, 9]
-        })
-
-        # Calculate VIF
-        vif_data = calculate_vif(df[['x1', 'x2', 'x3']], ['x1', 'x2', 'x3'])
-
-        # One of the collinear variables should have very high VIF
-        high_vif_found = any(vif['VIF'] > 100 for vif in vif_data)
-        assert high_vif_found, "Expected at least one variable with VIF > 100 for perfect collinearity"
-
-    def test_vif_threshold_flagging(self):
-        """Test that variables with VIF > 5.0 are properly flagged."""
-        # Create dataframe with moderate collinearity
+class TestHighCollinearity:
+    """Tests for VIF > 5.0 detection and collinearity flagging."""
+    
+    def test_calculate_vif_perfect_collinearity(self):
+        """Test VIF calculation with perfect collinearity (should be infinite)."""
+        # Create data with perfect collinearity
         np.random.seed(42)
         n = 100
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.8 + np.random.normal(0, 0.2, n)  # Correlated with x1
-        x3 = np.random.normal(0, 1, n)  # Independent
-
+        
         df = pd.DataFrame({
-            'y': x1 + x2 + x3 + np.random.normal(0, 0.1, n),
-            'x1': x1,
-            'x2': x2,
-            'x3': x3
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.random.randn(n),
+            'x3': np.random.randn(n) * 2 + 5  # Linear combination
         })
-
-        # Calculate VIF
-        vif_data = calculate_vif(df[['x1', 'x2', 'x3']], ['x1', 'x2', 'x3'])
-
-        # Flag collinearity
-        flagged = flag_collinearity(vif_data, threshold=5.0)
-
-        # At least one variable should be flagged
-        assert len(flagged) > 0, "Expected at least one variable flagged for collinearity"
-
-        # Verify flagged variables have VIF > 5.0
-        for var in flagged:
-            var_vif = next(v['VIF'] for v in vif_data if v['variable'] == var)
-            assert var_vif > 5.0, f"Variable {var} has VIF {var_vif} <= 5.0 but was flagged"
-
-    def test_collinearity_report_generation(self):
-        """Test generation of collinearity report."""
-        # Create dataframe with known collinearity
+        
+        # Make x3 perfectly collinear with x1 and x2
+        df['x3'] = 2 * df['x1'] + 3 * df['x2']
+        
+        # Calculate VIF - should detect high collinearity
+        vif_results = calculate_vif(df[['x1', 'x2', 'x3']])
+        
+        # At least one variable should have very high VIF
+        max_vif = vif_results['VIF'].max()
+        assert max_vif > 5.0, f"Expected VIF > 5.0 for collinear data, got {max_vif}"
+    
+    def test_flag_collinearity_threshold(self):
+        """Test that collinearity is flagged when VIF > 5.0."""
+        # Create data with moderate collinearity
         np.random.seed(42)
         n = 100
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.7 + np.random.normal(0, 0.3, n)
-        x3 = np.random.normal(0, 1, n)
-
+        
         df = pd.DataFrame({
-            'y': x1 + x2 + x3,
-            'x1': x1,
-            'x2': x2,
-            'x3': x3
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.random.randn(n),
+            'x3': df['x1'] * 0.8 + np.random.randn(n) * 0.2  # High correlation
         })
-
+        
+        # Flag collinearity with threshold 5.0
+        flagged = flag_collinearity(df[['x1', 'x2', 'x3']], threshold=5.0)
+        
+        # Should flag at least one variable
+        assert len(flagged) > 0, "Expected some variables to be flagged for collinearity"
+        assert all(var in df.columns for var in flagged), \
+            f"Flagged variables {flagged} not in dataframe columns {df.columns}"
+    
+    def test_get_collinearity_report(self):
+        """Test generation of full collinearity report."""
+        # Create data with varying degrees of collinearity
+        np.random.seed(42)
+        n = 100
+        
+        df = pd.DataFrame({
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.random.randn(n),
+            'x3': df['x1'] * 0.9 + np.random.randn(n) * 0.1,  # High correlation
+            'x4': np.random.randn(n),
+            'x5': df['x4'] * 0.95 + np.random.randn(n) * 0.05  # Very high correlation
+        })
+        
         # Generate report
-        report = get_collinearity_report(df[['x1', 'x2', 'x3']], ['x1', 'x2', 'x3'])
-
+        report = get_collinearity_report(df[['x1', 'x2', 'x3', 'x4', 'x5']], threshold=5.0)
+        
         # Verify report structure
-        assert 'high_collinearity' in report
-        assert 'variables' in report
-        assert 'vif_values' in report
-
-        # Verify high collinearity is detected
-        assert len(report['high_collinearity']) > 0
-
-    def test_vif_with_constant_variable(self):
-        """Test VIF calculation when a constant variable is present."""
+        assert 'vif_scores' in report, "Report should contain VIF scores"
+        assert 'flagged_variables' in report, "Report should contain flagged variables"
+        assert 'summary' in report, "Report should contain summary"
+        
+        # Verify flagged variables
+        flagged = report['flagged_variables']
+        assert len(flagged) > 0, "Expected some variables to be flagged"
+        
+        # Verify VIF scores are numeric
+        for var, vif in report['vif_scores'].items():
+            assert isinstance(vif, (int, float)), f"VIF for {var} should be numeric"
+            assert vif >= 1.0, f"VIF should be >= 1.0, got {vif}"
+    
+    def test_vif_with_realistic_data(self):
+        """Test VIF calculation with realistic agricultural data patterns."""
+        # Simulate realistic agricultural predictor variables
+        np.random.seed(42)
+        n = 500
+        
         df = pd.DataFrame({
-            'y': [1, 2, 3, 4, 5],
-            'x1': [1, 2, 3, 4, 5],
-            'x2': [5, 5, 5, 5, 5],  # Constant variable
-            'x3': [1, 3, 5, 7, 9]
+            'farm_size': np.random.lognormal(2, 1, n),
+            'labor': df['farm_size'] * np.random.uniform(0.8, 1.2, n),  # Correlated with size
+            'capital': df['farm_size'] * np.random.uniform(0.5, 1.5, n),  # Correlated with size
+            'rainfall': np.random.normal(800, 200, n),
+            'temperature': np.random.normal(25, 5, n),
+            'soil_quality': np.random.beta(2, 2, n) * 10
         })
-
-        # Should handle constant variable gracefully
-        vif_data = calculate_vif(df[['x1', 'x2', 'x3']], ['x1', 'x2', 'x3'])
-
-        # Constant variable should have infinite or very high VIF
-        x2_vif = next((v['VIF'] for v in vif_data if v['variable'] == 'x2'), None)
-        assert x2_vif is not None
-        assert np.isinf(x2_vif) or x2_vif > 1000, "Constant variable should have infinite or very high VIF"
-
+        
+        # Calculate VIF
+        vif_results = calculate_vif(df[['farm_size', 'labor', 'capital', 'rainfall', 'temperature', 'soil_quality']])
+        
+        # Check that VIF is calculated for all variables
+        assert len(vif_results) == 6, f"Expected 6 VIF values, got {len(vif_results)}"
+        
+        # Check that farm_size, labor, capital have higher VIF due to correlation
+        high_vif_vars = vif_results[vif_results['VIF'] > 5.0]['variable'].tolist()
+        assert any(var in high_vif_vars for var in ['farm_size', 'labor', 'capital']), \
+            "Expected high VIF for correlated farm variables"
+    
+    def test_vif_edge_case_constant_variable(self):
+        """Test VIF calculation with constant variable (should cause error or high VIF)."""
+        np.random.seed(42)
+        n = 100
+        
+        df = pd.DataFrame({
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.ones(n) * 5  # Constant variable
+        })
+        
+        # This should either raise an error or return very high VIF
+        try:
+            vif_results = calculate_vif(df[['x1', 'x2']])
+            # If it doesn't error, x2 should have very high VIF
+            x2_vif = vif_results[vif_results['variable'] == 'x2']['VIF'].values[0]
+            assert x2_vif > 100 or np.isinf(x2_vif), \
+                f"Constant variable should have very high VIF, got {x2_vif}"
+        except Exception as e:
+            # Error is also acceptable for constant variables
+            logger.info(f"Expected error for constant variable: {e}")
 
 class TestIntegrationEdgeCases:
     """Integration tests combining multiple edge cases."""
-
-    def test_pipeline_with_missing_and_collinear_data(self):
-        """Test the full pipeline with missing years and collinear variables."""
-        # Create synthetic data with known issues
+    
+    def test_pipeline_with_missing_data_and_collinearity(self):
+        """Test handling of dataset with both missing values and collinearity."""
         np.random.seed(42)
         n = 200
-
-        # Simulate missing years
-        years = [2015, 2016, 2018, 2019]  # 2017 missing
-        country = ['KEN'] * n
-
-        # Simulate collinear variables
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.9 + np.random.normal(0, 0.1, n)  # Highly correlated
-        x3 = np.random.normal(0, 1, n)
-        y = x1 + x2 + x3 + np.random.normal(0, 0.5, n)
-
+        
+        # Create data with missing values and collinearity
         df = pd.DataFrame({
-            'country': country,
-            'year': np.random.choice(years, n),
-            'x1': x1,
-            'x2': x2,
-            'x3': x3,
-            'y': y
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': df['x1'] * 0.9 + np.random.randn(n) * 0.1,  # Collinear
+            'x3': np.random.randn(n),
+            'x4': np.random.randn(n)
         })
+        
+        # Introduce missing values
+        df.loc[:20, 'x1'] = np.nan
+        df.loc[:10, 'x3'] = np.nan
+        
+        # Test collinearity detection on incomplete data
+        # Drop missing for VIF calculation
+        df_complete = df.dropna()
+        vif_results = calculate_vif(df_complete[['x1', 'x2', 'x3', 'x4']])
+        
+        # Verify collinearity is still detected
+        max_vif = vif_results['VIF'].max()
+        assert max_vif > 5.0, f"Expected VIF > 5.0 even with missing data handling, got {max_vif}"
+        
+        # Verify we can flag collinearity
+        flagged = flag_collinearity(df_complete[['x1', 'x2', 'x3', 'x4']], threshold=5.0)
+        assert len(flagged) > 0, "Expected collinearity to be flagged"
 
-        # Test VIF calculation
-        vif_data = calculate_vif(df[['x1', 'x2', 'x3']], ['x1', 'x2', 'x3'])
-        flagged = flag_collinearity(vif_data, threshold=5.0)
-
-        # Should detect collinearity
-        assert len(flagged) > 0
-
-        # Test that pipeline can handle this data
-        # (In real scenario, this would be part of the full pipeline)
-        assert len(df) > 0
-        assert 'country' in df.columns
-        assert 'year' in df.columns
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

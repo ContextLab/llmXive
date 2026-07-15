@@ -1,3 +1,1 @@
-"""
-Unit tests package.
-"""
+"""Unit tests package for climate-smart agriculture pipeline."""
