@@ -1,122 +1,180 @@
 """
-Visualization module for generating scatter plots and time-series overlays.
-Includes optimal lag annotation and correct axis labels/units.
+Visualization module for solar wind and geomagnetic tail reconnection analysis.
+File: code/viz/plots.py
 """
 import os
+from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy import stats
-from typing import Optional, Tuple
+
+from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE
+
 
 def plot_scatter(
-    vsw: pd.Series,
-    ey: pd.Series,
-    optimal_lag: int,
+    df: pd.DataFrame,
+    optimal_lag: Optional[int] = None,
     output_path: Optional[str] = None
-) -> None:
+) -> Tuple[plt.Figure, plt.Axes]:
     """
     Generate a scatter plot of lag-adjusted Vsw vs. Ey with regression line.
 
-    Args:
-        vsw: Solar wind speed series (km/s).
-        ey: Tail reconnection proxy series (mV/m).
-        optimal_lag: Optimal lag in minutes.
-        output_path: Path to save the plot. If None, plot is shown.
-    """
-    # Drop NaN pairs
-    valid_mask = vsw.notna() & ey.notna()
-    vsw_valid = vsw[valid_mask]
-    ey_valid = ey[valid_mask]
+    Includes:
+    - Correct axis labels with units (km/s for Vsw, mV/m for Ey)
+    - Linear regression line and equation display
+    - Optimal lag annotation if provided
 
-    if len(vsw_valid) < 2:
-        raise ValueError("Insufficient valid data points for scatter plot.")
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with columns 'Vsw' and 'Ey'.
+    optimal_lag : int, optional
+        Optimal lag in minutes to annotate on the plot.
+    output_path : str, optional
+        Path to save the figure. If None, figure is not saved.
+
+    Returns
+    -------
+    fig, ax : matplotlib Figure, Axes
+        The generated plot objects.
+    """
+    if 'Vsw' not in df.columns or 'Ey' not in df.columns:
+        raise ValueError("DataFrame must contain 'Vsw' and 'Ey' columns.")
+
+    # Drop NaNs for plotting
+    plot_data = df[['Vsw', 'Ey']].dropna()
+    if len(plot_data) < 2:
+        raise ValueError("Not enough data points for scatter plot after NaN removal.")
+
+    x = plot_data['Vsw'].values
+    y = plot_data['Ey'].values
+
+    # Perform linear regression
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 
     fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(x, y, alpha=0.6, edgecolors='k', s=20, label='Data')
 
-    # Scatter points
-    ax.scatter(vsw_valid, ey_valid, alpha=0.6, label='Data points', s=20)
-
-    # Linear regression line
-    slope, intercept, r_value, p_value, std_err = stats.linregress(vsw_valid, ey_valid)
-    x_line = np.linspace(vsw_valid.min(), vsw_valid.max(), 100)
+    # Plot regression line
+    x_line = np.linspace(x.min(), x.max(), 100)
     y_line = slope * x_line + intercept
-    ax.plot(x_line, y_line, 'r-', label=f'Fit: r={r_value:.3f}', linewidth=2)
+    ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Fit: y={slope:.4f}x+{intercept:.4f}\nR²={r_value**2:.4f}')
 
-    # Annotations
-    ax.set_xlabel('Solar Wind Speed Vsw (km/s)', fontsize=12)
-    ax.set_ylabel('Tail Reconnection Proxy Ey (mV/m)', fontsize=12)
-    ax.set_title(f'Scatter Plot: Vsw vs Ey (Optimal Lag = {optimal_lag} min)', fontsize=14)
-    ax.legend(loc='best')
+    ax.set_xlabel('Solar Wind Speed (Vsw) [km/s]', fontsize=12)
+    ax.set_ylabel('Tail Reconnection Rate (Ey) [mV/m]', fontsize=12)
+    ax.set_title('Solar Wind Speed vs. Geomagnetic Tail Reconnection Rate', fontsize=14)
+    ax.legend(loc='upper left')
     ax.grid(True, linestyle='--', alpha=0.7)
 
-    # Save or show
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-    else:
-        plt.show()
-
-def plot_timeseries(
-    df_sw: pd.DataFrame,
-    df_ey: pd.DataFrame,
-    optimal_lag: int,
-    output_path: Optional[str] = None
-) -> None:
-    """
-    Generate dual-axis time-series overlay of Vsw and Ey.
-
-    Args:
-        df_sw: DataFrame with 'timestamp' and 'Vsw'.
-        df_ey: DataFrame with 'timestamp' and 'Ey'.
-        optimal_lag: Optimal lag in minutes.
-        output_path: Path to save the plot. If None, plot is shown.
-    """
-    # Ensure timestamp is datetime
-    if 'timestamp' not in df_sw.columns or 'timestamp' not in df_ey.columns:
-        raise ValueError("DataFrames must contain 'timestamp' column.")
-
-    df_sw_plot = df_sw.set_index('timestamp').dropna()
-    df_ey_plot = df_ey.set_index('timestamp').dropna()
-
-    # Align indices for plotting (inner join)
-    common_index = df_sw_plot.index.intersection(df_ey_plot.index)
-    if len(common_index) == 0:
-        raise ValueError("No common timestamps between Vsw and Ey data.")
-
-    fig, ax1 = plt.subplots(figsize=(14, 6))
-
-    # Plot Vsw on left axis
-    color_vsw = 'tab:blue'
-    ax1.set_xlabel('Time', fontsize=12)
-    ax1.set_ylabel('Vsw (km/s)', color=color_vsw, fontsize=12)
-    ax1.plot(common_index, df_sw_plot.loc[common_index, 'Vsw'], color=color_vsw, label='Vsw')
-    ax1.tick_params(axis='y', labelcolor=color_vsw)
-    ax1.grid(True, linestyle='--', alpha=0.3)
-
-    # Plot Ey on right axis
-    ax2 = ax1.twinx()
-    color_ey = 'tab:red'
-    ax2.set_ylabel('Ey (mV/m)', color=color_ey, fontsize=12)
-    ax2.plot(common_index, df_ey_plot.loc[common_index, 'Ey'], color=color_ey, label='Ey', alpha=0.7)
-    ax2.tick_params(axis='y', labelcolor=color_ey)
-
-    # Title and annotation
-    title = f'Time Series: Vsw and Ey (Optimal Lag = {optimal_lag} min)'
-    fig.suptitle(title, fontsize=14, fontweight='bold')
-
-    # Combine legends
-    lines1, labels1 = ax1.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+    # Annotate optimal lag if provided
+    if optimal_lag is not None:
+        annotation_text = f'Optimal Lag: {optimal_lag} min'
+        ax.text(0.05, 0.95, annotation_text, transform=ax.transAxes,
+                fontsize=11, verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
     plt.tight_layout()
 
-    # Save or show
     if output_path:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        fig.savefig(output_path, dpi=300)
         plt.close(fig)
-    else:
-        plt.show()
+
+    return fig, ax
+
+
+def plot_timeseries(
+    df_vsw: pd.DataFrame,
+    df_ey: pd.DataFrame,
+    optimal_lag: Optional[int] = None,
+    output_path: Optional[str] = None
+) -> Tuple[plt.Figure, plt.Axes]:
+    """
+    Generate a dual-axis time-series overlay of Vsw and Ey.
+
+    Includes:
+    - Timestamp on x-axis
+    - Left y-axis for Vsw [km/s]
+    - Right y-axis for Ey [mV/m]
+    - Optimal lag annotation if provided
+
+    Parameters
+    ----------
+    df_vsw : pd.DataFrame
+        DataFrame with 'timestamp' and 'Vsw' columns.
+    df_ey : pd.DataFrame
+        DataFrame with 'timestamp' and 'Ey' columns.
+    optimal_lag : int, optional
+        Optimal lag in minutes to annotate.
+    output_path : str, optional
+        Path to save the figure.
+
+    Returns
+    -------
+    fig, ax : matplotlib Figure, Axes
+        The generated plot objects.
+    """
+    # Ensure timestamp is datetime and set as index for alignment
+    if 'timestamp' in df_vsw.columns:
+        df_vsw = df_vsw.set_index('timestamp')
+    if 'timestamp' in df_ey.columns:
+        df_ey = df_ey.set_index('timestamp')
+
+    # Align indices
+    common_index = df_vsw.index.intersection(df_ey.index)
+    if len(common_index) == 0:
+        raise ValueError("No common timestamps between Vsw and Ey data.")
+
+    vsw_series = df_vsw.loc[common_index, 'Vsw'].dropna()
+    ey_series = df_ey.loc[common_index, 'Ey'].dropna()
+
+    # Re-align after dropna
+    common_index_final = vsw_series.index.intersection(ey_series.index)
+    if len(common_index_final) == 0:
+        raise ValueError("No valid data points after NaN removal.")
+
+    vsw_plot = vsw_series.loc[common_index_final]
+    ey_plot = ey_series.loc[common_index_final]
+
+    fig, ax1 = plt.subplots(figsize=(14, 6))
+
+    color_vsw = 'tab:blue'
+    ax1.set_xlabel('Time', fontsize=12)
+    ax1.set_ylabel('Solar Wind Speed (Vsw) [km/s]', color=color_vsw, fontsize=12)
+    ax1.plot(vsw_plot.index, vsw_plot.values, color=color_vsw, label='Vsw', linewidth=1.5)
+    ax1.tick_params(axis='y', labelcolor=color_vsw)
+    ax1.grid(True, linestyle='--', alpha=0.3)
+
+    ax2 = ax1.twinx()
+    color_ey = 'tab:red'
+    ax2.set_ylabel('Tail Reconnection Rate (Ey) [mV/m]', color=color_ey, fontsize=12)
+    ax2.plot(ey_plot.index, ey_plot.values, color=color_ey, label='Ey', linewidth=1.5, alpha=0.8)
+    ax2.tick_params(axis='y', labelcolor=color_ey)
+
+    # Combine legends
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
+
+    plt.title('Time Series: Solar Wind Speed and Tail Reconnection Rate', fontsize=14)
+
+    # Annotate optimal lag
+    if optimal_lag is not None:
+        annotation_text = f'Optimal Lag: {optimal_lag} min'
+        ax1.text(0.05, 0.95, annotation_text, transform=ax1.transAxes,
+                 fontsize=11, verticalalignment='top',
+                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    plt.tight_layout()
+
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        fig.savefig(output_path, dpi=300)
+        plt.close(fig)
+
+    return fig, ax1
+
+
+# Import stats locally to avoid circular dependency issues if any,
+# though scipy.stats is standard.
+from scipy import stats

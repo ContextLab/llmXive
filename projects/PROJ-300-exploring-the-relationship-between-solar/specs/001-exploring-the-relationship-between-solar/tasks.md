@@ -169,7 +169,7 @@ L_phys = (k * 6371) / Vsw_mean / k` (FR-012) and apply lag shifts to time series
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.
+- [X] T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.
  - **Deliverable**: Generate `results/plot_scatter.png` and `results/plot_timeseries.png`.
 - [ ] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s (FR-007).
  - **Deliverable**: Update `results/us1_correlation.json` to include `sensitivity_table`.
@@ -196,7 +196,7 @@ L_phys = (k * 6371) / Vsw_mean / k` (FR-012) and apply lag shifts to time series
  - **Test Function**: `test_us1_full_pipeline` verifying JSON output keys.
 - [ ] T035 [P] Write unit tests for permutation test logic in `tests/unit/test_correlation.py` (FR-005).
  - **Test Functions**: `test_permutation_block_size`, `test_permutation_p_value_calculation`.
-- [~] T036 [P] Write unit tests for lag sweep logic in `tests/unit/test_lag_search.py` (FR-010).
+- [ ] T036 [P] Write unit tests for lag sweep logic in `tests/unit/test_lag_search.py` (FR-010).
  - **Test Functions**: `test_lag_sweep_window`, `test_optimal_lag_identification`.
 - [ ] T037 [P] Write integration test for synthetic dataset validation in `tests/integration/test_synthetic.py` (US-2 Independent Test).
  - **Test Function**: `test_synthetic_lag_45min` verifying ±1 min accuracy.

@@ -1,15 +1,4 @@
-T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.: 2
-"T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T \u2208 {400, 500, 600} km/s (FR-007).": 2
-T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run.: 2
-? T030 [US3] Verify all plots load without error, include correct labels/units, and
-  show the optimal lag annotation (SC-005).
-: 1
-? T031 [US3] Verify the sensitivity table correctly reports correlation magnitude
-  for each threshold (US-3 Acceptance Scenario 2).
-: 1
-T032 [P] Write unit tests for `data/clean.py` in `tests/unit/test_clean.py` (FR-003).: 1
-T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).: 1
-? T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py`
-  (US-1 Independent Test).
-: 1
-T035 [P] Write unit tests for permutation test logic in `tests/unit/test_correlation.py` (FR-005).: 1
+T028: 2
+T029: 1
+T030: 1
+T036: 1
