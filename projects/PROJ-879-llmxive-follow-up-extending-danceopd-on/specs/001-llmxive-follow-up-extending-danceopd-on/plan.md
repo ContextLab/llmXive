@@ -42,7 +42,7 @@ References: [Insert DOI/arXiv/author-year here]; dynamic sample size for evaluat
 | **III. Data Hygiene** | **Compliant** | Plan defines `data/raw` (immutable downloads) and `data/processed` (immutable derived artifacts). Checksumming strategy included in `research.md`. |
 | **IV. Single Source of Truth** | **Compliant** | Metrics (FID/CLIP) will be computed by code and stored in `data/results/` before being referenced in any report. |
 | **V. Versioning Discipline** | **Compliant** | Artifact hashes will be recorded in `state/...yaml` manifests for all generated datasets and models, distinct from `data/` storage. |
-| **VI. Routing Compressibility Benchmarking** | **Compliant** | Plan explicitly varies `max_depth` (2-20) and generates ground truth from the teacher model exclusively. |
+| **VI. Routing Compressibility Benchmarking** | **Compliant** | Plan explicitly varies `max_depth` across a range of values. and generates ground truth from the teacher model exclusively. |
 | **VII. CPU-Only Fidelity Validation** | **Compliant** | Inference loop uses `torch` CPU, simple Euler integrator, and `scikit-learn` trees. No GPU dependencies. |
 
 ## Project Structure
@@ -132,4 +132,4 @@ The following tasks are defined to guide the implementation agent. They are deri
 - **T028**: Implement fidelity evaluation logic. **Deliverable**: Create `code/models/inference.py` that evaluates ALL samples (no filtering for 'Matched-Routing') to measure total system error as per FR-005.
 - **T029**: Implement CPU-only Euler integrator. **Deliverable**: Create `code/models/euler.py` that accepts `velocity_vector`, `noise_level`, and `expert_type`, uses a fixed step size and step count, and invokes the specific expert field logic to generate the image.
 - **T030**: Implement dynamic sample size logic. **Deliverable**: Update `code/models/inference.py` to run a pilot (N=50), calculate power, and dynamically extend N if power < 0.8, up to runtime limit.
-- **T033**: Implement early-stop condition. **Deliverable**: Update `code/utils/timer.py` to use the `signal` module for 6h timeout and save partial results as JSON with a `status: partial` flag if exceeded.
+- **T033**: Implement early-stop condition. **Deliverable**: Update `code/utils/timer.py` to use the `signal` module for h timeout and save partial results as JSON with a `status: partial` flag if exceeded.
