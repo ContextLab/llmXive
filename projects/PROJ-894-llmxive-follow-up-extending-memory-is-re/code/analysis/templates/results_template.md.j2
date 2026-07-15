@@ -1,0 +1,176 @@
+# {{ report_title }}
+
+**Generated from:** {{ generated_from }}  
+**Report Date:** {{ now() }}
+
+---
+
+## Executive Summary
+
+This report presents the statistical analysis results from the llmXive study on 
+"Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents". The analysis 
+compares heuristic traversal strategies (Lazy, Greedy) against the Full baseline 
+across the LoCoMo benchmark tasks, both on clean and synthetic noisy graph datasets.
+
+---
+
+## 1. Statistical Significance Testing (Primary Dataset)
+
+### 1.1 Methodology
+
+Paired t-tests and Wilcoxon signed-rank tests were conducted to compare heuristic 
+strategies against the Full baseline on the primary LoCoMo benchmark dataset.
+
+### 1.2 Results
+
+{% if stats.get('primary_stats') %}
+{% set primary = stats.primary_stats %}
+
+#### Baseline vs. Lazy Strategy
+
+- **Mean Accuracy (Baseline):** {{ "%.4f"|format(primary.baseline_accuracy) }}
+- **Mean Accuracy (Lazy):** {{ "%.4f"|format(primary.lazy_accuracy) }}
+- **Accuracy Delta:** {{ "%.4f"|format(primary.accuracy_delta) }}
+- **Paired t-test p-value:** {{ "%.6f"|format(primary.ttest_pvalue) }}
+- **Wilcoxon p-value:** {{ "%.6f"|format(primary.wilcoxon_pvalue) }}
+- **Statistically Significant (α=0.05):** {% if primary.ttest_pvalue < 0.05 %}Yes{% else %}No{% endif %}
+
+#### Baseline vs. Greedy Strategy
+
+- **Mean Accuracy (Baseline):** {{ "%.4f"|format(primary.baseline_accuracy) }}
+- **Mean Accuracy (Greedy):** {{ "%.4f"|format(primary.greedy_accuracy) }}
+- **Accuracy Delta:** {{ "%.4f"|format(primary.greedy_delta) }}
+- **Paired t-test p-value:** {{ "%.6f"|format(primary.greedy_ttest_pvalue) }}
+- **Wilcoxon p-value:** {{ "%.6f"|format(primary.greedy_wilcoxon_pvalue) }}
+- **Statistically Significant (α=0.05):** {% if primary.greedy_ttest_pvalue < 0.05 %}Yes{% else %}No{% endif %}
+
+{% else %}
+*No primary dataset statistics available.*
+{% endif %}
+
+---
+
+## 2. Robustness Analysis (Noisy Dataset)
+
+### 2.1 Methodology
+
+Descriptive statistics and accuracy deltas were calculated for heuristic strategies 
+evaluated on synthetic noisy graph datasets to assess robustness to noise injection.
+
+### 2.2 Results
+
+{% if stats.get('noisy_stats') %}
+{% set noisy = stats.noisy_stats %}
+
+#### Noisy Baseline vs. Lazy
+
+- **Mean Accuracy (Noisy Baseline):** {{ "%.4f"|format(noisy.baseline_accuracy) }}
+- **Mean Accuracy (Noisy Lazy):** {{ "%.4f"|format(noisy.lazy_accuracy) }}
+- **Accuracy Delta:** {{ "%.4f"|format(noisy.lazy_delta) }}
+- **Baseline Std Dev:** {{ "%.4f"|format(noisy.baseline_std) }}
+- **Lazy Std Dev:** {{ "%.4f"|format(noisy.lazy_std) }}
+
+#### Noisy Baseline vs. Greedy
+
+- **Mean Accuracy (Noisy Baseline):** {{ "%.4f"|format(noisy.baseline_accuracy) }}
+- **Mean Accuracy (Noisy Greedy):** {{ "%.4f"|format(noisy.greedy_accuracy) }}
+- **Accuracy Delta:** {{ "%.4f"|format(noisy.greedy_delta) }}
+- **Baseline Std Dev:** {{ "%.4f"|format(noisy.baseline_std) }}
+- **Greedy Std Dev:** {{ "%.4f"|format(noisy.greedy_std) }}
+
+{% else %}
+*No noisy dataset statistics available.*
+{% endif %}
+
+---
+
+## 3. Correlation Analysis
+
+### 3.1 Point-Biserial Correlation
+
+Analysis of the relationship between graph traversal complexity (nodes_visited) 
+and reasoning success rate across all tasks.
+
+{% if stats.get('correlation') %}
+{% set corr = stats.correlation %}
+
+- **Correlation Coefficient (r_pb):** {{ "%.4f"|format(corr.coefficient) }}
+- **p-value:** {{ "%.6f"|format(corr.pvalue) }}
+- **Interpretation:** {% if corr.coefficient > 0.5 %}Strong positive{% elif corr.coefficient > 0.3 %}Moderate positive{% elif corr.coefficient > 0.1 %}Weak positive{% else %}Negligible{% endif %} correlation between nodes visited and success.
+
+{% else %}
+*No correlation analysis results available.*
+{% endif %}
+
+---
+
+## 4. Complexity Threshold Analysis
+
+### 4.1 Sensitivity Analysis Results
+
+Analysis of the Lazy heuristic's evidence threshold sensitivity and identification 
+of complexity thresholds where accuracy drops below 95% of baseline.
+
+{% if stats.get('threshold_analysis') %}
+{% set thresh = stats.threshold_analysis %}
+
+#### Sensitivity Sweep (Lazy Evidence Threshold)
+
+{% if thresh.sweep_results %}
+| Threshold | Mean Accuracy | Std Dev | Tasks Evaluated |
+|-----------|---------------|---------|-----------------|
+{% for row in thresh.sweep_results %}
+| {{ row.threshold }} | {{ "%.4f"|format(row.accuracy) }} | {{ "%.4f"|format(row.std_dev) }} | {{ row.n_tasks }} |
+{% endfor %}
+{% else %}
+*No sweep results available.*
+{% endif %}
+
+#### Complexity Threshold Identification
+
+- **Baseline Accuracy (95% target):** {{ "%.4f"|format(thresh.baseline_accuracy) }}
+- **Target Threshold (95% of baseline):** {{ "%.4f"|format(thresh.target_threshold) }}
+- **Identified Complexity Threshold (nodes_visited):** {{ thresh.complexity_threshold }}
+- **Bin Size (n ≥ 3):** {{ thresh.min_bin_size }}
+- **First Bin with Accuracy < Target:** 
+  - **Nodes Visited Range:** {{ thresh.threshold_bin_range }}
+  - **Mean Accuracy in Bin:** {{ "%.4f"|format(thresh.threshold_bin_accuracy) }}
+
+{% else %}
+*No threshold analysis results available.*
+{% endif %}
+
+---
+
+## 5. Conclusions
+
+Based on the statistical analysis:
+
+1. **Primary Dataset:** {% if stats.get('primary_stats') and stats.primary_stats.ttest_pvalue < 0.05 %}
+   The heuristic strategies show statistically significant differences from the 
+   Full baseline (p < 0.05).
+   {% else %}
+   No statistically significant difference was detected between heuristic strategies 
+   and the Full baseline at α=0.05.
+   {% endif %}
+
+2. **Robustness:** {% if stats.get('noisy_stats') and stats.noisy_stats.lazy_delta > 0 %}
+   The Lazy strategy maintains or improves accuracy under noisy conditions, 
+   suggesting robustness to graph noise.
+   {% elif stats.get('noisy_stats') %}
+   Performance under noisy conditions varies; further analysis recommended.
+   {% else %}
+   Noisy dataset analysis not available.
+   {% endif %}
+
+3. **Complexity Threshold:** {% if stats.get('threshold_analysis') %}
+   A complexity threshold of {{ stats.threshold_analysis.complexity_threshold }} 
+   nodes was identified where heuristic performance begins to degrade significantly 
+   (below 95% of baseline accuracy).
+   {% else %}
+   Complexity threshold analysis not available.
+   {% endif %}
+
+---
+
+*Report auto-generated by code/analysis/report_generator.py from data/processed/stats_report.json*

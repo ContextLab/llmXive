@@ -1,0 +1,150 @@
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: LLM inference engine logs token counts and latency as primary metrics
+  claim_id: c_8dffd940
+  context: Implement core LLM inference engine wrapper using llama-cpp-python (CPU
+    only) that accepts a configurable model path (via config.py) for real inference
+    (NO mocks) and logging token counts and latency as primary metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LLM_inference_engine_logs_token_counts_and_latency_as_primar
+  kind: entity_fact
+  raw_text: The system logs token counts and latency as primary metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:49:46Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Default model downloads TheBloke/Llama-2-7B-Chat-GGUF Q4_K_M via huggingface_hub
+  claim_id: c_8f8c592b
+  context: 'Default Model: MUST include logic to download TheBloke/Llama-2-7B-Chat-GGUF
+    (Q4_K_M quantization) via huggingface_hub if no local path is provided, ensuring
+    deterministic execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default model logic downloads TheBloke/Llama-2-7B-Chat-GGUF (Q4_K_M
+    quantization) via huggingface_hub if no local path is provided.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:03Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Data download fetches locomo/locomo-benchmark from HuggingFace
+  claim_id: c_82d7f3a5
+  context: 'Implement data download script to fetch LoCoMo benchmark subset from HuggingFace
+    dataset locomo/locomo-benchmark (split: test, columns: question, context, answer)
+    and generate synthetic noisy graph dataset'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_download_fetches_locomo/locomo-benchmark_from_HuggingFa
+  kind: entity_fact
+  raw_text: The data download script fetches the LoCoMo benchmark subset from the
+    HuggingFace dataset locomo/locomo-benchmark.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:54Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep uses Lazy heuristic thresholds 0.7 and 0.9
+  claim_id: c_7700c1a9
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values , 0.7, 0.9) and output results to data/processed/sweep_results.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep for the Lazy heuristic evidence threshold
+    uses values 0.7 and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:10Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Point-Biserial correlation calculated between nodes_visited and reasoning
+    success rate
+  claim_id: c_89bb50c3
+  context: Implement correlation analysis script (Point-Biserial) between nodes_visited
+    and reasoning success rate across all tasks
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-Biserial_correlation_calculated_between_nodes_visited
+  kind: entity_fact
+  raw_text: The correlation analysis script calculates the Point-Biserial correlation
+    between nodes_visited and reasoning success rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:30Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis bins dataset with minimum 3 tasks per bin
+  claim_id: c_02f83580
+  context: "binning the full dataset of nodes_visited and success flags (from all\
+    \ primary and noisy result CSVs) into bins such that each bin contains at least\
+    \ 3 tasks (n \u2265 3)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_bins_dataset_with_minimum_3_tasks_per_b
+  kind: magnitude
+  raw_text: The sensitivity analysis bins the dataset such that each bin contains
+    at least 3 tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:52:00Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis identifies first bin with mean accuracy below 95%
+    baseline
+  claim_id: c_097deb37
+  context: identifying the first bin with mean accuracy < 95% baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis identifies the first bin where mean accuracy
+    drops below 95% of the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:52:00Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Optimization target reduces average task latency by at least 15% in full.py
+  claim_id: c_af88ec78
+  context: identify the top hotspots, and implement optimizations to reduce average
+    task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimization_target_reduces_average_task_latency_by_at_least
+  kind: magnitude
+  raw_text: The optimization task aims to reduce average task latency by at least
+    15% in the full.py traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:52:19Z'

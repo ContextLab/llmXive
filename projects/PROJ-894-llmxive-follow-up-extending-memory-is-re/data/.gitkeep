@@ -1,0 +1,2 @@
+# Data directory for raw and processed datasets.
+# Do not commit large binary files; use .gitignore for data artifacts.

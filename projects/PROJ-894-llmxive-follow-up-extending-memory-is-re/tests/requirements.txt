@@ -1,0 +1,5 @@
+pytest>=7.0.0
+pytest-cov>=4.0.0
+# Ensure dependencies from main requirements are available
+# Note: In a real environment, these would be installed via the main requirements.txt
+# listed in T001b. This file is for explicit test dependencies if any.

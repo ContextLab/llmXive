@@ -1,0 +1,22 @@
+[run]
+source = code
+omit =
+    */tests/*
+    */__pycache__/*
+    code/runner.py
+    code/inference.py
+    code/data_loader.py
+branch = True
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+show_missing = True
+fail_under = 0
+precision = 2

@@ -1,0 +1,4 @@
+# This file is a placeholder.
+# Dependencies are defined in code/requirements.txt as per T001b.
+# This ensures the root directory has a requirements reference if needed.
+-r code/requirements.txt
