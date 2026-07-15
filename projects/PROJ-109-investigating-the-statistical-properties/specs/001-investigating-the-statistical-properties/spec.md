@@ -106,7 +106,7 @@ Perform Kolmogorov-Smirnov tests and Spearman correlations to assess deviations 
 - Halos with ≥300 particles provide sufficient statistical power for reliable structural measurements (shape, spin, concentration)
 - A spherical top-hat for local overdensity computation is a defensible community-standard choice for large-scale environment classification.
 - NFW profile fitting via scipy.optimize.curve_fit achieves convergence for a majority of halos with ≥300 particles; failed fits are excluded from concentration analysis
-- The GitHub Actions free-tier runner (multiple CPU cores, sufficient RAM, approximately 14 GB disk) is sufficient for processing both catalogs with sampling/subsetting if needed to fit memory constraints
+- The GitHub Actions free-tier runner (multiple CPU cores, sufficient RAM, sufficient disk) is sufficient for processing both catalogs with sampling/subsetting if needed to fit memory constraints
 - No GPU/CUDA accelerators are required; all methods (KDE, KS tests, curve fitting, Spearman correlation) are CPU-tractable
 - The Millennium Simulation (and Millennium-2) provides full 6D phase-space data (positions and velocities) for all particles and halos. The spin parameter λ will be computed using these velocity fields from the public `galaxy` or `subhalo` catalog tables (specifically `SubhaloVelocities`). (See US-2)
 - The IllustrisTNG and Millennium catalogs provide particle positions but do not pre-compute local overdensity for every halo in the summary tables. FR-003 mandates computing local overdensity via a spherical top-hat of 5 Mpc h⁻¹ radius using cKDTree neighbor counting on the provided particle/subhalo positions. (See US-2)

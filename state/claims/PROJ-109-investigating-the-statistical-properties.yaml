@@ -1,0 +1,720 @@
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Compare halo metrics against Bullock et al. 2001 analytic fit
+  claim_id: c_0940b987
+  context: Implement comparison against Bullock et al. (2001) analytic fit and calculate
+    deviation statistics in code/analysis/stats.py (FR-011)
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "tion with \u03C3log c = 0 .14 dex. Other numerical studies have"
+      source_id: astro-ph/0402210
+      url: https://arxiv.org/abs/astro-ph/0402210
+      value: '14'
+    filled: true
+  kind: numeric
+  raw_text: Implement comparison against Bullock et al. (2001) analytic fit and calculate
+    deviation statistics
+  resolved_value: '14'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T09:19:00Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 'Default Bullock et al. 2001 parameters: c_200=10, alpha=-0.1'
+  claim_id: c_bafd7cbc
+  context: 'include fallback behavior if citation validation fails: default to standard
+    Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1) and log the fallback
+    event'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha
+    = -0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:19:15Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Default Bullock et al. 2001 parameters c_200=10 and alpha=-0.1
+  claim_id: c_6420751d
+  context: 'T035 [P] [US3] {{claim:c_0940b987}} (astro-ph/0402210, https://arxiv.org/abs/astro-ph/0402210)
+    in `code/analysis/stats.py` (FR-011); include fallback behavior if citation validation
+    fails: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha =
+    -0.1) and log the fallback event'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'include fallback behavior if citation validation fails: default to standard
+    Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1) and log the fallback
+    event'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:20:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit parameters c_200=10 and negative alpha
+  claim_id: c_3724dc7e
+  context: T036 [US3] Implement Bullock et al. (2001) analytic fit using the standard
+    form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative
+    value.; validate these hardcoded parameters against the spec's intent; if the
+    spec's citation year is ambiguous, use these default values and log the resolution;
+    do NOT attempt to fetch external sources (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:20:35Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit parameters c_200=10 and negative alpha
+  claim_id: c_c53f6420
+  context: Task T036 specifies implementing the Bullock et al. (2001) analytic fit
+    with hardcoded parameters c_200=10 and a negative alpha if the citation year is
+    ambiguous.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:24:03Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 fallback parameters c_200=10 and alpha=-0.1
+  claim_id: c_a90b7ab4
+  context: Task T035 defines fallback behavior for citation validation failure using
+    standard Bullock et al. 2001 parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'include fallback behavior if citation validation fails: default to standard
+    Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:24:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter formula lambda = J|E|^(1/2)/(GM^(5/2))
+  claim_id: c_dbac5b85
+  context: Task T023 specifies the formula for the spin parameter calculation.
+  evidence:
+    entailment_evidence: Spin parameter formula lambda = J E ^(1/2)/(GM^(5/2))
+    entailment_status: grounded
+    object: ^(1/2)/(GM^(5/2))
+    relation: E
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Spin_parameter_formula_lambda_=_J_E_%5E(1/2)/(GM%5E(5/2))
+    source_value: https://en.wikipedia.org/wiki/Spin_parameter_formula_lambda_=_J_E_^(1/2)/(GM^(5/2))
+    subject: Spin parameter formula lambda = J
+  kind: relational
+  raw_text: "Implement spin parameter \u03BB=J|E|^(1/2)/(GM^(5/2))"
+  resolved_value: Spin parameter formula lambda = J|E|^(1/2)/(GM^(5/2))
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T09:24:22Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Perform two-sample Kolmogorov-Smirnov tests between low/high environmental
+    bins for shape, spin, and concentration
+  claim_id: c_b1451ebe
+  context: Task T032 [P] [US3] Implement two-sample KS tests between low/high environmental
+    bins for shape, spin, and concentration in code/analysis/stats.py (FR-008)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_two-sample_Kolmogorov-Smirnov_tests_between_low/high
+  kind: entity_fact
+  raw_text: Implement two-sample KS tests between low/high environmental bins for
+    shape, spin, and concentration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:27:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg correction across at least 9 Kolmogorov-Smirnov
+    tests
+  claim_id: c_dcdb9587
+  context: "Task T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple\
+    \ hypothesis testing across \u22659 KS tests in code/analysis/stats.py (FR-009);\
+    \ use threshold from code/config.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_across_at_least_9_Kolmog
+  kind: magnitude
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:28:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Use Bullock et al. 2001 analytic fit with c_200=10 and negative alpha
+  claim_id: c_821991be
+  context: Task T036 [US3] Implement Bullock et al. (2001) analytic fit using the
+    standard form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to
+    a negative value.; validate these hardcoded parameters against the spec's intent
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:28:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fallback to Bullock et al. 2001 parameters c_200=10 and alpha=-0.1
+  claim_id: c_f6622510
+  context: 'Task T035 [P] [US3] ... include fallback behavior if citation validation
+    fails: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha =
+    -0.1) and log the fallback event'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha
+    = -0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:28:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify pipeline execution completes within 6 hours on GitHub Actions
+    free-tier runner
+  claim_id: c_ce7bdccb
+  context: 'Task T043 [US3] Run quickstart.md validation and verify pipeline execution
+    within 6 hours on GitHub Actions free-tier runner (command: python code/main.py
+    --run-all; output: results/timing.json)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:28:41Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: two-sample KS tests between low/high environmental bins for shape, spin,
+    and concentration
+  claim_id: c_59224986
+  context: T032 [P] [US3] Implement two-sample KS tests between low/high environmental
+    bins for shape, spin, and concentration in code/analysis/stats.py (FR-008)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-sample_KS_tests_between_low/high_environmental_bins_for
+  kind: entity_fact
+  raw_text: Implement two-sample KS tests between low/high environmental bins for
+    shape, spin, and concentration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:29:28Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for multiple hypothesis testing across
+    9 KS tests
+  claim_id: c_4fa74058
+  context: "T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis\
+    \ testing across \u22659 KS tests in code/analysis/stats.py (FR-009); use threshold\
+    \ from code/config.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:29:28Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: standard Bullock et al. 2001 parameters c_200 10 alpha -0.1
+  claim_id: c_bdb1ef9f
+  context: 'T035 [P] [US3] {{claim:c_0940b987}} (astro-ph/0402210, https://arxiv.org/abs/astro-ph/0402210)
+    in code/analysis/stats.py (FR-011); include fallback behavior if citation validation
+    fails: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha =
+    -0.1) and log the fallback event'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha
+    = -0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:29:28Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: default Bullock et al. 2001 parameters c_200 10 alpha negative value
+  claim_id: c_0b0038ad
+  context: T036 [US3] Implement Bullock et al. (2001) analytic fit using the standard
+    form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative
+    value.; validate these hardcoded parameters against the spec's intent; if the
+    spec's citation year is ambiguous, use these default values and log the resolution;
+    do NOT attempt to fetch external sources (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: validate these hardcoded parameters against the spec's intent; if the
+    spec's citation year is ambiguous, use these default values and log the resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:29:29Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: two-sample KS tests for shape spin and concentration between low and
+    high environmental bins
+  claim_id: c_ea5ff7fc
+  context: Phase 5, User Story 3, Implementation T032
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-sample_KS_tests_for_shape_spin_and_concentration_between
+  kind: entity_fact
+  raw_text: Implement two-sample KS tests between low/high environmental bins for
+    shape, spin, and concentration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:30:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied across 9 or more KS tests
+  claim_id: c_626cd5c9
+  context: Phase 5, User Story 3, Implementation T033
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:30:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit c(M) = 10 * (M/M_200)^alpha with negative
+    alpha
+  claim_id: c_44961f2e
+  context: Phase 5, User Story 3, Implementation T036
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:30:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: default Bullock et al. 2001 parameters c_200 = 10 and alpha = -0.1
+  claim_id: c_e5c14bc2
+  context: Phase 5, User Story 3, Implementation T035
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha
+    = -0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:30:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: validate hardcoded Bullock parameters against spec intent; use defaults
+    if citation year ambiguous
+  claim_id: c_e6d160ff
+  context: Phase 5, User Story 3, Implementation T036
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_hardcoded_Bullock_parameters_against_spec_intent;_u
+  kind: entity_fact
+  raw_text: validate these hardcoded parameters against the spec's intent; if the
+    spec's citation year is ambiguous, use these default values and log the resolution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:31:00Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline execution within 6 hours on GitHub Actions free-tier runner
+  claim_id: c_a456b7ec
+  context: Phase N, Polish & Cross-Cutting Concerns, Task T043
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:31:00Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution within 6 hours on GitHub Actions free-tier
+  claim_id: c_f2286f8f
+  context: Phase N, Polish & Cross-Cutting Concerns, Task T043
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (command: python code/main.py --run-all; output:
+    results/timing.json)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:31:54Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to 9 or more KS tests
+  claim_id: c_decadb70
+  context: "T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis\
+    \ testing across \u22659 KS tests in `code/analysis/stats.py` (FR-009)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:41:00Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 'Bullock et al. fallback parameters: c_200 10, alpha -0.1'
+  claim_id: c_d38de2a1
+  context: 'T035 [P] [US3] ... include fallback behavior if citation validation fails:
+    default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fallback parameters c_200 = 10 and alpha = -0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:41:27Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit reference
+  claim_id: c_f57e39d6
+  context: T035 [P] [US3] {{claim:c_0940b987}} (astro-ph/0402210, https://arxiv.org/abs/astro-ph/0402210)
+    in `code/analysis/stats.py` (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference Bullock et al. 2001 for analytic fit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:41:43Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Subsampled Plummer-Softened Potential using 500 particles
+  claim_id: c_004140af
+  context: T023 [US2] ... using Subsampled Plummer-Softened Potential (N=500 particles)
+    via T007C
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement subsampled approach using 500 particles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:42:01Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering threshold of 300 particles
+  claim_id: c_8394fa81
+  context: "T013 [US1] Implement halo filtering logic in `code/data/preprocess.py`\
+    \ to retain only halos with \u2265300 particles"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Among them, only those halos comprising more than 300 dark matter particles
+        were selected
+      source_id: '0906.5166'
+      url: https://arxiv.org/abs/0906.5166
+      value: '300'
+    filled: true
+  kind: numeric
+  raw_text: Filter halos to retain those with 300 or more particles
+  resolved_value: '300'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T09:42:29Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Target I/O reduction 50 percent
+  claim_id: c_7484d6ef
+  context: 'T041A [P] Performance optimization: Implement memory-mapped array access
+    for particle stream in `code/data/compute_metrics.py` (target: reduce I/O by at
+    least 50% or achieve high throughput)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_I/O_reduction_50_percent
+  kind: magnitude
+  raw_text: Target I/O reduction of at least 50%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:42:57Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_54c9eec9
+  context: T043 [US3] Run quickstart.md validation and verify pipeline execution within
+    6 hours on GitHub Actions free-tier runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline execution within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:43:16Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Environment binning threshold delta 200
+  claim_id: c_75a09012
+  context: "T031 [US3] Implement mass binning spanning multiple orders of magnitude\
+    \ in solar mass units and environment binning (\u0394 < 200 vs \u2265 200)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Environment binning threshold at delta 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:43:31Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_b0c0d9f2
+  context: T002 Initialize Python 3.11 project with dependencies
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:43:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Black formatter line length 88
+  claim_id: c_5eeeab87
+  context: T003 [P] Configure linting (flake8/pylint) and formatting (black) tools
+    in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use black line length of 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:44:12Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Flake8 max line length 100
+  claim_id: c_d2eb9199
+  context: T003 [P] Configure linting (flake8/pylint) and formatting (black) tools
+    in `pypyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use flake8 max line length of 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:44:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Particle subsampling n 500 seed 42
+  claim_id: c_92469868
+  context: T007C [P] Create `code/data/streaming.py` function `subsample_particles(n=500,
+    seed=42)`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsample particles with n=500 and seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:44:53Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Local overdensity calculation radius 5 Mpc
+  claim_id: c_66321386
+  context: T017 [US1] ... document how the 5 Mpc radius calculation remains statistically
+    valid on a subsample (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5 Mpc radius for local overdensity calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:45:17Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Stream halos chunk size 10000
+  claim_id: c_acea1d46
+  context: T007B [P] Create `code/data/streaming.py` function `stream_halos(chunk_size=10000)`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use chunk size 10,000 for streaming halos
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:45:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Shape parameter s range 0 to 1
+  claim_id: c_7aee1ad2
+  context: "Independent Test: Can be fully tested by running the metric computation\
+    \ on a a sample of halos and verifying that output distributions match expected\
+    \ physical ranges (shape s \u2208 [0,1]...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected shape s range [0, 1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:48:01Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter lambda range 0 to 1
+  claim_id: c_1761447f
+  context: "Independent Test: Can be fully tested by running the metric computation\
+    \ on a a sample of halos and verifying that output distributions match expected\
+    \ physical ranges (...spin \u03BB \u2208 [0,1]...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected spin lambda range [0, 1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:48:18Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Concentration parameter c greater than 0
+  claim_id: c_e2cd9e74
+  context: 'Independent Test: Can be fully tested by running the metric computation
+    on a a sample of halos and verifying that output distributions match expected
+    physical ranges (...concentration c > 0).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Concentration_parameter_c_greater_than_0
+  kind: magnitude
+  raw_text: Expected concentration c > 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:50:13Z'

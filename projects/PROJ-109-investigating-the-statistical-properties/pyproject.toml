@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-dark-matter-halos"
+version = "0.1.0"
+description = "Investigating the statistical properties of simulated dark matter halos"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "requests",
+    "h5py",
+    "pyarrow",
+    "matplotlib",
+    "seaborn",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = "E203, W503"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+]
+per-file-ignores = []
+max-complexity = 10
+
+[tool.pylint.messages_control]
+disable = [
+    "C0111",
+    "C0114",
+    "C0115",
+    "C0116",
+    "R0903",
+    "W0511",
+]
+max-line-length = 100
+max-args = 10
+max-locals = 15
+max-returns = 6
+max-branches = 12
+max-statements = 50
+max-attributes = 10
+max-public-methods = 20
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"

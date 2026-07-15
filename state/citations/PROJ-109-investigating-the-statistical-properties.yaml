@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 0cd6cda53224b7fb1327d0eab7aab9f8668d2fc88efadb40923fd99d20a2aca2
+  artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[astro-ph/0402210] Dark Energy and Dark Matter Halos'
+  kind: url
+  value: https://arxiv.org/abs/astro-ph/0402210
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/astro-ph/0402210
+  verified_at: '2026-07-15T09:50:13.572318Z'

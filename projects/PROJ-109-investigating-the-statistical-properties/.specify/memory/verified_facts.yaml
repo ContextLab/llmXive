@@ -1,0 +1,6 @@
+'|filter halo more particle retain':
+  quote: Among them, only those halos comprising more than 300 dark matter particles
+    were selected
+  source_id: '0906.5166'
+  url: https://arxiv.org/abs/0906.5166
+  value: '300'

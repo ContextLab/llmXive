@@ -9,7 +9,7 @@ This project implements a statistical analysis pipeline to investigate deviation
 
 Consequently, the project scope is currently **Pipeline Validation & Methodology Stress-Testing**. The implementation falls back to a **Synthetic Data Generator** with **Controlled Deviations** (intentionally offset from NFW predictions) to validate the pipeline's ability to detect statistical anomalies. Final scientific conclusions regarding TNG/Millennium deviations are blocked pending real data availability.
 
-The implementation is constrained to CPU-only execution on free-tier CI (limited CPU cores, constrained RAM, 14 GB disk). The project utilizes **Mass-Stratified Sampling** for halos and **Memory-Mapped Sparse Particle Streams** for environment calculations to fit within memory limits.
+The implementation is constrained to CPU-only execution on free-tier CI (limited CPU cores, constrained RAM, limited disk space). The project utilizes **Mass-Stratified Sampling** for halos and **Memory-Mapped Sparse Particle Streams** for environment calculations to fit within memory limits.
 
 ## Technical Context
 

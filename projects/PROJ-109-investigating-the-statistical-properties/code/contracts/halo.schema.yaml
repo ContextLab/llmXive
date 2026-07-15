@@ -1,0 +1,45 @@
+type: object
+properties:
+  halo_id:
+    type: integer
+    description: Unique identifier for the halo
+  mass:
+    type: number
+    description: Halo mass in solar masses
+  x:
+    type: number
+    description: X coordinate
+  y:
+    type: number
+    description: Y coordinate
+  z:
+    type: number
+    description: Z coordinate
+  vx:
+    type: number
+    description: Velocity X
+  vy:
+    type: number
+    description: Velocity Y
+  vz:
+    type: number
+    description: Velocity Z
+  num_particles:
+    type: integer
+    description: Number of particles in the halo
+  shape_s:
+    type: number
+    description: Shape parameter s = c/a
+  spin_lambda:
+    type: number
+    description: Spin parameter
+  concentration:
+    type: number
+    description: NFW concentration index
+required:
+  - halo_id
+  - mass
+  - x
+  - y
+  - z
+  - num_particles

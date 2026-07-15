@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T21:23:47.107060Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-109-investigating-the-statistical-properties
-last_run_id: c5d10c8e-aa20-4078-8ca9-61a028d800f6
+last_run_id: 089b1f2b-e2b7-484e-bcd7-98bdf5e8df40
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties
 title: Investigating the Statistical Properties of Simulated Dark Matter Halos
-updated_at: '2026-07-03T19:57:15.306731Z'
+updated_at: '2026-07-15T09:28:52.445911Z'
