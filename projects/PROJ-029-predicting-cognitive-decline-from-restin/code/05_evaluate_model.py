@@ -1,12 +1,15 @@
-"""Evaluate trained model and generate performance report.
+"""
+code/05_evaluate_model.py
 
-This script loads the trained Random Forest model from `data/processed/model.pkl`,
-loads the features and labels for the evaluation set, calculates ROC-AUC,
-accuracy, and F1-score for each fold of the nested cross-validation, and
-writes a summary report to `data/processed/performance_report.json`.
+Evaluate the trained Random Forest model using nested cross-validation results.
+Calculates ROC-AUC, accuracy, and F1-score per fold and their means.
+Outputs results to data/processed/performance_report.json.
 
-It depends on the output of `code/04_train_model.py` (model.pkl, cv_results.json)
-and `code/01_download_and_filter.py` (eligible_subjects.csv).
+Dependencies:
+  - data/processed/model.pkl (produced by code/04_train_model.py)
+  - data/processed/graph_metrics.csv (produced by code/03_compute_graph_metrics.py)
+  - data/processed/eligible_subjects.csv (produced by code/01_download_and_filter.py)
+  - data/processed/cv_results.json (produced by code/04_train_model.py)
 """
 from __future__ import annotations
 
@@ -17,316 +20,253 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
+import pandas as pd
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, confusion_matrix
 
-# Ensure imports from sibling modules match the API surface
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
 from utils.logger import get_logger, log_operation
-from utils.io import load_json, save_json, load_csv
-
+from utils.io import load_json, save_json, load_csv, load_pickle, ensure_dir
 
 logger = get_logger("evaluate_model")
 
 
-def ensure_file(path: Path, required: bool = True) -> None:
-    """Ensure a file exists at the given path.
-
-    Args:
-        path: Path to the file.
-        required: If True, raise FileNotFoundError if the file is missing.
-    """
-    if not path.exists():
-        if required:
-            raise FileNotFoundError(f"Required file not found: {path}")
-        logger.log("file_missing", path=str(path), status="missing")
-        return
-    logger.log("file_found", path=str(path), status="present")
+def ensure_file(path: Path) -> None:
+    """Ensure the directory for a file exists."""
+    ensure_dir(path.parent)
 
 
-def isnan(value: Any) -> bool:
-    """Check if a value is NaN, handling non-numeric types gracefully."""
-    if isinstance(value, float) and np.isnan(value):
+def isnan(val: Any) -> bool:
+    """Check if a value is NaN."""
+    if isinstance(val, float) and np.isnan(val):
         return True
-    if isinstance(value, (list, np.ndarray)):
-        return any(isinstance(v, float) and np.isnan(v) for v in value)
+    if isinstance(val, (list, np.ndarray)):
+        return any(isnan(v) for v in val)
     return False
 
 
-def load_eligible_subjects(path: Path) -> List[str]:
-    """Load eligible subject IDs from the CSV file.
-
-    Args:
-        path: Path to `data/processed/eligible_subjects.csv`.
-
-    Returns:
-        List of subject IDs.
-    """
-    ensure_file(path)
+def load_eligible_subjects(path: Path) -> pd.DataFrame:
+    """Load the eligible subjects CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Eligible subjects file not found: {path}")
     df = load_csv(path)
-    # Assume the column is named 'subject_id' or 'participant_id'
-    col_name = 'subject_id' if 'subject_id' in df.columns else 'participant_id'
-    subjects = df[col_name].astype(str).tolist()
-    logger.log("load_eligible_subjects", count=len(subjects))
-    return subjects
-
-
-def load_features(path: Path) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Load features and labels from the processed graph metrics file.
-
-    Args:
-        path: Path to `data/processed/graph_metrics.csv`.
-
-    Returns:
-        Tuple of (features, labels, feature_names).
-    """
-    ensure_file(path)
-    df = load_csv(path)
-
-    # Identify label column (e.g., 'decline_label', 'y', 'label')
-    label_col = None
-    for col in ['decline_label', 'y', 'label', 'target']:
-        if col in df.columns:
-            label_col = col
-            break
-
-    if label_col is None:
-        # Fallback: assume last column is label if it's numeric
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 1:
-            label_col = numeric_cols[-1]
+    # Ensure subject_id column exists and is string
+    if 'subject_id' not in df.columns:
+        # Fallback if column name is different or missing
+        # Try to infer from common BIDS naming or first column
+        if len(df.columns) > 0:
+            df = df.rename(columns={df.columns[0]: 'subject_id'})
         else:
-            raise ValueError("Could not identify label column in graph_metrics.csv")
-
-    feature_cols = [c for c in df.columns if c != label_col]
-    # Ensure 'subject_id' is not treated as a feature
-    if 'subject_id' in feature_cols:
-        feature_cols.remove('subject_id')
-
-    X = df[feature_cols].values
-    y = df[label_col].values
-
-    logger.log("load_features", shape=X.shape, n_labels=len(y))
-    return X, y, feature_cols
+            raise ValueError("Eligible subjects CSV is empty or has no columns")
+    return df
 
 
-def split_features_labels(
-    X: np.ndarray,
-    y: np.ndarray,
-    fold_indices: List[int]
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split features and labels into train and test sets based on fold indices.
-
-    Args:
-        X: Full feature matrix.
-        y: Full label vector.
-        fold_indices: Indices for the current test fold.
-
-    Returns:
-        Tuple of (X_train, X_test, y_train, y_test).
+def load_features(graph_metrics_path: Path, eligible_path: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    X_test = X[fold_indices]
-    y_test = y[fold_indices]
-
-    # Train indices are everything else
-    train_mask = np.ones(len(X), dtype=bool)
-    train_mask[fold_indices] = False
-    X_train = X[train_mask]
-    y_train = y[train_mask]
-
-    return X_train, X_test, y_train, y_test
-
-
-def calculate_metrics(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    y_prob: np.ndarray
-) -> Dict[str, float]:
-    """Calculate ROC-AUC, accuracy, and F1-score.
-
-    Args:
-        y_true: True labels.
-        y_pred: Predicted labels (0 or 1).
-        y_prob: Predicted probabilities for the positive class.
-
-    Returns:
-        Dictionary with metric names and values.
+    Load graph metrics and merge with eligible subjects to get features and labels.
+    Assumes 'decline' column exists in eligible_subjects.csv or graph_metrics.csv.
     """
-    metrics = {}
+    # Load eligible subjects to get the ground truth labels
+    eligible_df = load_eligible_subjects(eligible_path)
+    
+    # Load graph metrics
+    if not graph_metrics_path.exists():
+        raise FileNotFoundError(f"Graph metrics file not found: {graph_metrics_path}")
+    metrics_df = load_csv(graph_metrics_path)
+    
+    # Merge on subject_id
+    if 'subject_id' not in metrics_df.columns:
+        # Try common variations
+        if 'id' in metrics_df.columns:
+            metrics_df = metrics_df.rename(columns={'id': 'subject_id'})
+        elif 'participant_id' in metrics_df.columns:
+            metrics_df = metrics_df.rename(columns={'participant_id': 'subject_id'})
+    
+    if 'subject_id' not in eligible_df.columns:
+        if 'id' in eligible_df.columns:
+            eligible_df = eligible_df.rename(columns={'id': 'subject_id'})
+        elif 'participant_id' in eligible_df.columns:
+            eligible_df = eligible_df.rename(columns={'participant_id': 'subject_id'})
 
-    # ROC-AUC: requires at least two classes in y_true
-    if len(np.unique(y_true)) > 1:
-        try:
-            metrics['roc_auc'] = roc_auc_score(y_true, y_prob)
-        except ValueError as e:
-            logger.log("roc_auc_error", error=str(e))
-            metrics['roc_auc'] = np.nan
+    merged = pd.merge(metrics_df, eligible_df[['subject_id', 'decline']], on='subject_id', how='inner')
+    
+    if merged.empty:
+        raise ValueError("No matching subjects found between graph metrics and eligible subjects.")
+    
+    # Separate features and labels
+    # Assume all columns except 'subject_id' and 'decline' are features
+    feature_cols = [c for c in merged.columns if c not in ['subject_id', 'decline']]
+    
+    if not feature_cols:
+        raise ValueError("No feature columns found in merged data.")
+    
+    X = merged[feature_cols]
+    y = merged['decline']
+    
+    return X, y, merged['subject_id']
+
+
+def split_features_labels(X: pd.DataFrame, y: pd.Series) -> Tuple[np.ndarray, np.ndarray]:
+    """Convert pandas DataFrame/Series to numpy arrays."""
+    return X.values, y.values
+
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray) -> Dict[str, float]:
+    """Calculate ROC-AUC, accuracy, and F1-score."""
+    # Handle case where only one class is present (ROC-AUC undefined)
+    if len(np.unique(y_true)) < 2:
+        roc_auc = 0.0
     else:
-        metrics['roc_auc'] = np.nan
-
-    metrics['accuracy'] = accuracy_score(y_true, y_pred)
-    metrics['f1'] = f1_score(y_true, y_pred, zero_division=0)
-
-    logger.log("calculate_metrics", metrics=metrics)
-    return metrics
-
-
-def evaluate_model(
-    model: Any,
-    X_test: np.ndarray,
-    y_test: np.ndarray
-) -> Dict[str, float]:
-    """Evaluate a trained model on a test set.
-
-    Args:
-        model: Trained scikit-learn model.
-        X_test: Test features.
-        y_test: Test labels.
-
-    Returns:
-        Dictionary with metrics.
-    """
-    y_prob = model.predict_proba(X_test)[:, 1]
-    y_pred = model.predict(X_test)
-
-    return calculate_metrics(y_test, y_pred, y_prob)
-
-
-def write_performance_report(
-    per_fold_metrics: List[Dict[str, Any]],
-    output_path: Path
-) -> None:
-    """Write the performance report to JSON.
-
-    Args:
-        per_fold_metrics: List of metrics dictionaries per fold.
-        output_path: Path to `data/processed/performance_report.json`.
-    """
-    # Calculate summary statistics
-    n_folds = len(per_fold_metrics)
-    roc_aucs = [m['roc_auc'] for m in per_fold_metrics]
-    accuracies = [m['accuracy'] for m in per_fold_metrics]
-    f1_scores = [m['f1'] for m in per_fold_metrics]
-
-    # Handle NaNs in mean/std calculations
-    def safe_mean(arr):
-        valid = [x for x in arr if not isnan(x)]
-        return np.mean(valid) if valid else np.nan
-
-    def safe_std(arr):
-        valid = [x for x in arr if not isnan(x)]
-        return np.std(valid) if len(valid) > 1 else 0.0
-
-    report = {
-        "per_fold": per_fold_metrics,
-        "summary": {
-            "n_folds": n_folds,
-            "mean_roc_auc": safe_mean(roc_aucs),
-            "mean_accuracy": safe_mean(accuracies),
-            "mean_f1": safe_mean(f1_scores),
-            "std_roc_auc": safe_std(roc_aucs),
-            "std_accuracy": safe_std(accuracies),
-            "std_f1": safe_std(f1_scores)
-        }
+        try:
+            roc_auc = roc_auc_score(y_true, y_proba)
+        except ValueError:
+            roc_auc = 0.0
+    
+    acc = accuracy_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+    
+    return {
+        "roc_auc": float(roc_auc),
+        "accuracy": float(acc),
+        "f1_score": float(f1)
     }
 
+
+def evaluate_model(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+    """
+    Evaluate a single model on full dataset (for final report).
+    In the context of nested CV, we rely on cv_results.json for fold-wise metrics.
+    This function is used to generate a 'final' evaluation if needed, 
+    or to validate the model against the full dataset for the report.
+    """
+    y_pred = model.predict(X)
+    y_proba = model.predict_proba(X)[:, 1] if hasattr(model, 'predict_proba') else y_pred
+    
+    metrics = calculate_metrics(y, y_pred, y_proba)
+    
+    # Confusion matrix
+    cm = confusion_matrix(y, y_pred)
+    
+    return {
+        "metrics": metrics,
+        "confusion_matrix": cm.tolist(),
+        "n_samples": int(len(y))
+    }
+
+
+def write_performance_report(report: Dict[str, Any], output_path: Path) -> None:
+    """Write the performance report to JSON."""
+    ensure_file(output_path)
     save_json(report, output_path)
-    logger.log("write_performance_report", path=str(output_path))
+    logger.log("write_performance_report", output=str(output_path), status="success")
 
 
-@log_operation("evaluate_model_main")
 def main() -> int:
-    """Main entry point for model evaluation."""
-    # Define paths
-    base_dir = Path("data/processed")
-    model_path = base_dir / "model.pkl"
-    cv_results_path = base_dir / "cv_results.json"
-    eligible_path = base_dir / "eligible_subjects.csv"
-    metrics_path = base_dir / "graph_metrics.csv"
-    output_path = base_dir / "performance_report.json"
-
-    logger.log("start_evaluation", model=str(model_path))
-
-    # Load model
+    """
+    Main entry point for model evaluation.
+    Reads model, features, and labels. Calculates per-fold metrics from cv_results.json
+    and computes overall statistics. Writes performance_report.json.
+    """
     try:
-        with open(model_path, "rb") as f:
-            model = pickle.load(f)
-        logger.log("model_loaded", path=str(model_path))
-    except Exception as e:
-        logger.log("model_load_error", error=str(e))
-        print(f"Error: Failed to load model from {model_path}: {e}", file=sys.stderr)
-        return 1
+        logger.log("evaluate_model_main", operation="start")
 
-    # Load data
-    try:
-        X, y, feature_names = load_features(metrics_path)
-        subjects = load_eligible_subjects(eligible_path)
-    except Exception as e:
-        logger.log("data_load_error", error=str(e))
-        print(f"Error: Failed to load data: {e}", file=sys.stderr)
-        return 1
+        # Define paths
+        processed_dir = project_root / "data" / "processed"
+        model_path = processed_dir / "model.pkl"
+        graph_metrics_path = processed_dir / "graph_metrics.csv"
+        eligible_path = processed_dir / "eligible_subjects.csv"
+        cv_results_path = processed_dir / "cv_results.json"
+        output_path = processed_dir / "performance_report.json"
 
-    # Load CV results to get fold indices (if available)
-    # If cv_results.json doesn't exist, we'll simulate a simple split for demonstration
-    # In a real pipeline, we'd use the actual fold indices from the training step
-    fold_indices_list = []
-    if cv_results_path.exists():
-        try:
-            cv_results = load_json(cv_results_path)
-            # Extract fold indices if stored
-            # This assumes the training script stored test indices for each fold
-            if "fold_indices" in cv_results:
-                fold_indices_list = cv_results["fold_indices"]
+        # Check dependencies
+        for p in [model_path, graph_metrics_path, eligible_path, cv_results_path]:
+            if not p.exists():
+                logger.log("evaluate_model_main", operation="error", message=f"Missing required file: {p}")
+                print(f"Error: Missing required file: {p}")
+                return 1
+
+        # Load CV results (contains per-fold metrics)
+        cv_results = load_json(cv_results_path)
+        
+        if not cv_results or 'fold_results' not in cv_results:
+            logger.log("evaluate_model_main", operation="error", message="cv_results.json missing 'fold_results'")
+            print("Error: cv_results.json missing 'fold_results'")
+            return 1
+
+        fold_results = cv_results['fold_results']
+        
+        # Aggregate per-fold metrics
+        metrics_list = []
+        for fold_idx, fold_data in enumerate(fold_results):
+            if 'metrics' in fold_data:
+                metrics_list.append(fold_data['metrics'])
             else:
-                # Fallback: generate synthetic fold indices for demonstration
-                logger.log("cv_results_no_indices", path=str(cv_results_path))
-                n = len(X)
-                fold_size = n // 5
-                for i in range(5):
-                    start = i * fold_size
-                    end = (i + 1) * fold_size if i < 4 else n
-                    fold_indices_list.append(list(range(start, end)))
-        except Exception as e:
-            logger.log("cv_results_parse_error", error=str(e))
-            # Fallback: generate synthetic fold indices
-            n = len(X)
-            fold_size = n // 5
-            for i in range(5):
-                start = i * fold_size
-                end = (i + 1) * fold_size if i < 4 else n
-                fold_indices_list.append(list(range(start, end)))
-    else:
-        logger.log("cv_results_not_found", path=str(cv_results_path))
-        # Fallback: generate synthetic fold indices
-        n = len(X)
-        fold_size = n // 5
-        for i in range(5):
-            start = i * fold_size
-            end = (i + 1) * fold_size if i < 4 else n
-            fold_indices_list.append(list(range(start, end)))
+                # Fallback: calculate if metrics not stored but predictions are
+                # (Assuming model was saved with predictions or we re-evaluate if possible)
+                # For now, we rely on stored metrics. If missing, skip or error.
+                logger.log("evaluate_model_main", operation="warning", message=f"Fold {fold_idx} missing metrics in cv_results")
+                continue
 
-    # Evaluate per fold
-    per_fold_metrics = []
-    for i, fold_indices in enumerate(fold_indices_list):
-        X_train, X_test, y_train, y_test = split_features_labels(X, y, fold_indices)
+        if not metrics_list:
+            logger.log("evaluate_model_main", operation="error", message="No fold metrics found to aggregate")
+            print("Error: No fold metrics found to aggregate")
+            return 1
 
-        # If the model was trained with nested CV, it's already a single model.
-        # We evaluate this single model on each test fold.
-        # Note: In a strict nested CV setup, we would have retrained the model
-        # for each fold. Here, we assume the saved model is the final one
-        # trained on all data, and we evaluate it on held-out folds for
-        # demonstration purposes.
-        # Alternatively, if cv_results contains per-fold models, we'd load them.
-        # For now, we use the single saved model.
+        # Calculate means and stds
+        roc_aucs = [m['roc_auc'] for m in metrics_list if not isnan(m['roc_auc'])]
+        accs = [m['accuracy'] for m in metrics_list if not isnan(m['accuracy'])]
+        f1s = [m['f1_score'] for m in metrics_list if not isnan(m['f1_score'])]
 
-        fold_metrics = evaluate_model(model, X_test, y_test)
-        fold_metrics['fold'] = i
-        per_fold_metrics.append(fold_metrics)
-        logger.log("fold_evaluated", fold=i, metrics=fold_metrics)
+        def safe_mean(lst):
+            return float(np.mean(lst)) if lst else 0.0
+        def safe_std(lst):
+            return float(np.std(lst)) if lst else 0.0
 
-    # Write report
-    write_performance_report(per_fold_metrics, output_path)
+        summary = {
+            "roc_auc": {
+                "mean": safe_mean(roc_aucs),
+                "std": safe_std(roc_aucs),
+                "values": roc_aucs
+            },
+            "accuracy": {
+                "mean": safe_mean(accs),
+                "std": safe_std(accs),
+                "values": accs
+            },
+            "f1_score": {
+                "mean": safe_mean(f1s),
+                "std": safe_std(f1s),
+                "values": f1s
+            },
+            "n_folds": len(metrics_list)
+        }
 
-    print(f"Evaluation complete. Report written to {output_path}")
-    return 0
+        # Optional: Final evaluation on full dataset (if model is re-fitted on all data, 
+        # which is not the case here as we used nested CV. 
+        # However, the task asks for evaluation. We report the CV results as the primary metric.
+        # If the model.pkl is the one from the best fold or re-trained on all, we could add it.
+        # Given the pipeline structure, cv_results are the ground truth for performance.
+        
+        report = {
+            "summary": summary,
+            "fold_results": fold_results,
+            "model_path": str(model_path),
+            "status": "completed"
+        }
+
+        write_performance_report(report, output_path)
+        logger.log("evaluate_model_main", operation="success", message=f"Report written to {output_path}")
+        print(f"Performance report written to {output_path}")
+        return 0
+
+    except Exception as e:
+        logger.log("evaluate_model_main", operation="error", error=str(e))
+        print(f"Error during evaluation: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":

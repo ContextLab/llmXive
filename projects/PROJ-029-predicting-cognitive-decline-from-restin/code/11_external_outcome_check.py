@@ -5,14 +5,11 @@ If unavailable, it writes a limitation note to data/artifacts/limitations.txt.
 """
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 from typing import Any
 
 # Import from the shared logger module to ensure contract consistency
-# The shared module (utils/logger.py) already defines the robust logger implementation
-# that satisfies all callers. We import it here to maintain the API surface.
 from utils.logger import get_logger, log_operation, LogEntry, ReproducibilityLogger
 
 

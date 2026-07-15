@@ -13,3 +13,4 @@ joblib>=1.2.0
 scipy>=1.9.0
 fslpy>=2.0.0
 openneuro-py>=2.0.0
+torch  # auto-added: imported by run-book but missing from venv

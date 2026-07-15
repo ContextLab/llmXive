@@ -1,111 +1,169 @@
 """
-Unit tests for T017: code/01_download_and_filter.py
+Unit tests for code/01_download_and_filter.py
 """
 import pytest
+import pandas as pd
 from pathlib import Path
 import csv
 import json
 import tempfile
 import os
 
-# Import functions to test
-from code import download_and_filter as df
+# Import the module functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestEligibilityLogic:
-    def test_is_eligible_both_scores_present(self):
+from code_01_download_and_filter import (
+    has_valid_score,
+    is_eligible,
+    filter_eligible_subjects,
+    limit_subjects,
+    write_eligible_csv,
+    write_excluded_log,
+    write_status
+)
+
+
+class TestHasValidScore:
+    def test_valid_score(self):
+        row = {"MMSE": 28.0, "MOCA": 25.0}
+        assert has_valid_score(row, ["MMSE"]) is True
+        assert has_valid_score(row, ["MOCA"]) is True
+
+    def test_invalid_score(self):
+        row = {"MMSE": None, "MOCA": ""}
+        assert has_valid_score(row, ["MMSE"]) is False
+        assert has_valid_score(row, ["MOCA"]) is False
+
+    def test_string_score(self):
+        row = {"MMSE": "25"}
+        assert has_valid_score(row, ["MMSE"]) is True
+
+
+class TestIsEligible:
+    def test_eligible_mmse(self):
         row = {
             "participant_id": "sub-01",
-            "ses-1_MMSE": "28.0",
-            "ses-1_MOCA": "29.0",
-            "ses-2_MMSE": "27.0",
-            "ses-2_MOCA": "28.5"
+            "MMSE": 28.0,
+            "MMSE_2": 27.0
         }
-        assert df.is_eligible(row) is True
+        assert is_eligible(row) is True
 
-    def test_is_eligible_missing_timepoint_2(self):
+    def test_eligible_moca(self):
         row = {
             "participant_id": "sub-02",
-            "ses-1_MMSE": "28.0",
-            "ses-1_MOCA": "29.0",
-            "ses-2_MMSE": "",
-            "ses-2_MOCA": "NaN"
+            "MOCA": 25.0,
+            "MOCA_2": 24.0
         }
-        assert df.is_eligible(row) is False
+        assert is_eligible(row) is True
 
-    def test_is_eligible_missing_timepoint_1(self):
+    def test_ineligible_missing_second(self):
         row = {
             "participant_id": "sub-03",
-            "ses-1_MMSE": "",
-            "ses-1_MOCA": "n/a",
-            "ses-2_MMSE": "27.0",
-            "ses-2_MOCA": "28.5"
+            "MMSE": 28.0,
+            "MMSE_2": None
         }
-        assert df.is_eligible(row) is False
+        assert is_eligible(row) is False
 
-    def test_is_eligible_no_mmse_moca_columns(self):
+    def test_ineligible_missing_first(self):
         row = {
             "participant_id": "sub-04",
-            "age": "65",
-            "sex": "M"
+            "MMSE": None,
+            "MMSE_2": 27.0
         }
-        assert df.is_eligible(row) is False
+        assert is_eligible(row) is False
 
-class TestFiltering:
-    def test_filter_eligible_subjects(self):
-        rows = [
-            {"participant_id": "s1", "ses-1_MMSE": "20", "ses-2_MMSE": "20"},
-            {"participant_id": "s2", "ses-1_MMSE": "", "ses-2_MMSE": "20"},
-            {"participant_id": "s3", "ses-1_MMSE": "20", "ses-2_MMSE": ""},
-            {"participant_id": "s4", "ses-1_MMSE": "20", "ses-2_MMSE": "20"}
+    def test_ineligible_no_scores(self):
+        row = {
+            "participant_id": "sub-05",
+            "age": 65
+        }
+        assert is_eligible(row) is False
+
+    def test_eligible_fallback_two_scores(self):
+        # Test fallback logic when specific pairs are not found
+        row = {
+            "participant_id": "sub-06",
+            "Timepoint1_MMSE": 28.0,
+            "Timepoint2_MMSE": 27.0
+        }
+        # This should pass the fallback check if it finds 2 valid score columns
+        assert is_eligible(row) is True
+
+
+class TestFilterEligibleSubjects:
+    def test_filter(self):
+        records = [
+            {"participant_id": "sub-01", "MMSE": 28.0, "MMSE_2": 27.0},
+            {"participant_id": "sub-02", "MMSE": None, "MMSE_2": 27.0},
+            {"participant_id": "sub-03", "MOCA": 25.0, "MOCA_2": 24.0},
         ]
-        eligible, excluded = df.filter_eligible_subjects(rows)
+        eligible, excluded = filter_eligible_subjects(records)
         assert len(eligible) == 2
-        assert len(excluded) == 2
-        assert eligible[0]["participant_id"] == "s1"
-        assert eligible[1]["participant_id"] == "s4"
+        assert len(excluded) == 1
+        assert eligible[0]["participant_id"] == "sub-01"
+        assert eligible[1]["participant_id"] == "sub-03"
 
-class TestLimiting:
-    def test_limit_subjects(self):
-        rows = [{"participant_id": str(i)} for i in range(150)]
-        limited = df.limit_subjects(rows, 100)
-        assert len(limited) == 100
-        assert limited[0]["participant_id"] == "0"
-        assert limited[-1]["participant_id"] == "99"
 
-    def test_limit_subjects_no_limit_needed(self):
-        rows = [{"participant_id": str(i)} for i in range(50)]
-        limited = df.limit_subjects(rows, 100)
-        assert len(limited) == 50
+class TestLimitSubjects:
+    def test_limit(self):
+        subjects = [{"participant_id": f"sub-{i}"} for i in range(10)]
+        limited = limit_subjects(subjects, 5)
+        assert len(limited) == 5
 
-class TestIO:
-    def test_write_eligible_csv(self, tmp_path):
-        rows = [{"participant_id": "s1", "score": "20"}, {"participant_id": "s2", "score": "22"}]
-        out_file = tmp_path / "test.csv"
-        df.write_eligible_csv(rows, out_file)
+    def test_no_limit(self):
+        subjects = [{"participant_id": f"sub-{i}"} for i in range(5)]
+        limited = limit_subjects(subjects, 10)
+        assert len(limited) == 5
+
+
+class TestWriteEligibleCSV:
+    def test_write_csv(self, tmp_path):
+        subjects = [
+            {"participant_id": "sub-01", "MMSE": 28.0},
+            {"participant_id": "sub-02", "MMSE": 27.0}
+        ]
+        output_path = tmp_path / "eligible.csv"
+        write_eligible_csv(subjects, output_path)
         
-        assert out_file.exists()
-        with open(out_file, "r") as f:
+        assert output_path.exists()
+        with open(output_path, "r") as f:
             reader = csv.DictReader(f)
-            data = list(reader)
-            assert len(data) == 2
-            assert data[0]["participant_id"] == "s1"
+            rows = list(reader)
+        assert len(rows) == 2
+        assert rows[0]["participant_id"] == "sub-01"
 
-    def test_write_elcluded_log(self, tmp_path):
-        rows = [{"participant_id": "s1", "reason": "missing"}]
-        out_file = tmp_path / "test.log"
-        df.write_excluded_log(rows, out_file)
+
+class TestWriteExcludedLog:
+    def test_write_log(self, tmp_path):
+        excluded = [
+            {"participant_id": "sub-01", "reason": "missing scores"},
+            {"participant_id": "sub-02", "reason": "missing scores"}
+        ]
+        output_path = tmp_path / "excluded.log"
+        write_excluded_log(excluded, output_path)
         
-        assert out_file.exists()
-        content = out_file.read_text()
-        assert "s1" in content
-        assert "Excluded Subjects Log" in content
+        assert output_path.exists()
+        with open(output_path, "r") as f:
+            content = f.read()
+        assert "sub-01" in content
+        assert "sub-02" in content
 
+
+class TestWriteStatus:
     def test_write_status(self, tmp_path):
-        status = {"key": "value", "count": 5}
-        out_file = tmp_path / "status.json"
-        df.write_status(status, out_file)
+        # Change output path for testing
+        import code_01_download_and_filter as module
+        original_path = module.OUTPUT_FILE_STATUS
+        module.OUTPUT_FILE_STATUS = tmp_path / "status.json"
         
-        assert out_file.exists()
-        with open(out_file, "r") as f:
-            loaded = json.load(f)
-            assert loaded == status
+        try:
+            write_status(10, 5, "success")
+            assert module.OUTPUT_FILE_STATUS.exists()
+            with open(module.OUTPUT_FILE_STATUS, "r") as f:
+                data = json.load(f)
+            assert data["eligible_count"] == 10
+            assert data["excluded_count"] == 5
+            assert data["status"] == "success"
+        finally:
+            module.OUTPUT_FILE_STATUS = original_path
