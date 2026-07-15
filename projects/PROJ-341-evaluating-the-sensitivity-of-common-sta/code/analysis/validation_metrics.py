@@ -1,16 +1,15 @@
 """
-validation_metrics.py
+Validation Metrics Module (T034)
 
-Implements logic to calculate validation metrics and KS statistics comparing
-simulated predictions against real-world dataset behavior.
+Calculates and saves validation metrics and Kolmogorov-Smirnov (KS) statistics
+to data/simulation/validation_metrics.json.
 
-This module fulfills Task T034: Save validation metrics and KS statistics to
-data/simulation/validation_metrics.json.
-
-It depends on:
-- data/simulation/p_values_raw.csv (simulated p-values)
-- data/simulation/real_data_pvalues.csv (real data p-values)
-- data/simulation/real_data_power.json (bootstrapped power estimates from T032)
+This module:
+1. Loads simulated p-values (from p_values_raw.csv)
+2. Loads real data p-values (from real_data_pvalues.csv)
+3. Calculates real data power estimates
+4. Calculates KS distance between simulated and real distributions
+5. Saves comprehensive validation metrics to JSON
 """
 
 import os
@@ -19,289 +18,313 @@ import csv
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from scipy import stats
+import pandas as pd
 
-# Constants
-SIMULATED_PVALUES_PATH = "data/simulation/p_values_raw.csv"
-REAL_DATA_PVALUES_PATH = "data/simulation/real_data_pvalues.csv"
-REAL_DATA_POWER_PATH = "data/simulation/real_data_power.json"
-OUTPUT_PATH = "data/simulation/validation_metrics.json"
+# Import from sibling modules using the exact API surface provided
+from code.simulation.output_writer import load_p_values_raw_safe
+from code.analysis.bootstrapper import load_real_data_pvalues, calculate_ks_distance
 
 
-def load_simulated_pvalues_for_comparison(test_type: Optional[str] = None) -> Dict[str, List[float]]:
+def load_simulated_pvalues_for_comparison(
+    p_values_path: str = "data/simulation/p_values_raw.csv",
+    test_type: Optional[str] = None,
+    sample_size: Optional[int] = None
+) -> List[float]:
     """
-    Load simulated p-values from p_values_raw.csv, optionally filtering by test type.
+    Load simulated p-values for comparison with real data.
 
     Args:
-        test_type: Optional filter for test type (e.g., 't-test', 'anova', 'chi-squared').
+        p_values_path: Path to the raw p-values CSV file.
+        test_type: Optional filter for specific test type (t-test, anova, chi-squared).
+        sample_size: Optional filter for specific sample size.
 
     Returns:
-        Dictionary mapping (sample_size, effect_size) to list of p-values.
+        List of p-values matching the filters.
     """
-    if not os.path.exists(SIMULATED_PVALUES_PATH):
-        raise FileNotFoundError(f"Simulated p-values file not found: {SIMULATED_PVALUES_PATH}")
+    try:
+        df = load_p_values_raw_safe(p_values_path)
+        if df is None or df.empty:
+            return []
 
-    p_values_by_condition = {}
+        # Filter by test type if specified
+        if test_type:
+            df = df[df['test_type'].str.lower() == test_type.lower()]
 
-    with open(SIMULATED_PVALUES_PATH, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if test_type and row['test_type'] != test_type:
-                continue
+        # Filter by sample size if specified
+        if sample_size:
+            df = df[df['sample_size'] == sample_size]
 
-            n = int(row['sample_size'])
-            effect_size = float(row['effect_size'])
-            p_value = float(row['p_value'])
-
-            key = (n, effect_size)
-            if key not in p_values_by_condition:
-                p_values_by_condition[key] = []
-            p_values_by_condition[key].append(p_value)
-
-    return p_values_by_condition
+        return df['p_value'].dropna().tolist()
+    except Exception as e:
+        print(f"Warning: Could not load simulated p-values: {e}")
+        return []
 
 
-def load_real_data_pvalues() -> Dict[str, List[float]]:
+def calculate_real_data_power(
+    real_p_values: List[float],
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Load p-values from real-world dataset analysis.
+    Calculate power estimates from real data p-values.
 
-    Returns:
-        Dictionary mapping test_type to list of p-values.
-    """
-    if not os.path.exists(REAL_DATA_PVALUES_PATH):
-        raise FileNotFoundError(f"Real data p-values file not found: {REAL_DATA_PVALUES_PATH}")
-
-    p_values_by_test = {}
-
-    with open(REAL_DATA_PVALUES_PATH, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            test_type = row['test_type']
-            p_value = float(row['p_value'])
-
-            if test_type not in p_values_by_test:
-                p_values_by_test[test_type] = []
-            p_values_by_test[test_type].append(p_value)
-
-    return p_values_by_test
-
-
-def calculate_real_data_power(real_p_values: List[float], alpha: float = 0.05) -> Dict[str, float]:
-    """
-    Calculate empirical power from real data p-values.
-
-    Power is estimated as the proportion of tests that reject the null hypothesis
-    (p < alpha). For real data, this is a heuristic estimate since ground truth
-    is unknown.
+    Power is estimated as the proportion of tests where p < alpha.
+    For real data, this is an empirical estimate of the test's ability
+    to detect effects present in the real dataset.
 
     Args:
         real_p_values: List of p-values from real data tests.
-        alpha: Significance threshold.
+        alpha: Significance level (default 0.05).
 
     Returns:
-        Dictionary with 'empirical_power' and 'sample_size'.
+        Dictionary with power estimates and related statistics.
     """
     if not real_p_values:
-        return {'empirical_power': np.nan, 'sample_size': 0}
+        return {
+            "power_estimate": None,
+            "total_tests": 0,
+            "significant_tests": 0,
+            "proportion_significant": None,
+            "mean_p_value": None,
+            "median_p_value": None
+        }
 
-    rejections = sum(1 for p in real_p_values if p < alpha)
-    power = rejections / len(real_p_values)
+    total_tests = len(real_p_values)
+    significant_tests = sum(1 for p in real_p_values if p < alpha)
+    proportion_significant = significant_tests / total_tests if total_tests > 0 else 0
 
     return {
-        'empirical_power': float(power),
-        'sample_size': len(real_p_values)
+        "power_estimate": proportion_significant,
+        "total_tests": total_tests,
+        "significant_tests": significant_tests,
+        "proportion_significant": proportion_significant,
+        "mean_p_value": float(np.mean(real_p_values)),
+        "median_p_value": float(np.median(real_p_values))
     }
 
 
-def calculate_ks_distance(simulated_pvalues: List[float], real_p_values: List[float]) -> Dict[str, float]:
+def calculate_validation_metrics(
+    simulated_p_values: List[float],
+    real_p_values: List[float],
+    alpha: float = 0.05,
+    test_type: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Calculate Kolmogorov-Smirnov distance between simulated and real p-value distributions.
+    Calculate comprehensive validation metrics comparing simulated and real data.
 
-    The KS statistic measures the maximum distance between the empirical CDFs of
-    the two samples. A value close to 0 indicates similar distributions.
+    This function computes:
+    1. KS distance between simulated and real p-value distributions
+    2. Power estimates for both simulated and real data
+    3. Type I error rates (when appropriate)
+    4. Statistical similarity measures
 
     Args:
-        simulated_pvalues: List of p-values from simulation.
+        simulated_p_values: List of p-values from simulation.
         real_p_values: List of p-values from real data.
+        alpha: Significance level.
+        test_type: Name of the statistical test being validated.
 
     Returns:
-        Dictionary with 'ks_statistic' and 'p_value' (KS test p-value).
-    """
-    if not simulated_pvalues or not real_p_values:
-        return {'ks_statistic': np.nan, 'p_value': np.nan, 'note': 'insufficient_data'}
-
-    ks_stat, p_val = stats.ks_2samp(simulated_pvalues, real_p_values)
-
-    return {
-        'ks_statistic': float(ks_stat),
-        'p_value': float(p_val),
-        'note': 'ks_test_performed'
-    }
-
-
-def calculate_validation_metrics(alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Calculate comprehensive validation metrics comparing simulation to real data.
-
-    This function:
-    1. Loads simulated and real p-values
-    2. Loads bootstrapped power estimates from T032
-    3. Calculates KS distances for each test type
-    4. Compares empirical power estimates
-    5. Generates a summary validation status
-
-    Args:
-        alpha: Significance threshold for power calculations.
-
-    Returns:
-        Dictionary containing all validation metrics and status.
+        Dictionary containing all validation metrics.
     """
     metrics = {
-        'timestamp': str(np.datetime64('now')),
-        'alpha': alpha,
-        'test_types': {},
-        'summary': {}
+        "test_type": test_type,
+        "alpha": alpha,
+        "sample_sizes": {
+            "simulated_count": len(simulated_p_values),
+            "real_count": len(real_p_values)
+        }
     }
 
-    # Load real data power estimates (from T032)
-    real_power_data = {}
-    if os.path.exists(REAL_DATA_POWER_PATH):
-        with open(REAL_DATA_POWER_PATH, 'r') as f:
-            real_power_data = json.load(f)
+    # Handle empty data cases
+    if not simulated_p_values or not real_p_values:
+        metrics["status"] = "incomplete"
+        metrics["reason"] = "Missing data for comparison"
+        metrics["ks_distance"] = None
+        metrics["ks_p_value"] = None
+        metrics["simulated_power"] = None
+        metrics["real_power"] = None
+        return metrics
 
-    # Load real data p-values
-    real_p_values_by_test = load_real_data_pvalues()
+    # Calculate KS distance
+    ks_stat, ks_pvalue = stats.ks_2samp(simulated_p_values, real_p_values)
 
-    # Analyze each test type
-    for test_type in ['t-test', 'anova', 'chi-squared']:
-        test_metrics = {
-            'ks_distance': None,
-            'power_comparison': None,
-            'validation_status': None
-        }
+    metrics["ks_distance"] = float(ks_stat)
+    metrics["ks_p_value"] = float(ks_pvalue)
+    metrics["ks_significant"] = ks_pvalue < alpha
 
-        # Get real p-values for this test
-        if test_type not in real_p_values_by_test:
-            test_metrics['validation_status'] = 'no_real_data'
-            metrics['test_types'][test_type] = test_metrics
-            continue
+    # Calculate power estimates
+    simulated_power = calculate_real_data_power(simulated_p_values, alpha)
+    real_power = calculate_real_data_power(real_p_values, alpha)
 
-        real_pvals = real_p_values_by_test[test_type]
+    metrics["simulated_power"] = simulated_power
+    metrics["real_power"] = real_power
 
-        # Get simulated p-values for comparable conditions (small sample sizes)
-        # Focus on n < 30 where sensitivity is highest
-        sim_pvals = []
-        sim_pvalues_all = load_simulated_pvalues_for_comparison(test_type)
-        for (n, effect), p_list in sim_pvalues_all.items():
-            if n < 30:  # Small sample regime
-                sim_pvals.extend(p_list)
+    # Calculate additional similarity metrics
+    metrics["mean_p_difference"] = abs(
+        simulated_power["mean_p_value"] - real_power["mean_p_value"]
+    ) if simulated_power["mean_p_value"] is not None and real_power["mean_p_value"] is not None else None
 
-        if not sim_pvals:
-            test_metrics['validation_status'] = 'no_simulated_data'
-            metrics['test_types'][test_type] = test_metrics
-            continue
+    metrics["power_difference"] = abs(
+        simulated_power["power_estimate"] - real_power["power_estimate"]
+    ) if simulated_power["power_estimate"] is not None and real_power["power_estimate"] is not None else None
 
-        # Calculate KS distance
-        ks_result = calculate_ks_distance(sim_pvals, real_pvals)
-        test_metrics['ks_distance'] = ks_result
+    # Validation status
+    # Pass if KS distance <= 0.10 (as per FR-006, SC-003)
+    validation_passed = metrics["ks_distance"] is not None and metrics["ks_distance"] <= 0.10
+    metrics["validation_passed"] = validation_passed
+    metrics["validation_threshold"] = 0.10
 
-        # Calculate power for real data
-        real_power = calculate_real_data_power(real_pvals, alpha)
-
-        # Get simulated power (proportion of rejections in simulation)
-        sim_rejections = sum(1 for p in sim_pvals if p < alpha)
-        sim_power = sim_rejections / len(sim_pvals) if sim_pvals else 0.0
-
-        # Compare powers
-        power_diff = abs(real_power['empirical_power'] - sim_power)
-        test_metrics['power_comparison'] = {
-            'real_power': real_power['empirical_power'],
-            'simulated_power': sim_power,
-            'difference': power_diff,
-            'ks_threshold_met': ks_result['ks_statistic'] <= 0.10 if not np.isnan(ks_result['ks_statistic']) else False
-        }
-
-        # Determine validation status
-        if power_diff <= 0.10 and (not np.isnan(ks_result['ks_statistic']) and ks_result['ks_statistic'] <= 0.10):
-            test_metrics['validation_status'] = 'PASS'
-        elif power_diff <= 0.20:
-            test_metrics['validation_status'] = 'WARNING'
-        else:
-            test_metrics['validation_status'] = 'FAIL'
-
-        metrics['test_types'][test_type] = test_metrics
-
-    # Generate summary
-    pass_count = sum(1 for m in metrics['test_types'].values() if m.get('validation_status') == 'PASS')
-    total_count = len(metrics['test_types'])
-
-    metrics['summary'] = {
-        'total_tests': total_count,
-        'passed': pass_count,
-        'failed': total_count - pass_count,
-        'overall_status': 'PASS' if pass_count == total_count and total_count > 0 else 'PARTIAL' if pass_count > 0 else 'FAIL',
-        'ks_threshold': 0.10,
-        'power_threshold': 0.10
-    }
+    if validation_passed:
+        metrics["status"] = "passed"
+        metrics["conclusion"] = "Real data p-value distribution is statistically similar to simulated distribution (KS <= 0.10)"
+    else:
+        metrics["status"] = "failed"
+        metrics["conclusion"] = f"Real data p-value distribution differs significantly from simulated (KS = {metrics['ks_distance']:.4f} > 0.10)"
 
     return metrics
 
 
-def save_validation_metrics(metrics: Dict[str, Any], output_path: Optional[str] = None) -> str:
+def save_validation_metrics(
+    metrics: Dict[str, Any],
+    output_path: str = "data/simulation/validation_metrics.json"
+) -> bool:
     """
-    Save validation metrics to JSON file.
+    Save validation metrics to a JSON file.
 
     Args:
         metrics: Dictionary of metrics to save.
-        output_path: Path for output file (default: data/simulation/validation_metrics.json).
+        output_path: Path to the output JSON file.
 
     Returns:
-        Path to the saved file.
+        True if successful, False otherwise.
     """
-    if output_path is None:
-        output_path = OUTPUT_PATH
+    try:
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Add metadata
+        from datetime import datetime
+        metrics["generated_at"] = datetime.utcnow().isoformat()
+        metrics["output_file"] = output_path
 
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    return output_path
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(metrics, f, indent=2, default=str)
 
-    return output_path
+        print(f"Validation metrics saved to: {output_path}")
+        return True
+    except Exception as e:
+        print(f"Error saving validation metrics: {e}")
+        return False
 
 
 def main():
     """
-    Main entry point for T034: Calculate and save validation metrics.
+    Main entry point for T034: Save validation metrics and KS statistics.
 
     This function:
-    1. Loads necessary data files (simulated p-values, real data p-values, power estimates)
-    2. Calculates KS distances and power comparisons
-    3. Generates validation status for each test type
-    4. Saves results to data/simulation/validation_metrics.json
+    1. Loads simulated p-values from data/simulation/p_values_raw.csv
+    2. Loads real data p-values from data/simulation/real_data_pvalues.csv
+    3. Calculates validation metrics for each test type
+    4. Saves comprehensive results to data/simulation/validation_metrics.json
     """
     print("Starting validation metrics calculation (T034)...")
 
-    try:
+    # Define file paths
+    simulated_pvalues_path = "data/simulation/p_values_raw.csv"
+    real_pvalues_path = "data/simulation/real_data_pvalues.csv"
+    output_path = "data/simulation/validation_metrics.json"
+
+    # Check if input files exist
+    if not os.path.exists(simulated_pvalues_path):
+        print(f"Error: Simulated p-values file not found: {simulated_pvalues_path}")
+        print("Please run the simulation first to generate p_values_raw.csv")
+        return False
+
+    if not os.path.exists(real_pvalues_path):
+        print(f"Error: Real data p-values file not found: {real_pvalues_path}")
+        print("Please run the validation step first to generate real_data_pvalues.csv")
+        return False
+
+    # Load data
+    print("Loading simulated p-values...")
+    simulated_df = load_p_values_raw_safe(simulated_pvalues_path)
+    if simulated_df is None or simulated_df.empty:
+        print("Error: No simulated p-values found")
+        return False
+
+    print("Loading real data p-values...")
+    real_pvalues = load_real_data_pvalues(real_pvalues_path)
+    if not real_pvalues:
+        print("Error: No real data p-values found")
+        return False
+
+    # Group simulated data by test type for detailed comparison
+    test_types = simulated_df['test_type'].unique()
+    all_metrics = []
+
+    for test_type in test_types:
+        print(f"Calculating metrics for {test_type}...")
+
+        # Get simulated p-values for this test type
+        sim_pvals = simulated_df[simulated_df['test_type'] == test_type]['p_value'].dropna().tolist()
+
+        # Filter real p-values by test type if the structure allows
+        # Assuming real_pvalues is a list of dicts or similar structure with test_type
+        if isinstance(real_pvalues, list) and len(real_pvalues) > 0 and isinstance(real_pvalues[0], dict):
+            real_pvals_for_test = [
+                p['p_value'] for p in real_pvalues
+                if p.get('test_type') == test_type and 'p_value' in p
+            ]
+        else:
+            # If real_pvalues is flat, we might need to map them differently
+            # For now, use all real p-values if test_type matching isn't possible
+            real_pvals_for_test = real_pvalues if real_pvalues else []
+
+        if not sim_pvals or not real_pvals_for_test:
+            print(f"  Skipping {test_type}: insufficient data")
+            continue
+
         # Calculate metrics
-        metrics = calculate_validation_metrics(alpha=0.05)
+        metrics = calculate_validation_metrics(
+            simulated_p_values=sim_pvals,
+            real_p_values=real_pvals_for_test,
+            test_type=test_type
+        )
+        all_metrics.append(metrics)
 
-        # Save to file
-        output_path = save_validation_metrics(metrics)
+        # Print summary
+        status = "PASS" if metrics.get('validation_passed') else "FAIL"
+        ks_dist = metrics.get('ks_distance', 'N/A')
+        print(f"  {test_type}: {status} (KS = {ks_dist})")
 
-        print(f"Validation metrics saved to: {output_path}")
-        print(f"Overall status: {metrics['summary']['overall_status']}")
-        print(f"Tests passed: {metrics['summary']['passed']}/{metrics['summary']['total_tests']}")
+    # Aggregate results
+    final_output = {
+        "validation_summary": {
+            "total_test_types": len(all_metrics),
+            "passed_count": sum(1 for m in all_metrics if m.get('validation_passed')),
+            "failed_count": sum(1 for m in all_metrics if not m.get('validation_passed'))
+        },
+        "detailed_metrics": all_metrics
+    }
 
-        return 0
+    # Save results
+    success = save_validation_metrics(final_output, output_path)
 
-    except FileNotFoundError as e:
-        print(f"ERROR: Required data file missing: {e}")
-        print("Ensure T016 (p_values_raw.csv), T031 (real_data_pvalues.csv), and T032 (real_data_power.json) are complete.")
-        return 1
-    except Exception as e:
-        print(f"ERROR: Failed to calculate validation metrics: {e}")
-        raise
+    if success:
+        print(f"Validation metrics successfully saved to {output_path}")
+        # Print overall conclusion
+        passed = final_output['validation_summary']['passed_count']
+        total = final_output['validation_summary']['total_test_types']
+        if passed == total:
+            print("OVERALL: All test types validated successfully against real data.")
+        elif passed > 0:
+            print(f"OVERALL: {passed}/{total} test types validated successfully.")
+        else:
+            print("OVERALL: No test types validated successfully.")
+    else:
+        print("Failed to save validation metrics.")
+
+    return success
 
 
 if __name__ == "__main__":

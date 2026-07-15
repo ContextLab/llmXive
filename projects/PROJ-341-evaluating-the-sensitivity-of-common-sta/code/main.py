@@ -1,6 +1,7 @@
 """
-Main entry point for the statistical sensitivity analysis pipeline.
-Orchestrates simulation, aggregation, threshold identification, visualization, and validation.
+Main entry point for the statistical test sensitivity simulation pipeline.
+Orchestrates simulation, aggregation, threshold finding, visualization, and validation.
+Includes memory optimization strategies for large-scale simulations.
 """
 from __future__ import annotations
 
@@ -11,665 +12,573 @@ import os
 import sys
 import time
 import traceback
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
-
-import numpy as np
+import resource
+from typing import Dict, Any, Optional, List, Tuple
 
 # Add project root to path for imports
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from code.simulation.logging_config import get_logger, log_operation, log_error_details
-from code.simulation.test_runner import main as simulation_main
-from code.analysis.aggregator import main as aggregator_main
-from code.analysis.threshold_finder import main as threshold_main
-from code.visualization.plotter import main as plotter_main
-from code.analysis.validator import main as validator_main
-from code.analysis.bootstrapper import main as bootstrapper_main
-from code.analysis.validation_metrics import main as validation_metrics_main
-from code.analysis.report_generator import main as report_generator_main
-from code.analysis.alpha_sensitivity import main as alpha_sensitivity_main
+from code.simulation.test_runner import run_simulation_condition, aggregate_results
+from code.simulation.data_generator import generate_normal_data, generate_contingency_table_data
+from code.simulation.output_writer import write_p_values_raw, ensure_output_directory
+from code.simulation.logging_config import get_logger, log_simulation_params, log_error_details
+from code.analysis.aggregator import calculate_error_rates, save_aggregated_results
+from code.analysis.threshold_finder import calculate_confidence_intervals, save_thresholds
+from code.analysis.validator import run_validation_on_datasets, main as validator_main
+from code.analysis.bootstrapper import run_bootstrapped_validation, save_power_results
+from code.analysis.validation_metrics import calculate_validation_metrics, save_validation_metrics
+from code.analysis.report_generator import generate_report
+from code.visualization.plotter import generate_all_plots
+from code.visualization.saver import save_individual_plots, save_comparative_plots
+from code.simulation import get_rng
+from code.utils.checksum_utils import register_run, update_run_status, ensure_metadata_file_exists, register_dataset_checksum
 
 logger = get_logger(__name__)
 
-# Constants
-DEFAULT_MIN_N = 5
-DEFAULT_MAX_N = 500
-DEFAULT_STEP_N = 5
-DEFAULT_ITERATIONS = 10000
-DEFAULT_ALPHA = 0.05
-DEFAULT_EFFECT_SIZES = [0.2, 0.5, 0.8]  # Small, medium, large
-DEFAULT_TESTS = ['t-test', 'anova', 'chi-squared']
+# Memory constraint constants (in MB)
+MEMORY_LIMIT_MB = 7000  # 7GB limit as per requirement
+GC_THRESHOLD = 100000   # Run GC if object count exceeds this
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB."""
+    """
+    Get current memory usage of the process in MB.
+    Uses resource module on Unix systems.
+    """
     try:
-        import resource
-        mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On macOS, ru_maxrss is in bytes; on Linux, it's in KB
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KB on Linux, bytes on some other systems
+        # Normalize to MB
         if sys.platform == 'darwin':
-            return mem / (1024 * 1024)
+            return usage.ru_maxrss / (1024 * 1024)
         else:
-            return mem / 1024
-    except ImportError:
+            return usage.ru_maxrss / 1024.0
+    except Exception as e:
+        logger.warning(f"Could not determine memory usage: {e}")
         return 0.0
 
-def check_memory_limit(limit_mb: float = 7000) -> bool:
-    """Check if memory usage is within limit."""
-    current = get_memory_usage_mb()
-    return current < limit_mb
+def check_memory_limit(limit_mb: float = MEMORY_LIMIT_MB) -> bool:
+    """
+    Check if current memory usage is within the specified limit.
+    Returns True if within limit, False otherwise.
+    """
+    current_mb = get_memory_usage_mb()
+    if current_mb > limit_mb:
+        logger.error(f"Memory limit exceeded: {current_mb:.2f}MB > {limit_mb}MB")
+        return False
+    return True
 
 def force_gc() -> None:
-    """Force garbage collection."""
+    """Force garbage collection to reclaim memory."""
     gc.collect()
-
-@log_operation("run_simulation")
-def run_simulation(
-    min_n: int = DEFAULT_MIN_N,
-    max_n: int = DEFAULT_MAX_N,
-    step_n: int = DEFAULT_STEP_N,
-    iterations: int = DEFAULT_ITERATIONS,
-    alpha: float = DEFAULT_ALPHA,
-    tests: List[str] = DEFAULT_TESTS,
-    effect_sizes: List[float] = DEFAULT_EFFECT_SIZES
-) -> Dict[str, Any]:
-    """
-    Run the full simulation grid across sample sizes, tests, and effect sizes.
-
-    This implements the parameter loop logic for T014b:
-    - Iterates n from min_n to max_n with step_n
-    - Iterates through all specified tests
-    - Iterates through all specified effect sizes
-    - Enforces the hard constraint of iterations per condition
-
-    Args:
-        min_n: Minimum sample size
-        max_n: Maximum sample size
-        step_n: Step size for sample sizes
-        iterations: Number of iterations per condition (FR-001)
-        alpha: Significance level
-        tests: List of test types to run
-        effect_sizes: List of effect sizes to test
-
-    Returns:
-        Dictionary with simulation metadata and status
-    """
-    start_time = time.time()
-
-    # Build the parameter grid
-    sample_sizes = list(range(min_n, max_n + 1, step_n))
-    conditions = []
-
-    for n in sample_sizes:
-        for test in tests:
-            for effect_size in effect_sizes:
-                # Determine hypothesis state based on effect size
-                # effect_size = 0 means null hypothesis is true
-                hypothesis = "null" if effect_size == 0 else "alternative"
-                conditions.append({
-                    'n': n,
-                    'test': test,
-                    'effect_size': effect_size,
-                    'hypothesis': hypothesis,
-                    'iterations': iterations,
-                    'alpha': alpha
-                })
-
-    logger.log("simulation_grid_created",
-              total_conditions=len(conditions),
-              sample_sizes=len(sample_sizes),
-              tests=len(tests),
-              effect_sizes=len(effect_sizes),
-              iterations_per_condition=iterations)
-
-    # Execute simulation via test_runner module
-    # The test_runner handles the actual iteration and data generation
-    result = simulation_main(
-        min_n=min_n,
-        max_n=max_n,
-        step_n=step_n,
-        iterations=iterations,
-        alpha=alpha,
-        tests=tests,
-        effect_sizes=effect_sizes
-    )
-
-    elapsed = time.time() - start_time
-
-    log_entry = logger.log("simulation_completed",
-                          total_conditions=len(conditions),
-                          elapsed_seconds=elapsed,
-                          status=result.get('status', 'unknown'))
-
-    return {
-        'status': 'success',
-        'conditions_executed': len(conditions),
-        'elapsed_seconds': elapsed,
-        'output_file': 'data/simulation/p_values_raw.csv',
-        'log_entry': log_entry.to_json() if hasattr(log_entry, 'to_json') else str(log_entry)
-    }
-
-@log_operation("run_aggregation")
-def run_aggregation() -> Dict[str, Any]:
-    """
-    Aggregate raw p-values into error rates.
-
-    Reads p_values_raw.csv and calculates empirical Type I and Type II error rates.
-    Writes results to data/simulation/error_rates_summary.csv
-    """
-    start_time = time.time()
-
-    result = aggregator_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/simulation/error_rates_summary.csv',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_thresholds")
-def run_thresholds() -> Dict[str, Any]:
-    """
-    Identify reliability thresholds from error rates.
-
-    Reads error_rates_summary.csv and calculates:
-    - Smallest n where Type I error CI lower bound > 0.05
-    - Smallest n where power CI remains < 0.80 for 3 consecutive increments
-
-    Writes results to data/simulation/thresholds.json
-    """
-    start_time = time.time()
-
-    result = threshold_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/simulation/thresholds.json',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_plots")
-def run_plots() -> Dict[str, Any]:
-    """
-    Generate visualization plots.
-
-    Reads error_rates_summary.csv and thresholds.json to create:
-    - Line plots with 95% CI bands for sample size vs error rate
-    - Comparative plots for different tests
-    - Annotations for reliability thresholds
-
-    Writes plots to data/visualization/
-    """
-    start_time = time.time()
-
-    result = plotter_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_dir': 'data/visualization/',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_validation")
-def run_validation() -> Dict[str, Any]:
-    """
-    Validate simulation findings against real-world datasets.
-
-    Downloads and processes UCI datasets (Breast Cancer, Wine, Adult)
-    and compares observed p-value distributions with simulation predictions.
-
-    Outputs:
-    - data/simulation/real_data_pvalues.csv
-    - data/simulation/real_data_power.json
-    - data/simulation/validation_metrics.json
-    - data/reports/validation_report.md
-    """
-    start_time = time.time()
-
-    result = validator_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_files': [
-            'data/simulation/real_data_pvalues.csv',
-            'data/simulation/real_data_power.json',
-            'data/simulation/validation_metrics.json',
-            'data/reports/validation_report.md'
-        ],
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_bootstrap")
-def run_bootstrap() -> Dict[str, Any]:
-    """
-    Run bootstrapped power estimation on real datasets.
-
-    Calculates Kolmogorov-Smirnov distance between simulated and real data.
-    """
-    start_time = time.time()
-
-    result = bootstrapper_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/simulation/real_data_power.json',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_metrics")
-def run_metrics() -> Dict[str, Any]:
-    """
-    Calculate validation metrics and KS statistics.
-    """
-    start_time = time.time()
-
-    result = validation_metrics_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/simulation/validation_metrics.json',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_report")
-def run_report() -> Dict[str, Any]:
-    """
-    Generate final validation report.
-    """
-    start_time = time.time()
-
-    result = report_generator_main()
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/reports/validation_report.md',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_alpha_sensitivity")
-def run_alpha_sensitivity(
-    alpha_levels: List[float] = [0.01, 0.05, 0.10]
-) -> Dict[str, Any]:
-    """
-    Run sensitivity analysis for different alpha thresholds.
-    """
-    start_time = time.time()
-
-    result = alpha_sensitivity_main(alpha_levels=alpha_levels)
-
-    elapsed = time.time() - start_time
-
-    return {
-        'status': 'success',
-        'output_file': 'data/simulation/alpha_sensitivity.json',
-        'elapsed_seconds': elapsed
-    }
-
-@log_operation("run_full_pipeline")
-def run_full_pipeline(
-    min_n: int = DEFAULT_MIN_N,
-    max_n: int = DEFAULT_MAX_N,
-    step_n: int = DEFAULT_STEP_N,
-    iterations: int = DEFAULT_ITERATIONS,
-    alpha: float = DEFAULT_ALPHA,
-    tests: List[str] = DEFAULT_TESTS,
-    effect_sizes: List[float] = DEFAULT_EFFECT_SIZES,
-    skip_simulation: bool = False,
-    skip_aggregation: bool = False,
-    skip_thresholds: bool = False,
-    skip_plots: bool = False,
-    skip_validation: bool = False,
-    skip_bootstrap: bool = False,
-    skip_metrics: bool = False,
-    skip_report: bool = False,
-    skip_alpha_sensitivity: bool = False
-) -> Dict[str, Any]:
-    """
-    Run the complete pipeline from simulation to final report.
-
-    This is the main orchestrator that ensures all deliverables are produced:
-    - data/simulation/p_values_raw.csv
-    - data/simulation/error_rates_summary.csv
-    - data/simulation/thresholds.json
-    - data/visualization/*.png
-    - data/simulation/real_data_pvalues.csv
-    - data/simulation/real_data_power.json
-    - data/simulation/validation_metrics.json
-    - data/reports/validation_report.md
-    """
-    start_time = time.time()
-    pipeline_results = {}
-
-    logger.log("pipeline_started",
-              min_n=min_n, max_n=max_n, iterations=iterations,
-              tests=tests, effect_sizes=effect_sizes)
-
-    # Step 1: Simulation
-    if not skip_simulation:
-        try:
-            logger.log("step_simulation_start")
-            sim_result = run_simulation(
-                min_n=min_n, max_n=max_n, step_n=step_n,
-                iterations=iterations, alpha=alpha,
-                tests=tests, effect_sizes=effect_sizes
-            )
-            pipeline_results['simulation'] = sim_result
-            logger.log("step_simulation_complete")
-        except Exception as e:
-            logger.log("step_simulation_failed", error=str(e))
-            pipeline_results['simulation'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    force_gc()
-
-    # Step 2: Aggregation
-    if not skip_aggregation:
-        try:
-            logger.log("step_aggregation_start")
-            agg_result = run_aggregation()
-            pipeline_results['aggregation'] = agg_result
-            logger.log("step_aggregation_complete")
-        except Exception as e:
-            logger.log("step_aggregation_failed", error=str(e))
-            pipeline_results['aggregation'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    force_gc()
-
-    # Step 3: Threshold Identification
-    if not skip_thresholds:
-        try:
-            logger.log("step_thresholds_start")
-            thresh_result = run_thresholds()
-            pipeline_results['thresholds'] = thresh_result
-            logger.log("step_thresholds_complete")
-        except Exception as e:
-            logger.log("step_thresholds_failed", error=str(e))
-            pipeline_results['thresholds'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 4: Visualization
-    if not skip_plots:
-        try:
-            logger.log("step_plots_start")
-            plot_result = run_plots()
-            pipeline_results['plots'] = plot_result
-            logger.log("step_plots_complete")
-        except Exception as e:
-            logger.log("step_plots_failed", error=str(e))
-            pipeline_results['plots'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 5: Validation (Real Data)
-    if not skip_validation:
-        try:
-            logger.log("step_validation_start")
-            val_result = run_validation()
-            pipeline_results['validation'] = val_result
-            logger.log("step_validation_complete")
-        except Exception as e:
-            logger.log("step_validation_failed", error=str(e))
-            pipeline_results['validation'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 6: Bootstrap
-    if not skip_bootstrap:
-        try:
-            logger.log("step_bootstrap_start")
-            boot_result = run_bootstrap()
-            pipeline_results['bootstrap'] = boot_result
-            logger.log("step_bootstrap_complete")
-        except Exception as e:
-            logger.log("step_bootstrap_failed", error=str(e))
-            pipeline_results['bootstrap'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 7: Metrics
-    if not skip_metrics:
-        try:
-            logger.log("step_metrics_start")
-            metrics_result = run_metrics()
-            pipeline_results['metrics'] = metrics_result
-            logger.log("step_metrics_complete")
-        except Exception as e:
-            logger.log("step_metrics_failed", error=str(e))
-            pipeline_results['metrics'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 8: Report
-    if not skip_report:
-        try:
-            logger.log("step_report_start")
-            report_result = run_report()
-            pipeline_results['report'] = report_result
-            logger.log("step_report_complete")
-        except Exception as e:
-            logger.log("step_report_failed", error=str(e))
-            pipeline_results['report'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    # Step 9: Alpha Sensitivity
-    if not skip_alpha_sensitivity:
-        try:
-            logger.log("step_alpha_sensitivity_start")
-            alpha_result = run_alpha_sensitivity()
-            pipeline_results['alpha_sensitivity'] = alpha_result
-            logger.log("step_alpha_sensitivity_complete")
-        except Exception as e:
-            logger.log("step_alpha_sensitivity_failed", error=str(e))
-            pipeline_results['alpha_sensitivity'] = {'status': 'failed', 'error': str(e)}
-            if not os.environ.get('CONTINUE_ON_ERROR'):
-                raise
-
-    total_elapsed = time.time() - start_time
-
-    # Check if all steps succeeded
-    all_success = all(
-        r.get('status') == 'success'
-        for r in pipeline_results.values()
-    )
-
-    logger.log("pipeline_completed",
-              total_elapsed=total_elapsed,
-              all_success=all_success,
-              results_summary={k: v.get('status') for k, v in pipeline_results.items()})
-
-    return {
-        'status': 'success' if all_success else 'partial',
-        'total_elapsed_seconds': total_elapsed,
-        'steps': pipeline_results
-    }
+    gc.collect()
+    gc.collect()  # Triple collection for deep graphs
 
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description='Statistical Sensitivity Analysis Pipeline',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    # Mode selection
-    parser.add_argument(
-        '--mode',
-        choices=['simulation', 'aggregation', 'thresholds', 'plots',
-                'validation', 'bootstrap', 'metrics', 'report',
-                'alpha_sensitivity', 'full_pipeline'],
-        default='full_pipeline',
-        help='Pipeline mode to run'
+        description="Run statistical test sensitivity simulation pipeline."
     )
 
     # Simulation parameters
-    parser.add_argument(
-        '--min-n', type=int, default=DEFAULT_MIN_N,
-        help=f'Minimum sample size (default: {DEFAULT_MIN_N})'
-    )
-    parser.add_argument(
-        '--max-n', type=int, default=DEFAULT_MAX_N,
-        help=f'Maximum sample size (default: {DEFAULT_MAX_N})'
-    )
-    parser.add_argument(
-        '--step-n', type=int, default=DEFAULT_STEP_N,
-        help=f'Step size for sample sizes (default: {DEFAULT_STEP_N})'
-    )
-    parser.add_argument(
-        '--iterations', type=int, default=DEFAULT_ITERATIONS,
-        help=f'Iterations per condition (default: {DEFAULT_ITERATIONS})'
-    )
-    parser.add_argument(
-        '--alpha', type=float, default=DEFAULT_ALPHA,
-        help=f'Significance level (default: {DEFAULT_ALPHA})'
-    )
-    parser.add_argument(
-        '--tests', nargs='+', default=DEFAULT_TESTS,
-        choices=['t-test', 'anova', 'chi-squared'],
-        help=f'Test types to run (default: {DEFAULT_TESTS})'
-    )
-    parser.add_argument(
-        '--effect-sizes', nargs='+', type=float, default=DEFAULT_EFFECT_SIZES,
-        help=f'Effect sizes to test (default: {DEFAULT_EFFECT_SIZES})'
-    )
+    parser.add_argument("--min-n", type=int, default=5, help="Minimum sample size")
+    parser.add_argument("--max-n", type=int, default=500, help="Maximum sample size")
+    parser.add_argument("--step-n", type=int, default=5, help="Step size for sample size")
+    parser.add_argument("--iterations", type=int, default=100, help="Number of iterations per condition")
+    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
+    parser.add_argument("--effect-size", type=float, default=0.5, help="Effect size for alternative hypothesis")
 
-    # Alpha sensitivity
-    parser.add_argument(
-        '--alpha-levels', nargs='+', type=float, default=[0.01, 0.05, 0.10],
-        help='Alpha levels for sensitivity analysis'
-    )
+    # Test type selection
+    parser.add_argument("--test", type=str, choices=["t-test", "anova", "chi-squared", "all"],
+                        default="all", help="Statistical test to run")
 
-    # Pipeline control
-    parser.add_argument(
-        '--skip-simulation', action='store_true',
-        help='Skip simulation step'
-    )
-    parser.add_argument(
-        '--skip-aggregation', action='store_true',
-        help='Skip aggregation step'
-    )
-    parser.add_argument(
-        '--skip-thresholds', action='store_true',
-        help='Skip threshold identification step'
-    )
-    parser.add_argument(
-        '--skip-plots', action='store_true',
-        help='Skip visualization step'
-    )
-    parser.add_argument(
-        '--skip-validation', action='store_true',
-        help='Skip validation step'
-    )
-    parser.add_argument(
-        '--skip-bootstrap', action='store_true',
-        help='Skip bootstrap step'
-    )
-    parser.add_argument(
-        '--skip-metrics', action='store_true',
-        help='Skip metrics step'
-    )
-    parser.add_argument(
-        '--skip-report', action='store_true',
-        help='Skip report generation step'
-    )
-    parser.add_argument(
-        '--skip-alpha-sensitivity', action='store_true',
-        help='Skip alpha sensitivity analysis'
-    )
+    # Modes
+    parser.add_argument("--mode", type=str, choices=["simulation", "aggregation", "thresholds",
+                                                    "plots", "validation", "full", "bootstrap"],
+                        default="full", help="Pipeline mode to run")
 
-    # Continue on error
-    parser.add_argument(
-        '--continue-on-error', action='store_true',
-        help='Continue pipeline even if a step fails'
-    )
+    # Memory optimization flags
+    parser.add_argument("--batch-size", type=int, default=1000,
+                        help="Batch size for processing iterations (memory optimization)")
+    parser.add_argument("--gc-threshold", type=int, default=GC_THRESHOLD,
+                        help="Garbage collection threshold")
 
     return parser.parse_args()
 
-def main() -> int:
+def run_simulation(args: argparse.Namespace) -> Dict[str, Any]:
+    """
+    Run the core simulation with memory optimization.
+    Processes data in batches to stay within memory limits.
+    """
+    logger.info("Starting simulation with memory optimization...")
+    logger.info(f"Parameters: n=[{args.min_n}, {args.max_n}], iterations={args.iterations}, "
+               f"test={args.test}, alpha={args.alpha}")
+
+    # Ensure output directories exist
+    ensure_output_directory()
+    ensure_metadata_file_exists()
+
+    # Register this run in metadata
+    run_id = register_run("simulation", {
+        "min_n": args.min_n,
+        "max_n": args.max_n,
+        "step_n": args.step_n,
+        "iterations": args.iterations,
+        "alpha": args.alpha,
+        "test_type": args.test,
+        "batch_size": args.batch_size
+    })
+
+    all_p_values = []
+    sample_sizes = range(args.min_n, args.max_n + 1, args.step_n)
+
+    # Memory-efficient batch processing
+    batch_results = []
+    batch_count = 0
+    total_conditions = len(sample_sizes) * (3 if args.test == "all" else 1)
+
+    logger.info(f"Processing {total_conditions} conditions in batches...")
+
+    for n in sample_sizes:
+        # Check memory before each sample size batch
+        if not check_memory_limit(MEMORY_LIMIT_MB * 0.9):  # Safety margin
+            logger.warning("Memory usage high, forcing garbage collection...")
+            force_gc()
+            if not check_memory_limit(MEMORY_LIMIT_MB):
+                logger.error("Memory limit still exceeded after GC. Aborting simulation.")
+                raise MemoryError(f"Memory limit {MEMORY_LIMIT_MB}MB exceeded")
+
+        # Generate data for this sample size
+        if args.test in ["t-test", "all"]:
+            # T-test: two groups
+            data_null = generate_normal_data(n, mu1=0, mu2=0, sigma=1)
+            data_alt = generate_normal_data(n, mu1=0, mu2=args.effect_size, sigma=1)
+
+            # Process in smaller batches
+            p_values_null = []
+            p_values_alt = []
+
+            for batch_start in range(0, args.iterations, args.batch_size):
+                batch_end = min(batch_start + args.batch_size, args.iterations)
+                batch_null = []
+                batch_alt = []
+
+                for _ in range(batch_start, batch_end):
+                    rng = get_rng()
+                    # Null hypothesis: no difference
+                    p_null = run_simulation_condition(data_null, "t-test", rng)
+                    batch_null.append(p_null)
+
+                    # Alternative hypothesis: difference exists
+                    p_alt = run_simulation_condition(data_alt, "t-test", rng)
+                    batch_alt.append(p_alt)
+
+                p_values_null.extend(batch_null)
+                p_values_alt.extend(batch_alt)
+
+                # Force GC after each batch
+                if (batch_end - batch_start) >= args.gc_threshold:
+                    force_gc()
+
+            # Store results for this condition
+            for p in p_values_null:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "t-test",
+                    "hypothesis": "null",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+            for p in p_values_alt:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "t-test",
+                    "hypothesis": "alternative",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+        if args.test in ["anova", "all"]:
+            # ANOVA: multiple groups
+            data_null = generate_normal_data(n, mu1=0, mu2=0, mu3=0, sigma=1)
+            data_alt = generate_normal_data(n, mu1=0, mu2=args.effect_size, mu3=0, sigma=1)
+
+            p_values_null = []
+            p_values_alt = []
+
+            for batch_start in range(0, args.iterations, args.batch_size):
+                batch_end = min(batch_start + args.batch_size, args.iterations)
+                batch_null = []
+                batch_alt = []
+
+                for _ in range(batch_start, batch_end):
+                    rng = get_rng()
+                    p_null = run_simulation_condition(data_null, "anova", rng)
+                    batch_null.append(p_null)
+
+                    p_alt = run_simulation_condition(data_alt, "anova", rng)
+                    batch_alt.append(p_alt)
+
+                p_values_null.extend(batch_null)
+                p_values_alt.extend(batch_alt)
+
+                if (batch_end - batch_start) >= args.gc_threshold:
+                    force_gc()
+
+            for p in p_values_null:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "anova",
+                    "hypothesis": "null",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+            for p in p_values_alt:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "anova",
+                    "hypothesis": "alternative",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+        if args.test in ["chi-squared", "all"]:
+            # Chi-squared: contingency tables
+            # Generate contingency table data
+            data_null = generate_contingency_table_data(n, effect_size=0)
+            data_alt = generate_contingency_table_data(n, effect_size=args.effect_size)
+
+            p_values_null = []
+            p_values_alt = []
+
+            for batch_start in range(0, args.iterations, args.batch_size):
+                batch_end = min(batch_start + args.batch_size, args.iterations)
+                batch_null = []
+                batch_alt = []
+
+                for _ in range(batch_start, batch_end):
+                    rng = get_rng()
+                    p_null = run_simulation_condition(data_null, "chi-squared", rng)
+                    batch_null.append(p_null)
+
+                    p_alt = run_simulation_condition(data_alt, "chi-squared", rng)
+                    batch_alt.append(p_alt)
+
+                p_values_null.extend(batch_null)
+                p_values_alt.extend(batch_alt)
+
+                if (batch_end - batch_start) >= args.gc_threshold:
+                    force_gc()
+
+            for p in p_values_null:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "chi-squared",
+                    "hypothesis": "null",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+            for p in p_values_alt:
+                all_p_values.append({
+                    "sample_size": n,
+                    "test_type": "chi-squared",
+                    "hypothesis": "alternative",
+                    "p_value": p,
+                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
+                })
+
+        # Write batch to file periodically to avoid memory buildup
+        if len(all_p_values) >= args.batch_size * 10:
+            write_p_values_raw(all_p_values, "data/simulation/p_values_raw.csv")
+            # Clear processed data
+            all_p_values = []
+            force_gc()
+            logger.info(f"Written batch {batch_count} to CSV, cleared memory")
+            batch_count += 1
+
+    # Write remaining results
+    if all_p_values:
+        write_p_values_raw(all_p_values, "data/simulation/p_values_raw.csv")
+
+    update_run_status(run_id, "completed", {"total_records": len(all_p_values)})
+    logger.info("Simulation completed successfully")
+    return {"status": "completed", "records_written": len(all_p_values)}
+
+def run_aggregation(args: argparse.Namespace) -> Dict[str, Any]:
+    """Run aggregation to calculate error rates."""
+    logger.info("Starting aggregation...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("aggregation", {"alpha": args.alpha})
+
+    try:
+        # Calculate error rates
+        error_rates = calculate_error_rates("data/simulation/p_values_raw.csv", args.alpha)
+
+        # Save aggregated results
+        save_aggregated_results(error_rates, "data/simulation/error_rates_summary.csv")
+
+        update_run_status(run_id, "completed", {"error_rates_count": len(error_rates)})
+        logger.info("Aggregation completed successfully")
+        return {"status": "completed", "error_rates_count": len(error_rates)}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_thresholds(args: argparse.Namespace) -> Dict[str, Any]:
+    """Calculate thresholds for reliability."""
+    logger.info("Starting threshold calculation...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("thresholds", {"alpha": args.alpha})
+
+    try:
+        # Calculate confidence intervals
+        error_rates = calculate_confidence_intervals("data/simulation/error_rates_summary.csv")
+
+        # Save thresholds
+        save_thresholds(error_rates, "data/simulation/thresholds.json")
+
+        update_run_status(run_id, "completed", {"thresholds_count": len(error_rates)})
+        logger.info("Threshold calculation completed successfully")
+        return {"status": "completed", "thresholds_count": len(error_rates)}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_plots(args: argparse.Namespace) -> Dict[str, Any]:
+    """Generate visualization plots."""
+    logger.info("Starting plot generation...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("plots", {})
+
+    try:
+        # Generate all plots
+        generate_all_plots(
+            error_rates_path="data/simulation/error_rates_summary.csv",
+            thresholds_path="data/simulation/thresholds.json",
+            output_dir="data/visualization"
+        )
+
+        # Save individual and comparative plots
+        save_individual_plots("data/visualization")
+        save_comparative_plots("data/visualization")
+
+        update_run_status(run_id, "completed", {"plots_generated": True})
+        logger.info("Plot generation completed successfully")
+        return {"status": "completed", "plots_generated": True}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_validation(args: argparse.Namespace) -> Dict[str, Any]:
+    """Run validation against real-world datasets."""
+    logger.info("Starting validation with real datasets...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("validation", {"alpha": args.alpha})
+
+    try:
+        # Run validation on real datasets
+        validation_results = run_validation_on_datasets(
+            alpha=args.alpha,
+            output_csv="data/simulation/real_data_pvalues.csv"
+        )
+
+        # Register dataset checksums
+        for dataset_name, checksum in validation_results.get("checksums", {}).items():
+            register_dataset_checksum(dataset_name, checksum)
+
+        update_run_status(run_id, "completed", validation_results)
+        logger.info("Validation completed successfully")
+        return {"status": "completed", "results": validation_results}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_bootstrap(args: argparse.Namespace) -> Dict[str, Any]:
+    """Run bootstrapped power estimation."""
+    logger.info("Starting bootstrapped power estimation...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("bootstrap", {"alpha": args.alpha})
+
+    try:
+        # Run bootstrapped validation
+        power_results = run_bootstrapped_validation(
+            simulated_power_path="data/simulation/error_rates_summary.csv",
+            real_data_path="data/simulation/real_data_pvalues.csv",
+            output_path="data/simulation/real_data_power.json"
+        )
+
+        update_run_status(run_id, "completed", power_results)
+        logger.info("Bootstrapped power estimation completed successfully")
+        return {"status": "completed", "results": power_results}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_metrics(args: argparse.Namespace) -> Dict[str, Any]:
+    """Calculate validation metrics."""
+    logger.info("Starting validation metrics calculation...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("metrics", {"alpha": args.alpha})
+
+    try:
+        # Calculate validation metrics
+        metrics = calculate_validation_metrics(
+            simulated_path="data/simulation/error_rates_summary.csv",
+            real_data_path="data/simulation/real_data_pvalues.csv"
+        )
+
+        # Save metrics
+        save_validation_metrics(metrics, "data/simulation/validation_metrics.json")
+
+        update_run_status(run_id, "completed", {"metrics_count": len(metrics)})
+        logger.info("Validation metrics calculation completed successfully")
+        return {"status": "completed", "metrics_count": len(metrics)}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_report(args: argparse.Namespace) -> Dict[str, Any]:
+    """Generate final validation report."""
+    logger.info("Generating validation report...")
+    ensure_metadata_file_exists()
+
+    run_id = register_run("report", {})
+
+    try:
+        # Generate report
+        report_content = generate_report(
+            error_rates_path="data/simulation/error_rates_summary.csv",
+            thresholds_path="data/simulation/thresholds.json",
+            validation_metrics_path="data/simulation/validation_metrics.json",
+            real_data_power_path="data/simulation/real_data_power.json",
+            output_path="data/reports/validation_report.md"
+        )
+
+        update_run_status(run_id, "completed", {"report_generated": True})
+        logger.info("Report generation completed successfully")
+        return {"status": "completed", "report_generated": True}
+    except Exception as e:
+        update_run_status(run_id, "failed", {"error": str(e)})
+        log_error_details(e)
+        raise
+
+def run_full_pipeline(args: argparse.Namespace) -> Dict[str, Any]:
+    """Run the complete pipeline with memory optimization."""
+    logger.info("Starting full pipeline with memory optimization...")
+    start_time = time.time()
+
+    results = {}
+
+    try:
+        # Step 1: Simulation
+        if args.mode in ["full", "simulation"]:
+            results["simulation"] = run_simulation(args)
+
+        # Step 2: Aggregation
+        if args.mode in ["full", "aggregation"]:
+            results["aggregation"] = run_aggregation(args)
+
+        # Step 3: Thresholds
+        if args.mode in ["full", "thresholds"]:
+            results["thresholds"] = run_thresholds(args)
+
+        # Step 4: Plots
+        if args.mode in ["full", "plots"]:
+            results["plots"] = run_plots(args)
+
+        # Step 5: Validation
+        if args.mode in ["full", "validation"]:
+            results["validation"] = run_validation(args)
+
+        # Step 6: Bootstrap
+        if args.mode in ["full", "bootstrap"]:
+            results["bootstrap"] = run_bootstrap(args)
+
+        # Step 7: Metrics
+        if args.mode in ["full", "metrics"]:
+            results["metrics"] = run_metrics(args)
+
+        # Step 8: Report
+        if args.mode in ["full", "report"]:
+            results["report"] = run_report(args)
+
+        elapsed_time = time.time() - start_time
+        logger.info(f"Full pipeline completed in {elapsed_time:.2f} seconds")
+
+        # Final memory check
+        final_memory = get_memory_usage_mb()
+        logger.info(f"Final memory usage: {final_memory:.2f}MB")
+
+        return {
+            "status": "completed",
+            "results": results,
+            "elapsed_time": elapsed_time,
+            "final_memory_mb": final_memory
+        }
+
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        log_error_details(e)
+        return {"status": "failed", "error": str(e)}
+
+def main():
     """Main entry point."""
     args = parse_args()
 
-    if args.continue_on_error:
-        os.environ['CONTINUE_ON_ERROR'] = '1'
+    # Set garbage collection threshold
+    gc.set_threshold(args.gc_threshold)
 
     try:
-        if args.mode == 'simulation':
-            result = run_simulation(
-                min_n=args.min_n,
-                max_n=args.max_n,
-                step_n=args.step_n,
-                iterations=args.iterations,
-                alpha=args.alpha,
-                tests=args.tests,
-                effect_sizes=args.effect_sizes
-            )
-        elif args.mode == 'aggregation':
-            result = run_aggregation()
-        elif args.mode == 'thresholds':
-            result = run_thresholds()
-        elif args.mode == 'plots':
-            result = run_plots()
-        elif args.mode == 'validation':
-            result = run_validation()
-        elif args.mode == 'bootstrap':
-            result = run_bootstrap()
-        elif args.mode == 'metrics':
-            result = run_metrics()
-        elif args.mode == 'report':
-            result = run_report()
-        elif args.mode == 'alpha_sensitivity':
-            result = run_alpha_sensitivity(alpha_levels=args.alpha_levels)
-        elif args.mode == 'full_pipeline':
-            result = run_full_pipeline(
-                min_n=args.min_n,
-                max_n=args.max_n,
-                step_n=args.step_n,
-                iterations=args.iterations,
-                alpha=args.alpha,
-                tests=args.tests,
-                effect_sizes=args.effect_sizes,
-                skip_simulation=args.skip_simulation,
-                skip_aggregation=args.skip_aggregation,
-                skip_thresholds=args.skip_thresholds,
-                skip_plots=args.skip_plots,
-                skip_validation=args.skip_validation,
-                skip_bootstrap=args.skip_bootstrap,
-                skip_metrics=args.skip_metrics,
-                skip_report=args.skip_report,
-                skip_alpha_sensitivity=args.skip_alpha_sensitivity
-            )
+        if args.mode == "full":
+            result = run_full_pipeline(args)
+        elif args.mode == "simulation":
+            result = run_simulation(args)
+        elif args.mode == "aggregation":
+            result = run_aggregation(args)
+        elif args.mode == "thresholds":
+            result = run_thresholds(args)
+        elif args.mode == "plots":
+            result = run_plots(args)
+        elif args.mode == "validation":
+            result = run_validation(args)
+        elif args.mode == "bootstrap":
+            result = run_bootstrap(args)
+        elif args.mode == "metrics":
+            result = run_metrics(args)
+        elif args.mode == "report":
+            result = run_report(args)
         else:
-            logger.log("unknown_mode", mode=args.mode)
-            print(f"Unknown mode: {args.mode}")
-            return 1
+            logger.error(f"Unknown mode: {args.mode}")
+            sys.exit(1)
 
-        print(json.dumps(result, indent=2, default=str))
-        return 0
+        if result["status"] == "completed":
+            logger.info("Pipeline completed successfully")
+            sys.exit(0)
+        else:
+            logger.error(f"Pipeline failed: {result.get('error', 'Unknown error')}")
+            sys.exit(1)
 
+    except KeyboardInterrupt:
+        logger.info("Pipeline interrupted by user")
+        sys.exit(130)
     except Exception as e:
-        logger.log("pipeline_error", error=str(e), traceback=traceback.format_exc())
-        print(f"Error: {e}")
+        logger.error(f"Unexpected error: {e}")
         traceback.print_exc()
-        return 1
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

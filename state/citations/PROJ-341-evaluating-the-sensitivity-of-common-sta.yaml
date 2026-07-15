@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: 506ea3a3f55e1b4e19ac09b00695f5f8b94413b9105a9737f46257b2f263d608
+- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-07-15T10:41:13.995255Z'
-- artifact_hash: 506ea3a3f55e1b4e19ac09b00695f5f8b94413b9105a9737f46257b2f263d608
+  verified_at: '2026-07-15T10:44:29.652432Z'
+- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,10 +63,21 @@
   value: https://arxiv.org/abs/1405.1250
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-07-15T10:41:13.995255Z'
-- artifact_hash: 506ea3a3f55e1b4e19ac09b00695f5f8b94413b9105a9737f46257b2f263d608
+  verified_at: '2026-07-15T10:44:29.652432Z'
+- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-15T10:44:29.652432Z'
+- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: '[1711.07831] On Breast Cancer Detection: An Application of Machine
@@ -75,10 +86,10 @@
   value: https://arxiv.org/abs/1711.07831
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1711.07831
-  verified_at: '2026-07-15T10:41:13.995255Z'
-- artifact_hash: 506ea3a3f55e1b4e19ac09b00695f5f8b94413b9105a9737f46257b2f263d608
+  verified_at: '2026-07-15T10:44:29.652432Z'
+- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  cite_id: c-004
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: '[1810.10076] A Statistical Approach to Adult Census Income Level
@@ -87,4 +98,4 @@
   value: https://arxiv.org/abs/1810.10076
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1810.10076
-  verified_at: '2026-07-15T10:41:13.995255Z'
+  verified_at: '2026-07-15T10:44:29.652432Z'

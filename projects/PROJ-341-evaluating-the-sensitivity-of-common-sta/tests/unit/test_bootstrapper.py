@@ -1,6 +1,6 @@
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 import json
 import os
 import tempfile
@@ -10,98 +10,127 @@ from unittest.mock import patch, MagicMock
 from code.analysis.bootstrapper import (
     bootstrap_power_estimate,
     calculate_ks_distance,
-    run_bootstrapped_validation,
+    load_real_data_pvalues,
     save_power_results
 )
 
 class TestBootstrapPowerEstimate:
+    """Tests for bootstrap_power_estimate function."""
+
+    def test_power_estimate_basic(self):
+        """Test basic power estimation with known p-values."""
+        # Create p-values where 50% are < 0.05
+        p_values = pd.Series([0.01, 0.02, 0.4, 0.5, 0.6, 0.7])
+        result = bootstrap_power_estimate(p_values, n_bootstraps=100, alpha=0.05)
+        
+        assert 'power_estimate' in result
+        assert 'ci_lower' in result
+        assert 'ci_upper' in result
+        assert result['n_samples'] == 6
+        assert result['n_bootstraps'] == 100
+        
+        # Observed power should be 2/6 = 0.333
+        assert abs(result['power_estimate'] - 0.333) < 0.01
+
+    def test_power_estimate_all_significant(self):
+        """Test power estimation when all p-values are significant."""
+        p_values = pd.Series([0.01, 0.02, 0.03, 0.04])
+        result = bootstrap_power_estimate(p_values, n_bootstraps=50, alpha=0.05)
+        
+        assert result['power_estimate'] == 1.0
+        assert result['ci_lower'] == 1.0
+        assert result['ci_upper'] == 1.0
+
+    def test_power_estimate_none_significant(self):
+        """Test power estimation when no p-values are significant."""
+        p_values = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
+        result = bootstrap_power_estimate(p_values, n_bootstraps=50, alpha=0.05)
+        
+        assert result['power_estimate'] == 0.0
+
     def test_empty_pvalues_raises(self):
-        with pytest.raises(ValueError):
-            bootstrap_power_estimate(pd.Series([]), alpha=0.05)
-
-    def test_bootstrap_returns_expected_structure(self):
-        # Create a deterministic set of p-values
-        np.random.seed(42)
-        pvals = pd.Series(np.random.uniform(0, 1, 1000))
-        
-        result = bootstrap_power_estimate(pvals, alpha=0.05, n_bootstrap=100)
-        
-        assert "mean_power" in result
-        assert "std_error" in result
-        assert "ci_95_lower" in result
-        assert "ci_95_upper" in result
-        assert "n_bootstrap" in result
-        assert result["n_bootstrap"] == 100
-        assert 0 <= result["mean_power"] <= 1
-
-    def test_power_calculation_logic(self):
-        # Create p-values where exactly 50% are < 0.05
-        pvals = pd.Series([0.01] * 50 + [0.5] * 50)
-        result = bootstrap_power_estimate(pvals, alpha=0.05, n_bootstrap=1000)
-        
-        # With 1000 bootstraps, mean should be very close to 0.5
-        assert abs(result["mean_power"] - 0.5) < 0.05
+        """Test that empty p-values raise an error."""
+        p_values = pd.Series([])
+        with pytest.raises(ValueError, match="Cannot bootstrap with zero p-values"):
+            bootstrap_power_estimate(p_values)
 
 class TestCalculateKsDistance:
-    def test_empty_arrays_raises(self):
-        with pytest.raises(ValueError):
-            calculate_ks_distance(np.array([]), np.array([1, 2, 3]))
+    """Tests for calculate_ks_distance function."""
+
+    def test_ks_distance_identical_distributions(self):
+        """Test KS distance with identical distributions (should be near 0)."""
+        np.random.seed(42)
+        dist1 = np.random.uniform(0, 1, 1000)
+        dist2 = dist1.copy()
         
-        with pytest.raises(ValueError):
-            calculate_ks_distance(np.array([1, 2, 3]), np.array([]))
+        ks = calculate_ks_distance(pd.Series(dist1), dist2)
+        assert ks == 0.0
 
-    def test_identical_distributions(self):
-        data = np.array([1, 2, 3, 4, 5])
-        dist = calculate_ks_distance(data, data)
-        assert dist == 0.0
-
-    def test_different_distributions(self):
-        dist1 = np.random.normal(0, 1, 1000)
-        dist2 = np.random.normal(2, 1, 1000)
+    def test_ks_distance_different_distributions(self):
+        """Test KS distance with different distributions."""
+        # Uniform vs concentrated near 0
+        uniform = np.random.uniform(0, 1, 1000)
+        concentrated = np.random.beta(0.5, 1, 1000)
         
-        ks = calculate_ks_distance(dist1, dist2)
-        assert 0 < ks <= 1.0
+        ks = calculate_ks_distance(pd.Series(uniform), concentrated)
+        
+        # Should be significantly greater than 0
+        assert ks > 0.1
+        assert ks <= 1.0
 
-class TestRunBootstrappedValidation:
-    @patch('code.analysis.bootstrapper.load_real_data_pvalues')
-    @patch('code.analysis.bootstrapper.load_p_values_raw')
-    def test_validation_flow(self, mock_sim_load, mock_real_load):
-        # Mock real data
-        real_df = pd.DataFrame({
-            "test_type": ["t-test", "t-test", "t-test", "t-test"],
-            "sample_size": [50, 50, 50, 50],
-            "p_value": [0.01, 0.04, 0.06, 0.8]
-        })
-        mock_real_load.return_value = real_df
-
-        # Mock simulated data
-        sim_df = pd.DataFrame({
-            "test_type": ["t-test", "t-test", "t-test", "t-test"],
-            "sample_size": [50, 50, 50, 50],
-            "p_value": [0.02, 0.03, 0.05, 0.9]
-        })
-        mock_sim_load.return_value = sim_df
-
-        results = run_bootstrapped_validation(
-            real_data_file="dummy.csv",
-            simulated_data_file="dummy_sim.csv",
-            n_bootstrap=50,
-            ks_threshold=0.10
-        )
-
-        assert "validation_status" in results
-        assert "details" in results
-        assert len(results["details"]) > 0
+    def test_ks_distance_empty_raises(self):
+        """Test that empty distributions raise an error."""
+        with pytest.raises(ValueError, match="Cannot calculate KS distance"):
+            calculate_ks_distance(pd.Series([]), np.array([]))
 
 class TestSavePowerResults:
-    def test_save_to_json(self):
+    """Tests for save_power_results function."""
+
+    def test_save_results_creates_file(self):
+        """Test that save_power_results creates the output file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_output.json")
-            results = {"test": "data", "value": 123}
+            output_path = os.path.join(tmpdir, "test_results.json")
+            results = {
+                "t-test": {
+                    "power_estimate": 0.8,
+                    "ks_distance": 0.05,
+                    "ks_pass": True
+                }
+            }
             
             save_power_results(results, output_path)
             
             assert os.path.exists(output_path)
+            
             with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            assert loaded == results
+                data = json.load(f)
+            
+            assert 'timestamp' in data
+            assert 'results_by_test_type' in data
+            assert data['results_by_test_type']['t-test']['power_estimate'] == 0.8
+
+    def test_save_results_structure(self):
+        """Test the structure of saved results."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_results.json")
+            results = {
+                "t-test": {
+                    "power_estimate": 0.8,
+                    "power_ci_lower": 0.7,
+                    "power_ci_upper": 0.9,
+                    "ks_distance": 0.05,
+                    "ks_threshold": 0.10,
+                    "ks_pass": True,
+                    "n_real_samples": 100,
+                    "datasets_included": ["dataset1"]
+                }
+            }
+            
+            save_power_results(results, output_path)
+            
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data['alpha'] == 0.05
+            assert data['ks_threshold'] == 0.10
+            assert 'timestamp' in data

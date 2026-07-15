@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations. [UNRESOLVED-CLAIM: c_2bbc4a3c — status=not_enough_info]
+**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations. [UNRESOLVED-CLAIM: c_8c8bd193 — status=not_enough_info]
 
 **Independent Test**: {{claim:c_46a368b8}}
 
@@ -97,9 +97,9 @@
 
 ## Phase 4: User Story 2 - Threshold Identification and Reliability Visualization (Priority: P2)
 
-**Goal**: Visualize the relationship between sample size and error rates to identify the specific sample size threshold where error rates deviate significantly from nominal alpha (0.05) or where power drops below 0.80.
+**Goal**: Visualize the relationship between sample size and error rates to identify the specific sample size threshold where error rates deviate significantly from {{claim:c_96ae5f60}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value) or where power drops below 0.80.
 
-**Independent Test**: The system can be tested by feeding it the output CSV from User Story 1 and generating a plot where the X-axis is sample size and the Y-axis is error rate, with a horizontal line at 0.05 and a highlighted vertical line indicating the calculated threshold.
+**Independent Test**: The system can be tested by feeding it the output CSV from User Story 1 and generatinga plot where the X-axis is sample size and the Y-axis is error rate, with a horizontal line at 0.05 and a highlighted vertical line indicating the calculated threshold.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -108,9 +108,9 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/analysis/threshold_finder.py` to compute binomial confidence intervals (Wilson score) for all error rates (FR-003); depends on T018
-- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. [UNRESOLVED-CLAIM: c_28836bd3 — status=not_enough_info] (FR-004)
+- [X] T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to The system will identify the smallest sample size where the Type I error lower confidence interval bound exceeds 0.05. [UNRESOLVED-CLAIM: c_c3ece5e8 — status=not_enough_info] (FR-004)
 - [X] T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify the smallest n where power CI remains < 0.80) for 3 consecutive increments (FR-004)
-- [ ] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n <!-- FAILED: unspecified -->
+- [X] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n <!-- FAILED: unspecified -->
 - [X] T024 [US2] Implement `code/visualization/plotter.py` to generate line plots with 95% CI bands for sample size vs. error rate (FR-005)
 - [X] T025 [US2] Add annotations to plots marking the identified reliability thresholds and nominal alpha/power lines
 - [X] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30) [UNRESOLVED-CLAIM: c_9c268ce8 — status=not_enough_info]
@@ -138,7 +138,7 @@
 - [X] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III) <!-- FAILED: unspecified -->
 - [X] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
 - [ ] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
-- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10. [UNRESOLVED-CLAIM: c_ca740529 — status=not_enough_info], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
+- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, Bootstrapped power estimation on real datasets must verify Kolmogorov-Smirnov distance less than or equal to 0.10. [UNRESOLVED-CLAIM: c_53304eb8 — status=not_enough_info], and save results to `data/simulation/real_data_power.json` (FR-006, SC-003) <!-- FAILED: unspecified -->
 - [ ] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json` <!-- FAILED: unspecified -->
 - [X] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
 
@@ -151,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035 [US1] Implement sensitivity analysis for alpha thresholds across standard significance levels. to observe critical sample size shifts (SC-004); depends on T012b refactored for dynamic alpha
-- [ ] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T036 [P] Optimize `code/main.py` for memory usage to The simulation must ensure less than 7GB RAM usage during full simulation run. [UNRESOLVED-CLAIM: c_d27d0b77 — status=not_enough_info] <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T037 [P] Add comprehensive logging to all simulation steps for debugging reproducibility issues
 - [X] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
 - [X] T039 [P] Run `pytest` suite to ensure all unit and integration tests pass
