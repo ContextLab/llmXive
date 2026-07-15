@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-05T07:28:55Z",
+  "fetched_at": "2026-07-15T01:39:12Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\"",
       "target_n": 5
     },
-    "duration_seconds": 61.634,
-    "ended_at": "2026-07-05T07:28:55Z",
+    "duration_seconds": 60.055,
+    "ended_at": "2026-07-15T01:39:12Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "scalable LLM training and serving infrastructure"
+          "scalable LLM training infrastructure"
         ],
         [
           2,
-          "distributed systems for million-scale large language models"
+          "large-scale distributed deep learning systems"
         ],
         [
           3,
-          "managed infrastructure for generative AI workloads"
+          "cost-effective LLM serving architectures"
         ],
         [
           4,
-          "high-throughput LLM serving architectures"
+          "managed infrastructure for foundation models"
         ],
         [
           5,
-          "efficient resource allocation for massive model training"
+          "efficient LLM deployment at scale"
         ],
         [
           6,
-          "cost-optimized LLM deployment pipelines"
+          "high-throughput LLM inference systems"
         ],
         [
           7,
-          "cluster management for billion-parameter model inference"
+          "resource optimization for massive language models"
         ],
         [
           8,
-          "fault-tolerant training systems for large language models"
+          "production-grade LLM training pipelines"
         ],
         [
           9,
-          "heterogeneous hardware orchestration for AI training"
+          "elastic infrastructure for generative AI"
         ],
         [
           10,
-          "dynamic scaling strategies for LLM serving"
+          "multi-tenant LLM serving platforms"
         ],
         [
           11,
-          "multi-tenant LLM infrastructure platforms"
+          "distributed training for trillion-parameter models"
         ],
         [
           12,
-          "energy-efficient datacenter design for AI training"
+          "LLM cluster management and orchestration"
         ],
         [
           13,
-          "containerized orchestration for distributed model training"
+          "energy-efficient LLM datacenter design"
         ],
         [
           14,
-          "low-latency inference serving for large-scale models"
+          "auto-scaling strategies for AI workloads"
         ],
         [
           15,
-          "automated provisioning for LLM training clusters"
+          "fault-tolerant systems for large model training"
         ],
         [
           16,
-          "system-level optimizations for trillion-parameter models"
+          "GPU/TPU resource scheduling for LLMs"
         ],
         [
           17,
-          "cloud-native architectures for generative AI"
+          "end-to-end MLOps for foundation models"
         ],
         [
           18,
-          "interconnect optimization for distributed LLM training"
+          "serving latency optimization in large-scale LLMs"
         ],
         [
           19,
-          "serverless frameworks for LLM inference workloads"
+          "heterogeneous computing for AI model training"
         ],
         [
           20,
-          "reliability engineering for continuous LLM training systems"
+          "infrastructure patterns for generative AI services"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science": 0,
-        "scalable LLM training and serving infrastructure": 5
+        "scalable LLM training infrastructure": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "LLM training cluster orchestration inference serving",
-      "Kubernetes distributed deep learning training infrastructure",
-      "heterogeneous GPU scheduling LLM training throughput",
-      "model serving latency throughput cost optimization",
-      "large-scale distributed training failure recovery checkpointing"
+      "managed infrastructure LLM training serving scaling",
+      "Kubernetes Ray Slurm distributed LLM clusters",
+      "inference serving throughput latency optimization",
+      "training cluster fault tolerance checkpoint recovery",
+      "resource scheduling GPU utilization multi-tenant LLM"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,22 +120,27 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.24133"
+        "2606.05868"
       ]
     },
     "per_query_hit_count": {
-      "Kubernetes distributed deep learning training infrastructure": 3,
-      "LLM training cluster orchestration inference serving": 3,
-      "heterogeneous GPU scheduling LLM training throughput": 3,
-      "large-scale distributed training failure recovery checkpointing": 3,
+      "Kubernetes Ray Slurm distributed LLM clusters": 3,
+      "inference serving throughput latency optimization": 3,
       "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science": 3,
-      "model serving latency throughput cost optimization": 2
+      "managed infrastructure LLM training serving scaling": 3,
+      "resource scheduling GPU utilization multi-tenant LLM": 3,
+      "training cluster fault tolerance checkpoint recovery": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 2,
       "rejections": [
+        {
+          "primary_pointer": "2502.21321",
+          "rationale": "The paper is a survey on algorithmic post-training techniques (fine-tuning, RL, reasoning) and does not address the user's specific question regarding \"Managed Infrastructure for Training and Serving,\" which concerns system architecture, resource management, and deployment scaling. While both relate to LLMs, the paper lacks the measurable connection to the infrastructure mechanisms, variables, or empirical population defined in the user's query, failing criteria (a) through (f).",
+          "title": "LLM Post-Training: A Deep Dive into Reasoning Large Language Models"
+        },
         {
           "primary_pointer": "2407.15549",
           "rationale": "The candidate paper focuses on algorithmic robustness and safety mechanisms (Latent Adversarial Training) for LLMs, whereas the user's question specifically targets \"Managed Infrastructure for Training and Serving,\" which pertains to system architecture, resource scheduling, and deployment scalability. There is no overlap in the independent variables (infrastructure management vs. adversarial training techniques) or the domain of study (systems engineering vs. model safety), failing to meet any ",
@@ -144,7 +149,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-05T07:27:53Z",
+    "started_at": "2026-07-15T01:38:12Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"mint: managed infrastructure for training and serving millions of llms\" computer science",
       "raw": "llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serving Millions of LLMs\" computer science"
@@ -163,7 +168,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +187,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,30 +205,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-05T07:28:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be hosted concurrently. While prior work has largely focused on latency minimization, resource efficiency through throughput maximization remains underexplored. This paper presents a data-driven pipeline that, for a given workload, computes an adapter placement that serves the workload with the minimum number of GPUs while avoiding request starvation and GPU memory errors. To that end, the approach identifies the maximum feasible throughput attainable on each GPU by leveraging accurate performance predictions learned from real serving behavior. The proposed pipeline integrates three components: (i) a Digital Twin (DT) tailored to LLM-adapter serving, (ii) a distilled machine learning (ML) model trained on DT-generated data, and (iii) a greedy placement algorithm that exploits ML-based performance estimates to maximize GPU efficiency. The DT emulates real system dynamics with high fidelity, achieving below 5% throughput estimation error while executing up to 90 times faster than full LLM benchmarking across both predictable and unpredictable workloads. The learned ML models further accelerate performance estimation with marginal accuracy degradation, enabling scalable optimization. Experimental results demonstrate that the pipeline substantially improves GPU efficiency by reducing the number of GPUs required to sustain target workloads. Beyond GPU efficiency, the pipeline can be adapted to alternative objectives, such as latency minimization, highlighting its versatility for future large-scale LLM serving infrastructures.",
-          "claimed_authors": [
-            "Ferran Agullo",
-            "Joan Oliveras",
-            "Chen Wang",
-            "Alberto Gutierrez-Torre",
-            "Olivier Tardieu",
-            "Alaa Youssef",
-            "Jordi Torres",
-            "Josep Ll. Berral"
-          ],
-          "claimed_title": "Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.24044"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -297,150 +279,82 @@
           "primary_pointer": "2606.05868"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) based on transformer architectures are typically described through collections of architectural components and training procedures, obscuring their underlying computational structure. This review article provides a concise mathematical reference for researchers seeking an explicit, equation-level description of LLM training, alignment, and generation. We formulate LLMs as high-dimensional nonlinear autoregressive models with attention-based dependencies. The framework encompasses pretraining via next-token prediction, alignment methods such as reinforcement learning from human feedback (RLHF), direct preference optimization (DPO), rejection sampling fine-tuning (RSFT), and reinforcement learning from verifiable rewards (RLVR), as well as autoregressive generation during inference. Self-attention emerges naturally as a repeated bilinear--softmax--linear composition, yielding highly expressive sequence models. This formulation enables principled analysis of alignment-induced behaviors (including sycophancy), inference-time phenomena (such as hallucination, in-context learning, chain-of-thought prompting, and retrieval-augmented generation), and extensions like continual learning, while serving as a concise reference for interpretation and further theoretical development.",
+          "claimed_abstract": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
           "claimed_authors": [
-            "Vikram Krishnamurthy"
+            "Chenhao Dang",
+            "Jing Ma",
+            "Mingjie Liao"
           ],
-          "claimed_title": "LLMs as High-Dimensional Nonlinear Autoregressive Models with Attention: Training, Alignment and Inference",
+          "claimed_title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.00426"
+          "primary_pointer": "2606.24133"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='LLMs as High-Dimensional Nonlinear Autoregressive Models with Attention: Training, Alignment and Inference')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_abstract": "AXTAR is a NASA MIDEX mission concept for X-ray timing of compact objects that combines very large collecting area, broadband spectral coverage, high time resolution, highly flexible scheduling, and an ability to respond promptly to time-critical targets of opportunity. It is optimized for submillisecond timing of bright Galactic X-ray sources in order to study phenomena at the natural time scales of neutron star surfaces and black hole event horizons, thus probing the physics of ultradense matter, strongly curved spacetimes, and intense magnetic fields. AXTAR's main instrument is a collimated, thick Si pixel detector with 2-50 keV coverage and over 3 square meters effective area. For timing observations of accreting neutron stars and black holes, AXTAR provides at least a factor of five improvement in sensitivity over the RXTE PCA. AXTAR also carries a sensitive sky monitor that acts as a trigger for pointed observations of X-ray transients in addition to providing high duty cycle monitoring of the X-ray sky. We review the science goals and design choices that face a next generation timing mission. We then describe the technical concept for AXTAR and summarize a preliminary mission design study at the NASA/MSFC Advanced Concepts Office.",
           "claimed_authors": [
-            "Deep Pandey",
-            "Qi Yu"
+            "Paul S. Ray",
+            "Bernard F. Phlips",
+            "Kent S. Wood",
+            "Deepto Chakrabarty",
+            "Ronald A. Remillard",
+            "Colleen A. Wilson-Hodge"
           ],
-          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_title": "The Advanced X-ray Timing Array (AXTAR): A US MIDEX Mission Concept",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.11113"
+          "claimed_year": 2011,
+          "primary_pointer": "1109.1309"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='The Advanced X-ray Timing Array (AXTAR): A US MIDEX Mission Concept')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_abstract": "AXTAR is an X-ray observatory mission concept, currently under study in the U.S., that combines very large collecting area, broadband spectral coverage, high time resolution, highly flexible scheduling, and an ability to respond promptly to time-critical targets of opportunity. It is optimized for submillisecond timing of bright Galactic X-ray sources in order to study phenomena at the natural time scales of neutron star surfaces and black hole event horizons, thus probing the physics of ultradense matter, strongly curved spacetimes, and intense magnetic fields. AXTAR's main instrument is a collimated, thick Si pixel detector with 2-50 keV coverage and 8 square meters collecting area. For timing observations of accreting neutron stars and black holes, AXTAR provides at least an order of magnitude improvement in sensitivity over both RXTE and Constellation-X. AXTAR also carries a sensitive sky monitor that acts as a trigger for pointed observations of X-ray transients and also provides continuous monitoring of the X-ray sky with 20 times the sensitivity of the RXTE ASM. AXTAR builds on detector and electronics technology previously developed for other applications and thus combines high technical readiness and well understood cost.",
           "claimed_authors": [
-            "Julius Berner",
-            "Philipp Grohs",
-            "Gitta Kutyniok",
-            "Philipp Petersen"
+            "Deepto Chakrabarty",
+            "Paul S. Ray",
+            "Tod E. Strohmayer"
           ],
-          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_title": "The Advanced X-ray Timing Array (AXTAR)",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2105.04026"
+          "claimed_year": 2008,
+          "primary_pointer": "0809.4029"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='The Modern Mathematics of Deep Learning')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='The Advanced X-ray Timing Array (AXTAR)')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We propose a distributed deep learning model to successfully learn control policies directly from high-dimensional sensory input using reinforcement learning. The model is based on the deep Q-network, a convolutional neural network trained with a variant of Q-learning. Its input is raw pixels and its output is a value function estimating future rewards from taking an action given a system state. To distribute the deep Q-network training, we adapt the DistBelief software framework to the context of efficiently training reinforcement learning agents. As a result, the method is completely asynchronous and scales well with the number of machines. We demonstrate that the deep Q-network agent, receiving only the pixels and the game score as inputs, was able to achieve reasonable success on a simple game with minimal parameter tuning.",
+          "claimed_abstract": "Orbital period changes are an important diagnostic for understanding low mass X-ray binary (LMXB) accretion-induced angular momentum exchange and overall system evolution. We present our most recent results for the eclipse timing of the LMXB EXO0748-676. Since its discovery in 1985 it has apparently undergone three distinct orbital period \"epochs\", each characterized by a different orbital period than the previous epoch. We outline the orbital period behavior for EXO0748-676 over the past 18 years and discuss the implications of this behavior in light of current theoretical ideas for LMXB evolution.",
           "claimed_authors": [
-            "Hao Yi Ong",
-            "Kevin Chavez",
-            "Augustus Hong"
+            "Michael T. Wolff",
+            "Paul S. Ray",
+            "Kent S. Wood"
           ],
-          "claimed_title": "Distributed Deep Q-Learning",
+          "claimed_title": "X-Ray Eclipse Timing in the LMXB EXO0748-676",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1508.04186"
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0404102"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Distributed Deep Q-Learning')",
-        "failed_at": "2026-07-05T07:28:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In recent years, as the demand for low energy and high performance computing has steadily increased, heterogeneous computing has emerged as an important and promising solution. Because most workloads can typically run most efficiently on certain types of cores, mapping tasks on the best available resources can not only save energy but also deliver high performance. However, optimal task scheduling for performance and/or energy is yet to be solved for heterogeneous platforms. The work presented herein mathematically formulates the optimal heterogeneous system task scheduling as an optimization problem using queueing theory. We analytically solve for the common case of two processor types, e.g., CPU+GPU, and give an optimal policy (CAB). We design the GrIn heuristic to efficiently solve for near-optimal policy for any number of processor types (within 1.6% of the optimal). Both policies work for any task size distribution and processing order, and are therefore, general and practical. We extensively simulate and validate the theory, and implement the proposed policy in a CPU-GPU real platform to show the optimal throughput and energy improvement. Comparing to classic policies like load-balancing, our results range from 1.08x~2.24x better performance or 1.08x~2.26x better energy efficiency in simulations, and 2.37x~9.07x better performance in experiments.",
-          "claimed_authors": [
-            "Zhuo Chen",
-            "Diana Marculescu"
-          ],
-          "claimed_title": "Task Scheduling for Heterogeneous Multicore Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1712.03209"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Task Scheduling for Heterogeneous Multicore Systems')",
-        "failed_at": "2026-07-05T07:28:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "To deliver high performance in power limited systems, architects have turned to using heterogeneous systems, either CPU+GPU or mixed CPU-hardware systems. However, in systems with different processor types and task affinities, scheduling tasks becomes more challenging than in homogeneous multi-core systems or systems without task affinities. The problem is even more complex when specialized accelerators and task priorities are included. In this paper, we provide a formal proof for the optimal scheduling policy for heterogeneous systems with arbitrary number of resource types, including specialized accelerators, independent of the task arrival rate, task size distribution, and resource processing order. We transform the optimal scheduling policy to a nonlinear integer optimization problem and propose a fast, near-optimal algorithm. An additional heuristic is proposed for the case of priority-aware scheduling. Our experimental results demonstrate that the proposed algorithm is only 0.3% from the optimal and superior to conventional scheduling policies.",
-          "claimed_authors": [
-            "Zhuo Chen",
-            "Diana Marculescu"
-          ],
-          "claimed_title": "Priority-Aware Near-Optimal Scheduling for Heterogeneous Multi-Core Systems with Specialized Accelerators",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1712.03246"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Priority-Aware Near-Optimal Scheduling for Heterogeneous Multi-Core Systems with Specialized Accelerators')",
-        "failed_at": "2026-07-05T07:28:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study throughput-optimum localized link scheduling in wireless networks. The majority of results on link scheduling assume binary interference models that simplify interference constraints in actual wireless communication. While the physical interference model reflects the physical reality more precisely, the problem becomes notoriously harder under the physical interference model. There have been just a few existing results on link scheduling under the physical interference model, and even fewer on more practical distributed or localized scheduling. In this paper, we tackle the challenges of localized link scheduling posed by the complex physical interference constraints. By cooperating the partition and shifting strategies into the pick-and-compare scheme, we present a class of localized scheduling algorithms with provable throughput guarantee subject to physical interference constraints. The algorithm in the linear power setting is the first localized algorithm that achieves at least a constant fraction of the optimal capacity region subject to physical interference constraints. The algorithm in the uniform power setting is the first localized algorithm with a logarithmic approximation ratio to the optimal solution. Our extensive simulation results demonstrate correctness and performance efficiency of our algorithms.",
-          "claimed_authors": [
-            "Yaqin Zhou",
-            "Xiangyang Li",
-            "Min Liu",
-            "Xufei Mao",
-            "Shaojie Tang",
-            "Zhongcheng Li"
-          ],
-          "claimed_title": "Throughput Optimizing Localized Link Scheduling for Multihop Wireless Networks Under Physical Interference Model",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1301.4738"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Throughput Optimizing Localized Link Scheduling for Multihop Wireless Networks Under Physical Interference Model')",
-        "failed_at": "2026-07-05T07:28:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
-          "claimed_authors": [
-            "Bita Azimdoost",
-            "Cedric Westphal",
-            "Hamid R. Sadjadpour"
-          ],
-          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1210.1185"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='X-Ray Eclipse Timing in the LMXB EXO0748-676')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -463,87 +377,156 @@
           "primary_pointer": "2403.02310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "As the size of deep learning models gets larger and larger, training takes longer time and more resources, making fault tolerance more and more critical. Existing state-of-the-art methods like CheckFreq and Elastic Horovod need to back up a copy of the model state (i.e., parameters and optimizer states) in memory, which is costly for large models and leads to non-trivial overhead. This paper presents SWIFT, a novel recovery design for distributed deep neural network training that significantly reduces the failure recovery overhead without affecting training throughput and model accuracy. Instead of making an additional copy of the model state, SWIFT resolves the inconsistencies of the model state caused by the failure and exploits the replicas of the model state in data parallelism for failure recovery. We propose a logging-based approach when replicas are unavailable, which records intermediate data and replays the computation to recover the lost state upon a failure. The re-computation is distributed across multiple machines to accelerate failure recovery further. We also log intermediate data selectively, exploring the trade-off between recovery time and intermediate data storage overhead. Evaluations show that SWIFT significantly reduces the failure recovery time and achieves similar or better training throughput during failure-free execution compared to state-of-the-art methods without degrading final model accuracy. SWIFT can also achieve up to 1.16x speedup in total training time compared to state-of-the-art methods.",
+          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
           "claimed_authors": [
-            "Yuchen Zhong",
-            "Guangming Sheng",
-            "Juncheng Liu",
-            "Jinhui Yuan",
-            "Chuan Wu"
+            "Bita Azimdoost",
+            "Cedric Westphal",
+            "Hamid R. Sadjadpour"
           ],
-          "claimed_title": "SWIFT: Expedited Failure Recovery for Large-scale DNN Training",
+          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.1185"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
+        "failed_at": "2026-07-15T01:38:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-07-15T01:38:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Among those faults Byzantine faults offers serious challenge to fault tolerance mechanism, because it often go undetected at the initial stage and it can easily propagate to other VMs before a detection is made. Consequently some of the mission critical application such as air traffic control, online baking etc still staying away from the cloud for such reasons. However if a Byzantine faults is not detected and tolerated at initial stage then applications such as big data analytics can go completely wrong in spite of hours of computations performed by the entire cloud. Therefore in the previous work a fool-proof Byzantine fault detection has been proposed, as a continuation this work designs a scheduling algorithm (WSSS) and checkpoint optimization algorithm (TCC) to tolerate and eliminate the Byzantine faults before it makes any impact. The WSSS algorithm keeps track of server performance which is part of Virtual Clusters to help allocate best performing server to mission critical application. WSSS therefore ranks the servers based on a counter which monitors every Virtual Nodes (VN) for time and performance failures. The TCC algorithm works to generalize the possible Byzantine error prone region through monitoring delay variation to start new VNs with previous checkpointing. Moreover it can stretch the state interval for performing and error free VNs in an effect to minimize the space, time and cost overheads caused by checkpointing. The analysis is performed with plotting state transition and CloudSim based simulation. The result shows TCC reduces fault tolerance overhead exponentially and the WSSS allots virtual resources effectively",
+          "claimed_authors": [
+            "Sathya Chinnathambi",
+            "Agilan Santhanam"
+          ],
+          "claimed_title": "Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.00951"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters')",
+        "failed_at": "2026-07-15T01:38:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To efficiently scale large model (LM) training, researchers transition from data parallelism (DP) to hybrid parallelism (HP) on GPU clusters, which frequently experience hardware and software failures. Existing works introduce in-memory checkpointing optimizations that snapshot parameters to device memory for rapid failure recovery. However, these methods introduce severe resource competition between checkpointing and training, which can work under DP but can hardly scale under resource-intensive HP. To ensure low checkpointing overhead for hybrid-parallel training, this paper introduces a distributed in-memory checkpointing system with near-zero in-memory saving overhead. It strives from two aspects to mitigate the on-host resource competition caused by in-memory checkpointing: (1) It introduces Hierarchical Asynchronous Snapshotting Coordination in the checkpoint saving stage. This approach uses three-level asynchronous on-device scheduling to enhance parallelism between snapshotting and training, thereby minimizing snapshotting overhead. (2) It proposes Hybrid In-memory Checkpoint Protection to enhance checkpoint completeness during hardware failures. Unlike methods that require inter-node communications, which may block training under HP, it creates intra-node redundancy with efficient resource utilization, protecting training against hardware failures with minimal overhead. With these methods, this work enables fast restart for failed HP training with Distributed In-memory Checkpoint Loading, bypassing inefficiencies in NFS reads. In our evaluation, we achieve zero in-memory checkpoint saving overhead on Frontier while training Llama-2-34B on 256 MI250X devices (512 GPUs).",
+          "claimed_authors": [
+            "Yuxin Wang",
+            "Xueze Kang",
+            "Shaohuai Shi",
+            "Xin He",
+            "Zhenheng Tang",
+            "Xinglin Pan",
+            "Yang Zheng",
+            "Xiaoyu Wu",
+            "Amelie Chi Zhou",
+            "Bingsheng He",
+            "Xiaowen Chu"
+          ],
+          "claimed_title": "Fault-Tolerant Hybrid-Parallel Training at Scale with Reliable and Efficient In-memory Checkpointing",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2302.06173"
+          "primary_pointer": "2310.12670"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='SWIFT: Expedited Failure Recovery for Large-scale DNN Training')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Fault-Tolerant Hybrid-Parallel Training at Scale with Reliable and Efficient In-memory Checkpointing')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Deep neural network (DNN) training continues to scale rapidly in terms of model size, data volume, and sequence length, to the point where multiple machines are required to fit large models for training. Different distributed and parallel training strategies have been developed to support large-scale DNN training by partitioning the training state across GPUs. However, existing DNN training systems provide very limited support for reconfiguring parallelism strategies in the middle of the training via checkpointing. This limitation arises because distributed checkpoints are tightly coupled to specific model parallelism and hardware configurations, preventing large-scale training jobs from efficiently adapting to hardware failures or resource elasticity.\n  This paper presents Universal Checkpointing (UCP), a novel checkpointing system that enables flexible and efficient DNN training with reconfigurable parallelism. UCP overcomes challenges in existing systems by decoupling checkpoint structure from parallel training strategies and hardware configurations. In addition, we present a pattern-based reconfiguration pipeline that enables automatic, flexible, and efficient mapping of checkpoint state to various parallelism strategies. Evaluation on a range of DNN models, including state-of-the-art dense and sparse LLMs, shows that UCP enables reconfiguration for a broader set of widely used parallelism strategies than existing solutions while adding negligible reconfiguration cost. UCP has been successfully employed in real LLM training workloads, greatly enhancing their flexibility and resilience to dynamic hardware environments.",
+          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
           "claimed_authors": [
-            "Xinyu Lian",
-            "Sam Ade Jacobs",
-            "Lev Kurilenko",
-            "Masahiro Tanaka",
-            "Stas Bekman",
-            "Olatunji Ruwase",
-            "Minjia Zhang"
+            "Sobia K Khan"
           ],
-          "claimed_title": "Universal Checkpointing: A Flexible and Efficient Distributed Checkpointing System for Large-Scale DNN Training with Reconfigurable Parallelis",
+          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2406.18820"
+          "claimed_year": 2014,
+          "primary_pointer": "1404.6830"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Universal Checkpointing: A Flexible and Efficient Distributed Checkpointing System for Large-Scale DNN Training with Reconfigurable Parallelis')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) have made a profound impact across various fields due to their advanced capabilities. However, training these models at unprecedented scales requires extensive AI accelerator clusters and sophisticated parallelism strategies, which pose significant challenges in maintaining system reliability over prolonged training periods. A major concern is the substantial loss of training time caused by inevitable hardware and software failures. To address these challenges, we present FlashRecovery, a fast and low-cost failure recovery system comprising three core modules: (1) Active and real-time failure detection. This module performs continuous training state monitoring, enabling immediate identification of hardware and software failures within seconds, thus ensuring rapid incident response; (2) Scale-independent task restart. By employing different recovery strategies for normal and faulty nodes, combined with an optimized communication group reconstruction protocol, our approach ensures that the recovery time remains nearly constant, regardless of cluster scale; (3) Checkpoint-free recovery within one step. Our novel recovery mechanism enables single-step restoration, completely eliminating dependence on traditional checkpointing methods and their associated overhead. Collectively, these innovations enable FlashRecovery to achieve optimal Recovery Time Objective (RTO) and Recovery Point Objective (RPO), substantially improving the reliability and efficiency of long-duration LLM training. Experimental results demonstrate that FlashRecovery system can achieve training restoration on training cluster with 4, 800 devices in 150 seconds. We also verify that the time required for failure recovery is nearly consistent for different scales of training tasks.",
+          "claimed_abstract": "With the fast development of deep neural networks (DNNs), many real-world applications are adopting multiple models to conduct compound tasks, such as co-running classification, detection, and segmentation models on autonomous vehicles. Such multi-tenant DNN inference cases greatly exacerbate the computational complexity and call for comprehensive collaboration for graph-level operator scheduling, runtime-level resource awareness, as well as hardware scheduler support. However, the current scheduling support for such multi-tenant inference is still relatively backward. In this work, we propose a resource-aware scheduling framework for efficient multi-tenant DNN inference on GPU, which automatically coordinates DNN computing in different execution levels. Leveraging the unified scheduling intermediate representation and the automated ML-based searching algorithm, optimal schedules could be generated to wisely adjust model concurrency and interleave DNN model operators, maintaining a continuously balanced resource utilization across the entire inference process, and eventually improving the runtime efficiency. Experiments show that we could consistently achieve 1.3-1.7x speed-up, compared to regular DNN runtime libraries (e.g., CuDNN, TVM) and particular concurrent scheduling methods (e.g., NVIDIA Multi-Stream).",
           "claimed_authors": [
-            "Haijun Zhang",
-            "Jinxiang Wang",
-            "Zhenhua Yu",
-            "Yanyong Zhang",
-            "Xuejie Ji",
-            "Kaining Mao",
-            "Jun Zhang",
-            "Yaqing Zhang",
-            "Ting Wu",
-            "Fei Jie",
-            "Xiemin Huang",
-            "Zhifang Cai",
-            "Junhua Cheng",
-            "Shuwei Wang",
-            "Wei Li",
-            "Xiaoming Bao",
-            "Hua Xu",
-            "Shixiong Zhao",
-            "Jun Li",
-            "Hongwei Sun",
-            "Ziyang Zhang",
-            "Yi Xiong",
-            "Chunsheng Li"
+            "Fuxun Yu",
+            "Shawn Bray",
+            "Di Wang",
+            "Longfei Shangguan",
+            "Xulong Tang",
+            "Chenchen Liu",
+            "Xiang Chen"
           ],
-          "claimed_title": "FlashRecovery: Fast and Low-Cost Recovery from Failures for Large-Scale Training of LLMs",
+          "claimed_title": "Automated Runtime-Aware Scheduling for Multi-Tenant DNN Inference on GPU",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.14255"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='Automated Runtime-Aware Scheduling for Multi-Tenant DNN Inference on GPU')",
+        "failed_at": "2026-07-15T01:38:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid growth of large language model (LLM) inference services has increased the demand for efficient multi-tenant GPU scheduling. While modern inference runtimes such as vLLM improve throughput through continuous batching and optimized memory management, accurately estimating the runtime cost of heterogeneous inference requests remains challenging. In practice, admission-time workload estimates may deviate from observed execution behavior, leading to workload misclassification, queue imbalance, increased tail latency, and degraded Quality-of-Service (QoS). This paper presents DriftSched, a QoS-aware scheduling framework for multi-tenant LLM inference serving on NVIDIA L4 GPUs. DriftSched combines workload classification, token-budget estimation, tenant-aware queue management, and an online feedback mechanism to refine workload estimates using runtime observations. The framework evaluates FIFO, Priority, Weighted, Shortest-Job-First (SJF), and Aging Priority scheduling policies under heterogeneous multi-tenant workloads. Experimental results show that adaptive calibration reduces workload estimation error by an average of 38.8% (MAE) and 40.5% (RMSE), improving workload classification stability. Among all evaluated schedulers, SJF achieves the best overall performance, reducing median end-to-end latency by approximately 42% and P99 latency by approximately 16% relative to FIFO under sustained GPU contention. The results further indicate that scheduler selection has a greater impact on latency behavior than runtime calibration alone, while accurate workload characterization largely eliminates systematic estimation drift. This work contributes a reproducible framework for studying workload-estimation fidelity and QoS-aware scheduling in multi-tenant GPU inference systems.",
+          "claimed_authors": [
+            "Kathiravan Palaniappan"
+          ],
+          "claimed_title": "DriftSched: Adaptive QoS-Aware Scheduling under Runtime Token Drift for Multi-Tenant GPU Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.02982"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='DriftSched: Adaptive QoS-Aware Scheduling under Runtime Token Drift for Multi-Tenant GPU Inference')",
+        "failed_at": "2026-07-15T01:38:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The explosive growth of AI applications has created unprecedented demand for GPU resources. Cloud providers meet this demand through GPU-as-a-Service platforms that offer rentable GPU resources for running AI workloads. In this context, the sharing of GPU resources between different tenants is essential to maximize the number of scheduled workloads. Among the various GPU sharing technologies, NVIDIA's Multi-Instance GPU (MIG) stands out by partitioning GPUs at hardware level into isolated slices with dedicated compute and memory, ensuring strong tenant isolation, preventing resource contention, and enhancing security. Despite these advantages, MIG's fixed partitioning introduces scheduling rigidity, leading to severe GPU fragmentation in multi-tenant environments, where workloads are continuously deployed and terminated. Fragmentation leaves GPUs underutilized, limiting the number of workloads that can be accommodated. To overcome this challenge, we propose a novel scheduling framework for MIG-based clouds that maximizes workload acceptance while mitigating fragmentation in an online, workload-agnostic setting. We introduce a fragmentation metric to quantify resource inefficiency and guide allocation decisions. Building on this metric, our greedy scheduling algorithm selects GPUs and MIG slices that minimize fragmentation growth for each incoming workload. We evaluate our approach against multiple baseline strategies under diverse workload distributions. Results demonstrate that our method consistently achieves higher workload acceptance rates, leading to an average 10% increase in the number of scheduled workloads in heavy load conditions, while using approximately the same number of GPUs as the benchmark methods.",
+          "claimed_authors": [
+            "Marco Zambianco",
+            "Lorenzo Fasol",
+            "Roberto Doriguzzi-Corin"
+          ],
+          "claimed_title": "An Online Fragmentation-Aware GPU Scheduler for Multi-Tenant MIG-based Clouds",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2509.03047"
+          "primary_pointer": "2511.18906"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='FlashRecovery: Fast and Low-Cost Recovery from Failures for Large-Scale Training of LLMs')",
-        "failed_at": "2026-07-05T07:28:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MinT: Managed Infrastructure for Training and Serv', candidate_title='An Online Fragmentation-Aware GPU Scheduler for Multi-Tenant MIG-based Clouds')",
+        "failed_at": "2026-07-15T01:38:43Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -551,33 +534,88 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Ferran Agullo",
-            "Joan Oliveras",
-            "Chen Wang",
-            "Alberto Gutierrez-Torre",
-            "Olivier Tardieu",
-            "Alaa Youssef",
-            "Jordi Torres",
-            "Josep Ll. Berral"
+            "Mind Lab",
+            " :",
+            "Song Cao",
+            "Vic Cao",
+            "Andrew Chen",
+            "Kaijie Chen",
+            "Cleon Cheng",
+            "Steven Chiang",
+            "Kaixuan Fan",
+            "Hera Feng",
+            "Huan Feng",
+            "Arthur Fu",
+            "Jun Gao",
+            "Hongquan Gu",
+            "Aaron Guan",
+            "Nolan Ho",
+            "Mutian Hong",
+            "Hailee Hou",
+            "Peixuan Hua",
+            "Charles Huang",
+            "Miles Jiang",
+            "Nora Jiang",
+            "Yuyi Jiang",
+            "Qiuyu Jin",
+            "Fancy Kong",
+            "Andrew Lei",
+            "Kyrie Lei",
+            "Alexy Li",
+            "Lucian Li",
+            "Ray Li",
+            "Theo Li",
+            "Zhihui Li",
+            "Jiayi Lin",
+            "Kairus Liu",
+            "Kieran Liu",
+            "Logan Liu",
+            "Xiang Liu",
+            "Irvine Lu",
+            "Maeve Luo",
+            "Runze Lv",
+            "Pony Ma",
+            "Verity Niu",
+            "Anson Qiu",
+            "Vincent Wang",
+            "Rio Yang",
+            "Maxwell Yao",
+            "Carrie Ye",
+            "Regis Ye",
+            "Wenlin Ye",
+            "Josh Ying",
+            "Danney Zeng",
+            "Yuhan Zhan",
+            "Anya Zhang",
+            "Di Zhang",
+            "Ruijia Zhang",
+            "Sueky Zhang",
+            "Ya Zhang",
+            "Wei Zhao",
+            "Ada Zhou",
+            "Changhai Zhou",
+            "Yuhua Zhou",
+            "Xinyue Zhu",
+            "Murphy Zhuang"
           ],
-          "title": "Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving",
+          "title": "MinT: Managed Infrastructure for Training and Serving Millions of LLMs",
           "venue": "arXiv",
           "year": 2026
         },
-        "primary_pointer": "2602.24044",
-        "summary": "Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be hosted concurrently. While prior work has largely focused on latency minimization, resource efficiency through throughput maximization remains underexplored. This paper presents a data-driven pipeline that, for a given workload, computes an adapter placement that serves the workload with the minimum number of GPUs while avoiding request starvation and GPU memory errors. To that end, the approach identifies the maximum feasible throughput attainable on each GPU by leveraging accurate performance predictions learned from real serving behavior. The proposed pipeline integrates three components: (i) a Digital Twin (DT) tailored to LLM-adapter serving, (ii) a distilled machine learning (ML) model trained on DT-generated data, and (iii) a greedy placement algorithm that exploits ML-based performance estimates to maximize GPU efficiency. The DT emulates real system dynamics with high fidelity, achieving below 5% throughput estimation error while executing up to 90 times faster than full LLM benchmarking across both predictable and unpredictable workloads. The learned ML models further accelerate performance estimation with marginal accuracy degradation, enabling scalable optimization. Experimental results demonstrate that the pipeline substantially improves GPU efficiency by reducing the number of GPUs required to sustain target workloads. Beyond GPU efficiency, the pipeline can be adapted to alternative objectives, such as latency minimization, highlighting its versatility for future large-scale LLM serving infrastructures.",
+        "primary_pointer": "2605.13779",
+        "summary": "We present MindLab Toolkit (MinT), a managed infrastructure system for Low-Rank Adaptation (LoRA) post-training and online serving. MinT targets a setting where many trained policies are produced over a small number of expensive base-model deployments. Instead of materializing each policy as a merged full checkpoint, MinT keeps the base model resident and moves exported LoRA adapter revisions through rollout, update, export, evaluation, serving, and rollback, hiding distributed training, serving, scheduling, and data movement behind a service interface. MinT scales this path along three axes. Scale Up extends LoRA RL to frontier-scale dense and MoE architectures, including MLA and DSA attention paths, with training and serving validated beyond 1T total parameters. Scale Down moves only the exported LoRA adapter, which can be under 1% of base-model size in rank-1 settings; adapter-only handoff reduces the measured step by 18.3x on a 4B dense model and 2.85x on a 30B MoE, while concurrent multi-policy GRPO shortens wall time by 1.77x and 1.45x without raising peak memory. Scale Out separates durable policy addressability from CPU/GPU working sets: a tensor-parallel deployment supports 10^6-scale addressable catalogs (measured single-engine sweeps through 100K) and thousand-adapter active waves at cluster scale, with cold loading treated as scheduled service work and packed MoE LoRA tensors improving live engine loading by 8.5-8.7x. MinT thus manages million-scale LoRA policy catalogs while training and serving selected adapter revisions over shared 1T-class base models.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.24044",
+          "final_url": "https://arxiv.org/abs/2605.13779",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 0.5833,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T07:28:28Z"
+          "verified_at": "2026-07-15T01:38:43Z"
         }
       },
       {
@@ -654,13 +692,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.05868",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": 0.2467,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T07:28:28Z"
+          "verified_at": "2026-07-15T01:38:56Z"
         }
       },
       {
@@ -681,41 +719,72 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.24133",
           "http_status": 200,
-          "pdf_sample_score": 0.2915,
-          "query_relevance_score": 0.4,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T07:28:29Z"
+          "verified_at": "2026-07-15T01:38:56Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Jaehong Cho",
-            "Hyunmin Choi",
-            "Guseul Heo",
-            "Jongse Park"
+            "Borui Wan",
+            "Gaohong Liu",
+            "Zuquan Song",
+            "Jun Wang",
+            "Yun Zhang",
+            "Guangming Sheng",
+            "Shuguang Wang",
+            "Houmin Wei",
+            "Chenyuan Wang",
+            "Weiqiang Lou",
+            "Xi Yang",
+            "Mofan Zhang",
+            "Kaihua Jiang",
+            "Cheng Ren",
+            "Xiaoyun Zhi",
+            "Menghan Yu",
+            "Zhe Nan",
+            "Zhuolin Zheng",
+            "Baoquan Zhong",
+            "Qinlong Wang",
+            "Huan Yu",
+            "Jinxin Chi",
+            "Wang Zhang",
+            "Yuhan Li",
+            "Zixian Du",
+            "Sida Zhao",
+            "Yongqiang Zhang",
+            "Jingzhe Tang",
+            "Zherui Liu",
+            "Chuan Wu",
+            "Yanghua Peng",
+            "Haibin Lin",
+            "Wencong Xiao",
+            "Xin Liu",
+            "Liang Xiang"
           ],
-          "title": "LLMServingSim 2.0: A Unified Simulator for Heterogeneous and Disaggregated LLM Serving Infrastructure",
+          "title": "Robust LLM Training Infrastructure at ByteDance",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2025
         },
-        "primary_pointer": "2602.23036",
-        "summary": "Large language model (LLM) serving infrastructures are undergoing a shift toward heterogeneity and disaggregation. Modern deployments increasingly integrate diverse accelerators and near-memory processing technologies, introducing significant hardware heterogeneity, while system software increasingly separates computation, memory, and model components across distributed resources to improve scalability and efficiency. As a result, LLM serving performance is no longer determined by hardware or software choices in isolation, but by their runtime interaction through scheduling, data movement, and interconnect behavior. However, understanding these interactions remains challenging, as existing simulators lack the ability to jointly model heterogeneous hardware and disaggregated serving techniques within a unified, runtime-driven framework.\n  This paper presents LLMServingSim 2.0, a unified system-level simulator designed to make runtime-driven hardware-software interactions in heterogeneous and disaggregated LLM serving infrastructures explicit and analyzable. LLMServingSim 2.0 embeds serving decisions and hardware behavior into a single runtime loop, enabling interaction-aware modeling of batching, routing, offloading, memory, and power. The simulator supports extensible integration of emerging accelerators and memory systems through profile-based modeling, while capturing dynamic serving behavior and system-level effects. We validate LLMServingSim 2.0 against real deployments, showing that it reproduces key performance, memory, and power metrics with an average error of 0.95%, while maintaining simulation times of around 10 minutes even for complex configurations. These results demonstrate that LLMServingSim 2.0 provides a practical bridge between hardware innovation and serving-system design, enabling systematic exploration and co-design for next-generation LLM serving infrastructures.",
+        "primary_pointer": "2509.16293",
+        "summary": "The training scale of large language models (LLMs) has reached tens of thousands of GPUs and is still continuously expanding, enabling faster learning of larger models. Accompanying the expansion of the resource scale is the prevalence of failures (CUDA error, NaN values, job hang, etc.), which poses significant challenges to training stability. Any large-scale LLM training infrastructure should strive for minimal training interruption, efficient fault diagnosis, and effective failure tolerance to enable highly efficient continuous training. This paper presents ByteRobust, a large-scale GPU infrastructure management system tailored for robust and stable training of LLMs. It exploits the uniqueness of LLM training process and gives top priorities to detecting and recovering failures in a routine manner. Leveraging parallelisms and characteristics of LLM training, ByteRobust enables high-capacity fault tolerance, prompt fault demarcation, and localization with an effective data-driven approach, comprehensively ensuring continuous and efficient training of LLM tasks. ByteRobust is deployed on a production GPU platform and achieves 97% ETTR for a three-month training job on 9,600 GPUs.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.23036",
+          "final_url": "https://arxiv.org/abs/2509.16293",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T07:28:29Z"
+          "verified_at": "2026-07-15T01:38:56Z"
         }
       }
     ]

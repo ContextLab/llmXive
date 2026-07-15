@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-813-llmxive-follow-up-extending-mint-managed
-last_run_id: 50b6963e-5061-4f40-87cd-ce21b740acd9
+last_run_id: 30c21251-5644-423e-a859-d6673d3e0ba2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-813-llmxive-follow-up-extending-mint-managed/specs/001-llmxive-follow-up-extending-mint-managed
 title: 'llmXive follow-up: extending "MinT: Managed Infrastructure for Training and
   Serving Millions of LLMs"'
-updated_at: '2026-07-12T22:06:51.547121Z'
+updated_at: '2026-07-15T01:57:47.025058Z'

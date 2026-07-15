@@ -12,3 +12,13 @@
 {"at": "2026-07-12T21:45:04.042270+00:00", "from_stage": "clarified", "last_run_id": "961155ab-e2a8-4912-bd84-b11d284ab0dd", "to_stage": "planned"}
 {"at": "2026-07-12T21:54:25.331536+00:00", "from_stage": "planned", "last_run_id": "febeef7d-82fc-4c0e-9660-1acd9f477ff9", "to_stage": "clarified"}
 {"at": "2026-07-12T22:06:51.548876+00:00", "from_stage": "clarified", "last_run_id": "50b6963e-5061-4f40-87cd-ce21b740acd9", "to_stage": "specified"}
+{"at": "2026-07-15T01:38:11.922082+00:00", "from_stage": "specified", "last_run_id": "370da1c9-eda8-4a62-94b8-9f57a17fc3e6", "to_stage": "flesh_out_in_progress"}
+{"at": "2026-07-15T01:39:54.929157+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "d4e5ff81-9a12-4ddd-98f1-2bc6d86150c4", "to_stage": "flesh_out_complete"}
+{"at": "2026-07-15T01:40:08.326100+00:00", "from_stage": "flesh_out_complete", "last_run_id": "46d3be57-826b-4c32-9cea-0a8ef1d0ed4e", "to_stage": "validated"}
+{"at": "2026-07-15T01:40:38.958184+00:00", "from_stage": "validated", "last_run_id": "c51e41ed-7e06-45f7-a801-22e3d63ef152", "to_stage": "project_initialized"}
+{"at": "2026-07-15T01:42:56.179436+00:00", "from_stage": "project_initialized", "last_run_id": "10337198-9c43-42c3-aa14-89a2385a8769", "to_stage": "specified"}
+{"at": "2026-07-15T01:47:29.070896+00:00", "from_stage": "specified", "last_run_id": "02c6a468-e3b2-48bf-a4dc-1c531e1d6759", "to_stage": "flesh_out_in_progress"}
+{"at": "2026-07-15T01:48:09.035676+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "5e0dfd3c-3a78-468a-b1b1-d57b38209f71", "to_stage": "flesh_out_complete"}
+{"at": "2026-07-15T01:48:23.627326+00:00", "from_stage": "flesh_out_complete", "last_run_id": "9a569004-8ca9-4573-b3dd-1c5ef9a2e0af", "to_stage": "validated"}
+{"at": "2026-07-15T01:49:11.882982+00:00", "from_stage": "validated", "last_run_id": "82088d48-1f20-468f-9996-27718ca975dd", "to_stage": "project_initialized"}
+{"at": "2026-07-15T01:57:47.026756+00:00", "from_stage": "project_initialized", "last_run_id": "30c21251-5644-423e-a859-d6673d3e0ba2", "to_stage": "specified"}
