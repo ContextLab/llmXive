@@ -1,14 +1,14 @@
-# Core dependencies
-torch>=2.0.0
-transformers>=4.30.0
-scikit-learn>=1.2.0
-opencv-python>=4.7.0
-datasets>=2.12.0
-
-# Development dependencies
-pytest>=7.0.0
-ruff>=0.0.280
-black>=23.0.0
-
-# Environment management (standard library used, but listing for completeness if needed)
-# No external packages required for env_config.py (uses os, pathlib)
+# Core dependencies for llmXive
+# CPU-only PyTorch
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers
+scikit-learn
+opencv-python
+datasets
+ultralytics
+pytest
+ruff
+black
+numpy
+jsonschema
+pandas

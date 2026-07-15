@@ -1,4 +1,4 @@
-resolved_at: '2026-07-15T03:20:33.596000+00:00'
+resolved_at: '2026-07-15T07:28:12.450616+00:00'
 datasets:
 - intent: OPD
   status: verified
@@ -18,11 +18,11 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/636bc8103e899134e0981aee/23d24465fb199ac93728de392f7f21f9133fd1dbd58f534ad026165f00c15a24?Expires=1784089182&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzNmJjODEwM2U4OTkxMzRlMDk4MWFlZS8yM2QyNDQ2NWZiMTk5YWM5MzcyOGRlMzkyZjdmMjFmOTEzM2ZkMWRiZDU4ZjUzNGFkMDI2MTY1ZjAwYzE1YTI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA4OTE4Mn19fV19&Signature=MEUCIQDDuJZA4G5djJDihaQHX5MYY45zS6xgmrGi091sh9~qqAIgCIPoWQlCJ~NqiU7AdMaBEoA685bqcwY2Nt6UbpO3c3E_&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.json%3B+filename%3D%22dev.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T031942Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a4abf5d2d5752538315c79e47242a4c61a7c2ff4b949d097172d8db6823d4da5
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/636bc8103e899134e0981aee/23d24465fb199ac93728de392f7f21f9133fd1dbd58f534ad026165f00c15a24?Expires=1784104031&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzNmJjODEwM2U4OTkxMzRlMDk4MWFlZS8yM2QyNDQ2NWZiMTk5YWM5MzcyOGRlMzkyZjdmMjFmOTEzM2ZkMWRiZDU4ZjUzNGFkMDI2MTY1ZjAwYzE1YTI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEwNDAzMX19fV19&Signature=MEYCIQCMWhaf3xmEaS1G3dXXsHZBYsCh5Kx0jh5bMHF9M~zAtAIhALZX9NSuBihHLRQtFejeun3HqxelmP9oZi0OGZzaodhB&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev.json%3B+filename%3D%22dev.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T072711Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a8c59b2bfccffabbdc8ae23b0ad94a3267a2e90c78bcbd369c0c57d0a850e6c6
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/667817644b1e661916ac5e38/9a5bb01e50f1085aca96c218a203f810da3a371bb2eb8c47f2653cb2946835b5?Expires=1784089183&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NzgxNzY0NGIxZTY2MTkxNmFjNWUzOC85YTViYjAxZTUwZjEwODVhY2E5NmMyMThhMjAzZjgxMGRhM2EzNzFiYjJlYjhjNDdmMjY1M2NiMjk0NjgzNWI1KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA4OTE4M319fV19&Signature=MEUCIQCUFhTdBQfbRTeU6V0aQDcdfdUR~VhS~McZ541v3m8nLQIgaEzrCglf9ZaPo2Gxv8qjW0HVu7D6-nTpzS60e1HxYe8_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T031943Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d64215901a5fdb7203d579c0868ef3cf4d55116300112838030861c023cbddc2
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/667817644b1e661916ac5e38/9a5bb01e50f1085aca96c218a203f810da3a371bb2eb8c47f2653cb2946835b5?Expires=1784104031&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NzgxNzY0NGIxZTY2MTkxNmFjNWUzOC85YTViYjAxZTUwZjEwODVhY2E5NmMyMThhMjAzZjgxMGRhM2EzNzFiYjJlYjhjNDdmMjY1M2NiMjk0NjgzNWI1KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEwNDAzMX19fV19&Signature=MEQCIHUdIzpa6rCHDbZSFvrYu7h3pJlcEk56xC006-ZGwfI3AiBe~6ZmGWWcgFdFTbkerSlsmAPLJyNtD1NjnnXdXTv63A__&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T072711Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cbe3bd3cb8f3aab545a4c4c3b14dcb37ebdf72a1c2da1724d45591eee09bd3da
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -34,23 +34,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Banking_crises_Identifying_dates_and_determinants/21550503
+  - url: https://figshare.com/articles/figure/The_raw_data_for_the_images/32991038
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/clm_dyn_TC/30855464
+  - url: https://tandf.figshare.com/articles/online_resource/Some_properties_of_poly_generalized_partial-slice_monogenic_functions/32991043
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phosphorylated_MOF-801_Nanoparticles_with_Calcium_Alginate_for_the_Absorption_of_Strontium_Ions_from_Water/32988660
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Harnessing_desiccation-tolerant_cyanobacteria_as_biosensors_for_LexA-mediated_responses_in_deep_space_docx/32991041
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phosphorylated_MOF-801_Nanoparticles_with_Calcium_Alginate_for_the_Absorption_of_Strontium_Ions_from_Water/32988657
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_All_the_dykes_I_know_drink_beer_Sexuality_and_gender_performance_through_alcohol_consumption_among_lesbian_bisexual_and_queer_women_in_Australia/32767062
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Machine_Learning_Models_for_Debt_Management_A_Review_of_Development_Process/21781778
+  - url: https://curate.curtin.edu.au/articles/thesis/Homeownership_and_Wellbeing_A_Micro-Level_Analysis_of_Tenure_Intergenerational_Transfers_and_Mental_Health_in_Australia/32991011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -58,11 +58,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15264251
+  - url: https://zenodo.org/records/10804042
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10804042
+  - url: https://zenodo.org/records/15264251
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -119,7 +119,7 @@ datasets:
       downloaded_bytes: 154525
       parsed: true
   candidates_tried:
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63289fd884e4c8b42c59b040/a469355c7cfa9416b27d678f9d6f04dbb830266dc1162f155daf86628dd1d3ae?Expires=1784089209&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzMjg5ZmQ4ODRlNGM4YjQyYzU5YjA0MC9hNDY5MzU1YzdjZmE5NDE2YjI3ZDY3OGY5ZDZmMDRkYmI4MzAyNjZkYzExNjJmMTU1ZGFmODY2MjhkZDFkM2FlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA4OTIwOX19fV19&Signature=MEQCIDmP4-8QdbnpE8PRdR2QOnRLxOp5ldP4z06QzWeWlrvKAiAU9AifAImIZulDaKivqrC6K4hZNNKsPholX1sL2WkilQ__&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test_images_mnist_c.npy%3B+filename%3D%22test_images_mnist_c.npy%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T032009Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=630f5a9967a9bfb6fe416f7f3566a587577d555707f69920e0c741285af74317
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63289fd884e4c8b42c59b040/a469355c7cfa9416b27d678f9d6f04dbb830266dc1162f155daf86628dd1d3ae?Expires=1784104065&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzMjg5ZmQ4ODRlNGM4YjQyYzU5YjA0MC9hNDY5MzU1YzdjZmE5NDE2YjI3ZDY3OGY5ZDZmMDRkYmI4MzAyNjZkYzExNjJmMTU1ZGFmODY2MjhkZDFkM2FlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEwNDA2NX19fV19&Signature=MEYCIQCU2Gqs~Ac7gILZfQz7ml9Ma6tWQaf2bCJ5a26XGJTiegIhAOm4OTN2-Dv3L31AZseVnN1PoXzQnCb~dyzLEvRsfrUU&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test_images_mnist_c.npy%3B+filename%3D%22test_images_mnist_c.npy%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T072745Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7a215c575322f052b147d448da82c2e5543ff9b6c69e923346cc1a3fd65717df
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -127,7 +127,7 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63cda8fbaf312b5264b30281/b00c6fb9e35348c028ec503d1371a3b8108493f25fd64d506dc43686316869ac?Expires=1784089211&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzY2RhOGZiYWYzMTJiNTI2NGIzMDI4MS9iMDBjNmZiOWUzNTM0OGMwMjhlYzUwM2QxMzcxYTNiODEwODQ5M2YyNWZkNjRkNTA2ZGM0MzY4NjMxNjg2OWFjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA4OTIxMX19fV19&Signature=MEQCIBtJbUYHoTrUqhiAnzmpi0akTYLVnqNK5NT6aUIeBGHvAiBdUXpCE2GJqyLRKGg8ZWKpyeP7Guw~JHWqOzNlYGXXWQ__&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PLANE_trntst-OoV_inftype-all.json%3B+filename%3D%22PLANE_trntst-OoV_inftype-all.json%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T032011Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a75952f054b797919961d227df8662395605643f9d60c2532f384d866e117e5c
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63cda8fbaf312b5264b30281/b00c6fb9e35348c028ec503d1371a3b8108493f25fd64d506dc43686316869ac?Expires=1784104066&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzY2RhOGZiYWYzMTJiNTI2NGIzMDI4MS9iMDBjNmZiOWUzNTM0OGMwMjhlYzUwM2QxMzcxYTNiODEwODQ5M2YyNWZkNjRkNTA2ZGM0MzY4NjMxNjg2OWFjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEwNDA2Nn19fV19&Signature=MEYCIQD1e2nlvAY0tiSvHxllu9Aj433vRoxqWzb--UPlAxbzmQIhAIh9aikzQXhYBd8wxZhtchzGcPBmgVihh2CWBJpbHOoq&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PLANE_trntst-OoV_inftype-all.json%3B+filename%3D%22PLANE_trntst-OoV_inftype-all.json%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T072746Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b84b67b4e35a5bdbfbdc7f170af9b38ce812f9efaab9cc5615b316dcb25747c9
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -139,24 +139,28 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Banking_crises_Identifying_dates_and_determinants/21550503
+  - url: https://figshare.com/articles/figure/The_raw_data_for_the_images/32991038
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/clm_dyn_TC/30855464
+  - url: https://tandf.figshare.com/articles/online_resource/Some_properties_of_poly_generalized_partial-slice_monogenic_functions/32991043
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phosphorylated_MOF-801_Nanoparticles_with_Calcium_Alginate_for_the_Absorption_of_Strontium_Ions_from_Water/32988660
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Harnessing_desiccation-tolerant_cyanobacteria_as_biosensors_for_LexA-mediated_responses_in_deep_space_docx/32991041
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Phosphorylated_MOF-801_Nanoparticles_with_Calcium_Alginate_for_the_Absorption_of_Strontium_Ions_from_Water/32988657
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_All_the_dykes_I_know_drink_beer_Sexuality_and_gender_performance_through_alcohol_consumption_among_lesbian_bisexual_and_queer_women_in_Australia/32767062
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Machine_Learning_Models_for_Debt_Management_A_Review_of_Development_Process/21781778
+  - url: https://curate.curtin.edu.au/articles/thesis/Homeownership_and_Wellbeing_A_Micro-Level_Analysis_of_Tenure_Intergenerational_Transfers_and_Mental_Health_in_Australia/32991011
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5502339
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/11518866
@@ -164,10 +168,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17089036
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5502339
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

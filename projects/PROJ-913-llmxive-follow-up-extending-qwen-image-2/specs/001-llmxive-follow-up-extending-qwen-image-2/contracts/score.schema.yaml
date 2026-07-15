@@ -1,35 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EvaluationScore"
-description: "Schema for evaluation scores assigned to generated images."
+description: "Schema for VLM-based reward model scores."
 type: "object"
 properties:
-  score_id:
+  id:
     type: "string"
-    description: "Unique identifier for the score (UUID)."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    format: "uuid"
+    description: "Unique identifier for the score record."
   image_id:
     type: "string"
-    description: "Reference to the image."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-  metric_name:
+    format: "uuid"
+    description: "Foreign key to the generated image."
+  metric:
     type: "string"
-    description: "Name of the evaluation metric."
     enum:
       - "aesthetics"
       - "prompt_adherence"
       - "identity_preservation"
-  score_value:
-    type: "number"
-    description: "Score value (0-1)."
-    minimum: 0
-    maximum: 1
-  reward_model_version:
+    description: "The metric being scored."
+  model:
     type: "string"
-    description: "Version of the VLM reward model."
+    description: "Name of the VLM model used."
+  value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The score value."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of scoring."
 required:
-  - score_id
-  - image_id
-  - metric_name
-  - score_value
-  - reward_model_version
+  - "id"
+  - "image_id"
+  - "metric"
+  - "model"
+  - "value"
+  - "timestamp"
 additionalProperties: false

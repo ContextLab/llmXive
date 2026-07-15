@@ -240,3 +240,201 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T14:02:24Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_250fefd7
+  context: 'Implement src/data/ingestion.py to Download USPTO-MIT subset from URL:
+    https://zenodo.org/record/3969375 and parse raw data'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: 'Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:01:13Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model output verification requires Spearman correlation coefficient >
+    0.5 referencing arXiv 2408.08592
+  claim_id: c_4ef8378f
+  context: verifying that the model outputs a prediction file with a Spearman correlation
+    coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: verify that the model outputs a prediction file with a Spearman correlation
+    coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:01:15Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Research paper available at arxiv.org/abs/2408.08592
+  claim_id: c_73b4d2d2
+  context: 'Independent Test: Can be fully tested by running the training script ona
+    sample of reaction records and verifying that the model outputs a prediction file
+    with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: A related research paper is available at https://arxiv.org/abs/2408.08592
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:03:11Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: USPTO-MIT subset available at zenodo.org/record/3969375
+  claim_id: c_33236a6f
+  context: 'T012 [US1] Implement src/data/ingestion.py to Download USPTO-MIT subset
+    from URL: https://zenodo.org/record/3969375 and parse raw data'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:03:57Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model outputs Spearman correlation coefficient greater than 0.5
+  claim_id: c_69778ea6
+  context: 'Independent Test: Can be fully tested by running the training script ona
+    sample of reaction records and verifying that the model outputs a prediction file
+    with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_Spearman_correlation_coefficient_greater_than
+  kind: magnitude
+  raw_text: Spearman correlation coefficient > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:04:24Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test yields p-value less than 0.01
+  claim_id: c_5e9c00f0
+  context: "Independent Test: Can be fully tested by running the analysis script on\
+    \ the cross-validation results and verifying that the output report contains a\
+    \ ranked list of reaction classes by Spearman \u03C1, with SN1/SN2/Diels-Alder\
+    \ labels clearly distinguished, and a p-value < 0.01 for the permutation test."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_yields_p-value_less_than_0.01
+  kind: magnitude
+  raw_text: p-value < 0.01 for the permutation test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:04:47Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model outputs prediction file with Spearman correlation coefficient greater
+    than 0.5
+  claim_id: c_b1af08bd
+  context: 'Independent Test: Can be fully tested by running the training script ona
+    sample of reaction records and verifying that the model outputs a prediction file
+    with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_file_with_Spearman_correlation_coef
+  kind: magnitude
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
+    > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:06:56Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Output report contains ranked list of reaction classes by Spearman rho
+    with p-value less than 0.01 for permutation test
+  claim_id: c_6041c2a5
+  context: "Independent Test: Can be fully tested by running the analysis script on\
+    \ the cross-validation results and verifying that the output report contains a\
+    \ ranked list of reaction classes by Spearman \u03C1, with SN1/SN2/Diels-Alder\
+    \ labels clearly distinguished, and a p-value < 0.01 for the permutation test."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_report_contains_ranked_list_of_reaction_classes_by_Sp
+  kind: magnitude
+  raw_text: "The output report contains a ranked list of reaction classes by Spearman\
+    \ \u03C1, with SN1/SN2/Diels-Alder labels clearly distinguished, and a p-value\
+    \ < 0.01 for the permutation test"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:07:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Total row count is greater than or equal to 90% of input file row count
+  claim_id: c_847d4680
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying that the output CSV contains a single reaction_type column\
+    \ containing exactly three distinct values (SN1, SN2, Diels-Alder) where present,\
+    \ and that the total row count is \u2265 90% of the input file row count."
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Total_row_count_is_greater_than_or_equal_to_90%25_of_input_fil
+  kind: magnitude
+  raw_text: "The total row count is \u2265 90% of the input file row count"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T07:08:12Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_25c15d06
+  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
+    https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:09:23Z'

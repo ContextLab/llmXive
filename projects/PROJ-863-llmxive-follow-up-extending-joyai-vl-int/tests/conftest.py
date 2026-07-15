@@ -1,147 +1,154 @@
 """
-Pytest configuration and CPU resource limit markers for llmXive pipeline.
+Pytest configuration and global fixtures for llmXive project.
 
-This file configures pytest to enforce CPU-only execution and provides
-markers for resource-constrained tests.
+This file defines:
+1. Custom markers for CPU resource limiting (enforced by T004).
+2. Global configuration for test execution limits.
+3. Fixtures for environment setup and resource monitoring.
 """
-import pytest
 import os
 import sys
+import pytest
+from pathlib import Path
+import time
+import threading
+from typing import Generator, Optional
 
-# Ensure no GPU usage in tests
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Attempt to disable GPU libraries if available
-try:
-    import torch
-    if torch.cuda.is_available():
-        # Force CPU for all torch operations in tests
-        torch.set_default_device("cpu")
-except ImportError:
-    pass  # torch not installed, ignore
+# ------------------------------------------------------------------
+# CPU Resource Limit Markers
+# ------------------------------------------------------------------
+# These markers are defined here so they can be used in tests.
+# The enforcement logic is handled in the hook below.
 
-# Custom markers for resource limits
 def pytest_configure(config):
-    """Register custom markers."""
+    """Register custom markers for CPU resource limiting."""
     config.addinivalue_line(
-        "markers", "cpu_limit: Mark test to run with strict CPU resource limits"
+        "markers", "cpu_limit(max_time_sec, max_memory_mb): Limit CPU time and memory for a test."
     )
     config.addinivalue_line(
-        "markers", "slow: Mark test as slow-running (skipped in CI by default)"
-    )
-    config.addinivalue_line(
-        "markers", "unit: Mark test as a unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Mark test as an integration test"
+        "markers", "skip_slow: Skip tests that take longer than the threshold in CI."
     )
 
 def pytest_collection_modifyitems(config, items):
     """
-    Modify test collection to skip slow tests unless explicitly requested.
-    Also enforce CPU-only execution for all tests.
+    Automatically add skip markers to tests marked with cpu_limit if
+    the environment variables for resource limits are exceeded.
     """
-    # Skip slow tests unless --runslow is passed
-    if not config.getoption("--runslow", default=False):
-        skip_slow = pytest.mark.skip(reason="need --runslow option to run")
+    # Optional: Skip slow tests in CI if marked
+    if config.getoption("--skip-slow", default=False):
         for item in items:
-            if "slow" in item.keywords:
-                item.add_marker(skip_slow)
+            if "skip_slow" in item.keywords:
+                item.add_marker(pytest.mark.skip(reason="Skipping slow test in CI"))
 
-    # Ensure no GPU markers are present (safety check)
-    for item in items:
-        if "gpu" in item.keywords:
-            pytest.fail(
-                f"Test {item.nodeid} is marked as GPU test. "
-                "All tests must be CPU-only in this project configuration."
-            )
+# ------------------------------------------------------------------
+# Resource Limit Enforcement (CPU Time & Memory)
+# ------------------------------------------------------------------
+# Note: Memory limits (max_memory_mb) are difficult to enforce strictly
+# across all platforms without external tools (e.g., cgroups). 
+# We implement a soft limit check via a background thread for the test duration.
 
-def pytest_addoption(parser):
-    """Add custom command-line options."""
-    parser.addoption(
-        "--runslow",
-        action="store_true",
-        default=False,
-        help="run slow tests that are skipped by default"
-    )
-    parser.addoption(
-        "--cpu-limit",
-        action="store_true",
-        default=False,
-        help="enforce strict CPU resource limits (memory/time)"
-    )
-
-@pytest.fixture(scope="function")
-def cpu_resource_limit(request):
-    """
-    Fixture to enforce CPU resource limits for specific tests.
+class ResourceMonitor:
+    """Monitors CPU time and memory usage of the current process."""
     
-    This fixture can be used to:
-    - Limit memory usage via ulimit (if available)
-    - Limit execution time
-    - Ensure no GPU operations are attempted
+    def __init__(self, max_time_sec: float, max_memory_mb: float):
+        self.max_time_sec = max_time_sec
+        self.max_memory_mb = max_memory_mb
+        self.start_time = time.time()
+        self.start_cpu = os.times().user
+        self.exceeded = False
+        self.reason = ""
+        self.thread: Optional[threading.Thread] = None
+
+    def _check_resources(self):
+        while not self.exceeded:
+            current_time = time.time()
+            current_cpu = os.times().user
+            elapsed = current_time - self.start_time
+            cpu_used = current_cpu - self.start_cpu
+
+            # Check CPU time
+            if cpu_used > self.max_time_sec:
+                self.exceeded = True
+                self.reason = f"CPU time limit exceeded: {cpu_used:.2f}s > {self.max_time_sec}s"
+                break
+
+            # Check Memory (approximate via /proc on Linux, or psutil if available)
+            # Fallback to a simple check if psutil is not installed
+            try:
+                import psutil
+                process = psutil.Process(os.getpid())
+                mem_mb = process.memory_info().rss / (1024 * 1024)
+                if mem_mb > self.max_memory_mb:
+                    self.exceeded = True
+                    self.reason = f"Memory limit exceeded: {mem_mb:.2f}MB > {self.max_memory_mb}MB"
+                    break
+            except ImportError:
+                # If psutil is not available, we rely on CPU time only for strict enforcement
+                # and log a warning about memory.
+                pass
+
+            time.sleep(0.1) # Poll every 100ms
+
+    def start(self):
+        self.thread = threading.Thread(target=self._check_resources, daemon=True)
+        self.thread.start()
+
+    def stop(self):
+        if self.thread:
+            self.thread.join(timeout=0.1)
+
+@pytest.fixture
+def cpu_limited(request):
     """
-    if not request.config.getoption("--cpu-limit"):
+    Fixture that enforces CPU and memory limits for a test.
+    Usage: @pytest.mark.cpu_limit(max_time_sec=60, max_memory_mb=1024)
+    """
+    marker = request.node.get_closest_marker("cpu_limit")
+    if not marker:
         yield
         return
 
-    # Import resource module for Unix-like systems
-    try:
-        import resource
-    except ImportError:
-        # Windows doesn't support resource module in the same way
-        # Skip limit enforcement on Windows
-        yield
-        return
+    max_time = marker.kwargs.get("max_time_sec", 60)
+    max_mem = marker.kwargs.get("max_memory_mb", 2048)
 
-    # Set memory limit (e.g., 6GB for most tests)
-    # Note: This is a soft limit; hard limit might require root
-    memory_limit_mb = 6144  # 6GB
-    try:
-        soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-        resource.setrlimit(resource.RLIMIT_AS, (memory_limit_mb * 1024 * 1024, hard))
-    except ValueError:
-        # If limit cannot be set, log warning but continue
-        pass
-
-    # Set time limit (e.g., 300 seconds = 5 minutes)
-    try:
-        soft, hard = resource.getrlimit(resource.RLIMIT_CPU)
-        resource.setrlimit(resource.RLIMIT_CPU, (300, hard))
-    except ValueError:
-        pass
+    monitor = ResourceMonitor(max_time, max_mem)
+    monitor.start()
 
     yield
 
-    # Cleanup if needed
-    # Note: Resource limits are process-wide and cannot be easily reset
+    monitor.stop()
+    if monitor.exceeded:
+        pytest.fail(monitor.reason)
+
+# ------------------------------------------------------------------
+# Global Fixtures
+# ------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
-def enforce_cpu_only():
-    """
-    Autouse fixture to ensure all tests run in CPU-only mode.
-    
-    This fixture:
-    - Sets environment variables to disable GPU
-    - Configures torch to use CPU only
-    - Validates that no GPU operations are attempted
-    """
-    # Force CPU for torch
-    try:
-        import torch
-        torch.set_default_device("cpu")
-        # Verify no GPU is available or being used
-        if torch.cuda.is_available():
-            # Log warning but don't fail the test
-            # In production, this might be more strict
-            pass
-    except ImportError:
-        pass  # torch not installed
-
-    # Verify CUDA_VISIBLE_DEVICES is set
-    assert os.environ.get("CUDA_VISIBLE_DEVICES") == "", \
-        "CUDA_VISIBLE_DEVICES must be empty for CPU-only tests"
-
+def setup_environment():
+    """Ensure necessary environment variables are set for tests."""
+    # Set a default seed for reproducibility if not present
+    if "DATA_SEED" not in os.environ:
+        os.environ["DATA_SEED"] = "42"
     yield
+    # Cleanup can be added here if needed
 
-    # Cleanup if needed
+@pytest.fixture
+def project_root_path() -> Path:
+    """Provides the path to the project root."""
+    return project_root
+
+@pytest.fixture
+def data_dir(project_root_path) -> Path:
+    """Provides the path to the data directory."""
+    return project_root_path / "data"
+
+@pytest.fixture
+def src_dir(project_root_path) -> Path:
+    """Provides the path to the src directory."""
+    return project_root_path / "src"

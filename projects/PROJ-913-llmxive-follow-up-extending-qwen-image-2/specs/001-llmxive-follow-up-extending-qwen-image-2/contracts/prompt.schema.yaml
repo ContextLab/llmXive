@@ -1,40 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PromptSet"
-description: "Schema for prompt sets (in-distribution and out-of-distribution)."
+description: "Schema for the curated prompt sets (ID and OOD)."
 type: "object"
 properties:
-  prompt_id:
+  id:
     type: "string"
-    description: "Unique identifier for the prompt (UUID)."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    format: "uuid"
+    description: "Unique identifier for the prompt."
   text:
     type: "string"
-    description: "The prompt text."
-    maxLength: 512
-  distribution_type:
+    description: "The text of the prompt."
+  category:
     type: "string"
-    description: "Type of distribution."
     enum:
-      - "in_distribution"
-      - "out_of_distribution"
-  source_dataset:
-    type: "string"
-    description: "Original dataset name (if applicable)."
-    nullable: true
-  embedding_vector:
-    type: "array"
-    description: "Latent-space embedding of the prompt."
+      - "id"
+      - "ood"
+    description: "Distribution category."
+  embedding:
+    type:
+      - "array"
+      - "null"
     items:
       type: "number"
-    minItems: 768
-    maxItems: 768
-  cosine_similarity_to_id:
-    type: "number"
-    description: "Similarity to ID centroids (for OOD only)."
-    minimum: 0
-    maximum: 1
+    description: "Optional embedding vector for validation."
 required:
-  - prompt_id
-  - text
-  - distribution_type
+  - "id"
+  - "text"
+  - "category"
 additionalProperties: false

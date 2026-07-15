@@ -1,19 +1,18 @@
-# Development and testing dependencies for llmXive pipeline
-# These are additional to the base requirements.txt
+# Development dependencies for llmXive
+# Includes testing, linting, and formatting tools
 
-# Testing framework
-pytest>=7.4.0
+# Core dependencies (from requirements.txt)
+-r requirements.txt
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
 pytest-timeout>=2.2.0
-pytest-cov>=4.1.0
-pytest-mock>=3.11.1
 
-# Code quality
+# Linting and Formatting (as per T003)
 ruff>=0.1.0
 black>=23.0.0
+mypy>=1.0.0
 
-# Optional: for better output formatting
-pytest-sugar>=0.9.6
-
-# Optional: for memory profiling in tests
-memory-profiler>=0.61.0
+# Optional: For memory monitoring in tests (used in conftest.py)
 psutil>=5.9.0

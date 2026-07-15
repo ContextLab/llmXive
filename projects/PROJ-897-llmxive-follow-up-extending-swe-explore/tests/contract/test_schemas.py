@@ -6,11 +6,13 @@ import os
 import pytest
 from pathlib import Path
 import yaml
-
-# Import the schema loader from the utility module
-# Note: The import path assumes the test is run from the project root with code/ in PYTHONPATH
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+# Ensure code directory is in path
+project_root = Path(__file__).parent.parent
+code_dir = project_root / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 from utils.schemas import get_schema_path, load_schema, SCHEMA_FILES
 
@@ -73,7 +75,7 @@ class TestSchemaContent:
         props = data.get("properties", {})
         for field in required:
             assert field in props, f"Result schema missing required field: {field}"
-        
+
         # Check for association statement constraint
         assert "association_statement" in props, \
             "Result schema must include 'association_statement' for FR-007"

@@ -83,8 +83,8 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/data/download.py` to fetch `bench.final.public.jsonl` from HuggingFace
-- [~] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
-- [~] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
+- [ ] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
+- [ ] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
 - [~] T014b [US1] Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic ambiguous issues by mutating variable names, removing comments, and applying **structural obfuscations (control flow reordering, API signature changes)** per FR-009. **Fallback Logic**: If the pool of solvable tasks is insufficient, proceed with N < 50, log a warning, and save the actual count in `data/curated/synthetic_issues_meta.json`. Ensure synthetic issues are syntactically valid (AST parseable). Save `ground_truth_lines` from original code for synthetic issues (FR-008). **Versioning**: Record original code hash and mutation parameters in metadata.
 - [~] T014c [US1] Implement `code/data/curate.py` Part C: Validation logic to skip invalid mutations and log warnings.
 - [~] T015a [US1] Implement `code/config.py` update to define `VALIDATION_SAMPLE_SIZE` (default N=20) and `HARD_INSTANCE_PERCENTILE` (default) to resolve "[deferred]" values before execution.
@@ -160,8 +160,8 @@
 - [~] T036 Code cleanup and refactoring
 - [~] T037 Performance optimization (memory management for CPU model)
 - [~] T038 [P] Additional unit tests in `tests/unit/`
-- [ ] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
-- [ ] T040 Run `quickstart.md` validation
+- [~] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
+- [~] T040 Run `quickstart.md` validation
 
 ---
 

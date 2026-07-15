@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/ingestion.py` to Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375 [UNRESOLVED-CLAIM: c_250fefd7 — status=not_enough_info] and parse raw data
+- [ ] T012 [US1] Implement `src/data/ingestion.py` to The USPTO-MIT subset is available at https://zenodo.org/record/3969375 [UNRESOLVED-CLAIM: c_25c15d06 — status=not_enough_info] and parse raw data
 - [ ] T013c [US1] Define SMARTS patterns for SN1, SN2, and Diels-Alder in `src/modeling/config.yaml` (under `reaction_templates`) to ensure deterministic template matching. Explicit patterns: SN1 (e.g., `[C:1]([O:2])>>[C:1]+[O:2]-`), SN2 (e.g., `[C:1]([O:2])>>[C:1]=[O:2]` with backside attack logic), Diels-Alder (e.g., `[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1`).
 - [~] T013 [US1] Implement reaction template matching in `src/utils/chemistry.py` using patterns from `config.yaml` to classify reactions into SN1, SN2, Diels-Alder
 - [~] T014 [US1] Implement filtering logic in `src/data/ingestion.py` to exclude non-matching rows, log malformed SMILES to error file, and strictly derive target variable: use `yield_pct` if present, otherwise fallback to `success_flag` (binary) as per Spec Assumptions (FR-004)
@@ -97,7 +97,7 @@
 
 **Goal**: Convert reactants to features (RDKit), apply dimensionality reduction, and train XGBoost on CPU within 30 mins.
 
-**Independent Test**: Can be fully tested by running the training script ona sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
+**Independent Test**: Can be fully tested by running the training script ona sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,9 +110,9 @@
 - [~] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
 - [~] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
 - [~] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
-- [ ] T025 [US2] Implement `src/modeling/train.py` to load features, normalize target (Z-score), and train XGBoost model
-- [ ] T026 [US2] Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO) validation in `src/modeling/train.py` to ensure generalization to new chemistry (Plan Complexity Tracking)
-- [ ] T026b [US2] Implement runtime tracking and enforcement in `src/modeling/train.py`: abort training if runtime exceeds a predefined threshold (FR-003)
+- [~] T025 [US2] Implement `src/modeling/train.py` to load features, normalize target (Z-score), and train XGBoost model
+- [~] T026 [US2] Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO) validation in `src/modeling/train.py` to ensure generalization to new chemistry (Plan Complexity Tracking)
+- [~] T026b [US2] Implement runtime tracking and enforcement in `src/modeling/train.py`: abort training if runtime exceeds a predefined threshold (FR-003)
 - [ ] T027 [US2] Save trained model artifact to `data/models/xgboost_model.json` and training logs to `data/processed/training_log.json`
 - [ ] T028 [US2] Integrate logging, state update, and error handling in `src/modeling/train.py`
 

@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-joyai-vl-int"
+version = "0.1.0"
+description = "LLM-Xive Follow-up: Extending JoyAI-VL-Interaction"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "transformers>=4.40.0",
+    "scikit-learn>=1.4.0",
+    "opencv-python>=4.9.0",
+    "datasets>=2.18.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

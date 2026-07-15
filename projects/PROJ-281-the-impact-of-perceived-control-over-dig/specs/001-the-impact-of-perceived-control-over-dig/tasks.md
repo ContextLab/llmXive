@@ -41,10 +41,10 @@
 - [X] T004 [P] Implement `code/config.py` for global config, random seeds, and path constants
 - [X] T004a [P] Update spec.md SC-004 to explicitly define the -hour runtime threshold (or flag for spec revision if spec edit is out of scope for this task file)
 - [X] T005 [P] Setup `code/__init__.py` and `tests/__init__.py`
-- [~] T006 [P] Create `code/services/__init__.py`, `code/analysis/__init__.py`, `code/viz/__init__.py`
-- [~] T007 Create `code/main.py` pipeline orchestrator skeleton
-- [~] T008 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
-- [~] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
+- [X] T006 [P] Create `code/services/__init__.py`, `code/analysis/__init__.py`, `code/viz/__init__.py`
+- [ ] T007 Create `code/main.py` pipeline orchestrator skeleton
+- [ ] T008 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
+- [ ] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,8 +58,8 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for data ingestion in `tests/unit/test_data_ingestion.py` (use a fixed sample file for real-world constraints, or mock for logic only)
-- [~] T011 [P] [US1] Unit test for anxiety scoring in `tests/unit/test_anxiety_scoring.py` (mock model output)
+- [ ] T010 [P] [US1] Unit test for data ingestion in `tests/unit/test_data_ingestion.py` (use a fixed sample file for real-world constraints, or mock for logic only)
+- [ ] T011 [P] [US1] Unit test for anxiety scoring in `tests/unit/test_anxiety_scoring.py` (mock model output)
 - [~] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_validation.py` (runs on a sample of rows)
 
 ### Implementation for User Story 1

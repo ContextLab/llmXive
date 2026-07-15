@@ -84,9 +84,9 @@
 ### Implementation for User Story 1
 
 - [~] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
-- [ ] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
-- [ ] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
-- [ ] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
+- [~] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
+- [~] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
+- [~] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
 - [ ] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
 - [ ] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
 - [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`

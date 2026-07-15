@@ -1,14 +1,57 @@
+# Configuration for Molecular Reactivity Prediction Pipeline
+# PROJ-442
+
+# Paths
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  model_dir: "data/models"
+  log_dir: "logs"
+  state_file: "state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml"
+
+# Data Ingestion Settings
+ingestion:
+  source_url: "https://zenodo.org/record/3969375"
+  min_class_size: 1000
+  output_file: "data/processed/filtered_reactions.csv"
+
+# Reaction Templates (SMARTS) for deterministic classification
+# Used by src/utils/chemistry.py for template matching
 reaction_templates:
-  SN1: "[C:1]([O:2])>>[C:1]+[O:2]-"
-  SN2: "[C:1]([O:2])>>[C:1]=[O:2]"
-  Diels-Alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+  # SN1: Unimolecular nucleophilic substitution
+  # Pattern captures a leaving group departure forming a carbocation intermediate
+  # Example logic: C-O bond breaks, C+ forms, Nu- attacks
+  sn1: "[C:1]([O:2])>>[C:1]+.[O:2]-"
 
-training:
-  test_size: 0.2
-  random_state: 42
-  n_estimators: 100
-  max_depth: 6
+  # SN2: Bimolecular nucleophilic substitution
+  # Pattern captures backside attack with simultaneous bond breaking/making
+  # Example logic: Nu attacks C, LG leaves, inversion of stereochemistry
+  # Note: Simplified pattern for initial filtering; stereochemistry logic handled in code
+  sn2: "[C:1]([O:2])>>[C:1].[O:2]"
 
-data:
-  chunk_size: 10000
-  target_column: "yield_pct"
+  # Diels-Alder: [4+2] cycloaddition
+  # Pattern captures diene and dienophile forming a cyclohexene ring
+  # Example logic: C=C-C=C + C=C -> Cyclohexene derivative
+  diels_alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
+
+# Model Training Settings
+modeling:
+  model_type: "xgboost"
+  max_runtime_seconds: 1800
+  cross_validation_folds: 5
+  feature_selection_k: 100
+  target_normalization: "z_score"
+
+# Evaluation Settings
+evaluation:
+  metrics:
+    - "spearman_correlation"
+    - "rmse"
+    - "mae"
+  permutation_test_iterations: 1000
+  significance_threshold: 0.01
+
+# Logging Settings
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

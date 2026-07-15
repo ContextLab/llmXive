@@ -1,10 +1,6 @@
-? T001 Create project structure per implementation plan (`src/data_synthesis`, `src/feature_extraction`,
-  `src/baseline`, `src/scheduler`, `tests/`)
-: 1
-? T002 Initialize Python project with `requirements.txt` (CPU-only `torch`, `transformers`,
-  `scikit-learn`, `opencv-python`, `datasets`)
-: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 [P] Setup `pytest` configuration with CPU resource limit markers: 1
-T005 Implement `src/utils/logging.py` for execution logging (FR-001.1): 1
-T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases): 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1

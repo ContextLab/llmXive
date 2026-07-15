@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet
   verified_at: '2026-07-03T10:56:05.382947Z'
-- artifact_hash: 36b53879e98b715d8f36cbd8710a38b2f51278f7d9eee68faea536994b38ce31
+- artifact_hash: 6bcf25be98f8ff05b0d9fc0c1ae135eb24a785dc546b3de1849918564b25b6bc
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-07-03T14:04:52.532855Z'
-- artifact_hash: 36b53879e98b715d8f36cbd8710a38b2f51278f7d9eee68faea536994b38ce31
+  verified_at: '2026-07-15T07:09:23.556204Z'
+- artifact_hash: 6bcf25be98f8ff05b0d9fc0c1ae135eb24a785dc546b3de1849918564b25b6bc
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -31,4 +31,16 @@
   value: https://zenodo.org/record/3969375
   verification_status: verified
   verified_against_url: https://zenodo.org/records/3969376
-  verified_at: '2026-07-03T14:04:52.532855Z'
+  verified_at: '2026-07-15T07:09:23.556204Z'
+- artifact_hash: 6bcf25be98f8ff05b0d9fc0c1ae135eb24a785dc546b3de1849918564b25b6bc
+  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2408.08592] Case Study: Runtime Safety Verification of Neural Network
+    Controlled System'
+  kind: url
+  value: https://arxiv.org/abs/2408.08592
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2408.08592
+  verified_at: '2026-07-15T07:09:23.556204Z'

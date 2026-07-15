@@ -1,261 +1,286 @@
 """
-Execution logging utility for llmXive pipeline.
+Execution logging utilities for the llmXive pipeline.
 
-Provides structured logging with file and console handlers,
-specifically designed to track VLM API calls and execution metrics.
+Implements FR-001.1: Structured execution logging to track pipeline progress,
+data sources, and verify zero VLM API calls during labeling.
 """
+import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Union
 
-# Ensure project structure exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Constants for log file locations
+LOG_DIR = Path("logs")
+LOG_FILE_NAME = "execution.log"
+METRICS_FILE_NAME = "metrics.jsonl"
 
 # Global logger instance
 _logger: Optional[logging.Logger] = None
+_metrics_buffer: List[Dict[str, Any]] = []
+_metrics_file_path: Optional[Path] = None
 
 
-def get_logger(name: str = "llmxive_pipeline") -> logging.Logger:
+def _ensure_log_dir() -> Path:
+    """Ensure the logs directory exists."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return LOG_DIR
+
+
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[Union[str, Path]] = None,
+    metrics_file: Optional[Union[str, Path]] = None,
+) -> logging.Logger:
     """
-    Get or create the global project logger.
+    Configure the global logger and metrics file paths.
 
     Args:
-        name: Logger name (default: "llmxive_pipeline")
+        log_level: The logging level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Optional path for the log file. Defaults to logs/execution.log.
+        metrics_file: Optional path for the metrics JSONL file. Defaults to logs/metrics.jsonl.
 
     Returns:
-        Configured logging.Logger instance
+        The configured logger instance.
     """
-    global _logger
-    if _logger is None:
-        _logger = _setup_logger(name)
+    global _logger, _metrics_file_path
+
+    if _logger is not None:
+        return _logger
+
+    _ensure_log_dir()
+
+    # Set up file paths
+    if log_file is None:
+        log_file = LOG_DIR / LOG_FILE_NAME
+    else:
+        log_file = Path(log_file)
+        if not log_file.parent.exists():
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    if metrics_file is None:
+        metrics_file = LOG_DIR / METRICS_FILE_NAME
+    else:
+        metrics_file = Path(metrics_file)
+        if not metrics_file.parent.exists():
+            metrics_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    _metrics_file_path = metrics_file
+
+    # Create logger
+    _logger = logging.getLogger("llmxive_pipeline")
+    _logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates
+    _logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    console_handler.setFormatter(console_formatter)
+    _logger.addHandler(console_handler)
+
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(log_level)
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s"
+    )
+    file_handler.setFormatter(file_formatter)
+    _logger.addHandler(file_handler)
+
+    _logger.info("Logging system initialized.")
     return _logger
 
 
-def _setup_logger(name: str) -> logging.Logger:
+def get_logger() -> logging.Logger:
     """
-    Configure the logger with file and console handlers.
+    Get the global logger instance.
+
+    Raises:
+        RuntimeError: If logging has not been initialized.
+    """
+    if _logger is None:
+        raise RuntimeError(
+            "Logger not initialized. Call setup_logging() before using get_logger()."
+        )
+    return _logger
+
+
+def log_execution_start(stage: str, parameters: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log the start of a pipeline execution stage.
 
     Args:
-        name: Logger name
-
-    Returns:
-        Configured logger
+        stage: The name of the stage (e.g., "data_generation", "feature_extraction").
+        parameters: Optional dictionary of parameters for this run.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Create formatter with detailed info
-    formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    # File handler - logs to data/logs/<timestamp>.log
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = LOG_DIR / f"{timestamp}.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-
-    # Console handler - logs to stdout with INFO+ level
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    # Log startup info
-    logger.info(f"Logger initialized. Log file: {log_file}")
-    logger.info(f"Python version: {sys.version}")
-
-    return logger
+    logger = get_logger()
+    logger.info(f"--- EXECUTION START: {stage} ---")
+    if parameters:
+        logger.info(f"Parameters: {json.dumps(parameters, indent=2)}")
 
 
-def log_vlm_call(
-    logger: Optional[logging.Logger] = None,
-    model_id: str = "",
-    input_tokens: int = 0,
-    output_tokens: int = 0,
-    duration_ms: float = 0.0,
-    success: bool = True,
-    **extra: Any
-) -> None:
+def log_execution_end(stage: str, success: bool = True, duration_seconds: Optional[float] = None) -> None:
     """
-    Log a VLM API call attempt.
-
-    Used to verify zero VLM calls during visual-only labeling (FR-001.1).
+    Log the end of a pipeline execution stage.
 
     Args:
-        logger: Logger instance (uses global if None)
-        model_id: VLM model identifier
-        input_tokens: Number of input tokens
-        output_tokens: Number of output tokens
-        duration_ms: Call duration in milliseconds
-        success: Whether the call succeeded
-        **extra: Additional context (e.g., prompt_preview, error_message)
+        stage: The name of the stage.
+        success: Whether the stage completed successfully.
+        duration_seconds: Optional duration of the stage in seconds.
     """
-    log = logger or get_logger()
+    logger = get_logger()
     status = "SUCCESS" if success else "FAILED"
-    log.info(
-        f"VLM_CALL | model={model_id} | status={status} | "
-        f"in={input_tokens} | out={output_tokens} | "
-        f"duration={duration_ms:.2f}ms | {extra}"
-    )
+    msg = f"--- EXECUTION END: {stage} [{status}] ---"
+    if duration_seconds is not None:
+        msg += f" Duration: {duration_seconds:.2f}s"
+    logger.info(msg)
 
 
-def log_data_generation(
-    logger: Optional[logging.Logger] = None,
-    event: str = "",
-    frame_count: int = 0,
-    duration_seconds: float = 0.0,
-    output_path: str = "",
-    **extra: Any
-) -> None:
+def log_data_source(source_type: str, source_path: str, record_count: Optional[int] = None) -> None:
     """
-    Log data generation events.
+    Log information about a data source used in the pipeline.
 
     Args:
-        logger: Logger instance
-        event: Event type (e.g., "frame_written", "chunk_completed")
-        frame_count: Number of frames processed
-        duration_seconds: Duration of the event
-        output_path: Path to generated data
-        **extra: Additional context
+        source_type: Type of data source (e.g., "video", "labels", "features").
+        source_path: Path to the data source.
+        record_count: Optional number of records processed.
     """
-    log = logger or get_logger()
-    log.info(
-        f"DATA_GEN | event={event} | frames={frame_count} | "
-        f"duration={duration_seconds:.2f}s | path={output_path} | {extra}"
-    )
+    logger = get_logger()
+    msg = f"Data Source: {source_type} -> {source_path}"
+    if record_count is not None:
+        msg += f" (Records: {record_count})"
+    logger.info(msg)
 
 
-def log_feature_extraction(
-    logger: Optional[logging.Logger] = None,
-    event: str = "",
-    feature_count: int = 0,
-    dimension: int = 0,
-    input_path: str = "",
-    output_path: str = "",
-    **extra: Any
-) -> None:
+def log_vlm_api_call(model_name: str, input_data: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log feature extraction events.
+    Log a VLM API call.
+
+    This function is critical for FR-001.1 to verify zero VLM calls during labeling.
+    If called during labeling, it should trigger a warning or error.
 
     Args:
-        logger: Logger instance
-        event: Event type
-        feature_count: Number of features extracted
-        dimension: Feature dimension
-        input_path: Source data path
-        output_path: Output path
-        **extra: Additional context
+        model_name: Name of the VLM model used.
+        input_data: Optional input data sent to the model.
     """
-    log = logger or get_logger()
-    log.info(
-        f"FEATURE | event={event} | count={feature_count} | "
-        f"dim={dimension} | input={input_path} | output={output_path} | {extra}"
-    )
+    logger = get_logger()
+    warning_msg = f"⚠️ VLM API CALL DETECTED: {model_name}"
+    logger.warning(warning_msg)
+    if input_data:
+        logger.warning(f"Input: {json.dumps(input_data, indent=2)}")
 
 
-def log_error(
-    logger: Optional[logging.Logger] = None,
-    error_type: str = "",
-    message: str = "",
-    context: Optional[Dict[str, Any]] = None,
-    **extra: Any
-) -> None:
+def log_metric(name: str, value: float, stage: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log errors with structured context.
+    Log a metric value to the metrics JSONL file.
 
     Args:
-        logger: Logger instance
-        error_type: Type of error (e.g., "ValueError", "RuntimeError")
-        message: Error message
-        context: Contextual data at error time
-        **extra: Additional context
+        name: Name of the metric (e.g., "f1_score", "inference_latency").
+        value: The metric value.
+        stage: Optional stage name where the metric was computed.
+        metadata: Optional additional metadata.
     """
-    log = logger or get_logger()
-    ctx_str = f" | {context}" if context else ""
-    log.error(
-        f"ERROR | type={error_type} | message={message}{ctx_str} | {extra}"
-    )
+    if _metrics_file_path is None:
+        setup_logging()  # Initialize if not already done
+
+    record = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "metric_name": name,
+        "value": value,
+        "stage": stage,
+        "metadata": metadata or {},
+    }
+
+    # Append to buffer and write to file
+    with open(_metrics_file_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
 
 
-def log_metrics(
-    logger: Optional[logging.Logger] = None,
-    metric_name: str = "",
-    value: float = 0.0,
-    baseline_value: Optional[float] = None,
-    improvement: Optional[float] = None,
-    **extra: Any
-) -> None:
+def log_event(event_type: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log evaluation metrics.
+    Log a custom event with structured details.
 
     Args:
-        logger: Logger instance
-        metric_name: Name of the metric
-        value: Metric value
-        baseline_value: Baseline comparison value (optional)
-        improvement: Improvement over baseline (optional)
-        **extra: Additional context
+        event_type: Type of event (e.g., "error", "warning", "info").
+        details: Optional dictionary of event details.
     """
-    log = logger or get_logger()
-    baseline_str = f" | baseline={baseline_value}" if baseline_value is not None else ""
-    improvement_str = f" | improvement={improvement:.4f}" if improvement is not None else ""
-    log.info(
-        f"METRIC | name={metric_name} | value={value:.4f}{baseline_str}{improvement_str} | {extra}"
-    )
+    logger = get_logger()
+    if details:
+        logger.info(f"Event: {event_type} - {json.dumps(details)}")
+    else:
+        logger.info(f"Event: {event_type}")
 
 
-def count_vlm_calls(log_file_path: Optional[Path] = None) -> int:
+def verify_zero_vlm_calls(log_file: Optional[Union[str, Path]] = None) -> bool:
     """
-    Count the number of VLM calls in a log file.
+    Verify that the execution log contains zero VLM API calls.
 
-    Used to verify zero VLM calls during visual-only labeling.
+    This is a critical check for FR-001.1 during the data labeling phase.
 
     Args:
-        log_file_path: Path to log file (uses latest if None)
+        log_file: Optional path to the log file. Defaults to logs/execution.log.
 
     Returns:
-        Number of VLM calls found
+        True if zero VLM calls are found, False otherwise.
     """
-    if log_file_path is None:
-        # Find latest log file
-        logs = sorted(LOG_DIR.glob("*.log"))
-        if not logs:
-            return 0
-        log_file_path = logs[-1]
+    if log_file is None:
+        log_file = LOG_DIR / LOG_FILE_NAME
+    else:
+        log_file = Path(log_file)
 
-    if not log_file_path.exists():
-        return 0
+    if not log_file.exists():
+        raise FileNotFoundError(f"Log file not found: {log_file}")
 
-    count = 0
-    with open(log_file_path, "r", encoding="utf-8") as f:
+    vlm_call_count = 0
+    with open(log_file, "r", encoding="utf-8") as f:
         for line in f:
-            if "VLM_CALL" in line:
-                count += 1
+            if "VLM API CALL DETECTED" in line:
+                vlm_call_count += 1
 
-    return count
+    return vlm_call_count == 0
 
 
-def verify_zero_vlm_calls(log_file_path: Optional[Path] = None) -> bool:
+def get_log_summary() -> Dict[str, Any]:
     """
-    Verify that no VLM calls were made in the log file.
-
-    Args:
-        log_file_path: Path to log file
+    Get a summary of the execution log.
 
     Returns:
-        True if zero VLM calls found, False otherwise
+        Dictionary containing log statistics.
     """
-    return count_vlm_calls(log_file_path) == 0
+    log_file = LOG_DIR / LOG_FILE_NAME
+    if not log_file.exists():
+        return {"error": "Log file not found"}
+
+    summary = {
+        "total_lines": 0,
+        "info_count": 0,
+        "warning_count": 0,
+        "error_count": 0,
+        "vlm_call_count": 0,
+        "stages": set(),
+    }
+
+    with open(log_file, "r", encoding="utf-8") as f:
+        for line in f:
+            summary["total_lines"] += 1
+            if "INFO" in line:
+                summary["info_count"] += 1
+            elif "WARNING" in line:
+                summary["warning_count"] += 1
+            elif "ERROR" in line:
+                summary["error_count"] += 1
+            if "VLM API CALL DETECTED" in line:
+                summary["vlm_call_count"] += 1
+            if "EXECUTION START:" in line:
+                stage = line.split("EXECUTION START:")[1].split(" ---")[0].strip()
+                summary["stages"].add(stage)
+
+    summary["stages"] = list(summary["stages"])
+    return summary

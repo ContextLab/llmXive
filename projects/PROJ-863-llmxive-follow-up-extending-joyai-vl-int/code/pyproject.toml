@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive"
+version = "0.1.0"
+description = "LLM-driven automated science pipeline"
+requires-python = ">=3.9"
+dependencies = [
+    "torch --index-url https://download.pytorch.org/whl/cpu",
+    "transformers",
+    "scikit-learn",
+    "opencv-python",
+    "datasets",
+    "ultralytics",
+    "pytest",
+    "ruff",
+    "black",
+    "numpy",
+    "jsonschema",
+    "pandas"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+markers = [
+    "cpu_only: marks tests as CPU-only (deselect with '-m \"not cpu_only\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
