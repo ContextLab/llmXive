@@ -1,0 +1,94 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Bias Metric Schema
+description: >
+  Schema for storing bias and efficiency metrics comparing imputation methods
+  against ground truth (synthetic) or benchmark (real data).
+type: object
+required:
+  - metadata
+  - metrics
+properties:
+  metadata:
+    type: object
+    required:
+      - analysis_id
+      - created_at
+      - comparison_type
+    properties:
+      analysis_id:
+        type: string
+        description: "Unique identifier for this analysis run"
+      created_at:
+        type: string
+        format: date-time
+      comparison_type:
+        type: string
+        enum: [synthetic_ground_truth, real_data_benchmark]
+        description: "Type of comparison performed"
+      missingness_mechanism:
+        type: string
+        enum: [MCAR, MAR, MNAR, unknown]
+        description: "The mechanism of the data used"
+  metrics:
+    type: array
+    description: "List of bias and efficiency metrics for different variables/methods"
+    items:
+      type: object
+      required:
+        - variable_name
+        - method
+        - true_value
+        - estimated_value
+        - absolute_bias
+        - percentage_bias
+      properties:
+        variable_name:
+          type: string
+        method:
+          type: string
+          enum: [complete_case, single_mean, mice, jackknife_benchmark]
+        true_value:
+          type: number
+          description: "Ground truth mean or variance (for synthetic) or benchmark (for real)"
+        estimated_value:
+          type: number
+        absolute_bias:
+          type: number
+        percentage_bias:
+          type: number
+          description: "(estimated - true) / true * 100"
+        variance_ratio:
+          type: number
+          description: "Ratio of imputed variance to true variance (for efficiency)"
+        relative_efficiency:
+          type: number
+          description: "Efficiency relative to the benchmark method"
+        is_pass_sc002:
+          type: boolean
+          description: "True if MICE bias <= 80% of Single Mean bias (MAR only)"
+        ratio_mice_to_single:
+          type: number
+          description: "|MICE_bias| / |Single_bias| (only computed for MAR)"
+examples:
+  - metadata:
+      analysis_id: "synthetic_mar_v1_analysis"
+      created_at: "2023-10-27T14:00:00Z"
+      comparison_type: "synthetic_ground_truth"
+      missingness_mechanism: "MAR"
+    metrics:
+      - variable_name: "age"
+        method: "single_mean"
+        true_value: 45.5
+        estimated_value: 46.2
+        absolute_bias: 0.7
+        percentage_bias: 1.54
+        is_pass_sc002: false
+        ratio_mice_to_single: null
+      - variable_name: "age"
+        method: "mice"
+        true_value: 45.5
+        estimated_value: 45.6
+        absolute_bias: 0.1
+        percentage_bias: 0.22
+        is_pass_sc002: true
+        ratio_mice_to_single: 0.14

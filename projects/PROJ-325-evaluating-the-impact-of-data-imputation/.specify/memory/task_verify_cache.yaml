@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (code/, data/raw, data/processed, tests/)
+    is provided; the implementer did not supply any artifact showing that the project
+    structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g.,\u202F`.ruff.toml`, `.flake8`,\
+    \ `pyproject.toml` with Black settings, or a pre\u2011commit hook) were provided\
+    \ or referenced, so the required artifact for configuring ruff/flake8 and Black\
+    \ does not exist. The task therefore remains unfinished."
+T004:
+  c: false
+  h: 3153fda1c7ef49d3ffca0ee29e75ef98b13d3c82744947a9ab003505f320312f
+  r: "The provided `code/data_ingestion.py` loads data via the `gss` package rather\
+    \ than a configurable URL fetcher, never writes the DataFrame to `data/raw/gss_2018_subset.csv`,\
+    \ and the required CSV output file is absent. Consequently the task\u2019s core\
+    \ requirements are not met."
+T005:
+  c: false
+  h: 2d2394b8d7f24e8d58a6bb06c1252ac73bde4488d5bfbc4eb2a46db5f308c0c7
+  r: The provided `code/synthetic_generator.py` is truncated (metadata dict incomplete,
+    no CSV write, no return of required fields) and the required output file `data/processed/synthetic_mar_v1.csv`
+    does not exist. Additionally, the referenced schema file `contracts/dataset.schema.yaml`
+    is missing, so the generated dataset cannot be validated against it.
+T007:
+  c: false
+  h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205
+  r: "The repository contains `code/update_state.py`, but the file is truncated and\
+    \ does not show any logic that writes the generated hashes to `state/manifest.yaml`.\
+    \ Moreover, the required `state/manifest.yaml` file is absent entirely, so the\
+    \ script cannot update a non\u2011existent manifest. The task\u2019s core requirement\u2014\
+    updating `state/manifest.yaml` with an `artifact_hashes` key\u2014is therefore\
+    \ not fulfilled."

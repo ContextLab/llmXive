@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Imputation Result Schema
+description: >
+  Schema for storing results from imputation methods (Single Mean, MICE, etc.).
+  Includes imputed data, method parameters, and convergence diagnostics.
+type: object
+required:
+  - metadata
+  - results
+properties:
+  metadata:
+    type: object
+    required:
+      - method
+      - dataset_id
+      - created_at
+      - parameters
+    properties:
+      method:
+        type: string
+        enum: [single_mean, mice, predictive_mean_matching]
+        description: "Imputation method used"
+      dataset_id:
+        type: string
+        description: "Reference to the input dataset ID"
+      created_at:
+        type: string
+        format: date-time
+      parameters:
+        type: object
+        description: "Method-specific parameters (e.g., m, max_iter, seed)"
+        additionalProperties: true
+      missingness_mechanism:
+        type: string
+        enum: [MCAR, MAR, MNAR, unknown]
+        description: "The mechanism assumed or detected for this run"
+  results:
+    type: object
+    required:
+      - imputed_data
+      - convergence_status
+    properties:
+      imputed_data:
+        type: array
+        description: "The imputed dataset records"
+        items:
+          type: object
+          additionalProperties: true
+      convergence_status:
+        type: string
+        enum: [converged, warning, failed]
+        description: "Status of the imputation convergence"
+      error_message:
+        type: string
+        description: "Error details if status is failed or warning"
+      burn_in_discarded:
+        type: integer
+        description: "Number of initial iterations discarded (for MICE)"
+      chains_used:
+        type: integer
+        description: "Number of independent chains used (for MICE)"
+      pooled_variance_method:
+        type: string
+        description: "Method used to pool results (e.g., Rubin's Rules)"
+examples:
+  - metadata:
+      method: "mice"
+      dataset_id: "synthetic_mar_v1"
+      created_at: "2023-10-27T12:00:00Z"
+      parameters:
+        m: 5
+        max_iter: 1000
+        seed: 42
+      missingness_mechanism: "MAR"
+    results:
+      imputed_data:
+        - caseid: 1
+          age: 35
+          income: 50000
+        - caseid: 2
+          age: 40
+          income: 62000
+      convergence_status: "converged"
+      burn_in_discarded: 100
+      chains_used: 4
+      pooled_variance_method: "Rubins Rules"
