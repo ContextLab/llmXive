@@ -1062,3 +1062,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T06:45:17Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sleep-EDF dataset available on PhysioNet ID sleep-edf
+  claim_id: c_f0477f49
+  context: 'Implement code/download.py to fetch the ''Sleep-EDF'' dataset (PhysioNet
+    ID: ''sleep-edf'', URL: ) as primary candidate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_dataset_available_on_PhysioNet_ID_sleep-edf
+  kind: entity_fact
+  raw_text: The Sleep-EDF dataset is available on PhysioNet with the ID 'sleep-edf'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:47:51Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: SHHS dataset fallback if Sleep-EDF N < 30
+  claim_id: c_0776110e
+  context: If Sleep-EDF lacks required variables or yields N < 30, attempt fallback
+    'SHHS' dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHHS_dataset_fallback_if_Sleep-EDF_N_%3C_30
+  kind: entity_fact
+  raw_text: The SHHS dataset is a fallback candidate if Sleep-EDF lacks required variables
+    or yields N < 30.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:48:13Z'

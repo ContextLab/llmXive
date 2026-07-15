@@ -4,50 +4,73 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required project directory structure for PROJ-470.
-    This script ensures that the following directories exist relative to the project root:
-    - data/raw
-    - data/processed
-    - data/analysis
-    - code
-    - tests/unit
-    - tests/integration
-    - docs
+    Create the project directory structure for PROJ-470-predicting-cognitive-fatigue-from-restin.
+    This script ensures all required folders exist relative to the project root.
     """
-    # Determine the project root.
-    # We assume this script is run from the project root or the script is located in code/
-    # and we want to create dirs relative to the parent of 'code'.
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    # Define the required directories relative to project_root
-    required_dirs = [
+    # Determine project root based on the current working directory or script location
+    # Assuming the script is run from the project root
+    project_root = Path.cwd()
+    
+    # Define the directory structure relative to project root
+    # Note: The task description mentions 'projects/PROJ-470...' but the completed tasks
+    # and execution context imply the structure should be at the root level (data/, code/, tests/)
+    # to match the paths used in download.py, preprocess.py, etc.
+    # We will create the specific project folder if it doesn't exist, but ensure the
+    # standard pipeline directories (data, code, tests, docs) exist at the root
+    # as referenced by the execution logs (e.g., 'data/raw', 'code/download.py').
+    
+    dirs_to_create = [
         "data/raw",
         "data/processed",
         "data/analysis",
         "code",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
+        # The specific project folder mentioned in T001 description
+        "projects/PROJ-470-predicting-cognitive-fatigue-from-restin"
     ]
-
+    
     created_count = 0
     existing_count = 0
 
-    print(f"Project Root: {project_root}")
+    print(f"Setting up directory structure in: {project_root}")
 
-    for dir_path in required_dirs:
+    for dir_path in dirs_to_create:
         full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Exists: {full_path}")
-            existing_count += 1
+            # Check if it's a directory, if it's a file, we might need to handle it differently
+            # but for this task, we assume valid paths
+            if full_path.is_dir():
+                existing_count += 1
+            else:
+                print(f"Warning: Path exists but is not a directory: {full_path}")
 
-    print(f"Directory structure setup complete. Created: {created_count}, Existing: {existing_count}")
-    return 0
+    print(f"Setup complete. Created: {created_count}, Already existed: {existing_count}")
+    
+    # Verify the critical paths expected by the pipeline
+    critical_paths = [
+        "data/raw",
+        "data/processed", 
+        "code",
+        "tests/unit",
+        "tests/integration"
+    ]
+    
+    missing = []
+    for p in critical_paths:
+        if not (project_root / p).exists():
+            missing.append(p)
+    
+    if missing:
+        print(f"ERROR: Critical directories missing after setup: {missing}")
+        sys.exit(1)
+    else:
+        print("All critical directories verified.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

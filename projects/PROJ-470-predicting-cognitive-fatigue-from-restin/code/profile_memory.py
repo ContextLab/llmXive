@@ -1,181 +1,190 @@
-"""
-Performance profiling script for preprocess.py and features.py.
-Identifies memory bottlenecks in the EEG pipeline.
-"""
 import os
 import sys
 import time
 import json
 import tracemalloc
 import argparse
-from pathlib import Path
-
-# Add project root to path for imports
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-
+import mne
 import pandas as pd
 import numpy as np
-import mne
+from pathlib import Path
+
+# Ensure we can import project modules
+sys.path.insert(0, str(Path(__file__).parent))
+
 from utils.logging import get_logger
+from preprocess import load_config, stream_eeg_files, apply_bandpass_filter, reject_artifacts, process_eeg_stream
+from features import load_config as load_features_config, calculate_lzc, calculate_permutation_entropy, process_eeg_segments
 
-# Import the target modules
-from preprocess import load_config, apply_bandpass_filter, reject_artifacts
-from features import load_config as load_features_config, calculate_lzc, calculate_permutation_entropy
+logger = get_logger("profile_memory")
 
-logger = get_logger("profiler")
-
-def create_synthetic_eeg_data(n_channels=19, n_seconds=120, sfreq=256, seed=42):
+def profile_function(func, *args, **kwargs):
     """
-    Create synthetic EEG data for profiling.
-    This is NOT used as scientific data, but strictly to measure memory usage
-    of the pipeline functions on realistic data shapes.
+    Profiles a function's memory usage and execution time.
+    Returns a dictionary with memory statistics and timing.
     """
-    np.random.seed(seed)
-    n_points = n_seconds * sfreq
-    
-    # Create channel names (standard 10-20 system subset)
-    ch_names = [
-        'Fp1', 'Fp2', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'O1', 'O2',
-        'F7', 'F8', 'T3', 'T4', 'T5', 'T6', 'Fz', 'Cz', 'Pz'
-    ][:n_channels]
-    
-    # Generate random data with some structure (low freq + noise)
-    data = np.random.randn(n_channels, n_points) * 10e-6
-    # Add some 50Hz noise to simulate real conditions
-    t = np.linspace(0, n_seconds, n_points)
-    for i in range(n_channels):
-        data[i] += 5e-6 * np.sin(2 * np.pi * 50 * t)
-    
-    info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
-    raw = mne.io.RawArray(data, info)
-    
-    return raw
-
-def profile_function(func, args, func_name, output_path):
-    """
-    Profile a function using tracemalloc to track memory allocation.
-    """
-    logger.info(f"Starting memory profile for {func_name}...")
-    
     tracemalloc.start()
-    start_time = time.time()
+    start_time = time.perf_counter()
     
     try:
-        result = func(*args)
-        end_time = time.time()
-        
-        current, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        
-        elapsed = end_time - start_time
-        
-        profile_data = {
-            "function": func_name,
-            "status": "success",
-            "execution_time_seconds": round(elapsed, 3),
-            "memory_current_mb": round(current / 1024 / 1024, 2),
-            "memory_peak_mb": round(peak / 1024 / 1024, 2),
-            "input_size_mb": round(sys.getsizeof(args[0]) / 1024 / 1024, 2) if isinstance(args[0], (np.ndarray, pd.DataFrame)) else "N/A"
-        }
-        
-        logger.info(f"{func_name} completed: Peak Memory: {profile_data['memory_peak_mb']} MB, Time: {profile_data['execution_time_seconds']}s")
-        
+        result = func(*args, **kwargs)
     except Exception as e:
         tracemalloc.stop()
-        logger.error(f"{func_name} failed: {str(e)}")
-        profile_data = {
-            "function": func_name,
-            "status": "failed",
-            "error": str(e)
-        }
+        logger.error(f"Function {func.__name__} failed during profiling: {e}")
+        raise
     
-    # Save individual result
-    with open(output_path, 'w') as f:
-        json.dump(profile_data, f, indent=2)
+    end_time = time.perf_counter()
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
     
-    return profile_data
+    return {
+        "function_name": func.__name__,
+        "execution_time_seconds": end_time - start_time,
+        "peak_memory_mb": peak / (1024 * 1024),
+        "current_memory_mb": current / (1024 * 1024),
+        "status": "success"
+    }
 
-def main():
-    parser = argparse.ArgumentParser(description="Profile memory usage of EEG pipeline")
-    parser.add_argument("--output", type=str, default="data/analysis/memory_profile.json",
-                      help="Path to save combined profile results")
-    parser.add_argument("--n-channels", type=int, default=19, help="Number of channels for synthetic data")
-    parser.add_argument("--duration", type=int, default=120, help="Duration in seconds")
-    args = parser.parse_args()
+def profile_preprocessing_pipeline(config_path="code/config.yaml"):
+    """
+    Profiles the memory and time usage of the preprocessing pipeline.
+    Streams real data from disk to avoid loading everything into memory at once.
+    """
+    logger.info(f"Loading configuration from {config_path}")
+    config = load_config(config_path)
+    
+    raw_data_dir = Path(config.get("raw_data_dir", "data/raw"))
+    if not raw_data_dir.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    
+    logger.info(f"Starting preprocessing profile on data in {raw_data_dir}")
+    
+    # Profile the streaming and processing
+    results = []
+    
+    # We profile the stream_eeg_files generator consumption and processing
+    # Since stream_eeg_files is a generator, we iterate over it and profile the processing of chunks
+    try:
+        for chunk in stream_eeg_files(raw_data_dir, config):
+            if chunk is None:
+                continue
+            
+            # Profile filter application
+            filter_stats = profile_function(apply_bandpass_filter, chunk, config)
+            results.append(filter_stats)
+            
+            # Profile artifact rejection
+            reject_stats = profile_function(reject_artifacts, filter_stats.get("result", chunk), config)
+            # Note: reject_artifacts might modify in place or return new, depending on impl
+            # Assuming it returns the processed data
+            processed_data = reject_stats.get("result", None)
+            
+            if processed_data is not None:
+                results.append(reject_stats)
+            
+            # Stop after first few chunks to avoid long runtime in CI, 
+            # but ensure we process at least one full cycle if data is small
+            # For a true profile, we might want to process all, but for CI safety:
+            if len(results) >= 5: 
+                break
+                
+    except Exception as e:
+        logger.error(f"Error during preprocessing profiling: {e}")
+        raise
 
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    return results
+
+def profile_feature_extraction_pipeline(config_path="code/config.yaml"):
+    """
+    Profiles the memory and time usage of the feature extraction pipeline.
+    """
+    logger.info(f"Loading configuration from {config_path}")
+    config = load_features_config(config_path)
     
-    logger.info(f"Initializing synthetic EEG data: {args.n_channels} channels, {args.duration}s")
-    raw = create_synthetic_eeg_data(n_channels=args.n_channels, n_seconds=args.duration)
+    processed_data_path = Path(config.get("processed_data_path", "data/processed/preprocessed_eeg.npy"))
+    if not processed_data_path.exists():
+        raise FileNotFoundError(f"Processed data not found: {processed_data_path}")
     
-    # Load config
-    config = load_config()
+    logger.info(f"Starting feature extraction profile on {processed_data_path}")
+    
+    # Load a sample of the data for profiling if it's too large
+    # We load the whole thing if it fits, otherwise we stream chunks if the file format supports it
+    # Assuming .npy is loaded into memory, we profile the calculation functions directly
+    data = np.load(processed_data_path, allow_pickle=True).item()
+    
+    if isinstance(data, dict) and 'data' in data:
+        eeg_data = data['data']
+    elif isinstance(data, np.ndarray):
+        eeg_data = data
+    else:
+        # Try to handle if it's a list of segments
+        eeg_data = data
     
     results = []
     
-    # 1. Profile Bandpass Filter
-    logger.info("Profiling Bandpass Filter...")
-    filter_output = profile_function(
-        apply_bandpass_filter,
-        (raw, config),
-        "apply_bandpass_filter",
-        str(output_path.parent / "profile_filter.json")
-    )
-    results.append(filter_output)
+    # Profile LZC calculation
+    # We need to pass a segment to calculate_lzc. 
+    # Assuming eeg_data is shaped (n_channels, n_samples) or similar
+    if isinstance(eeg_data, np.ndarray) and eeg_data.ndim >= 2:
+        segment = eeg_data[0] # Take first channel as sample
+        lzc_stats = profile_function(calculate_lzc, segment, config)
+        results.append(lzc_stats)
+        
+        pe_stats = profile_function(calculate_permutation_entropy, segment, config)
+        results.append(pe_stats)
+    else:
+        logger.warning("Data format unexpected for profiling, skipping calculation profile.")
+
+    return results
+
+def main():
+    parser = argparse.ArgumentParser(description="Profile memory and performance of EEG pipeline.")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
+    parser.add_argument("--output", type=str, default="data/analysis/profile_results.json", help="Output JSON file path")
+    args = parser.parse_args()
+
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
+    logger.info("Starting memory profiling...")
     
-    # 2. Profile Artifact Rejection
-    logger.info("Profiling Artifact Rejection...")
-    # Use the filtered raw from previous step if possible, or recreate
-    raw_filtered = apply_bandpass_filter(raw, config)
-    reject_output = profile_function(
-        reject_artifacts,
-        (raw_filtered, config),
-        "reject_artifacts",
-        str(output_path.parent / "profile_reject.json")
-    )
-    results.append(reject_output)
-    
-    # 3. Profile LZC Calculation
-    logger.info("Profiling LZC Calculation...")
-    features_config = load_features_config()
-    # Extract epochs for features (assuming 2s epochs for complexity)
-    epochs = mne.Epochs(raw_filtered, events=np.array([[0, 0, 0]]), tmin=0, tmax=2.0, baseline=None, verbose=False)
-    lzc_output = profile_function(
-        calculate_lzc,
-        (epochs, features_config),
-        "calculate_lzc",
-        str(output_path.parent / "profile_lzc.json")
-    )
-    results.append(lzc_output)
-    
-    # 4. Profile Permutation Entropy
-    logger.info("Profiling Permutation Entropy...")
-    pe_output = profile_function(
-        calculate_permutation_entropy,
-        (epochs, features_config),
-        "calculate_permutation_entropy",
-        str(output_path.parent / "profile_pe.json")
-    )
-    results.append(pe_output)
-    
-    # Save combined report
-    combined_report = {
-        "summary": {
-            "total_functions_profiled": len(results),
-            "peak_memory_overall_mb": max(r.get("memory_peak_mb", 0) for r in results if isinstance(r.get("memory_peak_mb"), (int, float))),
-            "total_time_seconds": sum(r.get("execution_time_seconds", 0) for r in results if isinstance(r.get("execution_time_seconds"), (int, float)))
-        },
-        "detailed_results": results
+    profile_results = {
+        "preprocessing": [],
+        "feature_extraction": [],
+        "summary": {}
     }
-    
-    with open(output_path, 'w') as f:
-        json.dump(combined_report, f, indent=2)
-    
-    logger.info(f"Profile complete. Results saved to {output_path}")
-    print(json.dumps(combined_report, indent=2))
+
+    try:
+        # Profile Preprocessing
+        logger.info("Profiling Preprocessing Pipeline...")
+        profile_results["preprocessing"] = profile_preprocessing_pipeline(args.config)
+        
+        # Profile Feature Extraction
+        logger.info("Profiling Feature Extraction Pipeline...")
+        profile_results["feature_extraction"] = profile_feature_extraction_pipeline(args.config)
+
+        # Calculate Summary
+        if profile_results["preprocessing"]:
+            avg_mem_pre = sum(r["peak_memory_mb"] for r in profile_results["preprocessing"]) / len(profile_results["preprocessing"])
+            profile_results["summary"]["preprocessing_avg_peak_memory_mb"] = avg_mem_pre
+        
+        if profile_results["feature_extraction"]:
+            avg_mem_feat = sum(r["peak_memory_mb"] for r in profile_results["feature_extraction"]) / len(profile_results["feature_extraction"])
+            profile_results["summary"]["feature_extraction_avg_peak_memory_mb"] = avg_mem_feat
+
+        # Write results
+        with open(args.output, 'w') as f:
+            json.dump(profile_results, f, indent=2)
+        
+        logger.info(f"Profile results written to {args.output}")
+        print(f"Profile completed. Results saved to {args.output}")
+
+    except Exception as e:
+        logger.error(f"Profiling failed: {e}")
+        # Write partial results or error state
+        profile_results["error"] = str(e)
+        with open(args.output, 'w') as f:
+            json.dump(profile_results, f, indent=2)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

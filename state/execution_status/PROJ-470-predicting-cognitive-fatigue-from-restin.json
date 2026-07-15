@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/profile_memory.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026=42):     \"\"\"     Create synthetic EEG data for profiling.     This\u2026\u201d; code/profile_memory.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026=\"Number of channels for synthetic data\")     parser.add_argumen\u2026\u201d; code/profile_memory.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026gger.info(f\"Initializing synthetic EEG data: {args.n_channels} chann\u2026\u201d; every produced artifact is gitignored (data/processed/validation_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv",
+  "artifacts": [
+    "data/processed/validation_report.json"
+  ],
+  "failures": [
+    "python code/download.py -> rc=1\n    2026-07-15 07:12:08,654 - download - INFO - Starting data retrieval and validation pipeline.\n2026-07-15 07:12:08,657 - download - INFO - Attempting to fetch Sleep-EDF dataset...\n2026-07-15 07:12:08,658 - download - ERROR - Failed to fetch Sleep-EDF: No module named 'datasets'\n2026-07-15 07:12:08,658 - download - WARNING - Sleep-EDF failed: Count N=0 < 30; Fetch error: No module named 'datasets'\n2026-07-15 07:12:08,658 - download - INFO - Attempting to fetch SHHS dataset as fallback...\n2026-07-15 07:12:08,658 - download - ERROR - Failed to fetch SHHS: No modu",
+    "python code/preprocess.py -> rc=1\n    2026-07-15 07:12:10,291 - preprocess - ERROR - Data directory not found: data/raw",
+    "python code/features.py -> rc=1\n    2026-07-15 07:12:11,405 - __main__ - ERROR - Preprocessed EEG data not found at data/processed/preprocessed_eeg.npy",
+    "python code/analysis.py -> rc=1\n    Error: Required data file not found - [Errno 2] No such file or directory: 'data/processed/complexity_metrics.csv'",
+    "python code/report.py -> rc=1\n    Error generating report: `Import tabulate` failed.  Use pip or conda to install the tabulate package."
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-15T07:12:13Z"
+}

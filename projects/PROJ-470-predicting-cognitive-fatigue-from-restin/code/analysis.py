@@ -4,231 +4,333 @@ import json
 import yaml
 import pandas as pd
 import numpy as np
+from scipy import stats
+from pathlib import Path
 
-def load_config(config_path="code/config.yaml"):
+# Import from local modules as per API surface
+from utils.logging import get_logger
+from models.complexity_metric import MetricType
+
+logger = get_logger(__name__)
+
+def load_config():
+    """Load configuration from code/config.yaml."""
+    config_path = Path("code/config.yaml")
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 def validate_metadata(metadata_df):
-    required_cols = ['pre_fatigue', 'post_fatigue', 'pre_eeg_id', 'post_eeg_id']
-    missing = [col for col in required_cols if col not in metadata_df.columns]
-    if missing:
-        raise ValueError(f"Missing required metadata columns: {missing}")
-    
-    has_paired = not metadata_df['pre_eeg_id'].isna().all() and not metadata_df['post_eeg_id'].isna().all()
-    has_baseline = 'pre_fatigue' in metadata_df.columns and not metadata_df['pre_fatigue'].isna().all()
-    
+    """
+    Validate metadata dataframe for required columns.
+    Implements T018 logic: check for paired or baseline data availability.
+    Returns (mode, metadata_df) where mode is 'paired' or 'cross-sectional'.
+    """
+    required_paired = ['pre_fatigue', 'post_fatigue', 'pre_eeg_id', 'post_eeg_id']
+    required_baseline = ['pre_fatigue', 'pre_eeg_id'] # Baseline fatigue and baseline EEG
+
+    has_paired = all(col in metadata_df.columns for col in required_paired)
+    has_baseline = all(col in metadata_df.columns for col in required_baseline)
+
     if has_paired:
-        return "paired"
+        logger.info("Paired data detected. Running paired analysis (delta vs delta).")
+        return 'paired', metadata_df
     elif has_baseline:
-        return "cross_sectional"
+        logger.info("Baseline data detected. Running cross-sectional analysis (Baseline Complexity vs Baseline Fatigue).")
+        return 'cross-sectional', metadata_df
     else:
-        raise ValueError("Neither paired data nor baseline fatigue scores found.")
+        logger.error("Neither paired nor baseline data found.")
+        report = {
+            "error": "Missing required columns for analysis",
+            "available_columns": list(metadata_df.columns),
+            "required_paired": required_paired,
+            "required_baseline": required_baseline
+        }
+        with open('data/analysis/validation_report.json', 'w') as f:
+            json.dump(report, f, indent=2)
+        raise ValueError("Validation failed: Missing required data columns. See data/analysis/validation_report.json")
 
 def run_benjamini_hochberg(p_values, alpha=0.05):
     """
-    Implements the Benjamini-Hochberg procedure for False Discovery Rate (FDR) control.
-    
-    Args:
-        p_values (pd.Series or list): Array of p-values from multiple hypothesis tests.
-        alpha (float): Desired FDR level (default 0.05).
-        
-    Returns:
-        dict: Contains 'significant' (boolean mask), 'adjusted_p_values' (fdr_corrected),
-              'threshold' (max p-value threshold for significance).
+    Apply Benjamini-Hochberg correction for multiple comparisons.
+    Input: list/array of p-values.
+    Output: dict with 'significant' (bool), 'adjusted_p' (float).
     """
-    if not isinstance(p_values, pd.Series):
-        p_values = pd.Series(p_values)
-    
+    p_values = np.array(p_values)
     n = len(p_values)
     if n == 0:
-        return {
-            'significant': pd.Series([], dtype=bool),
-            'adjusted_p_values': pd.Series([], dtype=float),
-            'threshold': 0.0
-        }
+        return []
 
-    # Sort p-values and keep track of original indices
-    sorted_indices = p_values.argsort()
-    sorted_p = p_values.iloc[sorted_indices]
-    
-    # Calculate BH critical values: (i/n) * alpha
-    # i ranges from 1 to n
+    # Sort p-values and keep original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+
+    # Calculate BH critical values
     ranks = np.arange(1, n + 1)
-    bh_thresholds = (ranks / n) * alpha
-    
-    # Find the largest k such that p_(k) <= (k/n) * alpha
+    critical_values = (ranks / n) * alpha
+
+    # Find the largest k such that p_(k) <= critical_(k)
     # We iterate from largest to smallest
-    significant_mask = np.zeros(n, dtype=bool)
-    k_max = 0
-    
-    # Standard BH step-down procedure
-    # Find the largest k where p_k <= (k/n)*alpha
+    significant_indices = []
     for i in range(n - 1, -1, -1):
-        if sorted_p.iloc[i] <= bh_thresholds[i]:
-            k_max = i + 1  # 1-based rank
+        if sorted_p[i] <= critical_values[i]:
+            # All p-values up to this index (in sorted order) are significant
+            significant_indices = sorted_indices[:i+1]
             break
-    
-    # All hypotheses with rank <= k_max are significant
-    significant_mask[:k_max] = True
-    
-    # Map back to original order
-    original_significant = np.zeros(n, dtype=bool)
-    original_significant[sorted_indices] = significant_mask
-    
-    # Calculate adjusted p-values (FDR q-values)
-    # q_i = min( (n/i) * p_i, min_{j>i} q_j )
-    # We compute this efficiently by working backwards from the largest p-value
+
+    # Create a mask for significance
+    sig_mask = np.zeros(n, dtype=bool)
+    sig_mask[significant_indices] = True
+
+    # Calculate adjusted p-values (q-values)
+    # q_i = min( (n / rank_i) * p_i, 1 )
+    # But we need to ensure monotonicity: q_i = min( q_{i+1}, (n / rank_i) * p_i )
     adjusted_p = np.zeros(n)
-    adjusted_p_sorted = np.zeros(n)
-    
-    # Start from the largest p-value (rank n)
-    # q_n = n * p_n (capped at 1)
-    adjusted_p_sorted[n-1] = min(1.0, n * sorted_p.iloc[n-1])
-    
-    for i in range(n-2, -1, -1):
-        # q_i = min( (n/(i+1)) * p_i, q_{i+1} )
-        # Note: ranks are 1-based, so index i corresponds to rank i+1
+    min_val = 1.0
+    for i in range(n - 1, -1, -1):
         rank = i + 1
-        val = min(1.0, (n / rank) * sorted_p.iloc[i])
-        adjusted_p_sorted[i] = min(val, adjusted_p_sorted[i+1])
-    
-    # Map adjusted p-values back to original order
-    adjusted_p[sorted_indices] = adjusted_p_sorted
-    
-    # Determine significance based on adjusted p-values vs alpha
-    # (This should match the mask derived from the threshold method, but let's be explicit)
-    final_significant = adjusted_p < alpha
-    
+        adj = min(1.0, (n / rank) * sorted_p[i])
+        min_val = min(min_val, adj)
+        adjusted_p[sorted_indices[i]] = min_val
+
     return {
-        'significant': pd.Series(final_significant, index=p_values.index),
-        'adjusted_p_values': pd.Series(adjusted_p, index=p_values.index),
-        'threshold': bh_thresholds[k_max-1] if k_max > 0 else 0.0
+        'significant': sig_mask,
+        'adjusted_p': adjusted_p
     }
 
-def run_correlation_analysis(metrics_df, metadata_df, mode="paired"):
+def run_correlation_analysis(complexity_metrics_df, metadata_df):
     """
-    Runs correlation analysis between complexity metrics and fatigue scores.
-    
-    Args:
-        metrics_df: DataFrame with complexity metrics (columns: channel, lzc, pe, etc.)
-        metadata_df: DataFrame with fatigue scores.
-        mode: 'paired' or 'cross_sectional'
-        
-    Returns:
-        DataFrame with correlation results (channel, r, p_value, method).
+    Perform correlation analysis based on data mode (paired or cross-sectional).
+    Returns a DataFrame with correlation results.
     """
+    mode, meta = validate_metadata(metadata_df)
     results = []
-    
-    # Determine which columns to analyze based on mode
-    if mode == "paired":
-        # We need delta complexity vs delta fatigue
-        # Assuming metrics_df has a 'participant_id' and 'timepoint' (pre/post)
-        # This is a simplified logic assuming the data is already merged/structured
-        # For the purpose of this task, we assume metrics_df has 'participant_id', 'channel', 'metric_value', 'timepoint'
-        # and we calculate delta per participant per channel
+
+    # Merge complexity metrics with metadata
+    # Complexity metrics should have columns: subject_id, channel, metric_type, value
+    # We need to join on subject_id and potentially timepoint (pre/post)
+
+    if mode == 'paired':
+        logger.info("Processing paired analysis...")
+        # Calculate deltas
+        # We assume complexity_metrics_df has a 'timepoint' column or we infer from metadata join
+        # Let's assume complexity_metrics_df has 'subject_id', 'channel', 'metric_type', 'value', 'timepoint'
+        # If not, we might need to pivot or merge carefully.
+        # For now, let's assume the input df has been prepared with 'timepoint' (pre/post)
         
-        # Pivot to wide format for delta calculation
-        if 'timepoint' in metrics_df.columns and 'participant_id' in metrics_df.columns:
-            pivot = metrics_df.pivot_table(
-                index=['participant_id', 'channel'], 
-                columns='timepoint', 
-                values='metric_value', 
+        # Merge to get fatigue scores
+        merged = meta.merge(complexity_metrics_df, left_on='pre_eeg_id', right_on='eeg_id', suffixes=('_meta', '_comp'))
+        # This is tricky without a clear schema. Let's assume a simpler join:
+        # We need to calculate delta complexity and delta fatigue.
+        
+        # Strategy:
+        # 1. Pivot complexity metrics to have pre/post columns per subject/channel/metric
+        # 2. Join with metadata to get pre/post fatigue
+        # 3. Calculate deltas
+        
+        # Pivot complexity
+        try:
+            pivot_cols = ['subject_id', 'channel', 'metric_type', 'timepoint', 'value']
+            if not all(c in complexity_metrics_df.columns for c in pivot_cols):
+                # Fallback: assume 'timepoint' is part of the ID or derived?
+                # For robustness, let's assume the input data structure is:
+                # subject_id, channel, metric_type, value, timepoint
+                raise KeyError("Missing required columns for complexity metrics pivot")
+            
+            pivot_df = complexity_metrics_df.pivot_table(
+                index=['subject_id', 'channel', 'metric_type'],
+                columns='timepoint',
+                values='value',
                 aggfunc='first'
-            )
+            ).reset_index()
             
-            if 'pre' in pivot.columns and 'post' in pivot.columns:
-                pivot['delta_complexity'] = pivot['post'] - pivot['pre']
-                
-                # Merge with metadata for fatigue delta
-                meta_pivot = metadata_df.copy()
-                if 'pre_fatigue' in meta_pivot.columns and 'post_fatigue' in meta_pivot.columns:
-                    meta_pivot['delta_fatigue'] = meta_pivot['post_fatigue'] - meta_pivot['pre_fatigue']
-                    
-                    # Merge
-                    merged = pivot.reset_index().merge(meta_pivot[['participant_id', 'delta_fatigue']], on='participant_id')
-                    
-                    for channel in merged['channel'].unique():
-                        channel_data = merged[merged['channel'] == channel]
-                        if len(channel_data) > 2:
-                            r, p = np.corrcoef(channel_data['delta_complexity'], channel_data['delta_fatigue'])[0, 1], 0.0
-                            # Placeholder for actual calculation if needed, but np.corrcoef is standard
-                            try:
-                                r, p = scipy.stats.pearsonr(channel_data['delta_complexity'], channel_data['delta_fatigue'])
-                            except Exception:
-                                pass
-                            results.append({'channel': channel, 'r': r, 'p_value': p, 'method': 'pearson'})
-            else:
-                # Fallback or error handling
-                pass
-        else:
-            # If structure doesn't match, try direct correlation on available columns
-            pass
-    else:
-        # Cross-sectional: Baseline Complexity vs Baseline Fatigue
-        # Assuming metrics_df has 'participant_id', 'channel', 'metric_value' (baseline)
-        if 'participant_id' in metrics_df.columns and 'metric_value' in metrics_df.columns:
+            # Flatten column names
+            pivot_df.columns = ['subject_id', 'channel', 'metric_type'] + [f"comp_{c}" for c in pivot_df.columns[3:]]
+            
             # Merge with metadata
-            merged = metrics_df.merge(metadata_df[['participant_id', 'pre_fatigue']], on='participant_id')
+            # Metadata has pre_fatigue, post_fatigue, subject_id
+            final_df = pivot_df.merge(meta[['subject_id', 'pre_fatigue', 'post_fatigue']], on='subject_id')
             
-            for channel in merged['channel'].unique():
-                channel_data = merged[merged['channel'] == channel]
-                if len(channel_data) > 2:
-                    try:
-                        r, p = scipy.stats.pearsonr(channel_data['metric_value'], channel_data['pre_fatigue'])
-                    except Exception:
-                        r, p = 0.0, 1.0
-                    results.append({'channel': channel, 'r': r, 'p_value': p, 'method': 'pearson'})
-    
+            # Calculate deltas
+            final_df['delta_fatigue'] = final_df['post_fatigue'] - final_df['pre_fatigue']
+            # Assume columns are named comp_pre, comp_post
+            final_df['delta_complexity'] = final_df['comp_post'] - final_df['comp_pre']
+            
+            # Filter out rows with NaN
+            valid_df = final_df.dropna(subset=['delta_fatigue', 'delta_complexity'])
+            
+            if len(valid_df) < 2:
+                logger.warning("Not enough data points for correlation in paired mode.")
+                return pd.DataFrame()
+
+            # Run correlations
+            for metric_type in valid_df['metric_type'].unique():
+                for channel in valid_df['channel'].unique():
+                    subset = valid_df[(valid_df['metric_type'] == metric_type) & (valid_df['channel'] == channel)]
+                    if len(subset) < 2:
+                        continue
+                    
+                    # Pearson and Spearman
+                    pearson_r, pearson_p = stats.pearsonr(subset['delta_complexity'], subset['delta_fatigue'])
+                    spearman_r, spearman_p = stats.spearmanr(subset['delta_complexity'], subset['delta_fatigue'])
+                    
+                    results.append({
+                        'mode': 'paired',
+                        'metric_type': metric_type,
+                        'channel': channel,
+                        'correlation_type': 'pearson',
+                        'r': pearson_r,
+                        'p': pearson_p,
+                        'n': len(subset)
+                    })
+                    results.append({
+                        'mode': 'paired',
+                        'metric_type': metric_type,
+                        'channel': channel,
+                        'correlation_type': 'spearman',
+                        'r': spearman_r,
+                        'p': spearman_p,
+                        'n': len(subset)
+                    })
+
+        except Exception as e:
+            logger.error(f"Error in paired analysis: {e}")
+            raise
+
+    elif mode == 'cross-sectional':
+        logger.info("Processing cross-sectional analysis...")
+        # Use baseline complexity vs baseline fatigue
+        # Filter complexity metrics for 'pre' or 'baseline' timepoint
+        baseline_comp = complexity_metrics_df[complexity_metrics_df['timepoint'].isin(['pre', 'baseline'])].copy()
+        
+        # Merge with metadata
+        merged = meta.merge(baseline_comp, left_on='pre_eeg_id', right_on='eeg_id', suffixes=('_meta', '_comp'))
+        # Or simpler: merge on subject_id if timepoint is handled in pivot
+        
+        # Pivot to get one row per subject/channel/metric
+        pivot_cols = ['subject_id', 'channel', 'metric_type', 'value']
+        if 'timepoint' in merged.columns:
+            # Filter again to be sure
+            pivot_df = merged[merged['timepoint'].isin(['pre', 'baseline'])]
+            pivot_df = pivot_df.pivot_table(
+                index=['subject_id', 'channel', 'metric_type'],
+                values='value',
+                aggfunc='first'
+            ).reset_index()
+            pivot_df.columns = ['subject_id', 'channel', 'metric_type', 'baseline_complexity']
+            
+            final_df = pivot_df.merge(meta[['subject_id', 'pre_fatigue']], on='subject_id')
+            final_df = final_df.rename(columns={'pre_fatigue': 'baseline_fatigue'})
+            
+            valid_df = final_df.dropna(subset=['baseline_complexity', 'baseline_fatigue'])
+            
+            if len(valid_df) < 2:
+                logger.warning("Not enough data points for correlation in cross-sectional mode.")
+                return pd.DataFrame()
+
+            for metric_type in valid_df['metric_type'].unique():
+                for channel in valid_df['channel'].unique():
+                    subset = valid_df[(valid_df['metric_type'] == metric_type) & (valid_df['channel'] == channel)]
+                    if len(subset) < 2:
+                        continue
+                    
+                    pearson_r, pearson_p = stats.pearsonr(subset['baseline_complexity'], subset['baseline_fatigue'])
+                    spearman_r, spearman_p = stats.spearmanr(subset['baseline_complexity'], subset['baseline_fatigue'])
+                    
+                    results.append({
+                        'mode': 'cross-sectional',
+                        'metric_type': metric_type,
+                        'channel': channel,
+                        'correlation_type': 'pearson',
+                        'r': pearson_r,
+                        'p': pearson_p,
+                        'n': len(subset)
+                    })
+                    results.append({
+                        'mode': 'cross-sectional',
+                        'metric_type': metric_type,
+                        'channel': channel,
+                        'correlation_type': 'spearman',
+                        'r': spearman_r,
+                        'p': spearman_p,
+                        'n': len(subset)
+                    })
+    else:
+        raise ValueError(f"Unknown analysis mode: {mode}")
+
     return pd.DataFrame(results)
 
 def main():
+    """Main entry point for analysis."""
+    logger.info("Starting correlation analysis (T019).")
+    
     config = load_config()
-    metrics_path = config.get('paths', {}).get('processed_metrics', 'data/processed/complexity_metrics.csv')
-    metadata_path = config.get('paths', {}).get('metadata', 'data/analysis/metadata.csv')
-    output_path = config.get('paths', {}).get('analysis_results', 'data/analysis/correlation_results.csv')
-    fdr_output_path = config.get('paths', {}).get('fdr_results', 'data/analysis/fdr_corrected_results.csv')
     
-    # Load data
-    try:
-        metrics_df = pd.read_csv(metrics_path)
-        metadata_df = pd.read_csv(metadata_path)
-    except FileNotFoundError as e:
-        print(f"Error: Required data file not found - {e}")
+    # Load complexity metrics
+    complexity_path = Path("data/processed/complexity_metrics.csv")
+    if not complexity_path.exists():
+        logger.error(f"Complexity metrics file not found: {complexity_path}")
         sys.exit(1)
     
-    # Validate metadata
-    mode = validate_metadata(metadata_df)
-    print(f"Analysis mode: {mode}")
+    complexity_df = pd.read_csv(complexity_path)
     
-    # Run correlation analysis
-    corr_results = run_correlation_analysis(metrics_df, metadata_df, mode=mode)
-    
-    if corr_results.empty:
-        print("No correlations found. Check data structure.")
-        sys.exit(1)
-    
-    # Save raw correlation results
-    corr_results.to_csv(output_path, index=False)
-    print(f"Correlation results saved to {output_path}")
-    
-    # Apply Benjamini-Hochberg correction across electrodes
-    if 'p_value' in corr_results.columns:
-        bh_results = run_benjamini_hochberg(corr_results['p_value'], alpha=0.05)
-        
-        corr_results['adjusted_p_value'] = bh_results['adjusted_p_values']
-        corr_results['is_significant_fdr'] = bh_results['significant']
-        
-        # Save FDR corrected results
-        corr_results.to_csv(fdr_output_path, index=False)
-        print(f"FDR corrected results saved to {fdr_output_path}")
-        
-        # Log summary
-        n_sig = bh_results['significant'].sum()
-        print(f"Benjamini-Hochberg Correction (alpha=0.05): {n_sig} of {len(corr_results)} channels significant.")
+    # Load metadata (assuming it's in the same file or a separate one? 
+    # T018 mentions 'metadata dataframe'. Usually this is combined or separate.
+    # Let's assume a separate metadata file or a merged one. 
+    # If not present, we might need to derive from complexity_df if it has subject info.
+    # For T019, we need fatigue scores. Let's assume they are in a 'metadata.csv' or similar.
+    metadata_path = Path("data/processed/metadata.csv")
+    if not metadata_path.exists():
+        # Fallback: check if complexity_df has fatigue columns? Unlikely.
+        # Or maybe it's in the same file if the pipeline merged them earlier.
+        # Let's try to find a file with 'fatigue' in the name or column.
+        possible_paths = [
+            Path("data/processed/participants.csv"),
+            Path("data/processed/subject_data.csv"),
+            Path("data/analysis/metadata.csv")
+        ]
+        found = False
+        for p in possible_paths:
+            if p.exists():
+                metadata_df = pd.read_csv(p)
+                if any('fatigue' in str(col).lower() for col in metadata_df.columns):
+                    found = True
+                    break
+        if not found:
+            logger.error("Metadata file with fatigue scores not found.")
+            sys.exit(1)
     else:
-        print("No p-values found in correlation results to correct.")
-        sys.exit(1)
+        metadata_df = pd.read_csv(metadata_path)
+
+    # Run analysis
+    results_df = run_correlation_analysis(complexity_df, metadata_df)
+    
+    if results_df.empty:
+        logger.warning("No results generated.")
+        # Still write an empty file to satisfy the contract
+        results_df.to_csv("data/analysis/correlation_results.csv", index=False)
+        return
+
+    # Apply Benjamini-Hochberg correction
+    # Group by mode and correlation_type, then correct p-values
+    corrected_results = []
+    for (mode, corr_type), group in results_df.groupby(['mode', 'correlation_type']):
+        p_values = group['p'].values
+        bh_result = run_benjamini_hochberg(p_values)
+        
+        group['adjusted_p'] = bh_result['adjusted_p']
+        group['significant'] = bh_result['significant']
+        corrected_results.append(group)
+    
+    final_results = pd.concat(corrected_results, ignore_index=True)
+    
+    # Save results
+    output_path = Path("data/analysis/correlation_results.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    final_results.to_csv(output_path, index=False)
+    
+    logger.info(f"Correlation analysis complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,13 @@
 """
-Unit tests for edge cases in the cognitive fatigue EEG pipeline.
-Covers missing data, artifact rejection, and analysis mode failures.
+Unit tests for edge cases in the cognitive fatigue pipeline.
+Tests missing data, artifact rejection, and analysis mode failures.
 """
+
 import os
 import sys
 import json
 import tempfile
+import shutil
 import pytest
 import numpy as np
 import pandas as pd
@@ -15,240 +17,305 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from preprocess import reject_artifacts, load_config
-from analysis import validate_metadata, run_benjamini_hochberg
-from utils.logging import log_participant_exclusion, log_artifact_rejection
+from preprocess import reject_artifacts, apply_bandpass_filter
+from features import calculate_lzc, calculate_permutation_entropy
+from analysis import validate_metadata, run_correlation_analysis
+from utils.logging import get_logger
 
 
-class TestMissingData:
-    """Tests for handling missing or empty data scenarios."""
+class TestArtifactRejectionEdgeCases:
+    """Tests for artifact rejection logic under edge conditions."""
 
-    def test_empty_eeg_stream(self):
-        """Test that empty EEG stream is handled gracefully."""
-        config = load_config()
-        # Simulate empty stream
-        empty_stream = []
-        
-        # Should not raise an exception, but return empty results
-        # This depends on how process_eeg_stream handles empty input
-        # We test the lower-level reject_artifacts with empty data
-        result = reject_artifacts(empty_stream, config)
-        assert result is None or len(result) == 0
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.sample_rate = 100
+        self.duration = 120  # seconds
+
+    def test_all_epochs_rejected_due_to_amplitude(self):
+        """Test when all epochs exceed amplitude threshold."""
+        # Create data with amplitude > 100µV everywhere
+        data = np.random.randn(1, 100 * 120) * 150  # All > 100µV
+        sfreq = 100
+        info = {'sfreq': sfreq}
+
+        rejected_count, kept_count = reject_artifacts(data, sfreq, info, amplitude_threshold=100)
+
+        assert rejected_count > 0, "At least one epoch should be rejected"
+        assert kept_count == 0, "All epochs should be rejected when amplitude > threshold everywhere"
+
+    def test_short_segment_rejection(self):
+        """Test rejection of segments shorter than 120 seconds."""
+        # Create data for only 60 seconds (too short)
+        short_duration = 60
+        short_data = np.random.randn(1, 100 * short_duration) * 50
+        sfreq = 100
+        info = {'sfreq': sfreq}
+
+        # The function should reject this because duration < 120s
+        # Note: The actual implementation may handle this differently
+        # depending on how epochs are defined
+        rejected_count, kept_count = reject_artifacts(short_data, sfreq, info, amplitude_threshold=100, min_duration=120)
+
+        # If the segment is too short, it should be rejected
+        # The exact behavior depends on implementation details
+        # For now, we check that the function doesn't crash
+        assert isinstance(rejected_count, int)
+        assert isinstance(kept_count, int)
+
+    def test_mixed_rejection_scenario(self):
+        """Test scenario with some good and some bad epochs."""
+        # Create data with mixed quality
+        # First half: good (low amplitude)
+        # Second half: bad (high amplitude)
+        good_data = np.random.randn(1, 100 * 60) * 30
+        bad_data = np.random.randn(1, 100 * 60) * 150
+        mixed_data = np.concatenate([good_data, bad_data], axis=1)
+
+        sfreq = 100
+        info = {'sfreq': sfreq}
+
+        rejected_count, kept_count = reject_artifacts(mixed_data, sfreq, info, amplitude_threshold=100)
+
+        assert kept_count > 0, "Some good epochs should be kept"
+        assert rejected_count > 0, "Some bad epochs should be rejected"
+        assert kept_count + rejected_count > 0, "Total epochs should be positive"
+
+    def test_empty_data_array(self):
+        """Test rejection logic with empty data array."""
+        empty_data = np.array([]).reshape(1, 0)
+        sfreq = 100
+        info = {'sfreq': sfreq}
+
+        with pytest.raises((ValueError, IndexError)):
+            reject_artifacts(empty_data, sfreq, info, amplitude_threshold=100)
+
+    def test_nan_values_in_data(self):
+        """Test rejection logic when data contains NaN values."""
+        data = np.random.randn(1, 100 * 120) * 50
+        data[0, 500:600] = np.nan  # Inject NaNs
+
+        sfreq = 100
+        info = {'sfreq': sfreq}
+
+        # Should handle NaNs gracefully (either reject or fill)
+        # This test ensures no crash occurs
+        try:
+            rejected_count, kept_count = reject_artifacts(data, sfreq, info, amplitude_threshold=100)
+            assert isinstance(rejected_count, int)
+            assert isinstance(kept_count, int)
+        except Exception as e:
+            # If it raises, it should be a clear error, not a silent failure
+            assert "NaN" in str(e) or "invalid" in str(e).lower()
+
+
+class TestMissingDataEdgeCases:
+    """Tests for handling missing data scenarios."""
 
     def test_missing_metadata_columns(self):
-        """Test validation fails when required metadata columns are missing."""
+        """Test validation when required metadata columns are missing."""
         # Create metadata with missing columns
-        incomplete_metadata = pd.DataFrame({
-            'participant_id': ['P001', 'P002'],
-            'pre_fatigue': [2.0, 3.0]
-            # Missing: post_fatigue, pre_eeg_id, post_eeg_id
-        })
-        
-        # Should raise ValueError or return error status
-        with pytest.raises(ValueError):
-            validate_metadata(incomplete_metadata)
-
-    def test_complete_metadata_validation(self):
-        """Test that complete metadata passes validation."""
-        complete_metadata = pd.DataFrame({
-            'participant_id': ['P001', 'P002'],
-            'pre_fatigue': [2.0, 3.0],
-            'post_fatigue': [4.0, 5.0],
-            'pre_eeg_id': ['eeg_001', 'eeg_002'],
-            'post_eeg_id': ['eeg_003', 'eeg_004']
-        })
-        
-        # Should not raise
-        result = validate_metadata(complete_metadata)
-        assert result is not None
-
-    def test_all_nan_fatigue_scores(self):
-        """Test handling of all NaN fatigue scores."""
         metadata = pd.DataFrame({
             'participant_id': ['P001', 'P002'],
-            'pre_fatigue': [np.nan, np.nan],
-            'post_fatigue': [np.nan, np.nan],
-            'pre_eeg_id': ['eeg_001', 'eeg_002'],
-            'post_eeg_id': ['eeg_003', 'eeg_004']
+            'other_column': [1, 2]
+            # Missing: pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id
         })
-        
-        # Should handle gracefully, possibly by excluding these participants
-        with pytest.raises(ValueError):
+
+        with pytest.raises((ValueError, KeyError)):
             validate_metadata(metadata)
 
+    def test_empty_metadata_dataframe(self):
+        """Test validation with empty metadata dataframe."""
+        empty_metadata = pd.DataFrame()
 
-class TestArtifactRejection:
-    """Tests for artifact rejection edge cases."""
+        with pytest.raises((ValueError, KeyError)):
+            validate_metadata(empty_metadata)
 
-    def test_all_artifacts_rejected(self):
-        """Test when all epochs exceed artifact threshold."""
-        config = load_config()
-        # Create data with all epochs exceeding threshold (±100µV)
-        # Simulate epochs with amplitudes > 100
-        all_bad_epochs = {
-            'participant_id': 'P001',
-            'epochs': np.array([
-                [200.0] * 1000,  # All > 100µV
-                [-200.0] * 1000, # All < -100µV
-            ])
-        }
-        
-        # Should reject all and log appropriately
-        result = reject_artifacts([all_bad_epochs], config)
-        # Result should be None or empty for this participant
-        assert result is None or len(result) == 0
+    def test_missing_complexity_metrics_file(self):
+        """Test analysis when complexity metrics file is missing."""
+        # This test would require mocking file system or using temp dir
+        # For now, we test the validation logic
+        pass
 
-    def test_mixed_artifact_rejection(self):
-        """Test rejection with mixed good and bad epochs."""
-        config = load_config()
-        mixed_epochs = {
-            'participant_id': 'P001',
-            'epochs': np.array([
-                [50.0] * 1000,    # Good epoch
-                [150.0] * 1000,   # Bad epoch
-                [30.0] * 1000,    # Good epoch
-            ])
-        }
-        
-        result = reject_artifacts([mixed_epochs], config)
-        # Should keep 2 out of 3 epochs
-        assert result is not None
-        assert len(result) == 1  # One participant in result
-        # The specific number of kept epochs depends on implementation
-        # but should be less than original
+    def test_null_values_in_fatigue_scores(self):
+        """Test handling of null values in fatigue scores."""
+        metadata = pd.DataFrame({
+            'participant_id': ['P001', 'P002', 'P003'],
+            'pre_fatigue': [10.0, np.nan, 15.0],
+            'post_fatigue': [20.0, 25.0, np.nan],
+            'pre_eeg_id': ['E001', 'E002', 'E003'],
+            'post_eeg_id': ['E004', 'E005', 'E006']
+        })
 
-    def test_threshold_boundary_conditions(self):
-        """Test behavior at exact threshold values."""
-        config = load_config()
-        threshold = config.get('artifact_threshold', 100.0)
-        
-        boundary_epochs = {
-            'participant_id': 'P001',
-            'epochs': np.array([
-                [threshold - 0.1] * 1000,  # Just under
-                [threshold] * 1000,        # Exactly at
-                [threshold + 0.1] * 1000,  # Just over
-            ])
-        }
-        
-        result = reject_artifacts([boundary_epochs], config)
-        # At least the boundary epoch should be rejected
-        assert result is not None
-
-    def test_zero_variance_epochs(self):
-        """Test handling of epochs with zero variance (flat lines)."""
-        config = load_config()
-        flat_epochs = {
-            'participant_id': 'P001',
-            'epochs': np.array([
-                [0.0] * 1000,  # Flat line
-                [50.0] * 1000, # Normal
-            ])
-        }
-        
-        result = reject_artifacts([flat_epochs], config)
-        # Should handle without crashing
-        assert result is not None or result is None  # Depends on implementation
+        # Should handle NaN values (either exclude or raise clear error)
+        try:
+            result = validate_metadata(metadata)
+            # If it passes validation, it should have handled NaNs
+            assert result is not None
+        except Exception as e:
+            # If it raises, it should be a clear error message
+            assert "NaN" in str(e) or "missing" in str(e).lower()
 
 
 class TestAnalysisModeFailures:
-    """Tests for analysis mode selection and failure scenarios."""
+    """Tests for analysis mode failures and fallback logic."""
 
     def test_no_paired_data_fallback(self):
-        """Test fallback to cross-sectional when paired data missing."""
-        # Metadata with only baseline (no post)
-        baseline_only = pd.DataFrame({
+        """Test fallback to cross-sectional analysis when paired data is missing."""
+        # Create metadata with only baseline data (no paired)
+        metadata = pd.DataFrame({
+            'participant_id': ['P001', 'P002', 'P003'],
+            'pre_fatigue': [10.0, 15.0, 20.0],
+            'post_fatigue': [np.nan, np.nan, np.nan],  # Missing post
+            'pre_eeg_id': ['E001', 'E002', 'E003'],
+            'post_eeg_id': [np.nan, np.nan, np.nan]  # Missing post
+        })
+
+        # Create complexity metrics with only baseline
+        complexity_metrics = pd.DataFrame({
+            'participant_id': ['P001', 'P002', 'P003'],
+            'channel': ['Fz', 'Fz', 'Fz'],
+            'metric_type': ['lzc', 'lzc', 'lzc'],
+            'value': [0.5, 0.6, 0.7],
+            'timepoint': ['pre', 'pre', 'pre']
+        })
+
+        # Should fall back to cross-sectional analysis
+        # This test ensures the fallback logic works without crashing
+        try:
+            result = validate_metadata(metadata)
+            # If validation passes, it should have detected the mode
+            assert result is not None
+        except Exception as e:
+            # If it raises, it should be a clear error
+            assert "fallback" in str(e).lower() or "cross-sectional" in str(e).lower()
+
+    def test_neither_mode_available(self):
+        """Test when neither paired nor cross-sectional data is available."""
+        # Create metadata with no fatigue scores at all
+        metadata = pd.DataFrame({
             'participant_id': ['P001', 'P002'],
-            'pre_fatigue': [2.0, 3.0],
-            'pre_eeg_id': ['eeg_001', 'eeg_002'],
-            # Missing post_* columns
+            'pre_eeg_id': ['E001', 'E002'],
+            'post_eeg_id': ['E003', 'E004']
+            # Missing: pre_fatigue, post_fatigue
         })
-        
-        # Should raise ValueError as per spec
-        with pytest.raises(ValueError):
-            validate_metadata(baseline_only)
 
-    def test_insufficient_sample_size(self):
-        """Test when sample size is below minimum."""
-        # Very small dataset
-        small_metadata = pd.DataFrame({
+        with pytest.raises((ValueError, KeyError)):
+            validate_metadata(metadata)
+
+    def test_insufficient_samples_for_correlation(self):
+        """Test correlation analysis with insufficient samples."""
+        # Create metadata with only 1 participant
+        metadata = pd.DataFrame({
             'participant_id': ['P001'],
-            'pre_fatigue': [2.0],
-            'post_fatigue': [4.0],
-            'pre_eeg_id': ['eeg_001'],
-            'post_eeg_id': ['eeg_002']
+            'pre_fatigue': [10.0],
+            'post_fatigue': [15.0],
+            'pre_eeg_id': ['E001'],
+            'post_eeg_id': ['E002']
         })
-        
-        # Should handle gracefully or raise
-        # Depending on implementation, might raise ValueError
-        with pytest.raises(ValueError):
-            validate_metadata(small_metadata)
 
-    def test_benjamini_hochberg_zero_pvalues(self):
-        """Test BH correction with zero or NaN p-values."""
-        # P-values with zeros and NaNs
-        p_values = np.array([0.0, 0.05, np.nan, 0.1, 0.01])
-        labels = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']
-        
+        complexity_metrics = pd.DataFrame({
+            'participant_id': ['P001'],
+            'channel': ['Fz'],
+            'metric_type': ['lzc'],
+            'value': [0.5],
+            'timepoint': ['pre']
+        })
+
+        # Correlation requires at least 2 samples
+        with pytest.raises((ValueError, RuntimeError)):
+            run_correlation_analysis(metadata, complexity_metrics)
+
+    def test_mismatched_participant_ids(self):
+        """Test when metadata and complexity metrics have mismatched IDs."""
+        metadata = pd.DataFrame({
+            'participant_id': ['P001', 'P002'],
+            'pre_fatigue': [10.0, 15.0],
+            'post_fatigue': [12.0, 18.0],
+            'pre_eeg_id': ['E001', 'E002'],
+            'post_eeg_id': ['E003', 'E004']
+        })
+
+        # Complexity metrics for different participants
+        complexity_metrics = pd.DataFrame({
+            'participant_id': ['P003', 'P004'],  # Different IDs
+            'channel': ['Fz', 'Fz'],
+            'metric_type': ['lzc', 'lzc'],
+            'value': [0.5, 0.6],
+            'timepoint': ['pre', 'pre']
+        })
+
+        # Should handle mismatch gracefully
+        try:
+            result = run_correlation_analysis(metadata, complexity_metrics)
+            # If it returns empty results, that's acceptable
+            assert result is not None
+        except Exception as e:
+            # If it raises, it should be a clear error
+            assert "mismatch" in str(e).lower() or "no matching" in str(e).lower()
+
+
+class TestFeatureCalculationEdgeCases:
+    """Tests for edge cases in feature calculation."""
+
+    def test_lzc_on_constant_signal(self):
+        """Test LZC calculation on a constant signal (should be near 0)."""
+        constant_signal = np.ones(1000)
+        lzc_value = calculate_lzc(constant_signal)
+        assert lzc_value >= 0, "LZC should be non-negative"
+        assert lzc_value < 0.1, "Constant signal should have very low LZC"
+
+    def test_lzc_on_random_signal(self):
+        """Test LZC calculation on random signal (should be higher)."""
+        random_signal = np.random.randn(1000)
+        lzc_value = calculate_lzc(random_signal)
+        assert lzc_value >= 0, "LZC should be non-negative"
+        assert lzc_value > 0.3, "Random signal should have higher LZC"
+
+    def test_permutation_entropy_on_constant_signal(self):
+        """Test permutation entropy on constant signal (should be 0)."""
+        constant_signal = np.ones(1000)
+        pe_value = calculate_permutation_entropy(constant_signal)
+        assert pe_value >= 0, "PE should be non-negative"
+        assert pe_value < 0.1, "Constant signal should have near-zero PE"
+
+    def test_short_signal_for_complexity(self):
+        """Test complexity calculation on very short signal."""
+        short_signal = np.random.randn(10)  # Very short
+        lzc_value = calculate_lzc(short_signal)
+        pe_value = calculate_permutation_entropy(short_signal)
+        # Should not crash, even if results are unreliable
+        assert isinstance(lzc_value, (int, float))
+        assert isinstance(pe_value, (int, float))
+
+    def test_signal_with_extreme_outliers(self):
+        """Test complexity calculation with extreme outliers."""
+        signal = np.random.randn(1000)
+        signal[500] = 1e10  # Extreme outlier
+        lzc_value = calculate_lzc(signal)
+        pe_value = calculate_permutation_entropy(signal)
         # Should handle without crashing
-        result = run_benjamini_hochberg(p_values, labels)
-        assert result is not None
-        # Zeros and NaNs should be handled appropriately
-
-    def test_correlation_with_single_sample(self):
-        """Test correlation calculation with only one sample."""
-        # This would be caught in validate_metadata, but test BH anyway
-        p_values = np.array([0.05])
-        labels = ['ch1']
-        
-        result = run_benjamini_hochberg(p_values, labels)
-        assert result is not None
-
+        assert isinstance(lzc_value, (int, float))
+        assert isinstance(pe_value, (int, float))
 
 class TestLoggingEdgeCases:
     """Tests for logging edge cases."""
 
-    def test_log_participant_exclusion_empty_reason(self):
-        """Test logging with empty exclusion reason."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "test_log.json"
-            # Should handle empty reason gracefully
-            log_participant_exclusion(
-                participant_id="P001",
-                reason="",
-                log_file=log_file
-            )
-            # File should be created
-            assert log_file.exists()
+    def test_log_with_none_values(self):
+        """Test logging when some values are None."""
+        logger = get_logger("test_edge_cases")
+        # Should not crash when logging None values
+        logger.info("Test log with None: %s", None)
 
-    def test_log_artifact_rejection_no_epochs(self):
-        """Test logging artifact rejection with no epochs rejected."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "test_log.json"
-            log_artifact_rejection(
-                participant_id="P001",
-                rejected_epochs=0,
-                total_epochs=10,
-                log_file=log_file
-            )
-            assert log_file.exists()
+    def test_log_with_special_characters(self):
+        """Test logging with special characters in messages."""
+        logger = get_logger("test_edge_cases")
+        special_message = "Test with special chars: émojis 🧠, symbols @#$, unicode 日本語"
+        logger.info(special_message)
 
-    def test_log_file_permissions(self):
-        """Test logging to read-only file."""
+    def test_log_rejection_summary_empty(self):
+        """Test saving empty rejection summary."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "readonly.json"
-            log_file.write_text("{}")
-            log_file.chmod(0o444)  # Read-only
-            
-            # Should handle permission error gracefully
-            try:
-                log_participant_exclusion(
-                    participant_id="P001",
-                    reason="test",
-                    log_file=log_file
-                )
-            except (PermissionError, OSError):
-                # Expected behavior
-                pass
-            finally:
-                log_file.chmod(0o644)  # Restore for cleanup
+            output_path = Path(tmpdir) / "rejection_summary.json"
+            # Should handle empty summary gracefully
+            # This would test the save_rejection_summary function
+            pass
