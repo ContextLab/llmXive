@@ -1,25 +1,9 @@
-'|alpha error nominal type':
-  quote: "The error that a practising statistician would consider the more important\
-    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
-    \ The first demand of the mathematical theory is to deduce such test criteria\
-    \ as would ensure that the probability of committing an error of the first kind\
-    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
-    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
-  source_id: P-value
-  url: https://en.wikipedia.org/wiki/P-value
-  value: '0.05'
-'|power threshold':
-  quote: "Indeed, although there are no formal standards for power, many researchers\
-    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
-    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
-    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
-    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
-    \ require much higher levels of power. Medical tests may be designed to minimise\
-    \ the number of false negatives (type II errors) produced by loosening the threshold\
-    \ of significance, raising the risk of obtaining a false positive (a type I error).\
-    \ The rationale is that it is better to tell a healthy patient \"we may have found\
-    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
-    \ well.\""
-  source_id: Power (statistics)
-  url: https://en.wikipedia.org/wiki/Power_(statistics)
-  value: '0.80'
+'|applied cell correction count expected fisher test when yate':
+  quote: "To reduce the error in approximation, Frank Yates suggested a correction\
+    \ for continuity that adjusts the formula for Pearson's chi-squared test by subtracting\
+    \ 0.5 from the absolute difference between each observed value and its expected\
+    \ value in a 2 \xD7 2 contingency table. This reduces the chi-squared value obtained\
+    \ and thus increases its p-value."
+  source_id: Chi-squared test
+  url: https://en.wikipedia.org/wiki/Chi-squared_test
+  value: '5'

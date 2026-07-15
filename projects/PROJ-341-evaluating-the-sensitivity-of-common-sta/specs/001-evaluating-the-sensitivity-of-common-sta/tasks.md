@@ -82,11 +82,11 @@
 
 - [X] T012b [US1] Refactor `code/simulation/test_runner.py` to accept `alpha` as a dynamic parameter instead of hardcoding 0.05; this enables SC-004 sensitivity analysis (FR-002, SC-004)
 - [X] T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py` to handle [deferred] iterations per condition efficiently; verify runtime of the full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml` (FR-001, Constitution VI)
-- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5 and route to fallback logic (FR-007); MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002, FR-007)
-- [X] T013 [US1] Implement logic in `code/simulation/chi_squared_utils.py` to detect expected cell counts < 5 and apply Yates' correction or Fisher's Exact Test (FR-007, Edge Cases)
+- [X] T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test, ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5 and route to fallback logic(FR-007); MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002, FR-007)
+- [X] T013 [US1] Implement logic in `code/simulation/chi_squared_utils.py` to detect expected cell counts < 5 (Wikipedia: Chi-squared test, https://en.wikipedia.org/wiki/Chi-squared_test) and apply Yates' correction or Fisher's Exact Test (FR-007, Edge Cases)
 - [X] T013b [US1] Implement logic in `code/simulation/test_runner.py` to flag sample sizes n < 30 as "small sample warning" where normality assumptions are severely violated (Edge Cases)
 - [X] T014a [US1] Create `code/main.py` skeleton with argument parsing for sample size, effect size, test type, and alpha
-- [ ] T014b [US1] Implement parameter loop logic in `code/main.py` to iterate through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred] iterations per condition (FR-001)
+- [X] T014b [US1] Implement parameter loop logic in `code/main.py` to iterate through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred] iterations per condition (FR-001)
 - [ ] T016 [US1] Write output results to `data/simulation/p_values_raw.csv` containing sample size, effect size, test type, raw p-values, and hypothesis state
 - [X] T017 [US1] Implement aggregation logic to calculate empirical Type I (p < alpha when null true) and Type II (p > alpha when alt true) error rates per condition (FR-002)
 - [ ] T018 [US1] Save aggregated error rates to `data/simulation/error_rates_summary.csv`

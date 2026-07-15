@@ -268,23 +268,6 @@
   updated_at: '2026-06-30T07:16:53Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: CI workflow timeout set to 6 hours
-  claim_id: c_5fc29280
-  context: T008 [P] Setup CI workflow (.github/workflows/sim.yml) with modest CPU
-    and RAM constraints and a 6h timeout
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Setup CI workflow (.github/workflows/sim.yml) with modest CPU and RAM
-    constraints and a 6h timeout
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T07:17:18Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
   canonical: simulation sample size range 5 to 500
   claim_id: c_c597a570
   context: 'Goal: Run a simulation that generates synthetic data with known ground
@@ -2563,3 +2546,593 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T23:57:31Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Breast Cancer dataset identifier for ucimlrepo
+  claim_id: c_e988c6ac
+  context: T029a [US3] Implement code/analysis/validator.py to download the UCI Breast
+    Cancer (Wisconsin Diagnostic) dataset using ucimlrepo with the corresponding dataset
+    identifier. (FR-006)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_Breast_Cancer_dataset_identifier_for_ucimlrepo
+  kind: entity_fact
+  raw_text: The system downloads the UCI Breast Cancer (Wisconsin Diagnostic) dataset
+    using ucimlrepo with the corresponding dataset identifier.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:38:49Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Wine dataset identifier for ucimlrepo
+  claim_id: c_756bbbde
+  context: T029b [US3] Implement code/analysis/validator.py to download the UCI Wine
+    dataset using ucimlrepo with the corresponding dataset identifier. (FR-006)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_Wine_dataset_identifier_for_ucimlrepo
+  kind: entity_fact
+  raw_text: The system downloads the UCI Wine dataset using ucimlrepo with the corresponding
+    dataset identifier.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:39:23Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Adult dataset identifier for ucimlrepo
+  claim_id: c_1ce2edb2
+  context: T029c [US3] Implement code/analysis/validator.py to download the UCI Adult
+    (Census Income) dataset using ucimlrepo with the dataset ID corresponding to the
+    Adult dataset. (FR-006)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_Adult_dataset_identifier_for_ucimlrepo
+  kind: entity_fact
+  raw_text: The system downloads the UCI Adult (Census Income) dataset using ucimlrepo
+    with the dataset ID corresponding to the Adult dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:40:26Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI dataset IDs 197, 198, 522 for Breast Cancer, Wine, Adult
+  claim_id: c_316f6b16
+  context: 'Notes section: Real-Data Constraint: T029a/T029b/T029c must explicitly
+    use ucimlrepo and specific numeric IDs (197, 198, 522) to fetch datasets, not
+    generic ''download from UCI'' instructions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses dataset IDs 197, 198, and 522 to fetch the UCI Breast
+    Cancer, UCI Wine, and UCI Adult datasets respectively via ucimlrepo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:40:44Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Simulation sample size range 5 to 500 step 5
+  claim_id: c_b40d839e
+  context: Implement parameter loop logic in code/main.py to iterate through n=5..500
+    (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred]
+    iterations per condition (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system will iterate through n=5 to n=500 with a step of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:48:31Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Simulation iterations per condition deferred
+  claim_id: c_51e049f7
+  context: Implement parameter loop logic in code/main.py to iterate through n=5..500
+    (step 5), effect sizes, and hypotheses, enforcing a hard constraint of [deferred]
+    iterations per condition (FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_iterations_per_condition_deferred
+  kind: entity_fact
+  raw_text: The simulation will enforce a hard constraint of [deferred] iterations
+    per condition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:49:26Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Full simulation grid runtime less than 6 hours on CI
+  claim_id: c_c1f31188
+  context: Implement vectorized numpy operations in code/simulation/test_runner.py
+    to handle [deferred] iterations per condition efficiently; verify runtime of the
+    full simulation grid < 6h on CI via benchmark step in .github/workflows/sim.yml
+    (FR-001, Constitution VI)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_simulation_grid_runtime_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: The full simulation grid runtime must be verified to be under 6 hours
+    on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:49:50Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Chi-squared test applies Yates correction or Fisher Exact Test when expected
+    cell count less than 5
+  claim_id: c_e8e333dd
+  context: Implement logic in code/simulation/chi_squared_utils.py to detect expected
+    cell counts < 5 and apply Yates' correction or Fisher's Exact Test (FR-007, Edge
+    Cases)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_applies_Yates_correction_or_Fisher_Exact_Te
+  kind: magnitude
+  raw_text: The system will detect expected cell counts less than 5 and apply Yates'
+    correction or Fisher's Exact Test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:50:37Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Small sample warning flagged for sample size less than 30
+  claim_id: c_844dd591
+  context: Implement logic in code/simulation/test_runner.py to flag sample sizes
+    n < 30 as 'small sample warning' where normality assumptions are severely violated
+    (Edge Cases)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_sample_warning_flagged_for_sample_size_less_than_30
+  kind: magnitude
+  raw_text: The system will flag sample sizes n < 30 as 'small sample warning' where
+    normality assumptions are severely violated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:51:39Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Identify smallest n where Type I error lower CI bound greater than 0.05
+  claim_id: c_390e82d3
+  context: Implement logic in code/analysis/threshold_finder.py to identify the smallest
+    n where Type I error lower CI bound > 0.05 (FR-004)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_smallest_n_where_Type_I_error_lower_CI_bound_greate
+  kind: magnitude
+  raw_text: The system will identify the smallest n where Type I error lower CI bound
+    is greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:53:10Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Identify smallest n where power CI less than 0.80 for 3 consecutive increments
+  claim_id: c_049670a9
+  context: 'Implement logic in code/analysis/threshold_finder.py to identify the smallest
+    n where power CI remains < 0.80 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))
+    for 3 consecutive increments (FR-004)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_smallest_n_where_power_CI_less_than_0.80_for_3_cons
+  kind: magnitude
+  raw_text: The system will identify the smallest n where power CI remains less than
+    0.80 for 3 consecutive increments.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:54:27Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Download UCI Breast Cancer dataset using ucimlrepo ID 197
+  claim_id: c_922c0de7
+  context: Implement code/analysis/validator.py to download the UCI Breast Cancer
+    (Wisconsin Diagnostic) dataset using ucimlrepo with the corresponding dataset
+    identifier. (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system will download the UCI Breast Cancer (Wisconsin Diagnostic)
+    dataset using ucimlrepo with dataset identifier 197.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:54:52Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Download UCI Wine dataset using ucimlrepo ID 198
+  claim_id: c_d09da0c8
+  context: Implement code/analysis/validator.py to download the UCI Wine dataset using
+    ucimlrepo with the corresponding dataset identifier. (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system will download the UCI Wine dataset using ucimlrepo with dataset
+    identifier 198.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:55:47Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Download UCI Adult dataset using ucimlrepo ID 522
+  claim_id: c_6da6cc81
+  context: Implement code/analysis/validator.py to download the UCI Adult (Census
+    Income) dataset using ucimlrepo with the dataset ID corresponding to the Adult
+    dataset. (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system will download the UCI Adult (Census Income) dataset using ucimlrepo
+    with dataset identifier 522.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:56:23Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Verify KS distance less than or equal to 0.10 for real dataset power
+    estimation
+  claim_id: c_709d3a0f
+  context: Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov
+    (KS) distance against simulated predictions, verify KS <= 0.10, and save results
+    to data/simulation/real_data_power.json (FR-006, SC-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_KS_distance_less_than_or_equal_to_0.10_for_real_datas
+  kind: magnitude
+  raw_text: The system will verify bootstrapped power estimation on real datasets
+    with a Kolmogorov-Smirnov (KS) distance less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:57:32Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Full simulation run memory usage less than 7GB
+  claim_id: c_b2ccb796
+  context: Optimize code/main.py for memory usage to ensure < 7GB RAM usage during
+    full simulation run
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_simulation_run_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The optimization task ensures memory usage is less than 7GB during full
+    simulation run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:58:30Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: fallback logic triggered when expected cell counts are less than 5
+  claim_id: c_fbed6315
+  context: T012 [US1] Implement code/simulation/test_runner.py to execute t-test,
+    ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5
+    and route to fallback logic
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_logic_triggered_when_expected_cell_counts_are_less
+  kind: magnitude
+  raw_text: The system must detect expected cell counts < 5 and route to fallback
+    logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:26Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: normality warning triggered when sample size is less than 30
+  claim_id: c_ccbc31b0
+  context: T012 [US1] ... MUST flag n < 30 for normality warnings
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Normality_warning_triggered_when_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: The system must flag sample sizes n < 30 for normality warnings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:03:27Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: small sample warning triggered when sample size is less than 30
+  claim_id: c_ea24c10f
+  context: T013b [US1] Implement logic in code/simulation/test_runner.py to flag sample
+    sizes n < 30 as 'small sample warning' where normality assumptions are severely
+    violated
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_sample_warning_triggered_when_sample_size_is_less_than
+  kind: magnitude
+  raw_text: The system must flag sample sizes n < 30 as 'small sample warning' where
+    normality assumptions are severely violated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:04:23Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Yates correction or Fisher Exact Test applied when expected cell counts
+    are less than 5
+  claim_id: c_60701441
+  context: T013 [US1] Implement logic in code/simulation/chi_squared_utils.py to detect
+    expected cell counts < 5 and apply Yates' correction or Fisher's Exact Test
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "To reduce the error in approximation, Frank Yates suggested a correction\
+        \ for continuity that adjusts the formula for Pearson's chi-squared test by\
+        \ subtracting 0.5 from the absolute difference between each observed value\
+        \ and its expected value in a 2 \xD7 2 contingency table. This reduces the\
+        \ chi-squared value obtained and thus increases its p-value."
+      source_id: Chi-squared test
+      url: https://en.wikipedia.org/wiki/Chi-squared_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Yates' correction or Fisher's Exact Test is applied when expected cell
+    counts < 5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T01:04:48Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: sample size iteration range from 5 to 500 with step 5
+  claim_id: c_4f9023ab
+  context: T014b [US1] Implement parameter loop logic in code/main.py to iterate through
+    n=5..500 (step 5)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation iterates through sample sizes from n=5 to n=500 with a
+    step of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:05:48Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: smallest sample size identified where Type I error lower confidence interval
+    bound exceeds 0.05
+  claim_id: c_1f55cd04
+  context: T021 [US2] Implement logic in code/analysis/threshold_finder.py to identify
+    the smallest n where Type I error lower CI bound > 0.05
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Smallest_sample_size_identified_where_Type_I_error_lower_con
+  kind: magnitude
+  raw_text: The smallest n where Type I error lower CI bound > 0.05 is identified.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:07:12Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: power confidence interval remains below 0.80 for 3 consecutive increments
+  claim_id: c_74ada182
+  context: T022 [US2] Implement logic in code/analysis/threshold_finder.py to identify
+    the smallest n where power CI remains < 0.80 ... for 3 consecutive increments
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power CI remains < 0.80 for 3 consecutive increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:07:12Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: comparative plots generated for t-test ANOVA and chi-squared divergence
+    at sample sizes less than 30
+  claim_id: c_bc37afad
+  context: T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared
+    divergence at low sample sizes (n < 30)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Comparative_plots_generated_for_t-test_ANOVA_and_chi-squared
+  kind: magnitude
+  raw_text: Comparative plots are generated for t-test, ANOVA, and chi-squared divergence
+    at low sample sizes (n < 30).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:08:26Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Breast Cancer Wisconsin Diagnostic dataset downloaded with identifier
+    197
+  claim_id: c_48c68021
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The UCI Breast Cancer (Wisconsin Diagnostic) dataset is downloaded using
+    ucimlrepo with dataset identifier 197.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:09:07Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Wine dataset downloaded with identifier 198
+  claim_id: c_fbe4aca7
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The UCI Wine dataset is downloaded using ucimlrepo with dataset identifier
+    198.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:09:21Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Adult Census Income dataset downloaded with identifier 522
+  claim_id: c_d1be274b
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The UCI Adult (Census Income) dataset is downloaded using ucimlrepo with
+    dataset identifier 522.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:11:51Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Kolmogorov Smirnov distance verified to be less than or equal to 0.10
+  claim_id: c_c93bafd5
+  context: T032 [US3] Implement bootstrapped power estimation on real datasets, calculate
+    Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov_Smirnov_distance_verified_to_be_less_than_or_equa
+  kind: magnitude
+  raw_text: Bootstrapped power estimation verifies Kolmogorov-Smirnov (KS) distance
+    <= 0.10 against simulated predictions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:12:46Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: full simulation run memory usage less than 7GB
+  claim_id: c_5f901b54
+  context: T036 [P] Optimize code/main.py for memory usage to ensure < 7GB RAM usage
+    during full simulation run
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_simulation_run_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The full simulation run must ensure < 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:14:05Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 2
+  canonical: CI workflow timeout set to 6 hours
+  claim_id: c_5fc29280
+  context: T008 [P] Setup CI workflow (.github/workflows/sim.yml) with modest CPU
+    and RAM constraints and a 6h timeout
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Setup CI workflow (.github/workflows/sim.yml) with modest CPU and RAM
+    constraints and a 6h timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:14:35Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: full simulation grid runtime less than 6 hours on CI
+  claim_id: c_2aa13f31
+  context: T015a [US1] ... verify runtime of the full simulation grid < 6h on CI via
+    benchmark step in .github/workflows/sim.yml
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_simulation_grid_runtime_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: The runtime of the full simulation grid must be < 6h on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:15:25Z'

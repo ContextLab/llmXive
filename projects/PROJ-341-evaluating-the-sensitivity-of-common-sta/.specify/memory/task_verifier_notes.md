@@ -1,5 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T014b** — The provided `code/main.py` snippet shows argument parsing for sample size range, effect sizes, and hypothesis, but the file is truncated before any simulation loop is shown. There is no visible code that actually iterates over n = 5..500 (step 5), the list of effect sizes, and hypothesis options, nor any enforcement of a hard iteration count per condition. Without the full file or the loop implementation, we cannot confirm the task’s requirement is met. The next implementer should ensure the main script contains a concrete loop (e.g., nested `for n in range(min_n, max_n+1, step_n): for es in
