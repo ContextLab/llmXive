@@ -1,0 +1,7 @@
+# Extends pyproject.toml if needed, or standalone config
+# This file ensures ruff is configured explicitly in the code directory
+extend = "pyproject.toml"
+
+[lint]
+# Additional specific rules if needed
+ignore = ["E402"] # Allow relative imports in specific cases if needed

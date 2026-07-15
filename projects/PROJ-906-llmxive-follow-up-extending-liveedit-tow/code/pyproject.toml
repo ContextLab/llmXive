@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-liveedit-tow"
+version = "0.1.0"
+description = "LiveEdit Follow-up: Extending to Flow-Coherence"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code", "tests"]
+extend-exclude = [
+  "__pycache__",
+  ".venv",
+  "build",
+  "dist",
+  "data",
+  "results"
+]
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+]
+ignore = [
+  "E501", # line too long (black handles this)
+  "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "data", "models", "metrics", "analysis", "utils", "contracts", "scripts"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # assert allowed in tests
+"code/__init__.py" = ["F401"] # allow unused imports in init

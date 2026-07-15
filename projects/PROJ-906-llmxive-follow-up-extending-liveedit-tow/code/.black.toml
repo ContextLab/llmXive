@@ -1,0 +1,4 @@
+# Black configuration is primarily in pyproject.toml.
+# This file exists for IDE detection if preferred.
+line-length = 100
+target-version = ['py39']

@@ -1,0 +1,10 @@
+torch>=2.0.0
+diffusers
+opencv-python
+scikit-learn
+pandas
+numpy
+datasets
+ruptures
+transformers
+# Additional for flow if needed (opencv is already there)

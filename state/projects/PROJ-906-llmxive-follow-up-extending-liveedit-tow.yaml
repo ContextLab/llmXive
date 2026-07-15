@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-906-llmxive-follow-up-extending-liveedit-tow
-last_run_id: 4b9f604a-465d-4753-bea9-88c7f93ff37e
+last_run_id: 3691f41b-a52b-4eca-a0c5-ede085f06fd9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow
 title: 'llmXive follow-up: extending "LiveEdit: Towards Real-Time Diffusion-Based
   Streaming Video Editing"'
-updated_at: '2026-07-14T07:33:32.802820Z'
+updated_at: '2026-07-15T20:14:22.055617Z'

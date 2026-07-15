@@ -1,0 +1,94 @@
+- artifact_path: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow/tasks.md
+  attempts: 1
+  canonical: 'Motion complexity stratification thresholds: Static <0.5 px, Slow Rigid
+    0.5-5.0 px, Fast Non-Rigid >=5.0 px'
+  claim_id: c_3767657b
+  context: "Task T013: Implement video processor in code/data/processor.py to generate\
+    \ synthetic masks and stratify clips by motion complexity using quantitative flow\
+    \ magnitude thresholds (Static <0.5 px, Slow Rigid 0.5\u20135.0 px, Fast Non-Rigid\
+    \ \u22655.0 px) derived from Plan.md Dataset Strategy"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Video clips are stratified by motion complexity using quantitative flow\
+    \ magnitude thresholds: Static <0.5 px, Slow Rigid 0.5\u20135.0 px, and Fast Non-Rigid\
+    \ \u22655.0 px."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:46:03Z'
+- artifact_path: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow/tasks.md
+  attempts: 1
+  canonical: BSS and Flow-Normalized SSIM calculated between consecutive frames t
+    and t-1
+  claim_id: c_40cd64db
+  context: 'Task T016: Implement metric calculator in code/metrics/ssim.py to compute
+    Background Stability Score (BSS) and Flow-Normalized SSIM by calculating SSIM
+    and temporal gradient variance between consecutive edited frames ($t$ and $t-1$)
+    within the edited output video to measure flickering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Background Stability Score (BSS) and Flow-Normalized SSIM are calculated
+    between consecutive edited frames (t and t-1) within the edited output video.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:46:16Z'
+- artifact_path: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow/tasks.md
+  attempts: 2
+  canonical: N=50 clips must fit within 6-hour CI limit
+  claim_id: c_ed5ff6a7
+  context: 'Notes: Compute Constraints: All inference must be CPU-optimized; ensure
+    N=50 clips fits within 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compute constraints require that N=50 clips fit within a 6-hour CI
+    limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:47:00Z'
+- artifact_path: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow/tasks.md
+  attempts: 1
+  canonical: BSS and Flow-Normalized SSIM calculated between consecutive frames
+  claim_id: c_ba09a5e4
+  context: 'Notes: Metric Validity: Use Background Stability Score (BSS) and Flow-Normalized
+    SSIM as defined in plan.md, calculated between consecutive frames.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BSS_and_Flow-Normalized_SSIM_calculated_between_consecutive
+  kind: entity_fact
+  raw_text: The Background Stability Score (BSS) and Flow-Normalized SSIM are calculated
+    between consecutive frames.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:47:20Z'
+- artifact_path: projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/specs/001-llmxive-follow-up-extending-liveedit-tow/tasks.md
+  attempts: 1
+  canonical: Stratification thresholds 0.5 and 5.0 derived from Plan.md Dataset Strategy
+  claim_id: c_c49a7f57
+  context: 'Notes: Stratification Thresholds: Numeric thresholds (0.5, 5.0) are derived
+    from Plan.md Dataset Strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Numeric thresholds 0.5 and 5.0 for stratification are derived from Plan.md
+    Dataset Strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T19:47:46Z'

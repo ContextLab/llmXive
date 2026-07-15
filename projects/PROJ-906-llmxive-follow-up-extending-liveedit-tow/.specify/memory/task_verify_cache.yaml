@@ -1,0 +1,22 @@
+T017:
+  c: false
+  h: bd7a9b22b86c9a83a063b791ef86d4092377c00fed43e3fd046097c38a3919ec
+  r: "The repository contains a `reporter.py` file, but the implementation is truncated\
+    \ and does not show the JSON/Parquet writing logic, and the required output file\
+    \ `data/metrics/baseline_results.json` is absent. Without a generated baseline\
+    \ results file, the task\u2019s core requirement is not satisfied."
+T024:
+  c: false
+  h: f74ff4168383692aac0ab48f06f85aefb3946ba071d73037185ea5f92c09c371
+  r: "The repository lacks the required `data/metrics/flow_results.json` file, and\
+    \ the provided `code/analysis/reporter.py` is truncated and does not contain a\
+    \ complete implementation that writes a comparative report (JSON/Parquet) to that\
+    \ path. The necessary function to generate and output the flow\u2011method metrics\
+    \ is missing."
+T025:
+  c: false
+  h: 89ff04cff3963f4afac40a2ca19512ee7840377826e739d8018a766aa60dcda4
+  r: The required file `tests/contract/test_analysis_schema.py` does not exist in
+    the repository, so the contract test for the AnalysisResult schema is missing.
+    The task cannot be considered complete until this test file is created with appropriate
+    content.
