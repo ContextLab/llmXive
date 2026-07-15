@@ -8,132 +8,122 @@ def calculate_error_rates(p_values: List[Dict[str, Any]], alpha: float = 0.05) -
     """
     Calculate empirical Type I and Type II error rates from raw p-values.
     
-    Type I Error: p < alpha when null hypothesis is true.
-    Type II Error: p > alpha when alternative hypothesis is true (Power = 1 - Type II).
+    Type I Error: Rejecting null when it is true (p < alpha when hypothesis='null')
+    Type II Error: Failing to reject null when it is false (p > alpha when hypothesis='alternative')
     
     Args:
-        p_values: List of dictionaries containing simulation results.
-        alpha: Significance threshold (default 0.05).
-        
+        p_values: List of dicts with keys: sample_size, effect_size, test_type, p_value, hypothesis
+        alpha: Significance threshold (default 0.05)
+    
     Returns:
-        List of dictionaries with aggregated error rates per condition.
+        List of aggregated error rate records per condition.
     """
     if not p_values:
         return []
-
-    # Group by condition (test_type, sample_size, effect_size, hypothesis)
+    
+    # Group by condition
     conditions = {}
     for row in p_values:
-        key = (
-            row.get('test_type'),
-            row.get('sample_size'),
-            row.get('effect_size'),
-            row.get('hypothesis')
-        )
+        key = (row['sample_size'], row['effect_size'], row['test_type'])
         if key not in conditions:
-            conditions[key] = []
-        conditions[key].append(float(row.get('p_value', 1.0)))
-
-    results = []
-    for key, p_vals in conditions.items():
-        test_type, sample_size, effect_size, hypothesis = key
-        total = len(p_vals)
-        if total == 0:
-            continue
-
-        # Count rejections
-        rejections = sum(1 for p in p_vals if p < alpha)
+            conditions[key] = {'null': [], 'alternative': []}
         
-        # Type I Error: Null is true (hypothesis='null') and we rejected (p < alpha)
-        if hypothesis == 'null':
-            type_i_count = rejections
-            type_i_rate = type_i_count / total
-            # Power is not applicable for null hypothesis
-            power = None 
-            type_ii_rate = None
+        hypothesis_type = row.get('hypothesis', 'null').lower()
+        if hypothesis_type == 'null':
+            conditions[key]['null'].append(float(row['p_value']))
         else:
-            # Alternative is true
-            # Type II Error: Fail to reject (p >= alpha)
-            type_ii_count = total - rejections
-            type_ii_rate = type_ii_count / total
-            power = rejections / total
-            type_i_rate = None
-
+            conditions[key]['alternative'].append(float(row['p_value']))
+    
+    results = []
+    for (n, effect, test_type), data in conditions.items():
+        null_pvals = data['null']
+        alt_pvals = data['alternative']
+        
+        # Calculate Type I error rate (proportion of null p-values < alpha)
+        type_1_errors = sum(1 for p in null_pvals if p < alpha)
+        type_1_rate = type_1_errors / len(null_pvals) if null_pvals else 0.0
+        
+        # Calculate Type II error rate (proportion of alt p-values > alpha)
+        # Note: Power = 1 - Type II error rate
+        type_2_errors = sum(1 for p in alt_pvals if p >= alpha)
+        type_2_rate = type_2_errors / len(alt_pvals) if alt_pvals else 0.0
+        
+        power = 1.0 - type_2_rate if alt_pvals else 0.0
+        
         results.append({
+            'sample_size': int(n),
+            'effect_size': float(effect),
             'test_type': test_type,
-            'sample_size': sample_size,
-            'effect_size': effect_size,
-            'hypothesis': hypothesis,
-            'total_iterations': total,
-            'alpha': alpha,
-            'type_i_error_rate': type_i_rate,
-            'type_ii_error_rate': type_ii_rate,
+            'type_1_error_rate': type_1_rate,
+            'type_2_error_rate': type_2_rate,
             'power': power,
-            'rejection_count': rejections
+            'n_null_simulations': len(null_pvals),
+            'n_alt_simulations': len(alt_pvals)
         })
-
+    
     return results
 
-def save_aggregated_results(results: List[Dict[str, Any]], output_path: str) -> None:
+def save_aggregated_results(error_rates: List[Dict[str, Any]], output_path: str) -> None:
     """
     Save aggregated error rates to a CSV file.
     
     Args:
-        results: List of aggregated result dictionaries.
-        output_path: Path to the output CSV file.
+        error_rates: List of error rate dictionaries from calculate_error_rates
+        output_path: Path to save the CSV file
     """
-    if not results:
-        # Create empty file with headers if no data
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    if not error_rates:
+        # Write empty file with headers if no data
         with open(output_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=[
-                'test_type', 'sample_size', 'effect_size', 'hypothesis',
-                'total_iterations', 'alpha', 'type_i_error_rate',
-                'type_ii_error_rate', 'power', 'rejection_count'
+                'sample_size', 'effect_size', 'test_type', 
+                'type_1_error_rate', 'type_2_error_rate', 'power',
+                'n_null_simulations', 'n_alt_simulations'
             ])
             writer.writeheader()
         return
-
+    
+    fieldnames = [
+        'sample_size', 'effect_size', 'test_type', 
+        'type_1_error_rate', 'type_2_error_rate', 'power',
+        'n_null_simulations', 'n_alt_simulations'
+    ]
+    
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Define fieldnames to ensure consistent column order
-    fieldnames = [
-        'test_type', 'sample_size', 'effect_size', 'hypothesis',
-        'total_iterations', 'alpha', 'type_i_error_rate',
-        'type_ii_error_rate', 'power', 'rejection_count'
-    ]
-
     with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in results:
+        for row in error_rates:
             writer.writerow(row)
 
-def main():
+def main(alpha: float = 0.05, input_path: Optional[str] = None, output_path: Optional[str] = None) -> None:
     """
-    Main entry point for the aggregation task.
-    Loads raw p-values, calculates error rates, and saves the summary.
+    Main entry point for the aggregation process.
+    
+    Reads raw p-values, calculates error rates, and saves the summary.
     """
-    input_path = 'data/simulation/p_values_raw.csv'
-    output_path = 'data/simulation/error_rates_summary.csv'
-    alpha = 0.05
-
-    if not os.path.exists(input_path):
-        print(f"Error: Input file not found: {input_path}")
-        print("Please ensure T016 has been run to generate p_values_raw.csv.")
-        return
-
+    if input_path is None:
+        input_path = 'data/simulation/p_values_raw.csv'
+    if output_path is None:
+        output_path = 'data/simulation/error_rates_summary.csv'
+    
     print(f"Loading raw p-values from {input_path}...")
     p_values = load_p_values_raw(input_path)
-    print(f"Loaded {len(p_values)} raw p-value records.")
-
-    print(f"Calculating error rates with alpha={alpha}...")
-    results = calculate_error_rates(p_values, alpha)
-    print(f"Calculated error rates for {len(results)} unique conditions.")
-
+    
+    if not p_values:
+        print("Warning: No p-values found in input file. Creating empty summary.")
+        save_aggregated_results([], output_path)
+        print(f"Empty summary saved to {output_path}")
+        return
+    
+    print(f"Calculating error rates for {len(p_values)} records (alpha={alpha})...")
+    error_rates = calculate_error_rates(p_values, alpha)
+    
     print(f"Saving aggregated results to {output_path}...")
-    save_aggregated_results(results, output_path)
-    print(f"Successfully saved error rates summary to {output_path}.")
+    save_aggregated_results(error_rates, output_path)
+    
+    print(f"Aggregation complete. {len(error_rates)} unique conditions processed.")
+    print(f"Output written to: {output_path}")
 
 if __name__ == '__main__':
     main()

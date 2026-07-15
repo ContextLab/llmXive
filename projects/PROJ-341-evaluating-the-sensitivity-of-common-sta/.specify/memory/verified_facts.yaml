@@ -1,9 +1,5 @@
-'|applied cell correction count expected fisher test when yate':
-  quote: "To reduce the error in approximation, Frank Yates suggested a correction\
-    \ for continuity that adjusts the formula for Pearson's chi-squared test by subtracting\
-    \ 0.5 from the absolute difference between each observed value and its expected\
-    \ value in a 2 \xD7 2 contingency table. This reduces the chi-squared value obtained\
-    \ and thus increases its p-value."
-  source_id: Chi-squared test
-  url: https://en.wikipedia.org/wiki/Chi-squared_test
+'|apply cell correction count detect expected fisher test yate':
+  quote: arXiv:1405.1250v1 [stat.CO] 6 May 2014
+  source_id: '1405.1250'
+  url: https://arxiv.org/abs/1405.1250
   value: '5'

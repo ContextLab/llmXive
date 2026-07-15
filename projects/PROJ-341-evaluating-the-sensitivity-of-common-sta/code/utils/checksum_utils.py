@@ -1,90 +1,78 @@
-"""
-Checksum utility module for verifying data integrity.
-
-This module provides functions to compute and verify SHA-256 checksums
-for files in the data directory, ensuring data hygiene (Constitution Principle III).
-"""
 import os
 import hashlib
 import json
 from typing import Dict, Optional, List
 from datetime import datetime
 
-
-def compute_file_checksum(file_path: str) -> str:
+def compute_file_checksum(filepath: str, algorithm: str = "sha256") -> str:
     """
-    Compute SHA-256 checksum of a file.
-
+    Compute the checksum of a file.
+    
     Args:
-        file_path: Path to the file
-
+        filepath: Path to the file
+        algorithm: Hash algorithm to use (default: sha256)
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash
+        Hexadecimal checksum string
     """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+    
+    hash_func = hashlib.new(algorithm)
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+            hash_func.update(byte_block)
+    
+    return hash_func.hexdigest()
 
-
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+def verify_checksum(filepath: str, expected_checksum: str, algorithm: str = "sha256") -> bool:
     """
     Verify a file's checksum against an expected value.
-
+    
     Args:
-        file_path: Path to the file
-        expected_checksum: Expected SHA-256 hash
-
+        filepath: Path to the file
+        expected_checksum: Expected checksum value
+        algorithm: Hash algorithm to use
+        
     Returns:
         True if checksum matches, False otherwise
     """
-    if not os.path.exists(file_path):
-        return False
-    actual_checksum = compute_file_checksum(file_path)
+    actual_checksum = compute_file_checksum(filepath, algorithm)
     return actual_checksum == expected_checksum
-
 
 def scan_directory_for_checksums(directory: str) -> Dict[str, str]:
     """
     Scan a directory and compute checksums for all files.
-
+    
     Args:
-        directory: Path to the directory
-
+        directory: Path to the directory to scan
+        
     Returns:
-        Dictionary mapping file paths to their checksums
+        Dictionary mapping relative file paths to their checksums
     """
     checksums = {}
     for root, _, files in os.walk(directory):
         for file in files:
-            if file.endswith(('.csv', '.json', '.parquet', '.pkl')):
-                file_path = os.path.join(root, file)
-                checksums[file_path] = compute_file_checksum(file_path)
+            filepath = os.path.join(root, file)
+            rel_path = os.path.relpath(filepath, directory)
+            try:
+                checksums[rel_path] = compute_file_checksum(filepath)
+            except Exception as e:
+                print(f"Warning: Could not compute checksum for {filepath}: {e}")
     return checksums
 
-
 def main():
-    """Main entry point for checksum utility."""
-    data_dirs = ["data/raw", "data/simulation"]
-    all_checksums = {}
-
-    for directory in data_dirs:
-        if os.path.exists(directory):
-            print(f"Scanning {directory}...")
-            checksums = scan_directory_for_checksums(directory)
-            all_checksums.update(checksums)
-
-    # Output results
-    if all_checksums:
-        print("\nChecksums:")
-        for path, checksum in all_checksums.items():
-            print(f"  {path}: {checksum}")
+    """Main function to demonstrate checksum utilities."""
+    print("Checksum Utility Module")
+    print("-" * 40)
+    
+    # Example: Checksum of a known file if it exists
+    test_file = "data/simulation_metadata.json"
+    if os.path.exists(test_file):
+        checksum = compute_file_checksum(test_file)
+        print(f"Checksum of {test_file}: {checksum}")
     else:
-        print("No files found to checksum.")
-
-    return all_checksums
-
+        print(f"File {test_file} not found.")
 
 if __name__ == "__main__":
     main()
