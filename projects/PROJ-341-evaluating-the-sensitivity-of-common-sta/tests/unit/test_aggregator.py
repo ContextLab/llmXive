@@ -1,132 +1,167 @@
 import pytest
-import pandas as pd
-import numpy as np
 import os
-import sys
-
-# Add project root to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
+import tempfile
+import pandas as pd
 from code.analysis.aggregator import calculate_error_rates, save_aggregated_results
 
 class TestCalculateErrorRates:
-    def test_type_i_error_rate_calculation(self):
-        """Test Type I error rate calculation when H0 is true"""
-        # Create mock data: H0 true, alpha=0.05
-        # If H0 is true, p-values should be uniformly distributed [0, 1]
-        # Expected Type I error rate ~ alpha (0.05)
-        np.random.seed(42)
-        n = 1000
-        p_values = np.random.uniform(0, 1, n)
+    def test_type_i_error_calculation(self):
+        """Test Type I error calculation when null hypothesis is true"""
+        data = [
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01, 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.03, 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.06, 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.08, 'hypothesis': 'null'},
+        ]
         
-        df = pd.DataFrame({
-            'sample_size': [50] * n,
-            'effect_size': [0.0] * n,
-            'test_type': ['t-test'] * n,
-            'p_value': p_values,
-            'hypothesis': ['H0'] * n
-        })
+        results = calculate_error_rates(data, alpha=0.05)
         
-        result_df = calculate_error_rates(df, alpha=0.05)
-        
-        assert not result_df.empty
-        assert 'type_i_error_rate' in result_df.columns
-        assert result_df['hypothesis'].iloc[0] == 'H0'
-        
-        # The observed rate should be close to 0.05 (within statistical fluctuation)
-        observed_rate = result_df['type_i_error_rate'].iloc[0]
-        assert 0.03 <= observed_rate <= 0.07, f"Type I error rate {observed_rate} outside expected range [0.03, 0.07]"
+        assert len(results) == 1
+        assert results[0]['error_type'] == 'type_i'
+        assert results[0]['total_iterations'] == 4
+        assert results[0]['error_count'] == 2  # 0.01 and 0.03 are < 0.05
+        assert abs(results[0]['error_rate'] - 0.5) < 0.001
 
-    def test_type_ii_error_rate_calculation(self):
-        """Test Type II error rate calculation when H1 is true"""
-        # Create mock data: H1 true, effect size > 0
-        # Simulate low p-values (high power) -> low Type II error
-        np.random.seed(42)
-        n = 1000
-        # Simulate high power scenario: most p-values < 0.05
-        p_values = np.random.beta(1, 10, n)  # Skewed towards 0
+    def test_type_ii_error_calculation(self):
+        """Test Type II error calculation when alternative hypothesis is true"""
+        data = [
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.01, 'hypothesis': 'alternative'},
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.03, 'hypothesis': 'alternative'},
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.06, 'hypothesis': 'alternative'},
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.08, 'hypothesis': 'alternative'},
+        ]
         
-        df = pd.DataFrame({
-            'sample_size': [100] * n,
-            'effect_size': [0.5] * n,
-            'test_type': ['t-test'] * n,
-            'p_value': p_values,
-            'hypothesis': ['H1'] * n
-        })
+        results = calculate_error_rates(data, alpha=0.05)
         
-        result_df = calculate_error_rates(df, alpha=0.05)
-        
-        assert not result_df.empty
-        assert 'type_ii_error_rate' in result_df.columns
-        assert result_df['hypothesis'].iloc[0] == 'H1'
-        
-        observed_type_ii = result_df['type_ii_error_rate'].iloc[0]
-        observed_power = result_df['power'].iloc[0]
-        
-        # Check consistency: power = 1 - type_ii
-        assert np.isclose(observed_power, 1.0 - observed_type_ii, atol=1e-6)
-        # With high power simulation, Type II should be low (< 0.2)
-        assert observed_type_ii < 0.2, f"Type II error rate {observed_type_ii} unexpectedly high"
+        assert len(results) == 1
+        assert results[0]['error_type'] == 'type_ii'
+        assert results[0]['total_iterations'] == 4
+        assert results[0]['error_count'] == 2  # 0.06 and 0.08 are > 0.05
+        assert abs(results[0]['error_rate'] - 0.5) < 0.001
 
     def test_multiple_conditions(self):
-        """Test calculation across multiple experimental conditions"""
-        np.random.seed(123)
+        """Test aggregation across multiple conditions"""
+        data = [
+            # Condition 1: null hypothesis
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01, 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.06, 'hypothesis': 'null'},
+            # Condition 2: alternative hypothesis
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.01, 'hypothesis': 'alternative'},
+            {'sample_size': 30, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.06, 'hypothesis': 'alternative'},
+            # Condition 3: different sample size
+            {'sample_size': 50, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.04, 'hypothesis': 'null'},
+            {'sample_size': 50, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.07, 'hypothesis': 'null'},
+        ]
         
-        data = []
-        for n in [50, 100]:
-            for eff in [0.0, 0.5]:
-                for hyp in ['H0', 'H1']:
-                    count = 200
-                    if hyp == 'H0':
-                        p_vals = np.random.uniform(0, 1, count)
-                    else:
-                        p_vals = np.random.beta(1, 5, count)
-                    
-                    for p in p_vals:
-                        data.append({
-                            'sample_size': n,
-                            'effect_size': eff,
-                            'test_type': 't-test',
-                            'p_value': p,
-                            'hypothesis': hyp
-                        })
+        results = calculate_error_rates(data, alpha=0.05)
         
-        df = pd.DataFrame(data)
-        result_df = calculate_error_rates(df, alpha=0.05)
+        assert len(results) == 3
         
-        # Should have 4 unique conditions (2 n * 2 eff * 2 hyp = 8? No, H0/H1 logic splits them)
-        # Actually: n=50/100 (2), eff=0.0/0.5 (2), hyp=H0/H1 (2) => 8 rows expected
-        assert len(result_df) == 8
+        # Verify each condition
+        cond1 = [r for r in results if r['sample_size'] == 30 and r['hypothesis'] == 'null'][0]
+        assert cond1['error_count'] == 1
+        assert cond1['error_rate'] == 0.5
         
-        # Verify all expected columns exist
-        expected_cols = ['sample_size', 'effect_size', 'test_type', 'hypothesis', 
-                       'total_iterations', 'type_i_error_rate', 'type_ii_error_rate', 'power']
-        for col in expected_cols:
-            assert col in result_df.columns
+        cond2 = [r for r in results if r['sample_size'] == 30 and r['hypothesis'] == 'alternative'][0]
+        assert cond2['error_count'] == 1
+        assert cond2['error_rate'] == 0.5
+        
+        cond3 = [r for r in results if r['sample_size'] == 50 and r['hypothesis'] == 'null'][0]
+        assert cond3['error_count'] == 1
+        assert cond3['error_rate'] == 0.5
+
+    def test_empty_data(self):
+        """Test handling of empty data"""
+        results = calculate_error_rates([], alpha=0.05)
+        assert results == []
+
+    def test_invalid_p_values(self):
+        """Test handling of invalid p-values (NaN)"""
+        data = [
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01, 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': float('nan'), 'hypothesis': 'null'},
+            {'sample_size': 30, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.06, 'hypothesis': 'null'},
+        ]
+        
+        results = calculate_error_rates(data, alpha=0.05)
+        
+        # Should only use valid p-values
+        assert len(results) == 1
+        assert results[0]['total_iterations'] == 2
+        assert results[0]['error_count'] == 1
 
 class TestSaveAggregatedResults:
-    def test_save_to_csv(self, tmp_path):
-        """Test saving aggregated results to CSV"""
-        df = pd.DataFrame({
-            'sample_size': [50],
-            'effect_size': [0.0],
-            'test_type': ['t-test'],
-            'hypothesis': ['H0'],
-            'total_iterations': [100],
-            'type_i_error_rate': [0.05],
-            'type_ii_error_rate': [np.nan],
-            'power': [0.05],
-            'alpha': [0.05]
-        })
+    def test_save_to_csv(self):
+        """Test saving results to CSV file"""
+        data = [
+            {
+                'sample_size': 30,
+                'effect_size': 0.0,
+                'test_type': 't-test',
+                'hypothesis': 'null',
+                'error_type': 'type_i',
+                'total_iterations': 100,
+                'error_count': 5,
+                'error_rate': 0.05,
+                'alpha_threshold': 0.05
+            }
+        ]
         
-        output_file = os.path.join(tmp_path, "test_output.csv")
-        success = save_aggregated_results(df, output_file)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            temp_path = f.name
         
-        assert success
-        assert os.path.exists(output_file)
+        try:
+            save_aggregated_results(data, temp_path)
+            
+            assert os.path.exists(temp_path)
+            
+            df = pd.read_csv(temp_path)
+            assert len(df) == 1
+            assert df['sample_size'].iloc[0] == 30
+            assert df['error_rate'].iloc[0] == 0.05
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_save_empty_results(self):
+        """Test saving empty results creates file with headers"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            temp_path = f.name
         
-        # Verify content
-        loaded_df = pd.read_csv(output_file)
-        assert len(loaded_df) == 1
-        assert loaded_df['type_i_error_rate'].iloc[0] == 0.05
-        assert loaded_df['test_type'].iloc[0] == 't-test'
+        try:
+            save_aggregated_results([], temp_path)
+            
+            assert os.path.exists(temp_path)
+            
+            df = pd.read_csv(temp_path)
+            assert len(df) == 0
+            assert 'sample_size' in df.columns
+            assert 'error_rate' in df.columns
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_create_directories(self):
+        """Test that function creates necessary directories"""
+        data = [
+            {
+                'sample_size': 30,
+                'effect_size': 0.0,
+                'test_type': 't-test',
+                'hypothesis': 'null',
+                'error_type': 'type_i',
+                'total_iterations': 100,
+                'error_count': 5,
+                'error_rate': 0.05,
+                'alpha_threshold': 0.05
+            }
+        ]
+        
+        with tempfile.TemporaryDirectory() as temp_dir:
+            nested_path = os.path.join(temp_dir, 'subdir1', 'subdir2', 'output.csv')
+            
+            save_aggregated_results(data, nested_path)
+            
+            assert os.path.exists(nested_path)
+            df = pd.read_csv(nested_path)
+            assert len(df) == 1

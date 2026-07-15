@@ -1,45 +1,39 @@
-"""
-Simulation module initialization.
-Implements T006: Deterministic random seed manager.
-"""
-import numpy as np
+# Simulation package
+import os
+import json
 from typing import Optional
+from datetime import datetime
 
-_GLOBAL_SEED = None
-_GLOBAL_RNG = None
+_SEED_MANAGER = None
 
-def set_seed(seed: int):
-    """Set the global random seed."""
-    global _GLOBAL_SEED, _GLOBAL_RNG
-    _GLOBAL_SEED = seed
-    _GLOBAL_RNG = np.random.default_rng(seed)
+class SeedManager:
+    def __init__(self, base_seed: int = 42):
+        self.base_seed = base_seed
+        self.current_seed = base_seed
+        self.history = []
 
-def get_seed() -> Optional[int]:
-    """Get the global random seed."""
-    return _GLOBAL_SEED
+    def get_seed(self) -> int:
+        seed = self.current_seed
+        self.current_seed += 1
+        self.history.append(seed)
+        return seed
 
-def get_rng(seed: Optional[int] = None) -> np.random.Generator:
-    """
-    Get a random number generator.
-    If seed is provided, use it. Otherwise, use the global seed.
-    """
-    global _GLOBAL_RNG
-    if seed is not None:
-        return np.random.default_rng(seed)
-    if _GLOBAL_RNG is None:
-        # Default seed if not set
-        _GLOBAL_RNG = np.random.default_rng(42)
-    return _GLOBAL_RNG
+    def reset(self, base_seed: int = 42):
+        self.base_seed = base_seed
+        self.current_seed = base_seed
+        self.history = []
 
-def reset_rng():
-    """Reset the random number generator."""
-    global _GLOBAL_RNG
-    _GLOBAL_RNG = None
-    _GLOBAL_SEED = None
+def get_seed_manager() -> SeedManager:
+    global _SEED_MANAGER
+    if _SEED_MANAGER is None:
+        _SEED_MANAGER = SeedManager()
+    return _SEED_MANAGER
 
-def main():
-    """Main entry point for testing."""
-    pass
+def get_rng(base_seed: Optional[int] = None):
+    import numpy as np
+    if base_seed is not None:
+        return np.random.default_rng(base_seed)
+    return np.random.default_rng(get_seed_manager().get_seed())
 
-if __name__ == "__main__":
-    main()
+def set_seed(base_seed: int):
+    get_seed_manager().reset(base_seed)
