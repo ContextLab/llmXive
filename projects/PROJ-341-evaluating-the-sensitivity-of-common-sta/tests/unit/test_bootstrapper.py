@@ -1,172 +1,107 @@
-"""
-Unit tests for the bootstrapper module (T032).
-"""
 import pytest
 import numpy as np
 import pandas as pd
-import os
 import json
+import os
 import tempfile
-from scipy import stats
+from unittest.mock import patch, MagicMock
 
+# Import the module under test
 from code.analysis.bootstrapper import (
     bootstrap_power_estimate,
     calculate_ks_distance,
-    load_real_data_pvalues,
-    load_simulated_power_distribution,
     run_bootstrapped_validation,
     save_power_results
 )
 
 class TestBootstrapPowerEstimate:
-    """Tests for bootstrap_power_estimate function."""
-    
-    def test_bootstrap_power_estimate_basic(self):
-        """Test basic bootstrap power estimation."""
-        # Create p-values with known significance rate
-        p_values = [0.01, 0.02, 0.03, 0.6, 0.7, 0.8]  # 3/6 < 0.05
-        result = bootstrap_power_estimate(p_values, alpha=0.05, n_bootstrap=100, rng=np.random.default_rng(42))
+    def test_empty_pvalues_raises(self):
+        with pytest.raises(ValueError):
+            bootstrap_power_estimate(pd.Series([]), alpha=0.05)
+
+    def test_bootstrap_returns_expected_structure(self):
+        # Create a deterministic set of p-values
+        np.random.seed(42)
+        pvals = pd.Series(np.random.uniform(0, 1, 1000))
         
-        assert "power_estimate" in result
-        assert "ci_lower" in result
-        assert "ci_upper" in result
-        assert "se" in result
+        result = bootstrap_power_estimate(pvals, alpha=0.05, n_bootstrap=100)
+        
+        assert "mean_power" in result
+        assert "std_error" in result
+        assert "ci_95_lower" in result
+        assert "ci_95_upper" in result
+        assert "n_bootstrap" in result
         assert result["n_bootstrap"] == 100
-        assert result["n_observations"] == 6
+        assert 0 <= result["mean_power"] <= 1
+
+    def test_power_calculation_logic(self):
+        # Create p-values where exactly 50% are < 0.05
+        pvals = pd.Series([0.01] * 50 + [0.5] * 50)
+        result = bootstrap_power_estimate(pvals, alpha=0.05, n_bootstrap=1000)
         
-        # Power should be around 0.5 given 3/6 are significant
-        assert 0.3 < result["power_estimate"] < 0.7
-        
-    def test_bootstrap_power_estimate_empty(self):
-        """Test bootstrap with empty p-values."""
-        result = bootstrap_power_estimate([], alpha=0.05, n_bootstrap=100)
-        
-        assert result["power_estimate"] == 0.0
-        assert result["ci_lower"] == 0.0
-        assert result["ci_upper"] == 0.0
-        assert result["se"] == 0.0
-        
-    def test_bootstrap_power_estimate_all_significant(self):
-        """Test bootstrap when all p-values are significant."""
-        p_values = [0.01, 0.02, 0.03, 0.04, 0.045]
-        result = bootstrap_power_estimate(p_values, alpha=0.05, n_bootstrap=100, rng=np.random.default_rng(42))
-        
-        # Should be close to 1.0
-        assert result["power_estimate"] > 0.9
+        # With 1000 bootstraps, mean should be very close to 0.5
+        assert abs(result["mean_power"] - 0.5) < 0.05
 
 class TestCalculateKsDistance:
-    """Tests for calculate_ks_distance function."""
-    
-    def test_ks_distance_identical_distributions(self):
-        """Test KS distance with identical distributions."""
-        real = [0.1, 0.2, 0.3, 0.4, 0.5]
-        sim = [0.1, 0.2, 0.3, 0.4, 0.5]
+    def test_empty_arrays_raises(self):
+        with pytest.raises(ValueError):
+            calculate_ks_distance(np.array([]), np.array([1, 2, 3]))
         
-        dist = calculate_ks_distance(real, sim)
+        with pytest.raises(ValueError):
+            calculate_ks_distance(np.array([1, 2, 3]), np.array([]))
+
+    def test_identical_distributions(self):
+        data = np.array([1, 2, 3, 4, 5])
+        dist = calculate_ks_distance(data, data)
+        assert dist == 0.0
+
+    def test_different_distributions(self):
+        dist1 = np.random.normal(0, 1, 1000)
+        dist2 = np.random.normal(2, 1, 1000)
         
-        # Should be close to 0 for identical distributions
-        assert dist < 0.2
-        
-    def test_ks_distance_different_distributions(self):
-        """Test KS distance with different distributions."""
-        real = [0.01, 0.02, 0.03, 0.04, 0.05]  # Small values
-        sim = [0.5, 0.6, 0.7, 0.8, 0.9]  # Large values
-        
-        dist = calculate_ks_distance(real, sim)
-        
-        # Should be larger for different distributions
-        assert dist > 0.3
-        
-    def test_ks_distance_empty(self):
-        """Test KS distance with empty lists."""
-        dist = calculate_ks_distance([], [0.1, 0.2, 0.3])
-        
-        assert dist == 1.0  # Maximum distance
+        ks = calculate_ks_distance(dist1, dist2)
+        assert 0 < ks <= 1.0
 
 class TestRunBootstrappedValidation:
-    """Tests for run_bootstrapped_validation function."""
-    
-    def test_validation_structure(self):
-        """Test that validation returns correct structure."""
-        # Create mock data
-        real_pvalues = pd.DataFrame({
-            'test_type': ['t-test', 't-test', 'anova', 'anova'],
-            'p_value': [0.01, 0.03, 0.02, 0.04],
-            'sample_size': [10, 10, 20, 20],
-            'effect_size': [0.5, 0.5, 0.5, 0.5]
+    @patch('code.analysis.bootstrapper.load_real_data_pvalues')
+    @patch('code.analysis.bootstrapper.load_p_values_raw')
+    def test_validation_flow(self, mock_sim_load, mock_real_load):
+        # Mock real data
+        real_df = pd.DataFrame({
+            "test_type": ["t-test", "t-test", "t-test", "t-test"],
+            "sample_size": [50, 50, 50, 50],
+            "p_value": [0.01, 0.04, 0.06, 0.8]
         })
-        
-        simulated_error_rates = pd.DataFrame({
-            'test_type': ['t-test', 't-test', 'anova', 'anova'],
-            'effect_size': [0.0, 0.5, 0.0, 0.5],
-            'type_i_error_rate': [0.05, 0.05, 0.05, 0.05],
-            'power': [0.05, 0.8, 0.05, 0.8]
+        mock_real_load.return_value = real_df
+
+        # Mock simulated data
+        sim_df = pd.DataFrame({
+            "test_type": ["t-test", "t-test", "t-test", "t-test"],
+            "sample_size": [50, 50, 50, 50],
+            "p_value": [0.02, 0.03, 0.05, 0.9]
         })
-        
-        results = run_bootstrapped_validation(real_pvalues, simulated_error_rates, n_bootstrap=50)
-        
-        assert 't-test' in results
-        assert 'anova' in results
-        
-        for test_type, result in results.items():
-            assert 'power_estimate' in result
-            assert 'ks_distance' in result
-            assert 'passes_validation' in result
-            assert 'threshold' in result
-            
-    def test_validation_passes_threshold(self):
-        """Test validation that passes the KS threshold."""
-        # Create p-values close to uniform (null hypothesis)
-        rng = np.random.default_rng(42)
-        real_pvalues = pd.DataFrame({
-            'test_type': ['t-test'] * 100,
-            'p_value': rng.uniform(0, 1, 100),
-            'sample_size': [10] * 100,
-            'effect_size': [0.0] * 100
-        })
-        
-        simulated_error_rates = pd.DataFrame({
-            'test_type': ['t-test'],
-            'effect_size': [0.0],
-            'type_i_error_rate': [0.05],
-            'power': [0.05]
-        })
-        
-        results = run_bootstrapped_validation(real_pvalues, simulated_error_rates, n_bootstrap=50)
-        
-        # Should pass validation (KS <= 0.10) for uniform-like distribution
-        assert results['t-test']['passes_validation'] == True
-        assert results['t-test']['ks_distance'] <= 0.10
+        mock_sim_load.return_value = sim_df
+
+        results = run_bootstrapped_validation(
+            real_data_file="dummy.csv",
+            simulated_data_file="dummy_sim.csv",
+            n_bootstrap=50,
+            ks_threshold=0.10
+        )
+
+        assert "validation_status" in results
+        assert "details" in results
+        assert len(results["details"]) > 0
 
 class TestSavePowerResults:
-    """Tests for save_power_results function."""
-    
-    def test_save_and_load(self):
-        """Test that results can be saved and loaded."""
-        results = {
-            't-test': {
-                'power_estimate': {'power_estimate': 0.5, 'ci_lower': 0.4, 'ci_upper': 0.6},
-                'ks_distance': 0.05,
-                'passes_validation': True
-            }
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            temp_path = f.name
+    def test_save_to_json(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_output.json")
+            results = {"test": "data", "value": 123}
             
-        try:
-            save_power_results(results, temp_path)
+            save_power_results(results, output_path)
             
-            assert os.path.exists(temp_path)
-            
-            with open(temp_path, 'r') as f:
+            assert os.path.exists(output_path)
+            with open(output_path, 'r') as f:
                 loaded = json.load(f)
-                
-            assert 't-test' in loaded
-            assert loaded['t-test']['ks_distance'] == 0.05
-        finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+            assert loaded == results

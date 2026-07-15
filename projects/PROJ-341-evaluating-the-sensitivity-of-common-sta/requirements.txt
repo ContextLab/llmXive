@@ -9,4 +9,3 @@ requests
 ucimlrepo
 openml
 pytest
-pyyaml
