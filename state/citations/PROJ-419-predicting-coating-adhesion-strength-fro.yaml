@@ -20,25 +20,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/coating-adhesion-prediction
   verified_at: '2026-07-05T18:34:28.516358Z'
-- artifact_hash: 24d52f50dd6901e09a9b5c5df9245de43f3c21bfc194fea2cba0db8d7b195650
-  artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/docs/data-model.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/rest`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest
-  verified_at: '2026-07-14T18:42:19.334249Z'
-- artifact_hash: 24d52f50dd6901e09a9b5c5df9245de43f3c21bfc194fea2cba0db8d7b195650
-  artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/docs/data-model.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://nist.gov/surface-metrology`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/surface-metrology
-  verified_at: '2026-07-14T18:42:19.334249Z'

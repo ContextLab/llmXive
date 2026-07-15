@@ -26,7 +26,7 @@ The plan below outlines the rigorous methodology to be executed **ONLY AFTER** v
 **Constraints**: 
 - No GPU/CUDA; all models must run in CPU mode.
 - Memory cap: 7 GB (enforced via sampling to ≤5,000 records per FR-006).
-- Runtime cap: A bounded duration (target 4h).
+- Runtime cap: A bounded duration (target a feasible time window).
 - No silent failures; all API errors (404, rate limits) must trigger explicit halts with logs.
 - **Data Availability**: Pipeline halts if verified dataset URLs are not provided.
 **Scale/Scope**: 

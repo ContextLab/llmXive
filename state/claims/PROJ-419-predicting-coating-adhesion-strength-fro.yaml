@@ -1,0 +1,98 @@
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: check sample size N >= 1000
+  claim_id: c_3d3bd3ef
+  context: "Phase 2: Foundational (Blocking Prerequisites & Safety Gates) - T010 [P]\
+    \ Implement code/utils.py power analysis function to check sample size N \u2265\
+    \ 1,000 (Plan Phase 1.6)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/utils.py power analysis function to check sample size\
+    \ N \u2265 1,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T22:33:01Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: enforce exclusion ratio < 10%
+  claim_id: c_adc3296c
+  context: 'Phase 2: Foundational (Blocking Prerequisites & Safety Gates) - T011 [P]
+    Implement code/utils.py function to calculate exclusion ratio (missing targets
+    / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils.py function to calculate exclusion ratio (missing
+    targets / total valid) and enforce <10% threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T22:33:01Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: enforce processing success rate >= 95%
+  claim_id: c_93ace9f7
+  context: "Phase 2: Foundational (Blocking Prerequisites & Safety Gates) - T012 [P]\
+    \ Implement code/utils.py function to calculate processing success rate and enforce\
+    \ \u226595% threshold (Plan Phase 1.5, SC-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/utils.py function to calculate processing success rate\
+    \ and enforce \u226595% threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T22:33:01Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: exclude proxy if |r| < 0.3 or R2 < 0.05
+  claim_id: c_eb694a1c
+  context: "Phase 2: Foundational (Blocking Prerequisites & Safety Gates) - T015 [P]\
+    \ Implement code/preprocessing.py function to perform Construct Validity Check\
+    \ on derived proxies: compare proxy correlation against target; exclude proxy\
+    \ if |r| < 0.3 or R\xB2 < 0.05 (Plan Phase 1.8, T040 moved here)"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.3 or R2 < 0.05
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/exclude_proxy_if_r_%3C_0.3_or_R2_%3C_0.05
+    source_value: https://en.wikipedia.org/wiki/exclude_proxy_if_r_<_0.3_or_R2_<_0.05
+    subject: exclude proxy if
+  kind: relational
+  raw_text: "exclude proxy if |r| < 0.3 or R\xB2 < 0.05"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T22:34:10Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: halt if success rate < 95% or exclusion ratio >= 10%
+  claim_id: c_d7e150a0
+  context: "Phase 3: User Story 1 - Dataset Curation and Alignment (Priority: P1)\
+    \ - T028 [US1] Validation Gate: Implement code/main.py logic to calculate processing\
+    \ success rate and exclusion ratio AFTER alignment (T023) and filtering (T022,\
+    \ T024, T027). HALT if success rate < 95% OR exclusion ratio \u2265 10% (Plan\
+    \ Phase 1.4/1.5, SC-001, SC-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "HALT if success rate < 95% OR exclusion ratio \u2265 10%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T22:34:10Z'

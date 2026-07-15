@@ -1,83 +1,120 @@
-# Quick Start Guide: Predicting Coating Adhesion Strength
+# Quickstart Guide: Predicting Coating Adhesion Strength
 
-This guide provides the essential steps to set up and run the coating adhesion prediction pipeline.
+This guide provides step-by-step instructions to set up, run, and validate the
+`llmXive` automated science pipeline for predicting coating adhesion strength from
+composition and surface features.
 
 ## Prerequisites
 
 - Python 3.11+
-- pip (package manager)
-- Access to the internet (for fetching real data from Materials Project and NIST repositories)
+- pip (Python package installer)
+- ~7GB RAM available (for data processing and model training)
+- Internet connection (to fetch data from verified sources)
 
-## Installation
+## 1. Setup Environment
 
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
+Clone the repository and create a virtual environment:
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
-3. Verify installation:
- ```bash
- python -c "import pandas, sklearn, shap; print('All dependencies installed successfully.')"
- ```
+Install dependencies:
 
-## Configuration
+```bash
+pip install -r requirements.txt
+```
 
-Before running the pipeline, ensure the following:
-- The `state/` directory exists (created automatically by `code/setup_directories.py` if missing).
-- Data source URLs are valid and accessible (verified by T009, T010).
-- If data sources are missing, the pipeline will halt with a `state/HALT_SIGNAL.yaml` file.
+**Required packages**:
+- pandas, scikit-learn, shap, requests, numpy, pyyaml, pytest, ruff, black, tomlkit, scipy
 
-## Running the Pipeline
+## 2. Project Structure
 
-Execute the main pipeline script:
+```
+PROJ-419/
+├── code/ # Core implementation modules
+├── data/
+│ ├── raw/ # Raw data fetched from APIs (auto-generated)
+│ └── processed/ # Cleaned, aligned datasets (auto-generated)
+├── docs/ # Documentation (this file, data-model.md)
+├── state/ # Pipeline state and halt signals
+├── tests/ # Unit and integration tests
+├── requirements.txt # Dependencies
+└── main.py # Orchestration entry point
+```
+
+## 3. Run the Pipeline
+
+Execute the full pipeline from data ingestion to final report:
 
 ```bash
 python code/main.py
 ```
 
-This script will:
-1. Check for halt signals.
-2. Fetch and ingest data from Materials Project and NIST repositories.
-3. Preprocess and align the data.
-4. Train predictive models (Gradient Boosting and Random Forest).
-5. Evaluate model performance and generate SHAP rankings.
-6. Output results to `data/processed/` and `results/`.
+The pipeline performs the following steps:
+1. **Data Gap Analysis**: Verifies access to Materials Project and NIST Surface Metrology APIs.
+2. **Data Ingestion**: Fetches raw data, filters by ASTM D4541, validates unique identifiers, and handles duplicates.
+3. **Preprocessing**: Encodes compositional data, standardizes surface metrics, and performs construct validity checks.
+4. **Modeling**: Trains Gradient Boosting and Random Forest models with nested cross-validation and SHAP analysis.
+5. **Evaluation**: Compares full models against composition-only and surface-only baselines using corrected t-tests.
+6. **Reporting**: Generates final JSON reports and saves processed datasets.
 
-## Output Files
+### Expected Outputs
 
-After successful execution, you will find:
+After successful completion, the following files will be generated:
+
 - `data/processed/coating_adhesion_dataset.csv`: Unified, cleaned dataset.
-- `results/model_performance.json`: Model metrics (R², RMSE, MAE).
-- `results/feature_importance.json`: SHAP-based feature rankings.
-- `results/statistical_comparison.json`: Baseline comparison results.
+- `state/validation_report.json`: Metrics on exclusion ratio, success rate, and construct validity.
+- `state/model_report.json`: Model performance (R², RMSE, MAE) and SHAP rankings.
+- `state/evaluation_report.json`: Statistical comparison results (p-values, Bonferroni correction).
+- `state/halt_signal.yaml`: Created only if safety gates fail (e.g., exclusion ratio ≥ 10%).
 
-## Troubleshooting
+## 4. Validation Gates
 
-### Data Access Issues
-If the pipeline halts with "Data Gap: Missing Verified Sources", check:
-- Internet connectivity.
-- API keys (if required for specific data sources).
-- Validity of URLs in `code/utils.py`.
+The pipeline enforces strict safety gates to ensure data quality and statistical rigor:
 
-### Memory Errors
-If you encounter memory errors:
-- Reduce `MAX_ROWS` in `code/__init__.py`.
-- Ensure your system has at least 7GB of available RAM (as per `RAM_LIMIT_GB`).
+- **Power Analysis**: Ensures sample size N ≥ 1,000.
+- **Exclusion Ratio**: Rejects run if missing targets ≥ 10%.
+- **Success Rate**: Rejects run if processing success rate < 95%.
+- **Construct Validity**: Excludes derived proxies with |r| < 0.3 or R² < 0.05.
+- **Halt Signal**: If data sources are unavailable, `state/HALT_SIGNAL.yaml` is written, and execution stops immediately.
 
-### Validation Failures
-If the pipeline halts due to validation failures:
-- Check `exclusion_ratio` (must be < 10%).
-- Check `processing_success_rate` (must be ≥ 95%).
-- Review logs for specific exclusion reasons.
+## 5. Running Tests
 
-## Next Steps
+Run unit and integration tests:
 
-- Explore `docs/data-model.md` for detailed schema information.
-- Review `specs/001-predicting-coating-adhesion/` for full feature specifications.
-- Run unit tests: `pytest tests/`
+```bash
+pytest tests/ -v
+```
+
+Tests cover:
+- ASTM D4541 filtering logic
+- Duplicate resolution strategies
+- Nested cross-validation (no data leakage)
+- SHAP value stability
+- Statistical test implementations (Nadeau & Bengio t-test, Bonferroni correction)
+
+## 6. Troubleshooting
+
+### "Data Gap: Missing Verified Sources"
+- Ensure internet connectivity.
+- Verify Materials Project and NIST API URLs are accessible.
+- Check `state/HALT_SIGNAL.yaml` for specific failure reasons.
+
+### "Exclusion Ratio Too High"
+- Review raw data sources for missing target variables.
+- Adjust filtering criteria if legitimate data is being excluded.
+
+### "Runtime > 4 Hours"
+- The pipeline is optimized for < 4h runtime (SC-004).
+- If exceeded, check `state/performance_report.json` for bottlenecks.
+- Consider increasing RAM or reducing sample size (if justified).
+
+## 7. Next Steps
+
+- **Data Curation**: Improve data alignment by contributing verified identifiers to open repositories.
+- **Model Extension**: Add more advanced models (e.g., XGBoost, Neural Networks) following the same pipeline structure.
+- **Deployment**: Integrate the pipeline into a CI/CD workflow for automated re-training.
+
+For detailed data schema and entity definitions, see `docs/data-model.md`.

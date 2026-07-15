@@ -5,9 +5,17 @@ import json
 import requests
 import yaml
 import psutil
-from typing import Optional, Dict, Any, List, Tuple
-import numpy as np
-import pandas as pd
+import traceback
+from typing import Optional, List, Dict, Any, Tuple
+from pathlib import Path
+
+# Constants
+MAX_ROWS = 5000
+RAM_LIMIT_GB = 7
+TIMEOUT_HOURS = 4
+SUCCESS_RATE_THRESHOLD = 0.95
+EXCLUSION_RATIO_THRESHOLD = 0.10
+MIN_SAMPLE_SIZE = 1000
 
 # Configure logging
 logging.basicConfig(
@@ -16,257 +24,211 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-SUCCESS_RATE_THRESHOLD = 0.95
-EXCLUSION_RATIO_THRESHOLD = 0.10
-MIN_SAMPLE_SIZE = 1000
-MAX_ROWS = 5000
-RAM_LIMIT_GB = 7
-TIMEOUT_HOURS = 4
-HALT_SIGNAL_PATH = "state/HALT_SIGNAL.yaml"
-
 def get_memory_usage_mb() -> float:
     """Get current memory usage in MB."""
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / 1024 / 1024
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
 def check_memory_limit(limit_gb: float = RAM_LIMIT_GB) -> bool:
-    """Check if current memory usage exceeds limit."""
+    """Check if current memory usage is within limit."""
     current_mb = get_memory_usage_mb()
     limit_mb = limit_gb * 1024
-    if current_mb > limit_mb:
-        logger.warning(f"Memory usage {current_mb:.2f} MB exceeds limit {limit_mb:.2f} MB")
-        return False
-    return True
+    return current_mb < limit_mb
 
-def log_memory_snapshot(step: str = "") -> None:
+def log_memory_snapshot(stage: str = "Unknown") -> None:
     """Log current memory usage snapshot."""
-    usage = get_memory_usage_mb()
-    logger.info(f"Memory Snapshot [{step}]: {usage:.2f} MB")
+    mem_mb = get_memory_usage_mb()
+    logger.info(f"Memory Snapshot [{stage}]: {mem_mb:.2f} MB")
 
 def exponential_backoff(
     func,
     max_retries: int = 5,
     base_delay: float = 1.0,
-    max_delay: float = 60.0
+    max_delay: float = 60.0,
+    exceptions: Tuple = (requests.exceptions.RequestException,)
 ):
-    """Execute function with exponential backoff retry logic."""
-    delay = base_delay
-    for attempt in range(max_retries):
-        try:
-            return func()
-        except requests.exceptions.RequestException as e:
-            if attempt == max_retries - 1:
-                logger.error(f"Failed after {max_retries} attempts: {e}")
-                raise
-            logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay:.2f}s...")
-            time.sleep(delay)
-            delay = min(delay * 2, max_delay)
-    return None
+    """Decorator for exponential backoff retry logic."""
+    def wrapper(*args, **kwargs):
+        delay = base_delay
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except exceptions as e:
+                if attempt == max_retries - 1:
+                    logger.error(f"Max retries reached. Last error: {e}")
+                    raise
+                logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay:.2f}s...")
+                time.sleep(delay)
+                delay = min(delay * 2, max_delay)
+    return wrapper
 
-def fetch_json_data(url: str, headers: Optional[Dict] = None, timeout: int = 30) -> Optional[Dict]:
-    """Fetch JSON data from URL with retry logic."""
-    def _do_fetch():
-        response = requests.get(url, headers=headers, timeout=timeout)
-        response.raise_for_status()
-        return response.json()
-    
-    return exponential_backoff(_do_fetch)
+@exponential_backoff
+def fetch_json_data(url: str, timeout: int = 30) -> Optional[Dict]:
+    """Fetch JSON data from a URL with retry logic."""
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    return response.json()
 
 def verify_url_accessibility(url: str, timeout: int = 10) -> bool:
-    """Check if URL is accessible."""
+    """Check if a URL is accessible."""
     try:
         response = requests.head(url, timeout=timeout)
         return response.status_code == 200
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        logger.error(f"URL accessibility check failed for {url}: {e}")
         return False
 
-def write_halt_signal(reason: str, details: Optional[Dict] = None) -> None:
-    """Write a halt signal file to stop pipeline execution."""
-    os.makedirs(os.path.dirname(HALT_SIGNAL_PATH), exist_ok=True)
+def write_halt_signal(reason: str, state_dir: str = "state") -> None:
+    """Write a halt signal file."""
+    os.makedirs(state_dir, exist_ok=True)
+    signal_file = os.path.join(state_dir, "HALT_SIGNAL.yaml")
     signal_data = {
-        "halt": True,
+        "halted": True,
         "reason": reason,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "details": details or {}
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
-    with open(HALT_SIGNAL_PATH, 'w') as f:
+    with open(signal_file, 'w') as f:
         yaml.dump(signal_data, f, default_flow_style=False)
-    logger.critical(f"Halt signal written: {reason}")
+    logger.critical(f"Halt signal written: {signal_file}")
 
-def check_halt_signal() -> Optional[Dict]:
-    """Check if a halt signal exists."""
-    if os.path.exists(HALT_SIGNAL_PATH):
-        with open(HALT_SIGNAL_PATH, 'r') as f:
-            return yaml.safe_load(f)
+def check_halt_signal(state_dir: str = "state") -> Optional[Dict]:
+    """Check for a halt signal file."""
+    signal_file = os.path.join(state_dir, "HALT_SIGNAL.yaml")
+    if os.path.exists(signal_file):
+        try:
+            with open(signal_file, 'r') as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            logger.error(f"Failed to read halt signal: {e}")
     return None
 
-def verify_materials_project_schema(data: Dict) -> bool:
-    """Verify Materials Project API response schema."""
-    required_keys = ['data', 'response']
-    if not all(k in data for k in required_keys):
+def verify_materials_project_schema(url: str, timeout: int = 30) -> bool:
+    """Verify Materials Project API URL and basic schema validity."""
+    if not verify_url_accessibility(url, timeout):
+        logger.error(f"Materials Project URL not accessible: {url}")
         return False
-    if not isinstance(data['data'], list):
+    try:
+        data = fetch_json_data(url, timeout)
+        # Basic schema check: expect 'data' or 'results' key
+        if not isinstance(data, dict) or not any(key in data for key in ['data', 'results', 'docs']):
+            logger.error(f"Invalid schema from Materials Project: {data}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Schema verification failed for Materials Project: {e}")
         return False
-    return True
 
-def verify_nist_surface_metrology_schema(data: Dict) -> bool:
-    """Verify NIST Surface Metrology Repository schema."""
-    required_keys = ['results', 'count']
-    if not all(k in data for k in required_keys):
+def verify_nist_surface_metrology_schema(url: str, timeout: int = 30) -> bool:
+    """Verify NIST Surface Metrology Repository URL and basic schema validity."""
+    if not verify_url_accessibility(url, timeout):
+        logger.error(f"NIST URL not accessible: {url}")
         return False
-    if not isinstance(data['results'], list):
+    try:
+        data = fetch_json_data(url, timeout)
+        # Basic schema check: expect list or dict with records
+        if not isinstance(data, (dict, list)) or (isinstance(data, dict) and len(data) == 0):
+            logger.error(f"Invalid schema from NIST: {data}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Schema verification failed for NIST: {e}")
         return False
-    return True
 
-def verify_materials_project_and_halt(url: str) -> bool:
-    """Verify Materials Project URL and schema, halt if invalid."""
-    logger.info(f"Verifying Materials Project URL: {url}")
-    if not verify_url_accessibility(url):
-        write_halt_signal("Data Gap: Materials Project URL inaccessible")
-        return False
-    
-    data = fetch_json_data(url)
-    if not data or not verify_materials_project_schema(data):
-        write_halt_signal("Data Gap: Materials Project schema invalid")
-        return False
-    
-    logger.info("Materials Project verification passed")
-    return True
+def verify_materials_project_and_halt(url: str, timeout: int = 30) -> None:
+    """Verify Materials Project URL and halt if invalid."""
+    if not verify_materials_project_schema(url, timeout):
+        write_halt_signal("Data Gap: Materials Project URL invalid or inaccessible")
+        raise SystemExit(1)
 
-def verify_nist_repository_and_halt(url: str) -> bool:
-    """Verify NIST Repository URL and schema, halt if invalid."""
-    logger.info(f"Verifying NIST Repository URL: {url}")
-    if not verify_url_accessibility(url):
-        write_halt_signal("Data Gap: NIST Repository URL inaccessible")
-        return False
-    
-    data = fetch_json_data(url)
-    if not data or not verify_nist_surface_metrology_schema(data):
-        write_halt_signal("Data Gap: NIST Repository schema invalid")
-        return False
-    
-    logger.info("NIST Repository verification passed")
-    return True
+def verify_nist_repository_and_halt(url: str, timeout: int = 30) -> None:
+    """Verify NIST URL and halt if invalid."""
+    if not verify_nist_surface_metrology_schema(url, timeout):
+        write_halt_signal("Data Gap: NIST Repository URL invalid or inaccessible")
+        raise SystemExit(1)
 
-def check_sample_size_power_analysis(total_records: int) -> bool:
+def check_sample_size_power_analysis(n: int, min_n: int = MIN_SAMPLE_SIZE) -> bool:
     """
-    Check if sample size meets power analysis requirement (N >= 1000).
-    
-    Args:
-        total_records: Total number of records in the dataset.
-        
-    Returns:
-        True if N >= 1000, False otherwise.
+    Check if sample size meets minimum requirement for statistical power.
+    Returns True if n >= min_n, False otherwise.
     """
-    if total_records < MIN_SAMPLE_SIZE:
-        logger.warning(f"Sample size {total_records} is below power analysis threshold {MIN_SAMPLE_SIZE}")
+    if n < min_n:
+        logger.warning(f"Sample size {n} is below minimum threshold {min_n}")
         return False
-    logger.info(f"Sample size check passed: {total_records} >= {MIN_SAMPLE_SIZE}")
+    logger.info(f"Sample size check passed: {n} >= {min_n}")
     return True
 
-def calculate_exclusion_ratio(df: pd.DataFrame, target_column: str = 'target') -> float:
+def calculate_exclusion_ratio(total_records: int, excluded_records: int) -> float:
     """
-    Calculate the exclusion ratio: missing targets / total valid records.
-    
-    Args:
-        df: DataFrame containing the data.
-        target_column: Name of the target column to check for missing values.
-        
-    Returns:
-        The exclusion ratio (float between 0 and 1).
+    Calculate the exclusion ratio (missing targets / total valid).
+    Returns the ratio as a float between 0 and 1.
     """
-    total_records = len(df)
     if total_records == 0:
         return 0.0
-    
-    missing_targets = df[target_column].isna().sum()
-    ratio = missing_targets / total_records
-    logger.info(f"Exclusion ratio calculated: {ratio:.4f} ({missing_targets}/{total_records})")
+    ratio = excluded_records / total_records
+    logger.info(f"Exclusion Ratio: {excluded_records}/{total_records} = {ratio:.4f}")
     return ratio
 
 def enforce_exclusion_ratio_threshold(ratio: float, threshold: float = EXCLUSION_RATIO_THRESHOLD) -> bool:
     """
-    Enforce the exclusion ratio threshold (< 10%).
-    
-    Args:
-        ratio: The calculated exclusion ratio.
-        threshold: Maximum allowed ratio (default 0.10).
-        
-    Returns:
-        True if ratio < threshold, False otherwise.
+    Enforce exclusion ratio threshold.
+    Returns True if ratio < threshold, False otherwise.
+    Raises SystemExit if threshold is exceeded.
     """
     if ratio >= threshold:
-        logger.error(f"Exclusion ratio {ratio:.4f} exceeds threshold {threshold}")
-        write_halt_signal(
-            "Data Quality Gate: Exclusion Ratio Too High",
-            {"ratio": ratio, "threshold": threshold}
-        )
-        return False
-    logger.info(f"Exclusion ratio check passed: {ratio:.4f} < {threshold}")
+        msg = f"Exclusion Ratio {ratio:.4f} exceeds threshold {threshold:.4f}. Halting."
+        logger.error(msg)
+        write_halt_signal(f"Data Quality: Exclusion ratio too high ({ratio:.4f} >= {threshold:.4f})")
+        raise SystemExit(1)
+    logger.info(f"Exclusion Ratio check passed: {ratio:.4f} < {threshold:.4f}")
     return True
 
-def calculate_processing_success_rate(df: pd.DataFrame, valid_columns: List[str]) -> float:
+def calculate_processing_success_rate(total_processed: int, successful_records: int) -> float:
     """
     Calculate the processing success rate.
-    
-    Success rate is defined as: (records with all valid columns populated) / (total records).
-    
-    Args:
-        df: DataFrame containing the processed data.
-        valid_columns: List of column names that must be non-null for a record to be considered successful.
-        
-    Returns:
-        The processing success rate (float between 0 and 1).
+    Returns the rate as a float between 0 and 1.
     """
-    total_records = len(df)
-    if total_records == 0:
+    if total_processed == 0:
         return 0.0
-    
-    # Filter to only the specified valid columns
-    subset_df = df[valid_columns]
-    
-    # Count rows where all specified columns are non-null
-    successful_records = subset_df.dropna(how='any').shape[0]
-    
-    success_rate = successful_records / total_records
-    logger.info(f"Processing success rate calculated: {success_rate:.4f} ({successful_records}/{total_records})")
-    return success_rate
+    rate = successful_records / total_processed
+    logger.info(f"Processing Success Rate: {successful_records}/{total_processed} = {rate:.4f}")
+    return rate
 
-def enforce_success_rate_threshold(success_rate: float, threshold: float = SUCCESS_RATE_THRESHOLD) -> bool:
+def enforce_success_rate_threshold(rate: float, threshold: float = SUCCESS_RATE_THRESHOLD) -> bool:
     """
-    Enforce the processing success rate threshold (>= 95%).
-    
-    Args:
-        success_rate: The calculated processing success rate.
-        threshold: Minimum required rate (default 0.95).
-        
-    Returns:
-        True if success_rate >= threshold, False otherwise.
+    Enforce processing success rate threshold (>= 95%).
+    Returns True if rate >= threshold, False otherwise.
+    Raises SystemExit if threshold is not met.
     """
-    if success_rate < threshold:
-        logger.error(f"Processing success rate {success_rate:.4f} is below threshold {threshold}")
-        write_halt_signal(
-            "Data Quality Gate: Processing Success Rate Too Low",
-            {"success_rate": success_rate, "threshold": threshold}
-        )
-        return False
-    logger.info(f"Processing success rate check passed: {success_rate:.4f} >= {threshold}")
+    if rate < threshold:
+        msg = f"Processing Success Rate {rate:.4f} is below threshold {threshold:.4f}. Halting."
+        logger.error(msg)
+        write_halt_signal(f"Data Quality: Processing success rate too low ({rate:.4f} < {threshold:.4f})")
+        raise SystemExit(1)
+    logger.info(f"Processing Success Rate check passed: {rate:.4f} >= {threshold:.4f}")
     return True
 
 def main():
-    """Main entry point for utils module (standalone testing)."""
-    logger.info("Running utils module standalone test...")
+    """Main entry point for utils module (demo/validation)."""
+    logger.info("Running utils module validation...")
     
     # Test memory functions
     mem = get_memory_usage_mb()
     logger.info(f"Current memory: {mem:.2f} MB")
     
-    # Test URL verification (example with a known public API)
-    # Note: In real usage, use actual project URLs
-    # verify_url_accessibility("https://api.materialsproject.org")
+    # Test success rate calculation
+    total = 1000
+    success = 950
+    rate = calculate_processing_success_rate(total, success)
+    enforce_success_rate_threshold(rate)
     
-    logger.info("Utils module test completed.")
+    # Test exclusion ratio
+    total_rec = 1000
+    excluded = 50
+    ratio = calculate_exclusion_ratio(total_rec, excluded)
+    enforce_exclusion_ratio_threshold(ratio)
+    
+    logger.info("Utils validation complete.")
 
 if __name__ == "__main__":
     main()
