@@ -1,0 +1,25 @@
+# Ruff configuration for llmXive project
+# Enforcing specific rules: E501, W292, F401
+
+# Line length matches Black configuration (88)
+line-length = 88
+
+# Target Python version
+target-version = "py39"
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+]
+
+# Explicitly ensure these rules are active:
+# E501: Line too long (Note: Black handles formatting, Ruff checks)
+# W292: No newline at end of file
+# F401: Imported but unused
+
+# Ignore rules only where appropriate (e.g., __init__.py often re-exports)
+per-file-ignores = { "__init__.py" = ["F401"] }
+ignore = []

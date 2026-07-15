@@ -1,0 +1,78 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Stimulus Schema
+description: >
+  Defines the structure of a single experimental stimulus unit used in the
+  perspective-taking study. Each stimulus consists of a post ID, the text content,
+  metadata about the source (topic, sentiment), and the two instruction variants
+  (Perspective-Taking and Control).
+type: object
+required:
+  - id
+  - text
+  - topic
+  - vader_sentiment_score
+  - intensity_label
+  - instructions
+properties:
+  id:
+    type: string
+    description: Unique identifier for the stimulus (e.g., post ID from source dataset).
+    pattern: "^[a-zA-Z0-9_-]+$"
+  text:
+    type: string
+    description: The full text content of the social media post.
+    minLength: 10
+  topic:
+    type: string
+    description: The controversial topic the post addresses.
+    enum:
+      - climate
+      - immigration
+  vader_sentiment_score:
+    type: number
+    description: >
+      Compound VADER sentiment score (-1.0 to 1.0) calculated at ingestion.
+      Used for stratification.
+    minimum: -1.0
+    maximum: 1.0
+  intensity_label:
+    type: string
+    description: >
+      Stratification label based on sentiment intensity.
+      'moderate' if score is in the middle range, 'high' if extreme.
+    enum:
+      - moderate
+      - high
+  instructions:
+    type: object
+    description: >
+      Object containing the two distinct instruction sets assigned to this stimulus.
+      One for the experimental condition and one for the control.
+    required:
+      - perspective_taking
+      - control_summarization
+    properties:
+      perspective_taking:
+        type: string
+        description: >
+          Instruction prompt for the Perspective-Taking condition.
+          Instructs the participant to imagine the feelings of the author.
+        minLength: 10
+      control_summarization:
+        type: string
+        type: string
+        description: >
+          Instruction prompt for the Control Summarization condition.
+          Instructs the participant to objectively summarize the text.
+        minLength: 10
+  metadata:
+    type: object
+    description: Optional additional metadata (e.g., source URL, timestamp).
+    properties:
+      source_url:
+        type: string
+        format: uri
+      original_timestamp:
+        type: string
+        format: date-time
+additionalProperties: false

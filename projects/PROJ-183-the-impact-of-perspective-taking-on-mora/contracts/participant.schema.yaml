@@ -1,0 +1,73 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Participant Response Schema
+description: >
+  Defines the structure of a participant's response record in the study.
+  Includes consent status, attention check results, raw scale items,
+  and calculated aggregate scores.
+type: object
+required:
+  - participant_id
+  - consent_given
+  - condition
+  - attention_check_passed
+  - moral_outrage_items
+  - mean_outrage_score
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  consent_given:
+    type: boolean
+    description: Flag indicating if the participant consented to the study.
+  condition:
+    type: string
+    description: The experimental condition assigned to this participant.
+    enum:
+      - perspective_taking
+      - control_summarization
+  stimulus_id:
+    type: string
+    description: The ID of the stimulus this participant responded to.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  attention_check_passed:
+    type: boolean
+    description: >
+      True if the participant passed attention checks (failed <= 1 item).
+      False if they failed > 1 item.
+  moral_outrage_items:
+    type: array
+    description: >
+      Raw responses to the 7-item Moral Outrage Scale.
+      Items are rated on a 1-7 Likert scale.
+    items:
+      type: integer
+      minimum: 1
+      maximum: 7
+    minItems: 7
+    maxItems: 7
+  mean_outrage_score:
+    type: number
+    description: >
+      The arithmetic mean of the 7 moral outrage items.
+      Calculated after data cleaning.
+    minimum: 1.0
+    maximum: 7.0
+  variance_outrage:
+    type: number
+    description: >
+      Variance of the 7 moral outrage items.
+      Used to detect straight-lining (zero variance).
+    minimum: 0.0
+  flags:
+    type: object
+    description: Flags for data quality issues.
+    properties:
+      straight_lining_detected:
+        type: boolean
+        description: True if variance across moral outrage items is zero.
+      attention_failed_count:
+        type: integer
+        description: Number of attention check items failed.
+        minimum: 0
+additionalProperties: false

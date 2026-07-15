@@ -1,0 +1,11 @@
+pandas
+scipy
+statsmodels
+numpy
+requests
+pyyaml
+jsonschema
+vaderSentiment
+pytest
+black
+ruff

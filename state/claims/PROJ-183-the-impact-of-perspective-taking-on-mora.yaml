@@ -1,0 +1,1024 @@
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: random sample pool size at least 60 posts
+  claim_id: c_7050c9d1
+  context: "The system can be tested by executing the data pipeline script and verifying\
+    \ that the output JSON contains a set of unique posts distributed across the specified\
+    \ topics, each paired with two distinct instruction sets. The test must confirm\
+    \ that the selection was a random sample from a pool of \u226560 posts and that\
+    \ the distribution of automated sentiment scores is balanced across the two instruction\
+    \ conditions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_sample_pool_size_at_least_60_posts
+  kind: magnitude
+  raw_text: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: power analysis with effect size 0.5 and power 0.8 confirms sample size
+    240
+  claim_id: c_896f0d0c
+  context: 'T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8.
+    Write a comment in `code/config.py` at the top of the file: `# Power analysis
+    (d=0.5, power=0.8) confirms N=240 is sufficient.` Verify the comment exists via
+    `grep` or similar. (FR-009b)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T009b Verify fixed N=240: Run T009a function with d=0.5, power=0.8.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:12Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: exclude participants with zero variance across 7 moral outrage scale
+    items
+  claim_id: c_4d0dd8b9
+  context: 'T025 [US2] Implement straight-lining detection in `code/data/cleaning.py`:
+    Calculate variance of the 7 items of the Moral Outrage Scale for each participant.
+    Exclude any participant exhibiting zero variance across these scale items. (FR-003,
+    Edge Case 2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude any participant exhibiting zero variance across these scale items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:12Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: execute linear mixed-effects model if intra-class correlation is at least
+    0.05
+  claim_id: c_b541c037
+  context: T033 [US3] Implement logic to perform an independent-samples t-test (FR-005)
+    as the primary analysis regardless of ICC. If ICC >= 0.05, ALSO execute a Linear
+    Mixed-Effects (LME) model with random intercepts for participants as a robustness
+    check. (Plan Summary, FR-005, FR-011)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_linear_mixed-effects_model_if_intra-class_correlatio
+  kind: magnitude
+  raw_text: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model with random
+    intercepts for participants as a robustness check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:54Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: resource monitoring target 7 gigabytes RAM and 6 hours runtime
+  claim_id: c_69477976
+  context: "T041 [P] [US4] Implement resource monitoring in `code/main.py`: Add logging\
+    \ for peak RAM usage (target \u22647 GB) and total runtime (target \u22646 hours).\
+    \ Log warnings if thresholds are approached but do NOT raise errors to avoid aborting\
+    \ the pipeline. (SC-005, FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target \u22647 GB RAM and total runtime target \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:54Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: random sample from pool of at least 60 posts
+  claim_id: c_3897002d
+  context: "Independent Test: The system can be tested by executing the data pipeline\
+    \ script and verifying that the output JSON contains a set of unique posts distributed\
+    \ across the specified topics, each paired with two distinct instruction sets.\
+    \ The test must confirm that the selection was a random sample from a pool of\
+    \ \u226560 posts and that the distribution of automated sentiment scores is balanced\
+    \ across the two instruction conditions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_sample_from_pool_of_at_least_60_posts
+  kind: magnitude
+  raw_text: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:24:29Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: power analysis d=0.5 power=0.8 confirms N=240 sufficient
+  claim_id: c_9ec289f4
+  context: 'T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8.
+    Write a comment in code/config.py at the top of the file: # Power analysis (d=0.5,
+    power=0.8) confirms N=240 is sufficient. Verify the comment exists via grep or
+    similar. (FR-009b)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:24:56Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: variance of 7 items Moral Outrage Scale
+  claim_id: c_0e3d718a
+  context: 'T025 [US2] Implement straight-lining detection in code/data/cleaning.py:
+    Calculate variance of the 7 items of the Moral Outrage Scale for each participant.
+    Exclude any participant exhibiting zero variance across these scale items. (FR-003,
+    Edge Case 2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate variance of the 7 items of the Moral Outrage Scale for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:25:27Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: mean outrage score 7-item Moral Outrage Scale
+  claim_id: c_2f94522d
+  context: T026 [US2] Implement mean outrage score calculation in code/data/cleaning.py
+    using the 7-item Moral Outrage Scale (FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean outrage score calculation in code/data/cleaning.py using
+    the 7-item Moral Outrage Scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:25:48Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: execute LME model if ICC greater than or equal to 0.05
+  claim_id: c_da46fe54
+  context: T033 [US3] Implement logic to perform an independent-samples t-test (FR-005)
+    as the primary analysis regardless of ICC. If ICC >= 0.05, ALSO execute a Linear
+    Mixed-Effects (LME) model with random intercepts for participants as a robustness
+    check. (Plan Summary, FR-005, FR-011)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_LME_model_if_ICC_greater_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model with random
+    intercepts for participants as a robustness check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:25:50Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: logging target peak RAM 7 GB runtime 6 hours
+  claim_id: c_159fffd6
+  context: "T041 [P] [US4] Implement resource monitoring in code/main.py: Add logging\
+    \ for peak RAM usage (target \u22647 GB) and total runtime (target \u22646 hours).\
+    \ Log warnings if thresholds are approached but do NOT raise errors to avoid aborting\
+    \ the pipeline. (SC-005, FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add logging for peak RAM usage (target \u22647 GB) and total runtime\
+    \ (target \u22646 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:25:50Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: power analysis with effect size 0.5 and power 0.8 confirms sample size
+    240 is sufficient
+  claim_id: c_f164aa7a
+  context: 'T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8.
+    Write a comment in code/config.py at the top of the file: # Power analysis (d=0.5,
+    power=0.8) confirms N=240 is sufficient.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T009b: Run T009a function with d=0.5, power=0.8. Write a comment in code/config.py...
+    # Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:27:40Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: exclude participants with zero variance across 7 items of moral outrage
+    scale
+  claim_id: c_061f8f60
+  context: 'T025 [US2] Implement straight-lining detection in code/data/cleaning.py:
+    Calculate variance of the 7 items of the Moral Outrage Scale for each participant.
+    Exclude any participant exhibiting zero variance across these scale items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude any participant exhibiting zero variance across these 7 items
+    of the Moral Outrage Scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:27:56Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: independent-samples t-test performed as primary analysis regardless of
+    ICC
+  claim_id: c_e98c1aa6
+  context: T033 [US3] Implement logic to perform an independent-samples t-test (FR-005)
+    as the primary analysis regardless of ICC.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independent-samples_t-test_performed_as_primary_analysis_reg
+  kind: entity_fact
+  raw_text: Implement logic to perform an independent-samples t-test as the primary
+    analysis regardless of ICC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:28:33Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: execute linear mixed-effects model with random intercepts if ICC is at
+    least 0.05
+  claim_id: c_b6cabf80
+  context: T033 [US3] ... If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME)
+    model with random intercepts for participants as a robustness check.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_linear_mixed-effects_model_with_random_intercepts_if
+  kind: magnitude
+  raw_text: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model with random
+    intercepts for participants as a robustness check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:28:34Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: random sample from pool of 60 posts
+  claim_id: c_2bf27075
+  context: "Independent Test: The system can be tested by executing the data pipeline\
+    \ script and verifying that the output JSON contains a set of unique posts distributed\
+    \ across the specified topics, each paired with two distinct instruction sets.\
+    \ The test must confirm that the selection was a random sample from a pool of\
+    \ \u226560 posts and that the distribution of automated sentiment scores is balanced\
+    \ across the two instruction conditions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must verify that the selection was a random sample from a\
+    \ pool of \u226560 posts."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: power analysis d=0.5 power=0.8 confirms N=240
+  claim_id: c_17846d84
+  context: 'T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8.
+    Write a comment in `code/config.py` at the top of the file: `# Power analysis
+    (d=0.5, power=0.8) confirms N=240 is sufficient. ` Verify the comment exists via
+    `grep` or similar. (FR-009b)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: exclude participant zero variance 7 items Moral Outrage Scale
+  claim_id: c_7fe9e845
+  context: 'T025 [US2] Implement straight-lining detection in `code/data/cleaning.py`:
+    Calculate variance of the 7 items of the Moral Outrage Scale for each participant.
+    Exclude any participant exhibiting zero variance across these scale items. (FR-003,
+    Edge Case 2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude any participant exhibiting zero variance across these 7 items
+    of the Moral Outrage Scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: mean outrage score 7-item Moral Outrage Scale
+  claim_id: c_cc7e2cf1
+  context: T026 [US2] Implement mean outrage score calculation in `code/data/cleaning.py`
+    using the 7-item Moral Outrage Scale (FR-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean outrage score calculation using the 7-item Moral Outrage
+    Scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:16Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: execute LME model if ICC >= 0.05
+  claim_id: c_4da42510
+  context: T033 [US3] Implement logic to perform an independent-samples t-test (FR-005)
+    as the primary analysis regardless of ICC. If ICC >= 0.05, ALSO execute a Linear
+    Mixed-Effects (LME) model with random intercepts for participants as a robustness
+    check. (Plan Summary, FR-005, FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a Linear Mixed-Effects (LME) model if ICC >= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:51Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: report 95% confidence interval t-test
+  claim_id: c_5ca7c7f4
+  context: T034 [US3] Implement independent-samples t-test in `code/analysis/stats.py`
+    reporting p, Cohen's d, and 95% CI (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report 95% confidence interval in the t-test output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:51Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: analysis operations within 7 GB RAM 6 hours
+  claim_id: c_03c66f1b
+  context: "Phase 6: User Story 4 - Computational Feasibility and Resource Constraints\
+    \ (Priority: P2) Goal: Ensure all analysis operations complete within free-tier\
+    \ CI constraints (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:51Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: analysis operations within 6 hours
+  claim_id: c_26fda602
+  context: "Phase 6: User Story 4 - Computational Feasibility and Resource Constraints\
+    \ (Priority: P2) Goal: Ensure all analysis operations complete within free-tier\
+    \ CI constraints (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:32:51Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: log warnings peak RAM usage 7 GB
+  claim_id: c_ed6a15c7
+  context: "T041 [P] [US4] Implement resource monitoring in `code/main.py`: Add logging\
+    \ for peak RAM usage (target \u22647 GB) and total runtime (target \u22646 hours).\
+    \ Log warnings if thresholds are approached but do NOT raise errors to avoid aborting\
+    \ the pipeline. (SC-005, FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log warnings if peak RAM usage approaches 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:33:20Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: log warnings total runtime 6 hours
+  claim_id: c_5da6a26d
+  context: "T041 [P] [US4] Implement resource monitoring in `code/main.py`: Add logging\
+    \ for peak RAM usage (target \u22647 GB) and total runtime (target \u22646 hours).\
+    \ Log warnings if thresholds are approached but do NOT raise errors to avoid aborting\
+    \ the pipeline. (SC-005, FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log warnings if total runtime approaches 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:33:44Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: random sample from pool of 60 posts
+  claim_id: c_a3271253
+  context: 'Independent Test: The system can be tested by executing the data pipeline
+    script and verifying that the output JSON contains a set of unique posts distributed
+    across the specified topics, each paired with two distinct instruction sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:27Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Moral Outrage Scale has 7 items
+  claim_id: c_9330f7d0
+  context: 'Implement straight-lining detection in code/data/cleaning.py: Calculate
+    variance of the 7 items of the Moral Outrage Scale for each participant. Exclude
+    any participant exhibiting zero variance across these scale items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate variance of the 7 items of the Moral Outrage Scale for each
+    participant
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:27Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: power analysis d=0.5 power=0.8 confirms N=240
+  claim_id: c_d08ff2c0
+  context: 'Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a
+    comment in code/config.py at the top of the file: # Power analysis (d=0.5, power=0.8)
+    confirms N=240 is sufficient.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:27Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: target peak RAM 7 GB runtime 6 hours
+  claim_id: c_6b866c36
+  context: "Implement resource monitoring in code/main.py: Add logging for peak RAM\
+    \ usage (target \u22647 GB) and total runtime (target \u22646 hours). Log warnings\
+    \ if thresholds are approached but do NOT raise errors to avoid aborting the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add logging for peak RAM usage (target \u22647 GB) and total runtime\
+    \ (target \u22646 hours)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:27Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: exclude participants failing more than 1 attention check
+  claim_id: c_e801c857
+  context: Implement attention check filter in code/data/cleaning.py to exclude participants
+    failing >1 item
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_failing_more_than_1_attention_check
+  kind: magnitude
+  raw_text: Exclude participants failing >1 attention check item
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:36:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: variance calculated on 7 items of Moral Outrage Scale
+  claim_id: c_173361dd
+  context: 'Implement straight-lining detection in code/data/cleaning.py: Calculate
+    variance of the 7 items of the Moral Outrage Scale for each participant. Exclude
+    any participant exhibiting zero variance across these scale items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate variance of the 7 items of the Moral Outrage Scale for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:38:05Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: LME robustness check if ICC is at least 0.05
+  claim_id: c_865175d0
+  context: Execute t-test (FR-005) as primary result, perform LME as robustness check
+    if ICC >= 0.05, report effect sizes, and perform robustness checks.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LME_robustness_check_if_ICC_is_at_least_0.05
+  kind: magnitude
+  raw_text: Perform LME as robustness check if ICC >= 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:38:25Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 2
+  canonical: analysis operations complete within 7 GB RAM and 6 hours
+  claim_id: c_0498ac5b
+  context: "Goal: Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours). (Note: Monitoring implemented in\
+    \ Phase 1 T041/T042)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:38:25Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: logging target peak RAM usage of 7 GB and runtime of 6 hours
+  claim_id: c_fd6e96d1
+  context: "Implement resource monitoring in code/main.py: Add logging for peak RAM\
+    \ usage (target \u22647 GB) and total runtime (target \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add logging for peak RAM usage (target \u22647 GB) and total runtime\
+    \ (target \u22646 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:38:25Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Power analysis with effect size 0.5 and power 0.8 confirms sample size
+    of 240
+  claim_id: c_9b5ec3bd
+  context: 'Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a
+    comment in code/config.py at the top of the file: # Power analysis (d=0.5, power=0.8)
+    confirms N=240 is sufficient.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:41:53Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Random sample selected from pool of at least 60 posts
+  claim_id: c_3fd89bb1
+  context: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts and that the distribution of automated sentiment scores is\
+    \ balanced across the two instruction conditions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_sample_selected_from_pool_of_at_least_60_posts
+  kind: magnitude
+  raw_text: "The selection was a random sample from a pool of \u226560 posts"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:43Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Exclude participants failing more than 1 attention check item
+  claim_id: c_e5a9d5e1
+  context: Implement attention check filter in code/data/cleaning.py to exclude participants
+    failing >1 item (FR-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_failing_more_than_1_attention_check_ite
+  kind: magnitude
+  raw_text: Exclude participants failing >1 item on attention checks
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:47Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Calculate variance of 7 items of Moral Outrage Scale
+  claim_id: c_5bb7e530
+  context: 'Implement straight-lining detection in code/data/cleaning.py: Calculate
+    variance of the 7 items of the Moral Outrage Scale for each participant. Exclude
+    any participant exhibiting zero variance across these scale items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate variance of the 7 items of the Moral Outrage Scale for each
+    participant
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:47Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Logging mechanism targets peak RAM usage of 7 GB
+  claim_id: c_f3befe79
+  context: "Add logging for peak RAM usage (target \u22647 GB) and total runtime (target\
+    \ \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the logging mechanism logs peak RAM usage (target \u22647 GB)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:47Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Logging mechanism targets total runtime of 6 hours
+  claim_id: c_222b90c0
+  context: "Add logging for peak RAM usage (target \u22647 GB) and total runtime (target\
+    \ \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the logging mechanism logs total runtime (target \u22646 hours)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:47Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 3
+  canonical: random sample from pool of at least 60 posts
+  claim_id: c_02a8d335
+  context: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts and that the distribution of automated sentiment scores is\
+    \ balanced across the two instruction conditions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_sample_from_pool_of_at_least_60_posts
+  kind: magnitude
+  raw_text: "The test must confirm that the selection was a random sample from a pool\
+    \ of \u226560 posts."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 2
+  canonical: power analysis with d=0.5 and power=0.8 confirms N=240
+  claim_id: c_411fb51a
+  context: 'Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a
+    comment in code/config.py at the top of the file: # Power analysis (d=0.5, power=0.8)
+    confirms N=240 is sufficient.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify fixed N=240: Run T009a function with d=0.5, power=0.8.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:01Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: exclude participants with zero variance across 7 moral outrage scale
+    items
+  claim_id: c_767d125b
+  context: Exclude any participant exhibiting zero variance across these scale items.
+    (FR-003, Edge Case 2)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must exclude any participant exhibiting zero variance across
+    these 7 scale items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:22Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: calculate variance of 7 items of Moral Outrage Scale
+  claim_id: c_a3653537
+  context: 'Implement straight-lining detection in code/data/cleaning.py: Calculate
+    variance of the 7 items of the Moral Outrage Scale for each participant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must calculate variance of the 7 items of the Moral Outrage
+    Scale for each participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:44Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: report t-statistic p-value Cohen's d and 95% confidence interval
+  claim_id: c_93f66594
+  context: The system can be tested by running the analysis script on the cleaned
+    dataset and verifying that the output report contains the t-statistic (or LME
+    coefficients), p-value, Cohen's d, 95% confidence interval, and the Mann-Whitney
+    U p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must report the t-statistic, p-value, Cohen's d, and 95%
+    confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:44Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: execute LME model if ICC is at least 0.05
+  claim_id: c_5b4d0667
+  context: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model with random
+    intercepts for participants as a robustness check. (Plan Summary, FR-005, FR-011)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_LME_model_if_ICC_is_at_least_0.05
+  kind: magnitude
+  raw_text: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:26Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: complete within 7 GB RAM constraint
+  claim_id: c_6dd04716
+  context: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The process must complete within free-tier CI constraints of \u22647\
+    \ GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:26Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: complete within 6 hours constraint
+  claim_id: c_a31abfa0
+  context: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The process must complete within free-tier CI constraints of \u22646\
+    \ hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:26Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Power analysis d=0.5 power=0.8 confirms sample size N=240
+  claim_id: c_f29cb9d3
+  context: 'Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a
+    comment in code/config.py at the top of the file: # Power analysis (d=0.5, power=0.8)
+    confirms N=240 is sufficient.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:56:28Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Dataset insufficient error raised if posts less than 60
+  claim_id: c_379cd8fe
+  context: Add error handling in code/data/ingest.py to raise DATASET_INSUFFICIENT
+    error (code 400) if <60 posts found after filtering (FR-008, Edge Case 1)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_insufficient_error_raised_if_posts_less_than_60
+  kind: magnitude
+  raw_text: The system must raise a DATASET_INSUFFICIENT error (code 400) if less
+    than 60 posts are found after filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:57:11Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: RAM threshold set to 7 GB
+  claim_id: c_2caa4f9a
+  context: "Implement resource monitoring in code/main.py: Add logging for peak RAM\
+    \ usage (target \u22647 GB) and total runtime (target \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must log warnings if peak RAM usage approaches 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:57:25Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Runtime threshold set to 6 hours
+  claim_id: c_254072a1
+  context: "Implement resource monitoring in code/main.py: Add logging for peak RAM\
+    \ usage (target \u22647 GB) and total runtime (target \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must log warnings if total runtime approaches 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:57:43Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Participants excluded if failing more than 1 attention check
+  claim_id: c_08cac694
+  context: Implement attention check filter in code/data/cleaning.py to exclude participants
+    failing >1 item (FR-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_failing_more_than_1_attention_check
+  kind: magnitude
+  raw_text: Participants failing more than 1 attention check item must be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:58:11Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Participants excluded if zero variance across 7 Moral Outrage Scale items
+  claim_id: c_72726b32
+  context: 'Implement straight-lining detection in code/data/cleaning.py: Calculate
+    variance of the 7 items of the Moral Outrage Scale for each participant. Exclude
+    any participant exhibiting zero variance across these scale items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants exhibiting zero variance across the 7 items of the Moral
+    Outrage Scale must be excluded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:58:21Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: LME model executed if ICC greater than or equal to 0.05
+  claim_id: c_6ca5da25
+  context: If ICC >= 0.05, ALSO execute a Linear Mixed-Effects (LME) model with random
+    intercepts for participants as a robustness check.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LME_model_executed_if_ICC_greater_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: A Linear Mixed-Effects (LME) model must be executed as a robustness check
+    if the Intra-Class Correlation (ICC) is greater than or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:59:00Z'
+- artifact_path: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora/tasks.md
+  attempts: 1
+  canonical: Analysis operations must complete within 6 hours
+  claim_id: c_b835b91b
+  context: "Ensure all analysis operations complete within free-tier CI constraints\
+    \ (CPU-only, \u22647 GB RAM, \u22646 hours)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must ensure all analysis operations complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:59:13Z'

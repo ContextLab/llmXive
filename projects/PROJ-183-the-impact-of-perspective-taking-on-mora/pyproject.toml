@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-perspective-taking"
+version = "0.1.0"
+description = "Impact of Perspective-Taking on Moral Outrage in Online Discourse"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "numpy",
+    "requests",
+    "pyyaml",
+    "jsonschema",
+    "vaderSentiment",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "ruff",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+]
+ignore = []
+
+# Explicitly enable rules mentioned in T004a
+# E501: line too long (handled by black, but rule enabled for linter awareness)
+# W292: no newline at end of file
+# F401: imported but unused
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

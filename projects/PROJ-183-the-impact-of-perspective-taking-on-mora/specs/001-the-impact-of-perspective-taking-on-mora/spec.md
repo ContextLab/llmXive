@@ -73,7 +73,7 @@ The system must ensure all analysis operations complete within the constraints o
 
 ### Edge Cases
 
-- What happens if the raw Twitter dataset contains fewer than 60 unique posts on the target topics after filtering for sentiment stratification? If the available pool for any topic is < 60 posts, the system MUST raise a `DATASET_INSUFFICIENT` error (code 400) and halt execution before stimulus generation. This ensures a random sample of 60 can be drawn without selection bias.
+- What happens if the raw Twitter dataset contains fewer than 60 unique posts on the target topics after filtering for sentiment stratification? If the available pool for any topic is < 60 posts, the system MUST raise a `DATASET_INSUFFICIENT` error (code 400) and halt execution before stimulus generation. This ensures a random sample of sufficient size can be drawn without selection bias.
 - How does the system handle participants who provide identical responses to all items on the Moral Outrage Scale (indicating straight-lining)? The system MUST exclude participants exhibiting zero variance (straight-lining), irrespective of their performance on attention checks, as defined in FR-003.
 - How does the system handle the scenario where the t-test assumptions (normality, homogeneity of variance) are severely violated? The system MUST rely on the Mann-Whitney U test results as the primary interpretation for that specific run, as defined in the robustness protocol.
 - What if the automated sentiment scores used for stratification are unavailable for a specific post? The system MUST compute the score using VADER (or equivalent standard library) and exclude the post only if computation fails, to maintain the integrity of the stratification logic.
