@@ -1,0 +1,92 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Configuration Schema
+description: Schema for validating dataset configuration files in microbial community succession studies
+type: object
+required:
+  - version
+  - description
+  - datasets
+properties:
+  version:
+    type: string
+    pattern: '^\\d+\\.\\d+\\.\\d+$'
+    description: Semantic version of the configuration file
+  description:
+    type: string
+    minLength: 1
+    description: Human-readable description of the configuration
+  datasets:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - source
+        - description
+        - metadata
+      properties:
+        id:
+          type: string
+          minLength: 1
+          description: Unique identifier for the dataset (e.g., SRA accession or Zenodo ID)
+        source:
+          type: string
+          enum:
+            - ncbi_sra
+            - zenodo
+            - figshare
+            - dryad
+          description: Source repository for the dataset
+        description:
+          type: string
+          minLength: 1
+          description: Brief description of the dataset
+        metadata:
+          type: object
+          required:
+            - wetland_type
+            - nutrient_removal
+            - target_nutrients
+            - sampling_stages
+            - location
+            - study_period
+          properties:
+            wetland_type:
+              type: string
+              enum:
+                - constructed
+                - natural
+                - semi-natural
+              description: Type of wetland system
+            nutrient_removal:
+              type: boolean
+              description: Whether the dataset includes nutrient removal metrics
+            target_nutrients:
+              type: array
+              minItems: 1
+              items:
+                type: string
+                enum:
+                  - nitrogen
+                  - phosphorus
+                  - potassium
+                  - carbon
+                  - sulfur
+              description: List of target nutrients being studied
+            sampling_stages:
+              type: array
+              minItems: 1
+              items:
+                type: string
+              description: List of sampling stages (e.g., early, mid, mature)
+            location:
+              type: string
+              minLength: 1
+              description: Geographic location of the study
+            study_period:
+              type: string
+              pattern: '^\\d+_months?$'
+              description: Duration of the study in months (e.g., "12_months", "24_months")
+      additionalProperties: false
+additionalProperties: false

@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "description": "Dataset configuration for microbial community succession study in constructed wetlands",
+  "datasets": [
+    {
+      "id": "PRJNA555687",
+      "source": "ncbi_sra",
+      "description": "Constructed wetland microbiome time-series dataset",
+      "metadata": {
+        "wetland_type": "constructed",
+        "nutrient_removal": true,
+        "target_nutrients": ["nitrogen", "phosphorus"],
+        "sampling_stages": ["early", "mid", "mature"],
+        "location": "North America",
+        "study_period": "24_months"
+      }
+    },
+    {
+      "id": "10.5281/zenodo.1234567",
+      "source": "zenodo",
+      "description": "Supplementary 16S rRNA feature tables from wetland study",
+      "metadata": {
+        "wetland_type": "constructed",
+        "nutrient_removal": true,
+        "target_nutrients": ["nitrogen"],
+        "sampling_stages": ["early", "mature"],
+        "location": "Europe",
+        "study_period": "18_months"
+      }
+    }
+  ]
+}

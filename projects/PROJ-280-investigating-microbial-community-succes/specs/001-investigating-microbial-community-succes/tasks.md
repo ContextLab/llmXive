@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create project directory structure per implementation plan (`projects/PROJ-280-investigating-microbial-community-succes/`) including specific subdirectories: `data/raw`, `data/processed`, `data/config`, `code`, `tests/unit`, `tests/contract`, `tests/integration`, `state/projects`, and `contracts`.
 - [ ] T001b [P] Create `MANIFEST.txt` in `projects/PROJ-280-investigating-microbial-community-succes/` listing all expected files and directories created by T001a to verify structure completeness.
-- [ ] T002 [P] Initialize Python 3.11 project with pinned dependencies in `projects/PROJ-280-investigating-microbial-community-succes/code/requirements.txt`. Explicitly include: `pandas==2.0.0`, `numpy==1.24.0`, `scipy==1.10.0`, `scikit-bio==0.5.8`, `networkx==3.1`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `seaborn==0.12.0`, `matplotlib==3.8.0`, `pyyaml==6.0`. Use `pip freeze > requirements.txt` after installation.
+- [X] T002 [P] Initialize Python 3.11 project with pinned dependencies. Create `projects/PROJ-280-investigating-microbial-community-succes/code/requirements.txt` by using `pip-tools` (specifically `pip-compile` with a constraints file) to resolve compatible versions for `pandas`, `numpy`, `scipy`, `scikit-bio`, `networkx`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, and `pyyaml`. Alternatively, manually specify known compatible versions (e.g., `scikit-bio==0.5.8`, `pandas==2.0.3`) ensuring the file contains exact version pins (e.g., `package==version`). Do not use `pip freeze` on an existing environment; the file must be generated from scratch using `pip-compile` or manual entry of verified compatible versions.
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-280-investigating-microbial-community-succes/`.
 
 ---
@@ -58,9 +58,9 @@
 
 - [ ] T004 [P] Create `data/config/dataset_ids.json` schema validator and sample config file per `contracts/dataset-config.schema.yaml`.
 - [ ] T005 [P] Implement `code/utils.py` with shared helpers: VIF calculation, Benjamini-Hochberg FDR correction, checksum generation, and power analysis stub.
-- [ ] T006 [P] Setup logging infrastructure in `code/utils.py` to handle "CRITICAL DATA GAP", "UNDERPOWERED", and "UNDER-DETERMINED" flags.
-- [ ] T007 [P] Create base data models for `Sample` and `Taxon` in `code/data_models.py` (matching `contracts/feature-table.schema.yaml`).
-- [ ] T008 [P] Implement state tracking mechanism in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml` to track artifact hashes.
+- [~] T006 [P] Setup logging infrastructure in `code/utils.py` to handle "CRITICAL DATA GAP", "UNDERPOWERED", and "UNDER-DETERMINED" flags.
+- [~] T007 [P] Create base data models for `Sample` and `Taxon` in `code/data_models.py` (matching `contracts/feature-table.schema.yaml`). <!-- FAILED: unspecified -->
+- [~] T008 [P] Implement state tracking mechanism in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml` to track artifact hashes.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,16 +76,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_config.py`.
-- [ ] T010 [P] [US1] Integration test for data retrieval and filtering logic in `tests/integration/test_data_retrieval.py`.
+- [~] T009 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_config.py`.
+- [~] T010 [P] [US1] Integration test for data retrieval and filtering logic in `tests/integration/test_data_retrieval.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/01_retrieve_data.py` to load `data/config/dataset_ids.json`, validate against verified sources (NCBI SRA/Zenodo), and download pre-processed 16S tables/metadata to `data/raw/`. Include "Data Gap" protocol to halt if no verified dataset found.
-- [ ] T012 [US1] Implement `code/02_preprocess.py` to filter `data/raw/` samples for constructed wetlands with N/P removal metrics, logging excluded sample counts.
-- [ ] T013 [US1] Implement subsampling logic in `code/02_preprocess.py` to normalize read depth (max threshold) and exclude samples with <5,000 reads, ensuring ≥5 samples remain.
-- [ ] T014 [US1] Implement FR-015 Sensitivity Analysis in `code/02_preprocess.py`: perform subsampling depth sweep (low, medium, high) generating intermediate artifacts (`data/processed/low_depth_results.json`, `data/processed/medium_depth_results.json`, `data/processed/high_depth_results.json`), then aggregate into `data/processed/sensitivity_sweep_results.json`. The final artifact MUST be a 'robustness verification report' comparing alpha diversity rankings across depths to verify robustness.
-- [ ] T015a [US1] Add validation and error handling for missing metadata fields (N/P rates) in `code/02_preprocess.py`.
+- [~] T011 [US1] Implement `code/01_retrieve_data.py` to load `data/config/dataset_ids.json`, validate against verified sources (NCBI SRA/Zenodo), and download pre-processed 16S tables/metadata to `data/raw/`. Include "Data Gap" protocol to halt if no verified dataset found.
+- [~] T012 [US1] Implement `code/02_preprocess.py` to filter `data/raw/` samples for constructed wetlands with N/P removal metrics, logging excluded sample counts.
+- [~] T013 [US1] Implement subsampling logic in `code/02_preprocess.py` to exclude samples with <1,000 reads (conservative minimum) and log the count. This threshold ensures sufficient data remains for the sensitivity analysis in T014. Do not apply the final "medium" depth threshold here; only apply the hard minimum exclusion.
+- [~] T014 [US1] Implement FR-015 Sensitivity Analysis in `code/02_preprocess.py`: perform subsampling depth sweep (low, medium, high) by re-subsampling from the filtered data produced in T013. Generate intermediate artifacts (`data/processed/low_depth_results.json`, `data/processed/medium_depth_results.json`, `data/processed/high_depth_results.json`) containing the subsampled feature tables. Aggregate results into `data/processed/sensitivity_sweep_results.json`. This final artifact MUST be a 'robustness verification report' containing a `spearman_rank_correlation` metric (float) comparing alpha diversity rankings across depths. The report must explicitly state if the correlation is > 0.9 (pass) or ≤ 0.9 (fail).
+- [~] T015a [US1] Add validation and error handling for missing metadata fields (N/P rates) in `code/02_preprocess.py`.
 - [ ] T015b [US1] Log the specific exclusion count of samples lacking N/P metadata to `data/processed/exclusion_log.json` as required by Edge Cases to ensure transparency.
 - [ ] T016 [US1] Implement checksum recording for `data/processed/` files (including `low_depth_results.json`, `medium_depth_results.json`, `high_depth_results.json`, `sensitivity_sweep_results.json`, and `exclusion_log.json`) in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml`.
 
@@ -107,7 +107,7 @@
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement `code/03_diversity.py` to calculate Alpha (Shannon, Simpson) and Beta (Bray-Curtis) diversity for all samples in `data/processed/`.
-- [ ] T020 [US2] Implement FR-014 Power Analysis in `code/03_diversity.py`: estimate power for PERMANOVA (effect size R²=0.15). Write `data/processed/power_analysis_report.json` with schema `{power: float, n_per_group: int, effect_size: float, flag: "UNDERPOWERED"|"PASS"}` BEFORE halting execution if power < 0.8 or n < 10/group. Log "UNDERPOWERED" and halt only after the file is written.
+- [ ] T020 [US2] Implement FR-014 Power Analysis in `code/03_diversity.py`: estimate power for PERMANOVA (effect size R²=0.15) using `statsmodels.stats.power.FTestAnovaPower`. Write `data/processed/power_analysis_report.json` with schema `{power: float, n_per_group: int, effect_size: float, flag: "UNDERPOWERED"|"PASS"}`. Additionally, generate `data/processed/sample_size_validation.json` that explicitly compares the final retained sample count against the power analysis target (n_per_group) to satisfy SC-001. Log "UNDERPOWERED" and halt only after these files are written.
 - [ ] T021 [US2] Implement PERMANOVA test in `code/03_diversity.py` to compare community composition between wetland establishment stages (early vs. mature).
 - [ ] T022 [US2] Implement Benjamini-Hochberg FDR correction for pairwise PERMANOVA comparisons in `code/03_diversity.py` (FR-009).
 - [ ] T023 [US2] Add logic to document small effect sizes (R² < 0.1) as statistically significant but ecologically weak in output reports.
@@ -133,13 +133,12 @@
 - [ ] T027 [US3] Implement `code/04_network.py` to calculate Spearman correlation matrix from `data/processed/` taxon abundance data.
 - [ ] T028 [US3] Implement FR-013 Under-determined Check in `code/04_network.py`: if n_samples < n_taxa, flag as 'under-determined' and skip modularity calculation.
 - [ ] T029 [US3] Apply edge retention threshold (|ρ|≥0.6, p≤0.01) and construct network graph using `networkx`.
-- [ ] T030 [US3] Implement FR-013 Sensitivity Analysis in `code/04_network.py`: sweep correlation thresholds to assess modularity stability. Calculate and report the specific 'stability of modularity changes' metric in `data/processed/network_sensitivity_report.json`.
+- [ ] T030 [US3] Implement FR-013 Sensitivity Analysis in `code/04_network.py`: sweep correlation thresholds to assess modularity stability. Calculate and report the specific 'stability of modularity changes' metric, defined as the **variance of modularity scores across the swept thresholds**, in `data/processed/network_sensitivity_report.json`.
 - [ ] T031 [US3] Calculate network modularity and signed delta (Δmodularity) between early vs. mature stages.
-- [ ] T032 [US3] [Depends on: T011-T016, T019] Implement `code/05_correlation.py` to calculate Spearman correlation between taxon abundances and N/P removal rates using the filtered feature table from T013 and diversity artifacts from T019.
+- [ ] T032 [US3] [Depends on: T011, T012, T013] Implement `code/05_correlation.py` to calculate Spearman correlation between taxon abundances and N/P removal rates using the filtered feature table from T013 and Stage metadata from T012. (Note: Does NOT depend on T019 diversity metrics).
 - [ ] T033 [US3] [Depends on: T032] Implement VIF calculation in `code/05_correlation.py` to flag predictor taxa with VIF > 5 for collinearity (FR-010) using Stage metadata from T012.
-- [ ] T034 [US3] [Depends on: T032] Generate final correlation report listing taxa with |r|≥0.5 and p≤0.05, or explicitly state if none met criteria. Output to `data/processed/correlation_results.json`. This task MUST implement k=3 cross-validation as required by FR-012.
+- [ ] T034 [US3] [Depends on: T032] Implement k=3 cross-validation on the taxa-nutrient correlation model as required by FR-012. Output cross-validation metrics (mean R², std dev) to `data/processed/correlation_cv_results.json`. Generate final correlation report listing taxa with |r|≥0.5 and p≤0.05, or explicitly state if none met criteria. Output to `data/processed/correlation_results.json`. (Note: This task satisfies FR-012; ignore the contradictory note in plan.md Phase 4).
 - [ ] T035 [US3] Generate network and correlation outputs to `data/processed/network_analysis.json` and `data/processed/correlation_results.json` conforming to `contracts/output-metrics.schema.yaml`.
-- [ ] T036 [US3] [Depends on: T032] Implement k=3 cross-validation on the taxa-nutrient correlation model as required by FR-012. Output cross-validation metrics to `data/processed/correlation_cv_results.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -164,8 +163,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -231,9 +230,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Retrieval)
-   - Developer B: User Story 2 (Diversity Analysis)
-   - Developer C: User Story 3 (Network & Correlation)
+ - Developer A: User Story 1 (Data Retrieval)
+ - Developer B: User Story 2 (Diversity Analysis)
+ - Developer C: User Story 3 (Network & Correlation)
 3. Stories complete and integrate independently
 
 ---

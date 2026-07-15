@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a reproducible, CPU-tractable pipeline to investigate microbial community succession in constructed wetlands using public 16S rRNA datasets. The approach involves retrieving pre-processed feature tables and metadata, filtering for samples with nitrogen/phosphorus removal metrics, calculating diversity indices, performing PERMANOVA for community differences, constructing Spearman-based co-occurrence networks, and correlating taxa with nutrient removal rates. All analyses adhere to strict memory (7GB RAM) and time (6h) constraints of free-tier CI runners.
+This project implements a reproducible, CPU-tractable pipeline to investigate microbial community succession in constructed wetlands using public 16S rRNA datasets. The approach involves retrieving pre-processed feature tables and metadata, filtering for samples with nitrogen/phosphorus removal metrics, calculating diversity indices, performing PERMANOVA for community differences, constructing Spearman-based co-occurrence networks, and correlating taxa with nutrient removal rates. All analyses adhere to strict memory and time constraints of free-tier CI runners.
 
 **Critical Data Note**: The pipeline includes a strict "Data Gap" protocol. If no verified public dataset containing both 16S feature tables and N/P removal metrics is found in the allowed sources, the pipeline halts immediately. No synthetic data is generated to bypass this requirement.
 
