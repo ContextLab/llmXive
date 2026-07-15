@@ -1,78 +1,97 @@
 # Quickstart Guide
 
-This guide explains how to set up and run the simulation pipeline for evaluating the sensitivity of common statistical tests to dataset size.
-
 ## Prerequisites
 
-- Python 3.10+
-- pip
+- Python 3.8+
+- Required packages listed in `requirements.txt`
 
 ## Installation
 
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+```bash
+pip install -r requirements.txt
+```
 
-## Directory Structure
+## Running the Full Pipeline
 
-The project uses the following structure:
-- `code/`: Source code
-- `data/`: Data files (raw, simulation, visualization, reports)
-- `tests/`: Unit and integration tests
+The full pipeline consists of several steps:
 
-## Running the Pipeline
-
-### 1. Initialize Directories and Metadata
-
-Ensure the directory structure and metadata file are created:
+### 1. Setup Directories
 ```bash
 python code/setup_directories.py
-python code/utils/metadata_manager.py --init
 ```
 
-### 2. Run Tests (Optional)
-
-Run the unit tests to ensure everything is working:
+### 2. Download Real Datasets (US3)
 ```bash
-python code/run_tests.py
+python code/analysis/validator.py
 ```
 
-### 3. Run the Simulation
+### 3. Run Real Data Validation (US3)
+```bash
+python code/analysis/real_data_runner.py
+```
 
-Run the full simulation with default parameters:
+### 4. Run Main Simulation (US1)
+```bash
+python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000
+```
+
+Or run the full simulation grid:
 ```bash
 python code/main.py
 ```
 
-Or with custom parameters:
+### 5. Aggregate Results (US1)
 ```bash
-python code/main.py --test t-test --min-n 5 --max-n 50 --step-n 5 --effect-sizes 0.2,0.5,0.8 --hypotheses null_true,alt_true --iterations 1000
+python code/analysis/aggregator.py
 ```
 
-### 4. Run Validation (Optional)
-
-Run the validation against real-world datasets:
+### 6. Find Thresholds (US2)
 ```bash
-python code/main.py --mode validation
+python code/analysis/threshold_finder.py
 ```
 
-## Output Files
+### 7. Generate Visualizations (US2)
+```bash
+python code/visualization/plotter.py
+```
 
-The pipeline generates the following output files:
-- `data/simulation/p_values_raw.csv`: Raw p-values from the simulation.
-- `data/simulation/error_rates_summary.csv`: Aggregated error rates.
-- `data/simulation/thresholds.json`: Identified reliability thresholds.
-- `data/simulation/validation_metrics.json`: Validation metrics and KS statistics.
-- `data/simulation/real_data_pvalues.csv`: P-values from real-world datasets.
-- `data/simulation/real_data_power.json`: Bootstrapped power estimates.
-- `data/simulation_metadata.json`: Metadata for all runs, seeds, and configurations.
-- `data/reports/validation_report.md`: Validation report.
-- `data/visualization/`: Generated plots.
+### 8. Run Bootstrapped Power Estimation (US3 - T032)
+```bash
+python code/analysis/bootstrapper.py
+```
+
+### 9. Generate Validation Report (US3)
+```bash
+python code/analysis/report_generator.py
+```
+
+## Expected Outputs
+
+After running the full pipeline, you should see:
+
+- `data/simulation/p_values_raw.csv` - Raw p-values from simulation
+- `data/simulation/error_rates_summary.csv` - Aggregated error rates
+- `data/simulation/thresholds.json` - Identified thresholds
+- `data/simulation/real_data_pvalues.csv` - P-values from real data
+- `data/simulation/real_data_power.json` - Bootstrapped power results
+- `data/simulation/validation_metrics.json` - Validation metrics
+- `data/visualization/*.png` - Generated plots
+- `data/reports/validation_report.md` - Final validation report
+
+## Testing
+
+Run the test suite:
+```bash
+python code/run_tests.py
+```
+
+Or with pytest directly:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-- **Memory Issues**: The simulation is designed to run within 7GB RAM. If you encounter memory issues, reduce the number of iterations or use a smaller sample size range.
-- **Missing Files**: Ensure that `data/simulation_metadata.json` exists. Run `python code/utils/metadata_manager.py --init` to create it.
-- **Import Errors**: Make sure all dependencies are installed via `pip install -r requirements.txt`.
+- If you encounter memory issues, reduce the number of iterations in `code/main.py`
+- For real data download failures, check your internet connection and UCI repository availability
+- Ensure all required packages are installed as per `requirements.txt`

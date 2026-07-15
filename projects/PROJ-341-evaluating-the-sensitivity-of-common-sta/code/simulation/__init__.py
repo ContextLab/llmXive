@@ -1,59 +1,28 @@
-"""
-Simulation Module Initialization.
-
-Provides a deterministic random seed manager to enforce reproducibility
-across all simulation modules (Task T006).
-"""
 import numpy as np
-from typing import Optional, Dict, Any
-import json
-import os
+from typing import Optional
 
-_rng_instance: Optional[np.random.Generator] = None
-_seed_value: Optional[int] = None
+_global_seed = None
+_rng = None
 
 def set_seed(seed: int) -> None:
-    """
-    Sets the global random seed for reproducibility.
-    
-    Args:
-        seed: Integer seed value.
-    """
-    global _rng_instance, _seed_value
-    _seed_value = seed
-    _rng_instance = np.random.default_rng(seed)
+    """Set the global random seed."""
+    global _global_seed, _rng
+    _global_seed = seed
+    _rng = np.random.default_rng(seed)
 
-def get_rng() -> np.random.Generator:
-    """
-    Returns the global RNG instance.
+def get_rng(seed: Optional[int] = None) -> np.random.Generator:
+    """Get a random number generator.
     
-    Raises:
-        RuntimeError: If the seed has not been set yet.
+    If seed is provided, use it. Otherwise, use the global seed.
+    If no global seed is set, use a default seed.
     """
-    global _rng_instance
-    if _rng_instance is None:
-        # Default to a fixed seed if not set, for safety in testing
-        # In production, this should be explicitly set by the main entry point
-        set_seed(42) 
-    return _rng_instance
+    if seed is not None:
+        return np.random.default_rng(seed)
+    elif _global_seed is not None:
+        return np.random.default_rng(_global_seed)
+    else:
+        return np.random.default_rng(42)
 
 def get_seed() -> Optional[int]:
-    """
-    Returns the current seed value.
-    """
-    global _seed_value
-    return _seed_value
-
-def reset_seed() -> None:
-    """
-    Resets the RNG to its initial state if a seed was set.
-    """
-    global _rng_instance, _seed_value
-    if _seed_value is not None:
-        _rng_instance = np.random.default_rng(_seed_value)
-    else:
-        _rng_instance = None
-
-# Initialize with a default seed for immediate usability, 
-# but production code should call set_seed explicitly.
-set_seed(42)
+    """Get the current global seed."""
+    return _global_seed

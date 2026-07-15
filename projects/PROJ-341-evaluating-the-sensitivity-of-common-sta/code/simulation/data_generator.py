@@ -4,12 +4,12 @@ from typing import Tuple, Union, Optional, List, Dict
 import numpy as np
 from code.simulation import get_rng
 
-def validate_distribution_params(dist_type: str, params: dict) -> bool:
+def validate_distribution_params(dist_type: str, params: Dict) -> bool:
     """
     Validate parameters for a given distribution type.
     
     Args:
-        dist_type: Type of distribution ('normal', 'multinomial', 'contingency')
+        dist_type: Type of distribution ('normal', 'multinomial', etc.)
         params: Dictionary of parameters for the distribution
         
     Returns:
@@ -25,101 +25,122 @@ def validate_distribution_params(dist_type: str, params: dict) -> bool:
             return False
         if params['std'] <= 0:
             return False
-            
     elif dist_type == 'multinomial':
-        if 'probs' not in params:
+        if 'n' not in params or 'probs' not in params:
             return False
-        if not isinstance(params['probs'], (list, np.ndarray)):
+        if not isinstance(params['n'], int) or params['n'] <= 0:
             return False
-        if len(params['probs']) < 2:
+        if not isinstance(params['probs'], list):
             return False
-        if abs(sum(params['probs']) - 1.0) > 1e-6:
+        if len(params['probs']) == 0 or abs(sum(params['probs']) - 1.0) > 1e-6:
             return False
-            
     elif dist_type == 'contingency':
-        if 'rows' not in params or 'cols' not in params:
+        if 'shape' not in params:
             return False
-        if not isinstance(params['rows'], int) or not isinstance(params['cols'], int):
+        if not isinstance(params['shape'], tuple) or len(params['shape']) != 2:
             return False
-        if params['rows'] < 2 or params['cols'] < 2:
+        if params['shape'][0] <= 0 or params['shape'][1] <= 0:
             return False
-            
+    else:
+        return False
+        
     return True
 
-def generate_normal_data(n: int, mean_control: float = 0.0, mean_treatment: float = 0.5, 
-                         std: float = 1.0, seed: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+def generate_normal_data(n: int, mean: float = 0.0, std: float = 1.0, 
+                         seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate two samples from normal distributions for t-test simulation.
+    Generate normally distributed data.
     
     Args:
-        n: Sample size per group
-        mean_control: Mean of control group
-        mean_treatment: Mean of treatment group
-        std: Standard deviation for both groups
+        n: Number of samples
+        mean: Mean of the distribution
+        std: Standard deviation of the distribution
         seed: Optional random seed for reproducibility
         
     Returns:
-        Tuple of (control_data, treatment_data)
+        np.ndarray: Generated data
     """
     rng = get_rng(seed)
-    control_data = rng.normal(mean_control, std, n)
-    treatment_data = rng.normal(mean_treatment, std, n)
-    return control_data, treatment_data
+    return rng.normal(loc=mean, scale=std, size=n)
 
-def generate_multinomial_data(n: int, probs: List[float], seed: Optional[int] = None) -> np.ndarray:
+def generate_multinomial_data(n: int, probs: List[float], 
+                              seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate multinomial data for chi-squared test simulation.
+    Generate multinomial distributed data.
     
     Args:
-        n: Total sample size
+        n: Number of samples
         probs: List of probabilities for each category
         seed: Optional random seed for reproducibility
         
     Returns:
-        Array of category counts
+        np.ndarray: Generated data (category indices)
     """
     rng = get_rng(seed)
-    counts = rng.multinomial(n, probs)
-    return counts
+    return rng.choice(len(probs), size=n, p=probs)
 
-def generate_contingency_table_data(n: int, rows: int, cols: int, 
-                                   effect_size: float = 0.0, seed: Optional[int] = None) -> np.ndarray:
+def generate_contingency_table_data(rows: int, cols: int, 
+                                    seed: Optional[int] = None) -> np.ndarray:
     """
-    Generate a contingency table for chi-squared test simulation.
+    Generate a contingency table with specified dimensions.
     
     Args:
-        n: Total sample size
         rows: Number of rows
         cols: Number of columns
-        effect_size: Effect size to introduce deviation from independence
         seed: Optional random seed for reproducibility
         
     Returns:
-        2D array representing the contingency table
+        np.ndarray: Generated contingency table
     """
     rng = get_rng(seed)
-    
-    # Create base probabilities assuming independence
-    row_probs = np.ones(rows) / rows
-    col_probs = np.ones(cols) / cols
-    
-    # Introduce effect size if needed
-    if effect_size != 0.0:
-        # Create a dependency matrix
-        dep_matrix = np.ones((rows, cols))
-        # Add effect to first cell and adjust others
-        dep_matrix[0, 0] += effect_size
-        # Normalize to maintain probabilities
-        dep_matrix = dep_matrix / dep_matrix.sum()
-        
-        # Sample from the dependent distribution
-        flat_probs = dep_matrix.flatten()
-        counts = rng.multinomial(n, flat_probs)
-        table = counts.reshape(rows, cols)
-    else:
-        # Sample from independent distribution
-        flat_probs = np.outer(row_probs, col_probs).flatten()
-        counts = rng.multinomial(n, flat_probs)
-        table = counts.reshape(rows, cols)
-        
+    # Generate random counts with minimum 1 to avoid division by zero
+    table = rng.integers(1, 20, size=(rows, cols))
     return table
+
+def generate_two_sample_data(n1: int, n2: int, mean1: float = 0.0, 
+                             mean2: float = 0.0, std: float = 1.0, 
+                             seed: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate two samples for t-test comparison.
+    
+    Args:
+        n1: Size of first sample
+        n2: Size of second sample
+        mean1: Mean of first sample
+        mean2: Mean of second sample
+        std: Standard deviation (assumed equal)
+        seed: Optional random seed for reproducibility
+        
+    Returns:
+        Tuple of (sample1, sample2)
+    """
+    rng = get_rng(seed)
+    sample1 = rng.normal(loc=mean1, scale=std, size=n1)
+    sample2 = rng.normal(loc=mean2, scale=std, size=n2)
+    return sample1, sample2
+
+def generate_anova_data(groups: int, n_per_group: int, 
+                        means: Optional[List[float]] = None, 
+                        std: float = 1.0, seed: Optional[int] = None) -> List[np.ndarray]:
+    """
+    Generate data for ANOVA test.
+    
+    Args:
+        groups: Number of groups
+        n_per_group: Samples per group
+        means: List of means for each group (if None, uses 0 for all)
+        std: Standard deviation
+        seed: Optional random seed for reproducibility
+        
+    Returns:
+        List of arrays, one per group
+    """
+    rng = get_rng(seed)
+    if means is None:
+        means = [0.0] * groups
+    
+    data = []
+    for i in range(groups):
+        group_data = rng.normal(loc=means[i], scale=std, size=n_per_group)
+        data.append(group_data)
+    return data

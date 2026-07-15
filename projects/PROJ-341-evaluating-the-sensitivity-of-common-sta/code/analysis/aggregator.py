@@ -4,119 +4,155 @@ import json
 from typing import List, Dict, Any, Optional
 import pandas as pd
 from code.simulation.output_writer import load_p_values_raw
+from code.simulation.logging_config import get_logger
 
-def calculate_error_rates(p_values_df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
+logger = get_logger(__name__)
+
+def calculate_error_rates(p_values_data: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
     """
     Calculate empirical Type I and Type II error rates from raw p-values.
     
-    Type I Error: Reject H0 when H0 is true (p < alpha AND hypothesis == 'H0')
-    Type II Error: Fail to reject H0 when H1 is true (p > alpha AND hypothesis == 'H1')
+    Type I Error: p < alpha when hypothesis is 'null' (should be ~alpha)
+    Type II Error: p > alpha when hypothesis is 'alternative' (1 - power)
     
     Args:
-        p_values_df: DataFrame with columns: sample_size, effect_size, test_type, p_value, hypothesis
+        p_values_data: List of dicts with keys: sample_size, effect_size, test_type, p_value, hypothesis
         alpha: Significance threshold (default 0.05)
         
     Returns:
-        DataFrame with aggregated error rates per condition
+        List of aggregated error rate statistics per condition
     """
-    if p_values_df.empty:
-        return pd.DataFrame()
+    if not p_values_data:
+        logger.warning("No p-values provided for error rate calculation")
+        return []
+
+    df = pd.DataFrame(p_values_data)
     
     # Ensure numeric types
-    p_values_df = p_values_df.copy()
-    p_values_df['p_value'] = pd.to_numeric(p_values_df['p_value'], errors='coerce')
+    df['p_value'] = pd.to_numeric(df['p_value'], errors='coerce')
+    df['sample_size'] = pd.to_numeric(df['sample_size'], errors='coerce')
     
-    # Define conditions
-    conditions = p_values_df.groupby(['sample_size', 'effect_size', 'test_type', 'hypothesis'])
+    # Drop rows with invalid p-values
+    df = df.dropna(subset=['p_value', 'sample_size'])
     
+    if df.empty:
+        logger.warning("No valid p-values remaining after cleaning")
+        return []
+
     results = []
     
-    for (sample_size, effect_size, test_type, hypothesis), group in conditions:
-        total = len(group)
-        if total == 0:
-            continue
+    # Group by condition: test_type, sample_size, effect_size
+    groups = df.groupby(['test_type', 'sample_size', 'effect_size'])
+    
+    for (test_type, sample_size, effect_size), group in groups:
+        null_mask = group['hypothesis'].str.lower() == 'null'
+        alt_mask = group['hypothesis'].str.lower() == 'alternative'
         
-        # Count rejections
-        rejections = (group['p_value'] < alpha).sum()
+        null_p = group.loc[null_mask, 'p_value']
+        alt_p = group.loc[alt_mask, 'p_value']
         
-        if hypothesis == 'H0':
-            # Type I error rate
-            error_rate = rejections / total
-            error_type = 'Type_I'
-        else:
-            # Type II error rate (or Power = 1 - Type II)
-            error_rate = (total - rejections) / total  # Fail to reject when H1 true
-            error_type = 'Type_II'
+        # Type I Error Rate: proportion of null p-values < alpha
+        type1_count = (null_p < alpha).sum()
+        type1_total = len(null_p)
+        type1_rate = type1_count / type1_total if type1_total > 0 else 0.0
+        
+        # Type II Error Rate: proportion of alt p-values > alpha (1 - power)
+        type2_count = (alt_p > alpha).sum()
+        type2_total = len(alt_p)
+        type2_rate = type2_count / type2_total if type2_total > 0 else 0.0
+        
+        # Power: proportion of alt p-values < alpha
+        power = 1.0 - type2_rate if type2_total > 0 else 0.0
         
         results.append({
-            'sample_size': sample_size,
-            'effect_size': effect_size,
             'test_type': test_type,
-            'hypothesis': hypothesis,
-            'error_type': error_type,
-            'total_iterations': total,
-            'error_count': int(rejections) if hypothesis == 'H0' else int(total - rejections),
-            'error_rate': float(error_rate),
-            'alpha_threshold': alpha
+            'sample_size': int(sample_size),
+            'effect_size': float(effect_size),
+            'type1_error_rate': type1_rate,
+            'type1_count': int(type1_count),
+            'type1_total': int(type1_total),
+            'type2_error_rate': type2_rate,
+            'type2_count': int(type2_count),
+            'type2_total': int(type2_total),
+            'power': power,
+            'total_null_iterations': int(type1_total),
+            'total_alt_iterations': int(type2_total)
         })
-    
-    return pd.DataFrame(results)
+        
+    logger.info(f"Calculated error rates for {len(results)} conditions")
+    return results
 
-def save_aggregated_results(error_rates_df: pd.DataFrame, output_path: str) -> None:
+def save_aggregated_results(error_rates: List[Dict[str, Any]], output_path: str) -> bool:
     """
-    Save aggregated error rates to CSV.
+    Save aggregated error rates to a CSV file.
     
     Args:
-        error_rates_df: DataFrame from calculate_error_rates
+        error_rates: List of error rate dictionaries
         output_path: Path to output CSV file
+        
+    Returns:
+        True if successful, False otherwise
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    error_rates_df.to_csv(output_path, index=False)
-    print(f"Saved aggregated error rates to {output_path}")
+    if not error_rates:
+        logger.error("No error rates to save")
+        return False
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created output directory: {output_dir}")
+    
+    try:
+        df = pd.DataFrame(error_rates)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved aggregated error rates to {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save aggregated results: {e}")
+        return False
 
 def main():
     """
-    Main entry point for aggregation task (T018).
-    Loads raw p-values, calculates error rates, and saves summary.
+    Main entry point for the aggregator module.
+    Loads raw p-values, calculates error rates, and saves the summary.
     """
-    # Paths
+    logger.info("Starting error rate aggregation")
+    
+    # Load raw p-values
     raw_pvalues_path = "data/simulation/p_values_raw.csv"
-    output_path = "data/simulation/error_rates_summary.csv"
     
-    # Check if raw data exists
     if not os.path.exists(raw_pvalues_path):
-        print(f"Error: Raw p-values file not found at {raw_pvalues_path}")
-        print("Please run the simulation first to generate p_values_raw.csv")
-        return
+        logger.error(f"Raw p-values file not found: {raw_pvalues_path}")
+        logger.error("Run the simulation first (code/main.py) to generate p_values_raw.csv")
+        return False
     
-    # Load raw data
-    print(f"Loading raw p-values from {raw_pvalues_path}...")
-    p_values_df = load_p_values_raw(raw_pvalues_path)
+    p_values_data = load_p_values_raw(raw_pvalues_path)
     
-    if p_values_df is None or p_values_df.empty:
-        print("Error: No data loaded from p_values_raw.csv")
-        return
+    if not p_values_data:
+        logger.error("Failed to load p-values or no data found")
+        return False
     
-    print(f"Loaded {len(p_values_df)} records")
+    logger.info(f"Loaded {len(p_values_data)} p-value records")
     
-    # Calculate error rates
-    print("Calculating error rates...")
-    error_rates_df = calculate_error_rates(p_values_df, alpha=0.05)
+    # Calculate error rates (using default alpha=0.05)
+    error_rates = calculate_error_rates(p_values_data, alpha=0.05)
     
-    if error_rates_df.empty:
-        print("Error: No error rates calculated. Check input data format.")
-        return
+    if not error_rates:
+        logger.error("No error rates calculated")
+        return False
     
     # Save results
-    print(f"Saving aggregated results to {output_path}...")
-    save_aggregated_results(error_rates_df, output_path)
+    output_path = "data/simulation/error_rates_summary.csv"
+    success = save_aggregated_results(error_rates, output_path)
     
-    # Print summary
-    print("\n--- Aggregation Summary ---")
-    print(f"Total conditions processed: {error_rates_df['sample_size'].nunique()} sample sizes")
-    print(f"Test types covered: {error_rates_df['test_type'].unique().tolist()}")
-    print(f"Error types calculated: {error_rates_df['error_type'].unique().tolist()}")
-    print(f"Output file: {output_path}")
+    if success:
+        logger.info("Aggregation complete")
+        return True
+    else:
+        logger.error("Aggregation failed")
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    exit(0 if success else 1)

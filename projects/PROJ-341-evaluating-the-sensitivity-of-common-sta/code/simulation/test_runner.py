@@ -6,69 +6,172 @@ import json
 import os
 from code.simulation.data_generator import generate_normal_data, generate_contingency_table_data
 from code.simulation.chi_squared_utils import run_chi_squared_with_fallback
+from code.simulation.logging_config import get_logger
 
-def run_t_test(data1: np.ndarray, data2: np.ndarray, alpha: float = 0.05) -> Tuple[float, str]:
-    """Run independent t-test."""
-    if len(data1) < 2 or len(data2) < 2:
-        return np.nan, "insufficient_data"
-    stat, p_val = stats.ttest_ind(data1, data2)
-    return p_val, "reject" if p_val < alpha else "fail_to_reject"
-
-def run_anova(groups: List[np.ndarray], alpha: float = 0.05) -> Tuple[float, str]:
-    """Run one-way ANOVA."""
-    if any(len(g) < 2 for g in groups):
-        return np.nan, "insufficient_data"
-    stat, p_val = stats.f_oneway(*groups)
-    return p_val, "reject" if p_val < alpha else "fail_to_reject"
-
-def run_chi_squared(table: np.ndarray, alpha: float = 0.05) -> Tuple[float, str]:
-    """Run chi-squared test with fallback logic."""
-    return run_chi_squared_with_fallback(table, alpha)
-
-def run_simulation_condition(test_type: str, n: int, effect_size: float, alpha: float, iterations: int) -> List[float]:
-    """Run a full simulation condition and return list of p-values."""
-    p_values = []
+def run_t_test(group1: np.ndarray, group2: np.ndarray, alpha: float = 0.05) -> Tuple[float, bool]:
+    """
+    Run a two-sample t-test.
     
-    for _ in range(iterations):
+    Args:
+        group1: First group of data
+        group2: Second group of data
+        alpha: Significance level
+        
+    Returns:
+        Tuple of (p-value, is_significant)
+    """
+    try:
+        t_stat, p_value = stats.ttest_ind(group1, group2)
+        is_significant = p_value < alpha
+        return p_value, is_significant
+    except Exception as e:
+        logger = get_logger()
+        logger.error(f"Error in t-test: {e}")
+        return 1.0, False
+
+def run_anova(groups: List[np.ndarray], alpha: float = 0.05) -> Tuple[float, bool]:
+    """
+    Run a one-way ANOVA test.
+    
+    Args:
+        groups: List of groups of data
+        alpha: Significance level
+        
+    Returns:
+        Tuple of (p-value, is_significant)
+    """
+    try:
+        f_stat, p_value = stats.f_oneway(*groups)
+        is_significant = p_value < alpha
+        return p_value, is_significant
+    except Exception as e:
+        logger = get_logger()
+        logger.error(f"Error in ANOVA: {e}")
+        return 1.0, False
+
+def run_chi_squared(table: np.ndarray, alpha: float = 0.05) -> Tuple[float, bool]:
+    """
+    Run a chi-squared test with fallback logic.
+    
+    Args:
+        table: Contingency table
+        alpha: Significance level
+        
+    Returns:
+        Tuple of (p-value, is_significant)
+    """
+    try:
+        p_value, is_significant = run_chi_squared_with_fallback(table, alpha)
+        return p_value, is_significant
+    except Exception as e:
+        logger = get_logger()
+        logger.error(f"Error in chi-squared test: {e}")
+        return 1.0, False
+
+def run_simulation_condition(
+    n: int,
+    effect_size: float,
+    test_type: str,
+    hypothesis: str,
+    alpha: float = 0.05,
+    seed: Optional[int] = None
+) -> Dict[str, Any]:
+    """
+    Run a single simulation condition.
+    
+    Args:
+        n: Sample size per group
+        effect_size: Effect size (Cohen's d for t-test, f for ANOVA, etc.)
+        test_type: Type of test ('t-test', 'anova', 'chi-squared')
+        hypothesis: 'null' or 'alternative'
+        alpha: Significance level
+        seed: Optional random seed
+        
+    Returns:
+        Dictionary containing results
+    """
+    logger = get_logger()
+    
+    # Generate data based on hypothesis and test type
+    if hypothesis == 'null':
+        # For null hypothesis, no effect
         if test_type == 't-test':
-            # Generate normal data with known effect size
-            # H0: effect_size=0, H1: effect_size>0
-            mean1 = 0
-            mean2 = effect_size
-            data1 = generate_normal_data(n, mean=mean1, std=1)
-            data2 = generate_normal_data(n, mean=mean2, std=1)
-            p_val, _ = run_t_test(data1, data2, alpha)
-            if not np.isnan(p_val):
-                p_values.append(p_val)
-        
+            group1 = generate_normal_data(n, mean=0, std=1, seed=seed)
+            group2 = generate_normal_data(n, mean=0, std=1, seed=seed+1 if seed else None)
         elif test_type == 'anova':
-            # Generate 3 groups
-            means = [0, effect_size, effect_size * 1.5] if effect_size > 0 else [0, 0, 0]
-            groups = [generate_normal_data(n, mean=m, std=1) for m in means]
-            p_val, _ = run_anova(groups, alpha)
-            if not np.isnan(p_val):
-                p_values.append(p_val)
-        
+            groups = [generate_normal_data(n, mean=0, std=1, seed=seed+i) for i in range(3)]
         elif test_type == 'chi-squared':
-            # Generate contingency table
-            # Simple 2x2 table logic
-            # If effect_size=0, independent. If >0, dependent.
-            # Mocking a simple generation logic for demonstration
-            obs = generate_contingency_table_data(n, effect_size)
-            p_val, _ = run_chi_squared(obs, alpha)
-            if not np.isnan(p_val):
-                p_values.append(p_val)
+            # Equal probabilities for null
+            probs = [[0.25, 0.25], [0.25, 0.25]]
+            table = generate_contingency_table_data(n * 4, probs, seed=seed)
+        else:
+            raise ValueError(f"Unknown test type: {test_type}")
+    else:
+        # For alternative hypothesis, apply effect
+        if test_type == 't-test':
+            group1 = generate_normal_data(n, mean=0, std=1, seed=seed)
+            group2 = generate_normal_data(n, mean=effect_size, std=1, seed=seed+1 if seed else None)
+        elif test_type == 'anova':
+            # Apply effect to second group
+            groups = [
+                generate_normal_data(n, mean=0, std=1, seed=seed),
+                generate_normal_data(n, mean=effect_size, std=1, seed=seed+1 if seed else None),
+                generate_normal_data(n, mean=0, std=1, seed=seed+2 if seed else None)
+            ]
+        elif test_type == 'chi-squared':
+            # Apply effect to probabilities
+            base_prob = 0.25
+            effect = effect_size / 4
+            probs = [
+                [base_prob - effect, base_prob + effect],
+                [base_prob + effect, base_prob - effect]
+            ]
+            table = generate_contingency_table_data(n * 4, probs, seed=seed)
+        else:
+            raise ValueError(f"Unknown test type: {test_type}")
     
-    return p_values
-
-def aggregate_results(p_values: List[float], alpha: float) -> Dict[str, float]:
-    """Aggregate p-values into error rates."""
-    if not p_values:
-        return {'rate': 0.0, 'count': 0}
+    # Run the appropriate test
+    if test_type == 't-test':
+        p_value, is_significant = run_t_test(group1, group2, alpha)
+    elif test_type == 'anova':
+        p_value, is_significant = run_anova(groups, alpha)
+    elif test_type == 'chi-squared':
+        p_value, is_significant = run_chi_squared(table, alpha)
+    else:
+        raise ValueError(f"Unknown test type: {test_type}")
+    
     return {
-        'rate': sum(1 for p in p_values if p < alpha) / len(p_values),
-        'count': len(p_values)
+        'sample_size': n,
+        'effect_size': effect_size,
+        'test_type': test_type,
+        'p_value': p_value,
+        'hypothesis_state': hypothesis,
+        'is_significant': is_significant
     }
 
-if __name__ == '__main__':
-    print("Test Runner Module")
+def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Aggregate simulation results.
+    
+    Args:
+        results: List of result dictionaries
+        
+    Returns:
+        Dictionary containing aggregated statistics
+    """
+    if not results:
+        return {}
+        
+    df = pd.DataFrame(results)
+    
+    aggregated = {}
+    for (n, effect, test, hyp), group in df.groupby(['sample_size', 'effect_size', 'test_type', 'hypothesis_state']):
+        key = f"{n}_{effect}_{test}_{hyp}"
+        aggregated[key] = {
+            'total_iterations': len(group),
+            'significant_count': group['is_significant'].sum(),
+            'p_value_mean': group['p_value'].mean(),
+            'p_value_std': group['p_value'].std()
+        }
+        
+    return aggregated
