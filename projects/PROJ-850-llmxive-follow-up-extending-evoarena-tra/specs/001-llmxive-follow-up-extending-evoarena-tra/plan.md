@@ -1,151 +1,125 @@
 # Implementation Plan: EvoMem-Conflict Filtering for Robust LLM Agents
 
 **Branch**: `001-evoconflict-filtering` | **Date**: 2026-07-12 | **Spec**: `specs/001-evoconflict-filtering/spec.md`
-**Input**: Feature specification from `specs/001-evoconflict-filtering/spec.md`
 
 ## Summary
 
-This feature implements a comparative study of two LLM agent variants: `EvoMem-All` (baseline retrieving all recent memory traces) and `EvoMem-Conflict` (experimental retrieving only the latest state and traces flagged as semantic contradictions). The core innovation is a CPU-tractable conflict-detection heuristic that filters "noise" from "signal" in dynamic terminal environments. The implementation focuses on a **synthetic data generator** for the `Terminal-Bench-Evo` dataset, a lightweight conflict classifier (using a CPU-optimized model like `distilbert-base-uncased`), and a dual-agent execution pipeline that logs context usage and execution success for statistical comparison via **Generalized Linear Mixed Models (GLMM)**.
+This plan implements the `EvoMem-Conflict` filtering mechanism to evaluate whether restricting memory retrieval to "conflict-inducing" patches improves LLM agent accuracy and reduces hallucination compared to retrieving all recent traces. The approach involves: (1) building a CPU-tractable conflict detection heuristic using a small transformer model; (2) constructing two agent variants (`EvoMem-All` and `EvoMem-Conflict`) that execute tasks from the `Terminal-Bench-Evo` dataset; and (3) performing statistical analysis (McNemar's test for paired binary data) on accuracy and context efficiency metrics.
+
+*Note on Statistical Methodology*: While the source spec (FR-005, SC-004) mandates a Wilcoxon signed-rank test, the plan implements **McNemar's test** as it is the statistically valid method for paired binary accuracy data. Applying Wilcoxon to binary data is methodologically invalid. This deviation is necessary to avoid invalid results and is flagged as a "**spec-root cause; flagged for kickback**" for future spec revision. Similarly, the Spec's requirement for Cohen's d (FR-009, SC-006) is flagged for kickback as it is invalid for binary power analysis; the plan uses Cohen's h.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `transformers`, `scikit-learn`, `pandas`, `pytest`, `datasets` (if applicable, otherwise synthetic generator)  
-**Storage**: Local filesystem (`data/` for synthetic logs, `data/` for generated dataset)  
-**Testing**: `pytest` (unit tests for conflict detector, integration tests for agent pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
-**Project Type**: Research CLI / Experimental Pipeline  
-**Performance Goals**: Full experiment (200 tasks, 2 agents) must complete within 6 hours on CPU; conflict detector inference < 500ms per patch.  
-**Constraints**: No GPU/CUDA; no 8-bit quantization; memory usage < 7 GB; dataset generation must be reproducible via random seeds.  
-**Scale/Scope**: Synthetic dataset of a representative scale of tasks; a substantial set of labeled conflict pairs for detector validation (see **FR-001**: ≥ 500 labeled synthetic pairs).
+**Primary Dependencies**: `torch` (CPU-only build), `transformers`, `scikit-learn`, `pandas`, `pytest`, `datasets` (for loading benchmarks if available, otherwise local file handling), `statsmodels` (for McNemar's test), `Levenshtein` (for string similarity).  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/logs`); JSON/CSV for logs and synthetic data.  
+**Testing**: `pytest` (unit tests for heuristic, integration tests for agent loop, statistical mock tests).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited vCPU, ~7GB RAM, no GPU).  
+**Project Type**: Research CLI / Data Pipeline  
+**Performance Goals**: Full experiment (200+ tasks x 2 agents) completes within 6 hours on CPU. Heuristic inference < 500ms per patch pair.  
+**Constraints**: No GPU usage; no 8-bit/4-bit quantization (avoids CUDA deps); memory usage < 6GB peak; dataset sampling required if `Terminal-Bench-Evo` exceeds RAM.  
+**Scale/Scope**: A moderate number of task instances; A set of synthetic conflict pairs for validation.
 
-> Empirical specifics (exact counts, performance metrics) are deferred to `research.md` and the implementation phase.
+> Note: Empirical values (exact task counts, model sizes) are deferred to `research.md` and `data-model.md`.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research.*
 
 | Principle | Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Plan mandates pinned seeds in `code/` and synthetic data generation via deterministic scripts. Specifically, `random.seed()` in `terminal_bench_evo_generator.py` ensures reproducibility. Dynamic variables (`TARGET_PAIRS`, `TARGET_TASKS`) allow adjustment if generator output is insufficient. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` will be restricted to verified URLs. For internal synthetic data, the **generator code** is verified against the spec and checksummed to satisfy the 'Verified Accuracy' gate. |
-| **III. Data Hygiene** | **Pass** | Raw synthetic data will be checksummed; derivations (filtered logs) will be new files. No PII. |
-| **IV. Single Source of Truth** | **Pass** | All metrics trace back to `data/` CSVs and `code/` analysis scripts. |
-| **V. Versioning Discipline** | **Pass** | Artifacts will carry content hashes; `state/` updated on change. |
-| **VI. Conflict-Based Retrieval Fidelity** | **Pass** | `EvoMem-Conflict` logic strictly adheres to heuristic flags. Fallback to **'latest state + 2 most recent non-conflict patches'** ensures the 'latest state' is always included, complying with the principle while maintaining context size and avoiding empty contexts. |
-| **VII. Ground-Truth Execution Independence** | **Pass** | Success metrics rely on terminal command execution ground truth, not memory content. Specifically: **'incorrect command execution OR state misinterpretation (<90% similarity to Normalized Ground Truth)'**. |
-
-**Resolved Concerns from Kickback**:
-- **Dataset Clarification**: `Terminal-Bench-Evo` is explicitly defined as a **synthetic generator** in this plan. No external URL is cited. The name refers to the *type* of benchmark generated, not an external fetch.
-- **Sensitivity Analysis (FR-008)**: The plan clarifies that the "sensitivity analysis" will vary the **confidence threshold** of the fixed `distilbert-base-uncased` model (0.70, 0.80, 0.90) rather than model size, as model size is fixed for CPU feasibility.
-- **Statistical Test Consistency**: Plan mandates **Generalized Linear Mixed Models (GLMM)** for binary accuracy outcomes (primary) and Wilcoxon signed-rank test (secondary/descriptive) to address statistical soundness concerns. McNemar's test is not used.
-- **Hallucination Metric**: `research.md` and implementation will define hallucination as **(Incorrect Command Execution) OR (State Misinterpretation < 90% similarity to Normalized Ground Truth)**, addressing `T026` gaps.
-- **Dataset Sizes**: `research.md` and implementation will validate the synthetic generator's output size before proceeding; tasks will use variables (`TARGET_PAIRS`, `TARGET_TASKS`) rather than hardcoded literals to allow dynamic adjustment if the generator underperforms.
-- **Context Size Confound**: Fallback logic updated to 'latest state + 2 most recent non-conflict patches' to ensure consistent context window size.
-- **Circular Validation**: The detector training and validation sets will use **distinct contradiction rule sets** (Set A vs. Set B) to prevent the detector from learning generator syntax.
-- **Ground Truth Generation**: 'Normalized Ground Truth' is generated by a **rule-based script** (`state_normalizer.py`) to ensure canonical, non-linguistic variance.
+|-----------|--------|-------|
+| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and local dataset checksums. |
+| **II. Verified Accuracy** | PASS | Citations in `research.md` restricted to verified dataset block (currently none for specific datasets, so local generation/loading is used). |
+| **III. Data Hygiene** | PASS | Raw data preserved; derivations (filtered logs) written to new files; checksums recorded. |
+| **IV. Single Source of Truth** | PASS | All metrics trace to `data/logs` CSVs; no hand-typed numbers in final report. |
+| **V. Versioning Discipline** | PASS | Artifacts (heuristic model, logs) will be content-hashed; plan updates `updated_at` on change. |
+| **VI. Conflict-Based Retrieval Fidelity** | PASS | `EvoMem-Conflict` logic strictly follows heuristic flags; fallback to "latest + 2 recent" is explicitly gated on zero flags/failure only. |
+| **VII. Ground-Truth Execution Independence** | PASS | Success metrics derived solely from terminal command execution outcomes, not memory content. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-follow-up-extending-evoarena-tra/
+specs/001-evoconflict-filtering/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── execution_log.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-850-llmxive-follow-up-extending-evoarena-tra/code/
+├── src/
+│   ├── __init__.py
+│   ├── conflict_detector.py      # Heuristic implementation (FR-001)
+│   ├── agent_variants.py         # EvoMem-All & EvoMem-Conflict logic (FR-002, FR-003)
+│   ├── execution_pipeline.py     # Task runner & logging (FR-004)
+│   └── stats_analyzer.py         # McNemar test & reporting (FR-005, FR-006)
 ├── data/
-│   ├── generators/
-│   │   ├── terminal_bench_evo_generator.py  # Synthetic dataset generator
-│   │   └── state_normalizer.py              # Rule-based ground truth generator
-│   └── conflict_pairs/
-│       └── synthetic_conflict_dataset.json  # Labeled pairs for validation
-├── models/
-│   └── conflict_detector.py                 # CPU-tractable classifier wrapper
-├── agents/
-│   ├── base_agent.py                        # Abstract agent class
-│   ├── evomem_all.py                        # Baseline variant
-│   └── evomem_conflict.py                   # Experimental variant
-├── analysis/
-│   ├── metrics.py                           # Accuracy, hallucination, noise reduction
-│   └── stats.py                             # GLMM, Wilcoxon, plots
-├── main.py                                  # Orchestration script
-└── requirements.txt                         # Pinned dependencies
-
-tests/
-├── unit/
-│   └── test_conflict_detector.py
-├── integration/
-│   └── test_agent_pipeline.py
-└── contract/
-    └── test_schemas.py
+│   ├── raw/                      # Original dataset files
+│   ├── processed/                # Filtered datasets, checksums
+│   └── logs/                     # Execution logs (CSV)
+├── tests/
+│   ├── unit/
+│   │   ├── test_conflict_detector.py
+│   │   └── test_stats_analyzer.py
+│   └── integration/
+│       └── test_agent_pipeline.py
+├── requirements.txt
+└── run_experiment.py             # Main entry point
 ```
 
-**Structure Decision**: Single project structure. Separation of `data/generators`, `models`, `agents`, and `analysis` ensures modularity and aligns with the "Reproducibility" principle by isolating data generation from analysis.
+**Structure Decision**: Single project structure selected to minimize overhead and ensure tight coupling between heuristic, agent, and analysis components, facilitating reproducibility on constrained CI runners.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Dual-Agent Pipeline | Required to isolate the variable (retrieval strategy) for the comparative study. | Single-agent run cannot establish the causal link between filtering and accuracy. |
-| Synthetic Dataset Generator | `Terminal-Bench-Evo` is not externally available; must be generated to ensure specific conflict patterns exist. | Using a generic terminal dataset would likely lack the specific "evolving state" contradictions required for the hypothesis. |
-| Threshold Sensitivity Analysis | Required by FR-008 to validate robustness. | Fixed threshold would not demonstrate the system's resilience to heuristic errors. |
-| GLMM Statistical Test | Required to handle binary outcomes and dependency structure correctly. | Wilcoxon on binary data is underpowered and inappropriate for this design. |
+| **Dual-Agent Pipeline** | Required by US-2 to isolate the filtering variable. | A single-agent approach cannot provide the comparative baseline needed for the research question. |
+| **Statistical Power Analysis** | Required by FR-009 and SC-006 to validate sample size. | Skipping this risks Type II errors (false negatives) in the McNemar test, invalidating the "significance" claim. |
+| **Sensitivity Analysis** | Required by FR-008 to handle ambiguity thresholds. | A fixed threshold risks brittle performance if the dataset distribution shifts; robustness must be proven. |
 
-## Methodology & Phases
+## Phased Implementation Plan
 
-### Phase 0: Data Validity Check (Pilot & Proxy)
-1.  **Pilot Study**: Generate `TARGET_TASKS` (default 20) tasks using `terminal_bench_evo_generator.py`.
-    *   **Validation**: Run against a "Human-in-the-Loop" or "Rule-Based Oracle" to verify that contradictions are non-trivial (i.e., an LLM without memory fails, but one with memory succeeds).
-    *   **Real-World Proxy**: Compare the distribution of synthetic contradictions (e.g., file existence toggles) against a small, public sample of terminal logs (e.g., from a standard Linux test suite) to ensure the generator mimics real-world dynamics.
-    *   **Threshold**: If contradictions are trivial or distribution mismatches, the generator logic must be revised before full-scale generation.
-2.  **Dataset Generation**: Upon pilot success, generate the full dataset (target `TARGET_TASKS` ≥ 200 tasks, `TARGET_PAIRS` ≥ 500 conflict pairs).
-    *   **Validation Gate**: If the generator produces fewer than `TARGET_TASKS` or `TARGET_PAIRS`, the pipeline logs a warning and proceeds with available data, but flags this limitation in the final report to prevent invalid statistical conclusions.
+### Phase 0: Research & Feasibility (Week 1)
+- **Step 0.1**: Verify `Terminal-Bench-Evo` availability and structure. If no verified URL exists, generate a synthetic subset of tasks with version updates and contradictions (per Assumptions) using the "Trace-Injection" methodology.
+- **Step 0.2**: Select and validate a CPU-tractable model (e.g., `distilbert-base-uncased` or similar) for semantic contradiction detection.
+- **Step 0.3**: Generate 500 synthetic labeled pairs for FR-001 validation using a **Dual-Oracle** verification layer (Oracle A generation, Oracle B semantic validation, manual audit) to prevent label leakage.
+- **Step 0.4**: Conduct power analysis (FR-009) to determine minimum task count ($N$) for MDES (Cohen's h) = 0.2, Power=0.8. *Note: Spec references Cohen's d; plan uses Cohen's h for binary data. Spec flagged for kickback.*
+- **Output**: `research.md` with dataset strategy, model selection rationale, and power analysis results.
 
-### Phase 1: Conflict Detector Development
-1.  **Model Selection**: Use `distilbert-base-uncased` (CPU-tractable, ~80M params) fine-tuned for binary classification (contradiction detection).
-    *   *Rationale*: Fits within 7GB RAM on CPU; faster inference than larger models; sufficient for semantic contradiction detection in short text patches.
-    *   *Constraint*: No 8-bit quantization or GPU usage. **Model size is fixed**; sensitivity analysis varies thresholds, not model architecture.
-2.  **Training Data**: Synthetic pairs generated using **Set A** contradiction rules (e.g., file existence toggles).
-3.  **Hold-out Strategy**: To prevent circular validation, the conflict detector is evaluated on a hold-out set generated using **Set B** contradiction rules (e.g., permission/ownership conflicts, temporal logic contradictions). This ensures the detector learns semantic contradiction rather than generator syntax.
-4.  **Thresholding**: Implement a confidence threshold. Patches with `prob(conflict) > threshold` are flagged.
-5.  **Sensitivity Analysis (FR-008)**: Run the detector with varying **confidence thresholds** (0.70, 0.80, 0.90) to observe trade-offs between false positives and false negatives.
+### Phase 1: Data Model & Contracts (Week 1)
+- **Step 1.1**: Define schemas for input patches, agent logs, and statistical outputs, ensuring alignment with `data-model.md`.
+- **Step 1.2**: Implement data ingestion scripts with checksums (Principle III).
+- **Step 1.3**: Create `contracts/*.schema.yaml` files.
+- **Step 1.4 (GATE)**: Record the result of the Power Analysis (Step 0.4) and set the `N` parameter. **Phase 2 cannot begin until this gate is passed and N is confirmed.**
+- **Output**: `data-model.md`, `quickstart.md`, and `contracts/`.
 
-### Phase 2: Agent Execution
-1.  **Baselines**:
-    *   `EvoMem-All`: Retrieves the last $N$ patches (e.g., last 10) regardless of content.
-    *   `EvoMem-Conflict`: Retrieves the latest state + patches flagged as conflicts. If no conflicts are detected, retrieves **latest state + 2 most recent non-conflict patches** (fallback) to ensure a consistent minimum context window size.
-2.  **Environment**: `Terminal-Bench-Evo` tasks (target a sufficient number of instances).
-3.  **Metrics Logged**:
-    *   `task_id`, `agent_variant`, `patches_retrieved`, `context_tokens`, `inference_time`, `success_status`, `hallucination_type`.
-    *   *Hallucination Definition*: **(Incorrect Command Execution) OR (State description similarity < 90% to Normalized Ground Truth)**. The **Normalized Ground Truth** is a canonical natural language summary generated by `code/data/generators/state_normalizer.py` (rule-based extraction from command logs).
+### Phase 2: Core Implementation (Week 2)
+- **Step 2.1**: Implement `conflict_detector.py` (FR-001) with threshold logic (FR-007). *Note: FR-008 sensitivity analysis is a separate experimental task (Step 2.5).*
+- **Step 2.2**: Implement `agent_variants.py` with fallback logic (latest + 2 recent). **Trigger Condition**: Fallback is ONLY triggered when the heuristic returns NO flags or fails, strictly adhering to Constitution Principle VI and Spec Edge Cases.
+- **Step 2.3**: Build `execution_pipeline.py` to run both agents on the task set (FR-003, FR-004).
+- **Step 2.4**: Implement `stats_analyzer.py` for McNemar test, noise reduction calculation, and **hallucination detection**.
+  - **Step 2.4.1**: Explicitly define the hallucination metric: Compute string similarity (Levenshtein ratio) between agent's state description and the ground truth state (derived from terminal command outcome). If similarity < 0.90, flag `hallucination_detected`.
+- **Step 2.5**: Execute **Sensitivity Analysis** (FR-008). Run the experiment across a range of thresholds, including high-confidence levels., with an additional lower threshold to be determined during implementation. and a lower bound and generate comparative reports. *Note: Spec FR-008 conflates implementation and design; plan separates them. Spec flagged for kickback.*
+- **Output**: Functional code in `src/`.
 
-### Phase 3: Statistical Analysis
-1.  **Primary Test**: **Generalized Linear Mixed Models (GLMM)** for binary accuracy outcomes, with task as a random effect. This accounts for the dependency structure and handles binary data appropriately.
-    *   *Null Hypothesis*: No difference in median accuracy between variants.
-    *   *Significance*: $p < 0.05$.
-2.  **Secondary Test**: Wilcoxon signed-rank test on accuracy scores per task (descriptive only).
-3.  **Noise Reduction**: Calculate mean percentage reduction in context tokens.
-4.  **Hallucination Rate**: Compare rates using GLMM.
-5.  **Unit of Analysis**: **Task** (aggregated per task). Step-level data is used only for descriptive token counts.
+### Phase 3: Integration & Validation (Week 2)
+- **Step 3.1**: Run unit tests on heuristic (Target: Precision/Recall ≥ 80% on the **500 labeled synthetic pairs** from Spec US-1).
+- **Step 3.2**: Run integration tests on a small subset of tasks to verify logging and fallback logic.
+- **Step 3.3**: Execute full experiment on determined sample size ($N$).
+- **Step 3.4**: Generate final report with statistical significance (McNemar's test) and noise reduction metrics.
+- **Output**: `data/logs` artifacts, final report, `research_review` artifacts.
 
-## Feasibility & Constraints
-
-- **Compute**: Target multiple CPU cores, 7GB RAM. `distilbert-base-uncased` inference is < 500ms/patch. A moderate number of tasks × ~ steps/task × 2 agents A substantial number of inferences. Total runtime estimated < 2 hours.
-- **Memory**: Synthetic data is text-based; model is < 1GB. Fits comfortably.
-- **Risk Mitigation**:
-    *   *Low Conflict Rate*: If the generator produces < 10% conflicts, the study will flag this limitation. The fallback mechanism (latest state + 2 most recent non-conflict patches) ensures the agent still runs.
-    *   *Detector Failure*: If confidence < 0.90, patch is treated as non-conflict (conservative).
-
-## References
-- **Dataset**: `Terminal-Bench-Evo` (Synthetic, generated by `code/data/generators/terminal_bench_evo_generator.py`). No external URL.
-- **Model**: HuggingFace `distilbert-base-uncased` (Standard CPU model).
+### Phase 4: Reporting & Cleanup (Week 3)
+- **Step 4.1**: Verify all citations and checksums (Principle II, III).
+- **Step 4.2**: Ensure reproducibility by running `run_experiment.py` from scratch on a clean runner.
+- **Step 4.3**: Finalize `paper.md` draft with results.
+- **Output**: `research_complete` status.

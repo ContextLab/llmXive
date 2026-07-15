@@ -28,11 +28,11 @@
 
 **Why this priority**: This enables the comparative analysis. It ensures that the only variable changing between runs is the memory retrieval strategy, allowing for a controlled experiment.
 
-**Independent Test**: Can be tested by running a subset of 10 tasks on both agents and verifying that `EvoMem-All` retrieves $N$ patches while `EvoMem-Conflict` retrieves $M$ patches (where $M < N$) and that both agents produce a log entry for every task step.
+**Independent Test**: Can be tested by running a subset of tasks on both agents and verifying that `EvoMem-All` retrieves $N$ patches while `EvoMem-Conflict` retrieves $M$ patches (where $M < N$) and that both agents produce a log entry for every task step.
 
 **Acceptance Scenarios**:
 1. **Given** a task requiring a file rollback, **When** `EvoMem-All` executes, **Then** it retrieves the last $N$ patches (including non-conflicting history).
-2. **Given** the same task, **When** `EvoMem-Conflict` executes, **Then** it retrieves only the latest state and patches flagged as conflicts by the heuristic from User Story 1.
+2. **Given** the same task, **When** `EvoMem-Conflict` executes, **Then** it retrieves the latest state plus any patches flagged as conflicts, ensuring a minimum of the 2 most recent non-conflict patches are included if no conflicts are detected.
 3. **Given** a completed run of 200 tasks, **When** the logs are aggregated, **Then** the system produces a CSV containing columns for `task_id`, `agent_variant`, `context_tokens`, `inference_time`, and `success_status`.
 
 ---
@@ -54,22 +54,23 @@
 
 ### Edge Cases
 
-- **What happens when the conflict detector produces no flags?** The `EvoMem-Conflict` agent must fall back to retrieving the latest state only (or a minimal context window) to ensure the agent does not run with an empty context, which would cause immediate failure.
-- **How does the system handle ambiguous contradictions?** If the heuristic cannot determine a contradiction with a softmax probability score > 0.90 (90% confidence), the patch is treated as non-conflicting (conservative approach) to avoid false positives that would discard necessary context.
-- **What if the dataset lacks sufficient conflicts?** If a small fraction of the 200 tasks contain detectable conflicts, the system must flag this in the final report as a dataset limitation, preventing invalid statistical conclusions.
+- **What happens when the conflict detector produces no flags?** The `EvoMem-Conflict` agent MUST retrieve the latest state plus the 2 most recent non-conflict patches to ensure sufficient context and prevent failure due to context starvation, isolating the effect of filtering logic.
+- **How does the system handle ambiguous contradictions?** If the heuristic cannot determine a contradiction with a softmax probability score > 0.90 (90% confidence), the patch is treated as non-conflicting (conservative approach) to avoid false positives that would discard necessary context. This threshold is explicitly varied in the sensitivity analysis (FR-008).
+- **What if the dataset lacks sufficient conflicts?** If a small fraction of the tasks contain detectable conflicts, the system must flag this in the final report as a dataset limitation, preventing invalid statistical conclusions.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST implement a conflict-detection heuristic using a CPU-tractable model (e.g., a compact parameter scale) to identify semantic contradictions between memory patches and the current state. Validation MUST use a dataset of ≥ 500 labeled synthetic pairs. (See US-1)
-- **FR-002**: System MUST filter the memory retrieval stream to include only the latest state and patches flagged as conflicts by FR-001 for the `EvoMem-Conflict` variant. (See US-1, US-2)
+- **FR-002**: System MUST filter the memory retrieval stream to include the latest state and patches flagged as conflicts by FR-001 for the `EvoMem-Conflict` variant. If the set of flagged conflicts is empty, the system MUST retrieve the latest state plus the 2 most recent non-conflict patches to ensure a minimum context window. (See US-1, US-2)
 - **FR-003**: System MUST execute both `EvoMem-All` and `EvoMem-Conflict` agents on a representative set of tasks from the `Terminal-Bench-Evo` dataset. (See US-2)
 - **FR-004**: System MUST log the number of retrieved patches, total context tokens, and step-level success status for every task execution. (See US-2)
 - **FR-005**: System MUST perform a Wilcoxon signed-rank test on the accuracy distributions of the two agent variants to determine statistical significance. (See US-3)
 - **FR-006**: System MUST calculate the "memory noise" reduction rate by comparing the average number of non-conflict patches retrieved in `EvoMem-All` vs. `EvoMem-Conflict`. (See US-3)
-- **FR-007**: System MUST handle cases where the conflict detector fails or times out by defaulting to a safe retrieval mode (latest state only) to prevent agent crashes. (See US-2)
-- **FR-008**: System MUST perform a sensitivity analysis on the conflict detector's performance across a range of thresholds and model sizes to validate robustness. (See US-1)
+- **FR-007**: System MUST handle cases where the conflict detector fails or times out by defaulting to a safe retrieval mode that includes the latest state plus the 2 most recent non-conflict patches to prevent agent crashes and context starvation. (See US-2)
+- **FR-008**: System MUST perform a sensitivity analysis on the conflict detector's performance across a range of ambiguity thresholds and model sizes to validate robustness. (See US-1)
+- **FR-009**: System MUST conduct a power analysis prior to the main experiment to justify the sample size, targeting a minimum detectable effect size (MDES) of 0.2 (Cohen's d) with statistical power ≥ 0.8 at α = 0.05. (See US-3)
 
 ### Key Entities
 
@@ -88,14 +89,15 @@
 - **SC-002**: The hallucination rate (defined as incorrect terminal command execution or state misinterpretation where the LLM's output state description matches the ground truth state description with < 90% string similarity) is measured against the baseline `EvoMem-All` variant. (See US-3)
 - **SC-003**: The reduction in context window size (in tokens) is measured against the `EvoMem-All` baseline to quantify efficiency gains. (See US-3)
 - **SC-004**: Statistical significance of the accuracy difference is measured against a p-value threshold of 0.05 using a Wilcoxon signed-rank test. (See US-3)
-- **SC-005**: The computational feasibility is measured against the constraint of running the full multi-task experiment within a standard GitHub Actions runner time limit on 2 CPU cores. (See US-2)
+- **SC-005**: The computational feasibility is measured against the constraint of running the full multi-task experiment within a standard GitHub Actions runner time limit on a limited number of CPU cores. (See US-2)
+- **SC-006**: The sample size justification is measured against the power analysis requirements, confirming the ability to detect a minimum effect size of 0.2 (Cohen's d) with power ≥ 0.8. (See US-3)
 
 ## Assumptions
 
 - The `Terminal-Bench-Evo` dataset contains a sufficient number of tasks (≥ 200) with explicit version updates and contradictions to yield statistically significant results.
 - The "conflict" definition (semantic contradiction) can be reliably captured by a distilled 0.5B parameter model running on CPU without requiring GPU acceleration or 8-bit quantization. If this assumption fails, the sensitivity analysis in FR-008 will trigger a fallback to a larger model or heuristic.
 - The `Terminal-Bench-Evo` dataset variables (state patches, command outcomes) are complete and sufficient for the analysis; no external data sources are required.
-- The GitHub Actions free-tier runner (standard CPU allocation, sufficient RAM) is sufficient to load a medium-scale model and process a multi-task dataset within the 6-hour job limit.
+- The GitHub Actions free-tier runner (standard CPU allocation, sufficient RAM) is sufficient to load a medium-scale model and process a multi-task dataset within the standard job time limit..
 - The hallucination metric is defined strictly by the failure to execute the correct terminal command or the production of an incorrect state description (with < 90% string similarity to ground truth), independent of the memory retrieval mechanism.
 - The conflict detection heuristic is deterministic for a given input, ensuring reproducible results across the two agent variants.
 - A power analysis will be conducted to justify an adequate sample size for the Wilcoxon signed-rank test.

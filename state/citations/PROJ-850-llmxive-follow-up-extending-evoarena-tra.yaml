@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 0d78af2975072f205c818e2b17e706a723bf3ac491011fb975e837f68b885a2a
+  artifact_path: projects/PROJ-850-llmxive-follow-up-extending-evoarena-tra/specs/001-llmxive-follow-up-extending-evoarena-tra/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-15T00:08:17.502871Z'

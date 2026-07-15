@@ -1,26 +1,26 @@
-resolved_at: '2026-07-12T19:17:34.473847+00:00'
+resolved_at: '2026-07-14T23:44:59.177537+00:00'
 datasets:
 - intent: EvoMem
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Too_hot_to_slow_down_Extreme_heat_working_hours_and_constrained_adaptation_in_Punjab_Pakistan/32969210
+  - url: https://figshare.com/articles/preprint/Harmonic-Interference_Relational_Spacetime_HIRS_A_Single_Lorentz_Substitution_as_the_Origin_of_Emergent_Dark_Energy_Time-Axis_Curvature_and_Resolution_of_Major_Cosmological_Anomalies/32049129
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_Dual-Aspect_Monism_Under_the_Dimensional_Phase_Transition_Framework_Structural_Isomorphism_Between_Physical_and_Experiential_Order_b_/32969219
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecularly_Imprinted_Polymers_as_Interceptors_of_Bacterial_Quorum_Sensing_Design_Principles_Translational_Challenges_and_Therapeutic_Applications/32988040
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Networks_of_localized_weapon_production_International_arms_trade_and_the_diffusion_of_military_technology/32969213
+  - url: https://acs.figshare.com/articles/journal_contribution/Dehydrative_Amidation_of_Carboxylic_Acids_via_Organosilane_Catalysis/32988037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+  - url: https://agresearch.figshare.com/articles/journal_contribution/Effect_of_weaning_system_on_lamb_growth_mammary_gland_development_and_ewe_milk_production_in_dairy_sheep_managed_in_an_outdoor_pasture-based_commercial_farming_system/32831321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+  - url: https://figshare.com/articles/figure/Template_Bias_Heatmap_Standard_and_Extended_Condition_Comparison_in_GPT-5_5_Image_Generation/32901929
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,31 +36,27 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Too_hot_to_slow_down_Extreme_heat_working_hours_and_constrained_adaptation_in_Punjab_Pakistan/32969210
+  - url: https://acs.figshare.com/articles/journal_contribution/Facet-Resolved_Electric_Double_Layer_of_Polycrystalline_Gold/32988043
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/thesis/_b_Dual-Aspect_Monism_Under_the_Dimensional_Phase_Transition_Framework_Structural_Isomorphism_Between_Physical_and_Experiential_Order_b_/32969219
+  - url: https://figshare.com/articles/preprint/Harmonic-Interference_Relational_Spacetime_HIRS_A_Single_Lorentz_Substitution_as_the_Origin_of_Emergent_Dark_Energy_Time-Axis_Curvature_and_Resolution_of_Major_Cosmological_Anomalies/32049129
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Networks_of_localized_weapon_production_International_arms_trade_and_the_diffusion_of_military_technology/32969213
+  - url: https://acs.figshare.com/articles/journal_contribution/Molecularly_Imprinted_Polymers_as_Interceptors_of_Bacterial_Quorum_Sensing_Design_Principles_Translational_Challenges_and_Therapeutic_Applications/32988040
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Impact_assessment_of_corporate_social_responsibility_A_special_context_of_third_party/32071857
+  - url: https://acs.figshare.com/articles/journal_contribution/Dehydrative_Amidation_of_Carboxylic_Acids_via_Organosilane_Catalysis/32988037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://rdr.ucl.ac.uk/articles/media/_b_Meet_the_Funders_Round_Table_b_b_30_June_2025_Malwina_G_balska_NCN_Poland_b_/32801889
+  - url: https://agresearch.figshare.com/articles/journal_contribution/Effect_of_weaning_system_on_lamb_growth_mammary_gland_development_and_ewe_milk_production_in_dairy_sheep_managed_in_an_outdoor_pasture-based_commercial_farming_system/32831321
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5524642
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,7 +68,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

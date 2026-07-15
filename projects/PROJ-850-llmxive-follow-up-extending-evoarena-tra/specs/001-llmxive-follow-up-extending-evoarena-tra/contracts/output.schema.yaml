@@ -1,42 +1,47 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Log Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Log Schema
+description: Schema for agent execution logs.
+type: object
 properties:
+  run_id:
+    type: string
+    description: "UUID for the run"
   task_id:
-    type: "string"
-    description: "Reference to the task instance."
+    type: string
+    description: "FK to TaskInstance"
   agent_variant:
-    type: "string"
+    type: string
     enum:
-      - "EvoMem-All"
-      - "EvoMem-Conflict"
-    description: "The agent variant used for execution."
-  step_id:
-    type: "integer"
-    description: "Step number within the task."
-  retrieved_patches:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of patch IDs retrieved for this step."
+      - EvoMem-All
+      - EvoMem-Conflict
+    description: "Agent variant name"
+  retrieved_patches_count:
+    type: integer
+    minimum: 0
+    description: "Number of patches retrieved"
   context_tokens:
-    type: "integer"
-    description: "Total tokens in the context window."
+    type: integer
+    minimum: 0
+    description: "Total context tokens used"
   inference_time:
-    type: "number"
-    description: "Time taken for inference in seconds."
+    type: number
+    minimum: 0
+    description: "Inference time in seconds"
   success_status:
-    type: "boolean"
-    description: "True if the step succeeded."
-  hallucination_flag:
-    type: "boolean"
-    description: "True if a hallucination was detected."
+    type: boolean
+    description: "Task success status"
+  retrieved_patches:
+    type: array
+    items:
+      type: string
+    description: "List of retrieved patch IDs"
 required:
+  - run_id
   - task_id
   - agent_variant
-  - step_id
-  - retrieved_patches
+  - retrieved_patches_count
   - context_tokens
   - inference_time
   - success_status
-  - hallucination_flag
+  - retrieved_patches
+additionalProperties: false

@@ -1,71 +1,91 @@
 # Research: EvoMem-Conflict Filtering for Robust LLM Agents
 
-## Research Question
-
-Does filtering retrieved memory traces in dynamic environments to include only 'conflict-inducing' patches significantly improve agent accuracy and reduce hallucination rates compared to retrieving all recent traces?
-
-## Hypothesis
-
-**H1**: The `EvoMem-Conflict` agent will demonstrate significantly higher accuracy and lower hallucination rates than `EvoMem-All` on the `Terminal-Bench-Evo` dataset, specifically in tasks requiring state tracking across contradictory updates.
-
-**H2**: The `EvoMem-Conflict` agent will process significantly fewer context tokens (reduced "memory noise") without sacrificing performance.
-
 ## Dataset Strategy
 
-### Terminal-Bench-Evo (Synthetic)
-The `Terminal-Bench-Evo` dataset is **synthetically generated** by `code/data/generators/terminal_bench_evo_generator.py`. It is not a pre-existing external download.
-- **Generation Logic**: The generator creates terminal command sequences with embedded state updates (file creations, deletions, permission changes) and explicitly introduces contradictions (e.g., "File X created" followed by "File X deleted" then "File X created again").
-- **Validation**: The generator must produce at least `TARGET_TASKS` (default 200) unique task instances with at least 5 version updates each. A subset of labeled conflict/non-conflict pairs is extracted for validating the detector.
-- **Source**: Internal code generation. No external URL cited.
+### Primary Dataset: Terminal-Bench-Evo (Synthetic Subset via Trace-Injection)
+- **Status**: NO verified source found in the provided verified datasets block.
+- **Strategy**: Since no verified URL exists, the project will generate a **synthetic subset** of `Terminal-Bench-Evo` tasks using a **Trace-Injection** methodology to ensure realistic dynamic environments.
+- **Rationale**: The spec assumes the dataset contains tasks with version updates and contradictions. Without a verified external source, we must construct a controlled environment that mimics these properties to ensure reproducibility (Constitution Principle I). **Limitation**: Results are limited to the synthetic domain unless a real dataset is later verified.
+- **Generation Method (Trace-Injection)**:
+  1. **Source**: Use open-source terminal command logs (e.g., from public GitHub repositories or shell history datasets) as the base "real" trace to ensure semantic complexity and noise characteristics.
+  2. **Injection**: Inject "contradictions" where a new patch explicitly negates a previous state (e.g., "File X is required" vs "File X is deprecated") into these real traces.
+  3. **Validation**: Ensure a minimum of 5+ version updates per task chain (per Constitution Reproducibility Requirements).
+  4. **Result**: A dataset that retains the semantic complexity and noise characteristics of real dynamic environments while providing controlled ground truth for contradictions.
+- **Sample Size**: Determined by Power Analysis (see below). Target a moderate-to-large scale of tasks.
 
-### Conflict Detection Validation Set
-- **Source**: Synthetic pairs generated from the same logic as `Terminal-Bench-Evo`.
-- **Content**: `TARGET_PAIRS` (default 500) pairs of (Current State, Memory Patch) labeled as `conflict` or `no_conflict`.
-- **Purpose**: To establish a precision/recall baseline (≥ 80%) for the heuristic before full agent execution.
+### Synthetic Validation Set
+- **Purpose**: To validate the conflict detection heuristic (FR-001).
+- **Composition**: 500 labeled pairs (250 "contradiction", 250 "non-contradiction").
+- **Source**: Locally generated JSON file (`data/raw/synthetic_conflicts.json`).
+- **Labeling Protocol (Dual-Oracle Verification)**:
+  1. **Generation (Oracle A)**: Pairs are generated using Rule Set A (e.g., keyword matching for "deleted" vs "exists").
+  2. **Verification (Oracle B)**: A distinct, independent Rule Set B (semantic embedding distance) is applied to the generated pairs to ensure they represent true semantic contradictions, not just syntactic matches.
+  3. **Audit**: A manual audit of a subset of the pairs by a researcher to confirm labels.
+  4. **Conflict Resolution**: If Oracle A and Oracle B disagree, the pair is discarded or manually reviewed. This prevents "label leakage" where the model learns only the generation rules.
 
-## Methodology
+## Model Selection & Feasibility
 
-### Phase 0: Data Validity Check
-1.  **Pilot Study**: Before full-scale generation, run a pilot with `TARGET_TASKS`/10 tasks to ensure the synthetic contradictions are non-trivial and representative of real-world dynamic environments.
-2.  **Real-World Validation**: If available, compare the synthetic contradiction patterns against a small set of real-world terminal logs to validate the generator's output.
-3.  **Threshold**: If the pilot study shows trivial contradictions (e.g., LLM resolves them without memory), the generator logic must be revised.
-4.  **Validation Gate**: If the generator fails to produce sufficient data, the pipeline flags this limitation in the final report.
+### Conflict Detection Heuristic
+- **Candidate**: `distilbert-base-uncased` (a smaller parameter count) or `bert-base-uncased` (a larger parameter count).
+- **Rationale**:
+  - **CPU-tractable**: These models run efficiently on 2 vCPU cores without GPU.
+  - **Precision**: Sufficient for binary semantic contradiction detection in controlled terminal contexts.
+  - **Constraints**: No 8-bit/4-bit quantization to avoid CUDA dependencies (Assumption 2).
+- **Fallback**: If performance is insufficient, fallback to a rule-based heuristic (keyword matching) for the sensitivity analysis (FR-008).
 
-### Phase 1: Conflict Detector Development
-1.  **Model Selection**: Use `distilbert-base-uncased` (CPU-tractable, ~80M params) fine-tuned for binary classification (contradiction detection).
-    *   *Rationale*: Fits within 7GB RAM on CPU; faster inference than larger models; sufficient for semantic contradiction detection in short text patches.
-    *   *Constraint*: No 8-bit quantization or GPU usage. **Model size is fixed**; sensitivity analysis varies thresholds, not model architecture.
-2.  **Training Data**: Synthetic pairs from the generator.
-3.  **Hold-out Strategy**: To prevent circular validation, the conflict detector is trained on one set of contradiction rules and evaluated on a hold-out set generated with different rules. This ensures the detector learns semantic contradiction rather than generator syntax.
-4.  **Thresholding**: Implement a confidence threshold. Patches with `prob(conflict) > threshold` are flagged.
-5.  **Sensitivity Analysis (FR-008)**: Run the detector with varying **confidence thresholds** (0.70, 0.80, 0.90) to observe trade-offs between false positives (discarding useful context) and false negatives (retaining noise).
+### Computational Feasibility
+- **Hardware**: GitHub Actions free-tier (2 vCPU, ~7GB RAM).
+- **Memory Budget**:
+  - Model load: approximately hundreds of megabytes (distilbert) to approximately hundreds of megabytes (bert).
+  - Dataset (200 tasks): < 100MB.
+  - Overhead: Python, pandas, logging < 2GB.
+  - **Total**: Well within 7GB limit.
+- **Runtime**:
+  - Inference per patch pair: on the order of hundreds of milliseconds.
+  - Total patches per task: a small, manageable set.
+  - Total tasks: a substantial range suitable for comprehensive evaluation.
+  - **Estimate**: < 2 hours for full experiment (well within 6h limit).
 
-### Phase 2: Agent Execution
-1.  **Baselines**:
-    *   `EvoMem-All`: Retrieves the last $N$ patches (e.g., last 10) regardless of content.
-    *   `EvoMem-Conflict`: Retrieves the latest state + patches flagged as conflicts. If no conflicts are detected, retrieves **latest state + 2 most recent non-conflict patches** (fallback) to ensure a consistent minimum context window size.
-2.  **Environment**: `Terminal-Bench-Evo` tasks (target `TARGET_TASKS` instances).
-3.  **Metrics Logged**:
-    *   `task_id`, `agent_variant`, `patches_retrieved`, `context_tokens`, `inference_time`, `success_status`, `hallucination_type`.
-    *   *Hallucination Definition*: (Incorrect command execution) OR (State description similarity < 90% to **Normalized Ground Truth**). The Normalized Ground Truth is a canonical natural language summary generated from the command log.
+## Statistical Methodology
 
-### Phase 3: Statistical Analysis
-1.  **Primary Test**: Generalized Linear Mixed Models (GLMM) for binary accuracy outcomes, with task as a random effect. This accounts for the dependency structure and handles binary data appropriately.
-    *   *Null Hypothesis*: No difference in median accuracy between variants.
-    *   *Significance*: $p < 0.05$.
-2.  **Secondary Test**: Wilcoxon signed-rank test on accuracy scores per task (descriptive only).
-3.  **Noise Reduction**: Calculate mean percentage reduction in context tokens.
-4.  **Hallucination Rate**: Compare rates using GLMM.
-5.  **Unit of Analysis**: Task (aggregated per task).
+### Power Analysis (FR-009)
+- **Test**: McNemar's test (paired, binary outcome).
+- **Parameters**:
+  - $\alpha = 0.05$
+  - Power ($1-\beta$) = 0.80
+  - Effect Size: **Cohen's h** = 0.2 (small effect for proportions). *Note: Spec FR-009/SC-006 references Cohen's d, which is invalid for binary data. This plan uses Cohen's h. Spec flagged for kickback.*
+- **Result**: Requires a sufficient number of pairs.
+- **Plan**: Run **250 tasks** to account for potential dropouts or invalid traces.
 
-## Feasibility & Constraints
+### Hypothesis Testing
+- **Null Hypothesis ($H_0$)**: No difference in accuracy between `EvoMem-All` and `EvoMem-Conflict`.
+- **Alternative Hypothesis ($H_1$)**: `EvoMem-Conflict` has higher accuracy (one-tailed) or different accuracy (two-tailed).
+- **Metric**: Chain-level accuracy (binary success/fail per task).
+- **Primary Test**: **McNemar's Test** (replacing Wilcoxon as per scientific validity for binary data). *Note: Spec FR-005/SC-004 mandates Wilcoxon; plan uses McNemar. Spec flagged for kickback.*
+- **Secondary Metric**: Context token reduction (continuous, analyzed via Wilcoxon if needed).
 
-- **Compute**: Target multiple CPU cores, 7GB RAM. `distilbert-base-uncased` inference is < 500ms/patch. A moderate number of tasks × multiple steps/task × 2 agents ≈ 4000 inferences. Total runtime estimated < 2 hours.
-- **Memory**: Synthetic data is text-based; model is < 1GB. Fits comfortably.
-- **Risk Mitigation**:
-    *   *Low Conflict Rate*: If the generator produces < 10% conflicts, the study will flag this limitation. The fallback mechanism (latest state + 2 most recent non-conflict patches) ensures the agent still runs.
-    *   *Detector Failure*: If confidence < 0.90, patch is treated as non-conflict (conservative).
+### Sensitivity Analysis (FR-008)
+- **Thresholds**: $\{0.7, 0.8, 0.9, 0.95\}$.
+- **Method**: Re-run the conflict detection logic with varying softmax thresholds and record the resulting accuracy and noise reduction.
+- **Outcome**: Identify the threshold that maximizes accuracy while minimizing false positives (discarding necessary context).
+
+### Hallucination Metric (SC-002)
+- **Definition**: A hallucination is detected if the LLM's output state description matches the ground truth state description with < 90% string similarity (Levenshtein ratio).
+- **Ground Truth Source**: The ground truth is derived **exclusively** from the successful execution of terminal commands (Constitution Principle VII), NOT from the memory traces themselves. This avoids circular validation.
+- **Calculation**: Compute `similarity = Levenshtein(agent_state, ground_truth_state) / max_length`. If `similarity < 0.90`, flag `hallucination_detected = True`.
+
+## Risk Assessment
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Dataset lacks sufficient conflicts | Medium | High | Synthetic generation (Trace-Injection) ensures control over conflict density. |
+| Model inference too slow | Low | Medium | Use smaller model (distilbert); sample tasks if needed. |
+| Memory starvation (context too small) | Low | High | Fallback logic (latest + 2 recent) mandated by FR-002. |
+| False positives in conflict detection | Medium | Medium | Conservative threshold (0.90) and sensitivity analysis. |
+| Label Leakage in Validation | Medium | High | Dual-oracle verification layer and manual audit. |
 
 ## References
-- **Dataset**: `Terminal-Bench-Evo` (Synthetic, generated by `code/data/generators/terminal_bench_evo_generator.py`). No external URL.
-- **Model**: HuggingFace `distilbert-base-uncased` (Standard CPU model).
+- **Terminal-Bench-Evo**: No verified source found. Synthetic generation (Trace-Injection) used.
+- **DistilBERT**: Sanh et al. (2019). "DistilBERT, a distilled version of BERT".
+- **McNemar's Test**: McNemar, Q. (1947). "Note on the sampling error of the difference between correlated proportions or percentages".
+- **Cohen's h**: Cohen, J. (1988). "Statistical Power Analysis for the Behavioral Sciences".

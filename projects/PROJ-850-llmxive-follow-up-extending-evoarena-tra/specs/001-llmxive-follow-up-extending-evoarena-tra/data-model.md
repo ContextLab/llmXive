@@ -2,58 +2,78 @@
 
 ## Overview
 
-This document defines the data structures used for the `EvoMem-Conflict` feature. All data is stored in JSON/CSV formats to ensure portability and reproducibility.
+This document defines the data structures, schemas, and storage formats for the EvoMem-Conflict project. All data is stored locally in `data/` and processed via Python scripts.
 
-## Entity Definitions
+## Entities
 
 ### 1. Memory Patch
 A discrete record of a state change.
-- `patch_id`: Unique string identifier.
-- `timestamp`: ISO 8601 string.
-- `content`: String (the state description or command).
-- `source`: String (e.g., "user_command", "system_log").
-- `is_conflict`: Boolean (set by detector).
-- `confidence_score`: Float (0.0 - 1.0).
+- **Fields**:
+  - `id`: Unique identifier (UUID).
+  - `timestamp`: ISO 8601 string.
+  - `content`: String (the state description or command).
+  - `source`: String (origin of the patch).
+  - `is_conflict`: Boolean (flag set by heuristic).
+  - `confidence`: Float (0.0-1.0, probability of conflict).
 
 ### 2. Task Instance
-A single experiment run unit.
-- `task_id`: Unique string.
-- `ground_truth_commands`: List of strings (expected terminal commands).
-- `expected_state_history`: List of `MemoryPatch` objects (full history).
-- `seed`: Integer (for reproducibility).
+A specific terminal command sequence requiring state tracking.
+- **Fields**:
+  - `task_id`: Unique identifier.
+  - `initial_state`: String (description of starting state).
+  - `goal`: String (desired end state).
+  - `patches`: List of `MemoryPatch` objects.
+  - `ground_truth_commands`: List of strings (expected commands).
 
-### 3. Execution Log
-Record of an agent's action on a task.
-- `run_id`: Unique string.
-- `task_id`: Reference to `Task Instance`.
-- `agent_variant`: Enum (`EvoMem-All`, `EvoMem-Conflict`).
-- `step`: Integer.
-- `retrieved_patches`: List of `patch_id`.
-- `context_tokens`: Integer.
-- `inference_time_ms`: Float.
-- `command_executed`: String (actual command run).
-- `success`: Boolean (command matches ground truth).
-- `hallucination_detected`: Boolean.
-- `hallucination_reason`: String (e.g., "wrong_command", "state_mismatch", "command_execution_failure").
-- `normalized_ground_truth_similarity`: Float (0.0 - 1.0).
+### 3. Agent Execution Log
+Record of a single task execution by an agent variant.
+- **Fields**:
+  - `run_id`: UUID.
+  - `task_id`: FK to `TaskInstance`.
+  - `agent_variant`: String (`EvoMem-All` or `EvoMem-Conflict`).
+  - `step`: Integer (step number within the task execution).
+  - `retrieved_patches_count`: Integer.
+  - `retrieved_patches`: List of `MemoryPatch` IDs.
+  - `context_tokens`: Integer.
+  - `inference_time_ms`: Float (milliseconds).
+  - `command_executed`: String (the actual terminal command executed).
+  - `success`: Boolean.
+  - `hallucination_detected`: Boolean.
+  - `hallucination_reason`: String (e.g., "wrong_command", "state_mismatch", "command_execution_failure", "none").
+  - `normalized_ground_truth_similarity`: Float (0.0-1.0, string similarity score).
+  - `confidence_score`: Float (only for EvoMem-Conflict, null otherwise).
+  - `additional_metadata`: Object (optional).
 
-### 4. Analysis Result
-Aggregated metrics for a task.
-- `task_id`: String.
-- `variant`: String.
-- `accuracy`: Float (0.0 - 1.0).
-- `hallucination_rate`: Float.
-- `avg_tokens`: Float.
-- `p_value`: Float (from Wilcoxon test, if applicable).
+### 4. Statistical Result
+Aggregated results from the analysis.
+- **Fields**:
+  - `test_type`: String (e.g., "McNemar").
+  - `p_value`: Float.
+  - `statistic`: Float.
+  - `effect_size`: Float.
+  - `noise_reduction_pct`: Float.
+  - `threshold_used`: Float.
+
+## File Formats
+
+### Input Data (JSON)
+- **Location**: `data/raw/synthetic_conflicts.json`, `data/raw/tasks.json`.
+- **Format**: JSON array of objects.
+
+### Execution Logs (CSV)
+- **Location**: `data/logs/execution_logs.csv`.
+- **Format**: CSV with headers: `run_id,task_id,agent_variant,step,retrieved_patches_count,retrieved_patches,context_tokens,inference_time_ms,command_executed,success,hallucination_detected,hallucination_reason,normalized_ground_truth_similarity,confidence_score,additional_metadata`.
+
+### Checksums (YAML)
+- **Location**: `state/projects/PROJ-850-.../artifact_hashes.yaml`.
+- **Format**: YAML mapping filenames to SHA256 hashes.
 
 ## Data Flow
 
-1.  **Generation**: `terminal_bench_evo_generator.py` creates `Task Instance` JSONs.
-2.  **Detection**: `conflict_detector.py` processes patches, outputs `is_conflict` and `confidence_score`.
-3.  **Execution**: `agents/` generate `Execution Log` CSVs.
-4.  **Analysis**: `analysis/stats.py` produces `Analysis Result` JSONs.
-
-## Hallucination Metric Definition
-To satisfy **SC-002**, a hallucination is recorded if:
-1.  The `command_executed` does not match any command in `ground_truth_commands` (Incorrect Command Execution).
-2.  **OR** the `normalized_ground_truth_similarity` (string similarity between the agent's state description and the Normalized Ground Truth) is < 0.90.
+1. **Ingestion**: Raw data loaded from `data/raw/`.
+2. **Processing**:
+   - Synthetic conflicts generated (if needed).
+   - Patches filtered by conflict detector.
+   - Agent logs written to `data/logs/`.
+3. **Analysis**: Logs aggregated into statistical results.
+4. **Archiving**: All raw and processed data checksummed.

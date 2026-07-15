@@ -1,67 +1,67 @@
 # Quickstart: EvoMem-Conflict Filtering
 
 ## Prerequisites
+
 - Python 3.11+
 - Git
-- Sufficient RAM (recommended for smooth operation, with a defined minimum threshold)
+- Access to a GitHub Actions runner (or local equivalent with 2+ vCPU, 7GB+ RAM).
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-850-llmxive-follow-up-extending-evoarena-tra
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-850-llmxive-follow-up-extending-evoarena-tra/code/
+   ```
 
-2.  **Create a virtual environment** and install dependencies.
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r code/requirements.txt
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Verify CPU-only mode** (optional but recommended).
-    ```bash
-    python -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
-    # Expected: CUDA Available: False
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the CI runner.*
 
 ## Running the Experiment
 
-### Step 1: Generate Synthetic Dataset
-Generate the `Terminal-Bench-Evo` dataset (Synthetic Generator) and the conflict validation pairs.
+### 1. Generate Synthetic Data (if needed)
+If the `Terminal-Bench-Evo` dataset is not available locally, generate the synthetic subset:
 ```bash
-python code/data/generators/terminal_bench_evo_generator.py --output data/terminal_bench_evo.json --seed 42 --target_tasks 200 --target_pairs 500
-```
-*This creates `data/terminal_bench_evo.json` and `data/conflict_pairs.json`. The `--target_tasks` and `--target_pairs` flags allow dynamic adjustment if the generator underperforms.*
-
-### Step 2: Train/Load Conflict Detector
-(If using a pre-trained model, skip training. If fine-tuning, run:)
-```bash
-python code/models/conflict_detector.py --mode train --data data/conflict_pairs.json --model distilbert-base-uncased
-```
-*This saves the model to `code/models/checkpoints/conflict_detector.pt`.*
-
-### Step 3: Execute Agents
-Run both agents on the generated dataset.
-```bash
-python code/main.py --dataset data/terminal_bench_evo.json --variants all,conflict --output data/execution_logs.csv
-```
-*This runs the experiment and outputs `data/execution_logs.csv`.*
-
-### Step 4: Analyze Results
-Run the statistical analysis and generate the report.
-```bash
-python code/analysis/stats.py --input data/execution_logs.csv --output data/analysis_report.json
+python src/data/generate_synthetic.py --output data/raw/tasks.json --count 250
 ```
 
-## Expected Output
-- `data/execution_logs.csv`: Raw logs for every task step.
-- `data/analysis_report.json`: Aggregated metrics, p-values, and noise reduction stats.
-- `data/conflict_pairs.json`: Validation dataset for the detector.
+### 2. Run the Heuristic Validation
+Test the conflict detector on the synthetic pairs:
+```bash
+python src/tests/unit/test_conflict_detector.py
+```
+*Expected: Precision/Recall ≥ 80% on the 500 synthetic pairs.*
+
+### 3. Execute the Full Experiment
+Run both agent variants on the task set:
+```bash
+python run_experiment.py --tasks data/raw/tasks.json --output data/logs/execution_logs.csv
+```
+*This will run `EvoMem-All` and `EvoMem-Conflict` on all tasks and log results.*
+
+### 4. Analyze Results
+Generate the statistical report:
+```bash
+python src/stats_analyzer.py --input data/logs/execution_logs.csv --output data/reports/final_report.md
+```
+
+## Verification
+
+- **Check Logs**: Ensure `data/logs/execution_logs.csv` contains entries for all tasks and both variants.
+- **Check Stats**: Verify the final report includes a p-value < 0.05 (if significant) and noise reduction percentage.
+- **Reproducibility**: Re-run `run_experiment.py` and compare the checksum of `execution_logs.csv`.
 
 ## Troubleshooting
-- **OOM Error**: Reduce `--batch_size` in `main.py` or ensure no other heavy processes are running.
-- **Detector Low Accuracy**: Check `data/conflict_pairs.json` for label balance; ensure `seed` is consistent.
-- **No Conflicts Detected**: Lower the confidence threshold in `code/main.py` (default high) to 0.70 for testing.
-- **Generator Underperformance**: If the generator produces fewer tasks than `--target_tasks`, check the logs for warnings. The pipeline will proceed with available data but flag the limitation.
+
+- **OOM Errors**: If memory exceeds 7GB, reduce the `--count` in step 1 or use a smaller model in `conflict_detector.py`.
+- **CUDA Errors**: Ensure `torch` is installed via `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+- **Missing Dataset**: If `tasks.json` is missing, run the generation script in step 1.
