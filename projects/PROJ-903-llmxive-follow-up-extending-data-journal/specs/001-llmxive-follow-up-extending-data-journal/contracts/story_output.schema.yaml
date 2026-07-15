@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Integrated Story Output Schema"
+description: "Schema for the final narrative output with citations."
+type: object
+properties:
+  title:
+    type: string
+  baseline_section:
+    type: string
+    description: "Text describing the primary correlation."
+  counterfactual_section:
+    type: string
+    description: "Text describing alternative perspectives or stating none were found."
+  citations:
+    type: array
+    items:
+      type: string
+    description: "List of specific query strings cited in the text."
+  limitations:
+    type: array
+    items:
+      type: string
+    description: "List of limitations (e.g., 'Associational only')."
+  metadata:
+    type: object
+    properties:
+      dataset_source:
+        type: string
+      execution_time_seconds:
+        type: number
+      model_used:
+        type: string
+    required:
+      - dataset_source
+      - execution_time_seconds
+      - model_used
+required:
+  - title
+  - baseline_section
+  - counterfactual_section
+  - citations
+  - limitations
+  - metadata
+additionalProperties: false

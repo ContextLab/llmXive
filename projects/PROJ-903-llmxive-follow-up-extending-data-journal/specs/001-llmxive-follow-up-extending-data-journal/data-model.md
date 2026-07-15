@@ -1,100 +1,104 @@
-# Data Model: Counterfactual Inspector Agent
+# Data Model: llmXive Follow-up: Counterfactual Inspector Agent
 
 ## 1. Overview
 
-This document defines the data structures used in the Counterfactual Inspector Agent. All data is stored as JSON/Parquet in `data/` (raw) and `output/` (derived). The model ensures traceability from raw data to final narrative.
+This document defines the data structures used throughout the `001-counterfactual-inspector` feature. It ensures type safety, traceability, and compatibility with the contract schemas defined in `contracts/`.
 
 ## 2. Core Entities
 
-### 2.1 Dataset
-- **Source**: Raw CSV/Parquet from verified URLs.
-- **Fields**:
-  - `id`: Unique identifier (hash of filename + checksum).
-  - `url`: Verified source URL.
-  - `rows`: Number of rows.
-  - `columns`: List of column names and types.
-  - `numeric_columns`: List of numeric column names.
-  - `checksum`: SHA-256 of the raw file.
-  - `is_synthetic`: Boolean (True if synthetic, used to exclude from final evaluation).
+### 2.1. Dataset Metadata
+Information about the input dataset, including source, checksum, and basic statistics.
 
-### 2.2 Baseline Narrative
-- **Source**: `narrative/baseline.py`.
-- **Fields**:
-  - `dataset_id`: Reference to Dataset.
-  - `primary_pair`: Tuple `(var_x, var_y)`.
-  - `correlation`: Pearson $r$ value.
-  - `p_value`: Significance level.
-  - `n_samples`: Sample size.
-  - `narrative_text`: Generated text summary.
-  - `query`: Python/Pandas code used to generate the result.
-  - `baseline_type`: Enum ["standard", "random"].
+```python
+@dataclass
+class DatasetMetadata:
+    source_url: str
+    checksum: str
+    row_count: int
+    column_count: int
+    numeric_columns: List[str]
+    missing_values: Dict[str, int]
+    is_valid_for_analysis: bool  # True if n >= 30 and numeric_cols >= 5
+```
 
-### 2.3 Counterfactual Insight
-- **Source**: `narrative/inspector.py`.
-- **Fields**:
-  - `baseline_id`: Reference to Baseline Narrative.
-  - `counterfactual_pair`: Tuple `(var_x, var_y)`.
-  - `partial_correlation`: Partial $r$ value (controlling for confounders).
-  - `p_value`: Significance level.
-  - `threshold_config`: Dict `{corr_threshold: 0.3, p_threshold: 0.05}`.
-  - `robustness_score`: Float (0.0-1.0, based on stability across thresholds).
-  - `effect_size_valid`: Boolean (True if |r| >= 0.2).
-  - `n_samples`: Sample size.
-  - `insight_text`: Generated text summary of the counterfactual.
-  - `query`: Python/Pandas code used to generate the result.
-  - `is_distinct`: Boolean (true if pair introduces a new variable not in top 3 baseline correlations).
-  - `power_warning`: Boolean (true if $n < 30$).
-  - `confounders_adjusted`: List of variable names used in partial correlation.
-  - `sign_flip_validated`: Boolean (true if sign flip persists after confounder adjustment).
+### 2.2. Baseline Narrative
+The output of the primary correlation search.
 
-### 2.4 Integrated Story
-- **Source**: `narrative/synthesizer.py`.
-- **Fields**:
-  - `story_id`: Unique identifier.
-  - `baseline_narrative`: Embedded Baseline Narrative object.
-  - `counterfactual_insights`: List of Counterfactual Insight objects.
-  - `final_text`: Full synthesized narrative.
-  - `citation_count`: Number of valid query citations.
-  - `generated_at`: Timestamp.
+```python
+@dataclass
+class BaselineNarrative:
+    primary_variable_a: str
+    primary_variable_b: str
+    correlation_coefficient: float
+    p_value: float
+    narrative_text: str
+    query_executed: str  # The code used to find this correlation
+```
 
-### 2.5 Evaluation Metrics
-- **Source**: `evaluation/rubric.py`, `evaluation/bias.py`.
-- **Fields**:
-  - `story_id`: Reference to Integrated Story.
-  - `rubric_scores`: Dict `{novelty: 1-5, evidence: 1-5, nuance: 1-5, clarity: 1-5}`.
-  - `bias_improvement_score`: Float (Delta between Inspector and Baseline diversity).
-  - `traceability_score`: Percentage of claims with valid citations.
-  - `runtime_seconds`: Execution time.
-  - `max_memory_mb`: Peak memory usage.
-  - `statistical_test_result`: Dict `{test_type: "ttest_rel", p_value: float, significant: boolean}`.
+### 2.3. Counterfactual Insight
+A validated alternative explanation. Includes stability metrics from bootstrap analysis.
+
+```python
+@dataclass
+class CounterfactualInsight:
+    claim: str
+    alternative_variable: str
+    target_variable: str
+    control_variables: List[str]
+    partial_r: float
+    p_value: float
+    stability_score: float  # Proportion of bootstrap resamples where effect held (0.0 to 1.0)
+    validity_status: str  # Enum: "verified", "failed", "low_power", "confounded"
+    query_executed: str
+    is_valid: bool  # True if p < 0.05, |partial_r| > 0.15, and stability_score >= 0.8
+    validity_reason: str  # e.g., "Significant partial correlation with high stability" or "Low power"
+    is_distinct: bool  # True if not in top 3 baseline correlations
+```
+
+### 2.4. Integrated Story
+The final output combining baseline and counterfactuals.
+
+```python
+@dataclass
+class IntegratedStory:
+    title: str
+    baseline_section: str
+    counterfactual_section: str  # May be empty if no valid insights found
+    citations: List[str]  # List of query strings cited in the text
+    limitations: List[str]  # e.g., "Associational only", "Low power in variable X"
+    metadata: Dict[str, Any]
+```
+
+### 2.5. Evaluation Result
+The output of the blinded expert scoring.
+
+```python
+@dataclass
+class EvaluationResult:
+    story_id: str
+    expert_scores: List[int]  # 1-5
+    narrative_depth_score: float
+    confirmation_bias_score: float  # Proportion of valid & distinct counterfactuals
+    traceability_score: float  # % of claims with citations
+    kappa_coefficient: float
+    kappa_status: str  # "PASS" or "FAIL" (if Kappa < 0.6)
+    re_run_count: int  # Number of re-runs attempted
+    status: str  # "PASS" or "FAIL"
+```
 
 ## 3. Data Flow
 
-```mermaid
-graph TD
-    A[Raw Dataset] --> B[Data Loader]
-    B --> C{Valid Numeric Columns?}
-    C -- No --> D[Skip & Log]
-    C -- Yes --> E[Processor: Impute/Filter]
-    E --> F[Baseline Narrative Generator (Standard & Random)]
-    E --> G[Counterfactual Inspector: Partial Correlation + Robustness]
-    F --> H[Baseline Narrative Object]
-    G --> I[Counterfactual Insight Objects]
-    H --> J[Synthesizer]
-    I --> J
-    J --> K[Integrated Story]
-    K --> L[Evaluation Module]
-    L --> M[Evaluation Metrics + Statistical Test]
-```
+1.  **Input**: `DatasetMetadata` (from `data/loader.py`).
+2.  **Processing**:
+    -   `BaselineNarrative` generated by `analysis/baseline.py`.
+    -   `CounterfactualInsight` list generated by `analysis/inspector.py` (includes bootstrap stability).
+3.  **Synthesis**: `IntegratedStory` created by `narrative/synthesizer.py`.
+4.  **Output**: `EvaluationResult` generated by `evaluation/rubric.py`.
 
 ## 4. Constraints & Validation
 
-- **Numeric Columns**: Must be ≥ 5 for baseline generation.
-- **Sample Size**: If $n < 30$, `power_warning` must be set to `True`.
-- **Causal Language**: `narrative_text` and `insight_text` must not contain "causes", "leads to", etc., unless randomization is present.
-- **Query Execution**: All `query` fields must be executable Python code that reproduces the reported statistics.
-- **Checksums**: All raw data files must have a recorded SHA-256 checksum.
-- **Robustness**: Counterfactuals must have `robustness_score` > 0.5 to be included in the final story.
-- **Effect Size**: Counterfactuals must have `effect_size_valid` = True to be considered distinct.
-- **Distinctness**: Counterfactuals must be `is_distinct` = True (not in top 3 correlations).
-- **Confounder Adjustment**: Counterfactuals must have `confounders_adjusted` list populated.
+-   **Numeric Precision**: All float values stored with 4 decimal places.
+-   **Null Handling**: Missing values in numeric columns must be imputed (mean/median) or excluded before analysis.
+-   **Causal Language**: The `IntegratedStory` must not contain words like "cause", "effect", or "proven" unless the `metadata` flag `is_randomized` is True.
+-   **Traceability**: Every claim in `IntegratedStory` must map to a `query_executed` string in `BaselineNarrative` or a `CounterfactualInsight`.
+-   **Stability Requirement**: A `CounterfactualInsight` is only marked `is_valid=True` if `stability_score >= 0.8`.

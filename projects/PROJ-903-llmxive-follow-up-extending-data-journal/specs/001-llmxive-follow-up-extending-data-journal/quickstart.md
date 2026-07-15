@@ -1,92 +1,83 @@
-# Quickstart: Counterfactual Inspector Agent
+# Quickstart: llmXive Follow-up: Counterfactual Inspector Agent
 
 ## 1. Prerequisites
 
-- Python 3.11+
-- Git
-- A GitHub account (for CI/CD)
-- Access to HuggingFace (for datasets)
+-   Python 3.11+
+-   Git
+-   Access to HuggingFace (for dataset loading)
+-   2 vCPU / 7GB RAM environment (e.g., GitHub Actions, local VM)
 
 ## 2. Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd llmxive-follow-up
- ```
+1.  **Clone the Repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-903-llmxive-follow-up-extending-data-journal
+    ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-4. **Verify installation**:
- ```bash
- python -c "import pandas; import scipy; print('Dependencies OK')"
- ```
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins specific versions of `transformers`, `scipy`, and `datasets` to ensure CPU compatibility.*
 
 ## 3. Running the Pipeline
 
-### 3.1 Single Dataset Analysis
-
-To run the Counterfactual Inspector on a single dataset (e.g., `synthetic_text_to_sql`):
+### 3.1. Single Dataset Test
+To test the pipeline on a single dataset (e.g., the Synthetic SQL dataset):
 
 ```bash
-python code/main.py --dataset "https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet" --output output/story.json
+python code/main.py --dataset "gretelai/synthetic_text_to_sql" --mode baseline_and_inspector
 ```
 
 **Expected Output**:
-- `output/story.json`: Contains the integrated story with baseline and counterfactuals.
-- Console logs: Progress updates, warnings (e.g., "Low Power", "No counterfactuals found").
+-   A JSON file in `data/processed/` containing the `IntegratedStory`.
+-   Console logs showing the Baseline Narrative and any Counterfactual Insights found.
 
-### 3.2 Batch Analysis (50 Datasets)
-
-To run the evaluation on all verified datasets:
-
-```bash
-python code/main.py --batch --output output/batch_results.json
-```
-
-This will:
-1. Load each dataset from the `research.md` "Verified datasets" list (expanded to 50).
-2. Generate baseline (Standard & Random) and counterfactual narratives.
-3. Compute evaluation metrics (SC-001 to SC-004).
-4. Save results to `output/batch_results.json`.
-
-### 3.3 Running Tests
+### 3.2. Full Batch Run
+To run the experiment on all available datasets (or the subset defined in config):
 
 ```bash
-pytest tests/ -v
+python code/main.py --mode full_experiment --output-dir results/
 ```
 
-- **Unit Tests**: Verify statistical logic, imputation, and query generation.
-- **Integration Tests**: Verify end-to-end pipeline flow.
-- **Contract Tests**: Verify JSON schema compliance.
+**Note**: This will take -6 hours on a standard GitHub Actions runner.
 
-## 4. Reproducibility
+## 4. Evaluation & Metrics
 
-- **Random Seeds**: Set in `code/config.py` (default: a configurable seed).
-- **Data Checksums**: Verified at runtime; mismatches raise an error.
-- **Version Pinning**: All dependencies in `requirements.txt`.
+### 4.1. Generating Blinded Stories
+Before expert evaluation, generate anonymized stories:
+
+```bash
+python code/evaluation/rubric.py --generate-blinded --output-dir eval_data/
+```
+
+### 4.2. Calculating Metrics
+After expert scores are manually entered (or simulated for testing):
+
+```bash
+python code/evaluation/metrics.py --input eval_data/scores.json
+```
+
+**Output**:
+-   `metrics_report.json`: Contains SC-001 (Narrative Depth), SC-002 (Bias), SC-003 (Feasibility), SC-004 (Traceability).
 
 ## 5. Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| **Dataset not found** | Verify URL in `research.md` and network access. |
-| **Low Power Warning** | Dataset has $n < 30$. Results are flagged; interpret with caution. |
-| **No Counterfactuals Found** | Data may be consistent with baseline. System logs "None" (expected behavior). |
-| **LLM Timeout** | Check `code/config.py` for timeout settings; reduce model size or use API. |
-| **Memory Error** | Subset data (e.g., `--rows 5000`) or increase RAM limit. |
+-   **OOM Error**: If the process crashes with "Out of Memory", ensure `datasets` is loaded in chunks or use the `--sample-size` flag to limit rows.
+-   **LLM Timeout**: If the local LLM takes too long, set `LLM_FALLBACK_MODE=api` in the environment variables to switch to the batched API mode.
+-   **No Counterfactuals Found**: This is a valid result. The system will output a story stating "No significant counterfactuals found" rather than hallucinating.
 
-## 6. Next Steps
+## 6. Verification
 
-- **Extend Datasets**: Add new verified datasets to `research.md` and `data/loader.py`.
-- **Tune Thresholds**: Adjust correlation/p-value thresholds in `narrative/inspector.py`.
-- **Improve Rubric**: Refine expert scoring logic in `evaluation/rubric.py`.
+Run the contract tests to ensure data integrity:
+
+```bash
+pytest tests/contract/
+```

@@ -1,77 +1,55 @@
-- artifact_hash: 43e2546d89e805451be8318d1a42859b6feafceaa467e7c6c2aff52919449878
+- artifact_hash: 63f56fa7b48c488f646aab2b8d466b724c75fba5e074cf57bbd8c68020af6a69
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/huggingface/datasets/resolve/main/california_housing.parquet`
+  value: https://huggingface.co/datasets/uci/UCI_Crime/resolve/main/crime.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/huggingface/datasets/resolve/main/california_housing.parquet
-  verified_at: '2026-07-14T04:22:40.545399Z'
-- artifact_hash: 43e2546d89e805451be8318d1a42859b6feafceaa467e7c6c2aff52919449878
+  verified_against_url: https://huggingface.co/datasets/uci/UCI_Crime/resolve/main/crime.csv
+  verified_at: '2026-07-15T03:10:15.729785Z'
+- artifact_hash: 63f56fa7b48c488f646aab2b8d466b724c75fba5e074cf57bbd8c68020af6a69
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/ucimlrepo/uci_crime_communities/resolve/main/data.csv`
+  value: https://huggingface.co/datasets/uci/UCI_Housing/resolve/main/housing.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ucimlrepo/uci_crime_communities/resolve/main/data.csv
-  verified_at: '2026-07-14T04:22:40.545399Z'
-- artifact_hash: 43e2546d89e805451be8318d1a42859b6feafceaa467e7c6c2aff52919449878
+  verified_against_url: https://huggingface.co/datasets/uci/UCI_Housing/resolve/main/housing.csv
+  verified_at: '2026-07-15T03:10:15.729785Z'
+- artifact_hash: 63f56fa7b48c488f646aab2b8d466b724c75fba5e074cf57bbd8c68020af6a69
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: synthetic_text_to_sql_test.snappy.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet`
-  verification_status: verified
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/65fc5a783bc54054aa2e6e62/e9028b55a776b143d66cee367776e61fc1154da0c8d8c83580727e3034ccd602?Expires=1784006560&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY1ZmM1YTc4M2JjNTQwNTRhYTJlNmU2Mi9lOTAyOGI1NWE3NzZiMTQzZDY2Y2VlMzY3Nzc2ZTYxZmMxMTU0ZGEwYzhkOGM4MzU4MDcyN2UzMDM0Y2NkNjAyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNjU2MH19fV19&Signature=MEUCIQDiAefKom6e9bPr3w4ofHYdlBor4onaZSuW6YgrzNLEoAIgXCe3ShyJkxfyya2xNbQMYdfWqehoFnCgiBvVpUQd8I0_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27synthetic_text_to_sql_test.snappy.parquet%3B+filename%3D%22synthetic_text_to_sql_test.snappy.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T042240Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5b13bcea08e6b7c3aaaa031788550a578859bb84c6f651247ff61704fd9f4e66
-  verified_at: '2026-07-14T04:22:40.545399Z'
-- artifact_hash: 43e2546d89e805451be8318d1a42859b6feafceaa467e7c6c2aff52919449878
+  value: https://huggingface.co/datasets/uci/UCI_Health/resolve/main/health.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/uci/UCI_Health/resolve/main/health.csv
+  verified_at: '2026-07-15T03:10:15.729785Z'
+- artifact_hash: 63f56fa7b48c488f646aab2b8d466b724c75fba5e074cf57bbd8c68020af6a69
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/research.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/ucimlrepo/uci_bike_sharing/resolve/main/data.csv`
+  value: https://huggingface.co/datasets/uci/UCI_Education/resolve/main/education.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ucimlrepo/uci_bike_sharing/resolve/main/data.csv
-  verified_at: '2026-07-14T04:22:40.545399Z'
-- artifact_hash: 43e2546d89e805451be8318d1a42859b6feafceaa467e7c6c2aff52919449878
+  verified_against_url: https://huggingface.co/datasets/uci/UCI_Education/resolve/main/education.csv
+  verified_at: '2026-07-15T03:10:15.729785Z'
+- artifact_hash: 63f56fa7b48c488f646aab2b8d466b724c75fba5e074cf57bbd8c68020af6a69
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/research.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/ucimlrepo/uci_wine_quality/resolve/main/data.csv`
+  value: https://huggingface.co/datasets/uci/UCI_Environment/resolve/main/environment.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ucimlrepo/uci_wine_quality/resolve/main/data.csv
-  verified_at: '2026-07-14T04:22:40.545399Z'
-- artifact_hash: a08675193c4a73804e72b77592924f6f4dba2ec80071dee8db12969269c073a4
-  artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/llmxive-follow-up.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-follow-up
-  verified_at: '2026-07-14T04:23:03.072119Z'
-- artifact_hash: a08675193c4a73804e72b77592924f6f4dba2ec80071dee8db12969269c073a4
-  artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: synthetic_text_to_sql_test.snappy.parquet
-  kind: url
-  value: https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet
-  verification_status: verified
-  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/65fc5a783bc54054aa2e6e62/e9028b55a776b143d66cee367776e61fc1154da0c8d8c83580727e3034ccd602?Expires=1784006583&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY1ZmM1YTc4M2JjNTQwNTRhYTJlNmU2Mi9lOTAyOGI1NWE3NzZiMTQzZDY2Y2VlMzY3Nzc2ZTYxZmMxMTU0ZGEwYzhkOGM4MzU4MDcyN2UzMDM0Y2NkNjAyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNjU4M319fV19&Signature=MEYCIQD8vZsaBmaJT7sw%7EjtvA6VCs-CB-0eS4wlvKq2KVh3GagIhAMxu7mA76HaixJLntSd0MOdVhQDE0B5OZ5erdh%7ET3Dxg&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27synthetic_text_to_sql_test.snappy.parquet%3B+filename%3D%22synthetic_text_to_sql_test.snappy.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T042303Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ebb5d4c38ad109c14037118e3034509908318361bdb2bd35a2a9f0a0f721bd1
-  verified_at: '2026-07-14T04:23:03.072119Z'
+  verified_against_url: https://huggingface.co/datasets/uci/UCI_Environment/resolve/main/environment.csv
+  verified_at: '2026-07-15T03:10:15.729785Z'

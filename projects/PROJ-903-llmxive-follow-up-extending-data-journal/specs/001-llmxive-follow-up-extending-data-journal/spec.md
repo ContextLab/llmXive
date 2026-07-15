@@ -25,7 +25,7 @@ The system must process a provided multi-variable public policy dataset and gene
 
 ### User Story 2 - Counterfactual Angle Generation (Priority: P2)
 
-The system must invoke a dedicated "Counterfactual Inspector" agent that analyzes the baseline narrative and the raw dataset to generate at least one alternative causal explanation or contradictory correlation that challenges the primary narrative.
+The system must invoke a dedicated "Counterfactual Inspector Agent" that analyzes the baseline narrative and the raw dataset to generate at least one alternative causal explanation or contradictory correlation that challenges the primary narrative.
 
 **Why this priority**: This implements the core research intervention. It transforms the system from a summarizer into an interrogator, directly addressing the research question regarding bias mitigation and depth.
 
@@ -33,9 +33,9 @@ The system must invoke a dedicated "Counterfactual Inspector" agent that analyze
 
 **Acceptance Scenarios**:
 
-1. **Given** a baseline narrative claiming "A causes B" and a dataset containing a variable C inversely related to B, **When** the Counterfactual Inspector is triggered, **Then** the system outputs a structured counterfactual claim identifying C as an alternative driver or a confounding factor.
-2. **Given** a dataset with no obvious counter-intuitive correlations, **When** the Inspector runs, **Then** the system explicitly reports "No significant counterfactuals found" rather than hallucinating a false correlation.
-3. **Given** a baseline narrative, **When** the Inspector generates a SQL or Python query to test a counterfactual, **Then** the query executes successfully against the dataset. If a statistically significant counterfactual exists within the swept thresholds, the system MUST report the p-value; otherwise, it MUST report "No significant counterfactuals found".
+1. **Given** a baseline narrative claiming "A causes B" and a dataset containing a variable C inversely related to B, **When** the Counterfactual Inspector Agent is triggered, **Then** the system outputs a structured counterfactual claim identifying C as an alternative driver or a confounding factor.
+2. **Given** a dataset with no obvious counter-intuitive correlations, **When** the Inspector Agent runs, **Then** the system explicitly reports "No significant counterfactuals found" rather than hallucinating a false correlation.
+3. **Given** a baseline narrative, **When** the Inspector Agent generates a SQL or Python query to test a counterfactual, **Then** the query executes successfully against the dataset. If a statistically significant counterfactual exists within the swept thresholds, the system MUST report the p-value; otherwise, it MUST report "No significant counterfactuals found".
 
 ---
 
@@ -66,10 +66,10 @@ The system must merge the baseline narrative and the verified counterfactual ins
 ### Functional Requirements
 
 - **FR-001**: System MUST generate a baseline narrative identifying the strongest statistical correlation in the input dataset. (See US-1)
-- **FR-002**: System MUST execute a dedicated "Counterfactual Inspector" module that queries the dataset for correlations contradicting the baseline narrative. (See US-2)
-- **FR-003**: System MUST perform a sensitivity analysis sweeping correlation coefficient thresholds {0.1, 0.3, 0.5} and p-value thresholds {0.01, 0.05} to identify counterfactuals; the system MUST report findings for each threshold configuration. (See US-2, US-3)
+- **FR-002**: System MUST execute a dedicated "Counterfactual Inspector Agent" that queries the dataset for correlations contradicting the baseline narrative. (See US-2)
+- **FR-003**: System MUST perform a sensitivity analysis using partial correlation control. For each candidate counterfactual claim, the system MUST compute the partial correlation coefficient controlling for the top-2 baseline drivers. The system MUST report findings in a JSON array where each object contains: `threshold_config` (string), `claim` (string or the literal string "NO_SIGNIFICANT_COUNTERFACTUAL"), `p_value` (float), and `partial_r` (float). A claim is considered valid ONLY if `p_value` < 0.05 AND `|partial_r|` > 0.15. (See US-2, US-3)
 - **FR-004**: If at least one verified counterfactual insight exists, the system MUST integrate it into the final story output with a direct citation to the supporting data query. (See US-3)
-- **FR-005**: System MUST perform all data processing and LLM inference within a 6-hour execution window using either a CPU-only environment with ≤ 7 GB RAM OR batched API calls. (See US-1, US-2, US-3)
+- **FR-005**: System MUST perform all data processing and LLM inference within a 6-hour execution window on a deterministic environment (2 vCPU, 7GB RAM, ubuntu-latest runner). If the primary Llama-8B inference exceeds 15 minutes per dataset, the system MUST switch to a pre-approved fallback: Phi-3-mini (local) or batched API calls (capped at 5 minutes per dataset). (See US-1, US-2, US-3)
 - **FR-006**: System MUST detect and report if the input dataset lacks sufficient sample size (n < 30) for reliable counterfactual inference. (See US-2, US-3)
 - **FR-007**: System MUST frame all counterfactual findings as associational observations rather than causal proofs, avoiding causal language unless randomization is present. (See US-2, US-3)
 
@@ -77,7 +77,8 @@ The system must merge the baseline narrative and the verified counterfactual ins
 
 - **Dataset**: A structured table of public policy data (e.g., CSV) containing numeric variables.
 - **Baseline Narrative**: The primary story generated by the standard pipeline, representing the most obvious trend.
-- **Counterfactual Insight**: A structured object containing an alternative causal claim, the specific query used, and the resulting statistical metrics.
+- **Counterfactual Inspector Agent**: A dedicated software component that analyzes baseline narratives and datasets to generate and validate alternative causal explanations using partial correlation control.
+- **Counterfactual Insight**: A structured object containing an alternative causal claim, the specific query used, and the resulting statistical metrics (including partial correlation).
 - **Integrated Story**: The final multimodal output combining baseline and counterfactual elements with verifiable citations.
 
 ## Success Criteria
@@ -88,17 +89,18 @@ The system must merge the baseline narrative and the verified counterfactual ins
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Narrative Depth is measured against a blinded expert rubric score (5-point Likert scale: 1=Superficial, 5=Deep) evaluating four criteria: (1) Novelty (involves variables outside top 3 correlations), (2) Evidence (cites specific data queries), (3) Nuance (acknowledges limitations), and (4) Clarity. (See US-3)
-- **SC-002**: Confirmation Bias is measured as the proportion of counterfactual claims that are logically consistent with the data and distinct from the baseline, where "distinct" means involving a variable pair not in the top 3 absolute correlations of the dataset. (See US-2, US-3)
-- **SC-003**: Computational feasibility is measured against the 6-hour runtime and 7 GB RAM constraints (or API cost/time limits) on a standard GitHub Actions free-tier runner. (See US-1, US-2, US-3)
+- **SC-001**: Narrative Depth is measured against a blinded expert rubric score (5-point Likert scale: 1=Superficial, 5=Deep) evaluating four criteria: (1) Novelty (involves variables outside top 3 correlations), (2) Evidence (cites specific data queries), (3) Nuance (acknowledges limitations), and (4) Clarity. Measurement requires multiple blinded experts. Inter-rater reliability (Cohen's Kappa) must be ≥ 0.6. If Kappa < 0.6, the run is FAILED and must be re-executed with a 4th expert until Kappa ≥ 0.6 is achieved. The final score is the arithmetic mean of the valid experts' scores. (See US-3)
+- **SC-002**: Confirmation Bias is measured as the "Counterfactual Validity Score": the proportion of generated counterfactual claims that pass the statistical validity test defined in FR-003 (partial correlation p < 0.05 AND |partial_r| > 0.15). (See US-2, US-3)
+- **SC-003**: Computational feasibility is measured against the 6-hour runtime and 7 GB RAM constraints (or API cost/time limits) on a standard GitHub Actions free-tier runner (2 vCPU, 7GB RAM, ubuntu-latest). (See US-1, US-2, US-3)
 - **SC-004**: Verification Traceability is measured as the percentage of counterfactual claims in the final story that include a valid, executable data query citation. (See US-3)
 
 ## Assumptions
 
 - The public policy datasets (e.g., from UCI or Kaggle) contain sufficient numeric variables and row counts (n ≥ 30) to perform meaningful correlation analysis without requiring data augmentation.
-- The LLM used for query generation and narrative synthesis is a lightweight model (e.g., Llama-3-8B or similar) that can run on CPU within the 6-hour time limit, or the system relies on batched API calls that do not exceed the time budget.
-- The "Counterfactual Inspector" agent relies on standard statistical libraries (e.g., `scipy`, `pandas`) that are compatible with the CPU-only environment and do not require GPU acceleration.
+- The LLM used for query generation and narrative synthesis is a lightweight model (e.g., Llama-3-8B or similar) that can run on CPU within the 6-hour time limit, OR the system relies on batched API calls that do not exceed the time budget.
+- If the primary Llama inference on CPU exceeds a feasible per-dataset threshold, the fallback to a smaller model or batched API calls is feasible and will preserve the total runtime budget.
+- The "Counterfactual Inspector Agent" relies on standard statistical libraries (e.g., `scipy`, `pandas`) that are compatible with the CPU-only environment and do not require GPU acceleration.
 - The expert evaluation rubric for "Narrative Depth" and "Confirmation Bias" is pre-defined and stable, allowing for blinded scoring without ambiguity.
 - The baseline `llmXive` pipeline is already functional and capable of processing the target datasets without modification, serving as a reliable control.
-- The correlation coefficient thresholds {0.1, 0.3, 0.5} and p-value thresholds {0.01, 0.05} are used as community-standard defaults for the sensitivity analysis to ensure robustness across varying data distributions.
+- The partial correlation thresholds (p < 0.05, |r| > 0.15) are used as community-standard defaults for the sensitivity analysis to ensure robustness across varying data distributions.
 - The datasets provided do not require complex feature engineering or external data joining to identify counter-intuitive correlations; the necessary variables are present in the raw input.

@@ -1,0 +1,100 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Metrics Report Schema
+description: Schema for the final evaluation metrics (SC-001 to SC-004).
+type: object
+required:
+  - run_id
+  - sc_001_narrative_depth
+  - sc_002_confirmation_bias
+  - sc_003_feasibility
+  - sc_004_verification_traceability
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run."
+  sc_001_narrative_depth:
+    type: object
+    required:
+      - score
+      - rubric_breakdown
+    properties:
+      score:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: "Overall Likert score (1-5)."
+      rubric_breakdown:
+        type: object
+        required:
+          - novelty
+          - evidence
+          - nuance
+          - clarity
+        properties:
+          novelty:
+            type: number
+            description: "Expert rating of 'surprise' or 'non-obviousness'."
+          evidence:
+            type: number
+          nuance:
+            type: number
+          clarity:
+            type: number
+  sc_002_confirmation_bias:
+    type: object
+    required:
+      - total_counterfactuals
+      - distinct_counterfactuals
+      - valid_distinct_counterfactuals
+      - bias_ratio
+    properties:
+      total_counterfactuals:
+        type: integer
+        minimum: 0
+      distinct_counterfactuals:
+        type: integer
+        minimum: 0
+        description: "Count of claims NOT in top 3 absolute correlations of the dataset."
+      valid_distinct_counterfactuals:
+        type: integer
+        minimum: 0
+        description: "Count of distinct claims that also pass statistical validity (p < 0.05, |r| > 0.15)."
+      bias_ratio:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Ratio of valid_distinct_counterfactuals to total_counterfactuals."
+  sc_003_feasibility:
+    type: object
+    required:
+      - runtime_hours
+      - peak_ram_gb
+      - status
+    properties:
+      runtime_hours:
+        type: number
+      peak_ram_gb:
+        type: number
+      status:
+        type: string
+        enum:
+          - "pass"
+          - "fail"
+  sc_004_verification_traceability:
+    type: object
+    required:
+      - total_claims
+      - valid_citations
+      - percentage
+    properties:
+      total_claims:
+        type: integer
+        minimum: 0
+      valid_citations:
+        type: integer
+        minimum: 0
+      percentage:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: "Percentage of counterfactual claims in the integrated story that include a valid, executable data query citation."

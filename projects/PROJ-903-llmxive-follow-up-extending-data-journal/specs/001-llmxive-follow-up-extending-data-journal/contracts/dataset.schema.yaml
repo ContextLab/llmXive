@@ -1,50 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Metadata Schema"
-description: "Schema for validated dataset metadata and checksums."
+description: "Schema for input dataset metadata and validation status."
 type: object
 properties:
-  id:
+  source_url:
     type: string
-    description: "Unique identifier (hash of filename + checksum)."
-  url:
+    description: "Verified URL from which the dataset was loaded."
+  checksum:
     type: string
-    format: uri
-    description: "Verified source URL."
-  rows:
+    description: "SHA256 checksum of the raw dataset file."
+  row_count:
     type: integer
-    minimum: 1
-    description: "Number of rows in the dataset."
-  columns:
-    type: array
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-          enum: ["numeric", "categorical", "text"]
-      required:
-        - name
-        - type
+    minimum: 0
+    description: "Total number of rows in the dataset."
+  column_count:
+    type: integer
+    minimum: 0
+    description: "Total number of columns in the dataset."
   numeric_columns:
     type: array
     items:
       type: string
-    description: "List of numeric column names."
-  checksum:
-    type: string
-    pattern: "^[a-fA-F0-9]{64}$"
-    description: "SHA-256 checksum of the raw file."
-  is_synthetic:
+    description: "List of column names identified as numeric."
+  missing_values:
+    type: object
+    additionalProperties:
+      type: integer
+    description: "Map of column name to count of missing values."
+  is_valid_for_analysis:
     type: boolean
-    description: "True if the dataset is synthetic (used for unit testing only)."
+    description: "True if row_count >= 30 and numeric_columns >= 5."
 required:
-  - id
-  - url
-  - rows
-  - columns
-  - numeric_columns
+  - source_url
   - checksum
-  - is_synthetic
+  - row_count
+  - column_count
+  - numeric_columns
+  - missing_values
+  - is_valid_for_analysis
 additionalProperties: false

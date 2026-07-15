@@ -1,4 +1,4 @@
-resolved_at: '2026-07-14T04:06:36.733852+00:00'
+resolved_at: '2026-07-15T02:40:46.425826+00:00'
 datasets:
 - intent: SQL
   status: verified
@@ -25,14 +25,10 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/644201ac55a16ae60fa855ad/c1de2c273eb7ccf721d8699ba42060dc61ca28257fdd8ffdd196aabc62ac71fd?Expires=1784005539&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDIwMWFjNTVhMTZhZTYwZmE4NTVhZC9jMWRlMmMyNzNlYjdjY2Y3MjFkODY5OWJhNDIwNjBkYzYxY2EyODI1N2ZkZDhmZmRkMTk2YWFiYzYyYWM3MWZkKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNTUzOX19fV19&Signature=MEUCIFdHskDF~w5C-Z7Sya-sAb05LU4K7r~IzVi6OFGFKqBwAiEAtQkFgDATsJF16KN7lUpm~-wjPVXfx3tK-36x~m6Kogo_&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27sql_create_context_v4.json%3B+filename%3D%22sql_create_context_v4.json%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T040539Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=136b07ea7e2fa57b8cc8dcb8cffd66429f3dd2559ac083969791ad97210bdb8e
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/644201ac55a16ae60fa855ad/c1de2c273eb7ccf721d8699ba42060dc61ca28257fdd8ffdd196aabc62ac71fd?Expires=1784086755&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDIwMWFjNTVhMTZhZTYwZmE4NTVhZC9jMWRlMmMyNzNlYjdjY2Y3MjFkODY5OWJhNDIwNjBkYzYxY2EyODI1N2ZkZDhmZmRkMTk2YWFiYzYyYWM3MWZkKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA4Njc1NX19fV19&Signature=MEUCIQC-oSH5voy8F1coRJAnG-vp9NewqQGJB4t~4Q30riPVFwIgfARf5qss591wuNRP8TprFXgCrddI2qPnX4cEub~1nhg_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27sql_create_context_v4.json%3B+filename%3D%22sql_create_context_v4.json%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T023915Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d85ef8788701baa4a99301c87035e82a2f0c3d9e3294d6a59d391befa8ea0ee0
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/cbdb/cbdb-sqlite/resolve/main/latest.json
     source: huggingface
     status: verified
@@ -41,23 +37,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_qualitative_study_exploring_factors_influencing_antibiotic_supply_in_community_pharmacies_in_Timor-Leste/32721105
+  - url: https://huggingface.co/datasets/gretelai/synthetic_text_to_sql/resolve/main/synthetic_text_to_sql_test.snappy.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.mq.edu.au/articles/thesis/Gendered_Pathways_in_Rural_Cambodia_Household_Structure_and_Schooling_Deficits/31825102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Vertical_Spillover_of_Product_Recalls_Theorization_and_Empirical_Examination_in_the_US_Automobile_Industry/32725455
+  - url: https://figshare.com/articles/poster/Talking_to_young_people_about_porn_factsheet/32988542
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+  - url: https://figshare.com/articles/dataset/Data_for_Bilingualism_shapes_neural_control_Distinct_experiences_predict_conflict_monitoring_and_sustained_attentional_control_by_Grundy_et_al_2026_Bilingualism_Language_Cognition_/32988152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+  - url: https://figshare.com/articles/thesis/From_Observation_to_Governed_Operational_Control_A_Core-Defense_Template_Verification_Workflow_for_GPT-5_6_Linking_Possibility-Space_Reconstruction_Feedback_Loops_and_Human_Governance/32987768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Pore-Scale_Connectivity_Amplification_Driven_by_Event-Like_Pore-Cluster_Reorganization_in_Coral_Reef_Limestone_Under_CO_-Acidified_Saline_Water_/32988470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -73,31 +73,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kb814nh
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/16877443
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2603.16450
+  - url: https://zenodo.org/records/14799939
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21366856
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.11207
+  - url: https://zenodo.org/records/21366856
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.10911
+  - url: https://arxiv.org/abs/2607.07504
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21349146
+  - url: https://arxiv.org/abs/2606.03363
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21349146
+  - url: https://arxiv.org/abs/2306.02194
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -146,23 +146,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/chapter/Embracing_Fear_Building_a_Framework_for_Allyship/32695803
+  - url: https://figshare.mq.edu.au/articles/thesis/Gendered_Pathways_in_Rural_Cambodia_Household_Structure_and_Schooling_Deficits/31825102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_qualitative_study_exploring_factors_influencing_antibiotic_supply_in_community_pharmacies_in_Timor-Leste/32721105
+  - url: https://figshare.com/articles/poster/Talking_to_young_people_about_porn_factsheet/32988542
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Vertical_Spillover_of_Product_Recalls_Theorization_and_Empirical_Examination_in_the_US_Automobile_Industry/32725455
+  - url: https://figshare.com/articles/dataset/Data_for_Bilingualism_shapes_neural_control_Distinct_experiences_predict_conflict_monitoring_and_sustained_attentional_control_by_Grundy_et_al_2026_Bilingualism_Language_Cognition_/32988152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+  - url: https://figshare.com/articles/thesis/From_Observation_to_Governed_Operational_Control_A_Core-Defense_Template_Verification_Workflow_for_GPT-5_6_Linking_Possibility-Space_Reconstruction_Feedback_Loops_and_Human_Governance/32987768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Pore-Scale_Connectivity_Amplification_Driven_by_Event-Like_Pore-Cluster_Reorganization_in_Coral_Reef_Limestone_Under_CO_-Acidified_Saline_Water_/32988470
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -174,11 +174,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7627577
+  - url: https://zenodo.org/records/10685355
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10685355
+  - url: https://zenodo.org/records/7627577
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -186,23 +186,24 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2602.04408
+  - url: https://intellectum.unisabana.edu.co/entities/publication/7bdf9f5e-0fc1-52b7-e053-7e0910accd73
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/y583x/
+  - url: https://intellectum.unisabana.edu.co/entities/publication/7bdf9f5e-0de9-52b7-e053-7e0910accd73
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19076302
+  - url: https://intellectum.unisabana.edu.co/entities/publication/7bdf9f5e-0c9c-52b7-e053-7e0910accd73
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19076302
+  - url: https://intellectum.unisabana.edu.co/entities/publication/7bdf9f5e-0846-52b7-e053-7e0910accd73
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21343524
+  - url: https://doi.org/10.82992/intellectum/handle.10818.1927
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', RemoteDisconnected(''Remote
+      end closed connection without response''))'

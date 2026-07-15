@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Report Schema
+description: Schema for the per-configuration sensitivity analysis results (FR-003).
+type: object
+required:
+  - run_id
+  - configurations
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the sweep run."
+  configurations:
+    type: array
+    description: "List of results for each threshold configuration. Each entry represents a distinct configuration."
+    items:
+      type: object
+      required:
+        - config_id
+        - threshold_r
+        - threshold_p
+        - findings
+      properties:
+        config_id:
+          type: string
+          description: "Unique ID for this configuration (e.g., 'r0.1_p0.01')."
+        threshold_r:
+          type: number
+          description: "Correlation threshold used."
+        threshold_p:
+          type: number
+          description: "P-value threshold used."
+        findings:
+          type: array
+          description: "List of significant correlations found in this configuration. Each object represents a candidate."
+          items:
+            type: object
+            required:
+              - variable_a
+              - variable_b
+              - r_value
+              - p_value
+              - bonferroni_p
+              - partial_r
+              - partial_p
+            properties:
+              variable_a:
+                type: string
+              variable_b:
+                type: string
+              r_value:
+                type: number
+              p_value:
+                type: number
+              bonferroni_p:
+                type: number
+                description: "Bonferroni-corrected p-value."
+              partial_r:
+                type: number
+                description: "Partial correlation coefficient."
+              partial_p:
+                type: number
+                description: "P-value for the partial correlation."
+              is_significant:
+                type: boolean
+              stability_count:
+                type: integer
+                description: "Count of configurations where this pair is significant."

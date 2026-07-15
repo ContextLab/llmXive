@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the output of the Baseline and Counterfactual analysis."
+type: object
+properties:
+  baseline_narrative:
+    type: object
+    properties:
+      primary_variable_a:
+        type: string
+      primary_variable_b:
+        type: string
+      correlation_coefficient:
+        type: number
+        description: "Pearson r value."
+      p_value:
+        type: number
+        description: "P-value for the correlation."
+      narrative_text:
+        type: string
+      query_executed:
+        type: string
+        description: "The Python/Pandas code string used."
+    required:
+      - primary_variable_a
+      - primary_variable_b
+      - correlation_coefficient
+      - p_value
+      - narrative_text
+      - query_executed
+  counterfactual_insights:
+    type: array
+    items:
+      type: object
+      properties:
+        claim:
+          type: string
+        alternative_variable:
+          type: string
+        target_variable:
+          type: string
+        control_variables:
+          type: array
+          items:
+            type: string
+        partial_r:
+          type: number
+        p_value:
+          type: number
+        query_executed:
+          type: string
+        is_valid:
+          type: boolean
+        validity_reason:
+          type: string
+      required:
+        - claim
+        - alternative_variable
+        - target_variable
+        - partial_r
+        - p_value
+        - query_executed
+        - is_valid
+        - validity_reason
+  status:
+    type: string
+    enum:
+      - "SUCCESS"
+      - "LOW_POWER"
+      - "NO_COUNTERFACTUALS"
+      - "ERROR"
+required:
+  - baseline_narrative
+  - counterfactual_insights
+  - status
+additionalProperties: false
