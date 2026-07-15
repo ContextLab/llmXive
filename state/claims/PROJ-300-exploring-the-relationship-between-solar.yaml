@@ -4295,3 +4295,2281 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T06:50:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 0
+  canonical: verify pi constant using Wikipedia source
+  claim_id: c_8f5c2181
+  context: T037 [P] Write integration test for synthetic dataset validation in tests/integration/test_synthetic.py
+    (US-2 Independent Test). ... verifying {{claim:c_e52f93ed}} (pi, https://en.wikipedia.org/wiki/Pi).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 7 2
+      source_id: A000796
+      url: https://oeis.org/A000796
+      value: '7'
+    filled: true
+  kind: entity_fact
+  raw_text: verify {{claim:c_e52f93ed}} (pi, https://en.wikipedia.org/wiki/Pi)
+  resolved_value: '7'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:09:30Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: remove or generalize parameter k in physics-based lag formula
+  claim_id: c_8eee7c8c
+  context: 'T006 [P] Implement ... function to calculate physics-based lag L_phys
+    using formula L_phys = (k * 6371) / Vsw_mean / k ... The specific value to remove/generalize:
+    ''k'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Remove_or_generalize_parameter_k_in_physics-based_lag_formul
+  kind: entity_fact
+  raw_text: 'The specific value to remove/generalize: ''k'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:11:35Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: verify pipeline reports 45 min plus or minus 1 min as optimal lag
+  claim_id: c_814404ee
+  context: "T026 [US2] Execute the lag-search on a synthetic dataset (true lag 45\
+    \ min) and verify the pipeline reports 45 min (\xB11 min) (US-2 Independent Test)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the pipeline reports 45 min (\xB11 min)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:12:05Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds of 400 500 and 600 km per second
+  claim_id: c_de9caf6e
+  context: "T028 [US3] Integrate analysis/sensitivity.py to compute correlations for\
+    \ T \u2208 {400, 500, 600} km/s (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T \u2208 {400, 500, 600} km/s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:12:48Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag window minimum set to 30
+  claim_id: c_368e1479
+  context: 'T003 [P] Create ... config.py defining constants: LAG_WINDOW_MIN=30 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LAG_WINDOW_MIN=30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:14:15Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag window maximum set to 90
+  claim_id: c_3616a88b
+  context: 'T003 [P] Create ... config.py defining constants: ... LAG_WINDOW_MAX=90
+    ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LAG_WINDOW_MAX=90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:14:34Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag step set to 5
+  claim_id: c_27dcb34d
+  context: 'T003 [P] Create ... config.py defining constants: ... LAG_STEP=5 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LAG_STEP=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:14:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: tail distance set to 60 RE
+  claim_id: c_8f526b20
+  context: 'T003 [P] Create ... config.py defining constants: ... TAIL_DISTANCE_RE=60
+    ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TAIL_DISTANCE_RE=60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:15:14Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: bootstrap iterations set to 1000
+  claim_id: c_7e124dcc
+  context: 'T003 [P] Create ... config.py defining constants: ... BOOTSTRAP_ITERATIONS=1000
+    ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BOOTSTRAP_ITERATIONS=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:15:36Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data resampled to fixed short-interval cadence
+  claim_id: c_9724710d
+  context: T005 [P] Implement ... for NaN removal and resampling to a fixed short-interval
+    cadence using pandas (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_resampled_to_fixed_short-interval_cadence
+  kind: entity_fact
+  raw_text: resampling to a fixed short-interval cadence
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:15:51Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: block size calculated based on first lag where autocorrelation is less
+    than 0.5
+  claim_id: c_d52173a7
+  context: 'T008 [P] ... Block Size: Calculate block size based on the first lag where
+    autocorrelation < 0.5 ...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Block_size_calculated_based_on_first_lag_where_autocorrelati
+  kind: magnitude
+  raw_text: autocorrelation < 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:16:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap used for 95 percent confidence intervals
+  claim_id: c_1bdb807f
+  context: T009 [P] ... function moving_block_bootstrap with A sufficient number of
+    iterations for 95% confidence intervals (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:16:08Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds of high medium and low km per second
+  claim_id: c_c9157154
+  context: "T011 [P] ... function analyze_thresholds to sweep thresholds T \u2208\
+    \ {high, medium, low} km/s and recompute correlations (FR-007)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_thresholds_of_high_medium_and_low_km_pe
+  kind: entity_fact
+  raw_text: "thresholds T \u2208 {high, medium, low} km/s"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:16:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag search window is 30 to 90 minutes
+  claim_id: c_e0befded
+  context: "Phase 4: User Story 2 - Identify Optimal Propagation Lag ... Goal: Search\
+    \ a plausible lag window (30\u201390 min) ..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "search a plausible lag window (30\u201390 min)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:16:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_a620c4e9
+  context: T002 Initialize Python 3.11 project with requirements.txt ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:17:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 0
+  canonical: verify pi value in synthetic dataset test
+  claim_id: c_bb0e19c9
+  context: 'T037 [P] Write integration test for synthetic dataset validation in `tests/integration/test_synthetic.py`
+    (US-2 Independent Test). Test Function: `test_synthetic_lag_45min` verifying {{claim:c_e52f93ed}}
+    (pi, https://en.wikipedia.org/wiki/Pi).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 7 2
+      source_id: A000796
+      url: https://oeis.org/A000796
+      value: '7'
+    filled: true
+  kind: entity_fact
+  raw_text: verify {{claim:c_e52f93ed}} (pi, https://en.wikipedia.org/wiki/Pi)
+  resolved_value: '7'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:18:58Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: remove value k from formula
+  claim_id: c_e28dd697
+  context: 'T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py`
+    to calculate physics-based lag `L_phys` using formula `L_phys = (k * 6371) / Vsw_mean
+    / k. The specific value to remove/generalize: ''k'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Remove_value_k_from_formula
+  kind: entity_fact
+  raw_text: 'The specific value to remove/generalize: ''k'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:19:10Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: project directory structure matches specification
+  claim_id: c_5f3a2485
+  context: 'T001 Create project structure per implementation plan. Target Structure:
+    The final directory tree must match: projects/PROJ-300-exploring-the-relationship-between-solar/...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The final directory tree must match: projects/PROJ-300-exploring-the-relationship-between-solar/...'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:19:34Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_c200159e
+  context: T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt`
+    containing the following exact pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:19:55Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: fetch solar wind data from NASA OMNIWeb API v2
+  claim_id: c_d44f226a
+  context: T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`
+    function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA
+    OMNIWeb API v2 via `requests`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_solar_wind_data_from_NASA_OMNIWeb_API_v2
+  kind: entity_fact
+  raw_text: fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:20:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: fetch THEMIS data from NASA CDAWeb
+  claim_id: c_97cfe8b9
+  context: T004b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`
+    function `fetch_themis_ey(date_range)` to fetch THEMIS data (Ey) from NASA CDAWeb
+    via `cdaweb`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_THEMIS_data_from_NASA_CDAWeb
+  kind: entity_fact
+  raw_text: fetch THEMIS data (Ey) from NASA CDAWeb
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:20:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: calculate physics-based lag L_phys using formula L_phys = (k * 6371)
+    / Vsw_mean / k
+  claim_id: c_42d96a13
+  context: T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py`
+    to calculate physics-based lag `L_phys` using formula `L_phys = (k * 6371) / Vsw_mean
+    / k`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate physics-based lag L_phys using formula L_phys = (k * 6371) /
+    Vsw_mean / k
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:21:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: search lag window 30 to 90 minutes
+  claim_id: c_ee239903
+  context: "Phase 4: User Story 2 - Identify Optimal Propagation Lag. Goal: Search\
+    \ a plausible lag window (30\u201390 min) and report the lag that maximizes the\
+    \ absolute correlation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "search a plausible lag window (30\u201390 min)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:21:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pipeline reports 45 minutes optimal lag with 1 minute tolerance
+  claim_id: c_f85a7849
+  context: "Independent Test: Execute the lag-search on a known synthetic dataset\
+    \ where the true lag is min; the pipeline must report 45 min (\xB11 min) as the\
+    \ optimal lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the pipeline reports 45 min (\xB11 min) as the optimal lag"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:21:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: compute correlations for thresholds 400, 500, 600 km/s
+  claim_id: c_665e6da0
+  context: "T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations\
+    \ for T \u2208 {400, 500, 600} km/s (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compute correlations for T \u2208 {400, 500, 600} km/s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:22:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: verify pipeline reports 45 minutes with 1 minute tolerance
+  claim_id: c_893dc404
+  context: "T026 [US2] Execute the lag-search on a synthetic dataset (true lag 45\
+    \ min) and verify the pipeline reports 45 min (\xB11 min) (US-2 Independent Test)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the pipeline reports 45 min (\xB11 min)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:22:29Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: data ingestion uses OMNIWeb and CDAWeb URLs without GPU libraries
+  claim_id: c_e7c9fc08
+  context: 'Critical Constraint: All data ingestion must use verified URLs (OMNIWeb,
+    CDAWeb) and no GPU libraries.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_uses_OMNIWeb_and_CDAWeb_URLs_without_GPU_libr
+  kind: entity_fact
+  raw_text: use verified URLs (OMNIWeb, CDAWeb) and no GPU libraries
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:22:50Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: permutation tests optimized for CPU-only execution
+  claim_id: c_e45d23ca
+  context: 'Critical Constraint: ... Permutation tests must be optimized for CPU-only
+    execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_optimized_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: Permutation tests must be optimized for CPU-only execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:23:15Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: fixed 60 Re distance
+  claim_id: c_c2c8ae62
+  context: The scope has been strictly limited to the Spec's authorized methods (linear
+    correlation, permutation tests, fixed 60 Re distance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed 60 Re distance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:23:45Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: User Story 2 independent test optimal lag 45 min plus or minus 1 min
+  claim_id: c_af411beb
+  context: "Independent Test: Execute the lag-search on a known synthetic dataset\
+    \ where the true lag is min; the pipeline must report 45 min (\xB11 min) as the\
+    \ optimal lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Independent Test for User Story 2 requires the pipeline to report\
+    \ 45 min (\xB11 min) as the optimal lag."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:32:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 400 500 600 km per s
+  claim_id: c_9d825bae
+  context: "Integrate analysis/sensitivity.py to compute correlations for T \u2208\
+    \ {400, 500, 600} km/s (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis thresholds are T \u2208 {400, 500, 600} km/s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:32:58Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag search window 30 to 90 minutes
+  claim_id: c_9545aa77
+  context: "Goal: Search a plausible lag window (30\u201390 min) and report the lag\
+    \ that maximizes the absolute correlation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The lag window for the search is 30\u201390 min."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:33:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Tail distance used in physics-based lag calculation 60 Re
+  claim_id: c_a3b066b7
+  context: The scope has been strictly limited to the Spec's authorized methods (linear
+    correlation, permutation tests, fixed 60 Re distance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The physics-based lag calculation uses a tail distance of 60 Re.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:33:39Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag window minimum value 30
+  claim_id: c_9074b540
+  context: 'Create projects/.../code/config.py defining constants: LAG_WINDOW_MIN=30,
+    LAG_WINDOW_MAX=90, LAG_STEP=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window minimum is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:33:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag window maximum value 90
+  claim_id: c_003ed0ea
+  context: 'Create projects/.../code/config.py defining constants: LAG_WINDOW_MIN=30,
+    LAG_WINDOW_MAX=90, LAG_STEP=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag window maximum is 90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:34:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag step value 5
+  claim_id: c_4744b9b5
+  context: 'Create projects/.../code/config.py defining constants: LAG_WINDOW_MIN=30,
+    LAG_WINDOW_MAX=90, LAG_STEP=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag step is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:34:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap confidence interval 95 percent
+  claim_id: c_02ecb967
+  context: Implement moving_block_bootstrap with A sufficient number of iterations
+    for 95% confidence intervals (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence interval for the moving block bootstrap is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:34:20Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size based on first lag where autocorrelation
+    less than 0.5
+  claim_id: c_c503c68d
+  context: Calculate block size based on the first lag where autocorrelation < 0.5,
+    or use a default of a sufficient number of samples if autocorrelation is weak.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Circular_block_permutation_block_size_based_on_first_lag_whe
+  kind: magnitude
+  raw_text: The block size for circular block permutation is based on the first lag
+    where autocorrelation is less than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:34:47Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python version 3.11
+  claim_id: c_391d376f
+  context: Initialize Python 3.11 project with requirements.txt at projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:35:04Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: fetch_omni_sw function returns DataFrame with columns timestamp Vsw Bz
+  claim_id: c_edd1a98f
+  context: 'Deliverable: Function returning a pandas.DataFrame with columns [timestamp,
+    Vsw, Bz].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_omni_sw_function_returns_DataFrame_with_columns_timest
+  kind: entity_fact
+  raw_text: The data ingestion function fetch_omni_sw returns a pandas.DataFrame with
+    columns timestamp, Vsw, and Bz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:35:26Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: fetch_themis_ey function returns DataFrame with columns timestamp Ey
+  claim_id: c_346c98bb
+  context: 'Deliverable: Function returning a pandas.DataFrame with columns [timestamp,
+    Ey].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_themis_ey_function_returns_DataFrame_with_columns_time
+  kind: entity_fact
+  raw_text: The data ingestion function fetch_themis_ey returns a pandas.DataFrame
+    with columns timestamp and Ey.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:35:45Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes data raw folder
+  claim_id: c_55962e6a
+  context: 'Target Structure: The final directory tree must match: ... data/ raw/
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_directory_structure_includes_data_raw_folder
+  kind: entity_fact
+  raw_text: The project directory structure includes a data/raw folder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:36:16Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes data processed folder
+  claim_id: c_27116545
+  context: 'Target Structure: The final directory tree must match: ... data/ processed/
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_directory_structure_includes_data_processed_folder
+  kind: entity_fact
+  raw_text: The project directory structure includes a data/processed folder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:36:44Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes tests unit folder
+  claim_id: c_986f8df9
+  context: 'Target Structure: The final directory tree must match: ... tests/ unit/
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_directory_structure_includes_tests_unit_folder
+  kind: entity_fact
+  raw_text: The project directory structure includes a tests/unit folder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:37:05Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes tests integration folder
+  claim_id: c_50d124a4
+  context: 'Target Structure: The final directory tree must match: ... tests/ integration/
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_directory_structure_includes_tests_integration_folde
+  kind: entity_fact
+  raw_text: The project directory structure includes a tests/integration folder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:37:26Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code directory contains config.py file
+  claim_id: c_a07549a8
+  context: 'Target Structure: The final directory tree must match: ... code/ config.py
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_directory_contains_config.py_file
+  kind: entity_fact
+  raw_text: The code directory contains a config.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:37:48Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code data directory contains ingest.py file
+  claim_id: c_b32166d2
+  context: 'Target Structure: The final directory tree must match: ... code/ data/
+    ingest.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_data_directory_contains_ingest.py_file
+  kind: entity_fact
+  raw_text: The code/data directory contains an ingest.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:38:13Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code analysis directory contains correlation.py file
+  claim_id: c_8eb4a00d
+  context: 'Target Structure: The final directory tree must match: ... code/ analysis/
+    correlation.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_analysis_directory_contains_correlation.py_file
+  kind: entity_fact
+  raw_text: The code/analysis directory contains a correlation.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:38:30Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code viz directory contains plots.py file
+  claim_id: c_c1d0c8d7
+  context: 'Target Structure: The final directory tree must match: ... code/ viz/
+    plots.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_viz_directory_contains_plots.py_file
+  kind: entity_fact
+  raw_text: The code/viz directory contains a plots.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:38:46Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project root contains requirements.txt file
+  claim_id: c_5ce53c0f
+  context: 'Target Structure: The final directory tree must match: ... requirements.txt
+    ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_root_contains_requirements.txt_file
+  kind: entity_fact
+  raw_text: The project root contains a requirements.txt file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:39:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project root contains README.md file
+  claim_id: c_743a6b9f
+  context: 'Target Structure: The final directory tree must match: ... README.md'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Readme
+      source_id: Q78999756
+      url: https://www.wikidata.org/wiki/Q78999756
+      value: Readme
+    filled: true
+  kind: entity_fact
+  raw_text: The project root contains a README.md file.
+  resolved_value: Readme
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:39:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Main.py file located in code directory
+  claim_id: c_9757fcf3
+  context: 'Target Structure: The final directory tree must match: ... code/ main.py'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: code directory
+    relation: located in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Main.py_file_located_in_code_directory
+    source_value: https://en.wikipedia.org/wiki/Main.py_file_located_in_code_directory
+    subject: Main.py file
+  kind: relational
+  raw_text: The main.py file is located in the code directory.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:39:37Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code data directory contains clean.py file
+  claim_id: c_f75d420d
+  context: 'Target Structure: The final directory tree must match: ... code/ data/
+    clean.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_data_directory_contains_clean.py_file
+  kind: entity_fact
+  raw_text: The code/data directory contains a clean.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:40:01Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code data directory contains lag.py file
+  claim_id: c_5ada1484
+  context: 'Target Structure: The final directory tree must match: ... code/ data/
+    lag.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_data_directory_contains_lag.py_file
+  kind: entity_fact
+  raw_text: The code/data directory contains a lag.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:40:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code analysis directory contains lag_search.py file
+  claim_id: c_72553d71
+  context: 'Target Structure: The final directory tree must match: ... code/ analysis/
+    lag_search.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_analysis_directory_contains_lag_search.py_file
+  kind: entity_fact
+  raw_text: The code/analysis directory contains a lag_search.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:40:46Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Code analysis directory contains sensitivity.py file
+  claim_id: c_8ea743a7
+  context: 'Target Structure: The final directory tree must match: ... code/ analysis/
+    sensitivity.py ...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_analysis_directory_contains_sensitivity.py_file
+  kind: entity_fact
+  raw_text: The code/analysis directory contains a sensitivity.py file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:41:21Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Results directory contains us1_correlation.json file
+  claim_id: c_a766fda0
+  context: 'Deliverable: results/us1_correlation.json containing keys: pearson, spearman,
+    p_val_permutation, significant_flag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_directory_contains_us1_correlation.json_file
+  kind: entity_fact
+  raw_text: The results directory will contain a us1_correlation.json file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:41:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Results directory contains plot_scatter.png file
+  claim_id: c_fcd08a0f
+  context: 'Deliverable: Generate results/plot_scatter.png and results/plot_timeseries.png.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_directory_contains_plot_scatter.png_file
+  kind: entity_fact
+  raw_text: The results directory will contain a plot_scatter.png file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:41:55Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Results directory contains plot_timeseries.png file
+  claim_id: c_3287c937
+  context: 'Deliverable: Generate results/plot_scatter.png and results/plot_timeseries.png.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_directory_contains_plot_timeseries.png_file
+  kind: entity_fact
+  raw_text: The results directory will contain a plot_timeseries.png file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:42:19Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Quality log JSON file located at data processed quality_log.json
+  claim_id: c_ae0af155
+  context: Implement main.py to log data-quality warnings to projects/.../data/processed/quality_log.json
+    in JSON format (FR-009).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quality_log_JSON_file_located_at_data_processed_quality_log.
+  kind: entity_fact
+  raw_text: The quality_log.json file is located at data/processed/quality_log.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:42:36Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for clean.py located at tests unit test_clean.py
+  claim_id: c_148d22fc
+  context: Write unit tests for data/clean.py in tests/unit/test_clean.py (FR-003).
+  evidence:
+    entailment_evidence: Unit test file for clean.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_clean.py_located_at_tests_unit_test_clean
+  kind: entity_fact
+  raw_text: The unit test file for clean.py is located at tests/unit/test_clean.py.
+  resolved_value: Unit test file for clean.py located at tests unit test_clean.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:42:40Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for lag.py located at tests unit test_lag.py
+  claim_id: c_12fdf302
+  context: Write unit tests for data/lag.py in tests/unit/test_lag.py (FR-012).
+  evidence:
+    entailment_evidence: Unit test file for lag.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_lag.py_located_at_tests_unit_test_lag.py
+  kind: entity_fact
+  raw_text: The unit test file for lag.py is located at tests/unit/test_lag.py.
+  resolved_value: Unit test file for lag.py located at tests unit test_lag.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:42:44Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Integration test file for pipeline located at tests integration test_pipeline.py
+  claim_id: c_eb3f2496
+  context: Write integration test for lag-adjusted correlation pipeline in tests/integration/test_pipeline.py
+    (US-1 Independent Test).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_file_for_pipeline_located_at_tests_integrat
+  kind: entity_fact
+  raw_text: The integration test file for the pipeline is located at tests/integration/test_pipeline.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:43:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for correlation.py located at tests unit test_correlation.py
+  claim_id: c_c77b4e5a
+  context: Write unit tests for permutation test logic in tests/unit/test_correlation.py
+    (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_correlation.py_located_at_tests_unit_test
+  kind: entity_fact
+  raw_text: The unit test file for correlation.py is located at tests/unit/test_correlation.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:43:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for lag_search.py located at tests unit test_lag_search.py
+  claim_id: c_134da945
+  context: Write unit tests for lag sweep logic in tests/unit/test_lag_search.py (FR-010).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_lag_search.py_located_at_tests_unit_test
+  kind: entity_fact
+  raw_text: The unit test file for lag_search.py is located at tests/unit/test_lag_search.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:43:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Integration test file for synthetic data located at tests integration
+    test_synthetic.py
+  claim_id: c_96ebf329
+  context: Write integration test for synthetic dataset validation in tests/integration/test_synthetic.py
+    (US-2 Independent Test).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_file_for_synthetic_data_located_at_tests_in
+  kind: entity_fact
+  raw_text: The integration test file for synthetic data is located at tests/integration/test_synthetic.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:44:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for sensitivity.py located at tests unit test_sensitivity.py
+  claim_id: c_44942c76
+  context: Write unit tests for sensitivity threshold filtering in tests/unit/test_sensitivity.py
+    (FR-007).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_sensitivity.py_located_at_tests_unit_test
+  kind: entity_fact
+  raw_text: The unit test file for sensitivity.py is located at tests/unit/test_sensitivity.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:44:21Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test file for plots.py located at tests unit test_plots.py
+  claim_id: c_31965fb2
+  context: 'Verify all plots load without error, include correct labels/units, and
+    show the optimal lag annotation (SC-005). Verification: Run pytest tests/unit/test_plots.py.'
+  evidence:
+    entailment_evidence: Unit test file for plots.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Unit_test_file_for_plots.py_located_at_tests_unit_test_plots
+  kind: entity_fact
+  raw_text: The unit test file for plots.py is located at tests/unit/test_plots.py.
+  resolved_value: Unit test file for plots.py located at tests unit test_plots.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T07:44:24Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Data ingestion for Vsw and Bz uses NASA OMNIWeb API v2
+  claim_id: c_fe2f1f1d
+  context: Implement fetch_omni_sw(date_range) to fetch solar wind data (Vsw, Bz)
+    from NASA OMNIWeb API v2 via requests (FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_for_Vsw_and_Bz_uses_NASA_OMNIWeb_API_v2
+  kind: entity_fact
+  raw_text: The data ingestion for Vsw and Bz uses the NASA OMNIWeb API v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:44:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Data ingestion for Ey uses NASA CDAWeb via cdaweb library
+  claim_id: c_44dd77ad
+  context: Implement fetch_themis_ey(date_range) to fetch THEMIS data (Ey) from NASA
+    CDAWeb via cdaweb (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_for_Ey_uses_NASA_CDAWeb_via_cdaweb_library
+  kind: entity_fact
+  raw_text: The data ingestion for Ey uses NASA CDAWeb via the cdaweb library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:45:17Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Resampling cadence is fixed short-interval
+  claim_id: c_de2e0cab
+  context: Implement clean.py for NaN removal and resampling to a fixed short-interval
+    cadence using pandas (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resampling_cadence_is_fixed_short-interval
+  kind: entity_fact
+  raw_text: The resampling cadence is a fixed short-interval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:45:21Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Test clean_resamples_to_5min resamples to 5 minutes
+  claim_id: c_ebd99482
+  context: 'Test Functions: test_clean_removes_nan, test_clean_resamples_to_5min,
+    test_clean_handles_empty_input.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resampling in test_clean_removes_nan resamples to 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:45:41Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Note in JSON report states Bonferroni correction is conservative for
+    autocorrelated lag searches
+  claim_id: c_b18b3cfc
+  context: 'The exact string must be: ''Note: Bonferroni correction is conservative
+    for autocorrelated lag searches; the permutation test (FR-005) is the primary
+    method for significance testing. Future work should consider adaptive FDR control.''
+    (FR-013).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Note_in_JSON_report_states_Bonferroni_correction_is_conserva
+  kind: entity_fact
+  raw_text: The note in the JSON report states that Bonferroni correction is conservative
+    for autocorrelated lag searches.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:46:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Optimal lag L* identified by sweeping 30 to 90 minute window
+  claim_id: c_095de635
+  context: Implement find_optimal_lag to sweep the early-to-mid duration window and
+    identify optimal lag L* (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimal lag L* is identified by sweeping the 30-90 minute window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:48:01Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds high medium low km per s
+  claim_id: c_4bae3dc6
+  context: "Implement analyze_thresholds to sweep thresholds T \u2208 {high, medium,\
+    \ low} km/s and recompute correlations (FR-007)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_thresholds_high_medium_low_km_pe
+  kind: entity_fact
+  raw_text: "The sensitivity analysis sweeps thresholds T \u2208 {high, medium, low}\
+    \ km/s."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:48:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Scatter plot includes regression line
+  claim_id: c_51847d15
+  context: Implement plot_scatter to generate scatter plot of lag-adjusted Vsw vs.
+    Ey with regression line (FR-008a).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scatter_plot_includes_regression_line
+  kind: entity_fact
+  raw_text: The scatter plot includes a regression line.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:48:46Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series plot is dual-axis overlay of Vsw and Ey
+  claim_id: c_4e1a2136
+  context: Implement plot_timeseries to generate dual-axis time-series overlay of
+    Vsw and Ey (FR-008b).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Time-series_plot_is_dual-axis_overlay_of_Vsw_and_Ey
+  kind: entity_fact
+  raw_text: The time-series plot is a dual-axis overlay of Vsw and Ey.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:49:04Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction method used is permutation test
+  claim_id: c_1e2c2be3
+  context: Add docstring to lag_search.py documenting the multiple-comparison correction
+    method (permutation test) and total lag candidate count (FR-011).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_method_used_is_permutation_te
+  kind: entity_fact
+  raw_text: The multiple-comparison correction method used is a permutation test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:49:25Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project excludes GPU libraries for data ingestion
+  claim_id: c_37e8b8d5
+  context: 'Critical Constraint: All data ingestion must use verified URLs (OMNIWeb,
+    CDAWeb) and no GPU libraries.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_excludes_GPU_libraries_for_data_ingestion
+  kind: entity_fact
+  raw_text: The project excludes GPU libraries for data ingestion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:50:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Permutation tests optimized for CPU-only execution
+  claim_id: c_678d2da3
+  context: 'Critical Constraint: All data ingestion must use verified URLs (OMNIWeb,
+    CDAWeb) and no GPU libraries. Permutation tests must be optimized for CPU-only
+    execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_optimized_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: Permutation tests must be optimized for CPU-only execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:50:04Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project excludes Lorentz transformations from scope
+  claim_id: c_b952acb9
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_excludes_Lorentz_transformations_from_scope
+  kind: entity_fact
+  raw_text: The project excludes Lorentz transformations from the scope.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:50:32Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: "Project excludes Alfv\xE9n speed modeling from scope"
+  claim_id: c_af948b0c
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_excludes_Alfv%C3%A9n_speed_modeling_from_scope
+  kind: entity_fact
+  raw_text: "The project excludes Alfv\xE9n speed modeling from the scope."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:50:58Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project excludes non-linear saturation fitting from scope
+  claim_id: c_fce88795
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_excludes_non-linear_saturation_fitting_from_scope
+  kind: entity_fact
+  raw_text: The project excludes non-linear saturation fitting from the scope.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:51:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project excludes reference frame analysis from scope
+  claim_id: c_c01ce010
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_excludes_reference_frame_analysis_from_scope
+  kind: entity_fact
+  raw_text: The project excludes reference frame analysis from the scope.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:52:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Authorized methods are linear correlation permutation tests and fixed
+    60 Re distance
+  claim_id: c_d4c7ef85
+  context: The scope has been strictly limited to the Spec's authorized methods (linear
+    correlation, permutation tests, fixed 60 Re distance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The authorized methods for the project are linear correlation, permutation
+    tests, and a fixed 60 Re distance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:52:23Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Test function test_synthetic_lag_45min verifies optimal lag
+  claim_id: c_57da8ddd
+  context: 'Test Function: test_synthetic_lag_45min verifying {{claim:c_e52f93ed}}
+    (pi, https://en.wikipedia.org/wiki/Pi).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_function_test_synthetic_lag_45min_verifies_optimal_lag
+  kind: entity_fact
+  raw_text: The test function test_synthetic_lag_45min verifies the optimal lag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:52:43Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project directory named PROJ-300-exploring-the-relationship-between-solar
+  claim_id: c_ed35a2a8
+  context: Create project structure per implementation plan (projects/PROJ-300-exploring-the-relationship-between-solar/).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project directory is named PROJ-300-exploring-the-relationship-between-solar.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:52:57Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_clean_resamples_to_5min verifies resampling to 5 minutes
+  claim_id: c_d64461e6
+  context: 'Test Functions: test_clean_removes_nan, test_clean_resamples_to_5min,
+    test_clean_handles_empty_input.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test test_clean_resamples_to_5min verifies resampling to 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:53:11Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_clean_all_nan handles empty input or all-NaN column
+  claim_id: c_4fac3bed
+  context: 'Test Functions: test_clean_all_nan, test_clean_single_value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_clean_all_nan_handles_empty_input_or_all-NaN
+  kind: entity_fact
+  raw_text: The unit test test_clean_all_nan handles empty input or all-NaN column.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:53:45Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_clean_single_value handles single value input
+  claim_id: c_56b8076b
+  context: 'Test Functions: test_clean_all_nan, test_clean_single_value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_clean_single_value_handles_single_value_input
+  kind: entity_fact
+  raw_text: The unit test test_clean_single_value handles single value input.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:54:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_lag_calculation_formula verifies lag calculation formula
+  claim_id: c_aea0788c
+  context: 'Test Functions: test_lag_calculation_formula, test_lag_shift_applies_correctly.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_lag_calculation_formula_verifies_lag_calculat
+  kind: entity_fact
+  raw_text: The unit test test_lag_calculation_formula verifies the lag calculation
+    formula.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:54:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_lag_shift_applies_correctly verifies lag shift
+  claim_id: c_9682ca68
+  context: 'Test Functions: test_lag_calculation_formula, test_lag_shift_applies_correctly.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_lag_shift_applies_correctly_verifies_lag_shif
+  kind: entity_fact
+  raw_text: The unit test test_lag_shift_applies_correctly verifies the lag shift.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:54:41Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Integration test test_us1_full_pipeline verifies JSON output keys
+  claim_id: c_afe1d896
+  context: 'Test Function: test_us1_full_pipeline verifying JSON output keys.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_test_us1_full_pipeline_verifies_JSON_output
+  kind: entity_fact
+  raw_text: The integration test test_us1_full_pipeline verifies JSON output keys.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:54:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_permutation_block_size verifies permutation block size
+  claim_id: c_1deac948
+  context: 'Test Functions: test_permutation_block_size, test_permutation_p_value_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_permutation_block_size_verifies_permutation_b
+  kind: entity_fact
+  raw_text: The unit test test_permutation_block_size verifies permutation block size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:55:16Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_permutation_p_value_calculation verifies p-value calculation
+  claim_id: c_ac5920a8
+  context: 'Test Functions: test_permutation_block_size, test_permutation_p_value_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_permutation_p_value_calculation_verifies_p-va
+  kind: entity_fact
+  raw_text: The unit test test_permutation_p_value_calculation verifies p-value calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:55:33Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_lag_sweep_window verifies lag sweep window
+  claim_id: c_8dc2bd38
+  context: 'Test Functions: test_lag_sweep_window, test_optimal_lag_identification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_lag_sweep_window_verifies_lag_sweep_window
+  kind: entity_fact
+  raw_text: The unit test test_lag_sweep_window verifies the lag sweep window.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:55:49Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_optimal_lag_identification verifies optimal lag identification
+  claim_id: c_9e6b480c
+  context: 'Test Functions: test_lag_sweep_window, test_optimal_lag_identification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_optimal_lag_identification_verifies_optimal_l
+  kind: entity_fact
+  raw_text: The unit test test_optimal_lag_identification verifies optimal lag identification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:56:08Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_threshold_filtering verifies threshold filtering
+  claim_id: c_22cb8f2d
+  context: 'Test Functions: test_threshold_filtering, test_sensitivity_correlation_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_threshold_filtering_verifies_threshold_filter
+  kind: entity_fact
+  raw_text: The unit test test_threshold_filtering verifies threshold filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:56:26Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_sensitivity_correlation_calculation verifies sensitivity
+    correlation calculation
+  claim_id: c_5e57d0b4
+  context: 'Test Functions: test_threshold_filtering, test_sensitivity_correlation_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_sensitivity_correlation_calculation_verifies
+  kind: entity_fact
+  raw_text: The unit test test_sensitivity_correlation_calculation verifies sensitivity
+    correlation calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:56:46Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_bootstrap_block_size verifies bootstrap block size
+  claim_id: c_a317e5de
+  context: 'Test Functions: test_bootstrap_block_size, test_bootstrap_ci_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_bootstrap_block_size_verifies_bootstrap_block
+  kind: entity_fact
+  raw_text: The unit test test_bootstrap_block_size verifies bootstrap block size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:57:04Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Unit test test_bootstrap_ci_calculation verifies bootstrap CI calculation
+  claim_id: c_f8191a28
+  context: 'Test Functions: test_bootstrap_block_size, test_bootstrap_ci_calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_test_bootstrap_ci_calculation_verifies_bootstrap_C
+  kind: entity_fact
+  raw_text: The unit test test_bootstrap_ci_calculation verifies bootstrap CI calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:57:28Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: End-to-end validation runs on multi-day interval
+  claim_id: c_1de5cc9a
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/End-to-end_validation_runs_on_multi-day_interval
+  kind: entity_fact
+  raw_text: The end-to-end validation runs on a multi-day interval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:57:49Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project state records checksums for all artifacts
+  claim_id: c_bcf3b7f6
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_state_records_checksums_for_all_artifacts
+  kind: entity_fact
+  raw_text: The project state records checksums for all artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:58:10Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project removes Phases 8 and 9
+  claim_id: c_8d9dbb19
+  context: 'Note: Phases 8 and 9 were removed as they introduced scope creep contradicting
+    the Spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project removes Phases 8 and 9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:58:35Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project removes tasks related to Lorentz transformations
+  claim_id: c_d67f54d5
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_removes_tasks_related_to_Lorentz_transformations
+  kind: entity_fact
+  raw_text: The project removes tasks related to Lorentz transformations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:58:56Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: "Project removes tasks related to Alfv\xE9n speed modeling"
+  claim_id: c_735f73f6
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_removes_tasks_related_to_Alfv%C3%A9n_speed_modeling
+  kind: entity_fact
+  raw_text: "The project removes tasks related to Alfv\xE9n speed modeling."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:59:20Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project removes tasks related to non-linear saturation fitting
+  claim_id: c_a3124114
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_removes_tasks_related_to_non-linear_saturation_fitti
+  kind: entity_fact
+  raw_text: The project removes tasks related to non-linear saturation fitting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T07:59:42Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project removes tasks related to reference frame analysis
+  claim_id: c_914a2f34
+  context: "Removed Scope Creep: Tasks related to Lorentz transformations, Alfv\xE9\
+    n speed modeling, non-linear saturation fitting, and reference frame analysis\
+    \ (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict\
+    \ the Spec."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_removes_tasks_related_to_reference_frame_analysis
+  kind: entity_fact
+  raw_text: The project removes tasks related to reference frame analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:00:03Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle I for validation
+  claim_id: c_7b7671b1
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_I_for_validation
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle I for validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:00:55Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle V for artifact verification
+  claim_id: c_4e74bd0d
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_V_for_artifact_verificat
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle V for artifact verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:01:45Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for reproducibility
+  claim_id: c_55eeb2d9
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_reproducibility
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:02:09Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for checksumming
+  claim_id: c_91433371
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_checksumming
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for checksumming.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:02:24Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for recording project state
+  claim_id: c_e7293182
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_recording_project_st
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for recording project state.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:02:45Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for data integrity
+  claim_id: c_831eb430
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_data_integrity
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for data integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:03:14Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for code integrity
+  claim_id: c_0f48e498
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_code_integrity
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for code integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:03:34Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for report integrity
+  claim_id: c_9c3f97dd
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_report_integrity
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for report integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:04:00Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for reproducibility of outputs
+  claim_id: c_7d200026
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_reproducibility_of_o
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for reproducibility of outputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:04:23Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for JSON output generation
+  claim_id: c_ab0d9499
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_JSON_output_generati
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for JSON output generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:04:42Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for PNG output generation
+  claim_id: c_6c346a64
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_PNG_output_generatio
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for PNG output generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:05:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for multi-day interval validation
+  claim_id: c_cc0503be
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_multi-day_interval_v
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for multi-day interval validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:05:29Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for artifact generation
+  claim_id: c_d102ba54
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_artifact_generation
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for artifact generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:05:53Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for end-to-end validation
+  claim_id: c_de958ad5
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_end-to-end_validatio
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for end-to-end validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:06:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for reproducibility of artifacts
+  claim_id: c_352947f8
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_reproducibility_of_a
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for reproducibility of artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:06:50Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for verification of outputs
+  claim_id: c_5f230129
+  context: Run end-to-end validation on a multi-day interval to ensure reproducibility
+    and all outputs (JSON, PNGs) are generated correctly (Constitution Principle I).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_verification_of_outp
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for verification of outputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:07:17Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for verification of artifacts
+  claim_id: c_8bcabb81
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_verification_of_arti
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for verification of artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:07:23Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for recording artifacts
+  claim_id: c_bd80f3d0
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_recording_artifacts
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for recording artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:07:48Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for checksumming artifacts
+  claim_id: c_0ed36117
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_checksumming_artifac
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for checksumming artifacts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:08:08Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Constitution Principle for project state management
+  claim_id: c_5900d1d9
+  context: Verify all artifacts (data, code, reports) are checksummed and recorded
+    in the project state (Constitution Principle V).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Constitution_Principle_for_project_state_manage
+  kind: entity_fact
+  raw_text: The project uses the Constitution Principle for project state management.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T08:08:43Z'

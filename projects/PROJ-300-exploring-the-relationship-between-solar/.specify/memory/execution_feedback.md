@@ -23,10 +23,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py", line 15, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'
+    Starting pipeline for 2023-01-01 to 2023-01-03
+Fetching OMNI Solar Wind data...
+
+Pipeline failed: Failed to fetch OMNI data: OMNIWeb API fetch is not implemented in this environment. Please configure API access.
 
 ## Declared deliverables still missing
 
@@ -39,4 +39,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/quality_log.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_e2e_validation.py` — NOT invoked by the run-book
     - `code/run_us3_sample.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/quality_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
