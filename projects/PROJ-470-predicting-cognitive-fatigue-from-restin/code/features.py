@@ -4,237 +4,198 @@ import yaml
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from scipy.stats import entropy
+from scipy.signal import detrend
 
-# Import from local models if available, otherwise handle gracefully
-try:
-    from models.complexity_metric import MetricType, ComplexityMetric
-except ImportError:
-    MetricType = None
-    ComplexityMetric = None
+# Importing from sibling modules as per API surface
+from utils.logging import get_logger
 
-# Import logging utilities
-try:
-    from utils.logging import get_logger, log_artifact_rejection
-except ImportError:
-    def get_logger(name):
-        import logging
-        return logging.getLogger(name)
-    def log_artifact_rejection(*args, **kwargs):
-        pass
+logger = get_logger(__name__)
 
-def load_config(config_path="code/config.yaml"):
+def load_config(config_path='code/config.yaml'):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def calculate_lzc(signal, order=2):
+def calculate_lzc(signal):
     """
-    Calculate Lempel-Ziv Complexity for a 1D signal.
+    Calculate Lempel-Ziv Complexity for a given signal.
     
-    Parameters:
-    -----------
-    signal : np.ndarray
-        1D array of signal values
-    order : int
-        Thresholding order (1 = median, 2 = mean)
+    Args:
+        signal: 1D numpy array of EEG data
         
     Returns:
-    --------
-    float
-        Normalized LZ complexity value
+        float: LZC value normalized by sequence length
     """
-    if len(signal) < 10:
+    if len(signal) == 0:
         return 0.0
         
-    # Binarize signal
-    if order == 1:
-        threshold = np.median(signal)
-    else:
-        threshold = np.mean(signal)
-        
-    binary_signal = (signal > threshold).astype(int)
+    # Binarize signal (median threshold)
+    median_val = np.median(signal)
+    binary_seq = (signal > median_val).astype(int)
     
-    # LZ76 complexity calculation
-    n = len(binary_signal)
-    lzc = 0
+    # LZC calculation
+    n = len(binary_seq)
+    c = 0
+    l = 1
     i = 0
-    while i < n:
-        lzc += 1
-        j = i + 1
-        k = 0
-        while j < n and k <= (j - i):
-            if binary_signal[i + k] != binary_signal[j]:
-                break
-            k += 1
-        if k > (j - i):
-            i = j
-        else:
-            i += 1
-            
-    # Normalize by n / log2(n)
-    if n > 1:
-        return lzc / (n / np.log2(n))
-    return 0.0
-
-def calculate_permutation_entropy(signal, order=3, delay=1, n_samples=10000):
-    """
-    Calculate Permutation Entropy for a 1D signal.
+    j = 0
     
-    Parameters:
-    -----------
-    signal : np.ndarray
-        1D array of signal values
-    order : int
-        Embedding dimension (number of elements in each pattern)
-    delay : int
-        Time delay between elements in the pattern
-    n_samples : int
-        Number of samples to use for calculation (for large signals)
+    while i < n - l:
+        k = 0
+        while i + l + k < n:
+            if np.array_equal(binary_seq[i:i+l], binary_seq[i+l+k:i+l+k+l]):
+                k += 1
+            else:
+                break
+        
+        if k == 0:
+            c += 1
+            i += 1
+            l = 1
+        else:
+            i += l + k
+            l = 1
+            c += 1
+            
+    # Normalize
+    c = c / (n / np.log2(n))
+    return c
+
+def calculate_permutation_entropy(signal, order=3, delay=1):
+    """
+    Calculate Permutation Entropy for a given signal.
+    
+    Args:
+        signal: 1D numpy array of EEG data
+        order: Order of permutation (number of elements in each pattern)
+        delay: Delay between elements in the pattern
         
     Returns:
-    --------
-    float
-        Permutation entropy value (normalized to [0, 1])
+        float: Permutation Entropy value
     """
     if len(signal) < order * delay:
+        logger.warning(f"Signal length {len(signal)} too short for order {order} and delay {delay}")
         return 0.0
         
-    # Limit samples for performance on large datasets
-    if len(signal) > n_samples:
-        indices = np.random.choice(len(signal), n_samples, replace=False)
-        signal = signal[np.sort(indices)]
-        
-    n = len(signal)
-    n_patterns = n - (order - 1) * delay
+    # Detrend signal to remove linear trends
+    detrended_signal = detrend(signal)
     
-    if n_patterns <= 0:
+    # Create embedded vectors
+    n_vectors = len(detrended_signal) - (order - 1) * delay
+    if n_vectors <= 0:
         return 0.0
         
-    # Extract ordinal patterns
+    # Extract patterns and determine their ordinal rankings
     patterns = []
-    for i in range(n_patterns):
-        pattern = signal[i:i + order * delay:delay]
-        # Get the rank order of the pattern
-        rank = np.argsort(pattern)
-        patterns.append(tuple(rank))
-        
-    # Calculate probability distribution
-    from collections import Counter
-    pattern_counts = Counter(patterns)
-    total_patterns = sum(pattern_counts.values())
+    for i in range(n_vectors):
+        vector = detrended_signal[i:i + order * delay:delay]
+        # Get the permutation that would sort the vector
+        pattern = np.argsort(vector)
+        patterns.append(tuple(pattern))
     
-    if total_patterns == 0:
-        return 0.0
-        
-    # Calculate entropy
-    entropy = 0.0
+    # Calculate probability distribution of patterns
+    unique_patterns, counts = np.unique(patterns, return_counts=True)
+    probabilities = counts / len(patterns)
+    
+    # Calculate Shannon entropy
+    pe = entropy(probabilities, base=2)
+    
+    # Normalize by max possible entropy (log2(order!))
     max_entropy = np.log2(np.math.factorial(order))
-    
-    for count in pattern_counts.values():
-        if count > 0:
-            p = count / total_patterns
-            entropy -= p * np.log2(p)
-            
-    # Normalize to [0, 1]
     if max_entropy > 0:
-        return entropy / max_entropy
-    return 0.0
+        pe = pe / max_entropy
+        
+    return pe
 
-def main():
+def process_eeg_segments(eeg_data, config):
     """
-    Main function to calculate Permutation Entropy for all channels
-    in the preprocessed data and save to data/processed/pe_metrics.csv.
+    Process EEG segments to calculate complexity metrics.
+    
+    Args:
+        eeg_data: Dictionary with channel names as keys and 1D arrays as values
+        config: Configuration dictionary
+        
+    Returns:
+        DataFrame with complexity metrics per channel
     """
-    logger = get_logger("features")
-    logger.info("Starting Permutation Entropy calculation")
-    
-    config = load_config()
-    
-    # Paths
-    base_dir = Path(config.get("paths", {}).get("base", "."))
-    processed_dir = base_dir / config.get("paths", {}).get("processed", "data/processed")
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Input file from preprocessing step
-    input_file = processed_dir / "preprocessed_data.csv"
-    
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        print(f"Error: Input file not found: {input_file}")
-        sys.exit(1)
-        
-    # Load preprocessed data
-    try:
-        df = pd.read_csv(input_file)
-        logger.info(f"Loaded {len(df)} rows from {input_file}")
-    except Exception as e:
-        logger.error(f"Failed to load input file: {e}")
-        print(f"Error loading input file: {e}")
-        sys.exit(1)
-        
-    # Expected columns
-    required_cols = ['participant_id', 'session', 'channel', 'data']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        print(f"Error: Missing required columns: {missing_cols}")
-        sys.exit(1)
-        
-    # Configuration for PE calculation
-    pe_config = config.get("features", {}).get("permutation_entropy", {})
-    order = pe_config.get("order", 3)
-    delay = pe_config.get("delay", 1)
-    
-    logger.info(f"Calculating PE with order={order}, delay={delay}")
-    
-    # Results storage
     results = []
     
-    # Process each row
-    for idx, row in df.iterrows():
-        participant_id = row['participant_id']
-        session = row['session']
-        channel = row['channel']
-        
-        # Parse signal data
-        try:
-            if isinstance(row['data'], str):
-                signal = np.array([float(x) for x in row['data'].split(',')])
-            else:
-                signal = np.array(row['data'])
-                
-            if len(signal) < order * delay:
-                logger.warning(f"Skipping {participant_id}-{session}-{channel}: signal too short ({len(signal)})")
-                continue
-                
-            # Calculate Permutation Entropy
-            pe_value = calculate_permutation_entropy(signal, order=order, delay=delay)
-            
-            results.append({
-                'participant_id': participant_id,
-                'session': session,
-                'channel': channel,
-                'permutation_entropy': pe_value,
-                'order': order,
-                'delay': delay,
-                'signal_length': len(signal)
-            })
-            
-        except Exception as e:
-            logger.warning(f"Error processing {participant_id}-{session}-{channel}: {e}")
+    # Get parameters from config
+    lzc_enabled = config.get('features', {}).get('lzc_enabled', True)
+    pe_enabled = config.get('features', {}).get('pe_enabled', True)
+    pe_order = config.get('features', {}).get('pe_order', 3)
+    pe_delay = config.get('features', {}).get('pe_delay', 1)
+    
+    for channel, signal in eeg_data.items():
+        # Skip if signal is too short
+        if len(signal) < 10:
+            logger.warning(f"Skipping channel {channel} due to short signal length")
             continue
             
-    # Save results
-    if results:
-        output_df = pd.DataFrame(results)
-        output_file = processed_dir / "pe_metrics.csv"
-        output_df.to_csv(output_file, index=False)
-        logger.info(f"Saved {len(results)} PE metrics to {output_file}")
-        print(f"Success: Saved {len(results)} PE metrics to {output_file}")
-    else:
-        logger.warning("No PE metrics calculated")
-        print("Warning: No PE metrics calculated")
+        row = {'channel': channel, 'duration': len(signal)}
         
-if __name__ == "__main__":
+        if lzc_enabled:
+            lzc_val = calculate_lzc(signal)
+            row['lzc'] = lzc_val
+            logger.debug(f"Calculated LZC for {channel}: {lzc_val:.4f}")
+            
+        if pe_enabled:
+            pe_val = calculate_permutation_entropy(signal, order=pe_order, delay=pe_delay)
+            row['pe'] = pe_val
+            logger.debug(f"Calculated PE for {channel}: {pe_val:.4f}")
+            
+        results.append(row)
+        
+    return pd.DataFrame(results)
+
+def save_metrics_to_csv(metrics_df, output_path):
+    """
+    Save complexity metrics to CSV file.
+    
+    Args:
+        metrics_df: DataFrame with metrics
+        output_path: Path to output CSV file
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    metrics_df.to_csv(output_path, index=False)
+    logger.info(f"Saved metrics to {output_path}")
+
+def main():
+    """Main function to run feature extraction pipeline."""
+    config = load_config()
+    
+    # Define input and output paths based on config
+    processed_dir = Path(config.get('paths', {}).get('processed_data', 'data/processed'))
+    lzc_output = processed_dir / 'lzc_metrics.csv'
+    pe_output = processed_dir / 'pe_metrics.csv'
+    
+    # Load preprocessed EEG data (assumed to be in a standard format)
+    # This function would need to be implemented based on the actual data format
+    # For now, we assume the data is available in a specific location
+    eeg_data_path = config.get('paths', {}).get('preprocessed_eeg', 'data/processed/preprocessed_eeg.npy')
+    
+    if not os.path.exists(eeg_data_path):
+        logger.error(f"Preprocessed EEG data not found at {eeg_data_path}")
+        sys.exit(1)
+        
+    # Load EEG data
+    eeg_data = np.load(eeg_data_path, allow_pickle=True).item()
+    
+    # Process segments
+    metrics_df = process_eeg_segments(eeg_data, config)
+    
+    # Split metrics by type if needed
+    if 'lzc' in metrics_df.columns:
+        lzc_df = metrics_df[['channel', 'duration', 'lzc']]
+        save_metrics_to_csv(lzc_df, lzc_output)
+        
+    if 'pe' in metrics_df.columns:
+        pe_df = metrics_df[['channel', 'duration', 'pe']]
+        save_metrics_to_csv(pe_df, pe_output)
+        
+    logger.info("Feature extraction completed successfully")
+
+if __name__ == '__main__':
     main()

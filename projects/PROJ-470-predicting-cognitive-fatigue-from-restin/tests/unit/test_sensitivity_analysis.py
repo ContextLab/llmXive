@@ -1,107 +1,107 @@
-import os
-import sys
-import tempfile
 import pytest
-from pathlib import Path
-
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import sys
+import os
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from sensitivity_analysis import run_sensitivity_analysis, generate_sensitivity_table
+from sensitivity_analysis import run_sensitivity_analysis, generate_sensitivity_table, load_analysis_results
 
 class TestSensitivityAnalysis:
     
-    def test_run_sensitivity_analysis_basic(self):
-        """Test basic sensitivity analysis with known data."""
-        # Create mock correlation results
-        data = {
-            'channel': ['Fp1', 'Fp2', 'F3', 'F4', 'C3', 'C4'],
-            'correlation': [0.8, 0.75, 0.6, 0.4, 0.3, 0.2],
-            'p_value': [0.01, 0.03, 0.04, 0.06, 0.1, 0.2]
-        }
-        df = pd.DataFrame(data)
+    @pytest.fixture
+    def sample_results(self):
+        """Create sample correlation results for testing."""
+        return pd.DataFrame({
+            'metric_name': ['lzc_f3', 'lzc_f4', 'pe_f3', 'pe_f4', 'lzc_c3', 'lzc_c4'],
+            'correlation': [-0.45, -0.52, -0.38, -0.61, -0.29, -0.48],
+            'p_value': [0.008, 0.001, 0.035, 0.0002, 0.095, 0.003],
+            'fdr_corrected_p': [0.015, 0.003, 0.055, 0.0003, 0.12, 0.006],
+            'significant': [True, True, False, True, False, True]
+        })
+
+    def test_run_sensitivity_analysis_basic(self, sample_results):
+        """Test basic sensitivity analysis execution."""
+        result = run_sensitivity_analysis(sample_results, thresholds=[0.05])
         
-        # Run analysis
-        result = run_sensitivity_analysis(df, thresholds=(0.05, 0.01))
-        
-        # Verify structure
+        assert isinstance(result, pd.DataFrame)
         assert 'threshold' in result.columns
-        assert 'significant_count' in result.columns
-        assert 'significance_rate' in result.columns
+        assert 'metric_name' in result.columns
+        assert 'is_significant' in result.columns
         
-        # Check p<=0.05 results
-        row_05 = result[result['threshold'] == 0.05].iloc[0]
-        assert row_05['significant_count'] == 4  # Fp1, Fp2, F3, F4
-        assert row_05['significance_rate'] == 4/6
-        
-        # Check p<=0.01 results
-        row_01 = result[result['threshold'] == 0.01].iloc[0]
-        assert row_01['significant_count'] == 1  # Only Fp1
-        assert row_01['significance_rate'] == 1/6
+        # Should have 4 significant findings at p≤0.05 (lzc_f3, lzc_f4, pe_f4, lzc_c4)
+        summary = result[result['metric_name'] == '__SUMMARY__']
+        assert len(summary) == 1
+        assert summary.iloc[0]['total_significant'] == 4
 
-    def test_run_sensitivity_analysis_empty(self):
-        """Test sensitivity analysis with empty dataframe."""
-        df = pd.DataFrame(columns=['channel', 'correlation', 'p_value'])
-        result = run_sensitivity_analysis(df, thresholds=(0.05,))
+    def test_sensitivity_analysis_multiple_thresholds(self, sample_results):
+        """Test sensitivity analysis with multiple thresholds."""
+        result = run_sensitivity_analysis(sample_results, thresholds=[0.05, 0.01])
         
-        assert result['significant_count'].iloc[0] == 0
-        assert np.isnan(result['mean_correlation_sig'].iloc[0])
+        thresholds = sorted(result['threshold'].unique())
+        assert len(thresholds) == 2
+        assert 0.05 in thresholds
+        assert 0.01 in thresholds
+        
+        # At p≤0.01, fewer should be significant
+        summary_05 = result[(result['threshold'] == 0.05) & (result['metric_name'] == '__SUMMARY__')]
+        summary_01 = result[(result['threshold'] == 0.01) & (result['metric_name'] == '__SUMMARY__')]
+        
+        assert summary_05.iloc[0]['total_significant'] >= summary_01.iloc[0]['total_significant']
 
-    def test_generate_sensitivity_table_file_output(self):
+    def test_sensitivity_analysis_no_significant(self, sample_results):
+        """Test when no findings are significant at given threshold."""
+        result = run_sensitivity_analysis(sample_results, thresholds=[0.001])
+        
+        summary = result[result['metric_name'] == '__SUMMARY__']
+        assert len(summary) == 1
+        assert summary.iloc[0]['total_significant'] == 0
+
+    def test_generate_sensitivity_table_creates_file(self, sample_results, tmp_path):
         """Test that generate_sensitivity_table creates a valid CSV file."""
-        data = {
-            'channel': ['Fp1', 'Fp2', 'F3'],
-            'correlation': [0.9, 0.5, 0.1],
-            'p_value': [0.001, 0.05, 0.5]
-        }
-        df = pd.DataFrame(data)
+        sensitivity_df = run_sensitivity_analysis(sample_results, thresholds=[0.05])
+        output_path = tmp_path / 'test_sensitivity.csv'
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "sensitivity_table.csv"
-            generate_sensitivity_table(df, output_path)
-            
-            # Verify file exists
-            assert output_path.exists()
-            
-            # Verify content
-            saved_df = pd.read_csv(output_path)
-            assert len(saved_df) == 2  # Two thresholds
-            assert 'threshold' in saved_df.columns
-            assert saved_df['threshold'].tolist() == [0.05, 0.01]
+        result_path = generate_sensitivity_table(sensitivity_df, output_path)
+        
+        assert result_path.exists()
+        assert result_path.suffix == '.csv'
+        
+        # Verify CSV can be read
+        with open(result_path, 'r') as f:
+            content = f.read()
+            assert 'Sensitivity Analysis Results' in content
+            assert 'Threshold' in content
 
-    def test_sensitivity_analysis_edge_case_all_significant(self):
-        """Test when all p-values are below threshold."""
-        data = {
-            'channel': ['A', 'B', 'C'],
-            'correlation': [0.5, 0.6, 0.7],
-            'p_value': [0.001, 0.002, 0.003]
-        }
-        df = pd.DataFrame(data)
+    def test_proportion_significant_calculation(self, sample_results):
+        """Test that proportion significant is calculated correctly."""
+        result = run_sensitivity_analysis(sample_results, thresholds=[0.05])
         
-        result = run_sensitivity_analysis(df, thresholds=(0.05,))
-        row = result.iloc[0]
+        summary = result[result['metric_name'] == '__SUMMARY__']
+        assert len(summary) == 1
         
-        assert row['significant_count'] == 3
-        assert row['significance_rate'] == 1.0
-        assert row['non_significant_count'] == 0
+        total = summary.iloc[0]['total_tests']
+        sig = summary.iloc[0]['total_significant']
+        expected_prop = sig / total if total > 0 else 0.0
+        
+        assert abs(summary.iloc[0]['proportion_significant'] - expected_prop) < 1e-6
 
-    def test_sensitivity_analysis_edge_case_none_significant(self):
-        """Test when no p-values are below threshold."""
-        data = {
-            'channel': ['A', 'B', 'C'],
-            'correlation': [0.1, 0.2, 0.3],
-            'p_value': [0.6, 0.7, 0.8]
-        }
-        df = pd.DataFrame(data)
+    def test_fdr_corrected_p_usage(self, sample_results):
+        """Test that FDR-corrected p-values are used for significance determination."""
+        # Create data where raw p < 0.05 but FDR corrected > 0.05
+        edge_case = pd.DataFrame({
+            'metric_name': ['test_metric'],
+            'correlation': [-0.3],
+            'p_value': [0.04],  # Significant raw
+            'fdr_corrected_p': [0.08],  # Not significant after FDR
+            'significant': [True]  # Original flag (may be incorrect)
+        })
         
-        result = run_sensitivity_analysis(df, thresholds=(0.05,))
-        row = result.iloc[0]
+        result = run_sensitivity_analysis(edge_case, thresholds=[0.05])
         
-        assert row['significant_count'] == 0
-        assert row['significance_rate'] == 0.0
-        assert row['non_significant_count'] == 3
+        # Should NOT be counted as significant because FDR corrected > 0.05
+        summary = result[result['metric_name'] == '__SUMMARY__']
+        assert summary.iloc[0]['total_significant'] == 0

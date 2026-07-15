@@ -301,3 +301,171 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T13:33:54Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Attempt fallback to SHHS dataset if Sleep-EDF yields N < 30
+  claim_id: c_9de44bdd
+  context: Validate presence of both resting-state EEG and paired pre/post fatigue
+    ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt
+    fallback 'SHHS' dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Sleep-EDF lacks required variables or yields N < 30, attempt fallback
+    'SHHS' dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:18:17Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Halt with exit code 1 if no source with N>=30 is found
+  claim_id: c_1e492c94
+  context: "If no source with both variables and N\u226530 is found, halt with exit\
+    \ code 1 and log validation_report.json listing available variables and N count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If no source with both variables and N\u226530 is found, halt with exit\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:18:17Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Verify 50Hz line noise peak is attenuated by >20dB
+  claim_id: c_a151af7c
+  context: 'Independent Test: Run preprocessing on a single sample file; verify 50Hz
+    line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_50Hz_line_noise_peak_is_attenuated_by_%3E20dB
+  kind: entity_fact
+  raw_text: Verify 50Hz line noise peak is attenuated by >20dB in output spectrum.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:18:35Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak attenuation greater than 20dB
+  claim_id: c_fafd139d
+  context: 'Independent Test: Run preprocessing on a single sample file; verify 50Hz
+    line noise peak is attenuated by >20dB in output spectrum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_attenuation_greater_than_20dB
+  kind: magnitude
+  raw_text: Verify 50Hz line noise peak is attenuated by >20dB in output spectrum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:20:29Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sleep-EDF dataset fallback to SHHS if N less than 30
+  claim_id: c_92be1e1a
+  context: 'Implement code/download.py to fetch the ''Sleep-EDF'' dataset (PhysioNet
+    ID: ''sleep-edf'') as primary candidate. Validate presence of both resting-state
+    EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required
+    variables or yields N < 30, attempt fallback ''SHHS'' dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_dataset_fallback_to_SHHS_if_N_less_than_30
+  kind: magnitude
+  raw_text: If Sleep-EDF lacks required variables or yields N < 30, attempt fallback
+    'SHHS' dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:21:15Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Halt pipeline with exit code 1 if no dataset with N greater than or equal
+    to 30 is found
+  claim_id: c_a8b9cea4
+  context: "If no source with both variables and N\u226530 is found, halt with exit\
+    \ code 1 and log validation_report.json listing available variables and N count."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_with_exit_code_1_if_no_dataset_with_N_greater
+  kind: magnitude
+  raw_text: "If no source with both variables and N\u226530 is found, halt with exit\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:21:40Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclude epochs greater than 100 microvolts and segments less than 120
+    seconds
+  claim_id: c_dc14d5b4
+  context: "Implement artifact rejection logic in code/preprocess.py to exclude epochs\
+    \ >\xB1100\xB5V and segments <120 seconds per FR-002 and Edge Cases."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_greater_than_100_microvolts_and_segments_less
+  kind: magnitude
+  raw_text: "Implement artifact rejection logic to exclude epochs >\xB1100\xB5V and\
+    \ segments <120 seconds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:22:03Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Peak memory usage less than 6GB
+  claim_id: c_79e43cfb
+  context: Implement streaming data loading in code/preprocess.py to ensure peak memory
+    usage < 6GB (targeting DC-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: Ensure peak memory usage < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:22:22Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor less than 5 for collinearity diagnostics
+  claim_id: c_b7a2fe90
+  context: Add collinearity diagnostics (VIF < 5) check if metrics are combined per
+    SC-004.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_less_than_5_for_collinearity_diagn
+  kind: magnitude
+  raw_text: Add collinearity diagnostics (VIF < 5) check if metrics are combined.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T05:22:45Z'

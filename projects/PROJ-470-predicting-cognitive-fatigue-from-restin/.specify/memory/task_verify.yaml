@@ -1,31 +1,6 @@
-? 'T001 Create project directory structure: `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`,
-  `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`, `tests/integration/`,
-  `docs/`.'
-: 2
-? 'T002 Create skeleton files: `code/config.yaml`, `code/download.py`, `code/preprocess.py`,
-  `code/features.py`, `code/analysis.py`, `code/report.py`, `code/models/__init__.py`,
-  `docs/README.md`.'
-: 2
-? 'T003 [P] Initialize Python 3.11 virtual environment and create `code/requirements.txt`
-  with pinned dependencies: `mne`, `scikit-learn`, `numpy`, `pandas`, `lempel-ziv-complexity`,
-  `scipy`, `pyyaml`, `pytest`.'
-: 2
-T006 [P] Create base data models for `EEGSegment` and `ComplexityMetric` in `code/models/`.: 2
-T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.: 1
-T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.: 2
-? "T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet\
-  \ ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state\
-  \ EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required\
-  \ variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with\
-  \ both variables and N\u226530 is found, halt with exit code 1 and log `validation_report.json`\
-  \ listing available variables and N count."
-: 2
-? "T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude\
-  \ epochs >\xB1100\xB5V and segments <120 seconds per FR-002 and Edge Cases. Log\
-  \ exclusion counts and reasons."
-: 2
-T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.: 1
-? 'T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
-  <!-- FAILED: unspecified -->'
-: 1
-T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.: 2
+T021: 2
+T022: 2
+T023: 1
+T024: 1
+T028: 1
+T029: 1
