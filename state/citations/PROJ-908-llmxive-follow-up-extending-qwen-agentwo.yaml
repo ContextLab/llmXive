@@ -1,0 +1,33 @@
+- artifact_hash: 7cf5423b55c8d8351531428cfd7d347f47520441fca498187595404296b99c5c
+  artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: android_test.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/Qwen/AgentWorldBench/resolve/main/android_test.jsonl`
+  verification_status: pending
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6a394ba974e3ccb07645f8a7/a990434421a3eedc290fac0630b7864ab3408e3af52ed0984d9e7c71106165f0?Expires=1784126212&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzZhMzk0YmE5NzRlM2NjYjA3NjQ1ZjhhNy9hOTkwNDM0NDIxYTNlZWRjMjkwZmFjMDYzMGI3ODY0YWIzNDA4ZTNhZjUyZWQwOTg0ZDllN2M3MTEwNjE2NWYwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEyNjIxMn19fV19&Signature=MEYCIQCYZW6GfeqJai7EY4YPr1t723wtPqe7O3%7EeZ%7E0Oe5SBOgIhAM1zZG2%7EqGvighGNB3X%7EgPr2N3NELNa1Nqf%7E1VRl%7EBVV&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27android_test.jsonl%3B+filename%3D%22android_test.jsonl%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T133652Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=99b036bb3f776ccccaceabbcdd25fc270f4145d5d1ad769fc246522d70d8d53c
+  verified_at: '2026-07-15T13:36:52.033739Z'
+- artifact_hash: 7cf5423b55c8d8351531428cfd7d347f47520441fca498187595404296b99c5c
+  artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "EuphoriaMarket - \u4F60\u7684\u5FEB\u4E50\u4F34\u4FA3"
+  kind: url
+  value: https://huggingface.co/datasets/XuehangCang/agentworld-safety-qa/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6a3cca2219d709ec9dfcb503/f403f274d390aa3d7022b10509738dfaeb433f7ed962ab2841854b6ac0d393ef?Expires=1784126212&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzZhM2NjYTIyMTlkNzA5ZWM5ZGZjYjUwMy9mNDAzZjI3NGQzOTBhYTNkNzAyMmIxMDUwOTczOGRmYWViNDMzZjdlZDk2MmFiMjg0MTg1NGI2YWMwZDM5M2VmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDEyNjIxMn19fV19&Signature=MEUCIQDARB1iRuxkQoZwPH0qD3XSbkR3WzAcfgbq8IP47Pa18QIgKNeNg%7EJ09iHQNJMrfOPRK5Tmj-0X3vOYq0ZaGdfk35I_&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260715%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260715T133652Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ba273bea186ce3b299e38c6aa722196a89e43e34a59dadc74b2b9a59886f136b
+  verified_at: '2026-07-15T13:36:52.033739Z'
+- artifact_hash: 7cf5423b55c8d8351531428cfd7d347f47520441fca498187595404296b99c5c
+  artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Qwen/Qwen1.5-1.8B-Chat-GGUF \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF
+  verified_at: '2026-07-15T13:36:52.033739Z'

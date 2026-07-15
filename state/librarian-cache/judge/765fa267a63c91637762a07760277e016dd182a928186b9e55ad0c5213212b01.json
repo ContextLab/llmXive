@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.03520",
+  "judged_at": "2026-07-15T13:20:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey on \"General World Models\" and \"World Simulators,\" which is the canonical alternative-vocabulary cluster and methodological framework for the user's query regarding \"Language World Models\" and \"World Models for General Agents.\" Even though the paper focuses on video generation and autonomous driving rather than the specific \"Qwen-AgentWorld\" linguistics extension, it provides the essential background and definitions for the core m",
+  "relevant": true
+}

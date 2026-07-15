@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Divergence Report Schema"
+description: "Schema for the final divergence report containing error classifications and statistical metrics."
+type: "object"
+properties:
+  report_id:
+    type: "string"
+    description: "Unique identifier for the report."
+  task_count:
+    type: "integer"
+    description: "Total number of tasks analyzed."
+  classifications:
+    type: "object"
+    description: "Counts of each error classification."
+    properties:
+      match:
+        type: "integer"
+        description: "Number of matching transitions."
+      hallucination:
+        type: "integer"
+        description: "Number of hallucination errors."
+      rule_gap:
+        type: "integer"
+        description: "Number of rule gap errors."
+      extraction_uncertainty:
+        type: "integer"
+        description: "Number of transitions with extraction uncertainty."
+      coverage_gap:
+        type: "integer"
+        description: "Number of transitions with coverage gap (cold start)."
+    required:
+      - match
+      - hallucination
+      - rule_gap
+      - extraction_uncertainty
+      - coverage_gap
+  statistical_significance:
+    type: "object"
+    description: "Results of the paired permutation test."
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from the paired permutation test."
+      alpha:
+        type: "number"
+        description: "Significance level (default 0.05)."
+      significant:
+        type: "boolean"
+        description: "Whether the difference is statistically significant."
+      method:
+        type: "string"
+        description: "Method used (e.g., 'paired_permutation')."
+    required:
+      - p_value
+      - alpha
+      - significant
+      - method
+  boundary_conditions:
+    type: "object"
+    description: "Boundary conditions where accuracy drops below threshold."
+    properties:
+      step_count_threshold:
+        type: "integer"
+ description: "Step count at which accuracy drops below [deferred]."
+      state_complexity_threshold:
+        type: "string"
+        description: "State complexity metric at which accuracy drops."
+    required:
+      - step_count_threshold
+required:
+  - report_id
+  - task_count
+  - classifications
+  - statistical_significance
+  - boundary_conditions
+additionalProperties: false

@@ -1,0 +1,3 @@
+# Ignore generated code artifacts if any
+__pycache__/
+*.pyc

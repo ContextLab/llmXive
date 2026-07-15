@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "specs/001-llmxive-followup/contracts/divergence_schema.json",
+  "title": "Divergence Report Schema",
+  "description": "Schema for the divergence analysis report comparing LLM, Extracted Rules, and Oracle.",
+  "type": "object",
+  "required": ["version", "metadata", "summary", "classified_events", "statistics"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version identifier",
+      "const": "1.0.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["analysis_timestamp", "oracle_version", "rules_version"],
+      "properties": {
+        "analysis_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "task_set": {
+          "type": "string",
+          "description": "Identifier of the task set used for evaluation"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_steps", "match_count", "hallucination_count", "rule_gap_count"],
+      "properties": {
+        "total_steps": {
+          "type": "integer"
+        },
+        "match_count": {
+          "type": "integer",
+          "description": "Count where LLM == Oracle"
+        },
+        "hallucination_count": {
+          "type": "integer",
+          "description": "Count where LLM != Oracle AND Rule Inferable but LLM failed"
+        },
+        "rule_gap_count": {
+          "type": "integer",
+          "description": "Count where LLM != Oracle AND Rule Inferable but LLM failed (Corrected definition)"
+        },
+        "excluded_count": {
+          "type": "integer",
+          "description": "Count of steps excluded due to uncertainty or cold start"
+        },
+        "adherence_rate": {
+          "type": "number",
+          "description": "Percentage of steps matching the oracle"
+        }
+      }
+    },
+    "excluded_metrics": {
+      "type": "object",
+      "description": "Counts for excluded categories to satisfy FR-004",
+      "properties": {
+        "extraction_uncertainty": {
+          "type": "integer",
+          "description": "Steps excluded due to ambiguous rule extraction"
+        },
+        "cold_start": {
+          "type": "integer",
+          "description": "Steps excluded due to lack of rule coverage (Coverage Gap)"
+        }
+      }
+    },
+    "classified_events": {
+      "type": "array",
+      "description": "Detailed log of each step classification",
+      "items": {
+        "type": "object",
+        "required": ["step_id", "classification", "llm_action", "oracle_action", "reason"],
+        "properties": {
+          "step_id": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string",
+            "enum": ["match", "hallucination", "rule_gap", "extraction_uncertainty", "coverage_gap"]
+          },
+          "llm_action": {
+            "type": "string"
+          },
+          "oracle_action": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Statistical analysis results",
+      "properties": {
+        "boundary_analysis": {
+          "type": "object",
+          "description": "Results from T032: step count/complexity where adherence drops below 95%",
+          "properties": {
+            "boundary_step": {
+              "type": "integer"
+            },
+            "boundary_complexity": {
+              "type": "number"
+            },
+            "adherence_at_boundary": {
+              "type": "number"
+            }
+          }
+        },
+        "correlation_metrics": {
+          "type": "object",
+          "description": "Results from T033: Pearson correlation between rule precision and CoT quality",
+          "properties": {
+            "pearson_r": {
+              "type": "number"
+            },
+            "p_value": {
+              "type": "number"
+            },
+            "significance_level": {
+              "type": "number",
+              "const": 0.05
+            }
+          }
+        },
+        "significance_test": {
+          "type": "object",
+          "description": "Permutation test results",
+          "properties": {
+            "p_value": {
+              "type": "number"
+            },
+            "significant": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

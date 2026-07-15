@@ -1,0 +1,16 @@
+status: none
+intent: Qwen-AgentWorld environment source code GitHub repository download pip package
+  python package dataset
+required_fields:
+- state_id
+- state_features (e.g., agent_position, object_states, timestamps)
+- action_id
+- action_parameters
+- next_state_id
+- next_state_features
+- reward
+- termination_flag
+- environment_metadata (entity definitions, interaction types)
+cache_key: 31bd8fa23ab62c72dcb6b6e5e67cf242510a21a88a5b95ec5c9f6b4e248c838f
+searched_at: '2026-07-15T13:29:35.616167+00:00'
+retry_count: 1

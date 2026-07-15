@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T23:18:42.824629Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-908-llmxive-follow-up-extending-qwen-agentwo
-last_run_id: c1294804-b47c-4a9e-85de-5f63b6a53649
+last_run_id: fe38a007-eb66-4aae-80f7-59449cad1897
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo
 title: 'llmXive follow-up: extending "Qwen-AgentWorld: Language World Models for General
   Agents"'
-updated_at: '2026-07-08T07:17:20.760417Z'
+updated_at: '2026-07-15T14:01:33.576337Z'

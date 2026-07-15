@@ -1,0 +1,14 @@
+# Existing dependencies
+datasets
+scikit-learn
+prolog
+networkx
+pandas
+pytest
+requests
+numpy
+black
+ruff
+# Additional for testing
+pytest-randomly
+pytest-cov

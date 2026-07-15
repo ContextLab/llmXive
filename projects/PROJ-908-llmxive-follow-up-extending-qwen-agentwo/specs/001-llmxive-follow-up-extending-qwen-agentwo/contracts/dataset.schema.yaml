@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AgentWorld Dataset Schema"
+description: "Schema for the raw and processed AgentWorld datasets used in the study."
+type: "object"
+properties:
+  state_id:
+    type: "string"
+    description: "Unique identifier for the state."
+  timestamp:
+    type: "integer"
+    description: "Step index in the trajectory."
+  variables:
+    type: "object"
+    description: "Key-value pairs of environment state variables."
+    additionalProperties: true
+  interaction_type:
+    type: "string"
+    enum:
+      - "spatial"
+      - "temporal"
+      - "causal"
+    description: "Type of interaction represented by the state."
+  actions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        action_id:
+          type: "string"
+        action_type:
+          type: "string"
+        parameters:
+          type: "object"
+          additionalProperties: true
+    description: "List of actions available or taken."
+required:
+  - state_id
+  - timestamp
+  - variables
+  - interaction_type
+additionalProperties: false

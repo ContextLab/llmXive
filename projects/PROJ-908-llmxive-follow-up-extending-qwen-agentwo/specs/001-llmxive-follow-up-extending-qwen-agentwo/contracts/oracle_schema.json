@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "specs/001-llmxive-followup/contracts/oracle_schema.json",
+  "title": "Ground Truth Oracle Schema",
+  "description": "Schema for the deterministic state-transition oracle derived from Qwen-AgentWorld source code.",
+  "type": "object",
+  "required": ["version", "metadata", "nodes", "edges"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version identifier",
+      "const": "1.0.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source", "generated_at", "checksum"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Source code repository or file path used to generate this oracle"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of generation"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "SHA-256 checksum of the source code snapshot"
+        },
+        "parser_version": {
+          "type": "string",
+          "description": "Version of the oracle parser used"
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Set of valid states in the environment",
+      "items": {
+        "type": "object",
+        "required": ["id", "state_type", "properties"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the state node"
+          },
+          "state_type": {
+            "type": "string",
+            "enum": ["start", "intermediate", "goal", "terminal"],
+            "description": "Classification of the state"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Key-value pairs defining the state attributes (e.g., agent_pos, inventory, flags)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the state"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Valid state transitions (actions)",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "target", "action", "conditions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the transition"
+          },
+          "source": {
+            "type": "string",
+            "description": "ID of the source state node"
+          },
+          "target": {
+            "type": "string",
+            "description": "ID of the target state node"
+          },
+          "action": {
+            "type": "string",
+            "description": "The action string that triggers this transition"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of logical conditions (Prolog/Python expressions) required for transition validity"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of state changes resulting from the action"
+          },
+          "cost": {
+            "type": "number",
+            "default": 1.0,
+            "description": "Cost associated with this transition"
+          }
+        }
+      }
+    }
+  }
+}

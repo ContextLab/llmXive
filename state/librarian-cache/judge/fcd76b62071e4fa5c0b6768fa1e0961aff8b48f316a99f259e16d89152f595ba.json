@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.17094",
+  "judged_at": "2026-07-15T13:20:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes a foundational architectural principle (\"mouth is not the brain\") for separating world models from language generation, which is the core mechanism investigated in the user's referenced \"Qwen-AgentWorld\" work. It provides the canonical alternative-vocabulary cluster (energy-based world models, DBM) and empirical evidence for the specific mechanism of decoupling linguistic competence from world understanding that the user's follow-up resear",
+  "relevant": true
+}

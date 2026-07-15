@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "State Transition Oracle Schema"
+description: "Schema for the deterministic state-transition oracle derived from environment source code."
+type: "object"
+properties:
+  oracle_id:
+    type: "string"
+    description: "Unique identifier for the oracle instance."
+  source_checksum:
+    type: "string"
+    description: "SHA-256 checksum of the source code used to generate the oracle."
+  transition_function:
+    type: "object"
+    description: "Definition of the transition logic."
+    properties:
+      input_state:
+        type: "object"
+        description: "Expected input state structure."
+      input_action:
+        type: "object"
+        description: "Expected input action structure."
+      output_state:
+        type: "object"
+        description: "Expected output state structure."
+      logic_type:
+        type: "string"
+        enum:
+          - "deterministic"
+          - "rule-based"
+        description: "Type of logic implemented."
+  coverage:
+    type: "object"
+    description: "Coverage metrics of the oracle."
+    properties:
+      interaction_types_covered:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of interaction types covered."
+      total_transitions:
+        type: "integer"
+        description: "Total number of defined transitions."
+required:
+  - oracle_id
+  - source_checksum
+  - transition_function
+  - coverage
+additionalProperties: false

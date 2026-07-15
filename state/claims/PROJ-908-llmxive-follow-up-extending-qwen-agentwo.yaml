@@ -1,0 +1,285 @@
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_5aa00d92
+  context: "Independent Test: Run parser on a known subset; verify generated oracle\
+    \ matches original environment simulator trajectories for N=1,000 random inputs\
+    \ (seed=42) with \u226599.9% accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:52:35Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: extracted rules reproduce patterns with 95% precision
+  claim_id: c_036caefb
+  context: "Independent Test: Feed 500 synthetic traces with known patterns; verify\
+    \ extracted rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify extracted rules reproduce patterns with \u226595% precision"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:52:35Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: error classification matches human annotation with Cohen's Kappa 0.8
+  claim_id: c_cd9098fe
+  context: "Independent Test: Run on small manually verified dataset; confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:52:35Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: use Qwen/Qwen1.5-1.8B-Chat-GGUF CPU-quantized model
+  claim_id: c_8c8a183c
+  context: First attempt to load pre-generated traces from `data/raw/cot_traces.json`.
+    If missing, run `code/inference/runner.py` using the verified CPU-quantized model
+    `Qwen/Qwen1.5-1.8B-Chat-GGUF` to generate traces for a representative set of planning
+    tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run `code/inference/runner.py` using the verified CPU-quantized model
+    `Qwen/Qwen1.5-1.8B-Chat-GGUF`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:52:48Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction runtime under 6 hours
+  claim_id: c_cf1d36c2
+  context: T037 Performance optimization for ILP induction on CPU (ensure <6h runtime)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure <6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:52:48Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_533d7a94
+  context: "Independent Test: Run parser on a known subset; verify generated oracle\
+    \ matches original environment simulator trajectories for N=1,000 random inputs\
+    \ (seed=42) with \u226599.9% accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:29Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Extracted rules reproduce patterns with 95% precision
+  claim_id: c_335fd2a8
+  context: "Independent Test: Feed 500 synthetic traces with known patterns; verify\
+    \ extracted rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:29Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Error classification matches human annotation with Cohen's Kappa of 0.8
+  claim_id: c_a2d859d4
+  context: "Independent Test: Run on small manually verified dataset; confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:29Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Prefer CPU for main pipeline; ensure ILP tasks are CPU-tractable
+  claim_id: c_d363fe58
+  context: '**Compute**: Ensure ILP tasks are CPU-tractable; if GPU is required for
+    a specific step, mark it explicitly for offloading, but prefer CPU for the main
+    pipeline.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prefer_CPU_for_main_pipeline;_ensure_ILP_tasks_are_CPU-tract
+  kind: entity_fact
+  raw_text: Ensure ILP tasks are CPU-tractable; if GPU is required for a specific
+    step, mark it explicitly for offloading, but prefer CPU for the main pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:43Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction on CPU runtime under 6 hours
+  claim_id: c_4c5374cc
+  context: '- [ ] T037 Performance optimization for ILP induction on CPU (ensure <6h
+    runtime)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ILP_induction_on_CPU_runtime_under_6_hours
+  kind: magnitude
+  raw_text: Ensure ILP induction on CPU runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:58Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Identify boundary where adherence drops below 95% threshold
+  claim_id: c_e2b5c392
+  context: '- [ ] T032 [US3] Implement logic in `code/analysis/stats.py` to identify
+    the specific step count or state complexity boundary where measured adherence
+    drops below the **95%** threshold (per FR-006/SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the specific step count or state complexity boundary where measured
+    adherence drops below the 95% threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:54:58Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Divergence report includes p-values with alpha less than or equal to
+    0.05
+  claim_id: c_615a7293
+  context: "- [ ] T034 [US3] Finalize `divergence_report.json` with p-values (\u03B1\
+    \ \u2264 0.05), boundary conditions (from T032), and correlation metrics (from\
+    \ T033)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Divergence_report_includes_p-values_with_alpha_less_than_or
+  kind: magnitude
+  raw_text: "Finalize divergence report with p-values (\u03B1 \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:55:21Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Use Qwen/Qwen1.5-1.8B-Chat-GGUF CPU-quantized model for trace generation
+  claim_id: c_83207d7c
+  context: '- [ ] T020 [US2] Generate or Load LLM CoT traces: First attempt to load
+    pre-generated traces from `data/raw/cot_traces.json`. If missing, run `code/inference/runner.py`
+    using the verified CPU-quantized model `Qwen/Qwen1.5-1.8B-Chat-GGUF` to generate
+    traces for a representative set of planning tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load pre-generated traces from `data/raw/cot_traces.json` or run `code/inference/runner.py`
+    using the verified CPU-quantized model `Qwen/Qwen1.5-1.8B-Chat-GGUF`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:55:34Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Pin datasets, scikit-learn, prolog, networkx, pandas, pytest in requirements
+  claim_id: c_1211f3c5
+  context: '- [X] T002 Initialize a Python project with a recent stable version. with
+    `requirements.txt` (pinning `datasets`, `scikit-learn`, `prolog`, `networkx`,
+    `pandas`, `pytest`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pin_datasets,_scikit-learn,_prolog,_networkx,_pandas,_pytest
+  kind: entity_fact
+  raw_text: Pin `datasets`, `scikit-learn`, `prolog`, `networkx`, `pandas`, `pytest`
+    in `requirements.txt`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:55:50Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Configure pytest with fixed random seed 42
+  claim_id: c_2281c071
+  context: '- [ ] T008 Configure `pytest` with fixed random seed (42) and integration
+    test scaffolding'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure `pytest` with fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:56:05Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Feed 500 synthetic traces with known patterns
+  claim_id: c_c3e62280
+  context: "Independent Test: Feed 500 synthetic traces with known patterns; verify\
+    \ extracted rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feed 500 synthetic traces with known patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:56:21Z'
