@@ -1,14 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Analysis Output Schema"
-description: "Schema for the statistical analysis results including correlations and confidence intervals."
+description: "Schema for the statistical analysis results including correlations, confidence intervals, and multiple‑comparison metrics."
 type: object
 properties:
   metric_type:
     type: string
-    description: "Type of accommodation metric (lexical or syntactic)."
+    description: "Type of accommodation metric (lexical, syntactic, or dependency)."
     enum:
       - "lexical"
       - "syntactic"
+      - "dependency"
   correlation_method:
     type: string
     description: "Correlation method used."
@@ -20,20 +21,27 @@ properties:
     description: "Correlation coefficient value."
   p_value:
     type: number
-    description: "P-value for the correlation test."
+    description: "P‑value for the correlation test."
   ci_lower:
     type: number
-    description: "Lower bound of the 95% confidence interval."
+    description: "Lower bound of the 95 % confidence interval."
   ci_upper:
     type: number
-    description: "Upper bound of the 95% confidence interval."
+    description: "Upper bound of the 95 % confidence interval."
   bootstrap_iterations:
     type: integer
     description: "Number of bootstrap iterations performed."
     minimum: 1000
   bonferroni_corrected_alpha:
     type: number
-    description: "Bonferroni-corrected alpha threshold."
+    description: "Bonferroni‑corrected alpha threshold (0.0125)."
+    minimum: 0.0
+    maximum: 1.0
+  false_discovery_rate:
+    type: number
+    description: "Benjamini‑Hochberg false discovery rate across the four primary tests."
+    minimum: 0.0
+    maximum: 1.0
   is_significant:
     type: boolean
     description: "Whether the result is significant after correction."
@@ -45,6 +53,12 @@ properties:
       - "small"
       - "medium"
       - "large"
+  converged:
+    type: boolean
+    description: "Whether the bootstrap procedure converged (CI width < 0.01)."
+  interpretation:
+    type: string
+    description: "Interpretation of the results against Cohen's guidelines and Giles et al. baseline."
 required:
   - metric_type
   - correlation_method
@@ -54,6 +68,9 @@ required:
   - ci_upper
   - bootstrap_iterations
   - bonferroni_corrected_alpha
+  - false_discovery_rate
   - is_significant
   - effect_size_category
+  - converged
+  - interpretation
 additionalProperties: false

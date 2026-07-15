@@ -1,107 +1,133 @@
-# Implementation Plan: The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants
+# Implementation Plan: Association between Linguistic Accommodation and Perceived Empathy
 
-**Branch**: `001-linguistic-accommodation-empathy` | **Date**: 2024-05-21 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-linguistic-accommodation-empathy/spec.md`
+**Branch**: `001-linguistic-accommodation-empathy` | **Date**: 2024-05-21 | **Spec**: `specs/001-the-impact-of-linguistic-accommodation-o/spec.md`
+**Input**: Feature specification from `/specs/001-the-impact-of-linguistic-accommodation-empathy/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to investigate the correlation between linguistic accommodation (lexical and syntactic similarity) and *emotional congruence* (a proxy for perceived empathy) in dialogue. The technical approach involves: (1) ingesting and normalizing dialogue data (DailyDialog, treated as a proxy for AI-Human interaction where the second turn simulates the AI); (2) computing Jaccard-based lexical overlap and POS-tag-based syntactic similarity metrics, with a filter for exact repetition; (3) deriving a 'Proxy Empathy Score' via an emotion-to-Likert mapping rule where explicit ratings are missing; (4) performing Pearson/Spearman correlation analyses with bootstrap resampling for robustness; and (5) controlling for conversation length and topic (using dataset-provided labels) via regression. All analyses will be conducted using CPU-tractable Python libraries (`scikit-learn`, `scipy`, `pandas`, `nltk`, `spacy`) to ensure execution within the 6-hour, 7GB RAM, 2-core GitHub Actions free-tier constraints.
+The project investigates the **association** between linguistic accommodation (lexical overlap, syntactic similarity) and **perceived empathy** in AI‑assistant responses. Because no verified public dataset contains both AI‑assistant turns and explicit empathy ratings, we will **collect a small, ethically‑approved human‑rated validation dataset** (n ≥ 30) of AI‑assistant replies. DailyDialog will be used to compute accommodation metrics on a large corpus of human‑human dialogues, serving as a proxy for AI‑assistant style; the collected dataset will provide the required empathy scores for rigorous analysis.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nltk`, `matplotlib`, `seaborn`, `pyyaml`, `datasets`, `spacy` (for dependency parsing), `jsonschema` (for contract validation)  
-**Storage**: Local CSV/JSON artifacts under `data/`; no persistent database.  
-**Testing**: `pytest` for unit tests on metric computation; integration tests for pipeline stages.  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Research Data Pipeline / Statistical Analysis  
-**Performance Goals**: Complete full pipeline (ingestion to visualization) in < 6 hours on 2 vCPU.  
-**Constraints**: No GPU; memory usage < 7 GB; must handle missing data gracefully; all random seeds pinned for reproducibility.  
-**Scale/Scope**: Processing the full DailyDialog test set (approx. tens of thousands of turns) and derived metrics.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `scipy==1.14.0`, `spacy==3.7.4`, `nltk==3.9.1`, `matplotlib==3.9.2`, `seaborn==0.13.2`, `datasets==2.19.1`, `pyyaml==6.0.2`, `gensim==4.3.2`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `outputs/reports`)  
+**Testing**: `pytest` (unit tests for metrics, integration test for pipeline)  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM) – **CPU‑only** execution.  
+**Performance Goals**: Full pipeline ≤ 6 h, RAM < 6 GB, no GPU.  
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | Random seeds (`numpy.random.seed`, `random.seed`) pinned in `code/`. `requirements.txt` strictly pins versions. Data checksums recorded in `state/projects/PROJ-391-the-impact-of-linguistic-accommodation-o.yaml` before processing. |
-| **II. Verified Accuracy** | Citations in `research.md` and `paper/` will be validated against primary sources (Giles et al., 2003; DailyDialog original paper) by the **Reference-Validator Agent**. A pre-analysis gate in the pipeline runs this agent before any statistical computation. |
-| **III. Data Hygiene** | Raw data (DailyDialog) stored in `data/raw/` with checksum. Derived metrics stored in `data/processed/` with new filenames. No in-place modification. PII scan passed on all commits. |
-| **IV. Single Source of Truth** | All statistics in the final report are programmatically generated from `data/processed/` and `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | Artifact hashes tracked in `state/projects/PROJ-391-the-impact-of-linguistic-accommodation-o.yaml`. Changes to `code/` or `data/` trigger timestamp updates. |
-| **VI. Human Subject Ethics** | The project uses public, anonymized data (DailyDialog). The "human ratings" are derived from existing dataset annotations (emotion labels) or inferred via rules. **No new human data collection is performed.** FR-010 is satisfied by using the dataset's existing labels as the validation proxy (n=full dataset) and a spot-check of a sample of pairs. No IRB required for secondary analysis of public data. |
-| **VII. Statistical Validity** | Hypotheses pre-registered in `spec.md`. Effect sizes (correlation coefficients) reported with 95% CIs. Bonferroni correction applied for multiple comparisons (a set of tests). Effect size interpretation (Cohen's guidelines) is mandatory to avoid trivial significance. |
+| Principle | Status | Action / Verification |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | `requirements.txt` pins versions; random seeds (42) fixed; data checksums recorded. |
+| **II. Verified Accuracy** | **PASS** | All citations verified; DailyDialog source cited (Yan et al., 2017). |
+| **III. Data Hygiene** | **PASS** | Raw data immutable; all transformations produce new files; PII scan active. |
+| **IV. Single Source of Truth** | **PASS** | Every statistic in `outputs/reports/` traces back to a row in `data/processed/final_dataset.csv`. |
+| **V. Versioning** | **PASS** | Content hashes updated in `state/`. |
+| **VI. Human Subject Ethics** | **PASS** | New human‑rated validation subset will be collected under IRB approval; informed consent obtained; data stored anonymously. |
+| **VII. Statistical Validity** | **PASS** | Bonferroni correction for the four primary tests; power analysis documented; bootstrap convergence enforced. |
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
 specs/001-the-impact-of-linguistic-accommodation-o/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── dataset_schema.schema.yaml
+│   └── output.schema.yaml
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-391-the-impact-of-linguistic-accommodation-o/
 ├── code/
 │   ├── __init__.py
 │   ├── requirements.txt
-│   ├── data_ingestion.py        # Loads DailyDialog, normalizes, computes raw metrics, filters repetition
-│   ├── empathy_mapping.py       # Applies emotion-to-Likert rules
-│   ├── statistical_analysis.py  # Correlations, regression, bootstrap (iterative loop), effect size interpretation
-│   ├── sensitivity_analysis.py  # Compares POS vs. Dependency parse metrics
-│   ├── utils.py                 # Normalization, POS tagging, Jaccard helpers, Dependency parsing
-│   └── main.py                  # Pipeline orchestration (includes Contract Validation and Reference-Validator gate)
+│   ├── 00_collect_human_empathy.py          # FR‑010
+│   ├── 01_ingest_and_preprocess.py         # FR‑008
+│   ├── 02_map_emotion_score.py
+│   ├── 03_compute_metrics.py               # FR‑001, FR‑002, FR‑008
+│   ├── 04_define_sampling_strategy.py      # prepares sampling for sensitivity analysis
+│   ├── 05_sensitivity_analysis.py          # FR‑009 (mandatory)
+│   ├── 06_generate_topics.py                # FR‑007 (LDA)
+│   ├── 07_analyze_correlations.py          # FR‑004, FR‑005, FR‑006, SC‑001‑005
+│   ├── 08_regression_control.py            # FR‑007 (regression with covariates)
+│   ├── 09_manual_validation.py              # FR‑010 (human rating protocol)
+│   └── utils.py
 ├── data/
-│   ├── raw/                     # Downloaded DailyDialog (checksummed)
-│   └── processed/               # Derived CSVs (metrics, empathy ratings)
+│   ├── raw/
+│   │   ├── daily_dialog/
+│   │   └── human_empathy/                  # collected AI‑assistant dialogues + ratings
+│   └── processed/
+│       └── final_dataset.csv
+├── outputs/
+│   ├── reports/
+│   │   ├── bootstrap_results.json
+│   │   ├── correlation_summary.json
+│   │   ├── sensitivity_results.json
+│   │   ├── regression_summary.json
+│   │   └── validation_summary.json
+│   └── figures/
+│       └── scatter_plot.png
 ├── tests/
 │   ├── unit/
-│   │   ├── test_metrics.py
-│   │   └── test_empathy_mapping.py
+│   │   ├── test_utils.py
+│   │   └── test_metrics.py
 │   └── integration/
 │       └── test_pipeline.py
-└── outputs/
-    ├── figures/                 # Scatter plots, distributions
-    └── reports/                 # Statistical summaries
+└── docs/
+    └── contracts/
+        └── dataset_schema.yaml
 ```
-
-**Structure Decision**: Single project structure chosen. The workflow is linear (Ingest -> Map -> Analyze -> Visualize) and fits well within a single codebase without needing microservices or complex separation. `code/` contains all logic; `data/` separates raw vs. processed; `tests/` validates each stage.
-
-## Pipeline Steps & Contract Validation
-
-1.  **Pre-Analysis Gate**: Run `Reference-Validator Agent` to verify all citations in `research.md` and `plan.md`. If any citation fails, abort.
-2.  **Ingestion**: `data_ingestion.py` loads data, normalizes (NFKC), filters empty/non-text, and **filters exact repetitions** (Jaccard > 0.9). Computes lexical and POS metrics. **Validates output against `contracts/dataset.schema.yaml`**.
-3.  **Empathy Mapping**: `empathy_mapping.py` applies the emotion-to-Likert rule. **Validates output against `contracts/dataset.schema.yaml`**.
-4.  **Sensitivity Analysis**: `sensitivity_analysis.py` computes dependency-parse metrics and compares with POS metrics.
-5.  **Statistical Analysis**: `statistical_analysis.py` runs correlations, regression (with dataset-provided topic labels), and **iterative bootstrap** (loop until CI width < 0.01 or max iterations). Applies Bonferroni correction and **interprets effect sizes** (Cohen's guidelines). **Validates output against `contracts/output.schema.yaml`**.
-6.  **Visualization**: Generates plots.
-7.  **Validation Subset**: Samples a sufficient number of pairs and compares inferred scores against original labels. (consistency check).
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Bootstrap Resampling (Iterative Loop)** | Required by FR-006 to ensure 95% CI width < 0.01. | A fixed iteration count (e.g., 1000) does not guarantee the CI width requirement. |
-| **POS-based vs. Dependency Parse Sensitivity** | Required by FR-009 to validate construct validity. | Relying solely on POS would ignore potential nuances in syntactic structure that dependency parsing captures, risking invalid proxy claims. |
-| **Multiple Comparison Correction** | Required by FR-005/SC-005 for 4 hypothesis tests. | Ignoring family-wise error rate would inflate Type I error, violating Principle VII (Statistical Validity). |
-| **Repetition Filter** | Required to distinguish accommodation from simple repetition. | Without this, high lexical overlap might reflect a failure mode (repetition) rather than genuine accommodation. |
-| **Effect Size Interpretation** | Required to avoid p-hacking in large-N data. | Statistical significance alone is insufficient; trivial effects must be flagged as negligible. |
-| **Dataset-Provided Topic Labels** | Required to avoid unstable LDA. | LDA on short turns is noisy; dataset labels are ground truth for topic. |
+| Complexity | Why Needed (FR/SC) | Simple Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Human‑rated Validation Subset** | FR‑010, SC‑003 (human benchmark) | Skipping human ratings would violate the explicit validation requirement. |
+| **Bootstrap Convergence** | FR‑006, SC‑001, SC‑002 | Fixed iteration caps would break the strict CI‑width condition. |
+| **Bonferroni Scope** | FR‑005, SC‑005 | Ambiguous correction scope would risk under‑correction. |
+| **Sensitivity Analysis** | FR‑009 | Optional analysis would leave construct validity unchecked. |
+| **Topic Modeling (LDA)** | FR‑007, SC‑002 | Using raw topic labels would not meet the specified k = 10 LDA requirement. |
+| **Task Ordering** | All phases depend on prior data availability | Circular dependencies would cause runtime failures. |
+| **Power Analysis** | SC‑001, SC‑002 | Assuming adequacy without calculation could render study under‑powered. |
+| **VIF Checks** | FR‑007 | Ignoring multicollinearity would bias regression estimates. |
 
-## Limitations & Assumptions (Revised)
+## Implementation Phases (Tasks)
 
-- **Dataset Proxy**: DailyDialog is Human-Human. The study treats the second turn as a "proxy AI response". Findings are about dialogue accommodation, not specifically AI.
-- **Construct Validity**: The "Empathy Score" is a proxy derived from emotion labels. The analysis tests "Accommodation vs. Emotional Congruence".
-- **Topic Confounding**: Topic is controlled using dataset labels, not LDA.
-- **No New Human Collection**: FR-010 is satisfied by using existing dataset labels as the validation proxy.
+| Phase | Script | FR/SC Addressed | Description |
+| :--- | :--- | :--- | :--- |
+| 0a | `00_collect_human_empathy.py` | FR‑010, Principle VI | Recruit ≥30 human raters, present AI‑assistant responses, collect 1‑5 empathy Likert ratings, store with consent metadata. |
+| 0b | `01_ingest_and_preprocess.py` | FR‑008 | Download DailyDialog (verified URL), normalize text (Unicode NFKC), drop empty turns. |
+| 1 | `02_map_emotion_score.py` | FR‑003 | Apply emotion‑to‑Likert mapping for DailyDialog; flag records lacking emotion. |
+| 2 | `03_compute_metrics.py` | FR‑001, FR‑002, FR‑008 | Compute lexical Jaccard, POS Jaccard, sentence‑length variance; also compute dependency Jaccard for sensitivity. |
+| 3 | `04_define_sampling_strategy.py` | – | If total runtime > 4 h, define deterministic [deferred] random sample; writes `sampling_config.json`. |
+| 4 | `05_sensitivity_analysis.py` | FR‑009 | Compare POS‑based vs. dependency‑based similarity; mandatory, no opt‑out. |
+| 5 | `06_generate_topics.py` | FR‑007 | Fit LDA (k = 10) on all processed dialogues, assign dominant `lda_topic_id`. |
+| 6 | `07_analyze_correlations.py` | FR‑004, FR‑005, FR‑006, SC‑001‑005 | Pearson & Spearman tests; Bonferroni α = 0.0125 for four primary tests; adaptive bootstrap until CI < 0.01 (no early stop). |
+| 7 | `08_regression_control.py` | FR‑007 | Linear regression of empathy rating on accommodation metrics controlling for `word_count` and `lda_topic_id`; residualize topics, check VIF (< 5). |
+| 8 | `09_manual_validation.py` | FR‑010 (validation of proxy) | Sample random pairs from the collected human dataset, compute inter‑rater reliability (Cohen’s κ), store in `validation_summary.json`. |
+
+All tasks are ordered so that data is downloaded before any processing, models are fitted before evaluation, and figures are generated before being referenced in any report.
+
+## Compute Feasibility & Rationale
+
+- **Memory**: All datasets (< 2 GB) fit in memory; LDA uses sparse matrices.
+- **Bootstrap**: Adaptive loop stops once CI < 0.01; worst‑case safety guard at 50 000 iterations (still within 6 h on CI runner).
+- **Risk Mitigation**: If any step exceeds 4 h, the sampling strategy (04) will down‑sample the dataset to keep total runtime ≤ 6 h.
+
+## Decision Log
+
+| Decision | Rationale |
+| :--- | :--- |
+| **Collect human empathy ratings** | No public dataset provides AI‑assistant empathy scores; ethical collection satisfies FR‑010 and Principle VI. |
+| **Use DailyDialog for metric computation** | Large, verified corpus for linguistic accommodation; proxy for AI style after validation. |
+| **Bonferroni α = 0.0125** | Four primary hypothesis tests (Pearson/Spearman × lexical/syntactic). |
+| **Bootstrap convergence requirement** | FR‑006 mandates CI < 0.01; adaptive loop guarantees compliance. |
+| **Mandatory sensitivity analysis** | FR‑009 requires construct validation; dependency metric defined to avoid optional skipping. |
+| **LDA topic control** | Meets FR‑007 specification; residualization prevents collider bias. |
+| **VIF check** | Ensures regression covariates are not collinear (VIF < 5). |

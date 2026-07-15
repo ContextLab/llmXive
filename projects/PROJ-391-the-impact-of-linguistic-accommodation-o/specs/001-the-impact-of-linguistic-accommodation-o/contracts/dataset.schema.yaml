@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "DailyDialog Processed Dialogue Schema"
-description: "Schema for the processed dialogue dataset containing accommodation metrics and empathy ratings."
+title: "Processed Dialogue Dataset Schema"
+description: "Schema for the processed dialogue dataset containing accommodation metrics, proxy emotion scores, and optional human empathy ratings."
 type: object
 properties:
   conversation_id:
@@ -14,59 +14,63 @@ properties:
     description: "Normalized text of the user's turn."
   ai_response:
     type: string
-    description: "Normalized text of the AI's response (proxy)."
-  topic:
-    type: string
-    description: "Topic label of the dialogue (from dataset)."
+    description: "Normalized text of the proxy AI response."
   emotion_label:
     type: string
-    description: "Emotion label from the dataset (e.g., joy, sadness)."
+    description: "Emotion label from the source (e.g., \"Joy\")."
   lexical_overlap:
     type: number
     description: "Jaccard similarity of token sets between user and AI."
     minimum: 0.0
     maximum: 1.0
-  syntactic_similarity_pos:
+  syntactic_similarity:
     type: number
     description: "Jaccard similarity of POS tag sets."
     minimum: 0.0
     maximum: 1.0
-  syntactic_similarity_dep:
+  dependency_similarity:
     type: number
-    description: "Jaccard similarity of dependency relations."
+    description: "Jaccard similarity of dependency relation labels."
     minimum: 0.0
     maximum: 1.0
   sentence_length_variance:
     type: number
     description: "Variance of sentence lengths in the AI response."
-  is_repetition:
-    type: boolean
-    description: "True if lexical overlap > 0.9 (flagged as repetition)."
-  proxy_empathy_score:
+    minimum: 0.0
+  emotion_mapped_score:
     type: integer
-    description: "Likert scale proxy empathy rating (1-5)."
+    description: "Proxy emotion score derived from emotion label (1‑5)."
     minimum: 1
     maximum: 5
-  source:
-    type: string
-    description: "Source of the empathy score (explicit or inferred)."
-    enum:
-      - "explicit"
-      - "inferred"
-  inferred_from_emotion:
-    type: string
-    description: "The emotion label used for inference."
+  word_count:
+    type: integer
+    description: "Total word count of the dialogue pair."
+    minimum: 0
+  lda_topic_id:
+    type: integer
+    description: "Dominant LDA cluster ID (k=10)."
+    minimum: 0
+    maximum: 9
+  is_validation_subset:
+    type: boolean
+    description: "True if record belongs to the n = 30 manual rating set."
+  human_empathy_rating:
+    type: integer
+    description: "Human‑rated empathy score (1‑5) for AI responses (optional, present only for validation subset)."
+    minimum: 1
+    maximum: 5
 required:
   - conversation_id
   - turn_index
   - user_turn
   - ai_response
-  - topic
-  - emotion_label
   - lexical_overlap
-  - syntactic_similarity_pos
+  - syntactic_similarity
+  - dependency_similarity
   - sentence_length_variance
-  - is_repetition
-  - proxy_empathy_score
-  - source
+  - emotion_label
+  - emotion_mapped_score
+  - word_count
+  - lda_topic_id
+  - is_validation_subset
 additionalProperties: false

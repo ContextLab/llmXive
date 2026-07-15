@@ -1,60 +1,63 @@
-# Quickstart: The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants
+# Quickstart: Linguistic Accommodation & Human‑Rated Empathy
 
-## Prerequisites
-- Python 3.11+
-- pip
-- Access to the project repository
-- Internet access (for downloading DailyDialog and NLTK/spacy models)
+## 1. Prerequisites
 
-## Installation
+- Python 3.11+
+- `pip`
+- ≤ 7 GB RAM
+- Internet access (for dataset download and human‑rating collection)
 
-1.  **Clone and Setup**:
-    ```bash
-    cd projects/PROJ-391-the-impact-of-linguistic-accommodation-o
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r code/requirements.txt
-    ```
-
-2.  **Download Data & Models**:
-    The ingestion script will attempt to download DailyDialog from the verified URLs. Ensure internet access is available.
-    ```bash
-    python code/main.py --stage download
-    ```
-    *Note: This also downloads required NLTK and spaCy models.*
-
-## Running the Pipeline
-
-Execute the full pipeline (Ingestion -> Mapping -> Sensitivity -> Analysis -> Visualization):
+## 2. Installation
 
 ```bash
-python code/main.py --stage full
+# Clone the repository (or cd to the project root)
+git clone <repo-url>
+cd projects/PROJ-391-the-impact-of-linguistic-accommodation-o
+
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r code/requirements.txt
+
+# Download the small English spaCy model
+python -m spacy download en_core_web_sm
 ```
 
-### Individual Stages
-- **Ingestion & Metrics**: `python code/main.py --stage ingest`
-- **Empathy Mapping**: `python code/main.py --stage map`
-- **Sensitivity Analysis**: `python code/main.py --stage sensitivity`
-- **Statistical Analysis**: `python code/main.py --stage analyze`
-- **Visualization**: `python code/main.py --stage viz`
+## 3. Data Collection (FR‑010)
 
-## Verification
+```bash
+# Phase 0a: collect human empathy ratings (requires IRB‑approved consent)
+python code/00_collect_human_empathy.py
+# This script will prompt the annotator(s) to rate AI responses and will
+# produce data/raw/human_empathy/human_empathy.csv.
+```
 
-1.  **Check Data**:
-    Verify `data/processed/accommodation_metrics.csv` exists and contains no nulls in metric columns.
-    ```bash
-    python -c "import pandas as pd; df = pd.read_csv('data/processed/accommodation_metrics.csv'); print(df.isnull().sum())"
-    ```
+## 4. Running the Full Pipeline
 
-2.  **Check Plots**:
-    Ensure `outputs/figures/scatter_plot.png` is generated.
+All steps must be run in order; each script produces the next script’s input.
 
-3.  **Check Stats**:
-    Review `outputs/reports/statistical_summary.md` for correlation coefficients, p-values, and effect size interpretations.
+| Step | Command | Output |
+| ---- | ------- | ------ |
+| 0b | `python code/01_ingest_and_preprocess.py` | `data/raw/daily_dialog_raw.csv` |
+| 1 | `python code/02_map_emotion_score.py` | `data/processed/emotion_mapped.csv` |
+| 2 | `python code/03_compute_metrics.py` | `data/processed/metrics.csv` |
+| 3 | `python code/04_define_sampling_strategy.py` | `config/sampling_config.json` |
+| 4 | `python code/05_sensitivity_analysis.py` | `outputs/reports/sensitivity_results.json` |
+| 5 | `python code/06_generate_topics.py` | `data/processed/lda_topics.csv` |
+| 6 | `python code/07_analyze_correlations.py` | `outputs/reports/correlation_summary.json` + `outputs/figures/scatter_plot.png` |
+| 7 | `python code/08_regression_control.py` | `outputs/reports/regression_summary.json` |
+| 8 | `python code/09_manual_validation.py` | `outputs/reports/validation_summary.json` |
 
-## Troubleshooting
+## 5. Verification
 
-- **Missing Data**: If DailyDialog download fails, check network or verify the URL in `code/data_ingestion.py`.
-- **Memory Error**: Unlikely given dataset size. If encountered, reduce batch size in `data_ingestion.py`.
-- **POS Tagging Errors**: Ensure `nltk` data is downloaded (`nltk.download('averaged_perceptron_tagger')`).
-- **Dependency Parsing Errors**: Ensure `spacy` and the English model are installed (`python -m spacy download en_core_web_sm`).
+```bash
+pytest tests/
+```
+
+## 6. Troubleshooting
+
+- **MemoryError** in any step: reduce batch size in `config.py`.  
+- **Bootstrap non‑convergence**: check `bootstrap_results.json`; the pipeline will abort with an error if CI < 0.01 is not reached after 50 000 iterations.  
+- **Missing spaCy model**: ensure `en_core_web_sm` is installed; run `python -m spacy download en_core_web_sm` again.  

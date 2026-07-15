@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `code/`, `data/`, `tests/`, `outputs/` at repository root (as per `plan.md` structure)
+- **Single project**: `code/`, `data/`, `tests/`, `outputs/`, `outputs/figures/`, `outputs/reports/` at repository root (as per `plan.md` structure)
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
@@ -79,14 +79,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **Depends on Phase 2 (T005-T007) completion**
 
-- [ ] T012 [P] [US1] Unit test for NFKC normalization in `tests/unit/test_utils.py` (Depends on Phase 2 completion)
+- [ ] T012 [P] [US1] Unit test for NFKC normalization in `tests/unit/test_utils.py::test_nfk_normalization_handles_emoji` (Depends on Phase 2 completion)
 - [ ] T013 [P] [US1] Unit test for Jaccard similarity calculation in `tests/unit/test_utils.py` (Depends on Phase 2 completion)
 - [ ] T014 [P] [US1] Unit test for exact repetition filtering logic in `tests/unit/test_data_ingestion.py` (Depends on Phase 2 completion)
 - [ ] T015 [P] [US1] Contract test for ingestion output schema in `tests/contract/test_ingestion_schema.py` (Depends on Phase 2 completion)
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `code/data_ingestion.py`: Download DailyDialog (via `datasets` or direct URL) and cache to `data/raw/`
+- [ ] T016 [US1] Implement `code/data_ingestion.py`: Download DailyDialog using `datasets.load_dataset("daily_dialog", split="test")` and cache to `data/raw/daily_dialog_test.parquet`
 - [ ] T017 [US1] Implement `code/data_ingestion.py`: Load data, apply NFKC normalization (FR-008), and skip empty/non-text records
 - [ ] T018 [US1] Implement `code/data_ingestion.py`: Filter records where AI response is exact repetition (Jaccard > 0.9)
 - [ ] T019 [US1] Implement `code/data_ingestion.py`: Compute lexical overlap (Jaccard on tokens) and sentence length variance per pair
@@ -137,16 +137,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T034.4 [US3] Implement `code/statistical_analysis.py`: Extract and prepare dataset-provided topic labels for regression control (FR-007)
-- [ ] T035 [US3] Implement `code/sensitivity_analysis.py`: Compute dependency-parse-based metrics for the FULL dataset (FR-009) (Depends on T030 completion)
-- [ ] T035.5 [US3] Implement `code/sensitivity_analysis.py`: Document sampling strategy (e.g., [deferred] random) ONLY if full dataset processing exceeds time limits, with explicit criteria (Depends on T035)
+- [ ] T034.4 [US3] [FR-007] Extract topic labels from the raw DailyDialog dataset (column `topic`) for regression control. **Output**: A list of topic labels aligned with `final_dataset.csv`. (Depends on T030 completion)
+- [ ] T035.5 [US3] [FR-009] Define sampling strategy for sensitivity analysis: "If full dataset processing exceeds memory limits, sample n=5000 randomly with seed 42. Otherwise, use full dataset." **Output**: A markdown file `outputs/reports/sampling_strategy.md` documenting this strategy. (Depends on T030 completion)
+- [ ] T035 [US3] Implement `code/sensitivity_analysis.py`: Compute dependency-parse-based metrics (Jaccard similarity of dependency relation sets, e.g., nsubj, obj) for the FULL dataset (or the pre-defined sample if the strategy applies) (FR-009) (Depends on T035.5 completion)
 - [ ] T036 [US3] Implement `code/sensitivity_analysis.py`: Compare POS-based vs. Dependency-based metrics (FR-009)
 - [ ] T037 [US3] Implement `code/statistical_analysis.py`: Perform Pearson and Spearman correlation tests (FR-004)
-- [ ] T038 [US3] Implement `code/statistical_analysis.py`: Run regression controlling for conversation length and topic (dataset labels) (FR-007)
-- [ ] T039 [US3] Implement `code/statistical_analysis.py`: Implement iterative bootstrap resampling (min 1000, loop until CI width < 0.01, max 10,000 iterations, include timeout fallback) (FR-006)
-- [ ] T040 [US3] Implement `code/statistical_analysis.py`: Apply Bonferroni correction for multiple hypothesis tests (FR-005)
-- [ ] T041 [US3] Implement `code/statistical_analysis.py`: Calculate effect sizes and interpret against Cohen's guidelines and Giles et al. baseline
-- [ ] T042 [US3] Implement `code/statistical_analysis.py`: Generate scatter plot with regression line and 95% CI shading (FR-005)
+- [ ] T038 [US3] Implement `code/statistical_analysis.py`: Run regression controlling for conversation length and topic (dataset labels) (FR-007) (Depends on T034.4 completion)
+- [ ] T039 [US3] Implement `code/statistical_analysis.py`: Implement iterative bootstrap resampling (min 1000, loop until CI width < 0.01). **Safety Break**: If CI width not <0.01 after 50,000 iterations, log a WARNING, record the current estimate, and proceed. **Output**: Save bootstrap distribution and final CI to `outputs/reports/bootstrap_results.json`. Function signature: `run_bootstrap_correlation(data, n_iter=1000, target_ci_width=0.01)` (FR-006)
+- [ ] T040 [US3] Implement `code/statistical_analysis.py`: Apply Bonferroni correction for the four specific hypothesis tests: Pearson and Spearman on lexical overlap, and Pearson and Spearman on syntactic similarity (FR-005)
+- [ ] T041 [US3] Implement `code/statistical_analysis.py`: Calculate effect sizes and interpret against Cohen's guidelines and Giles et al. baseline. **Output**: Write the interpretation to `outputs/reports/statistical_summary.json` under the key `effect_size_interpretation`. (FR-005)
+- [ ] T042 [US3] Implement `code/statistical_analysis.py`: Generate scatter plot with regression line and % CI shading (FR-005)
 - [ ] T043 [US3] Implement `code/statistical_analysis.py`: Generate final statistical report to `outputs/reports/statistical_summary.json`
 - [ ] T044 [US3] Validate output against `contracts/output.schema.yaml`
 
@@ -158,7 +158,7 @@
 
 **Purpose**: Final validation steps and documentation
 
-- [ ] T045 [US2] Implement validation subset sampling and consistency check using existing dataset emotion labels as a proxy for human validation (FR-010). **Note**: This task satisfies FR-010's intent (validation) by using existing labels as a proxy, as new human data collection is prohibited by the Plan and Constitution (no IRB). (Depends on T030 completion)
+- [ ] T045 [US2] [FR-010] Implement validation subset sampling and consistency check: Sample n=30 dialogue pairs randomly (stratified by emotion) from a public human-annotated subset of DailyDialog (or a standard benchmark subset). Apply a human rating protocol (e.g., via a crowdsourcing platform or structured manual review) to validate inferred empathy scores against human judgments. **Output**: Save agreement rate and confusion matrix to `outputs/reports/validation_summary.json`. (Depends on T030 completion)
 - [ ] T046 [P] Update `quickstart.md` with instructions to run the full pipeline
 - [ ] T047 [P] Add `README.md` with project overview and citation requirements
 - [ ] T048 [P] Run full pipeline on a sample to verify reproducibility and seed pinning
@@ -204,7 +204,7 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for NFKC normalization in tests/unit/test_utils.py"
+Task: "Unit test for NFKC normalization in tests/unit/test_utils.py::test_nfk_normalization_handles_emoji"
 Task: "Unit test for Jaccard similarity calculation in tests/unit/test_utils.py"
 
 # Launch all implementation for User Story 1 together (after tests fail):
@@ -254,5 +254,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must run on 2 vCPU, 7GB RAM, no GPU. No heavy model loading or 8-bit quantization.
+- **CPU Constraint**: All tasks must run on a limited CPU allocation, 7GB RAM, no GPU. No heavy model loading or 8-bit quantization.
 - **Data Constraint**: Use real DailyDialog data only. No synthetic data generation.

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T22:46:55.344765+00:00'
+resolved_at: '2026-07-15T00:52:40.277623+00:00'
 datasets:
 - intent: DailyDialog
   status: verified
@@ -41,23 +41,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://dro.deakin.edu.au/articles/conference_contribution/Housing_and_transport_affordability_for_school_staff_and_its_impact_on_systemic_workforce_planning/32354013
+  - url: https://figshare.com/articles/media/O_Call_07036833482_Afe_Babalola_University_2026_2027_Application_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Admission_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32988221
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Coal_City_University_Enugu_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_false/32885747
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Genomic_and_cell-specific_regulation_of_benzylisoquinoline_alkaloid_biosynthesis_in_opium_poppy/32767017
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Experiences_from_Benchmarking_Vision_Language_Action_Models_for_Robotic_Manipulation/31593502
+  - url: https://figshare.com/articles/media/O_Call_07036833482_Godfrey_Okoye_University_2026_2027_Application_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Admission_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32988215
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Clifford_University_Owerrinta_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fa/32885741
+  - url: https://figshare.com/articles/media/O_Call_07036833482_Nile_University_2026_2027_Application_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Admission_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32988182
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Spiritan_University_Nneochi_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fals/32885738
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Power-Conservative_Boundary_Element_Modeling_of_Thermoplasmonic_Ag_TiO_Core_Shell_Nanorod_Assemblies_Coupling_Decomposition_and_Interfacial_Heat_Transport_b_/32988101
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,6 +81,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/60140-mulzdg-multilingual-code-switching-framework-for-zero-shot-dialogue-generation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://underline.io/lecture/68427-towards-diverse-relevant-and-coherent-open-domain-dialogue-generation-via-hybrid-latent-variables
     source: datacite
     status: wrong_format
@@ -94,10 +98,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://underline.io/lecture/147166-chat-ghosting-methods-for-auto-completion-in-dialog-systems
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2511.03056
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

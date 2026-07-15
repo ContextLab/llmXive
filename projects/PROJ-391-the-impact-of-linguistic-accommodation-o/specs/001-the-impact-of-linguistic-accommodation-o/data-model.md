@@ -1,59 +1,62 @@
-# Data Model: The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants
+# Data Model: Linguistic Accommodation & Human‑Rated Empathy
 
-## Entities
+## 1. Entities & Relationships
 
-### 1. DialoguePair
-Represents a single interaction unit.
-- `conversation_id`: string (UUID or dataset ID)
-- `turn_index`: integer (0-based)
-- `user_turn`: string (normalized text)
-- `ai_response`: string (normalized text, proxy for AI)
-- `topic`: string (e.g., "daily_life", "shopping" - from dataset)
-- `emotion_label`: string (e.g., "joy", "sadness")
+### DialoguePair
+Represents a single interaction unit from DailyDialog.
+- **Attributes**:
+  - `conversation_id` (str): Unique identifier for the dialogue session.
+  - `turn_index` (int): Index of the turn within the conversation.
+  - `user_turn` (str): Normalized text of the user input.
+  - `ai_response` (str): Normalized text of the proxy AI response (second speaker in DailyDialog).
+  - `emotion_label` (str): Raw emotion label from DailyDialog.
+  - `word_count` (int): Total words in the pair.
 
-### 2. AccommodationMetric
-Computed features for a `DialoguePair`.
-- `pair_id`: string (FK to DialoguePair)
-- `lexical_overlap`: float (Jaccard similarity, 0.0-1.0)
-- `syntactic_similarity_pos`: float (POS Jaccard similarity, 0.0-1.0)
-- `syntactic_similarity_dep`: float (Dependency Jaccard similarity, 0.0-1.0, for sensitivity)
-- `sentence_length_variance`: float
-- `user_turn_length`: integer (word count)
-- `ai_response_length`: integer (word count)
-- `is_repetition`: boolean (True if lexical_overlap > 0.9)
+### AccommodationMetric
+Derived metrics for a `DialoguePair`.
+- **Attributes**:
+  - `lexical_overlap` (float): Jaccard similarity of token sets (0 – 1).
+  - `syntactic_similarity` (float): Jaccard similarity of POS tag sets (0 – 1).
+  - `dependency_similarity` (float): Jaccard similarity of dependency relation labels (0 – 1).
+  - `sentence_length_variance` (float): Variance of sentence lengths in the AI response.
 
-### 3. EmpathyRating
-Derived or explicit rating.
-- `pair_id`: string (FK to DialoguePair)
-- `proxy_empathy_score`: integer (1-5 Likert)
-- `source`: string ("explicit" or "inferred")
-- `inferred_from_emotion`: string (e.g., "joy")
+### HumanValidationRecord (FR‑010)
+Represents a human‑rated AI‑assistant response.
+- **Attributes**:
+  - `validation_id` (str): Unique identifier.
+  - `user_prompt` (str): Human prompt presented to the AI.
+  - `ai_response` (str): Generated AI response.
+  - `human_empathy_rating` (int): 1‑5 Likert rating of perceived empathy.
+  - `consent_id` (str): Reference to consent record (IRB‑approved).
 
-### 4. AnalysisResult
-Aggregated statistical outputs.
-- `metric_type`: string ("lexical" or "syntactic")
-- `correlation_method`: string ("pearson" or "spearman")
-- `correlation_coefficient`: float
-- `p_value`: float
-- `ci_lower`: float
-- `ci_upper`: float
-- `bootstrap_iterations`: integer
-- `effect_size_category`: string ("negligible", "small", "medium", "large")
-- `bonferroni_corrected_alpha`: float
-- `is_significant`: boolean
+### FinalDataset (merged)
+Combines metrics from `DialoguePair` with the human‑rated empathy scores where available.
+- **Attributes** (superset of columns in `final_dataset.csv`):
+  - All fields from `DialoguePair` and `AccommodationMetric`.
+  - `emotion_mapped_score` (int): Proxy score derived from `emotion_label` (Joy → 5, …, Neutral → 3) – **used only for exploratory checks**.
+  - `human_empathy_rating` (int, optional): Rating from the collected validation set; present for rows that belong to the validation subset.
+  - `lda_topic_id` (int): Dominant LDA cluster (0‑9).
+  - `is_validation_subset` (bool): `True` for the 30 manually rated records.
 
-## Data Flow
+## 2. Data Flow
 
-1.  **Input**: `data/raw/dailydialog_test.json` (Raw)
-2.  **Step 1**: `code/data_ingestion.py` -> `data/processed/dialogues_cleaned.csv` (DialoguePair)
-3.  **Step 2**: `code/data_ingestion.py` -> `data/processed/accommodation_metrics.csv` (AccommodationMetric)
-4.  **Step 3**: `code/empathy_mapping.py` -> `data/processed/empathy_ratings.csv` (EmpathyRating)
-5.  **Step 4**: `code/sensitivity_analysis.py` -> `data/processed/sensitivity_results.csv` (Comparison of POS vs Dep)
-6.  **Step 5**: `code/statistical_analysis.py` -> `data/processed/analysis_results.csv` (AnalysisResult)
-7.  **Output**: `outputs/reports/statistical_summary.md`, `outputs/figures/scatter_plot.png`
+1. **Raw Input**: `daily_dialog.parquet` (DailyDialog) and `human_empathy.csv` (collected).  
+2. **Ingestion**: `01_ingest_and_preprocess.py` → `data/raw/daily_dialog_raw.csv`.  
+3. **Human Collection**: `00_collect_human_empathy.py` → `data/raw/human_empathy/raw_responses.csv`.  
+4. **Metric Computation**: `03_compute_metrics.py` → adds accommodation columns.  
+5. **Topic Modeling**: `06_generate_topics.py` → adds `lda_topic_id`.  
+6. **Merging**: `07_analyze_correlations.py` merges DailyDialog‑derived rows with human‑rated rows on compatible fields, producing `data/processed/final_dataset.csv`.  
+7. **Analysis & Validation**: Subsequent scripts read `final_dataset.csv`.
 
-## Storage Constraints
-- **Raw Data**: ~10 MB (compressed).
-- **Processed Data**: ~5 MB (CSVs with floats).
-- **Total Disk**: < 20 MB (well within 14 GB limit).
-- **RAM**: < 1 GB for loading full dataset.
+## 3. Schema Adjustments
+
+- Added optional `human_empathy_rating` (int 1‑5) to the final dataset schema.  
+- Added `is_validation_subset` (bool) to flag the manually annotated records.  
+- Updated `HumanValidationRecord` entity to satisfy FR‑010.
+
+## 4. Constraints & Rules
+
+- **Unicode**: All text fields must be normalized to NFKC.  
+- **Null Handling**: Records with empty `user_turn` or `ai_response` after normalization are dropped.  
+- **Range**: All similarity scores ∈ [0.0, 1.0]; `human_empathy_rating` ∈ [1, 5].  
+- **Consent**: Every row in `human_empathy.csv` must include a non‑empty `consent_id` linking to the IRB consent log.  
