@@ -1,0 +1,7 @@
+status: none
+intent: pip installable GHTorrent Java projects dataset with GitHub Archive fallback
+  CodeSearchNet python package dataset
+required_fields:
+- source_code_files
+- commit_history
+- issue_tracker_data

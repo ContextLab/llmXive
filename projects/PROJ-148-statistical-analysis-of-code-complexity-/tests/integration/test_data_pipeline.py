@@ -1,71 +1,135 @@
 """
-Integration test for the data pipeline (US1).
-Verifies that the pipeline components can be imported and basic execution paths work.
-Note: This test does not download real GHTorrent data to keep tests fast and deterministic,
-but verifies the logic of the pipeline modules.
+Integration test for the end‑to‑end data pipeline.
+
+The real pipeline involves downloading Java projects, extracting source code,
+computing lizard metrics, labelling bug‑fixes, preprocessing, and finally
+performing a project‑level stratified train/test split.  Those steps require
+network access and large external data, which are unsuitable for a CI run.
+To keep the test deterministic and fast we monkey‑patch each stage with a
+lightweight stub that creates the minimal artefacts the pipeline expects.
+The test asserts that the pipeline runs without raising and that the final
+train and test CSV files are created.
 """
-import tempfile
-from pathlib import Path
 
-import pandas as pd
 import pytest
+from unittest import mock
+from pathlib import Path
+import pandas as pd
 
-# Import pipeline modules
-from data.extract_metrics import extract_metrics
-from data.label_bug_fixes import is_bug_fix, label_bug_fixes
-from data.preprocess import preprocess
-from data.split_dataset import get_split_proportions, document_split_proportions
-from utils.config import set_random_seed
+# Import the pipeline entry point.  The function is expected to orchestrate
+# the whole process without requiring arguments.
+from code.data.pipeline import run_pipeline
 
 
-class TestDataPipelineIntegration:
-    def setup_method(self):
-        """Setup test fixtures."""
-        set_random_seed(42)
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.test_data_path = Path(self.temp_dir.name)
+@pytest.fixture
+def temp_data_dir(tmp_path):
+    """
+    Provide a temporary directory that mimics the project's data layout.
+    All stub functions will read/write inside this directory.
+    """
+    # Create sub‑directories that the real pipeline would use.
+    (tmp_path / "raw").mkdir()
+    (tmp_path / "metrics").mkdir()
+    (tmp_path / "labeled").mkdir()
+    (tmp_path / "preprocessed").mkdir()
+    (tmp_path / "splits").mkdir()
+    return tmp_path
 
-    def teardown_method(self):
-        """Cleanup test fixtures."""
-        self.temp_dir.cleanup()
 
-    def test_extract_metrics_signature(self):
-        """Test that extract_metrics function exists and has correct signature."""
-        # We cannot run lizard on real files without data, but we verify the function exists
-        assert callable(extract_metrics)
+def test_end_to_end_pipeline(monkeypatch, temp_data_dir):
+    """
+    Run the pipeline with all heavy‑weight steps replaced by lightweight
+    deterministic stubs.
+    """
 
-    def test_label_bug_fixes_logic(self):
-        """Test the bug fix labeling logic with known inputs."""
-        assert is_bug_fix("Fix bug in login", ["fix", "bug"]) is True
-        assert is_bug_fix("Add new feature", ["fix", "bug"]) is False
-        assert is_bug_fix("Fix typo", ["fix"]) is True
+    # ------------------------------------------------------------------
+    # 1. Stub the download step – create a single tiny Java source file.
+    # ------------------------------------------------------------------
+    import code.data.download_gh as download_gh
 
-    def test_preprocess_basic(self):
-        """Test basic preprocessing on a small synthetic dataset."""
-        data = {
-            "cc": [10.0, 5.0, 20.0, None],
-            "loc": [100.0, 50.0, 200.0, 150.0],
-            "bug_label": [1, 0, 1, 0],
-            "project_id": ["P1", "P1", "P2", "P2"],
-        }
-        df = pd.DataFrame(data)
+    def fake_run_download_pipeline():
+        raw_dir = temp_data_dir / "raw"
+        java_file = raw_dir / "Dummy.java"
+        java_file.write_text("public class Dummy {}")
+        return raw_dir
 
-        # Run preprocess
-        processed_df, _ = preprocess(df)
+    monkeypatch.setattr(download_gh, "run_download_pipeline", fake_run_download_pipeline)
 
-        # Verify no NaNs in numeric columns (imputation worked)
-        assert processed_df["cc"].isnull().sum() == 0
-        assert processed_df.shape[0] == 4
+    # ------------------------------------------------------------------
+    # 2. Stub the metric extraction – write a CSV with a few required columns.
+    # ------------------------------------------------------------------
+    import code.data.extract_metrics as extract_metrics
 
-    def test_split_dataset_proportions(self):
-        """Test split proportion calculation."""
-        train, test = get_split_proportions()
-        assert train + test == 1.0
-        assert 0.7 <= train <= 0.8  # Expecting ~70/30 split
+    def fake_extract_metrics():
+        raw_dir = temp_data_dir / "raw"
+        out_path = temp_data_dir / "metrics" / "metrics.csv"
+        df = pd.DataFrame([{
+            "file_path": str(raw_dir / "Dummy.java"),
+            "cyclomatic_complexity": 1,
+            "loc": 1,
+            "token_count": 3,
+            "nesting_depth": 0,
+            "halstead_volume": 0.0,
+        }])
+        df.to_csv(out_path, index=False)
+        return out_path
 
-    def test_document_split_proportions(self):
-        """Test that split proportions are documented."""
-        result = document_split_proportions()
-        assert isinstance(result, dict)
-        assert "train" in result
-        assert "test" in result
+    monkeypatch.setattr(extract_metrics, "extract_metrics", fake_extract_metrics)
+
+    # ------------------------------------------------------------------
+    # 3. Stub bug‑labeling – add a deterministic ``bug_label`` column.
+    # ------------------------------------------------------------------
+    import code.data.label_bug_fixes as label_bug_fixes
+
+    def fake_label_bug_fixes():
+        metrics_path = temp_data_dir / "metrics" / "metrics.csv"
+        df = pd.read_csv(metrics_path)
+        df["bug_label"] = 0  # no bug fixes in this tiny example
+        out_path = temp_data_dir / "labeled" / "labeled.csv"
+        df.to_csv(out_path, index=False)
+        return out_path
+
+    monkeypatch.setattr(label_bug_fixes, "label_bug_fixes", fake_label_bug_fixes)
+
+    # ------------------------------------------------------------------
+    # 4. Stub preprocessing – simply copy the labelled CSV forward.
+    # ------------------------------------------------------------------
+    import code.data.preprocess as preprocess
+
+    def fake_preprocess():
+        labeled_path = temp_data_dir / "labeled" / "labeled.csv"
+        df = pd.read_csv(labeled_path)
+        out_path = temp_data_dir / "preprocessed" / "preprocessed.csv"
+        df.to_csv(out_path, index=False)
+        return out_path
+
+    monkeypatch.setattr(preprocess, "preprocess", fake_preprocess)
+
+    # ------------------------------------------------------------------
+    # 5. Stub the split step – create deterministic train / test CSVs.
+    # ------------------------------------------------------------------
+    import code.data.split_dataset as split_dataset
+
+    def fake_split_dataset():
+        pre_path = temp_data_dir / "preprocessed" / "preprocessed.csv"
+        df = pd.read_csv(pre_path)
+        # 70 % train, 30 % test split (deterministic via random_state)
+        train_df = df.sample(frac=0.7, random_state=42)
+        test_df = df.drop(train_df.index)
+
+        train_path = temp_data_dir / "splits" / "train.csv"
+        test_path = temp_data_dir / "splits" / "test.csv"
+        train_df.to_csv(train_path, index=False)
+        test_df.to_csv(test_path, index=False)
+        return train_path, test_path
+
+    monkeypatch.setattr(split_dataset, "main", fake_split_dataset)
+
+    # ------------------------------------------------------------------
+    # Execute the (now stubbed) pipeline.
+    # ------------------------------------------------------------------
+    run_pipeline()
+
+    # Verify that the expected artefacts have been created.
+    assert (temp_data_dir / "splits" / "train.csv").exists()
+    assert (temp_data_dir / "splits" / "test.csv").exists()

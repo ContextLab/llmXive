@@ -32,7 +32,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/statistical-analysis-of-code-complexity
   verified_at: '2026-06-29T17:31:46.383308Z'
-- artifact_hash: e3aced2b1a53e98fd7e28a95b7942172ab1dbbfb5090541613556d9b55fd08a1
+- artifact_hash: c7447b747180a04fd2e8751d5752a14fbef6bd00f0ebf960bc79f5b0fe5d63b3
   artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://www.wikidata.org/wiki/Q178051
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q178051
-  verified_at: '2026-07-14T19:01:21.211661Z'
+  verified_at: '2026-07-15T04:35:55.821854Z'

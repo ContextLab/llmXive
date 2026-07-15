@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"Create a deterministic synthetic dataset.      Parameters     ---\u2026\u201d; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"     Execute the full synthetic data pipeline.      The funct\u2026\u201d; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026---------------     # 2. Generate synthetic dataset     # ----------\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/modeling/train.py; 4 command(s) failed: python code/data/download_gh.py (rc=1); python code/data/extract_metrics.py (rc=1); python code/data/preprocess.py (rc=1); 1 declared deliverable(s) absent: data/model/corrected_pvalues.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/download_gh.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/data/extract_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/extract_metrics.py\", line 45, in <module>\n    import lizard\nModuleNotFoundError: No module named 'lizard'",
+    "python code/data/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/preprocess.py\", line 23, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/modeling/train.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/train.py': [Errno 2] No such file or directory",
+    "python code/modeling/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py\", line 26, in <module>\n    import joblib\nModuleNotFoundError: No module named 'joblib'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-15T03:54:46Z"
+}
