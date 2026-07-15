@@ -12,14 +12,8 @@ def calculate_physics_lag(vsw_mean_km_s: float) -> float:
     """
     Calculate the physics-based propagation lag in minutes.
     
-    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / Vsw_mean_km_s / 60
-    Note: The formula in T006 was L_phys = (k * 6371) / Vsw_mean / k. 
-    The 'k' cancels out in the numerator/denominator if it represents the same constant, 
-    but the spec implies a distance factor. Based on standard magnetospheric physics,
-    the lag is Distance / Velocity. 
-    Distance = K_PROPAGATION * Earth_Radius * Tail_Distance (in km).
-    Velocity = Vsw (km/s).
-    Result is in seconds, converted to minutes by /60.
+    Formula: L_phys = (K * Earth_Radius_km * Tail_Distance_RE) / Vsw_mean_km_s / 60
+    (Converting seconds to minutes by dividing by 60)
     
     Args:
         vsw_mean_km_s: Mean solar wind speed in km/s.
@@ -28,40 +22,48 @@ def calculate_physics_lag(vsw_mean_km_s: float) -> float:
         Lag in minutes.
     """
     if vsw_mean_km_s <= 0:
-        raise ValueError("Vsw must be positive to calculate lag.")
+        raise ValueError("Solar wind speed must be positive.")
     
-    # Distance in km: K_PROPAGATION * Earth Radius (km) * Tail Distance (Re)
-    # TAIL_DISTANCE_RE is in Earth Radii, so multiply by EARTH_RADIUS_KM
-    distance_km = K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE
+    # Distance in km = Tail_Distance_RE * EARTH_RADIUS_KM
+    distance_km = TAIL_DISTANCE_RE * EARTH_RADIUS_KM
     
-    # Time in seconds
-    time_seconds = distance_km / vsw_mean_km_s
+    # Time in seconds = Distance / Speed
+    time_seconds = (K_PROPAGATION * distance_km) / vsw_mean_km_s
     
     # Time in minutes
     time_minutes = time_seconds / 60.0
     
     return time_minutes
 
-def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, time_col: str = 'timestamp') -> pd.DataFrame:
+def apply_lag_shift(df: pd.DataFrame, lag_minutes: float) -> pd.DataFrame:
     """
-    Shift the time series of a DataFrame by a given lag in minutes.
-    This effectively aligns the data by shifting the time index forward.
+    Apply a time lag shift to the DataFrame by shifting the index.
+    The lag is applied to the Vsw data to align it with the delayed Ey response.
+    We shift the Vsw index forward by `lag_minutes` so that Vsw(t) aligns with Ey(t + lag).
     
     Args:
-        df: DataFrame with a datetime index or time_col.
+        df: DataFrame with 'timestamp' column.
         lag_minutes: Lag to apply in minutes.
-        time_col: Name of the timestamp column if not index.
         
     Returns:
         DataFrame with shifted timestamps.
     """
-    df_shifted = df.copy()
+    df = df.copy()
+    # Shift the timestamp column forward by the lag
+    df['timestamp'] = df['timestamp'] + pd.Timedelta(minutes=lag_minutes)
+    return df
+
+def calculate_and_apply_lag(df_sw: pd.DataFrame, df_ey: pd.DataFrame, lag_minutes: float) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Calculate physics lag and apply it to the solar wind data.
     
-    if df_shifted.index.name == time_col or (df_shifted.index.name is None and time_col not in df_shifted.columns):
-        # If timestamp is index
-        df_shifted.index = df_shifted.index + pd.Timedelta(minutes=lag_minutes)
-    else:
-        # If timestamp is a column
-        df_shifted[time_col] = df_shifted[time_col] + pd.Timedelta(minutes=lag_minutes)
+    Args:
+        df_sw: Solar wind DataFrame.
+        df_ey: THEMIS DataFrame.
+        lag_minutes: Lag in minutes.
         
-    return df_shifted
+    Returns:
+        Tuple of (shifted_df_sw, df_ey)
+    """
+    shifted_sw = apply_lag_shift(df_sw, lag_minutes)
+    return shifted_sw, df_ey

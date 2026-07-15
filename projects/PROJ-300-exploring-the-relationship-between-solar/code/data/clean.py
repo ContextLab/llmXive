@@ -1,5 +1,5 @@
 """
-Data cleaning and resampling module for solar wind and geomagnetic data.
+Data cleaning and resampling module.
 File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py
 """
 import pandas as pd
@@ -7,43 +7,43 @@ import numpy as np
 from typing import Tuple
 from datetime import timedelta
 
-def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame, target_freq: str = '5min') -> Tuple[pd.DataFrame, pd.DataFrame]:
+def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Clean NaN values and resample two DataFrames to a fixed cadence.
+    Clean two DataFrames by removing NaNs and resampling to a fixed cadence (5 minutes).
     
     Args:
-        df1: First DataFrame (e.g., Solar Wind data) with 'timestamp' column.
-        df2: Second DataFrame (e.g., THEMIS data) with 'timestamp' column.
-        freq: Resampling frequency string (default '5min').
+        df1: Solar wind data (Vsw, Bz) with 'timestamp' column.
+        df2: THEMIS data (Ey) with 'timestamp' column.
         
     Returns:
-        Tuple of (cleaned_df1, cleaned_df2) aligned on timestamp index.
+        Tuple of (cleaned_df1, cleaned_df2) aligned on timestamp.
     """
-    def process_single(df: pd.DataFrame) -> pd.DataFrame:
-        if df.empty:
-            return df
-        
-        # Ensure timestamp is datetime and set as index
+    # Ensure timestamp is datetime
+    for df in [df1, df2]:
         if 'timestamp' in df.columns:
-            df = df.copy()
             df['timestamp'] = pd.to_datetime(df['timestamp'])
-            df = df.set_index('timestamp')
-        
-        # Remove rows where all data columns are NaN
-        df = df.dropna(how='all')
-        
-        # Resample to fixed frequency (forward fill then backward fill for gaps)
-        df = df.resample(freq).mean()
-        df = df.ffill().bfill()
-        
-        return df
-
-    cleaned1 = process_single(df1)
-    cleaned2 = process_single(df2)
+        else:
+            raise ValueError("Input DataFrames must have a 'timestamp' column")
     
-    # Align indices
-    common_index = cleaned1.index.intersection(cleaned2.index)
-    cleaned1 = cleaned1.loc[common_index]
-    cleaned2 = cleaned2.loc[common_index]
+    # Sort by timestamp
+    df1 = df1.sort_values('timestamp')
+    df2 = df2.sort_values('timestamp')
     
-    return cleaned1, cleaned2
+    # Resample to 5-minute intervals
+    # We assume the index is timestamp for resampling, so set it
+    df1 = df1.set_index('timestamp')
+    df2 = df2.set_index('timestamp')
+    
+    # Resample: mean for numeric columns
+    df1_resampled = df1.resample('5T').mean()
+    df2_resampled = df2.resample('5T').mean()
+    
+    # Drop NaNs resulting from resampling (gaps in original data)
+    df1_clean = df1_resampled.dropna()
+    df2_clean = df2_resampled.dropna()
+    
+    # Reset index to make 'timestamp' a column again for merging later
+    df1_clean = df1_clean.reset_index()
+    df2_clean = df2_clean.reset_index()
+    
+    return df1_clean, df2_clean

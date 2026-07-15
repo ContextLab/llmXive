@@ -9,7 +9,7 @@
   verification_status: unreachable
   verified_against_url: https://omniweb.gsfc.nasa.gov/api/
   verified_at: '2026-06-30T04:04:06.514259Z'
-- artifact_hash: 47f0b7dc4fa1bfd3347c250be1f6af02f6f02ce0d6d297886ab50d36a0d1a9cd
+- artifact_hash: 144fb0cdf72887bb38a520ffeafec9f52514f8d4f92eeb8ed3eddae793a25e0d
   artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-15T12:35:20.165591Z'
+  verified_at: '2026-07-15T12:44:23.081827Z'

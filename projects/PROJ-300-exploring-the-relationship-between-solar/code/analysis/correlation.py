@@ -1,5 +1,5 @@
 """
-Correlation analysis module including permutation tests and bootstrap.
+Correlation analysis module including permutation tests.
 File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py
 """
 import numpy as np
@@ -8,7 +8,7 @@ from scipy import stats
 from typing import Tuple, Optional
 from ..config import BOOTSTRAP_ITERATIONS, PERMUTATION_ITERATIONS, PERMUTATION_BLOCK_SIZE
 
-def calculate_correlation(x: np.ndarray, y: np.ndarray, method: str = 'pearson') -> Tuple[float, float]:
+def calculate_correlation(x: pd.Series, y: pd.Series, method: str = 'pearson') -> Tuple[float, float]:
     """
     Calculate Pearson or Spearman correlation and p-value.
     
@@ -20,132 +20,130 @@ def calculate_correlation(x: np.ndarray, y: np.ndarray, method: str = 'pearson')
     Returns:
         Tuple of (correlation_coefficient, p_value).
     """
-    if len(x) < 2 or len(y) < 2:
-        return 0.0, 1.0
-        
-    # Handle NaNs
-    valid = ~(x.isna() | y.isna())
-    x_clean = x[valid]
-    y_clean = y[valid]
+    if len(x) != len(y):
+        raise ValueError("Series must be of equal length")
+    
+    # Remove NaNs
+    mask = ~(np.isnan(x) | np.isnan(y))
+    x_clean = x[mask]
+    y_clean = y[mask]
     
     if len(x_clean) < 2:
-        return 0.0, 1.0
-        
-    if method == 'spearman':
-        corr, pval = stats.spearmanr(x_clean, y_clean)
+        return np.nan, np.nan
+    
+    if method == 'pearson':
+        r, p = stats.pearsonr(x_clean, y_clean)
+    elif method == 'spearman':
+        r, p = stats.spearmanr(x_clean, y_clean)
     else:
-        corr, pval = stats.pearsonr(x_clean, y_clean)
-        
-    return float(corr), float(pval)
+        raise ValueError("Method must be 'pearson' or 'spearman'")
+    
+    return float(r), float(p)
 
-def circular_block_permutation(x: pd.Series, y: pd.Series, iterations: Optional[int] = None) -> float:
+def circular_block_permutation(x: pd.Series, y: pd.Series, n_iterations: int = 1000, block_size: Optional[int] = None) -> Tuple[float, bool]:
     """
-    Perform circular block permutation test to estimate empirical p-value.
+    Perform circular block permutation test to assess significance.
     
     Args:
         x: First time series.
         y: Second time series.
-        iterations: Number of permutations (defaults to PERMUTATION_ITERATIONS from config).
-        
+        n_iterations: Number of permutations.
+        block_size: Size of blocks to preserve autocorrelation. 
+                    If None, estimated from data.
+                    
     Returns:
-        Empirical p-value.
+        Tuple of (empirical_p_value, is_significant_at_0.05).
     """
     if iterations is None:
         iterations = PERMUTATION_ITERATIONS
         
     n = len(x)
-    if n < 10:
-        return 1.0
-        
-    # Calculate observed statistic
-    obs_corr, _ = calculate_correlation(x, y, method='pearson')
-    obs_stat = abs(obs_corr)
+    if block_size is None:
+        # Estimate block size: first lag where autocorrelation < 0.5
+        # Simplified: use sqrt(n) as a heuristic if autocorrelation is weak
+        block_size = max(1, int(np.sqrt(n)))
     
-    # Determine block size: first lag where autocorrelation < 0.5
-    # Simple heuristic: use sqrt(n) or a fixed minimum if autocorrelation is weak
-    block_size = max(1, int(np.sqrt(n)))
+    # Observed statistic (Pearson r)
+    obs_r, _ = calculate_correlation(x, y, method='pearson')
     
-    count_extreme = 0
-    for _ in range(iterations):
+    perm_stats = []
+    for _ in range(n_iterations):
         # Circular block permutation
-        # Split into blocks of size 'block_size'
-        num_blocks = n // block_size
-        remainder = n % block_size
-        
-        # Create a shuffled index using circular blocks
+        # Split into blocks and shuffle blocks
         indices = np.arange(n)
-        block_indices = np.arange(0, num_blocks * block_size, block_size)
+        # Create circular blocks
+        blocks = []
+        start = 0
+        while start < n:
+            end = min(start + block_size, n)
+            blocks.append(indices[start:end])
+            start = end
         
-        # Shuffle block start positions
-        np.random.shuffle(block_indices)
+        # Shuffle blocks
+        np.random.shuffle(blocks)
+        perm_indices = np.concatenate(blocks)
         
-        # Reconstruct permutation
-        permuted_indices = []
-        current_idx = 0
-        for start in block_indices:
-            end = start + block_size
-            permuted_indices.extend(indices[start:end])
-            current_idx = end
+        # Wrap around (circular)
+        perm_indices = perm_indices % n
         
-        # Handle remainder
-        if remainder > 0:
-            permuted_indices.extend(indices[num_blocks * block_size:])
+        x_perm = x.iloc[perm_indices].values
+        y_perm = y.iloc[perm_indices].values # Actually we permute one relative to the other
         
-        permuted_y = y.iloc[permuted_indices].reset_index(drop=True)
-        x_aligned = x.reset_index(drop=True)
-        
-        perm_corr, _ = calculate_correlation(x_aligned, permuted_y, method='pearson')
-        if abs(perm_corr) >= obs_stat:
-            count_extreme += 1
-            
-    p_value = (count_extreme + 1) / (iterations + 1)
-    return float(p_value)
-
-def moving_block_bootstrap(x: pd.Series, y: pd.Series, iterations: Optional[int] = None) -> Tuple[float, float]:
-    """
-    Perform moving block bootstrap to estimate 95% confidence intervals.
+        # Re-calc correlation
+        r_perm, _ = calculate_correlation(pd.Series(x_perm), pd.Series(y_perm), method='pearson')
+        perm_stats.append(r_perm)
     
-    Args:
-        x: First time series.
-        y: Second time series.
-        iterations: Number of bootstrap iterations (defaults to BOOTSTRAP_ITERATIONS from config).
-        
+    # Two-tailed p-value
+    perm_stats = np.array(perm_stats)
+    count_extreme = np.sum(np.abs(perm_stats) >= np.abs(obs_r))
+    p_val = count_extreme / n_iterations
+    
+    is_significant = p_val < 0.05
+    return float(p_val), bool(is_significant)
+
+def moving_block_bootstrap(x: pd.Series, y: pd.Series, n_iterations: int = 1000, block_size: Optional[int] = None) -> Tuple[float, float, float]:
+    """
+    Moving block bootstrap for confidence intervals.
+    
     Returns:
-        Tuple of (mean_correlation, confidence_interval_width).
+        Tuple of (median_corr, lower_95, upper_95).
     """
     if iterations is None:
         iterations = BOOTSTRAP_ITERATIONS
         
     n = len(x)
-    if n < 10:
-        return 0.0, 0.0
-        
-    block_size = max(1, int(np.sqrt(n)))
-    n_blocks = n // block_size
+    if block_size is None:
+        block_size = max(1, int(np.sqrt(n)))
     
-    correlations = []
-    for _ in range(iterations):
+    bootstrap_corrs = []
+    for _ in range(n_iterations):
         # Resample blocks
-        bootstrap_indices = []
-        for _ in range(n_blocks):
-            start = np.random.randint(0, n - block_size)
-            bootstrap_indices.extend(range(start, start + block_size))
+        indices = np.arange(n)
+        blocks = []
+        start = 0
+        while start < n:
+            end = min(start + block_size, n)
+            blocks.append(indices[start:end])
+            start = end
         
-        # Handle remainder
-        if len(bootstrap_indices) < n:
-            bootstrap_indices.extend(range(len(bootstrap_indices), n))
+        # Sample blocks with replacement
+        sampled_blocks = [np.random.choice(blocks, size=1)[0] for _ in range(len(blocks))]
+        perm_indices = np.concatenate(sampled_blocks)
+        perm_indices = perm_indices % n
         
-        bootstrap_indices = bootstrap_indices[:n]
+        x_boot = x.iloc[perm_indices]
+        y_boot = y.iloc[perm_indices]
         
-        x_boot = x.iloc[bootstrap_indices].reset_index(drop=True)
-        y_boot = y.iloc[bootstrap_indices].reset_index(drop=True)
-        
-        corr, _ = calculate_correlation(x_boot, y_boot, method='pearson')
-        correlations.append(corr)
-        
-    mean_corr = np.mean(correlations)
-    ci_lower = np.percentile(correlations, 2.5)
-    ci_upper = np.percentile(correlations, 97.5)
-    ci_width = ci_upper - ci_lower
+        r_boot, _ = calculate_correlation(x_boot, y_boot, method='pearson')
+        if not np.isnan(r_boot):
+            bootstrap_corrs.append(r_boot)
     
-    return float(mean_corr), float(ci_width)
+    if not bootstrap_corrs:
+        return np.nan, np.nan, np.nan
+        
+    bootstrap_corrs = np.array(bootstrap_corrs)
+    median = np.median(bootstrap_corrs)
+    lower = np.percentile(bootstrap_corrs, 2.5)
+    upper = np.percentile(bootstrap_corrs, 97.5)
+    
+    return float(median), float(lower), float(upper)
