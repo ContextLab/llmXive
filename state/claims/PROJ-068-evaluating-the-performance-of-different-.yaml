@@ -1,0 +1,476 @@
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: plan artifact states 50 repetitions
+  claim_id: c_e9ef9378
+  context: The Plan artifact (plan.md) currently states '50 repetitions'. This tasks.md
+    file aligns with Constitution Principle VI (5 repetitions). The Plan artifact
+    requires a separate update to resolve this contradiction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan artifact (plan.md) currently states '50 repetitions'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:25:35Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Benchmark set sizes from 10k to 1M elements with 5 repetitions
+  claim_id: c_52549757
+  context: 'Goal: Run insertion and query benchmarks on the synthetic dataset across
+    set sizes from 10k to 1M elements with 5 repetitions per configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run insertion and query benchmarks on the synthetic dataset across set
+    sizes from 10k to 1M elements with 5 repetitions per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:30:01Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Dataset sizes 10k, 50k, 100k, 500k, 1M; queries equal 10x dataset size
+  claim_id: c_5ae9fdfc
+  context: Implement dataset sampling logic in code/benchmarks/generator.py to generate
+    subsets from 10k, 50k, 100k, 500k, and 1M elements (logarithmically spaced) and
+    prepare for 10x dataset size (min 10k) membership queries per run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate subsets from 10k, 50k, 100k, 500k, and 1M elements (logarithmically
+    spaced) and prepare for 10x dataset size (min 10k) membership queries per run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:30:23Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 'Theoretical memory formula: bits = n * log2(1/p) / ln(2)^2'
+  claim_id: c_56acbf16
+  context: 'Formula: bits = n * log2(1/p) / ln(2)^2. For arrays/vectors, calculate
+    theoretical bits per element; for bitsets, calculate actual bits used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical memory formula is bits = n * log2(1/p) / ln(2)^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:31:37Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 'False Positive Rate targets: 0.01, 0.05, 0.10'
+  claim_id: c_2d541062
+  context: False Positive Rate targets are fixed at 0.01, 0.05, and 0.10 per Constitution
+    Principle VI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: False Positive Rate targets are fixed at 0.01, 0.05, and 0.10 per Constitution
+    Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:32:06Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 'Coefficient of Variation threshold: 15%'
+  claim_id: c_967b8fde
+  context: "Implement coefficient of variation (CV) calculation to verify reproducibility\
+    \ (\u226415% target) across repetitions; MUST calculate CV for each configuration."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Coefficient of Variation must be \u226415% to verify reproducibility\
+    \ across repetitions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:32:06Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Plan artifact 50 repetitions vs Constitution Principle VI 5 repetitions
+    discrepancy
+  claim_id: c_f2cd0eb0
+  context: The Plan artifact (plan.md) currently states '50 repetitions'. This tasks.md
+    file aligns with Constitution Principle VI (5 repetitions). The Plan artifact
+    requires a separate update to resolve this contradiction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan artifact states 50 repetitions, while Constitution Principle
+    VI specifies 5 repetitions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:32:31Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Implementations run on CPU-only; no GPU/CUDA
+  claim_id: c_5f018bc5
+  context: All implementations must run on CPU-only; no GPU/CUDA dependencies allowed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementations_run_on_CPU-only;_no_GPU/CUDA
+  kind: entity_fact
+  raw_text: Implementations must run on CPU-only with no GPU/CUDA dependencies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:32:57Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: False Positive Rate targets fixed at 0.01, 0.05, and 0.10
+  claim_id: c_750960f1
+  context: Implement FPR configuration logic in code/bloom_filters/base.py to set
+    targets to 0.01, 0.05, and 0.10 (per Constitution Principle VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: False Positive Rate targets are fixed at 0.01, 0.05, and 0.10 per Constitution
+    Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:37:07Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Dataset sizes range from 10k to 1M elements
+  claim_id: c_8d575acd
+  context: Run insertion and query benchmarks on the synthetic dataset across set
+    sizes from 10k to 1M elements with 5 repetitions per configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset sizes for benchmarks range from 10k to 1M elements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:37:59Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation threshold is 15%
+  claim_id: c_2ef4b510
+  context: "CV Enforcement: Coefficient of Variation must be \u226415%; runs exceeding\
+    \ this must be flagged and logged as unstable (T043), NOT retried automatically."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Coef\uFB01cient of Variation must be \u226415%; runs exceeding this must\
+    \ be flagged and logged as unstable."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:37:59Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Plan artifact specifies 50 repetitions contradicting 5 repetitions in
+    Constitution Principle VI
+  claim_id: c_b42a581d
+  context: 'Plan Mismatch Note: The Plan artifact (plan.md) currently states 50 repetitions.
+    This tasks.md file aligns with Constitution Principle VI (5 repetitions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan artifact currently states 50 repetitions, which contradicts the
+    5 repetitions specified in Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:38:18Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: FPR targets fixed at 0.01, 0.05, and 0.10
+  claim_id: c_418139c7
+  context: 'FPR Values: False Positive Rate targets are fixed at 0.01, 0.05, and 0.10
+    per Constitution Principle VI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: False Positive Rate targets are fixed at 0.01, 0.05, and 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:03Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 2
+  canonical: Benchmarks run 5 repetitions per configuration
+  claim_id: c_45bb07ca
+  context: 'Repetition Count: All benchmarks must run 5 repetitions per configuration
+    (per Constitution Principle VI) to satisfy statistical power requirements within
+    time limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All benchmarks must run 5 repetitions per configuration to satisfy statistical
+    power requirements within time limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:03Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Benchmark runs execute 10x dataset size queries with min 10k
+  claim_id: c_c09f94b4
+  context: 'Query Count: Each benchmark run must execute 10x dataset size (min 10k)
+    membership queries to satisfy FR-004 millisecond precision requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each benchmark run must execute 10x dataset size (min 10k) membership
+    queries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:25Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Dataset sizes range from 10k to 1M elements
+  claim_id: c_5318654a
+  context: Implement dataset sampling logic in code/benchmarks/generator.py to generate
+    subsets from 10k, 50k, 100k, 500k, and 1M elements (logarithmically spaced) and
+    prepare for 10x dataset size (min 10k) membership queries per run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset sizes for benchmarks range from 10k to 1M elements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:25Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Theoretical memory formula bits = n * log2(1/p) / ln(2)^2
+  claim_id: c_76c24c33
+  context: 'Implement theoretical baseline calculation... Formula: bits = n * log2(1/p)
+    / ln(2)^2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical memory formula is bits = n * log2(1/p) / ln(2)^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:25Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation target is <= 15%
+  claim_id: c_c9a93b0c
+  context: "CV Enforcement: Coefficient of Variation must be \u226415%; runs exceeding\
+    \ this must be flagged and logged as unstable (T043), NOT retried automatically."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Coefficient_of_Variation_target_is_%3C=_15%25
+  kind: magnitude
+  raw_text: Coefficient of Variation must be less than or equal to 15%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:46:59Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Plan artifact states 50 repetitions vs document 5 repetitions
+  claim_id: c_33c6548e
+  context: 'Plan Mismatch Note: The Plan artifact (plan.md) currently states 50 repetitions.
+    This tasks.md file aligns with Constitution Principle VI (5 repetitions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan artifact states 50 repetitions while this document specifies
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:47:34Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: False Positive Rate targets are 0.01, 0.05, and 0.10
+  claim_id: c_6c8f9b6b
+  context: T015 [Foundational] Implement FPR configuration logic... to set targets
+    to 0.01, 0.05, and 0.10 (per Constitution Principle VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark runs will use False Positive Rate targets of 0.01, 0.05, and
+    0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:49Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Dataset sizes range from 10k to 1M elements
+  claim_id: c_c6a9a10a
+  context: T022... generate subsets from 10k, 50k, 100k, 500k, and 1M elements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset sizes for benchmarks will range from 10k to 1M elements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:51:11Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 5 repetitions per configuration
+  claim_id: c_b9cb1911
+  context: 'Goal: Run insertion and query benchmarks... with 5 repetitions per configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmarks will be repeated 5 times per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:51:36Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 10x dataset size membership queries per run (min 10k)
+  claim_id: c_a1eaf7af
+  context: T021... MUST execute 10x dataset size (min 10k) queries per run
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each benchmark run will execute 10x dataset size membership queries (minimum
+    10k).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:51:59Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: 'Theoretical memory formula: bits = n * log2(1/p) / ln(2)^2'
+  claim_id: c_37a47244
+  context: 'T035... Formula: bits = n * log2(1/p) / ln(2)^2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical memory formula used is bits = n * log2(1/p) / ln(2)^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:52:45Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation target is <=15%
+  claim_id: c_485534b4
+  context: "T042... verify reproducibility (\u226415% target) across repetitions"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Coefficient of Variation (CV) of 15% or less is the target for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:52:45Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis H-test used for statistical significance
+  claim_id: c_6c56ab03
+  context: 'Goal: Apply Kruskal-Wallis H-test to determine statistical significance'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Kruskal\u2013Wallis one-way analysis of variance"
+      source_id: Q1790302
+      url: https://www.wikidata.org/wiki/Q1790302
+      value: "Kruskal\u2013Wallis one-way analysis of variance"
+    filled: true
+  kind: entity_fact
+  raw_text: Statistical significance will be tested using the Kruskal-Wallis H-test.
+  resolved_value: "Kruskal\u2013Wallis one-way analysis of variance"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T15:52:57Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Plan artifact states 50 repetitions; document aligns with 5 repetitions
+  claim_id: c_52332d74
+  context: Plan artifact (plan.md) currently states 50 repetitions. This tasks.md
+    file aligns with Constitution Principle VI (5 repetitions).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan artifact states 50 repetitions, but this document aligns with
+    5 repetitions per Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:53:19Z'
+- artifact_path: projects/PROJ-068-evaluating-the-performance-of-different-/specs/001-evaluating-the-performance-of-different/tasks.md
+  attempts: 1
+  canonical: Synthetic data mimics Enron/Google distributions validated via KS-test
+  claim_id: c_50d2285f
+  context: T006... produce log-normal distributed text samples mimicking Enron/Google
+    distributions (validated via KS-test logic)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_mimics_Enron/Google_distributions_validated_v
+  kind: entity_fact
+  raw_text: Synthetic data will mimic Enron/Google distributions validated via KS-test
+    logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:53:44Z'

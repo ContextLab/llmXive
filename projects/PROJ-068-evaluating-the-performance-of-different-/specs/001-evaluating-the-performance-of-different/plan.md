@@ -102,7 +102,7 @@ tests/
 
 ### Phase 0: Research & Feasibility (Pre-Implementation)
 *Goal: Validate dataset availability and theoretical constraints.*
-- **FR-008, SC-005 (Exception)**: Generate Synthetic Data Modeled on Enron/Google Distributions. Validate distribution via Kolmogorov-Smirnov test (max 5 retries).
+- **FR-008, SC-005 (Exception)**: Generate Synthetic Data Modeled on Enron/Google Distributions. Validate distribution via Kolmogorov-Smirnov test (A limited number of retries).
 - **FR-009, Compute Feasibility**: Confirm `bitarray`, `memory-profiler`, and `scipy` run on CPU-only runners.
 - **SC-001, SC-002**: Calculate theoretical memory/latency bounds for 1M elements at [deferred] FPR to ensure feasibility within 7GB RAM.
 - **Output**: `research.md` with dataset strategy, feasibility report, and power analysis.
@@ -146,7 +146,7 @@ tests/
 | High variance (>20% CV) | Increase repetitions to 50; log variance metrics; report "Inconclusive" for small effects. |
 | Hash collision false positives | Use deterministic MurmurHash3; verify observed FPR via Cross-Implementation Consistency. |
 | 6-hour timeout exceeded | **Phased Execution**: Run small sizes first. **Hard Stop**: If [deferred] budget consumed by large sizes, truncate remaining large-size runs to ensure full matrix of smaller sizes completes. |
-| KS-test validation deadlock | **Retry Limit**: Max 5 attempts. If failed, proceed with best-fit parameters and log "degraded" status. |
+| KS-test validation deadlock | **Retry Limit**: A limited number of attempts. If failed, proceed with best-fit parameters and log "degraded" status. |
 
 ## Requirement Exception Log
 

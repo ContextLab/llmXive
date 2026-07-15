@@ -1,0 +1,13 @@
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV files were presented in `results/benchmarks/`, nor any code showing aggregation
+    logic, header formatting, or the required `query_count > 0` validation and abort
+    behavior. Consequently the required artifact is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV files or code implementing the theoretical baseline calculation are present\
+    \ in `results/benchmarks/`, and there is no evidence that the formula `bits =\
+    \ n * log2(1/p) / ln(2)^2` was applied to produce per\u2011element memory or latency\
+    \ values. Consequently the required artifact is missing."

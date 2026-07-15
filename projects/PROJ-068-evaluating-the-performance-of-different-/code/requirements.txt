@@ -1,0 +1,13 @@
+# Core scientific computing
+numpy==1.26.4
+scipy==1.13.0
+
+# Memory profiling
+memory-profiler==0.61.0
+
+# Testing
+pytest==8.1.1
+
+# Bloom filter optimizations
+bitarray==2.9.2
+murmurhash3==1.0.10
