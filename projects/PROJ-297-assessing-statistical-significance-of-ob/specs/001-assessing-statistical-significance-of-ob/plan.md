@@ -155,7 +155,7 @@ projects/PROJ-297-assessing-statistical-significance-of-ob/
 **Goal**: Assess robustness to threshold choice and generate visualizations.
 
 1.  **Threshold Sweep**:
-    *   Re-run the primary analysis (Phases of primary analysis) for thresholds |r| ∈ {low, 0.4, 0.5}, beginning with a low-magnitude baseline.
+    *   Re-run the primary analysis (Phases of primary analysis) for thresholds |r| ∈ {low, moderate, specific}, beginning with a low-magnitude baseline.
     *   Record the variation in significant counts and density metrics.
 
 2.  **Visualization**:

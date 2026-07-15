@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T07:47:40.272135Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-297-assessing-statistical-significance-of-ob
-last_run_id: 0c13b4d1-0060-439e-891f-b8b2e39aa22a
+last_run_id: cdbcf3f4-bf8b-414d-886b-c6fa62254c23
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob
 title: Assessing Statistical Significance of Observed Correlations in Public Databases
-updated_at: '2026-07-04T09:37:59.661352Z'
+updated_at: '2026-07-15T17:33:51.714393Z'

@@ -1,0 +1,26 @@
+T023:
+  c: false
+  h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd
+  r: The required artifact `tests/integration/test_sensitivity.py` does not exist
+    in the repository, so the integration test for the sensitivity sweep is missing.
+    The task cannot be considered completed until this file is added with appropriate
+    test code.
+T024b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file or excerpt showing the Phase\u202F3 narrative was provided,\
+    \ so we cannot verify that the threshold sweep `{0.1, 0.2, 0.3, 0.4, 0.5}` was\
+    \ added as required. The necessary artifact is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any visualization files or reports placed in the required `output/plots/`
+    or `output/reports/` directories was provided; the claim lacks the actual artifacts
+    the task demands.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented, nor any excerpts showing the claimed
+    updates. Without the actual documentation artifacts, we cannot confirm that the
+    required documentation changes were made. The implementer must provide the updated
+    README.md and any modified files in the docs/ directory.
