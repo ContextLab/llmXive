@@ -230,6 +230,73 @@ def test_replan_report_is_deterministic_from_a_status_dict(tmp_path: Path) -> No
     assert graph._write_execution_replan_feedback(pdir, rec) == text
 
 
+def _write_discovery_cache(pdir: Path, record: dict) -> None:
+    import yaml
+
+    mem = pdir / ".specify" / "memory"
+    mem.mkdir(parents=True, exist_ok=True)
+    (mem / "discovered_data_source.yaml").write_text(
+        yaml.safe_dump(record, sort_keys=False), encoding="utf-8"
+    )
+
+
+def test_replan_note_wires_verified_source_when_code_ignored_it(tmp_path: Path) -> None:
+    """PROJ-843 class: a verified real source EXISTS but the code hand-rolled a
+    loader that guessed an id/URL. The re-plan must tell the planner to WIRE the
+    loader to the verified source, not that the data is unavailable."""
+    pdir = tmp_path / "projects" / "PROJ-843-x"
+    pdir.mkdir(parents=True)
+    _write_discovery_cache(pdir, {
+        "status": "verified", "kind": "data_url",
+        "ref": "https://huggingface.co/datasets/DavidYan2001/RealEstate10K/resolve/main/test.tar.gz",
+        "record_count": 7000, "intent": "RealEstate10K test split",
+    })
+    rec = {
+        "reason": "3 fabricated/simulated-result signal(s): synthetic depth maps",
+        "artifacts": [], "failures": ["code/depth.py -> rc=1"], "model_tier": 1,
+    }
+    text = graph._write_execution_replan_feedback(pdir, rec)
+    assert "DATA AVAILABILITY" in text
+    assert "ALREADY EXISTS" in text and "RealEstate10K" in text
+    assert "MUST wire" in text or "must use it".lower() in text.lower()
+
+
+def test_replan_note_steers_gated_data_to_open_substitute(tmp_path: Path) -> None:
+    """Gated data (HCP/ADNI): discovery searched and found NO accessible source.
+    The re-plan must steer to an OPEN dataset for the same question / reframe, and
+    explicitly forbid re-selecting the gated dataset or fabricating."""
+    pdir = tmp_path / "projects" / "PROJ-284-x"
+    pdir.mkdir(parents=True)
+    _write_discovery_cache(pdir, {
+        "status": "none", "intent": "HCP S1200 resting-state fMRI with behavioral scores",
+    })
+    rec = {
+        "reason": "10 fabricated/simulated-result signal(s): synthetic HCP NIfTI",
+        "artifacts": [], "failures": ["code/data/download.py -> rc=1"], "model_tier": 2,
+    }
+    text = graph._write_execution_replan_feedback(pdir, rec)
+    assert "DATA AVAILABILITY" in text
+    assert "found NONE" in text and "HCP" in text
+    assert "OpenNeuro" in text  # names concrete open substitutes
+    assert "do NOT re-select" in text.lower() or "not re-select" in text.lower()
+    assert "fabricate" in text.lower()
+
+
+def test_replan_note_absent_for_pure_code_bug(tmp_path: Path) -> None:
+    """A non-data failure (a plain code bug, real artifacts produced) gets NO
+    data-availability note — the addendum must not fire on every re-plan."""
+    pdir = tmp_path / "projects" / "PROJ-500-x"
+    pdir.mkdir(parents=True)
+    rec = {
+        "reason": "analysis run failed: an assertion in the plotting step",
+        "artifacts": ["figures/hist.png"],
+        "failures": ["code/plot.py -> rc=1\n  AssertionError: bins mismatch"],
+        "model_tier": 0,
+    }
+    text = graph._write_execution_replan_feedback(pdir, rec)
+    assert "DATA AVAILABILITY" not in text
+
+
 def test_below_cap_stays_in_progress_no_tier_change(tmp_path: Path) -> None:
     repo = tmp_path
     pid = "PROJ-023-belowcap"

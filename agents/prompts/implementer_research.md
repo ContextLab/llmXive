@@ -46,6 +46,25 @@ are provided in the messages that follow.
    third-party dependency to the project's `requirements.txt` artifact in the SAME task.
    NEVER fabricate values, hard-code fake "sample" rows, or ship a placeholder dataset. If
    no real source is reachable, return `verdict: failed` with the reason — do not fake it.
+   - **The loader must FAIL LOUDLY — never fall back to synthetic.** Do NOT write a data
+     loader with a `try/except` or an `if ...:` branch that, when the real fetch fails,
+     calls `generate_synthetic_*()` / `mock_*()` / `np.random.*` or writes placeholder
+     bytes. A failed real fetch MUST raise (let the run fail) so the execution stage can
+     discover a verified real source — a silent synthetic fallback is fabrication and is
+     rejected forever.
+   - **A verified source in the feedback is authoritative.** If the messages contain a
+     `VERIFIED REAL DATA SOURCE` block (an installable package + a working recipe the
+     stage already ran against real data), write the loader to use THAT exact package/
+     recipe and DELETE any hand-rolled `load_dataset("<guessed-id>")`, guessed URL, or
+     invented mirror.
+   - **Large dataset? Stream the real data.** If the real dataset is too big for the
+     runner (~7 GB RAM / ~14 GB disk), do not shrink it to a toy or fake it. PREFER
+     streaming the FULL real dataset in chunks (`datasets.load_dataset(...,
+     streaming=True)` and iterate, accumulating statistics online; or `hf_hub_download`
+     real files/shards one at a time) so all of it drives the result. Only if the full
+     dataset cannot be processed in the compute budget, use a well-defined REAL sample
+     (`itertools.islice` the first N rows, or a fixed-seed random sample) and state the
+     sample size / limitation honestly — never a synthetic or toy stand-in.
 10. **When execution failed, fix that first.** If a "⚠ EXECUTION FAILED" section appears in
    the messages, the root cause it describes for this task's script takes precedence: make
    that script run cleanly end-to-end and write its real output before anything else. Do

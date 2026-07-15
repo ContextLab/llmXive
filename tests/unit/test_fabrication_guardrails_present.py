@@ -28,6 +28,26 @@ def test_tasker_forbids_fabrication_tasks() -> None:
     assert "real dataset" in t or "real data" in t
 
 
+def test_data_prompts_forbid_synthetic_fallback_and_require_streaming() -> None:
+    """A data loader that silently falls back to synthetic data when the real
+    fetch fails is the dominant path into fabrication; and large real datasets
+    must be STREAM-sampled, not shrunk to a toy. The generator prompts must say
+    both, and must tell the implementer to adopt an injected verified source."""
+    for name in ("tasker.md", "implementer_research.md"):
+        t = _text(name)
+        # No silent synthetic/mock fallback — a failed real fetch must fail loudly.
+        assert "fail loudly" in t or "fail loudly" in t.replace("-", " ")
+        assert "fallback" in t and ("synthetic" in t or "mock" in t)
+        # Stream a real sample for large data (the free-CI good-fix), not a toy.
+        assert "streaming=true" in t
+        # Adopt the injected verified real source when present.
+        assert "verified real data source" in t
+    # The planner must steer away from access-gated data toward an open substitute.
+    p = _text("planner.md")
+    assert "access-gated" in p or "access gated" in p
+    assert "streaming=true" in p
+
+
 def test_paper_statistics_forbids_fabrication() -> None:
     t = _text("paper_statistics.md")
     assert "never fabricate a statistic" in t

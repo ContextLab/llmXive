@@ -103,6 +103,34 @@ for the cap-hit path and signals `human_input_needed`.
   and `ucimlrepo`/`datasets.load_dataset(...)` are good defaults.
   Do NOT write tasks like "download from UCI" without specifying
   HOW.
+- **Large real datasets: STREAM the real data; never shrink to a toy.** A
+  dataset too big to fit the ~7 GB RAM / ~14 GB disk free runner is NOT a reason
+  to fabricate or to swap in a bundled toy set. PREFER streaming the FULL real
+  dataset and processing it in chunks so the whole thing contributes to the
+  result without ever holding it all in memory: `datasets.load_dataset(name,
+  split=..., streaming=True)` and iterate, accumulating statistics online; or
+  `huggingface_hub.hf_hub_download` real files/shards one at a time. Only if the
+  full dataset genuinely cannot be processed within the compute budget, fall
+  back to a well-defined REAL sample (e.g. `itertools.islice` the first N rows,
+  or a fixed-seed random sample) — and task the code to STATE the sample size
+  and its power/representativeness limitation honestly. A real streamed sample
+  is REAL data (the fabrication gate accepts it); a synthetic or toy stand-in is
+  rejected. State the exact streaming/sampling rule (which split, chunking, how
+  many rows) in the task.
+- **The loader must FAIL LOUDLY, never fall back to synthetic.** NEVER task a
+  data loader with a `try/except` (or an `if download_failed:`) that falls back
+  to `generate_synthetic_*()` / `mock_*()` / random or placeholder data when the
+  real fetch fails. A silent synthetic fallback is the single most common way a
+  project ends up fabricating: the real fetch breaks, the fallback fires, and the
+  gate rejects the invented data forever. A failed real fetch MUST raise (let the
+  run FAIL) so the execution stage discovers a verified real source and re-tries
+  — it must never substitute fake data.
+- **If a verified real data source is injected, USE it.** When the execution
+  feedback contains a "VERIFIED REAL DATA SOURCE" block (an installable package +
+  a working access recipe the stage already executed against real data), the
+  data-loading task MUST adopt that exact package/recipe as the single source of
+  the input — do NOT keep a hand-rolled `load_dataset("<guessed-id>")`, a guessed
+  raw URL, or an invented mirror alongside it.
 - **Real data + real results only — NEVER task fabrication.** Do NOT write a task
   that generates/synthesizes fake INPUT data, hard-codes a "sample"/placeholder
   dataset, or produces a metric from `random.*`/simulated values standing in for a

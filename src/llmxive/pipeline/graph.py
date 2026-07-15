@@ -1167,11 +1167,103 @@ def _write_execution_replan_feedback(
         "CPU-tractable, dependency-light alternative that the free CI can run.",
         "",
     ]
+    lines += _data_availability_replan_note(project_dir, rec)
     text = "\n".join(lines) + "\n"
     memory_dir = project_dir / ".specify" / "memory"
     memory_dir.mkdir(parents=True, exist_ok=True)
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
     return text
+
+
+def _data_availability_replan_note(
+    project_dir: Path, rec: dict[str, Any]
+) -> list[str]:
+    """A DATA-AWARE addendum to the re-plan report (empty when the failure was
+    not data-related).
+
+    The generic "use a CPU-tractable alternative" instruction is blind to WHY a
+    data-blocked project failed, so it lets the planner re-commit to the same
+    unobtainable dataset — which fabricates again. This carries the specific
+    data verdict forward, using the execution stage's verified-source discovery
+    cache (``discovered_data_source.yaml``):
+
+    - VERIFIED source exists but the run still failed (the code ignored it, e.g.
+      hand-rolled a bare ``load_dataset(id)`` or invented a URL — the PROJ-843
+      class): the new plan MUST wire the loader to the verified source/recipe.
+    - Discovery SEARCHED and found NO accessible source (the dataset is
+      access-gated — ADNI/HCP/UK-Biobank/registration-only — or not a public
+      download): RE-PLAN around an OPEN dataset that answers the SAME question,
+      or reframe; never re-select the gated dataset, never fabricate.
+    - A data signal with no discovery cache: steer to an open, directly
+      downloadable dataset for the same question; never fabricate.
+    """
+    blob = (str(rec.get("reason") or "") + " "
+            + " ".join(str(f) for f in (rec.get("failures") or []))).lower()
+    data_signal = any(k in blob for k in (
+        "synthetic", "fabricat", "hollow", "no real data", "dataset", "download",
+        "hfuri", "gated", "unreachable", "datasetnotfound", "data source",
+    ))
+    cached: dict[str, Any] | None = None
+    try:
+        from llmxive.execution.data_source import load_cached_source
+
+        cached = load_cached_source(project_dir)
+    except Exception:  # discovery cache is best-effort context
+        cached = None
+    status = (cached or {}).get("status")
+    intent = str((cached or {}).get("intent") or "").strip()
+    if not (data_signal or status in {"none", "error", "verified"}):
+        return []
+
+    note = ["## Required change — DATA AVAILABILITY", ""]
+    if status == "verified":
+        ref = str(cached.get("ref") or "").strip()
+        count = cached.get("record_count")
+        note += [
+            "A REAL, verified data source for this project ALREADY EXISTS but the "
+            "last run did not use it (it hand-rolled a loader that guessed an id/"
+            "URL). The new plan MUST wire the data loader to this exact source:",
+            "",
+            f"- Install + load **`{ref}`**"
+            + (f" (verified to load {count} real records)." if count else "."),
+            "- Do NOT hand-roll a bare `load_dataset(\"<name>\")`, a guessed raw "
+            "URL, or an invented mirror/baseline repo — use the verified package/"
+            "recipe as the single source of the input data.",
+            "",
+        ]
+    elif status in {"none", "error"}:
+        subj = f" for **{intent[:120]}**" if intent else ""
+        note += [
+            f"An automated search for a programmatically-accessible real source"
+            f"{subj} found NONE: the dataset is either access-gated (it needs "
+            "registration / a data-use agreement, e.g. ADNI, HCP, UK Biobank, "
+            "clinical records) or is not a public download. Re-downloading it "
+            "will NEVER succeed on the free CI runner. Therefore:",
+            "",
+            "- RE-PLAN around an OPEN, directly-downloadable dataset that supports "
+            "the SAME research question (candidate open repositories: OpenNeuro, "
+            "UCI ML Repository, Hugging Face Datasets, Zenodo, OpenML, or a "
+            "domain-specific open archive), OR reframe the question to one "
+            "answerable with available open data — and say so honestly.",
+            "- Do NOT re-select the same gated/private dataset, and do NOT "
+            "fabricate or substitute synthetic/mock/placeholder data for it "
+            "(a result on invented data is rejected by the fabrication gate).",
+            "",
+        ]
+    else:
+        note += [
+            "The last run failed to obtain REAL input data. RE-PLAN around an "
+            "OPEN, directly-downloadable dataset that supports the same research "
+            "question (correct the dataset's canonical id, use a public mirror, "
+            "or switch to an equivalent open dataset on OpenNeuro / UCI / Hugging "
+            "Face / Zenodo). For a large dataset, stream a small REAL sample "
+            "(`load_dataset(..., streaming=True)` and take the first N real rows, "
+            "or `hf_hub_download` a single file) rather than the whole corpus. Do "
+            "NOT fabricate or substitute synthetic/mock data for the real "
+            "dataset — it is rejected by the fabrication gate.",
+            "",
+        ]
+    return note
 
 
 def _archive_idea_files(project_dir: Path) -> list[tuple[str, str]]:

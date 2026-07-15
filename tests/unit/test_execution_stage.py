@@ -305,12 +305,77 @@ def test_fabrication_feedback_steers_gpu_work_to_kaggle_offload(tmp_path) -> Non
     assert "do NOT add a silent CPU fallback" in fb.lower() or "silent CPU fallback" in fb
 
 
+def test_needs_verified_source_fires_on_fabrication_hollow_and_data_unavailable() -> None:
+    """The verified-real-data-source discovery bridge must trigger on the failure
+    modes a project falls into BECAUSE it has no real source — fabricated input
+    data, hollow (null/empty) results, or a data-unavailable command failure —
+    not only on a MISSING data/ deliverable. A fabricating project's fake files
+    EXIST on disk (declared_missing empty, artifacts produced), so the old
+    missing-deliverable-only check never fired and the project was told 'don't
+    fake it' without ever being handed a real source (it then churned forever)."""
+    from types import SimpleNamespace
+
+    from llmxive.execution.stage import _needs_verified_source
+
+    def res(**kw):
+        base = dict(reason="x", declared_missing=[], artifacts_produced=["figures/f.png"],
+                    fabrication=[], hollow=[])
+        base.update(kw)
+        return SimpleNamespace(**base)
+
+    # Fabricated INPUT data — the largest data-blocked class.
+    assert _needs_verified_source(
+        res(fabrication=["code/data/download.py: synthetic/fake INPUT data"]), [])
+    # Hollow results (a stand-in / empty dataset was loaded).
+    assert _needs_verified_source(
+        res(hollow=["data/processed/metrics.json: results file is empty"]), [])
+    # Data-unavailable command failure (renamed/gated HF dataset).
+    assert _needs_verified_source(res(), [
+        "python code/data_loader.py -> rc=1\n  HfUriError: Repository id must be "
+        "'namespace/name', got 'openai_humaneval'"])
+    # Missing data/ deliverable (the original trigger — still fires).
+    assert _needs_verified_source(res(declared_missing=["data/processed/x.csv"]), [])
+    # Negative control: an ordinary code bug with real artifacts produced and no
+    # fabrication/hollow/data signal must NOT trigger discovery (no over-firing).
+    assert not _needs_verified_source(res(), ["python code/plot.py -> rc=1\n  KeyError: 'col'"])
+
+
+def test_fabrication_triggers_real_data_source_discovery(tmp_path, monkeypatch) -> None:
+    """End-to-end: a FABRICATION failure now injects the VERIFIED REAL DATA SOURCE
+    block into execution_feedback.md (Fix B). Previously the discovery bridge was
+    gated on a missing data/ deliverable, so fabricating projects — whose fake
+    data files exist — never received a real source and could only keep
+    fabricating. We patch discovery to return a verified record and assert the
+    real (unpatched) renderer's block lands in the feedback."""
+    from types import SimpleNamespace
+
+    import llmxive.execution.data_source as data_source
+    from llmxive.execution.stage import _FEEDBACK_FILENAME, _write_execution_feedback
+
+    monkeypatch.setattr(data_source, "ensure_discovered_source", lambda project_dir: {
+        "status": "verified", "kind": "pypi_package", "ref": "ucimlrepo",
+        "record_count": 4898, "sample_fields": ["fixed_acidity", "quality"],
+        "access_python": "from ucimlrepo import fetch_ucirepo\nd = fetch_ucirepo(id=186)",
+    })
+
+    mem = tmp_path / "projects" / "PROJ-999-x" / ".specify" / "memory"
+    mem.mkdir(parents=True)
+    res = SimpleNamespace(
+        reason="fabricated", declared_missing=[], artifacts_produced=["data/fake.csv"],
+        fabrication=["code/data/ingestion.py: synthetic/fake INPUT data not measured"],
+        hollow=[],
+    )
+    _write_execution_feedback(mem, res, failures=[])
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "VERIFIED REAL DATA SOURCE" in fb
+    assert "ucimlrepo" in fb and "fetch_ucirepo" in fb
+
+
 def test_pipeline_workflow_passes_kaggle_secret_to_execution_lane() -> None:
     """The execution gate (which dispatches the GPU offload) runs in the
     llmxive-pipeline.yml `Run pipeline` step. That step MUST pass KAGGLE_API_TOKEN
     or `offload.is_available()` is False and GPU papers fall back to a doomed CPU
     run that fabricates. advance.yml already passes it; the main lane must too."""
-    from pathlib import Path
 
     from llmxive.config import repo_root
     wf = (repo_root() / ".github" / "workflows" / "llmxive-pipeline.yml").read_text(encoding="utf-8")

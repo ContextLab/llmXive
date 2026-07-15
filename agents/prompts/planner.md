@@ -109,6 +109,34 @@ the GPU escape hatch below:
   and (if any) which genuinely need the scaled GPU form. Never fabricate a CPU
   approximation of a method that truly needs a GPU — plan the real scaled GPU run.
 
+## Data availability (plan around data you can actually obtain)
+
+A plan whose input data cannot be downloaded on the free CI runner produces no
+real results — the implementer either fails or (worse) fabricates. Plan for REAL,
+obtainable data:
+
+- **Prefer OPEN, directly-downloadable datasets.** Choose a dataset with a public
+  programmatic download (a Hugging Face dataset, a `ucimlrepo`/`openml` id, an
+  OpenNeuro/Zenodo/figshare record, a direct file URL). These run unattended on
+  CI; a portal that only offers an interactive search box does not.
+- **Access-gated data is a fatal feasibility flaw unless an open substitute is
+  named.** Datasets that require registration, credentials, or a data-use
+  agreement (e.g. ADNI, HCP, UK Biobank, dbGaP, most clinical/EHR data) CANNOT be
+  fetched by the CI runner. If the study needs such data, either (a) plan an OPEN
+  dataset that supports the SAME question (name it, verified) and design around
+  it, or (b) state explicitly that no open source exists and reframe the question
+  — never plan as if the gated dataset were downloadable (the implementer would
+  then invent a fake mirror or synthesize the data, which the fabrication gate
+  rejects).
+- **Large real datasets: plan to STREAM the real data, not to shrink to a toy.**
+  When the full dataset exceeds ~7 GB RAM / ~14 GB disk, plan to stream it
+  (`datasets.load_dataset(..., streaming=True)`, iterate + accumulate statistics
+  online; or `hf_hub_download` real files/shards one at a time) so the FULL real
+  dataset drives the result. Only if the full dataset cannot be processed in the
+  compute budget, plan a well-defined REAL sample (first-N rows / fixed-seed
+  random sample) and note the power limitation honestly. NEVER plan a synthetic
+  stand-in or a bundled toy dataset in place of the real data.
+
 ## Rules
 
 - Plan MUST include a Constitution Check section that references

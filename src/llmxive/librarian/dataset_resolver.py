@@ -251,6 +251,25 @@ _INTENT_STOPWORDS = frozenset({
     "github", "gitlab", "huggingface", "pytorch", "tensorflow", "openml",
     "scikitlearn", "jupyterlab", "deepmind", "openai", "wandb", "dataframe",
     "dataloader", "dataframes", "dataloaders", "numpy", "pandas", "matplotlib",
+    # DOMAIN file-format acronyms — a format is NOT a dataset. Extracting e.g.
+    # "CIF" (crystallographic format) fuzzy-matched the real `cifar10` image set
+    # and was "verified" as the wrong dataset; the study then loaded garbage.
+    # (Note: real datasets whose NAME embeds a format token — CIFAR10 — are NOT
+    # here; only the bare format acronym is filtered.)
+    "cif", "vcf", "sdf", "mol", "bam", "sam", "cram", "fasta", "fastq", "nifti",
+    "nii", "dicom", "dcm", "pdb", "mtx", "wav", "midi", "edf", "bids", "gff",
+    "gtf", "bed", "bigwig", "netcdf", "geojson", "shp", "las", "obj", "ply",
+    # STATISTICAL / ML MODEL, METHOD, and METRIC acronyms — a method or a metric
+    # is NOT a dataset. "ARIMA"→an anime dataset, "GMM"→GMM-Sefai, "MSE"→alpaca-es,
+    # "ADVI"/"DP-GMM" unresolved: extracting these produced junk fuzzy-matches.
+    "arima", "sarima", "sarimax", "garch", "gmm", "dpgmm", "dp-gmm", "hmm", "hdp",
+    "pca", "ica", "lda", "qda", "svm", "svr", "knn", "cnn", "rnn", "lstm", "gru",
+    "gan", "vae", "mlp", "gnn", "gcn", "gat", "mcmc", "hmc", "advi", "elbo",
+    "vi", "em", "map", "mle", "mse", "rmse", "mae", "mape", "smape", "auc",
+    "auroc", "auprc", "roc", "sgd", "adam", "adamw", "rmsprop", "relu", "gelu",
+    "anova", "ancova", "manova", "ols", "gls", "wls", "glm", "gam", "ridge",
+    "lasso", "elasticnet", "xgboost", "lightgbm", "catboost", "ppca", "tsne",
+    "umap", "kmeans", "dbscan", "rl", "ppo", "dqn", "sac", "a2c", "trpo",
 })
 
 

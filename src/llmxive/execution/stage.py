@@ -83,13 +83,44 @@ def _compute_infra_failures(failures: list[str]) -> list[str]:
 def _data_unavailable_failures(failures: list[str]) -> list[str]:
     """Failing commands whose error signals the external DATA SOURCE is
     unreachable on the free CI runner (renamed/removed HF dataset, gated, or
-    needs network) — the fix is to REPLACE the load with a small in-repo
-    synthetic/sampled input, NOT to re-try the download."""
+    needs network). Re-trying the download AS-IS never succeeds; the fix is a
+    CORRECT real source — the current canonical id, a public mirror, a
+    verified installable dataset package, or (if that exact dataset is truly
+    unreachable) a DIFFERENT genuinely-public dataset that supports the same
+    analysis. NEVER substitute synthetic/fake input for the real data (the
+    fabrication gate rejects it); a real source is discovered + injected via
+    :func:`_needs_verified_source` below."""
     out: list[str] = []
     for f in failures:
         if _DATA_UNAVAILABLE_RE.search(f):
             out.append(f.split(" -> rc=", 1)[0].strip())
     return out
+
+
+def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
+    """True when the failure signals the project lacks a REAL, programmatically
+    reachable data source — the exact case data-source discovery exists to fix.
+
+    Fires not only when a declared ``data/`` deliverable is MISSING, but also
+    when the run FABRICATED input data, produced HOLLOW (null/NaN/empty)
+    results, or a command failed with a data-unavailable signature. Those are
+    the failure modes a project falls into *because* it has no real source to
+    load — yet the fabricated/hollow files EXIST on disk, so the narrow
+    missing-deliverable check never fired and the implementer was told "don't
+    fake it" without ever being handed a real source to use instead (it then
+    churns to the re-plan cap). A project that genuinely needs no external data
+    (a self-generated simulation study) distils no data intent, so discovery
+    returns "none" and no block is injected — over-firing here is safe + cheap
+    (the result is cached per project)."""
+    if any(str(d).startswith("data/") for d in res.declared_missing):
+        return True
+    if not res.artifacts_produced and "data" in (res.reason or "").lower():
+        return True
+    if getattr(res, "fabrication", None):
+        return True
+    if getattr(res, "hollow", None):
+        return True
+    return bool(_data_unavailable_failures(failures))
 
 #: Import name → PyPI distribution name, for the common cases where they differ
 #: (a bare ``pip install <import-name>`` would 404). Unmapped names install as-is.
@@ -650,15 +681,17 @@ def _write_execution_feedback(
         lines += ["", "## Declared deliverables still missing", ""]
         lines.extend(f"- {d}" for d in res.declared_missing)
 
-    # If a DATA deliverable is missing, the loader almost certainly lacks a real,
-    # programmatically-accessible source (the implementer can't search, so it
-    # hallucinates a fake endpoint). Discover + verify a real source ONCE and
-    # inject it so the next implementer tick writes a loader that fetches REAL
-    # data. Best-effort: discovery failure just omits the block.
-    data_missing = any(
-        d.startswith("data/") for d in res.declared_missing
-    ) or (not res.artifacts_produced and "data" in (res.reason or ""))
-    if data_missing:
+    # When the failure signals the project lacks a real, programmatically
+    # accessible data source — a MISSING data/ deliverable, but ALSO FABRICATED
+    # input data, HOLLOW results, or a data-unavailable command failure — the
+    # loader almost certainly has no real source (the implementer can't search,
+    # so it hallucinates a fake endpoint or falls back to synthetic data).
+    # Discover + verify a real source ONCE and inject it so the next implementer
+    # tick writes a loader that fetches REAL data. This is what routes a verified
+    # dataset to the projects that are fabricating for lack of one — the largest
+    # data-blocked class. Best-effort: discovery failure (or a project needing no
+    # external data) just omits the block.
+    if _needs_verified_source(res, failures):
         try:
             from llmxive.execution.data_source import (
                 ensure_discovered_source,

@@ -72,6 +72,7 @@ def test_openml_wired_into_resolver_source_aggregation():
     # Regression guard: OpenML must remain in the resolver's source set, else the
     # coverage silently drops back to the pre-fix registries.
     import inspect
+
     from llmxive.librarian import dataset_resolver
     assert "search_openml" in inspect.getsource(dataset_resolver)
 
@@ -116,5 +117,30 @@ def test_extract_dataset_intents_catches_camelcase_dataset_names():
     line = "The dataset loads ImageNet and WikiText via PyTorch DataLoader from GitHub."
     intents = extract_dataset_intents(line)
     assert "ImageNet" in intents and "WikiText" in intents
+
+
+def test_extract_dataset_intents_filters_formats_and_model_names():
+    # Domain FILE FORMATS and statistical/ML MODEL/METRIC names are NOT datasets;
+    # extracting them fuzzy-matched unrelated real datasets that then "verified"
+    # (CIF->cifar10, ARIMA->an anime set, GMM->GMM-Sefai, MSE->alpaca-es), so the
+    # study loaded the wrong data. They must be filtered — WITHOUT filtering real
+    # dataset names that merely embed a format token (CIFAR10, not CIF).
+    from llmxive.librarian.dataset_resolver import (
+        _is_dataset_intent,
+        extract_dataset_intents,
+    )
+    for fmt in ["CIF", "VCF", "SDF", "BAM", "FASTQ", "NIfTI", "DICOM", "PDB"]:
+        assert not _is_dataset_intent(fmt), f"format {fmt} must be filtered"
+    for method in ["ARIMA", "GMM", "DP-GMM", "ADVI", "MSE", "RMSE", "ANOVA",
+                   "PCA", "SVM", "LSTM", "GNN"]:
+        assert not _is_dataset_intent(method), f"method/metric {method} must be filtered"
+    # Real dataset names that embed or resemble a format/method token are KEPT.
+    for real in ["CIFAR10", "QM9", "HCP", "ImageNet"]:
+        assert _is_dataset_intent(real), f"{real} must be kept"
+    spec = ("We fit an ARIMA model and a GMM, reporting MSE; the crystal dataset "
+            "ships as CIF while the genomics dataset ships as VCF.")
+    intents = extract_dataset_intents(spec)
+    for noise in ("ARIMA", "GMM", "MSE", "CIF", "VCF"):
+        assert noise not in intents
     for tool in ("PyTorch", "GitHub", "DataLoader"):
         assert tool not in intents
