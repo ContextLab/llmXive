@@ -1,5 +1,6 @@
 """
 Sensitivity analysis module for varying solar wind speed thresholds.
+Implements FR-007 and SC-003.
 """
 import numpy as np
 import pandas as pd
@@ -9,92 +10,113 @@ from .correlation import calculate_correlation
 from .lag_search import find_optimal_lag
 
 def analyze_thresholds(
-    df_vsw: pd.DataFrame,
-    df_ey: pd.DataFrame,
+    df_vsw: pd.DataFrame, 
+    df_ey: pd.DataFrame, 
     thresholds: List[float],
-    lag_min: int = LAG_WINDOW_MIN,
-    lag_max: int = LAG_WINDOW_MAX,
+    lag_window_min: int = LAG_WINDOW_MIN,
+    lag_window_max: int = LAG_WINDOW_MAX,
     lag_step: int = LAG_STEP
-) -> List[Dict[str, float]]:
+) -> Dict[str, List[Dict[str, float]]]:
     """
-    Analyzes the correlation between Vsw and Ey for subsets of data exceeding
-    specific solar wind speed thresholds.
-
+    Performs sensitivity analysis by filtering data based on Vsw thresholds
+    and recomputing correlations and optimal lags.
+    
     Args:
-        df_vsw: DataFrame with 'timestamp' and 'Vsw' columns.
-        df_ey: DataFrame with 'timestamp' and 'Ey' columns.
-        thresholds: List of Vsw thresholds (km/s) to filter by.
-        lag_min, lag_max, lag_step: Parameters for lag search.
-
+        df_vsw: DataFrame with 'Vsw' column
+        df_ey: DataFrame with 'Ey' column
+        thresholds: List of Vsw thresholds (km/s) to test (e.g., [400, 500, 600])
+        lag_window_min: Minimum lag to search
+        lag_window_max: Maximum lag to search
+        lag_step: Step size for lag search
+    
     Returns:
-        A list of dictionaries, each containing the threshold and the resulting
-        optimal lag and correlation value.
+        Dictionary containing sensitivity results keyed by threshold.
+        Structure: { "sensitivity_table": [ {"threshold": 400, "pearson": 0.5, ...}, ... ] }
     """
     results = []
     
-    # Merge data first to ensure alignment
-    # We assume df_vsw and df_ey are already cleaned/resampled
-    df_merged = pd.merge_asof(
-        df_vsw.sort_values('timestamp'),
-        df_ey.sort_values('timestamp'),
-        on='timestamp',
-        direction='nearest'
-    ).dropna()
-
     for thresh in thresholds:
-        # Filter data where Vsw > threshold
-        mask = df_merged['Vsw'] > thresh
-        subset = df_merged[mask]
-
-        if len(subset) < 10:
+        # Filter data: Vsw > threshold
+        mask = df_vsw['Vsw'] > thresh
+        if mask.sum() < 10: # Minimum sample size check
             results.append({
-                "threshold_kms": float(thresh),
-                "n_samples": len(subset),
-                "optimal_lag_minutes": None,
-                "correlation": None,
+                "threshold": thresh,
+                "pearson": None,
+                "spearman": None,
+                "optimal_lag": None,
+                "n_samples": int(mask.sum()),
                 "status": "insufficient_data"
             })
             continue
 
-        # Run lag search on the subset
+        vsw_sub = df_vsw[mask].copy()
+        ey_sub = df_ey.loc[mask].copy()
+        
+        # Ensure alignment after filtering (resample if needed, but assume clean input)
+        # Re-index to align indices
+        common_idx = vsw_sub.index.intersection(ey_sub.index)
+        vsw_sub = vsw_sub.loc[common_idx]
+        ey_sub = ey_sub.loc[common_idx]
+
+        if len(vsw_sub) < 10:
+            results.append({
+                "threshold": thresh,
+                "pearson": None,
+                "spearman": None,
+                "optimal_lag": None,
+                "n_samples": len(vsw_sub),
+                "status": "insufficient_data_after_alignment"
+            })
+            continue
+
         try:
-            # We need to pass the subset's Vsw and Ey series to find_optimal_lag
-            # find_optimal_lag expects (df_vsw, df_ey, ...) but internally accesses columns
-            # We need to adapt or create a temporary dataframe structure
-            # To avoid modifying find_optimal_lag signature, we create temp DFs
-            temp_vsw = subset[['timestamp', 'Vsw']].reset_index(drop=True)
-            temp_ey = subset[['timestamp', 'Ey']].reset_index(drop=True)
-            
-            optimal_lag, corr_val = find_optimal_lag(
-                temp_vsw, temp_ey, lag_min, lag_max, lag_step
+            # Find optimal lag for this subset
+            opt_lag, max_corr, _ = find_optimal_lag(
+                vsw_sub['Vsw'], 
+                ey_sub['Ey'],
+                min_lag=lag_window_min,
+                max_lag=lag_window_max,
+                step=lag_step
             )
             
+            # Apply shift and calculate final correlation
+            vsw_aligned, ey_aligned = apply_lag_shift(
+                pd.DataFrame({'Vsw': vsw_sub['Vsw']}), 
+                pd.DataFrame({'Ey': ey_sub['Ey']}), 
+                opt_lag
+            )
+            
+            pearson_r, spearman_r = calculate_correlation(vsw_aligned['Vsw'], ey_aligned['Ey'])
+            
             results.append({
-                "threshold_kms": float(thresh),
-                "n_samples": len(subset),
-                "optimal_lag_minutes": float(optimal_lag),
-                "correlation": float(corr_val),
+                "threshold": float(thresh),
+                "pearson": float(pearson_r),
+                "spearman": float(spearman_r),
+                "optimal_lag": float(opt_lag),
+                "n_samples": len(vsw_sub),
                 "status": "ok"
             })
         except Exception as e:
             results.append({
-                "threshold_kms": float(thresh),
-                "n_samples": len(subset),
-                "optimal_lag_minutes": None,
-                "correlation": None,
+                "threshold": float(thresh),
+                "pearson": None,
+                "spearman": None,
+                "optimal_lag": None,
+                "n_samples": len(vsw_sub),
                 "status": f"error: {str(e)}"
             })
 
-    return results
+    return {"sensitivity_table": results}
 
 def run_sensitivity_sweep(
     df_vsw: pd.DataFrame,
     df_ey: pd.DataFrame,
-    thresholds: Optional[List[float]] = None
+    min_thresh: float = 300,
+    max_thresh: float = 800,
+    step: float = 50
 ) -> List[Dict[str, float]]:
     """
-    Convenience wrapper to run sensitivity analysis with default thresholds.
+    Runs a continuous sweep of thresholds.
     """
-    if thresholds is None:
-        thresholds = [400, 500, 600]
+    thresholds = list(np.arange(min_thresh, max_thresh + step, step))
     return analyze_thresholds(df_vsw, df_ey, thresholds)

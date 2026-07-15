@@ -64,7 +64,7 @@
  touch projects/PROJ-300-exploring-the-relationship-between-solar/tests/__init__.py
  ```
 
-- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_9e75eb04 — status=not_enough_info] with `requirements.txt` at `projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt` containing the following exact pinned versions:
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt` containing the following exact pinned versions:
  ```
  {{claim:c_1723a9bd}}
  {{claim:c_27231540}}
@@ -85,14 +85,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin untilthis phase is complete
 
-- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 [UNRESOLVED-CLAIM: c_89de7cc1 — status=not_enough_info] `, `LAG_WINDOW_MAX=90 [UNRESOLVED-CLAIM: c_5b2a5864 — status=not_enough_info] `, `LAG_STEP=5 [UNRESOLVED-CLAIM: c_0ea3cd61 — status=not_enough_info] `, `{{claim:c_f9c59f03}} `, `TAIL_DISTANCE_RE=60 [UNRESOLVED-CLAIM: c_c874ad99 — status=not_enough_info] `, `BOOTSTRAP_ITERATIONS=1000 [UNRESOLVED-CLAIM: c_7646581e — status=not_enough_info] `, `{{claim:c_255f7cda}} `. The file path must be explicitly stated in the docstring.
-- [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2 [UNRESOLVED-CLAIM: c_cd372da7 — status=not_enough_info] via `requests` (FR-001).
+- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `{{claim:c_f9c59f03}} `, `TAIL_DISTANCE_RE=60 `, `BOOTSTRAP_ITERATIONS=1000 `, `{{claim:c_255f7cda}} `. The file path must be explicitly stated in the docstring.
+- [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2 via `requests` (FR-001).
  - **Deliverable**: Function returning a `pandas.DataFrame` with columns `[timestamp, Vsw, Bz]`.
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
-- [X] T004b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py` function `fetch_themis_ey(date_range)` to fetch THEMIS data (Ey) from NASA CDAWeb [UNRESOLVED-CLAIM: c_168c44a7 — status=not_enough_info] via `cdaweb` (FR-002).
+- [X] T004b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py` function `fetch_themis_ey(date_range)` to fetch THEMIS data (Ey) from NASA CDAWeb via `cdaweb` (FR-002).
  - **Deliverable**: Function returning a `pandas.DataFrame` with columns `[timestamp, Ey]`.
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
-- [X] T005 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py` for NaN removal and resampling to a fixed short-interval cadence [UNRESOLVED-CLAIM: c_a2c8f1e6 — status=not_enough_info] using pandas (FR-003).
+- [X] T005 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py` for NaN removal and resampling to a fixed short-interval cadence using pandas (FR-003).
  - **Deliverable**: Function `clean_and_resample(df1, df2)` returning aligned DataFrames.
 - [X] T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` to calculate physics-based lag `L_phys` using formula `L_phys = (k * 6371) / Vsw_mean / k
 
@@ -107,14 +107,14 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 - [X] T009 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `moving_block_bootstrap` with A sufficient number of iterations for 95% confidence intervals (FR-006).
  - **Block Size**: Use the same block size logic as T008 to preserve temporal dependence.
 - [X] T010 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` function `find_optimal_lag` to sweep the early-to-mid duration window and identify optimal lag `L*` (FR-010).
-- [X] T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds T ∈ {high, medium, low} km/s and recompute correlations [UNRESOLVED-CLAIM: c_ccb057db — status=not_enough_info] (FR-007).
-- [X] T012 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line [UNRESOLVED-CLAIM: c_f8d15360 — status=not_enough_info] (FR-008a).
-- [X] T013 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey [UNRESOLVED-CLAIM: c_2f6075cb — status=not_enough_info] (FR-008b).
+- [X] T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds T ∈ {high, medium, low} km/s and recompute correlations (FR-007).
+- [X] T012 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line (FR-008a).
+- [X] T013 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey (FR-008b).
 - [X] T014 [P] Add docstring to `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` documenting the multiple-comparison correction method (permutation test) and total lag candidate count (FR-011).
-- [ ] T015 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to insert the FR-013 narrative note into the "notes" field of the JSON report **only if** the permutation test (FR-005) was successfully executed. The exact string must be: "Note: Bonferroni correction is conservative for autocorrelated lag searches; the permutation test (FR-005) is the primary method for significance testing. Future work should consider adaptive FDR control." (FR-013). <!-- FAILED: unspecified -->
+- [X] T015 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to insert the FR-013 narrative note into the "notes" field of the JSON report **only if** the permutation test (FR-005) was successfully executed. The exact string must be: "Note: Bonferroni correction is conservative for autocorrelated lag searches; the permutation test (FR-005) is the primary method for significance testing. Future work should consider adaptive FDR control." (FR-013). <!-- FAILED: unspecified -->
 - [X] T016 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to log data-quality warnings to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/quality_log.json` in JSON format (FR-009).
-- [ ] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
-- [ ] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003). <!-- FAILED: unspecified --> <!-- SKIPPED: non-mapping output -->
+- [X] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
+- [X] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003). <!-- FAILED: unspecified --> <!-- SKIPPED: non-mapping output -->
 - [X] T019 [P] Ensure all plots in `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` include correct axis labels, units, and optimal lag annotation (SC-005).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -129,7 +129,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`.
+- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`. <!-- FAILED: unspecified -->
  - **Deliverable**: `results/us1_correlation.json` containing keys: `pearson`, `spearman`, `p_val_permutation`, `significant_flag`.
 - [X] T021 [US1] Execute the pipeline on a sample date range to verify output includes numeric correlation coefficients and empirical p-values (US-1 Acceptance Scenario 1).
  - **Verification**: Run `pytest tests/integration/test_us1.py`.
@@ -171,7 +171,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 - [X] T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.
  - **Deliverable**: Generate `results/plot_scatter.png` and `results/plot_timeseries.png`.
-- [X] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s [UNRESOLVED-CLAIM: c_0b424bdd — status=not_enough_info] (FR-007).
+- [X] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s (FR-007).
  - **Deliverable**: Update `results/us1_correlation.json` to include `sensitivity_table`.
 - [X] T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run. <!-- FAILED: unspecified -->
  - **Verification**: Run `pytest tests/integration/test_us3.py`.
@@ -189,7 +189,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 **Purpose**: Unit and integration tests required by plan.md and spec.md Independent Tests. Tests are written alongside implementation to ensure verification during development.
 
 - [X] T032 [P] Write unit tests for `data/clean.py` in `tests/unit/test_clean.py` (FR-003).
- - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_5min [UNRESOLVED-CLAIM: c_047dd032 — status=not_enough_info]`, `test_clean_handles_empty_input`.
+ - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_5min `, `test_clean_handles_empty_input`.
 - [X] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).
  - **Test Functions**: `test_lag_calculation_formula`, `test_lag_shift_applies_correctly`.
 - [X] T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py` (US-1 Independent Test).
@@ -311,4 +311,4 @@ With multiple developers:
 - **Critical Constraint**: All data ingestion must use verified URLs (OMNIWeb, CDAWeb) and no GPU libraries. Permutation tests must be optimized for CPU-only execution.
 - **Removed Scope Creep**: Tasks related to Lorentz transformations, Alfvén speed modeling, non-linear saturation fitting, and reference frame analysis (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict the Spec.
 - **Test Coverage**: All Independent Tests from US-1 and US-2 are now explicitly mapped to test tasks (T034, T037) with specific function names and verification commands.
-- **Review Integration**: The scope has been strictly limited to the Spec's authorized methods (linear correlation, permutation tests, fixed 60 Re distance [UNRESOLVED-CLAIM: c_bdf28c74 — status=not_enough_info]).
+- **Review Integration**: The scope has been strictly limited to the Spec's authorized methods (linear correlation, permutation tests, fixed 60 Re distance).

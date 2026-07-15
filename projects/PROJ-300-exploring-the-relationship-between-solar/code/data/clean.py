@@ -1,7 +1,6 @@
 """
 Data cleaning and resampling module.
-Implements FR-003: NaN removal and resampling to fixed short-interval cadence.
-File path: code/data/clean.py
+File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py
 """
 import pandas as pd
 import numpy as np
@@ -10,50 +9,37 @@ from datetime import timedelta
 
 def clean_and_resample(df1: pd.DataFrame, df2: pd.DataFrame, freq: str = '5min') -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Clean and resample two DataFrames to a common time index.
+    Removes NaNs and resamples both DataFrames to a fixed cadence.
     
     Args:
-        df1: First DataFrame (e.g., Solar Wind data) with 'timestamp' column.
-        df2: Second DataFrame (e.g., THEMIS Ey data) with 'timestamp' column.
-        freq: Target frequency string for resampling (default '5min').
+        df1: DataFrame with solar wind data (must have 'timestamp' or datetime index)
+        df2: DataFrame with THEMIS data
+        freq: Resampling frequency (default '5min')
     
     Returns:
-        Tuple of (cleaned_df1, cleaned_df2) aligned to the same time index.
-    
-    Raises:
-        ValueError: If 'timestamp' column is missing or data is empty after cleaning.
+        Tuple of (cleaned_df1, cleaned_df2) aligned on timestamp
     """
-    # Ensure timestamp is datetime and set as index
+    # Ensure timestamp columns are datetime and set as index
     for df in [df1, df2]:
-        if 'timestamp' not in df.columns:
-            raise ValueError("Input DataFrames must contain a 'timestamp' column.")
-        df = df.copy()
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df.set_index('timestamp', inplace=True)
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df = df.set_index('timestamp')
+        elif not isinstance(df.index, pd.DatetimeIndex):
+            raise ValueError("Input DataFrames must have a 'timestamp' column or a DatetimeIndex.")
     
-    # Remove NaN rows
-    df1_clean = df1.dropna()
-    df2_clean = df2.dropna()
+    # Resample to fixed frequency (forward fill then drop NaNs to handle gaps)
+    df1_resampled = df1.resample(freq).mean()
+    df2_resampled = df2.resample(freq).mean()
     
-    if df1_clean.empty or df2_clean.empty:
-        raise ValueError("DataFrames are empty after NaN removal.")
+    # Drop rows with NaNs in key columns
+    # Assuming key columns are Vsw for df1 and Ey for df2
+    key_cols_1 = [c for c in ['Vsw', 'Bz'] if c in df1_resampled.columns]
+    key_cols_2 = [c for c in ['Ey'] if c in df2_resampled.columns]
     
-    # Resample to common frequency (forward fill then back fill to handle gaps)
-    df1_resampled = df1_clean.resample(freq).mean()
-    df2_resampled = df2_clean.resample(freq).mean()
-    
-    # Interpolate missing values within the new index
-    df1_resampled = df1_resampled.interpolate(method='linear')
-    df2_resampled = df2_resampled.interpolate(method='linear')
-    
-    # Drop any remaining NaNs
-    df1_final = df1_resampled.dropna()
-    df2_final = df2_resampled.dropna()
+    df1_clean = df1_resampled.dropna(subset=key_cols_1)
+    df2_clean = df2_resampled.dropna(subset=key_cols_2)
     
     # Align indices
-    common_index = df1_final.index.intersection(df2_final.index)
+    common_index = df1_clean.index.intersection(df2_clean.index)
     
-    if len(common_index) == 0:
-        raise ValueError("No common time indices found after resampling.")
-    
-    return df1_final.loc[common_index], df2_final.loc[common_index]
+    return df1_clean.loc[common_index], df2_clean.loc[common_index]
