@@ -6,8 +6,8 @@ required:
   - model_id
   - coefficients
   - p_values
+  - p_values_corrected
   - vif_scores
-  - mediation_effects
   - robustness_metrics
 properties:
   model_id:
@@ -17,7 +17,7 @@ properties:
   model_type:
     type: string
     enum:
-      - Mixed-Effects Regression
+      - Fixed-Effects Regression
     description: "Type of model fitted"
   coefficients:
     type: object
@@ -31,7 +31,14 @@ properties:
       type: number
   p_values:
     type: object
-    description: "P-values (Benjamini-Hochberg FDR corrected)"
+    description: "Raw p-values"
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  p_values_corrected:
+    type: object
+    description: "Bonferroni corrected p-values"
     additionalProperties:
       type: number
       minimum: 0
@@ -42,50 +49,31 @@ properties:
     additionalProperties:
       type: number
       minimum: 1
-  random_effects:
+  fixed_effects:
     type: object
-    description: "Variance components for random effects (Region, Country)"
+    description: "Fixed effect coefficients for Country Dummies"
     properties:
-      region_variance:
+      KEN:
         type: number
-      country_variance:
+      IND:
         type: number
-      residual_variance:
+      VNM:
         type: number
-  mediation_effects:
-    type: object
-    description: "Results from mediation analysis (indirect and direct effects)"
-    properties:
-      direct_effect_csa:
-        type: number
-        description: "Direct effect of CSA on food security"
-      indirect_effect_digital:
-        type: number
-        description: "Indirect effect via digital access"
-      indirect_effect_finance:
-        type: number
-        description: "Indirect effect via finance access"
-      total_effect:
-        type: number
-        description: "Total effect (Direct + Indirect)"
   robustness_metrics:
     type: object
     description: "Results from robustness checks"
     properties:
-      bootstrap_variance:
+      leave_one_country_out_variance:
         type: number
-        description: "Variance estimate from 1000 bootstrap iterations"
-      leave_one_out_variance:
-        type: number
-        description: "Variance estimate from leave-one-region-out"
+        description: "Variance estimate from leave-one-country-out"
       sensitivity_threshold_variance:
         type: number
-        description: "Variance in significance rates across CSA thresholds"
+        description: "Variance in significance rates across CSA thresholds (0.2-0.8)"
   warnings:
     type: array
     items:
       type: string
-    description: "List of warnings (e.g., VIF > 5.0, missing data, synthetic data mode)"
+    description: "List of warnings (e.g., VIF > 5.0, missing data)"
   provenance:
     type: object
     description: "Mapping of derived variables to raw data sources"
@@ -96,6 +84,3 @@ properties:
         type: integer
       random_seed:
         type: integer
-      is_synthetic:
-        type: boolean
-        description: "True if results were generated from synthetic data (pipeline validation only)"

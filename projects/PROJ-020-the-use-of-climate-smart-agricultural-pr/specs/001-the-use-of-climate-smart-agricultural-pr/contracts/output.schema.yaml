@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  parameter:
+    type: "string"
+    description: "Name of the model parameter (e.g., 'csa_index')"
+  estimate:
+    type: "number"
+    description: "Coefficient estimate"
+  std_err:
+    type: "number"
+    description: "Standard error of the estimate"
+  p_value:
+    type: "number"
+    description: "Raw p-value"
+  p_value_corrected:
+    type: "number"
+    description: "Bonferroni corrected p-value"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor"
+  significance:
+    type: "boolean"
+    description: "True if p_value_corrected is significant (p < 0.05)"
+required:
+  - "parameter"
+  - "estimate"
+  - "std_err"
+  - "p_value"
+  - "p_value_corrected"
+  - "vif"
+  - "significance"
+additionalProperties: false

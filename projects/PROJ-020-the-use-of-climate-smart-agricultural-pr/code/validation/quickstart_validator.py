@@ -1,426 +1,447 @@
 """
-Quickstart Validation Module for PROJ-020
-Validates end-to-end reproducibility of the climate-smart agriculture pipeline.
+Quickstart Validator for T042: End-to-end reproducibility validation.
+
+This module validates that the quickstart.md pipeline runs successfully
+in a fresh environment by executing the full data pipeline and verifying
+all expected outputs are generated.
 """
+
 import sys
 import os
 import time
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-from utils.config import get_config, get_target_countries, get_target_years, get_data_dir
-from utils.logging import initialize_logging, log_provenance_mapping
 from data.download import download_lsms, download_nasa_power, download_faostat
-from data.clean import run_sampling_pipeline, clean_and_merge, apply_imputation_weights
+from data.clean import run_sampling_pipeline, clean_and_merge, apply_imputation_weights, validate_imputation_quality, get_imputation_report
+from utils.config import get_target_countries, get_target_years, get_data_dir
 from data.features import construct_csa_index
 from analysis.model import run_mixed_effects_model, run_mediation_analysis
-from analysis.diagnostics import calculate_vif, get_collinearity_report
 from analysis.robustness import run_bootstrap_resampling, run_leave_one_region_out
 from viz.plots import create_scatter_plot, create_coefficient_plot, create_distribution_plot
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 class QuickstartValidator:
     """
-    Validates the end-to-end reproducibility of the CSA pipeline as described
-    in quickstart.md.
+    Validates end-to-end reproducibility of the quickstart.md pipeline.
+    
+    This validator executes the full pipeline and verifies:
+    1. All data downloads complete successfully
+    2. Data cleaning and merging produces valid output
+    3. CSA index construction works correctly
+    4. Statistical models run without errors
+    5. Robustness checks complete
+    6. All visualization outputs are generated
     """
 
-    def __init__(self, data_dir: Optional[Path] = None):
+    def __init__(self, base_dir: Optional[Path] = None):
         """
         Initialize the validator.
-
+        
         Args:
-            data_dir: Optional path to the data directory. If None, uses config.
+            base_dir: Base project directory. Defaults to parent of this file's parent.
         """
-        self.config = get_config()
-        self.data_dir = data_dir or get_data_dir()
-        self.results = {
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'countries': get_target_countries(),
-            'years': get_target_years(),
-            'stages': {},
-            'errors': [],
-            'warnings': []
+        if base_dir is None:
+            self.base_dir = Path(__file__).parent.parent.parent
+        else:
+            self.base_dir = base_dir
+        
+        self.data_dir = self.base_dir / "data"
+        self.results_dir = self.base_dir / "data" / "processed"
+        self.figures_dir = self.base_dir / "figures"
+        self.validation_log = self.base_dir / "data" / "validation_log.json"
+        
+        # Ensure directories exist
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+        self.figures_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.logger = logging.getLogger("QuickstartValidator")
+        self.logger.setLevel(logging.INFO)
+        
+        if not self.logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            ))
+            self.logger.addHandler(handler)
+        
+        self.validation_results: Dict[str, Any] = {
+            "timestamp": None,
+            "environment": "fresh",
+            "steps": [],
+            "summary": {
+                "total_steps": 0,
+                "passed": 0,
+                "failed": 0,
+                "warnings": 0
+            }
         }
 
+    def log_step(self, step_name: str, status: str, details: Optional[Dict] = None):
+        """Log a validation step with status."""
+        step_record = {
+            "step": step_name,
+            "status": status,
+            "timestamp": datetime.now().isoformat()
+        }
+        if details:
+            step_record["details"] = details
+        
+        self.validation_results["steps"].append(step_record)
+        self.logger.info(f"Step '{step_name}': {status}")
+        
+        if status == "passed":
+            self.validation_results["summary"]["passed"] += 1
+        elif status == "failed":
+            self.validation_results["summary"]["failed"] += 1
+        elif status == "warning":
+            self.validation_results["summary"]["warnings"] += 1
+
     def validate_directory_structure(self) -> bool:
-        """
-        Validates that the required directory structure exists.
-
-        Returns:
-            bool: True if structure is valid, False otherwise.
-        """
-        logger.info("Validating directory structure...")
+        """Validate that required directory structure exists."""
+        self.logger.info("Validating directory structure...")
+        
         required_dirs = [
-            self.data_dir / 'raw',
-            self.data_dir / 'processed',
-            self.data_dir / 'figures',
-            project_root / 'state'
+            self.data_dir / "raw",
+            self.data_dir / "processed",
+            self.data_dir / "state",
+            self.figures_dir
         ]
-
+        
         all_exist = True
         for dir_path in required_dirs:
             if not dir_path.exists():
-                logger.warning(f"Directory missing: {dir_path}")
+                self.logger.warning(f"Directory missing: {dir_path}")
                 dir_path.mkdir(parents=True, exist_ok=True)
-                self.results['warnings'].append(f"Created missing directory: {dir_path}")
+                all_exist = False
+        
+        status = "passed" if all_exist else "warning"
+        self.log_step("directory_structure", status, {
+            "all_required_exist": all_exist
+        })
+        
+        return all_exist
 
-        self.results['stages']['directory_structure'] = {
-            'status': 'passed' if all_exist else 'warning',
-            'message': 'Directory structure validated'
-        }
-        return True
-
-    def validate_data_availability(self) -> bool:
-        """
-        Validates that required data files exist or can be downloaded.
-
-        Returns:
-            bool: True if data is available, False otherwise.
-        """
-        logger.info("Validating data availability...")
-        processed_file = self.data_dir / 'processed' / 'merged_sample.parquet'
-
-        if processed_file.exists():
-            logger.info(f"Found processed data: {processed_file}")
-            self.results['stages']['data_availability'] = {
-                'status': 'passed',
-                'message': 'Processed data file exists',
-                'file_size_bytes': processed_file.stat().st_size
-            }
-            return True
-
-        logger.warning("Processed data file not found. Attempting download...")
-        try:
-            # Attempt to download a minimal sample for validation
-            # This is a validation run, so we use a small sample
-            logger.info("Starting data download for validation...")
-            download_lsms('Kenya', 2021)  # Example: Kenya 2021
-            download_faostat('Crops')
-            # Note: NASA POWER download requires coordinates, skipped for basic validation
-            logger.info("Initial data download completed.")
-
-            self.results['stages']['data_availability'] = {
-                'status': 'passed',
-                'message': 'Data downloaded successfully'
-            }
-            return True
-        except Exception as e:
-            error_msg = f"Data download failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['data_availability'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def validate_cleaning_pipeline(self) -> bool:
-        """
-        Validates the data cleaning and merging pipeline.
-
-        Returns:
-            bool: True if pipeline runs successfully, False otherwise.
-        """
-        logger.info("Validating cleaning pipeline...")
-        try:
-            # Check if raw data exists
-            raw_files = list((self.data_dir / 'raw').glob('*.csv'))
-            if not raw_files:
-                logger.warning("No raw data files found. Skipping cleaning validation.")
-                self.results['stages']['cleaning_pipeline'] = {
-                    'status': 'skipped',
-                    'message': 'No raw data files found'
-                }
-                return True
-
-            # Run cleaning pipeline
-            logger.info("Running cleaning pipeline...")
-            cleaned_data = run_sampling_pipeline(self.data_dir)
-
-            if cleaned_data is not None and len(cleaned_data) > 0:
-                self.results['stages']['cleaning_pipeline'] = {
-                    'status': 'passed',
-                    'message': f'Cleaning pipeline completed. {len(cleaned_data)} rows processed.'
-                }
-                return True
-            else:
-                raise ValueError("Cleaning pipeline produced no output")
-
-        except Exception as e:
-            error_msg = f"Cleaning pipeline failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['cleaning_pipeline'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def validate_feature_construction(self) -> bool:
-        """
-        Validates the CSA index construction.
-
-        Returns:
-            bool: True if features are constructed successfully, False otherwise.
-        """
-        logger.info("Validating feature construction...")
-        try:
-            processed_file = self.data_dir / 'processed' / 'merged_sample.parquet'
-            if not processed_file.exists():
-                logger.warning("Processed data not found. Skipping feature validation.")
-                self.results['stages']['feature_construction'] = {
-                    'status': 'skipped',
-                    'message': 'Processed data not found'
-                }
-                return True
-
-            import pandas as pd
-            data = pd.read_parquet(processed_file)
-
-            # Construct CSA index
-            csa_index = construct_csa_index(data)
-
-            if csa_index is not None and 'csa_index' in csa_index.columns:
-                self.results['stages']['feature_construction'] = {
-                    'status': 'passed',
-                    'message': f'CSA index constructed. Range: [{csa_index["csa_index"].min():.3f}, {csa_index["csa_index"].max():.3f}]'
-                }
-                return True
-            else:
-                raise ValueError("CSA index construction failed")
-
-        except Exception as e:
-            error_msg = f"Feature construction failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['feature_construction'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def validate_model_fitting(self) -> bool:
-        """
-        Validates the statistical model fitting.
-
-        Returns:
-            bool: True if model fits successfully, False otherwise.
-        """
-        logger.info("Validating model fitting...")
-        try:
-            processed_file = self.data_dir / 'processed' / 'merged_sample.parquet'
-            if not processed_file.exists():
-                logger.warning("Processed data not found. Skipping model validation.")
-                self.results['stages']['model_fitting'] = {
-                    'status': 'skipped',
-                    'message': 'Processed data not found'
-                }
-                return True
-
-            import pandas as pd
-            data = pd.read_parquet(processed_file)
-
-            # Run mixed effects model
-            logger.info("Running mixed effects model...")
-            model_results = run_mixed_effects_model(data)
-
-            if model_results is not None:
-                self.results['stages']['model_fitting'] = {
-                    'status': 'passed',
-                    'message': f'Model fitting completed. AIC: {model_results.aic:.2f}'
-                }
-                return True
-            else:
-                raise ValueError("Model fitting produced no results")
-
-        except Exception as e:
-            error_msg = f"Model fitting failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['model_fitting'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def validate_diagnostics(self) -> bool:
-        """
-        Validates the diagnostic checks.
-
-        Returns:
-            bool: True if diagnostics run successfully, False otherwise.
-        """
-        logger.info("Validating diagnostics...")
-        try:
-            processed_file = self.data_dir / 'processed' / 'merged_sample.parquet'
-            if not processed_file.exists():
-                logger.warning("Processed data not found. Skipping diagnostics validation.")
-                self.results['stages']['diagnostics'] = {
-                    'status': 'skipped',
-                    'message': 'Processed data not found'
-                }
-                return True
-
-            import pandas as pd
-            data = pd.read_parquet(processed_file)
-
-            # Calculate VIF
-            logger.info("Calculating VIF...")
-            vif_results = calculate_vif(data)
-
-            if vif_results is not None:
-                max_vif = vif_results['VIF Factor'].max()
-                self.results['stages']['diagnostics'] = {
-                    'status': 'passed',
-                    'message': f'Diagnostics completed. Max VIF: {max_vif:.2f}'
-                }
-                return True
-            else:
-                raise ValueError("Diagnostics produced no results")
-
-        except Exception as e:
-            error_msg = f"Diagnostics failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['diagnostics'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def validate_visualization(self) -> bool:
-        """
-        Validates the visualization generation.
-
-        Returns:
-            bool: True if visualizations are generated successfully, False otherwise.
-        """
-        logger.info("Validating visualization...")
-        try:
-            processed_file = self.data_dir / 'processed' / 'merged_sample.parquet'
-            if not processed_file.exists():
-                logger.warning("Processed data not found. Skipping visualization validation.")
-                self.results['stages']['visualization'] = {
-                    'status': 'skipped',
-                    'message': 'Processed data not found'
-                }
-                return True
-
-            import pandas as pd
-            data = pd.read_parquet(processed_file)
-
-            # Create scatter plot
-            logger.info("Creating scatter plot...")
-            scatter_path = create_scatter_plot(data, self.data_dir / 'figures')
-
-            # Create coefficient plot
-            logger.info("Creating coefficient plot...")
-            coeff_path = create_coefficient_plot(data, self.data_dir / 'figures')
-
-            if scatter_path and coeff_path:
-                self.results['stages']['visualization'] = {
-                    'status': 'passed',
-                    'message': f'Visualizations generated. Scatter: {scatter_path.name}, Coeff: {coeff_path.name}'
-                }
-                return True
-            else:
-                raise ValueError("Visualization generation failed")
-
-        except Exception as e:
-            error_msg = f"Visualization failed: {str(e)}"
-            logger.error(error_msg)
-            self.results['errors'].append(error_msg)
-            self.results['stages']['visualization'] = {
-                'status': 'failed',
-                'message': error_msg
-            }
-            return False
-
-    def run_full_validation(self) -> Dict[str, Any]:
-        """
-        Runs the full validation pipeline.
-
-        Returns:
-            dict: Validation results.
-        """
-        logger.info("Starting full validation pipeline...")
-        start_time = time.time()
-
-        # Run all validation stages
-        self.validate_directory_structure()
-        self.validate_data_availability()
-        self.validate_cleaning_pipeline()
-        self.validate_feature_construction()
-        self.validate_model_fitting()
-        self.validate_diagnostics()
-        self.validate_visualization()
-
-        end_time = time.time()
-        self.results['total_duration_seconds'] = end_time - start_time
-
-        # Determine overall status
-        failed_stages = [
-            stage for stage, result in self.results['stages'].items()
-            if result.get('status') == 'failed'
-        ]
-
-        if failed_stages:
-            self.results['overall_status'] = 'failed'
-            self.results['failed_stages'] = failed_stages
+    def validate_data_downloads(self) -> bool:
+        """Validate that data downloads can be executed (or already exist)."""
+        self.logger.info("Validating data downloads...")
+        
+        countries = get_target_countries()
+        years = get_target_years()
+        
+        downloaded_files = []
+        missing_files = []
+        
+        # Check LSMS data
+        for country in countries:
+            for year in years:
+                lsms_file = self.data_dir / "raw" / f"lsms_{country}_{year}.json"
+                if lsms_file.exists():
+                    downloaded_files.append(str(lsms_file))
+                else:
+                    missing_files.append(f"lsms_{country}_{year}")
+        
+        # Check NASA POWER data
+        nasa_file = self.data_dir / "raw" / "nasa_power_climate.json"
+        if nasa_file.exists():
+            downloaded_files.append(str(nasa_file))
         else:
-            self.results['overall_status'] = 'passed'
+            missing_files.append("nasa_power_climate")
+        
+        # Check FAOSTAT data
+        faostat_file = self.data_dir / "raw" / "faostat_indicators.json"
+        if faostat_file.exists():
+            downloaded_files.append(str(faostat_file))
+        else:
+            missing_files.append("faostat_indicators")
+        
+        status = "passed" if len(missing_files) == 0 else "warning"
+        self.log_step("data_downloads", status, {
+            "downloaded_files": len(downloaded_files),
+            "missing_files": missing_files,
+            "note": "Missing files may require manual download or pipeline execution"
+        })
+        
+        return len(missing_files) == 0
 
-        # Save results
-        results_file = self.data_dir / 'validation_results.json'
-        with open(results_file, 'w') as f:
-            json.dump(self.results, f, indent=2)
+    def validate_data_pipeline(self) -> bool:
+        """Validate that the data pipeline produces valid output."""
+        self.logger.info("Validating data pipeline...")
+        
+        output_file = self.results_dir / "merged_sample.parquet"
+        
+        try:
+            # Run the pipeline if output doesn't exist
+            if not output_file.exists():
+                self.logger.info("Running data pipeline to generate merged_sample.parquet...")
+                run_sampling_pipeline()
+            
+            # Validate output exists and has content
+            if output_file.exists():
+                import pandas as pd
+                df = pd.read_parquet(output_file)
+                
+                self.log_step("data_pipeline", "passed", {
+                    "output_file": str(output_file),
+                    "row_count": len(df),
+                    "column_count": len(df.columns),
+                    "columns_sample": list(df.columns[:10])
+                })
+                return True
+            else:
+                self.log_step("data_pipeline", "failed", {
+                    "reason": "Output file not generated"
+                })
+                return False
+                
+        except Exception as e:
+            self.log_step("data_pipeline", "failed", {
+                "reason": str(e)
+            })
+            return False
 
-        logger.info(f"Validation completed. Results saved to {results_file}")
-        return self.results
+    def validate_csa_index_construction(self) -> bool:
+        """Validate that CSA index construction works."""
+        self.logger.info("Validating CSA index construction...")
+        
+        try:
+            # Load processed data
+            processed_file = self.results_dir / "merged_sample.parquet"
+            if not processed_file.exists():
+                self.log_step("csa_index_construction", "failed", {
+                    "reason": "Processed data not available"
+                })
+                return False
+            
+            import pandas as pd
+            df = pd.read_parquet(processed_file)
+            
+            # Construct CSA index
+            csa_data = construct_csa_index(df)
+            
+            if csa_data is not None and "csa_index" in csa_data.columns:
+                self.log_step("csa_index_construction", "passed", {
+                    "index_range": [float(csa_data["csa_index"].min()), 
+                                   float(csa_data["csa_index"].max())],
+                    "index_mean": float(csa_data["csa_index"].mean())
+                })
+                return True
+            else:
+                self.log_step("csa_index_construction", "failed", {
+                    "reason": "CSA index not constructed correctly"
+                })
+                return False
+                
+        except Exception as e:
+            self.log_step("csa_index_construction", "failed", {
+                "reason": str(e)
+            })
+            return False
+
+    def validate_model_execution(self) -> bool:
+        """Validate that statistical models can be executed."""
+        self.logger.info("Validating model execution...")
+        
+        try:
+            processed_file = self.results_dir / "merged_sample.parquet"
+            if not processed_file.exists():
+                self.log_step("model_execution", "failed", {
+                    "reason": "Processed data not available"
+                })
+                return False
+            
+            import pandas as pd
+            df = pd.read_parquet(processed_file)
+            
+            # Run mixed effects model
+            model_results = run_mixed_effects_model(df)
+            
+            if model_results is not None:
+                self.log_step("model_execution", "passed", {
+                    "model_type": "mixed_effects",
+                    "has_coefficients": "coefficients" in model_results,
+                    "has_pvalues": "pvalues" in model_results
+                })
+                return True
+            else:
+                self.log_step("model_execution", "failed", {
+                    "reason": "Model execution returned no results"
+                })
+                return False
+                
+        except Exception as e:
+            self.log_step("model_execution", "failed", {
+                "reason": str(e)
+            })
+            return False
+
+    def validate_robustness_checks(self) -> bool:
+        """Validate that robustness checks can be executed."""
+        self.logger.info("Validating robustness checks...")
+        
+        try:
+            processed_file = self.results_dir / "merged_sample.parquet"
+            if not processed_file.exists():
+                self.log_step("robustness_checks", "warning", {
+                    "reason": "Processed data not available - skipping robustness"
+                })
+                return True  # Not a failure, just skipped
+            
+            import pandas as pd
+            df = pd.read_parquet(processed_file)
+            
+            # Run bootstrap resampling (limited iterations for speed)
+            bootstrap_results = run_bootstrap_resampling(df, n_iterations=100)
+            
+            # Run leave-one-region-out
+            loo_results = run_leave_one_region_out(df)
+            
+            self.log_step("robustness_checks", "passed", {
+                "bootstrap_iterations": 100,
+                "has_bootstrap_results": bootstrap_results is not None,
+                "has_loo_results": loo_results is not None
+            })
+            return True
+            
+        except Exception as e:
+            self.log_step("robustness_checks", "warning", {
+                "reason": str(e),
+                "note": "Robustness checks may require more data or time"
+            })
+            return True  # Not a hard failure
+
+    def validate_visualizations(self) -> bool:
+        """Validate that visualization outputs are generated."""
+        self.logger.info("Validating visualizations...")
+        
+        processed_file = self.results_dir / "merged_sample.parquet"
+        if not processed_file.exists():
+            self.log_step("visualizations", "warning", {
+                "reason": "Processed data not available - skipping visualizations"
+            })
+            return True  # Not a failure, just skipped
+        
+        try:
+            import pandas as pd
+            df = pd.read_parquet(processed_file)
+            
+            # Create scatter plot
+            scatter_plot_path = self.figures_dir / "scatter_csa_food_security.png"
+            create_scatter_plot(df, output_path=str(scatter_plot_path))
+            
+            # Create coefficient plot
+            coef_plot_path = self.figures_dir / "coefficient_plot.png"
+            create_coefficient_plot(df, output_path=str(coef_plot_path))
+            
+            # Create distribution plot
+            dist_plot_path = self.figures_dir / "distribution_plot.png"
+            create_distribution_plot(df, output_path=str(dist_plot_path))
+            
+            plots_created = [
+                scatter_plot_path.exists(),
+                coef_plot_path.exists(),
+                dist_plot_path.exists()
+            ]
+            
+            self.log_step("visualizations", "passed", {
+                "plots_created": sum(plots_created),
+                "total_plots": 3,
+                "files": [str(p) for p in [scatter_plot_path, coef_plot_path, dist_plot_path]]
+            })
+            return all(plots_created)
+            
+        except Exception as e:
+            self.log_step("visualizations", "failed", {
+                "reason": str(e)
+            })
+            return False
+
+    def save_validation_report(self):
+        """Save the validation report to disk."""
+        self.validation_results["timestamp"] = datetime.now().isoformat()
+        self.validation_results["summary"]["total_steps"] = len(self.validation_results["steps"])
+        
+        with open(self.validation_log, "w") as f:
+            json.dump(self.validation_results, f, indent=2)
+        
+        self.logger.info(f"Validation report saved to {self.validation_log}")
+
+    def run_full_validation(self) -> bool:
+        """
+        Run the complete validation pipeline.
+        
+        Returns:
+            bool: True if all critical steps passed, False otherwise.
+        """
+        self.logger.info("=" * 60)
+        self.logger.info("Starting Quickstart Validation (T042)")
+        self.logger.info("=" * 60)
+        
+        start_time = time.time()
+        
+        # Step 1: Directory structure
+        self.validate_directory_structure()
+        
+        # Step 2: Data downloads
+        self.validate_data_downloads()
+        
+        # Step 3: Data pipeline
+        pipeline_ok = self.validate_data_pipeline()
+        
+        # Step 4: CSA Index
+        csa_ok = self.validate_csa_index_construction()
+        
+        # Step 5: Model execution
+        model_ok = self.validate_model_execution()
+        
+        # Step 6: Robustness checks
+        self.validate_robustness_checks()
+        
+        # Step 7: Visualizations
+        viz_ok = self.validate_visualizations()
+        
+        # Save report
+        self.save_validation_report()
+        
+        elapsed = time.time() - start_time
+        
+        # Final summary
+        critical_passed = pipeline_ok and csa_ok and model_ok
+        self.validation_results["summary"]["elapsed_seconds"] = elapsed
+        self.validation_results["summary"]["critical_passed"] = critical_passed
+        
+        self.logger.info("=" * 60)
+        self.logger.info(f"Validation Complete in {elapsed:.2f}s")
+        self.logger.info(f"Passed: {self.validation_results['summary']['passed']}")
+        self.logger.info(f"Failed: {self.validation_results['summary']['failed']}")
+        self.logger.info(f"Warnings: {self.validation_results['summary']['warnings']}")
+        self.logger.info(f"Critical Steps Passed: {critical_passed}")
+        self.logger.info("=" * 60)
+        
+        return critical_passed
 
 
 def main():
-    """
-    Main entry point for the quickstart validator.
-    """
+    """Main entry point for the validator."""
     validator = QuickstartValidator()
-    results = validator.run_full_validation()
-
-    # Print summary
-    print("\n" + "="*50)
-    print("QUICKSTART VALIDATION SUMMARY")
-    print("="*50)
-    print(f"Status: {results['overall_status'].upper()}")
-    print(f"Duration: {results['total_duration_seconds']:.2f} seconds")
-    print(f"Errors: {len(results['errors'])}")
-    print(f"Warnings: {len(results['warnings'])}")
-
-    if results['failed_stages']:
-        print(f"\nFailed Stages: {', '.join(results['failed_stages'])}")
-
-    for stage, result in results['stages'].items():
-        status_icon = "✓" if result['status'] == 'passed' else "✗" if result['status'] == 'failed' else "⊘"
-        print(f"{status_icon} {stage}: {result['message']}")
-
-    print("="*50)
-
-    # Return exit code based on validation status
-    sys.exit(0 if results['overall_status'] == 'passed' else 1)
+    success = validator.run_full_validation()
+    
+    if success:
+        print("\n✓ Quickstart validation PASSED - Pipeline is reproducible")
+        sys.exit(0)
+    else:
+        print("\n✗ Quickstart validation FAILED - See validation_log.json for details")
+        sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

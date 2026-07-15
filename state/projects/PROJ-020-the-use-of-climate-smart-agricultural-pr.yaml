@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: agriculture
 human_escalation_reason: null
 id: PROJ-020-the-use-of-climate-smart-agricultural-pr
-last_run_id: 5e72b0d2-cfb6-45ae-b8fc-72b065d1fc06
+last_run_id: fabc4e4b-7a4f-4304-9cb2-25a022196137
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr
 title: The Use of Climate-Smart Agricultural Practices in Rural Areas to Improve Food
   Security and Livelihoods
-updated_at: '2026-07-15T19:27:05.866074Z'
+updated_at: '2026-07-15T21:08:32.202931Z'

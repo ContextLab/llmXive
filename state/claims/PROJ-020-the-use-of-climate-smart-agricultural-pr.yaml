@@ -731,3 +731,246 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T19:24:08Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'CSA Index components: conservation tillage, crop diversification, irrigation
+    efficiency, digital-technology access, finance access'
+  claim_id: c_b2de0084
+  context: Define the CSA Index formula as a weighted composite of conservation tillage,
+    crop diversification, irrigation efficiency, digital-technology access, and finance
+    access (per spec FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_components:_conservation_tillage,_crop_diversifica
+  kind: entity_fact
+  raw_text: The CSA Index is a weighted composite of conservation tillage, crop diversification,
+    irrigation efficiency, digital-technology access, and finance access.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:00:41Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'CSA Index weighting strategy: Inverse Probability Weighting (IPW) based
+    on country/year sampling fractions'
+  claim_id: c_286c9a3b
+  context: Define the weighting strategy as Inverse Probability Weighting (IPW) based
+    on country/year sampling fractions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_weighting_strategy:_Inverse_Probability_Weighting
+  kind: entity_fact
+  raw_text: The weighting strategy for the CSA Index is Inverse Probability Weighting
+    (IPW) based on country/year sampling fractions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:01:15Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'LSMS data download targets: Kenya, India, Vietnam'
+  claim_id: c_8fc463f8
+  context: Implement LSMS downloader in code/data/download.py targeting Kenya, India,
+    Vietnam (recent years) with error handling for missing years
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS_data_download_targets:_Kenya,_India,_Vietnam
+  kind: entity_fact
+  raw_text: The pipeline targets Kenya, India, and Vietnam for LSMS data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:01:44Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Climate data matching proximity radius: 50km'
+  claim_id: c_c312018b
+  context: Match climate data to survey coordinates within a 50km proximity radius
+    using the WGS84 (EPSG:4326) CRS and Haversine formula for distance calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Climate_data_matching_proximity_radius:_50km
+  kind: entity_fact
+  raw_text: Climate data matching uses a 50km proximity radius.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:02:17Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Coordinate reference system: WGS84 (EPSG:4326)'
+  claim_id: c_b5d9799d
+  context: Match climate data to survey coordinates within a 50km proximity radius
+    using the WGS84 (EPSG:4326) CRS and Haversine formula for distance calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coordinate reference system used for distance calculation is WGS84
+    (EPSG:4326).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:02:40Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Climate data temporal window: 3-month pre-harvest mean'
+  claim_id: c_f8dddc8f
+  context: Match climate data using growing season average (3-month pre-harvest mean)
+    as the temporal window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The temporal window for matching climate data is the growing season average
+    (3-month pre-harvest mean).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:03:07Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Stratified sampling target: 5000 households per country'
+  claim_id: c_6f8d5361
+  context: "Target: Ensure N \u2265 5000 households per country (Kenya, India, Vietnam)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_target:_5000_households_per_country
+  kind: magnitude
+  raw_text: The stratified sampling target is at least 5000 households per country.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:03:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Stratified sampling trigger: raw data > 7GB'
+  claim_id: c_c3e69621
+  context: 'Trigger: If raw data > 7GB, apply stratified sampling to reduce size while
+    maintaining per-country targets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_trigger:_raw_data_%3E_7GB
+  kind: entity_fact
+  raw_text: Stratified sampling is triggered if raw data exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:04:23Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Mediation analysis method: Baron & Kenny approach'
+  claim_id: c_851a1f77
+  context: Include mediation analysis for digital/finance access (indirect effects)
+    per Constitution Principle VII using the Baron & Kenny approach.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1986 Baron and Kenny introduced principles for detecting and evaluating
+        mediation in a system of linear equations. As of 2014 their paper was the
+        33rd most-cited of all time. That year Greenland and Robins introduced the
+        "exchangeability" approach to handling confounding by considering a counterfactual.
+        They proposed assessing what would have happened to the treatment group if
+        they had not received the treatment and comparing that outcome to that of
+        the control group. If they matched, confounding was said to be absent.
+      source_id: Causal model
+      url: https://en.wikipedia.org/wiki/Causal_model
+      value: '33'
+    filled: true
+  kind: entity_fact
+  raw_text: The mediation analysis follows the Baron & Kenny approach.
+  resolved_value: '33'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T20:04:39Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Multiple hypothesis correction: Bonferroni correction for > 5 hypotheses'
+  claim_id: c_c0fb3ab7
+  context: Apply Bonferroni correction (as per spec FR-006) for > 5 hypotheses to
+    control family-wise error rate (Must run after T023).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multiple_hypothesis_correction:_Bonferroni_correction_for_%3E_
+  kind: magnitude
+  raw_text: The Bonferroni correction is applied for more than 5 hypotheses.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:05:05Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap resampling iterations: 1000'
+  claim_id: c_7f07f411
+  context: Implement bootstrap resampling with 1000 iterations in code/analysis/robustness.py
+    to validate model stability and report variance estimates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:05:34Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Leave-one-region-out region definition: administrative level 1 (province/state)'
+  claim_id: c_bf9c3732
+  context: 'Region Definition: Administrative level 1 (province/state).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The leave-one-region-out cross-validation defines regions as administrative
+    level 1 (province/state).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:15Z'
+- artifact_path: projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/specs/001-the-use-of-climate-smart-agricultural-pr/tasks.md
+  attempts: 1
+  canonical: 'Execution constraint: CPU-only, no GPU, no 8-bit/4-bit quantization,
+    no CUDA'
+  claim_id: c_c7286b69
+  context: All tasks must run on CPU-only CI with a limited number of cores and limited
+    RAM., with no GPU.. No 8-bit/4-bit quantization, no CUDA, no large LLMs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data pipeline must run on CPU-only CI with no GPU, no 8-bit/4-bit
+    quantization, and no CUDA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T20:06:42Z'

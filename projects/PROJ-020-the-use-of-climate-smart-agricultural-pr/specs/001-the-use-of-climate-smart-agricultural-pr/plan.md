@@ -1,45 +1,44 @@
 # Implementation Plan: The Use of Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security and Livelihoods
 
-**Branch**: `001-csa-food-security` | **Date**: 2026-06-24 | **Spec**: [link]
+**Branch**: `001-csa-food-security` | **Date**: 2024-05-21 | **Spec**: `specs/001-csa-food-security/spec.md`
 **Input**: Feature specification from `/specs/001-csa-food-security/spec.md`
 
 ## Summary
 
-This project implements a statistical analysis pipeline to quantify the **associational relationships** between Climate-Smart Agricultural (CSA) practice adoption and food security outcomes (Dietary Diversity Scores) in rural Kenya, India, and Vietnam (recent years). 
-
-The approach utilizes **Mixed-Effects Regression models** to handle hierarchical survey data. Crucially, the plan distinguishes between:
-1.  **Moderation**: Testing if digital/finance access strengthens the CSA-food security link (interaction terms).
-2.  **Mediation**: Testing if digital/finance access acts as an intermediate pathway (indirect effects) as required by Constitution Principle VII.
-
-The CSA Index is constructed **exclusively** from agronomic practices (conservation tillage, crop diversification, irrigation efficiency), decoupling it from digital/finance variables to avoid multicollinearity. The pipeline adheres to compute constraints (CPU-only, <7GB RAM) via stratified sampling with **design weights** incorporated into the model. All findings are framed as associational. Robustness checks (bootstrap, leave-one-region-out) and **Benjamini-Hochberg FDR correction** (replacing Bonferroni) are applied to control false discoveries in hierarchical data.
+This project implements a statistical analysis pipeline to quantify the associational relationships between Climate-Smart Agricultural (CSA) practice adoption and food security (measured by Household Dietary Diversity Score, HDDS) in Kenya, India, and Vietnam. The technical approach involves downloading LSMS microdata, FAOSTAT agricultural indicators (for context only), and NASA POWER climate data, merging them spatially (at a moderate resolution) and temporally, constructing a weighted CSA index that **includes digital-technology access and finance access variables** as mandated by FR-003, and fitting a **Fixed-Effects Regression model** (OLS with Country Dummies) to account for unobserved heterogeneity. A Fixed-Effects model is chosen over Mixed-Effects because estimating random effect variance with only 3 countries (N=3) is statistically invalid. The pipeline includes rigorous diagnostics (VIF, Bonferroni correction), robustness checks (leave-one-country-out, sensitivity analysis), and visualization generation, all constrained to run within the GitHub Actions free-tier (CPU-first).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `matplotlib`, `seaborn`, `requests`, `pyyaml`
-**Storage**: Local CSV/Parquet files (intermediate), JSON logs (provenance)
-**Testing**: `pytest` (unit tests for data cleaning, model fitting, and schema validation)
-**Target Platform**: GitHub Actions Free Tier (Ubuntu, 2 CPU, ~7GB RAM, no GPU)
-**Project Type**: Data Analysis Pipeline / Research Script
-**Performance Goals**: Complete full pipeline (download, clean, model, plot) within 6 hours on CPU.
-**Constraints**: No GPU usage; memory < 7GB; no causal claims; strict adherence to dataset availability.
-**Scale/Scope**: [deferred] households (A sample of approximately five thousand per country.) after sampling; countries; years of climate data.
+**Language/Version**: Python 3.x (Source: History of Python, https://en.wikipedia.org/wiki/History_of_Python).
+*Note: The Spec and Verified Facts mandate Python 3.14.6. The implementation MUST use this exact version. No fallback is permitted.*
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `requests`, `huggingface_hub`, `matplotlib`, `seaborn`, `worldbank-lsms`.
+**Storage**: Local file system (GitHub Actions runner), intermediate CSV/Parquet files in `data/`.
+**Testing**: `pytest` (unit tests for data ingestion, model fitting logic).
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM).
+**Project Type**: Data Science / Statistical Analysis Pipeline.
+**Performance Goals**: Complete full pipeline (download, merge, model, viz) within 6 hours; handle timeouts via reduced-batch retry ([deferred] reduction, then [deferred]).
+**Constraints**:
+- Memory: ≤ 7 GB RAM (stratified sampling if raw > 7GB).
+- Disk: ≤ 14 GB (streaming or incremental processing).
+- Time: ≤ 6 hours (with retry logic).
+- No causal claims (associational only).
+- Bonferroni correction for >5 hypotheses.
+**Scale/Scope**: Target N ≥ 5000 households per country (if available); otherwise proceed with available data and log a warning (do not fail).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Strategy | Status |
-|-----------|---------------------|--------|
-| **I. Reproducibility** | All scripts in `code/` will use pinned `requirements.txt`. Random seeds set in `numpy` and `statsmodels`. External data sources referenced by canonical URLs (where verified) or loader names. | **PASS** |
-| **II. Verified Accuracy** | Citations in `research.md` will strictly use the verified dataset URLs provided in the input block or canonical API references. No invented URLs. | **PASS** |
-| **III. Data Hygiene** | Raw data downloads are preserved in `data/raw/`. Derivations saved to `data/processed/` with checksums recorded in `state/`. No in-place modification. | **PASS** |
-| **IV. Single Source of Truth** | All figures and stats generated by scripts in `code/`. No manual entry in `paper/`. Provenance logs map derived variables to raw IDs. | **PASS** |
-| **V. Versioning Discipline** | Content hashes for artifacts tracked in `state/projects/PROJ-020...yaml`. | **PASS** |
-| **VI. Survey Data Integrity** | CSA index and outcome variables will be explicitly linked to original LSMS questionnaire item IDs in metadata. | **PASS** |
-| **VII. Socioeconomic Impact Evaluation** | Pipeline includes: (1) Direct association estimation, (2) **Mediation analysis** and moderation test for digital/finance access, (3) Robustness checks with alternative specifications. | **PASS** |
+| Principle | Check Status | Notes |
+|-----------|--------------|-------|
+| **I. Reproducibility** | PASS | All seeds pinned; `requirements.txt` provided; data sources are canonical (LSMS, FAOSTAT, NASA). |
+| **II. Verified Accuracy** | PASS | Citations will be validated against primary sources; no fabricated URLs used (LSMS/FAOSTAT/NASA URLs handled per "Verified datasets" block). |
+| **III. Data Hygiene** | PASS | Checksums recorded; no in-place modification; PII scan in CI. |
+| **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/` and `code/`; no hand-typed numbers. |
+| **V. Versioning Discipline** | PASS | Content hashes for artifacts; `updated_at` timestamp updated on change. |
+| **VI. Survey Data Integrity** | PASS | LSMS variables linked to original questionnaire IDs; provenance logs for derived CSA index. |
+| **VII. Socioeconomic Impact** | PASS | Mediation/moderation analysis (digital/finance) planned. These variables are **included in the CSA Index** as per FR-003 and also tested as moderators to satisfy Principle VII. |
 
 ## Project Structure
 
@@ -53,55 +52,45 @@ specs/001-csa-food-security/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
+projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/
 ├── data/
+│   ├── raw/             # Downloaded raw files (LSMS, FAOSTAT, NASA)
+│   ├── processed/       # Merged, cleaned, sampled datasets
+│   └── checksums.txt    # SHA256 checksums
+├── code/
 │   ├── __init__.py
-│   ├── download.py          # Downloads LSMS, FAOSTAT, POWER
-│   ├── clean.py             # Merging, imputation, sampling, weight calculation
-│   └── features.py          # CSA Index construction (agronomic only)
-├── analysis/
-│   ├── __init__.py
-│   ├── model.py             # Mixed-Effects Regression + Mediation
-│   ├── diagnostics.py       # VIF, Collinearity checks
-│   └── robustness.py        # Bootstrap, Leave-One-Out
-├── viz/
-│   ├── __init__.py
-│   └── plots.py             # Scatter, Coefficient, Maps
-├── utils/
-│   ├── __init__.py
-│   └── logging.py           # Provenance logging
-├── main.py                  # Entry point
-└── requirements.txt         # Pinned dependencies
-
-data/
-├── raw/                     # Downloaded archives
-├── processed/               # Cleaned CSVs/Parquets
-└── checksums.txt            # Hashes
-
-tests/
-├── contract/
-│   └── test_schemas.py
-├── integration/
-│   └── test_pipeline.py
-└── unit/
-    └── test_features.py
+│   ├── config.py        # Paths, seeds, thresholds
+│   ├── ingestion.py     # Download and merge logic
+│   ├── preprocessing.py # Imputation, sampling, index construction
+│   ├── modeling.py      # Fixed-Effects Regression, diagnostics
+│   ├── robustness.py    # LOCO, sensitivity analysis
+│   ├── viz.py           # Plot generation
+│   └── main.py          # Orchestration script
+├── tests/
+│   ├── test_ingestion.py
+│   ├── test_modeling.py
+│   └── test_viz.py
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `analysis`, `viz`, `utils`) to ensure separation of concerns while maintaining a flat, runnable structure for the GitHub Actions runner. This avoids the overhead of microservices or complex build pipelines, fitting the "Research Script" pattern.
+**Structure Decision**: Single project structure chosen for simplicity and direct data flow. `data/` is separated into `raw` and `processed` to enforce data hygiene (Principle III). `code/` is modularized by task (Ingestion, Preprocessing, Modeling, Robustness, Viz) to ensure testability and maintainability.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Mixed-Effects Models** | Required to handle hierarchical data (households nested within regions/countries) and account for unobserved heterogeneity. | OLS regression would produce biased standard errors and invalid p-values due to ignored clustering. |
-| **Stratified Sampling + Weights** | Required to meet FR-005 (RAM < 7GB) while preserving country/year representation. Weights are needed to correct for design effects in the LMM. | Full dataset loading would exceed memory limits; unweighted sampling would bias standard errors. |
-| **Multi-source Merge** | Required to combine socio-economic (LSMS), agricultural (FAOSTAT), and climate (POWER) data. | Using only one source would fail to address the core research question linking climate to livelihoods. |
-| **Benjamini-Hochberg FDR** | Required for multiple comparisons in correlated hierarchical data to reduce Type II errors compared to Bonferroni. | Bonferroni is overly conservative for complex survey data with correlated tests. |
+| **Fixed-Effects Regression** | Data is hierarchical (households nested in countries), but N=3 countries makes Mixed-Effects invalid. | Standard OLS would ignore clustering, inflating Type I errors. Mixed-Effects with N=3 is statistically invalid (singular fit). Fixed-Effects with Country Dummies is the statistically sound alternative. |
+| **Stratified Sampling** | Raw LSMS data may exceed 7 GB RAM. | Random sampling could lose regional representation; stratified preserves structure. |
+| **Bonferroni Correction** | >5 hypotheses tested (CSA, digital, finance, interactions). | Standard p-values would inflate family-wise error rate. |
+| **Provenance Logging** | Constitution Principle VI requires traceability to questionnaire IDs. | Aggregated indices without provenance violate survey data integrity rules. |
+| **Timeout Retry** | FR-010 requires a retry mechanism. | A defined retry logic (reduce by [deferred], then [deferred]) is deterministic and testable. |
+| **Sensitivity Range (0.2-0.8)** | FR-007 requires sweeping thresholds. | A defined range (0.2 to 0.8, step 0.1) is deterministic and testable. |
+| **N < 5000 Warning** | Edge Cases require proceeding with available data. | A hard failure would violate the resilience requirement; a warning is appropriate. |
