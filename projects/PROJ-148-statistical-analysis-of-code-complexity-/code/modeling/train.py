@@ -2,39 +2,39 @@ from __future__ import annotations
 
 import argparse
 import sys
+import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 import pandas as pd
-import joblib
 import numpy as np
+import joblib
 
-from utils.config import get_config, set_random_seed, get_seed
+from utils.config import get_config, set_random_seed
 from utils.logging import get_logger
 from modeling.train_primary import train_primary
 from modeling.train_alternative import train_alternative
-from modeling.compare_models import compare_models
 from modeling.importance import save_importance
-from modeling.collinearity import drop_high_vif_features, compute_vif
+from modeling.persist_models import main as persist_main
 
 logger = get_logger(__name__)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Train primary and alternative models for bug prediction."
+        description="Train primary and alternative bug prediction models."
     )
     parser.add_argument(
         "--data-dir",
-        type=Path,
+        type=str,
         required=True,
-        help="Directory containing the preprocessed train/test CSV files.",
+        help="Path to directory containing train/test split CSVs.",
     )
     parser.add_argument(
         "--model-dir",
-        type=Path,
-        default=Path("data/model"),
-        help="Directory to save trained model artifacts.",
+        type=str,
+        default="data/model",
+        help="Path to directory where models and metrics will be saved.",
     )
     parser.add_argument(
         "--seed",
@@ -45,164 +45,124 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--alpha",
         type=float,
-        default=0.1,
+        default=1.0,
         help="Regularization strength for L1 logistic regression.",
     )
     return parser.parse_args()
 
 
-def load_split_data(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
+def load_split_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Load train and test data from the data directory.
-    Expects 'train_data.csv' and 'test_data.csv' to exist.
-    Returns X_train, X_test, and feature_names.
+    Load the preprocessed train and test datasets.
+    Expects:
+      - train.csv: features + target
+      - test.csv: features + target
+    Returns:
+      X_train, y_train, X_test, y_test
     """
-    train_path = data_dir / "train_data.csv"
-    test_path = data_dir / "test_data.csv"
+    train_path = data_dir / "train.csv"
+    test_path = data_dir / "test.csv"
 
     if not train_path.exists():
-        raise FileNotFoundError(f"Train data file not found at {train_path}")
+        raise FileNotFoundError(f"Train data file not found: {train_path}")
     if not test_path.exists():
-        raise FileNotFoundError(f"Test data file not found at {test_path}")
+        raise FileNotFoundError(f"Test data file not found: {test_path}")
 
-    df_train = pd.read_csv(train_path)
-    df_test = pd.read_csv(test_path)
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
 
-    # Identify target column (assumed to be 'bug_label' based on data model)
+    # Assume 'bug_label' is the target column
     target_col = "bug_label"
-    if target_col not in df_train.columns:
-        raise ValueError(f"Target column '{target_col}' not found in training data.")
+    feature_cols = [c for c in train_df.columns if c != target_col]
 
-    feature_cols = [c for c in df_train.columns if c != target_col]
+    X_train = train_df[feature_cols]
+    y_train = train_df[target_col]
+    X_test = test_df[feature_cols]
+    y_test = test_df[target_col]
 
-    X_train = df_train[feature_cols].values
-    y_train = df_train[target_col].values
-    X_test = df_test[feature_cols].values
-    y_test = df_test[target_col].values
-
-    return X_train, X_test, y_train, y_test, feature_cols
+    logger.info(f"Loaded train data: {X_train.shape}, test data: {X_test.shape}")
+    return X_train, y_train, X_test, y_test
 
 
 def run_training_pipeline(
-    X_train: np.ndarray,
-    X_test: np.ndarray,
-    y_train: np.ndarray,
-    y_test: np.ndarray,
-    feature_names: list[str],
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
     model_dir: Path,
     alpha: float,
     seed: int,
 ) -> Dict[str, Any]:
     """
-    Execute the full training pipeline:
-    1. Collinearity check (VIF) and feature reduction if needed.
-    2. Train primary L1 Logistic Regression.
-    3. Train alternative Random Forest.
-    4. Compare models.
-    5. Save artifacts.
+    Execute the full training workflow:
+    1. Train primary (L1 Logistic Regression)
+    2. Train alternative (Random Forest)
+    3. Extract and save importance
+    4. Persist models
     """
     set_random_seed(seed)
+    model_dir = Path(model_dir)
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Collinearity Diagnostics
-    logger.info("Performing collinearity diagnostics (VIF)...")
-    # We need a DataFrame for VIF calculation
-    df_train_temp = pd.DataFrame(X_train, columns=feature_names)
-    df_test_temp = pd.DataFrame(X_test, columns=feature_names)
-
-    # Compute VIF and drop high VIF features
-    # Threshold usually 5 or 10. Using 10 as per common practice.
-    X_train_clean, X_test_clean, kept_features = drop_high_vif_features(
-        df_train_temp, df_test_temp, y_train, threshold=10.0
-    )
-
-    if len(kept_features) == 0:
-        raise RuntimeError("All features were dropped due to high collinearity.")
-
-    logger.info(f"Kept features after VIF filtering: {kept_features}")
-
-    # Step 2: Train Primary Model (L1 Logistic Regression)
-    logger.info("Training primary L1 Logistic Regression model...")
+    logger.info("Training primary model (L1 Logistic Regression)...")
     primary_model, primary_metrics = train_primary(
-        X_train_clean, y_train, X_test_clean, y_test, alpha=alpha, max_iter=100
+        X_train, y_train, X_test, y_test, alpha=alpha, seed=seed
     )
 
-    # Step 3: Train Alternative Model (Random Forest)
-    logger.info("Training alternative Random Forest model...")
-    alt_model, alt_metrics = train_alternative(
-        X_train_clean, y_train, X_test_clean, y_test, primary_metrics
+    logger.info("Training alternative model (Random Forest)...")
+    alternative_model, alternative_metrics = train_alternative(
+        X_train, y_train, X_test, y_test, seed=seed
     )
 
-    # Step 4: Compare Models
-    logger.info("Comparing models...")
-    comparison = compare_models(
-        primary_model, alt_model, X_test_clean, y_test, kept_features
-    )
-
-    # Step 5: Save Artifacts
-    logger.info("Saving model artifacts...")
-
-    # Save models
-    joblib.dump(primary_model, model_dir / "primary.pkl")
-    joblib.dump(alt_model, model_dir / "alternative.pkl")
-
-    # Save importance
-    save_importance(
-        model_dir / "feature_importance.json",
-        kept_features,
-        primary_model,
-        alt_model,
-    )
-
-    # Save comparison metrics
-    comparison_path = model_dir / "comparison_metrics.json"
-    with open(comparison_path, "w") as f:
-        import json
-        json.dump(comparison, f, indent=2)
-
-    return {
-        "primary_metrics": primary_metrics,
-        "alternative_metrics": alt_metrics,
-        "comparison": comparison,
-        "kept_features": kept_features,
+    logger.info("Extracting feature importance...")
+    importance_data = {
+        "primary_coefficients": dict(zip(X_train.columns, primary_model.coef_[0])),
+        "alternative_importance": dict(
+            zip(X_train.columns, alternative_model.feature_importances_)
+        ),
     }
+    save_importance(importance_data, model_dir / "importance.json")
+
+    logger.info("Persisting models...")
+    joblib.dump(primary_model, model_dir / "primary.pkl")
+    joblib.dump(alternative_model, model_dir / "alternative.pkl")
+
+    # Save metrics
+    metrics_path = model_dir / "training_metrics.json"
+    metrics_data = {
+        "primary": primary_metrics,
+        "alternative": alternative_metrics,
+    }
+    with open(metrics_path, "w") as f:
+        import json
+        json.dump(metrics_data, f, indent=2)
+
+    logger.info(f"Training complete. Models saved to {model_dir}")
+    return metrics_data
 
 
-def main() -> None:
+def main() -> int:
     args = parse_args()
+    config = get_config()
     set_random_seed(args.seed)
 
     logger.info(f"Starting training pipeline with seed {args.seed}")
     logger.info(f"Data directory: {args.data_dir}")
-    logger.info(f"Model directory: {args.model_dir}")
+    logger.info(f"Model output directory: {args.model_dir}")
+
+    data_dir = Path(args.data_dir)
+    model_dir = Path(args.model_dir)
 
     try:
-        X_train, X_test, y_train, y_test, feature_names = load_split_data(
-            args.data_dir
+        X_train, y_train, X_test, y_test = load_split_data(data_dir)
+        run_training_pipeline(
+            X_train, y_train, X_test, y_test, model_dir, args.alpha, args.seed
         )
-
-        results = run_training_pipeline(
-            X_train,
-            X_test,
-            y_train,
-            y_test,
-            feature_names,
-            args.model_dir,
-            args.alpha,
-            args.seed,
-        )
-
-        logger.info("Training pipeline completed successfully.")
-        logger.info(f"Primary Model ROC-AUC: {results['primary_metrics'].get('roc_auc', 'N/A')}")
-        logger.info(f"Alternative Model ROC-AUC: {results['alternative_metrics'].get('roc_auc', 'N/A')}")
-
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+        return 0
     except Exception as e:
-        logger.error(f"Training failed: {e}")
-        raise
+        logger.error(f"Training pipeline failed: {e}", exc_info=True)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

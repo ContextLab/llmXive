@@ -1,210 +1,160 @@
 from __future__ import annotations
 
-"""
-split_dataset.py
-
-This module provides utilities to perform a project‑level stratified train/test
-split of the processed dataset, write the resulting splits to disk, document the
-split proportions, and **validate that each project appears in only one split**.
-
-Public API
-----------
-- get_split_proportions() -> Tuple[float, float]
-    Returns the (train_fraction, test_fraction) used for the split.
-- document_split_proportions(output_path: Path) -> None
-    Writes a JSON file describing the split proportions.
-- main() -> None
-    CLI entry point: loads the processed dataset, creates the split, validates
-    uniqueness of project assignment, and persists the results.
-"""
-
 import json
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
-# Local utilities
-from utils.config import get_seed, set_random_seed, Config
 from utils.logging import get_logger
-
-# --------------------------------------------------------------------------- #
-# Configuration
-# --------------------------------------------------------------------------- #
-
-# Default split fractions – can be overridden via environment variables if
-# desired (e.g. for experimentation).  The task description specifies a
-# deferred 30 % test split.
-DEFAULT_TRAIN_FRAC: float = 0.70
-DEFAULT_TEST_FRAC: float = 0.30
-
-# Project‑root ``data`` directory (relative to this file's location)
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DATA_PATH = DATA_DIR / "processed" / "dataset.csv"
-
-SPLIT_OUTPUT_DIR = DATA_DIR / "splits"
-TRAIN_OUTPUT_PATH = SPLIT_OUTPUT_DIR / "train.csv"
-TEST_OUTPUT_PATH = SPLIT_OUTPUT_DIR / "test.csv"
-PROPORTIONS_OUTPUT_PATH = SPLIT_OUTPUT_DIR / "split_proportions.json"
+from utils.config import get_seed
 
 logger = get_logger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Helper functions
-# --------------------------------------------------------------------------- #
 
 def get_split_proportions() -> Tuple[float, float]:
     """
-    Return the train / test split fractions.
-
-    The fractions can be overridden by the environment variables
-    ``TRAIN_FRAC`` and ``TEST_FRAC``.  If only one of them is set, the other
-    is inferred so that the two sum to 1.0.
-
-    Returns
-    -------
-    Tuple[float, float]
-        (train_fraction, test_fraction)
+    Returns the train/test split proportions.
+    Based on project specs: 70% train, 30% test.
     """
-    train_frac = float(os.getenv("TRAIN_FRAC", DEFAULT_TRAIN_FRAC))
-    test_frac = float(os.getenv("TEST_FRAC", DEFAULT_TEST_FRAC))
-
-    # Ensure they sum to 1.0 – if not, normalise.
-    total = train_frac + test_frac
-    if not abs(total - 1.0) < 1e-6:
-        logger.warning(
-            "Train and test fractions do not sum to 1.0 (got %s). Normalising.",
-            total,
-        )
-        train_frac = train_frac / total
-        test_frac = test_frac / total
-
-    return train_frac, test_frac
+    return 0.7, 0.3
 
 
-def document_split_proportions(output_path: Path) -> None:
+def document_split_proportions(output_dir: Path) -> None:
     """
-    Persist the split proportions to a JSON file.
-
-    Parameters
-    ----------
-    output_path: Path
-        Destination file path (parents are created if missing).
+    Documents the split proportions in a JSON file within the output directory.
     """
-    train_frac, test_frac = get_split_proportions()
-    data = {"train_fraction": train_frac, "test_fraction": test_frac}
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    logger.info("Documented split proportions at %s", output_path)
+    train_prop, test_prop = get_split_proportions()
+    doc = {
+        "train_proportion": train_prop,
+        "test_proportion": test_prop,
+        "description": "Project-level stratified split: 70% train, 30% test",
+        "stratification_column": "project_id"
+    }
+    doc_path = output_dir / "split_config.json"
+    with open(doc_path, "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=2)
+    logger.info(f"Split configuration documented at {doc_path}")
 
 
-def _validate_project_uniqueness(train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
+def perform_project_stratified_split(
+    data: pd.DataFrame,
+    train_ratio: float,
+    seed: int,
+    project_column: str = "project_id"
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Assert that each project appears in only one of the two splits.
-
-    Parameters
-    ----------
-    train_df: pd.DataFrame
-        Training split.
-    test_df: pd.DataFrame
-        Testing split.
-
-    Raises
-    ------
-    AssertionError
-        If any project identifier is present in both splits.
+    Performs a project-level stratified train/test split.
+    
+    Ensures that all code units from a specific project appear in ONLY ONE split.
+    This prevents data leakage where a model could 'see' a project during training
+    and then be tested on the same project.
+    
+    Args:
+        data: The full dataset containing at least 'project_id' and target column.
+        train_ratio: Fraction of projects to assign to training (e.g., 0.7).
+        seed: Random seed for reproducibility.
+        project_column: The column name identifying the project (default: "project_id").
+        
+    Returns:
+        Tuple of (train_df, test_df) DataFrames.
     """
-    if "project" not in train_df.columns or "project" not in test_df.columns:
-        raise AssertionError(
-            "Both train and test DataFrames must contain a 'project' column for validation."
-        )
+    if project_column not in data.columns:
+        raise ValueError(f"Column '{project_column}' not found in data. Available: {list(data.columns)}")
+    
+    # Get unique projects
+    unique_projects = data[project_column].unique()
+    
+    if len(unique_projects) == 0:
+        raise ValueError("No projects found in the dataset.")
+        
+    logger.info(f"Found {len(unique_projects)} unique projects for stratified split.")
+    
+    # Shuffle projects deterministically
+    import numpy as np
+    rng = np.random.default_rng(seed)
+    shuffled_projects = rng.permutation(unique_projects).tolist()
+    
+    # Calculate split index
+    split_idx = int(len(shuffled_projects) * train_ratio)
+    
+    train_projects = set(shuffled_projects[:split_idx])
+    test_projects = set(shuffled_projects[split_idx:])
+    
+    logger.info(f"Assigning {len(train_projects)} projects to train, {len(test_projects)} to test.")
+    
+    # Split the dataframe based on project membership
+    train_df = data[data[project_column].isin(train_projects)].copy()
+    test_df = data[data[project_column].isin(test_projects)].copy()
+    
+    # Verification: Ensure no project appears in both splits
+    train_proj_set = set(train_df[project_column].unique())
+    test_proj_set = set(test_df[project_column].unique())
+    
+    intersection = train_proj_set.intersection(test_proj_set)
+    if intersection:
+        raise AssertionError(f"Data leakage detected! Projects in both splits: {intersection}")
+        
+    logger.info("Verification passed: No project appears in both splits.")
+    
+    return train_df, test_df
 
-    train_projects = set(train_df["project"].unique())
-    test_projects = set(test_df["project"].unique())
-    overlap = train_projects.intersection(test_projects)
-
-    if overlap:
-        raise AssertionError(
-            f"Projects appear in both train and test splits: {sorted(overlap)}"
-        )
-    logger.debug("Project uniqueness validation passed – no overlap found.")
-
-
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
 
 def main() -> None:
     """
-    Execute the full split pipeline:
-    1. Load the processed dataset.
-    2. Perform a stratified split on the ``project`` column.
-    3. Validate that each project is assigned to a single split.
-    4. Write the train / test CSV files.
-    5. Document the split proportions.
+    CLI entry point to perform the project-level stratified split.
+    
+    Usage:
+        python code/data/split_dataset.py \
+            --input data/preprocessed_data.csv \
+            --output-dir data/splits
     """
-    # ------------------------------------------------------------------- #
-    # 0. Seed handling – reproducibility across runs
-    # ------------------------------------------------------------------- #
-    seed = get_seed()
-    set_random_seed(seed)
-    logger.info("Using random seed %s for train/test split.", seed)
-
-    # ------------------------------------------------------------------- #
-    # 1. Load dataset
-    # ------------------------------------------------------------------- #
-    if not PROCESSED_DATA_PATH.is_file():
-        raise FileNotFoundError(
-            f"Processed dataset not found at {PROCESSED_DATA_PATH}. "
-            "Run the data pipeline to generate it first."
-        )
-    df = pd.read_csv(PROCESSED_DATA_PATH)
-    logger.info("Loaded processed dataset with %d rows and %d columns.", df.shape[0], df.shape[1])
-
-    # ------------------------------------------------------------------- #
-    # 2. Perform stratified split on 'project'
-    # ------------------------------------------------------------------- #
-    if "project" not in df.columns:
-        raise KeyError("Column 'project' is required in the dataset for stratified splitting.")
-
-    train_frac, test_frac = get_split_proportions()
-    # sklearn's train_test_split uses ``test_size``; we compute it directly.
-    train_df, test_df = train_test_split(
-        df,
-        test_size=test_frac,
-        stratify=df["project"],
-        random_state=seed,
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Perform project-level stratified train/test split")
+    parser.add_argument("--input", required=True, help="Path to the preprocessed CSV data")
+    parser.add_argument("--output-dir", required=True, help="Directory to save train/test splits")
+    parser.add_argument("--project-column", default="project_id", help="Column name for project ID")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
+    args = parser.parse_args()
+    
+    # Load data
+    logger.info(f"Loading data from {args.input}")
+    if not os.path.exists(args.input):
+        raise FileNotFoundError(f"Input file not found: {args.input}")
+        
+    df = pd.read_csv(args.input)
+    logger.info(f"Loaded {len(df)} rows.")
+    
+    # Perform split
+    train_ratio, _ = get_split_proportions()
+    train_df, test_df = perform_project_stratified_split(
+        df, 
+        train_ratio=train_ratio, 
+        seed=args.seed, 
+        project_column=args.project_column
     )
-    logger.info(
-        "Created train split with %d rows and test split with %d rows.",
-        train_df.shape[0],
-        test_df.shape[0],
-    )
-
-    # ------------------------------------------------------------------- #
-    # 3. Validation – each project appears in only one split
-    # ------------------------------------------------------------------- #
-    _validate_project_uniqueness(train_df, test_df)
-
-    # ------------------------------------------------------------------- #
-    # 4. Persist splits
-    # ------------------------------------------------------------------- #
-    SPLIT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    train_df.to_csv(TRAIN_OUTPUT_PATH, index=False)
-    test_df.to_csv(TEST_OUTPUT_PATH, index=False)
-    logger.info("Saved train split to %s", TRAIN_OUTPUT_PATH)
-    logger.info("Saved test split to %s", TEST_OUTPUT_PATH)
-
-    # ------------------------------------------------------------------- #
-    # 5. Document proportions
-    # ------------------------------------------------------------------- #
-    document_split_proportions(PROPORTIONS_OUTPUT_PATH)
-
-    logger.info("Dataset split pipeline completed successfully.")
+    
+    # Ensure output directory exists
+    output_path = Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Save splits
+    train_path = output_path / "train.csv"
+    test_path = output_path / "test.csv"
+    
+    logger.info(f"Saving train set ({len(train_df)} rows) to {train_path}")
+    train_df.to_csv(train_path, index=False)
+    
+    logger.info(f"Saving test set ({len(test_df)} rows) to {test_path}")
+    test_df.to_csv(test_path, index=False)
+    
+    # Document the split configuration
+    document_split_proportions(output_path)
+    
+    logger.info("Split completed successfully.")
 
 
 if __name__ == "__main__":

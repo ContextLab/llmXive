@@ -74,7 +74,7 @@ def test_end_to_end_pipeline(monkeypatch, temp_data_dir):
         df.to_csv(out_path, index=False)
         return out_path
 
-    monkeypatch.setattr(extract_metrics, "extract_metrics", fake_extract_metrics)
+    monkeypatch.setattr(extract_metrics, "extract_metrics_for_file", fake_extract_metrics)
 
     # ------------------------------------------------------------------
     # 3. Stub bug‑labeling – add a deterministic ``bug_label`` column.
@@ -123,7 +123,7 @@ def test_end_to_end_pipeline(monkeypatch, temp_data_dir):
         test_df.to_csv(test_path, index=False)
         return train_path, test_path
 
-    monkeypatch.setattr(split_dataset, "main", fake_split_dataset)
+    monkeypatch.setattr(split_dataset, "perform_project_stratified_split", fake_split_dataset)
 
     # ------------------------------------------------------------------
     # Execute the (now stubbed) pipeline.

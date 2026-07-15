@@ -11,11 +11,10 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”
-- code/modeling/train.py: synthetic/fake INPUT data not authorized by the spec — “…lse:         # Fallback: generate synthetic p-values for demonstrati…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 4 command(s) failed: python code/data/extract_metrics.py (rc=2); python code/data/preprocess.py (rc=2); python code/modeling/train.py (rc=2)
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 4 command(s) failed: python code/data/extract_metrics.py (rc=2); python code/data/preprocess.py (rc=2); python code/modeling/train.py (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -33,18 +32,10 @@ preprocess.py: error: the following arguments are required: --input, --output
                 [--alpha ALPHA]
 train.py: error: the following arguments are required: --data-dir
 - python code/modeling/evaluate.py -> rc=1
-    2026-07-15 09:25:14,653 - __main__ - INFO - Starting evaluation for model: primary
-2026-07-15 09:25:14,653 - __main__ - ERROR - Evaluation failed: Test data file not found at data/test_data.csv. Please run the data pipeline first.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 209, in main
-    metrics, cal_path, roc_path = evaluate_model(args.model)
-                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 140, in evaluate_model
-    X, y, feature_names = load_test_data()
-                          ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 34, in load_test_data
-    raise FileNotFoundError(f"Test data file not found at {test_path}. "
-FileNotFoundError: Test data file not found at data/test_data.csv. Please run the data pipeline first.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 14, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -54,5 +45,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/test_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/modeling/evaluate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/test_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/modeling/evaluate.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/modeling/train.py`, `code/modeling/evaluate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/test_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/modeling/train.py`, `code/modeling/evaluate.py`.

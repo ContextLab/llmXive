@@ -9,3 +9,4 @@ scikit-learn  # auto-added: imported by run-book but missing from venv
 statsmodels  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
 psutil  # auto-added: imported by run-book but missing from venv
+seaborn  # auto-added: imported by run-book but missing from venv

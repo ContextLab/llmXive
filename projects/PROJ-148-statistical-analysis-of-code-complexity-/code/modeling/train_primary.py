@@ -44,7 +44,7 @@ def train_primary(X: np.ndarray, y: np.ndarray) -> Tuple[LogisticRegression, int
         solver="saga",
         max_iter=100,
         C=1.0,
-        random_state=0,
+        random_state=42,
     )
     model.fit(X, y)
 
