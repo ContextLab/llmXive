@@ -1,6 +1,6 @@
-'|configuration define earth km radius':
-  quote: For Earth, the arithmetic mean radius is published by IUGG and NGA as 6,371.0087714
-    km (3,958.7613160 mi).
+'|earth km radius':
+  quote: "A globally-average value is usually considered to be 6,371 kilometres (3,959\
+    \ mi) with a 0.3% variability (\xB110 km) for the following reasons."
   source_id: Earth radius
   url: https://en.wikipedia.org/wiki/Earth_radius
-  value: 6,371.0087714
+  value: '6371'

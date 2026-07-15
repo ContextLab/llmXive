@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 import sys
 import os
+# Ensure the code directory is in the path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from data.clean import clean_and_resample
@@ -32,10 +33,7 @@ def test_clean_removes_nan():
 
     df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
 
-    # Check that the NaN row was removed (should be 9 rows before resampling,
-    # but resampling might aggregate. Let's check index length vs original)
-    # Since we resample to 5 min, and we have 10 1-min points, we expect
-    # fewer points. But crucially, the NaN should not propagate.
+    # Check that no NaN values remain in the resulting DataFrames
     assert not df_omni_clean.isna().any().any()
     assert not df_themis_clean.isna().any().any()
 

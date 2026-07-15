@@ -85,7 +85,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30`, `LAG_WINDOW_MAX=90`, `LAG_STEP=5`, `EARTH_RADIUS_KM=6371`, `TAIL_DISTANCE_RE=60`, `BOOTSTRAP_ITERATIONS=1000`, `PERMUTATION_ITERATIONS=10000`. The file path must be explicitly stated in the docstring.
+- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 [UNRESOLVED-CLAIM: c_dfb15390 — status=not_enough_info] `, `LAG_WINDOW_MAX=90 [UNRESOLVED-CLAIM: c_36fbb06b — status=not_enough_info] `, `LAG_STEP=5 [UNRESOLVED-CLAIM: c_174d0e4f — status=not_enough_info] `, `{{claim:c_c7fa9e4a}} (Wikipedia: Earth radius, https://en.wikipedia.org/wiki/Earth_radius)`, `TAIL_DISTANCE_RE=60 [UNRESOLVED-CLAIM: c_ab3c7670 — status=not_enough_info] `, `BOOTSTRAP_ITERATIONS=1000 [UNRESOLVED-CLAIM: c_48f0ca5f — status=not_enough_info] `, `PERMUTATION_ITERATIONS=10000 [UNRESOLVED-CLAIM: c_809d3da7 — status=not_enough_info] `. The file path must be explicitly stated in the docstring.
 - [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py` function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2 via `requests` (FR-001).
  - **Deliverable**: Function returning a `pandas.DataFrame` with columns `[timestamp, Vsw, Bz]`.
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
@@ -99,7 +99,7 @@
 The specific value to remove/generalize: 'k'
 
 Rewritten passage:
-L_phys = (k * 6371) / Vsw_mean / k` (FR-012) and apply lag shifts to time series.
+L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time series.
  - **Verification**: Ensure the code correctly handles the unit conversion (km/s to minutes) and includes the 60 factor.
 - [X] T007 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `calculate_correlation` for Pearson/Spearman calculation (used by FR-005/FR-006).
 - [X] T008 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `circular_block_permutation` with iterations for empirical p-values (FR-005).
@@ -171,11 +171,11 @@ L_phys = (k * 6371) / Vsw_mean / k` (FR-012) and apply lag shifts to time series
 
 - [X] T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.
  - **Deliverable**: Generate `results/plot_scatter.png` and `results/plot_timeseries.png`.
-- [ ] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s (FR-007).
+- [X] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s (FR-007).
  - **Deliverable**: Update `results/us1_correlation.json` to include `sensitivity_table`.
-- [ ] T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run.
+- [X] T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run.
  - **Verification**: Run `pytest tests/integration/test_us3.py`.
-- [ ] T030 [US3] Verify all plots load without error, include correct labels/units, and show the optimal lag annotation (SC-005).
+- [X] T030 [US3] Verify all plots load without error, include correct labels/units, and show the optimal lag annotation (SC-005).
  - **Verification**: Run `pytest tests/unit/test_plots.py`.
 - [ ] T031 [US3] Verify the sensitivity table correctly reports correlation magnitude for each threshold (US-3 Acceptance Scenario 2).
  - **Verification**: Check `results/us1_correlation.json` for correct values.

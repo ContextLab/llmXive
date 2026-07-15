@@ -9,3 +9,14 @@
   verification_status: unreachable
   verified_against_url: https://omniweb.gsfc.nasa.gov/api/
   verified_at: '2026-06-30T04:04:06.514259Z'
+- artifact_hash: 244487843c6118042eded54a4dc1f4af6b5c7c095cb8908a00b652f82bacadf2
+  artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Earth radius - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Earth_radius
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Earth_radius
+  verified_at: '2026-07-15T03:03:37.300731Z'

@@ -1,149 +1,124 @@
 """
-Sensitivity analysis module for threshold-based correlation filtering.
-File: code/analysis/sensitivity.py
+Sensitivity analysis module for solar wind speed thresholds.
+File: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py
 """
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Optional
+
 from ..config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 from .correlation import calculate_correlation
 from .lag_search import find_optimal_lag
 
 
 def analyze_thresholds(
-    df_vsw: pd.DataFrame,
-    df_ey: pd.DataFrame,
-    thresholds: List[float] = [400, 500, 600],
-    lag_window_min: int = LAG_WINDOW_MIN,
-    lag_window_max: int = LAG_WINDOW_MAX,
-    lag_step: int = LAG_STEP
-) -> Dict[str, Dict]:
+    df_vsw: pd.Series,
+    df_ey: pd.Series,
+    timestamps: pd.Series,
+    thresholds: List[float] = [400.0, 500.0, 600.0]
+) -> Dict[str, Dict[str, float]]:
     """
-    Compute correlations for different solar wind speed thresholds.
+    Compute correlations for solar wind speed thresholds.
 
-    Filters data where Vsw > threshold, then finds optimal lag and correlation.
+    Filters the data where Vsw >= threshold, finds the optimal lag for that
+    subset, and calculates the correlation at that lag.
 
-    Parameters
-    ----------
-    df_vsw : pd.DataFrame
-        DataFrame with 'timestamp' and 'Vsw' columns.
-    df_ey : pd.DataFrame
-        DataFrame with 'timestamp' and 'Ey' columns.
-    thresholds : List[float]
-        List of Vsw thresholds (km/s) to test.
-    lag_window_min : int
-        Minimum lag to search (minutes).
-    lag_window_max : int
-        Maximum lag to search (minutes).
-    lag_step : int
-        Step size for lag search (minutes).
+    Args:
+        df_vsw: Series of solar wind speed (km/s).
+        df_ey: Series of reconnection electric field (mV/m).
+        timestamps: Series of timestamps for alignment.
+        thresholds: List of Vsw thresholds to test (km/s).
 
-    Returns
-    -------
-    Dict[str, Dict]
-        Dictionary mapping threshold string to results (optimal_lag, correlation, count).
+    Returns:
+        Dictionary mapping threshold (str) to results:
+            {
+                "400.0": {
+                    "n_samples": int,
+                    "optimal_lag_min": float,
+                    "correlation": float,
+                    "p_value": float
+                },
+                ...
+            }
     """
     results = {}
+
+    # Ensure inputs are aligned
+    common_idx = df_vsw.index.intersection(df_ey.index)
+    vsw = df_vsw.loc[common_idx]
+    ey = df_ey.loc[common_idx]
+    ts = timestamps.loc[common_idx]
+
     for t in thresholds:
-        t_str = str(t)
-        # Filter Vsw data
-        mask = df_vsw['Vsw'] > t
-        df_vsw_filt = df_vsw[mask].copy()
-        
-        if len(df_vsw_filt) == 0:
-            results[t_str] = {
-                'threshold': t,
-                'count': 0,
-                'optimal_lag': None,
-                'correlation': None,
-                'method': 'insufficient_data'
+        # Filter for Vsw >= threshold
+        mask = vsw >= t
+        vsw_sub = vsw[mask]
+        ey_sub = ey[mask]
+        ts_sub = ts[mask]
+
+        n_samples = len(vsw_sub)
+        if n_samples < 10:
+            # Not enough data to compute meaningful correlation
+            results[str(t)] = {
+                "n_samples": n_samples,
+                "optimal_lag_min": np.nan,
+                "correlation": np.nan,
+                "p_value": np.nan,
+                "note": "Insufficient data points"
             }
             continue
 
-        # Align with Ey data (assuming same timestamp index or merge)
-        # For simplicity, assume we merge on timestamp if not already aligned
-        if 'timestamp' in df_vsw_filt.columns:
-            merged = pd.merge(df_vsw_filt, df_ey, on='timestamp', how='inner')
-        else:
-            # If index is timestamp
-            merged = pd.merge(df_vsw_filt.reset_index(), df_ey.reset_index(), on='timestamp', how='inner')
-            merged.set_index('timestamp', inplace=True)
-
-        if len(merged) < 10: # Minimum sample size for meaningful correlation
-            results[t_str] = {
-                'threshold': t,
-                'count': len(merged),
-                'optimal_lag': None,
-                'correlation': None,
-                'method': 'insufficient_samples'
-            }
-            continue
-
-        # Find optimal lag
+        # Find optimal lag for this subset
+        # We reuse find_optimal_lag which expects full series,
+        # but we pass the subset directly.
+        # Note: find_optimal_lag internally calls calculate_correlation
+        # and sweeps the lag window.
         try:
-            optimal_lag, corr_val, _ = find_optimal_lag(
-                merged['Vsw'], 
-                merged['Ey'], 
-                lag_window_min=lag_window_min,
-                lag_window_max=lag_window_max,
-                lag_step=lag_step
+            optimal_lag, corr_val, p_val = find_optimal_lag(
+                vsw_sub,
+                ey_sub,
+                ts_sub
             )
-            results[t_str] = {
-                'threshold': t,
-                'count': len(merged),
-                'optimal_lag': optimal_lag,
-                'correlation': corr_val,
-                'method': 'lag_sweep'
-            }
         except Exception as e:
-            results[t_str] = {
-                'threshold': t,
-                'count': len(merged),
-                'optimal_lag': None,
-                'correlation': None,
-                'method': 'error',
-                'error': str(e)
+            # Fallback if lag search fails (e.g., constant series)
+            results[str(t)] = {
+                "n_samples": n_samples,
+                "optimal_lag_min": np.nan,
+                "correlation": np.nan,
+                "p_value": np.nan,
+                "note": f"Lag search failed: {str(e)}"
             }
+            continue
+
+        results[str(t)] = {
+            "n_samples": n_samples,
+            "optimal_lag_min": float(optimal_lag),
+            "correlation": float(corr_val),
+            "p_value": float(p_val)
+        }
 
     return results
 
 
 def run_sensitivity_sweep(
-    df_vsw: pd.DataFrame,
-    df_ey: pd.DataFrame,
+    df_vsw: pd.Series,
+    df_ey: pd.Series,
+    timestamps: pd.Series,
     thresholds: Optional[List[float]] = None
-) -> pd.DataFrame:
+) -> Dict[str, Dict[str, float]]:
     """
-    Run the full sensitivity sweep and return a summary DataFrame.
+    Wrapper to run sensitivity sweep with default thresholds if none provided.
 
-    Parameters
-    ----------
-    df_vsw : pd.DataFrame
-        DataFrame with 'timestamp' and 'Vsw' columns.
-    df_ey : pd.DataFrame
-        DataFrame with 'timestamp' and 'Ey' columns.
-    thresholds : List[float], optional
-        Defaults to [400, 500, 600].
+    Args:
+        df_vsw: Series of solar wind speed.
+        df_ey: Series of reconnection electric field.
+        timestamps: Series of timestamps.
+        thresholds: Optional list of thresholds. Defaults to [400, 500, 600].
 
-    Returns
-    -------
-    pd.DataFrame
-        Summary table of sensitivity results.
+    Returns:
+        Dictionary of sensitivity results.
     """
     if thresholds is None:
-        thresholds = [400, 500, 600]
-    
-    raw_results = analyze_thresholds(df_vsw, df_ey, thresholds=thresholds)
-    
-    # Convert to DataFrame
-    rows = []
-    for t_str, data in raw_results.items():
-        rows.append({
-            'threshold_km_s': data['threshold'],
-            'sample_count': data['count'],
-            'optimal_lag_min': data['optimal_lag'],
-            'correlation_coef': data['correlation'],
-            'method': data['method']
-        })
-    
-    return pd.DataFrame(rows)
+        thresholds = [400.0, 500.0, 600.0]
+
+    return analyze_thresholds(df_vsw, df_ey, timestamps, thresholds)

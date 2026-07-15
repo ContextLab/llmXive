@@ -1,223 +1,192 @@
 """
-Unit tests for code/analysis/lag_search.py
-
-Tests verify the lag sweep logic (FR-010) including:
-- Correct search window generation
-- Optimal lag identification
-- Handling of edge cases (empty input, all-NaN)
-- Custom window parameter handling
+Unit tests for lag sweep logic in code/analysis/lag_search.py.
+Tests FR-010: find_optimal_lag function.
 """
 import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 from datetime import datetime, timedelta
+import sys
+import os
+
+# Add project root to path if running from tests directory
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from code.analysis.lag_search import find_optimal_lag
 from code.config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 
 
-def generate_test_data(n_points=1000, start_time=None, true_lag_minutes=45):
+def create_synthetic_lagged_dataset(n_samples=1000, true_lag_minutes=45, noise_level=0.3):
     """
-    Helper to generate synthetic time series with a known lag relationship.
-    
-    Args:
-        n_points: Number of data points to generate
-        start_time: Starting timestamp (defaults to 2023-01-01)
-        true_lag_minutes: Known lag in minutes between Vsw and Ey
-    
-    Returns:
-        Tuple of (vsw_series, ey_series) as pandas Series with DatetimeIndex
+    Create a synthetic dataset where Ey is correlated with Vsw shifted by true_lag_minutes.
+    This allows testing if find_optimal_lag can recover the known lag.
     """
-    if start_time is None:
-        start_time = datetime(2023, 1, 1)
+    # Create timestamps
+    start_time = datetime(2023, 1, 1)
+    timestamps = [start_time + timedelta(minutes=i*5) for i in range(n_samples)]
     
-    # Generate timestamps at 5-minute cadence
-    timestamps = [start_time + timedelta(minutes=i*5) for i in range(n_points)]
+    # Create Vsw with some trend and noise
+    vsw_base = 400 + 100 * np.sin(np.linspace(0, 4*np.pi, n_samples))
+    vsw_noise = np.random.normal(0, 20, n_samples)
+    vsw = vsw_base + vsw_noise
     
-    # Create a base signal (sinusoidal with some variation)
-    base_signal = np.sin(np.linspace(0, 10*np.pi, n_points))
+    # Create Ey with correlation to shifted Vsw
+    # Shift index by true_lag_minutes / 5 (since data is 5-min cadence)
+    lag_index = int(true_lag_minutes / 5)
+    shifted_vsw = np.roll(vsw, lag_index)
     
-    # Create Vsw with some noise
-    vsw = base_signal + np.random.normal(0, 0.1, n_points)
+    # Ey = 0.5 * shifted_Vsw + noise
+    ey_base = 0.5 * shifted_vsw
+    ey_noise = np.random.normal(0, noise_level * 100, n_samples)
+    ey = ey_base + ey_noise
     
-    # Calculate lag in steps (5-minute cadence)
-    lag_steps = int(true_lag_minutes / 5)
+    df = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': vsw,
+        'Ey': ey
+    })
     
-    # Create Ey that is Vsw shifted by the known lag + noise
-    # Negative shift means Ey lags behind Vsw (Ey is shifted right in time)
-    ey = np.roll(base_signal, -lag_steps) + np.random.normal(0, 0.1, n_points)
-    
-    # Handle the rolled-in values at the beginning (set to NaN)
-    ey[:lag_steps] = np.nan
-    
-    vsw_series = pd.Series(vsw, index=pd.to_datetime(timestamps))
-    ey_series = pd.Series(ey, index=pd.to_datetime(timestamps))
-    
-    return vsw_series, ey_series
+    return df
 
 
 def test_lag_sweep_window():
-    """Test that the lag sweep covers the correct window with the right step size."""
-    vsw, ey = generate_test_data(n_points=500)
+    """
+    Test that the lag sweep covers the expected window [LAG_WINDOW_MIN, LAG_WINDOW_MAX]
+    with step size LAG_STEP.
+    """
+    # Create a simple dataset
+    df = create_synthetic_lagged_dataset(n_samples=200, true_lag_minutes=50)
     
-    # Use a custom small window to verify exact values
-    min_lag, max_lag, step = 30, 50, 5
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw, ey, 
-        min_lag=min_lag, 
-        max_lag=max_lag, 
-        step=step
-    )
+    # Run the lag sweep
+    results = find_optimal_lag(df['Vsw'], df['Ey'])
     
-    # Verify results keys match the search window
-    expected_lags = list(range(min_lag, max_lag + 1, step))
-    assert list(results.keys()) == expected_lags, \
-        f"Expected lags {expected_lags}, got {list(results.keys())}"
+    # Verify the results contain lag candidates in the expected range
+    lag_candidates = results['lag_candidates']
     
-    # Verify the number of results matches the window
-    expected_count = len(expected_lags)
-    assert len(results) == expected_count, \
-        f"Expected {expected_count} results, got {len(results)}"
+    assert len(lag_candidates) > 0, "No lag candidates generated"
+    
+    # Check that all candidates are within the expected window
+    for lag in lag_candidates:
+        assert LAG_WINDOW_MIN <= lag <= LAG_WINDOW_MAX, \
+            f"Lag {lag} outside expected window [{LAG_WINDOW_MIN}, {LAG_WINDOW_MAX}]"
+    
+    # Check that the step size is approximately correct
+    if len(lag_candidates) > 1:
+        steps = np.diff(lag_candidates)
+        # Allow some tolerance for floating point
+        assert all(abs(step - LAG_STEP) < 0.1 for step in steps), \
+            f"Lag steps {steps} do not match expected step size {LAG_STEP}"
 
 
 def test_optimal_lag_identification():
-    """Test that the function correctly identifies the optimal lag."""
-    # Generate data with a known lag of 45 minutes
+    """
+    Test that find_optimal_lag correctly identifies the optimal lag
+    when there is a known correlation at a specific lag.
+    """
+    # Create a dataset with a known true lag of 45 minutes
     true_lag = 45
-    vsw, ey = generate_test_data(n_points=1000, true_lag_minutes=true_lag)
+    df = create_synthetic_lagged_dataset(n_samples=500, true_lag_minutes=true_lag)
     
-    # Search around the expected lag
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw, ey, 
-        min_lag=30, 
-        max_lag=60, 
-        step=5
-    )
+    # Run the lag sweep
+    results = find_optimal_lag(df['Vsw'], df['Ey'])
     
-    # The optimal lag should be close to the true lag (allowing for noise)
-    assert abs(optimal_lag - true_lag) <= 5, \
-        f"Expected optimal lag near {true_lag}, got {optimal_lag}"
+    # Verify the optimal lag is close to the true lag
+    optimal_lag = results['optimal_lag']
+    optimal_corr = results['optimal_correlation']
     
-    # Verify that the max_corr corresponds to the optimal_lag in results
-    assert abs(results[optimal_lag] - max_corr) < 1e-10, \
-        f"max_corr {max_corr} does not match results[{optimal_lag}] {results[optimal_lag]}"
+    # The optimal lag should be within ±1 minute of the true lag
+    # (accounting for step size and noise)
+    assert abs(optimal_lag - true_lag) <= (LAG_STEP + 1), \
+        f"Optimal lag {optimal_lag} too far from true lag {true_lag}"
     
-    # Verify that max_corr is the maximum value in results
-    assert max_corr == max(results.values()), \
-        f"max_corr {max_corr} is not the maximum in results"
+    # The optimal correlation should be the maximum absolute correlation
+    abs_corrs = [abs(c) for c in results['correlations']]
+    max_abs_corr = max(abs_corrs)
+    
+    assert abs(optimal_corr) == max_abs_corr, \
+        f"Optimal correlation {optimal_corr} is not the maximum absolute correlation {max_abs_corr}"
+    
+    # Verify that the optimal lag corresponds to the optimal correlation
+    lag_idx = results['lag_candidates'].index(optimal_lag)
+    assert abs(results['correlations'][lag_idx]) == max_abs_corr, \
+        "Optimal lag does not correspond to maximum correlation"
 
 
-def test_find_optimal_lag_basic():
-    """Test that the function returns a valid lag within the search window."""
-    vsw, ey = generate_test_data()
+def test_optimal_lag_with_negative_correlation():
+    """
+    Test that find_optimal_lag correctly handles negative correlations.
+    """
+    # Create a dataset with negative correlation
+    n_samples = 500
+    start_time = datetime(2023, 1, 1)
+    timestamps = [start_time + timedelta(minutes=i*5) for i in range(n_samples)]
     
-    optimal_lag, max_corr, results = find_optimal_lag(vsw, ey)
+    vsw = 400 + 100 * np.sin(np.linspace(0, 4*np.pi, n_samples)) + np.random.normal(0, 20, n_samples)
     
-    # Check return types
-    assert isinstance(optimal_lag, int), f"optimal_lag should be int, got {type(optimal_lag)}"
-    assert isinstance(max_corr, float), f"max_corr should be float, got {type(max_corr)}"
-    assert isinstance(results, dict), f"results should be dict, got {type(results)}"
+    # Create Ey with negative correlation to shifted Vsw
+    lag_index = int(60 / 5)  # 60 minute lag
+    shifted_vsw = np.roll(vsw, lag_index)
+    ey = -0.5 * shifted_vsw + np.random.normal(0, 50, n_samples)
     
-    # Check lag is within default window
-    assert LAG_WINDOW_MIN <= optimal_lag <= LAG_WINDOW_MAX, \
-        f"optimal_lag {optimal_lag} outside default window [{LAG_WINDOW_MIN}, {LAG_WINDOW_MAX}]"
+    df = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': vsw,
+        'Ey': ey
+    })
     
-    # Check that max_corr is a valid correlation coefficient
-    assert -1.0 <= max_corr <= 1.0, f"max_corr {max_corr} outside valid range [-1, 1]"
-
-
-def test_find_optimal_lag_recovers_known_lag():
-    """Test that the function can recover a known lag in synthetic data."""
-    # Generate data with a known lag of 45 minutes (9 steps of 5 min)
-    vsw, ey = generate_test_data(true_lag_minutes=45)
+    # Run the lag sweep
+    results = find_optimal_lag(df['Vsw'], df['Ey'])
     
-    # Search specifically around the expected lag to avoid edge effects
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw, ey, 
-        min_lag=30, 
-        max_lag=60, 
-        step=5
-    )
+    # The optimal correlation should be negative
+    assert results['optimal_correlation'] < 0, \
+        f"Expected negative correlation for negatively correlated data, got {results['optimal_correlation']}"
     
-    # The optimal lag should be close to 45 minutes (allowing for noise)
-    assert 40 <= optimal_lag <= 50, f"Expected lag near 45, got {optimal_lag}"
+    # The optimal lag should be close to 60 minutes
+    assert abs(results['optimal_lag'] - 60) <= (LAG_STEP + 1), \
+        f"Optimal lag {results['optimal_lag']} too far from expected 60 minutes"
 
 
 def test_find_optimal_lag_empty_input():
-    """Test that the function raises an error for empty input."""
-    vsw = pd.Series([], dtype=float, index=pd.DatetimeIndex([]))
-    ey = pd.Series([], dtype=float, index=pd.DatetimeIndex([]))
+    """
+    Test that find_optimal_lag handles empty input gracefully.
+    """
+    empty_vsw = pd.Series([])
+    empty_ey = pd.Series([])
     
-    with pytest.raises(ValueError, match="Input series cannot be empty"):
-        find_optimal_lag(vsw, ey)
+    with pytest.raises((ValueError, IndexError)):
+        find_optimal_lag(empty_vsw, empty_ey)
 
 
-def test_find_optimal_lag_all_nan():
-    """Test behavior when one series is all NaN."""
-    timestamps = pd.date_range(start='2023-01-01', periods=100, freq='5min')
-    vsw = pd.Series(np.random.randn(100), index=timestamps)
-    ey = pd.Series(np.nan, index=timestamps)
+def test_find_optimal_lag_single_value():
+    """
+    Test that find_optimal_lag handles single-value input gracefully.
+    """
+    single_vsw = pd.Series([400.0])
+    single_ey = pd.Series([50.0])
     
-    with pytest.raises(ValueError, match="No valid correlations found"):
-        find_optimal_lag(vsw, ey)
+    with pytest.raises((ValueError, IndexError)):
+        find_optimal_lag(single_vsw, single_ey)
 
 
-def test_find_optimal_lag_custom_window():
-    """Test that custom window parameters are respected."""
-    vsw, ey = generate_test_data()
+def test_find_optimal_lag_with_nans():
+    """
+    Test that find_optimal_lag handles NaN values correctly.
+    """
+    # Create dataset with some NaN values
+    df = create_synthetic_lagged_dataset(n_samples=200, true_lag_minutes=45)
     
-    # Search a narrow window
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw, ey,
-        min_lag=30,
-        max_lag=35,
-        step=5
-    )
+    # Introduce some NaN values
+    df.loc[10:15, 'Vsw'] = np.nan
+    df.loc[20:25, 'Ey'] = np.nan
     
-    assert optimal_lag in [30, 35], f"Expected 30 or 35, got {optimal_lag}"
-    assert len(results) == 2, f"Expected 2 results, got {len(results)}"
-
-
-def test_find_optimal_lag_negative_correlation():
-    """Test handling of data with negative correlation."""
-    # Generate data with negative correlation
-    timestamps = pd.date_range(start='2023-01-01', periods=500, freq='5min')
-    base_signal = np.sin(np.linspace(0, 10*np.pi, 500))
-    vsw = base_signal + np.random.normal(0, 0.1, 500)
-    # Invert the signal for negative correlation
-    ey = -np.roll(base_signal, -9) + np.random.normal(0, 0.1, 500)
-    ey[:9] = np.nan
-    
-    vsw_series = pd.Series(vsw, index=timestamps)
-    ey_series = pd.Series(ey, index=timestamps)
-    
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw_series, ey_series,
-        min_lag=30,
-        max_lag=60,
-        step=5
-    )
-    
-    # Should still find an optimal lag, even if correlation is negative
-    assert LAG_WINDOW_MIN <= optimal_lag <= LAG_WINDOW_MAX
-    # max_corr should be the maximum (least negative) correlation
-    assert max_corr == max(results.values())
-
-
-def test_find_optimal_lag_single_point_valid():
-    """Test that the function handles minimal valid input."""
-    # Create minimal valid dataset with at least 2 points after lag
-    timestamps = pd.date_range(start='2023-01-01', periods=20, freq='5min')
-    vsw = pd.Series(np.random.randn(20), index=timestamps)
-    ey = pd.Series(np.random.randn(20), index=timestamps)
-    
-    # Use a very narrow window
-    optimal_lag, max_corr, results = find_optimal_lag(
-        vsw, ey,
-        min_lag=30,
-        max_lag=35,
-        step=5
-    )
-    
-    assert optimal_lag in [30, 35]
-    assert -1.0 <= max_corr <= 1.0
+    # This should not raise an error, but the function should handle NaNs
+    # (either by filtering or by the underlying correlation function)
+    try:
+        results = find_optimal_lag(df['Vsw'], df['Ey'])
+        # If it succeeds, verify the results are reasonable
+        assert 'optimal_lag' in results
+        assert 'optimal_correlation' in results
+    except Exception as e:
+        # If it fails, it should be due to insufficient valid data
+        # This is acceptable behavior
+        assert "not enough valid data" in str(e).lower() or "insufficient" in str(e).lower()

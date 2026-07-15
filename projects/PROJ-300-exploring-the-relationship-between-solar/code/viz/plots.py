@@ -1,180 +1,134 @@
 """
-Visualization module for solar wind and geomagnetic tail reconnection analysis.
+Visualization module for plotting solar wind and geomagnetic data.
 File: code/viz/plots.py
+
+Functions:
+  - plot_scatter: Generate scatter plot of lag-adjusted Vsw vs. Ey with regression line.
+  - plot_timeseries: Generate dual-axis time-series overlay of Vsw and Ey.
+
+Both functions include correct axis labels, units, and optimal lag annotation (SC-005).
 """
 import os
 from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE
-
+from scipy import stats
 
 def plot_scatter(
-    df: pd.DataFrame,
-    optimal_lag: Optional[int] = None,
-    output_path: Optional[str] = None
-) -> Tuple[plt.Figure, plt.Axes]:
+    df_vsw: pd.DataFrame,
+    df_ey: pd.DataFrame,
+    output_path: str,
+    optimal_lag: int,
+    title: Optional[str] = None
+) -> None:
     """
-    Generate a scatter plot of lag-adjusted Vsw vs. Ey with regression line.
-
-    Includes:
-    - Correct axis labels with units (km/s for Vsw, mV/m for Ey)
-    - Linear regression line and equation display
-    - Optimal lag annotation if provided
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame with columns 'Vsw' and 'Ey'.
-    optimal_lag : int, optional
-        Optimal lag in minutes to annotate on the plot.
-    output_path : str, optional
-        Path to save the figure. If None, figure is not saved.
-
-    Returns
-    -------
-    fig, ax : matplotlib Figure, Axes
-        The generated plot objects.
+    Generate a scatter plot of Solar Wind Speed (Vsw) vs. Tail Reconnection Rate (Ey).
+    
+    Args:
+        df_vsw: DataFrame with columns ['timestamp', 'Vsw']
+        df_ey: DataFrame with columns ['timestamp', 'Ey']
+        output_path: Path to save the PNG file.
+        optimal_lag: The optimal lag in minutes to display in the annotation.
+        title: Optional custom title.
+    
+    Requirements (SC-005):
+        - X-axis label: "Solar Wind Speed (km/s)"
+        - Y-axis label: "Tail Reconnection Rate Ey (mV/m)"
+        - Annotation: "Optimal Lag: {L*} min"
+        - Includes regression line.
     """
-    if 'Vsw' not in df.columns or 'Ey' not in df.columns:
-        raise ValueError("DataFrame must contain 'Vsw' and 'Ey' columns.")
-
-    # Drop NaNs for plotting
-    plot_data = df[['Vsw', 'Ey']].dropna()
-    if len(plot_data) < 2:
-        raise ValueError("Not enough data points for scatter plot after NaN removal.")
-
-    x = plot_data['Vsw'].values
-    y = plot_data['Ey'].values
-
-    # Perform linear regression
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    
+    # Prepare data: drop NaNs
+    valid_mask = df_vsw['Vsw'].notna() & df_ey['Ey'].notna()
+    vsw_data = df_vsw.loc[valid_mask, 'Vsw']
+    ey_data = df_ey.loc[valid_mask, 'Ey']
+    
+    if len(vsw_data) < 2:
+        raise ValueError("Insufficient valid data points to generate scatter plot.")
+    
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(x, y, alpha=0.6, edgecolors='k', s=20, label='Data')
-
-    # Plot regression line
-    x_line = np.linspace(x.min(), x.max(), 100)
-    y_line = slope * x_line + intercept
-    ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Fit: y={slope:.4f}x+{intercept:.4f}\nR²={r_value**2:.4f}')
-
-    ax.set_xlabel('Solar Wind Speed (Vsw) [km/s]', fontsize=12)
-    ax.set_ylabel('Tail Reconnection Rate (Ey) [mV/m]', fontsize=12)
-    ax.set_title('Solar Wind Speed vs. Geomagnetic Tail Reconnection Rate', fontsize=14)
-    ax.legend(loc='upper left')
+    
+    # Scatter plot
+    ax.scatter(vsw_data, ey_data, alpha=0.6, label='Data Points', color='tab:blue')
+    
+    # Regression line
+    slope, intercept, r_value, p_value, std_err = stats.linregress(vsw_data, ey_data)
+    line_data = np.array([vsw_data.min(), vsw_data.max()])
+    ax.plot(line_data, slope * line_data + intercept, 'r-', label=f'Linear Fit (r={r_value:.2f})')
+    
+    # Labels and Title (SC-005)
+    ax.set_xlabel('Solar Wind Speed (km/s)', fontsize=12)
+    ax.set_ylabel('Tail Reconnection Rate Ey (mV/m)', fontsize=12)
+    
+    plot_title = title if title else f'Lag-Adjusted Scatter Plot (Optimal Lag: {optimal_lag} min)'
+    ax.set_title(plot_title, fontsize=14)
+    
+    ax.legend(loc='best')
     ax.grid(True, linestyle='--', alpha=0.7)
-
-    # Annotate optimal lag if provided
-    if optimal_lag is not None:
-        annotation_text = f'Optimal Lag: {optimal_lag} min'
-        ax.text(0.05, 0.95, annotation_text, transform=ax.transAxes,
-                fontsize=11, verticalalignment='top',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
+    
+    # Save
     plt.tight_layout()
-
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        fig.savefig(output_path, dpi=300)
-        plt.close(fig)
-
-    return fig, ax
-
+    plt.savefig(output_path, dpi=150)
+    plt.close(fig)
 
 def plot_timeseries(
     df_vsw: pd.DataFrame,
     df_ey: pd.DataFrame,
-    optimal_lag: Optional[int] = None,
-    output_path: Optional[str] = None
-) -> Tuple[plt.Figure, plt.Axes]:
+    output_path: str,
+    optimal_lag: int,
+    title: Optional[str] = None
+) -> None:
     """
     Generate a dual-axis time-series overlay of Vsw and Ey.
-
-    Includes:
-    - Timestamp on x-axis
-    - Left y-axis for Vsw [km/s]
-    - Right y-axis for Ey [mV/m]
-    - Optimal lag annotation if provided
-
-    Parameters
-    ----------
-    df_vsw : pd.DataFrame
-        DataFrame with 'timestamp' and 'Vsw' columns.
-    df_ey : pd.DataFrame
-        DataFrame with 'timestamp' and 'Ey' columns.
-    optimal_lag : int, optional
-        Optimal lag in minutes to annotate.
-    output_path : str, optional
-        Path to save the figure.
-
-    Returns
-    -------
-    fig, ax : matplotlib Figure, Axes
-        The generated plot objects.
+    
+    Args:
+        df_vsw: DataFrame with columns ['timestamp', 'Vsw']
+        df_ey: DataFrame with columns ['timestamp', 'Ey']
+        output_path: Path to save the PNG file.
+        optimal_lag: The optimal lag in minutes to display in the annotation.
+        title: Optional custom title.
+    
+    Requirements (SC-005):
+        - X-axis label: "Time (UTC)"
+        - Left Y-axis: "Solar Wind Speed (km/s)"
+        - Right Y-axis: "Tail Reconnection Rate Ey (mV/m)"
+        - Annotation: "Optimal Lag: {L*} min"
     """
-    # Ensure timestamp is datetime and set as index for alignment
-    if 'timestamp' in df_vsw.columns:
-        df_vsw = df_vsw.set_index('timestamp')
-    if 'timestamp' in df_ey.columns:
-        df_ey = df_ey.set_index('timestamp')
-
-    # Align indices
-    common_index = df_vsw.index.intersection(df_ey.index)
-    if len(common_index) == 0:
-        raise ValueError("No common timestamps between Vsw and Ey data.")
-
-    vsw_series = df_vsw.loc[common_index, 'Vsw'].dropna()
-    ey_series = df_ey.loc[common_index, 'Ey'].dropna()
-
-    # Re-align after dropna
-    common_index_final = vsw_series.index.intersection(ey_series.index)
-    if len(common_index_final) == 0:
-        raise ValueError("No valid data points after NaN removal.")
-
-    vsw_plot = vsw_series.loc[common_index_final]
-    ey_plot = ey_series.loc[common_index_final]
-
-    fig, ax1 = plt.subplots(figsize=(14, 6))
-
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    
+    # Plot Vsw
     color_vsw = 'tab:blue'
-    ax1.set_xlabel('Time', fontsize=12)
-    ax1.set_ylabel('Solar Wind Speed (Vsw) [km/s]', color=color_vsw, fontsize=12)
-    ax1.plot(vsw_plot.index, vsw_plot.values, color=color_vsw, label='Vsw', linewidth=1.5)
+    ax1.set_xlabel('Time (UTC)', fontsize=12)
+    ax1.set_ylabel('Solar Wind Speed (km/s)', color=color_vsw, fontsize=12)
+    ax1.plot(df_vsw['timestamp'], df_vsw['Vsw'], color=color_vsw, label='Vsw', linewidth=1.5)
     ax1.tick_params(axis='y', labelcolor=color_vsw)
-    ax1.grid(True, linestyle='--', alpha=0.3)
-
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Plot Ey on twin axis
     ax2 = ax1.twinx()
-    color_ey = 'tab:red'
-    ax2.set_ylabel('Tail Reconnection Rate (Ey) [mV/m]', color=color_ey, fontsize=12)
-    ax2.plot(ey_plot.index, ey_plot.values, color=color_ey, label='Ey', linewidth=1.5, alpha=0.8)
+    color_ey = 'tab:orange'
+    ax2.set_ylabel('Tail Reconnection Rate Ey (mV/m)', color=color_ey, fontsize=12)
+    ax2.plot(df_ey['timestamp'], df_ey['Ey'], color=color_ey, label='Ey', linewidth=1.5, alpha=0.8)
     ax2.tick_params(axis='y', labelcolor=color_ey)
-
+    
     # Combine legends
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     lines_2, labels_2 = ax2.get_legend_handles_labels()
     ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper left')
-
-    plt.title('Time Series: Solar Wind Speed and Tail Reconnection Rate', fontsize=14)
-
-    # Annotate optimal lag
-    if optimal_lag is not None:
-        annotation_text = f'Optimal Lag: {optimal_lag} min'
-        ax1.text(0.05, 0.95, annotation_text, transform=ax1.transAxes,
-                 fontsize=11, verticalalignment='top',
-                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
+    
+    # Title with Optimal Lag Annotation (SC-005)
+    plot_title = title if title else f'Time Series Overlay (Optimal Lag: {optimal_lag} min)'
+    ax1.set_title(plot_title, fontsize=14)
+    
+    # Rotate x-axis labels for readability
+    plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45, ha='right')
+    
     plt.tight_layout()
-
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        fig.savefig(output_path, dpi=300)
-        plt.close(fig)
-
-    return fig, ax1
-
-
-# Import stats locally to avoid circular dependency issues if any,
-# though scipy.stats is standard.
-from scipy import stats
+    plt.savefig(output_path, dpi=150)
+    plt.close(fig)
