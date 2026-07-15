@@ -1,97 +1,121 @@
 # Quickstart Guide
 
+This guide explains how to run the full simulation and validation pipeline for the project.
+
 ## Prerequisites
 
 - Python 3.8+
 - Required packages listed in `requirements.txt`
 
-## Installation
+## Setup
+
+1. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+2. Ensure directory structure is created:
+ ```bash
+ python code/setup_directories.py
+ ```
+
+## Running the Pipeline
+
+### Step 1: Run Simulation (User Story 1)
+
+Generates synthetic data and runs statistical tests.
 
 ```bash
-pip install -r requirements.txt
+python code/main.py --mode simulation --min-n 5 --max-n 50 --iterations 1000
 ```
 
-## Running the Full Pipeline
+This will produce:
+- `data/simulation/p_values_raw.csv`
+- `data/simulation/error_rates_summary.csv`
 
-The full pipeline consists of several steps:
+### Step 2: Threshold Identification (User Story 2)
 
-### 1. Setup Directories
-```bash
-python code/setup_directories.py
-```
+Analyzes error rates to find reliability thresholds.
 
-### 2. Download Real Datasets (US3)
-```bash
-python code/analysis/validator.py
-```
-
-### 3. Run Real Data Validation (US3)
-```bash
-python code/analysis/real_data_runner.py
-```
-
-### 4. Run Main Simulation (US1)
-```bash
-python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000
-```
-
-Or run the full simulation grid:
-```bash
-python code/main.py
-```
-
-### 5. Aggregate Results (US1)
-```bash
-python code/analysis/aggregator.py
-```
-
-### 6. Find Thresholds (US2)
 ```bash
 python code/analysis/threshold_finder.py
 ```
 
-### 7. Generate Visualizations (US2)
+This will produce:
+- `data/simulation/thresholds.json`
+
+### Step 3: Visualization (User Story 2)
+
+Generates plots of the results.
+
 ```bash
 python code/visualization/plotter.py
 ```
 
-### 8. Run Bootstrapped Power Estimation (US3 - T032)
+This will produce plots in `data/visualization/`.
+
+### Step 4: Validation (User Story 3)
+
+Downloads real datasets and compares against simulation.
+
+```bash
+python code/main.py --mode validation
+```
+
+This will produce:
+- `data/simulation/real_data_pvalues.csv`
+
+### Step 5: Bootstrapped Power Estimation (Task T032)
+
+Performs bootstrapped power estimation and KS distance validation.
+
 ```bash
 python code/analysis/bootstrapper.py
 ```
 
-### 9. Generate Validation Report (US3)
+This will produce:
+- `data/simulation/real_data_power.json`
+
+### Step 6: Generate Final Report
+
 ```bash
 python code/analysis/report_generator.py
 ```
 
-## Expected Outputs
+This will produce:
+- `data/reports/validation_report.md`
 
-After running the full pipeline, you should see:
+## Full Pipeline Execution
 
-- `data/simulation/p_values_raw.csv` - Raw p-values from simulation
-- `data/simulation/error_rates_summary.csv` - Aggregated error rates
-- `data/simulation/thresholds.json` - Identified thresholds
-- `data/simulation/real_data_pvalues.csv` - P-values from real data
-- `data/simulation/real_data_power.json` - Bootstrapped power results
-- `data/simulation/validation_metrics.json` - Validation metrics
-- `data/visualization/*.png` - Generated plots
-- `data/reports/validation_report.md` - Final validation report
+To run the entire pipeline from scratch:
+
+```bash
+# Setup
+python code/setup_directories.py
+
+# Simulation
+python code/main.py --mode simulation --min-n 5 --max-n 50 --iterations 1000
+
+# Thresholds
+python code/analysis/threshold_finder.py
+
+# Visualization
+python code/visualization/plotter.py
+
+# Validation
+python code/main.py --mode validation
+
+# Bootstrapped Power (T032)
+python code/analysis/bootstrapper.py
+
+# Report
+python code/analysis/report_generator.py
+```
 
 ## Testing
 
 Run the test suite:
+
 ```bash
 python code/run_tests.py
 ```
-
-Or with pytest directly:
-```bash
-pytest tests/
-```
-
-## Troubleshooting
-
-- If you encounter memory issues, reduce the number of iterations in `code/main.py`
-- For real data download failures, check your internet connection and UCI repository availability
-- Ensure all required packages are installed as per `requirements.txt`

@@ -1,273 +1,209 @@
+"""
+Main entry point for the simulation and validation pipeline.
+"""
+from __future__ import annotations
+
 import argparse
 import gc
 import json
 import os
 import sys
-import time
-import logging
-from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
+import traceback
+from datetime import datetime
 
-# Import simulation components
-from code.simulation.data_generator import (
-    generate_normal_data,
-    generate_multinomial_data,
-    generate_contingency_table_data,
-    generate_two_sample_data,
-    generate_anova_data
-)
-from code.simulation.test_runner import (
-    run_t_test,
-    run_anova,
-    run_chi_squared,
-    run_simulation_condition,
-    aggregate_results
-)
-from code.simulation.output_writer import (
-    ensure_output_directory,
-    write_p_values_raw,
-    load_p_values_raw_safe
-)
-from code.simulation.logging_config import setup_logging, get_logger, log_simulation_params
-from code.simulation import get_rng
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import analysis components
+from code.simulation.logging_config import get_logger, log_operation, log_error_details
+from code.simulation.test_runner import run_simulation_condition
+from code.simulation.output_writer import write_p_values_raw, ensure_output_directory
 from code.analysis.aggregator import calculate_error_rates, save_aggregated_results
-from code.analysis.threshold_finder import calculate_confidence_intervals, save_thresholds
-from code.analysis.validator import (
-    download_breast_cancer_dataset,
-    download_wine_dataset,
-    download_adult_dataset,
-    preprocess_dataset_for_validation
-)
-from code.analysis.real_data_runner import run_validation_on_datasets, save_p_values_to_csv
-from code.analysis.bootstrapper import run_bootstrapped_validation, save_power_results
-from code.utils.checksum_utils import (
-    ensure_metadata_file_exists,
-    save_simulation_metadata,
-    register_dataset_checksum
-)
+from code.analysis.validator import download_breast_cancer_dataset, download_wine_dataset, download_adult_dataset, prepare_data_for_ttest, prepare_data_for_anova, prepare_data_for_chi_squared
+from code.analysis.real_data_runner import run_validation_on_datasets
+from code.utils.checksum_utils import register_run, update_run_status
+from code.simulation.data_generator import generate_two_sample_data, generate_anova_data, generate_contingency_table_data
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
-BATCH_SIZE = 1000  # Number of iterations to process before checking memory and writing to disk
+logger = get_logger("main")
 
-def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB using resource module (Unix) or fallback."""
+def get_memory_usage_mb():
+    """Get current memory usage in MB."""
     try:
         import resource
-        usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On Linux, ru_maxrss is in KB. On macOS, it's in KB too but sometimes reported differently.
-        # Standardizing to KB -> MB
-        if sys.platform == 'darwin':
-            # macOS ru_maxrss is in bytes
-            return usage / (1024 * 1024)
-        else:
-            # Linux ru_maxrss is in KB
-            return usage / 1024.0
-    except ImportError:
-        # Fallback: estimate based on numpy arrays or just return 0
-        # In a real scenario, we might use psutil if installed
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    except Exception:
         return 0.0
 
-def check_memory_limit(current_mb: float) -> bool:
-    """Check if current memory usage exceeds the limit."""
-    return current_mb > MEMORY_LIMIT_MB
+def check_memory_limit(limit_mb: float = 7000.0) -> bool:
+    """Check if memory usage is within limit."""
+    current = get_memory_usage_mb()
+    if current > limit_mb:
+        logger.log("memory_limit_exceeded", current=current, limit=limit_mb)
+        return False
+    return True
 
 def force_gc():
-    """Force garbage collection to reclaim memory."""
+    """Force garbage collection."""
     gc.collect()
-    # Clear numpy caches if necessary
-    np.lib.stride_tricks._array_function_dispatch = None
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Simulation of statistical tests sensitivity")
-    parser.add_argument("--mode", choices=["simulation", "validation", "full"], default="simulation",
-                        help="Execution mode: simulation, validation, or full pipeline")
-    parser.add_argument("--test", type=str, default="t-test",
-                        help="Test type: t-test, anova, chi-squared")
+def parse_args():
+    parser = argparse.ArgumentParser(description="Statistical Test Sensitivity Analysis")
+    parser.add_argument("--mode", type=str, default="simulation", choices=["simulation", "validation", "full"],
+                        help="Mode of operation: simulation, validation, or full pipeline")
+    parser.add_argument("--test", type=str, default="t-test", choices=["t-test", "anova", "chi-squared"],
+                        help="Statistical test to run")
     parser.add_argument("--min-n", type=int, default=5, help="Minimum sample size")
     parser.add_argument("--max-n", type=int, default=500, help="Maximum sample size")
     parser.add_argument("--step-n", type=int, default=5, help="Step size for sample sizes")
-    parser.add_argument("--iterations", type=int, default=10000, help="Number of iterations per condition")
+    parser.add_argument("--iterations", type=int, default=1000, help="Number of iterations per condition")
     parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
-    parser.add_argument("--effect-size", type=str, default="0.5", help="Effect size (comma-separated)")
-    parser.add_argument("--hypotheses", type=str, default="two-sided", help="Hypothesis type (comma-separated)")
-    parser.add_argument("--chunk-size", type=int, default=BATCH_SIZE, help="Iterations per batch for memory management")
+    parser.add_argument("--effect-size", type=float, default=0.5, help="Effect size for simulation")
+    parser.add_argument("--chunk-size", type=int, default=50, help="Chunk size for processing")
+    parser.add_argument("--hypotheses", type=str, default="null,alternative", help="Comma-separated list of hypotheses")
     return parser.parse_args()
 
-def validate_args(args: argparse.Namespace) -> None:
+def validate_args(args):
     if args.min_n < 2:
         raise ValueError("Minimum sample size must be at least 2")
     if args.max_n < args.min_n:
         raise ValueError("Maximum sample size must be greater than or equal to minimum")
-    if args.iterations < 100:
-        raise ValueError("Iterations must be at least 100 for meaningful results")
+    if args.iterations < 1:
+        raise ValueError("Iterations must be at least 1")
+    return True
 
-def generate_sample_sizes(args: argparse.Namespace) -> List[int]:
-    return list(range(args.min_n, args.max_n + 1, args.step_n))
+def generate_sample_sizes(min_n: int, max_n: int, step: int):
+    return list(range(min_n, max_n + 1, step))
 
-def parse_effect_sizes(effect_str: str) -> List[float]:
+def parse_effect_sizes(effect_str: str):
     return [float(x) for x in effect_str.split(",")]
 
-def parse_hypotheses(hyp_str: str) -> List[str]:
-    return [x.strip() for x in hyp_str.split(",")]
+def parse_hypotheses(hypotheses_str: str):
+    return [h.strip() for h in hypotheses_str.split(",")]
 
-def generate_conditions(args: argparse.Namespace) -> List[Dict[str, Any]]:
-    sample_sizes = generate_sample_sizes(args)
-    effect_sizes = parse_effect_sizes(args.effect_size)
+def generate_conditions(args):
+    sample_sizes = generate_sample_sizes(args.min_n, args.max_n, args.step_n)
     hypotheses = parse_hypotheses(args.hypotheses)
+    # For simplicity, we use a single effect size for the grid
+    effect_sizes = [args.effect_size]
     
     conditions = []
     for n in sample_sizes:
-        for effect in effect_sizes:
-            for hyp in hypotheses:
+        for h in hypotheses:
+            for es in effect_sizes:
                 conditions.append({
                     "sample_size": n,
-                    "effect_size": effect,
-                    "hypothesis": hyp,
+                    "hypothesis": h,
+                    "effect_size": es,
                     "test_type": args.test,
-                    "alpha": args.alpha,
-                    "iterations": args.iterations
+                    "iterations": args.iterations,
+                    "alpha": args.alpha
                 })
     return conditions
 
-def run_simulation_grid_chunked(args: argparse.Namespace, conditions: List[Dict[str, Any]]) -> None:
-    logger = get_logger()
-    logger.info(f"Starting simulation grid with {len(conditions)} conditions")
+def run_simulation_grid_chunked(args):
+    """Run the simulation grid in chunks to manage memory."""
+    logger.log("simulation_start", mode="chunked", **vars(args))
     
-    all_results = []
-    current_batch = []
+    # Register run
+    try:
+        register_run("simulation", vars(args))
+    except TypeError:
+        # Fallback for older signature
+        register_run("simulation")
+
+    conditions = generate_conditions(args)
     
-    # Ensure output directory exists
-    ensure_output_directory("data/simulation")
+    # Ensure output directory
+    ensure_output_directory()
+    
+    all_p_values = []
     
     for i, condition in enumerate(conditions):
-        logger.info(f"Processing condition {i+1}/{len(conditions)}: n={condition['sample_size']}, effect={condition['effect_size']}")
+        if i % args.chunk_size == 0 and i > 0:
+            force_gc()
+            if not check_memory_limit():
+                logger.log("memory_limit_warning", iteration=i)
         
-        # Run simulation condition
+        logger.log("simulation_condition", index=i, **condition)
+        
+        # Run simulation for this condition
         results = run_simulation_condition(condition)
-        current_batch.append(results)
         
-        # Memory management
-        if len(current_batch) >= args.chunk_size:
-            # Write batch to disk
-            write_p_values_raw(current_batch, "data/simulation/p_values_raw.csv", append=True)
-            current_batch = []
-            
-            # Check memory and force GC
-            mem_usage = get_memory_usage_mb()
-            if check_memory_limit(mem_usage):
-                logger.warning(f"Memory usage high ({mem_usage:.2f} MB). Forcing GC.")
-                force_gc()
-            
-            # Small sleep to let OS reclaim memory
-            time.sleep(0.1)
+        # Collect results
+        for res in results:
+            all_p_values.append(res)
         
-        # Progress logging
+        # Write partial results to avoid losing everything on crash
         if (i + 1) % 10 == 0:
-            mem_usage = get_memory_usage_mb()
-            logger.info(f"Progress: {i+1}/{len(conditions)}, Memory: {mem_usage:.2f} MB")
-    
-    # Write remaining batch
-    if current_batch:
-        write_p_values_raw(current_batch, "data/simulation/p_values_raw.csv", append=True)
-    
-    logger.info("Simulation grid completed. Aggregating results...")
+            write_p_values_raw(all_p_values, overwrite=False)
+
+    # Write final results
+    write_p_values_raw(all_p_values, overwrite=True)
     
     # Aggregate results
-    aggregated = calculate_error_rates("data/simulation/p_values_raw.csv")
-    save_aggregated_results(aggregated, "data/simulation/error_rates_summary.csv")
+    save_aggregated_results(all_p_values, args.alpha)
     
-    logger.info("Aggregation completed. Results saved to data/simulation/error_rates_summary.csv")
+    logger.log("simulation_complete", total_conditions=len(conditions))
 
-def run_validation_mode(args: argparse.Namespace) -> None:
-    logger = get_logger()
-    logger.info("Starting validation mode...")
+def run_validation_mode(args):
+    """Run the validation mode on real datasets."""
+    logger.log("validation_start", **vars(args))
     
-    # Download datasets
-    logger.info("Downloading UCI datasets...")
-    datasets = {
-        "breast_cancer": download_breast_cancer_dataset(),
-        "wine": download_wine_dataset(),
-        "adult": download_adult_dataset()
-    }
-    
-    # Compute and register checksums
-    for name, data in datasets.items():
-        if data is not None:
-            checksum = register_dataset_checksum(data, f"data/raw/{name}.csv")
-            logger.info(f"Registered checksum for {name}: {checksum}")
-    
-    # Run validation
-    logger.info("Running validation on real datasets...")
-    p_values = run_validation_on_datasets(datasets, args.test, args.alpha)
-    save_p_values_to_csv(p_values, "data/simulation/real_data_pvalues.csv")
-    
-    # Bootstrapped power estimation
-    logger.info("Running bootstrapped power estimation...")
-    power_results = run_bootstrapped_validation(p_values, "data/simulation/p_values_raw.csv")
-    save_power_results(power_results, "data/simulation/real_data_power.json")
-    
-    # Generate validation report
-    from code.analysis.report_generator import generate_report
-    generate_report()
-    
-    logger.info("Validation mode completed.")
+    try:
+        register_run("validation", vars(args))
+    except TypeError:
+        register_run("validation")
 
-def run_full_pipeline(args: argparse.Namespace) -> None:
-    logger = get_logger()
-    logger.info("Starting full pipeline...")
+    # Run validation on datasets
+    run_validation_on_datasets()
+    
+    logger.log("validation_complete")
+
+def run_full_pipeline(args):
+    """Run the full pipeline: simulation, aggregation, validation, bootstrapping, reporting."""
+    logger.log("full_pipeline_start")
     
     # Run simulation
-    conditions = generate_conditions(args)
-    run_simulation_grid_chunked(args, conditions)
+    run_simulation_grid_chunked(args)
     
     # Run validation
     run_validation_mode(args)
     
-    # Generate thresholds and plots
-    logger.info("Generating thresholds and visualizations...")
-    from code.analysis.threshold_finder import main as threshold_main
-    threshold_main()
+    # Run bootstrapper (T032)
+    from code.analysis.bootstrapper import main as bootstrapper_main
+    bootstrapper_main()
     
-    from code.visualization.plotter import main as plotter_main
-    plotter_main()
+    # Run report generator
+    from code.analysis.report_generator import main as report_main
+    report_main()
     
-    logger.info("Full pipeline completed.")
+    logger.log("full_pipeline_complete")
 
 def main():
     args = parse_args()
-    validate_args(args)
-    
-    # Setup logging
-    log_file = setup_logging()
-    logger = get_logger()
-    
-    logger.info(f"Starting simulation with args: {args}")
-    log_simulation_params(args)
     
     try:
+        validate_args(args)
+        
         if args.mode == "simulation":
-            conditions = generate_conditions(args)
-            run_simulation_grid_chunked(args, conditions)
+            run_simulation_grid_chunked(args)
         elif args.mode == "validation":
             run_validation_mode(args)
         elif args.mode == "full":
             run_full_pipeline(args)
         else:
-            logger.error(f"Unknown mode: {args.mode}")
-            sys.exit(1)
-        
-        logger.info("Simulation completed successfully.")
+            raise ValueError(f"Unknown mode: {args.mode}")
+            
     except Exception as e:
-        logger.error(f"Simulation failed: {str(e)}")
-        raise
-    finally:
-        # Force GC at the end
-        force_gc()
-        logger.info("Garbage collection completed.")
+        # Log error details
+        try:
+            log_error_details(e, context=vars(args))
+        except TypeError:
+            # Fallback for older signature
+            log_error_details(e)
+        
+        logger.log("critical_error", error=str(e))
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

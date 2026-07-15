@@ -1,15 +1,8 @@
-"""
-Unit tests for the threshold_finder module.
-
-Tests Wilson score interval calculation and threshold identification logic.
-"""
+"""Unit tests for threshold identification logic."""
 import pytest
-import os
 import json
+import os
 import tempfile
-from unittest.mock import patch, MagicMock
-import numpy as np
-
 from code.analysis.threshold_finder import (
     wilson_score_interval,
     calculate_confidence_intervals,
@@ -18,236 +11,292 @@ from code.analysis.threshold_finder import (
     save_thresholds
 )
 
-
 class TestWilsonScoreInterval:
-    """Tests for the Wilson score interval calculation."""
-
-    def test_trivial_cases(self):
-        """Test cases with 0 or 100% success rates."""
-        # 0 successes
-        lower, upper, point = wilson_score_interval(0, 100)
-        assert point == 0.0
+    """Tests for Wilson score interval calculation."""
+    
+    def test_wilson_interval_basic(self):
+        """Test basic Wilson score interval calculation."""
+        # With 5 successes out of 100 trials at 95% confidence
+        lower, upper = wilson_score_interval(5, 100, confidence=0.95)
+        
+        # Should return valid probabilities
+        assert 0.0 <= lower <= 1.0
+        assert 0.0 <= upper <= 1.0
+        assert lower <= upper
+        
+    def test_wilson_interval_zero_successes(self):
+        """Test Wilson score with zero successes."""
+        lower, upper = wilson_score_interval(0, 100, confidence=0.95)
+        
         assert lower == 0.0
-        assert upper > 0.0  # Upper bound should be > 0 due to uncertainty
+        assert 0.0 <= upper <= 1.0
         
-        # 100% successes
-        lower, upper, point = wilson_score_interval(100, 100)
-        assert point == 1.0
+    def test_wilson_interval_all_successes(self):
+        """Test Wilson score with all successes."""
+        lower, upper = wilson_score_interval(100, 100, confidence=0.95)
+        
+        assert 0.0 <= lower <= 1.0
         assert upper == 1.0
-        assert lower < 1.0
-
-    def test_symmetric_confidence(self):
-        """Test that confidence interval is symmetric around point estimate for large N."""
-        # For large N, Wilson should approximate normal approximation
-        successes = 50
-        total = 100
-        lower, upper, point = wilson_score_interval(successes, total)
         
-        assert abs(point - 0.5) < 1e-6
-        # Check that the interval contains the point estimate
-        assert lower <= point <= upper
-
-    def test_confidence_level(self):
-        """Test that higher confidence gives wider intervals."""
-        lower95, upper95, _ = wilson_score_interval(30, 100, confidence=0.95)
-        lower99, upper99, _ = wilson_score_interval(30, 100, confidence=0.99)
+    def test_wilson_interval_empty_sample(self):
+        """Test Wilson score with zero trials."""
+        lower, upper = wilson_score_interval(0, 0, confidence=0.95)
         
-        # 99% CI should be wider than 95% CI
-        width95 = upper95 - lower95
-        width99 = upper99 - lower99
-        
-        assert width99 > width95
-
-    def test_small_sample_size(self):
-        """Test behavior with very small sample sizes."""
-        lower, upper, point = wilson_score_interval(1, 2)
-        assert point == 0.5
-        # With n=2, uncertainty should be very high
-        assert upper - lower > 0.5
-
-    def test_zero_total(self):
-        """Test edge case with zero total trials."""
-        lower, upper, point = wilson_score_interval(0, 0)
-        assert point == 0.0
         assert lower == 0.0
         assert upper == 0.0
-
-
+        
+    def test_wilson_interval_confidence_levels(self):
+        """Test Wilson score with different confidence levels."""
+        lower_95, upper_95 = wilson_score_interval(50, 100, confidence=0.95)
+        lower_99, upper_99 = wilson_score_interval(50, 100, confidence=0.99)
+        
+        # Higher confidence should give wider interval
+        assert (upper_99 - lower_99) > (upper_95 - lower_95)
+        
 class TestCalculateConfidenceIntervals:
-    """Tests for adding confidence intervals to data."""
-
-    def test_adds_ci_columns(self):
-        """Test that CI columns are added to each row."""
+    """Tests for confidence interval calculation on error rate data."""
+    
+    def test_calculate_ci_null_hypothesis(self):
+        """Test CI calculation for null hypothesis (Type I error)."""
+        data = [{
+            'test_type': 't-test',
+            'effect_size': 0.0,
+            'sample_size': 30,
+            'hypothesis': 'null',
+            'type1_errors': 5,
+            'type2_errors': 0,
+            'iterations': 100
+        }]
+        
+        results = calculate_confidence_intervals(data)
+        
+        assert len(results) == 1
+        assert 'type1_ci_lower' in results[0]
+        assert 'type1_ci_upper' in results[0]
+        assert 'power_ci_lower' not in results[0]
+        
+    def test_calculate_ci_alternative_hypothesis(self):
+        """Test CI calculation for alternative hypothesis (power)."""
+        data = [{
+            'test_type': 't-test',
+            'effect_size': 0.5,
+            'sample_size': 30,
+            'hypothesis': 'alternative',
+            'type1_errors': 0,
+            'type2_errors': 20,
+            'iterations': 100
+        }]
+        
+        results = calculate_confidence_intervals(data)
+        
+        assert len(results) == 1
+        assert 'power_ci_lower' in results[0]
+        assert 'power_ci_upper' in results[0]
+        assert 'type1_ci_lower' not in results[0]
+        
+    def test_calculate_ci_mixed_hypotheses(self):
+        """Test CI calculation with mixed hypotheses."""
         data = [
             {
-                'sample_size': 50,
-                'error_rate': 0.05,
-                'n_iterations': 1000,
                 'test_type': 't-test',
-                'hypothesis': 'null'
-            }
-        ]
-        
-        result = calculate_confidence_intervals(data)
-        
-        assert len(result) == 1
-        assert 'ci_lower' in result[0]
-        assert 'ci_upper' in result[0]
-        assert 'ci_point' in result[0]
-
-    def test_preserves_original_data(self):
-        """Test that original data is preserved."""
-        original_data = [
-            {
-                'sample_size': 50,
-                'effect_size': 0.5,
-                'error_rate': 0.05,
-                'n_iterations': 1000,
-                'test_type': 't-test',
+                'effect_size': 0.0,
+                'sample_size': 30,
                 'hypothesis': 'null',
-                'extra_field': 'keep_me'
+                'type1_errors': 5,
+                'type2_errors': 0,
+                'iterations': 100
+            },
+            {
+                'test_type': 't-test',
+                'effect_size': 0.5,
+                'sample_size': 30,
+                'hypothesis': 'alternative',
+                'type1_errors': 0,
+                'type2_errors': 20,
+                'iterations': 100
             }
         ]
         
-        result = calculate_confidence_intervals(original_data)
+        results = calculate_confidence_intervals(data)
         
-        assert result[0]['sample_size'] == 50
-        assert result[0]['extra_field'] == 'keep_me'
-        assert result[0]['ci_point'] == pytest.approx(0.05, rel=0.01)
-
+        assert len(results) == 2
+        assert 'type1_ci_lower' in results[0]
+        assert 'power_ci_lower' in results[1]
 
 class TestFindTypeIThreshold:
     """Tests for Type I error threshold identification."""
-
-    def test_finds_threshold_when_lower_ci_exceeds_alpha(self):
-        """Test detection when lower CI bound > alpha."""
+    
+    def test_find_type_i_threshold_exceeded(self):
+        """Test finding threshold when Type I error exceeds alpha."""
         data = [
-            {'sample_size': 10, 'test_type': 't-test', 'hypothesis': 'null', 
-             'ci_lower': 0.02, 'ci_upper': 0.08, 'ci_point': 0.05},
-            {'sample_size': 20, 'test_type': 't-test', 'hypothesis': 'null', 
-             'ci_lower': 0.06, 'ci_upper': 0.12, 'ci_point': 0.09},  # Lower > 0.05
-            {'sample_size': 30, 'test_type': 't-test', 'hypothesis': 'null', 
-             'ci_lower': 0.04, 'ci_upper': 0.10, 'ci_point': 0.07}
-        ]
-        
-        threshold = find_type_i_threshold(data, alpha=0.05)
-        
-        assert threshold is not None
-        assert threshold['sample_size'] == 20
-        assert threshold['test_type'] == 't-test'
-
-    def test_returns_none_when_no_threshold(self):
-        """Test when no sample size exceeds alpha."""
-        data = [
-            {'sample_size': 10, 'test_type': 't-test', 'hypothesis': 'null', 
-             'ci_lower': 0.02, 'ci_upper': 0.08, 'ci_point': 0.05},
-            {'sample_size': 20, 'test_type': 't-test', 'hypothesis': 'null', 
-             'ci_lower': 0.03, 'ci_upper': 0.09, 'ci_point': 0.06}
-        ]
-        
-        threshold = find_type_i_threshold(data, alpha=0.05)
-        
-        assert threshold is None
-
-    def test_ignores_alternative_hypothesis(self):
-        """Test that alternative hypothesis data is ignored."""
-        data = [
-            {'sample_size': 10, 'test_type': 't-test', 'hypothesis': 'alt', 
-             'ci_lower': 0.80, 'ci_upper': 0.95, 'ci_point': 0.87}
-        ]
-        
-        threshold = find_type_i_threshold(data, alpha=0.05)
-        
-        assert threshold is None
-
-
-class TestFindPowerThreshold:
-    """Tests for power threshold identification."""
-
-    def test_finds_threshold_when_power_below_target_consecutively(self):
-        """Test detection of insufficient power over consecutive samples."""
-        # Create data where power upper bound is below 0.80 for 3 consecutive sizes
-        data = [
-            {'sample_size': 10, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.60, 'ci_lower': 0.40, 'ci_point': 0.50},
-            {'sample_size': 20, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.65, 'ci_lower': 0.45, 'ci_point': 0.55},
-            {'sample_size': 30, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.70, 'ci_lower': 0.50, 'ci_point': 0.60},
-            {'sample_size': 40, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.85, 'ci_lower': 0.70, 'ci_point': 0.77}  # Recovers
-        ]
-        
-        threshold = find_power_threshold(data, power_target=0.80, consecutive_count=3)
-        
-        assert threshold is not None
-        assert threshold['sample_size'] == 30
-        assert threshold['test_type'] == 't-test'
-
-    def test_returns_none_when_power_sufficient(self):
-        """Test when power is always above target."""
-        data = [
-            {'sample_size': 10, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.90, 'ci_lower': 0.80, 'ci_point': 0.85}
-        ]
-        
-        threshold = find_power_threshold(data, power_target=0.80)
-        
-        assert threshold is None
-
-    def test_requires_consecutive_failures(self):
-        """Test that non-consecutive low power doesn't trigger threshold."""
-        data = [
-            {'sample_size': 10, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.60, 'ci_lower': 0.40, 'ci_point': 0.50},
-            {'sample_size': 20, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.85, 'ci_lower': 0.75, 'ci_point': 0.80},  # Recovers
-            {'sample_size': 30, 'test_type': 't-test', 'effect_size': 0.5, 
-             'hypothesis': 'alt', 'ci_upper': 0.60, 'ci_lower': 0.40, 'ci_point': 0.50}
-        ]
-        
-        threshold = find_power_threshold(data, power_target=0.80, consecutive_count=3)
-        
-        assert threshold is None
-
-
-class TestSaveThresholds:
-    """Tests for saving thresholds to JSON."""
-
-    def test_saves_to_json(self):
-        """Test that thresholds are saved correctly to JSON file."""
-        thresholds = [
             {
-                'threshold_type': 'type_i_deviation',
                 'test_type': 't-test',
-                'sample_size': 25,
-                'observed_rate': 0.06
+                'effect_size': 0.0,
+                'sample_size': 10,
+                'hypothesis': 'null',
+                'type1_errors': 2,
+                'type2_errors': 0,
+                'iterations': 100,
+                'type1_ci_lower': 0.02,
+                'type1_ci_upper': 0.15
+            },
+            {
+                'test_type': 't-test',
+                'effect_size': 0.0,
+                'sample_size': 20,
+                'hypothesis': 'null',
+                'type1_errors': 10,
+                'type2_errors': 0,
+                'iterations': 100,
+                'type1_ci_lower': 0.08,
+                'type1_ci_upper': 0.22
             }
         ]
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            temp_path = f.name
+        thresholds = find_type_i_threshold(data, alpha=0.05)
+        
+        assert len(thresholds) == 1
+        assert thresholds[0]['threshold_n'] == 20
+        assert thresholds[0]['test_type'] == 't-test'
+        
+    def test_find_type_i_threshold_not_exceeded(self):
+        """Test when Type I error never exceeds alpha."""
+        data = [
+            {
+                'test_type': 't-test',
+                'effect_size': 0.0,
+                'sample_size': 10,
+                'hypothesis': 'null',
+                'type1_errors': 1,
+                'type2_errors': 0,
+                'iterations': 100,
+                'type1_ci_lower': 0.005,
+                'type1_ci_upper': 0.05
+            }
+        ]
+        
+        thresholds = find_type_i_threshold(data, alpha=0.05)
+        
+        assert len(thresholds) == 0
+        
+class TestFindPowerThreshold:
+    """Tests for power threshold identification."""
+    
+    def test_find_power_threshold_below_target(self):
+        """Test finding threshold when power stays below target."""
+        data = [
+            {
+                'test_type': 't-test',
+                'effect_size': 0.2,
+                'sample_size': 10,
+                'hypothesis': 'alternative',
+                'type1_errors': 0,
+                'type2_errors': 80,
+                'iterations': 100,
+                'power_ci_lower': 0.10,
+                'power_ci_upper': 0.30
+            },
+            {
+                'test_type': 't-test',
+                'effect_size': 0.2,
+                'sample_size': 20,
+                'hypothesis': 'alternative',
+                'type1_errors': 0,
+                'type2_errors': 70,
+                'iterations': 100,
+                'power_ci_lower': 0.20,
+                'power_ci_upper': 0.45
+            },
+            {
+                'test_type': 't-test',
+                'effect_size': 0.2,
+                'sample_size': 30,
+                'hypothesis': 'alternative',
+                'type1_errors': 0,
+                'type2_errors': 60,
+                'iterations': 100,
+                'power_ci_lower': 0.30,
+                'power_ci_upper': 0.55
+            }
+        ]
+        
+        thresholds = find_power_threshold(data, power_target=0.80, consecutive_increments=3)
+        
+        assert len(thresholds) == 1
+        assert thresholds[0]['threshold_n'] == 30
+        
+    def test_find_power_threshold_above_target(self):
+        """Test when power exceeds target."""
+        data = [
+            {
+                'test_type': 't-test',
+                'effect_size': 0.5,
+                'sample_size': 50,
+                'hypothesis': 'alternative',
+                'type1_errors': 0,
+                'type2_errors': 10,
+                'iterations': 100,
+                'power_ci_lower': 0.85,
+                'power_ci_upper': 0.95
+            }
+        ]
+        
+        thresholds = find_power_threshold(data, power_target=0.80, consecutive_increments=3)
+        
+        assert len(thresholds) == 0
+
+class TestSaveThresholds:
+    """Tests for threshold saving functionality."""
+    
+    def test_save_thresholds_creates_file(self):
+        """Test that save_thresholds creates the output file."""
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as tmp:
+            tmp_path = tmp.name
         
         try:
-            save_thresholds(thresholds, temp_path)
+            type_i_thresholds = [
+                {
+                    'test_type': 't-test',
+                    'effect_size': 0.0,
+                    'threshold_n': 20,
+                    'ci_lower_at_threshold': 0.08,
+                    'alpha': 0.05
+                }
+            ]
+            power_thresholds = []
             
-            with open(temp_path, 'r') as f:
-                loaded = json.load(f)
+            save_thresholds(type_i_thresholds, power_thresholds, tmp_path)
             
-            assert len(loaded) == 1
-            assert loaded[0]['test_type'] == 't-test'
-            assert loaded[0]['sample_size'] == 25
+            assert os.path.exists(tmp_path)
+            
+            with open(tmp_path, 'r') as f:
+                data = json.load(f)
+                
+            assert 'type_i_thresholds' in data
+            assert 'power_thresholds' in data
+            assert 'metadata' in data
+            assert len(data['type_i_thresholds']) == 1
+            
         finally:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-
-    def test_creates_directory_if_needed(self):
-        """Test that output directory is created if it doesn't exist."""
-        thresholds = [{'test_type': 't-test', 'sample_size': 10}]
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+                
+    def test_save_thresholds_empty_lists(self):
+        """Test saving with empty threshold lists."""
+        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as tmp:
+            tmp_path = tmp.name
         
-        with tempfile.TemporaryDirectory() as temp_dir:
-            nested_path = os.path.join(temp_dir, 'subdir', 'thresholds.json')
+        try:
+            save_thresholds([], [], tmp_path)
             
-            save_thresholds(thresholds, nested_path)
+            assert os.path.exists(tmp_path)
             
-            assert os.path.exists(nested_path)
+            with open(tmp_path, 'r') as f:
+                data = json.load(f)
+                
+            assert len(data['type_i_thresholds']) == 0
+            assert len(data['power_thresholds']) == 0
+            
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)

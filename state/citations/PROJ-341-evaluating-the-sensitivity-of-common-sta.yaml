@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: 832b94ef470295be9228deaaaacc847b90b1ee0836ef7996e0ca9ac39093eec9
+- artifact_hash: 1c2b0225ac9fce888659071fb88be59aaede50d2d6133f4cb710cc0dce050a6b
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-07-15T07:48:09.423005Z'
-- artifact_hash: 832b94ef470295be9228deaaaacc847b90b1ee0836ef7996e0ca9ac39093eec9
+  verified_at: '2026-07-15T08:56:02.365361Z'
+- artifact_hash: 1c2b0225ac9fce888659071fb88be59aaede50d2d6133f4cb710cc0dce050a6b
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://arxiv.org/abs/1405.1250
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-07-15T07:48:09.423005Z'
+  verified_at: '2026-07-15T08:56:02.365361Z'

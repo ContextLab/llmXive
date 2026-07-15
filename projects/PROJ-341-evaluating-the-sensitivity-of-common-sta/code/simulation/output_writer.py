@@ -1,84 +1,77 @@
+"""
+Output writer for simulation results.
+Implements T016: Write output results to data/simulation/p_values_raw.csv.
+"""
 import os
 import csv
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import pandas as pd
-from code.simulation.logging_config import get_logger
 
-def ensure_output_directory(filepath: str) -> None:
-    """Ensure the directory for the output file exists."""
-    directory = os.path.dirname(filepath)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
+from code.simulation.logging_config import get_logger, log_operation
 
-def write_p_values_raw(results: List[Dict[str, Any]], filepath: str) -> None:
-    """
-    Write raw p-values to a CSV file.
-    
-    Args:
-        results: List of dictionaries containing simulation results
-        filepath: Path to the output CSV file
-    """
-    if not results:
-        logger = get_logger()
-        logger.warning("No results to write to CSV")
-        return
-        
-    ensure_output_directory(filepath)
-    
-    # Define standard columns
-    columns = ['sample_size', 'effect_size', 'test_type', 'p_value', 'hypothesis_state']
-    
-    # Check if all results have the same keys
-    first_keys = set(results[0].keys())
-    for result in results[1:]:
-        if set(result.keys()) != first_keys:
-            logger = get_logger()
-            logger.warning("Inconsistent keys in results. Using union of all keys.")
-            first_keys = first_keys.union(set(result.keys()))
-            break
-    
-    # Write to CSV
-    with open(filepath, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=columns)
-        writer.writeheader()
-        
-        for result in results:
-            # Ensure all required columns are present
-            row = {col: result.get(col, '') for col in columns}
-            writer.writerow(row)
-    
-    logger = get_logger()
-    logger.info(f"Wrote {len(results)} results to {filepath}")
+logger = get_logger("output_writer")
 
-def load_p_values_raw(filepath: str) -> pd.DataFrame:
+def ensure_output_directory():
+    """Ensure the output directory exists."""
+    os.makedirs("data/simulation", exist_ok=True)
+
+def write_p_values_raw(p_values: List[Dict[str, Any]], filepath: str = "data/simulation/p_values_raw.csv", overwrite: bool = True):
     """
-    Load raw p-values from a CSV file.
+    Write p-values to CSV.
+    """
+    ensure_output_directory()
     
-    Args:
-        filepath: Path to the input CSV file
+    if overwrite or not os.path.exists(filepath):
+        mode = 'w'
+    else:
+        mode = 'a'
+    
+    with open(filepath, mode, newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["test_type", "sample_size", "effect_size", "hypothesis", "p_value", "timestamp"])
+        if overwrite or not os.path.exists(filepath) or os.path.getsize(filepath) == 0:
+            writer.writeheader()
         
-    Returns:
-        pd.DataFrame: DataFrame containing the loaded data
+        for p in p_values:
+            writer.writerow({
+                "test_type": p.get("test_type", "unknown"),
+                "sample_size": p.get("sample_size", 0),
+                "effect_size": p.get("effect_size", 0.0),
+                "hypothesis": p.get("hypothesis", "unknown"),
+                "p_value": p.get("p_value", 0.0),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+    
+    logger.log("p_values_written", path=filepath, count=len(p_values))
+
+def load_p_values_raw(filepath: str = "data/simulation/p_values_raw.csv") -> List[Dict[str, Any]]:
+    """
+    Load p-values from CSV.
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
-        
-    return pd.read_csv(filepath)
-
-def load_p_values_raw_safe(filepath: str) -> Optional[pd.DataFrame]:
-    """
-    Safely load raw p-values from a CSV file.
+        return []
     
-    Args:
-        filepath: Path to the input CSV file
-        
-    Returns:
-        Optional[pd.DataFrame]: DataFrame containing the loaded data, or None if failed
-    """
     try:
-        return load_p_values_raw(filepath)
+        df = pd.read_csv(filepath)
+        return df.to_dict('records')
     except Exception as e:
-        logger = get_logger()
-        logger.error(f"Failed to load p-values from {filepath}: {e}")
+        logger.log("failed_to_load_p_values", error=str(e))
+        return []
+
+def load_p_values_raw_safe(filepath: str = "data/simulation/p_values_raw.csv") -> Optional[pd.DataFrame]:
+    """
+    Load p-values from CSV safely.
+    """
+    if not os.path.exists(filepath):
         return None
+    try:
+        return pd.read_csv(filepath)
+    except Exception:
+        return None
+
+def main():
+    """Main entry point for testing."""
+    logger.log("output_writer_main")
+
+if __name__ == "__main__":
+    main()

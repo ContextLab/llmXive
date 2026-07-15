@@ -1,3 +1,10 @@
+"""
+Threshold identification and reliability analysis.
+
+This module computes binomial confidence intervals (Wilson score) for error rates,
+identifies sample size thresholds where error rates deviate from nominal alpha,
+and saves threshold metrics to JSON.
+"""
 import os
 import json
 import csv
@@ -5,271 +12,320 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from scipy import stats
 
-def wilson_score_interval(successes: int, trials: int, z: float = 1.96) -> Tuple[float, float]:
+# Import from local simulation module
+from code.simulation.logging_config import get_logger
+
+def wilson_score_interval(
+    successes: int, 
+    n: int, 
+    confidence: float = 0.95
+) -> Tuple[float, float]:
     """
     Calculate the Wilson score interval for a proportion.
     
     Args:
-        successes: Number of successes (e.g., Type I errors observed)
-        trials: Total number of trials (iterations)
-        z: Z-score for confidence level (default 1.96 for 95%)
+        successes: Number of successes (e.g., Type I errors)
+        n: Total number of trials
+        confidence: Confidence level (default 0.95)
         
     Returns:
         Tuple of (lower_bound, upper_bound)
     """
-    if trials == 0:
-        return (0.0, 0.0)
+    if n == 0:
+        return 0.0, 0.0
         
-    p_hat = successes / trials
-    denominator = 1 + (z**2 / trials)
-    centre = (p_hat + (z**2 / (2 * trials))) / denominator
-    margin = (z / denominator) * np.sqrt((p_hat * (1 - p_hat) / trials) + (z**2 / (4 * trials**2)))
+    z = stats.norm.ppf(1 - (1 - confidence) / 2)
+    p_hat = successes / n
     
-    return (centre - margin, centre + margin)
+    denominator = 1 + z**2 / n
+    centre_adjusted_probability = p_hat + z**2 / (2 * n)
+    adjusted_standard_deviation = np.sqrt(
+        (p_hat * (1 - p_hat) / n) + (z**2 / (4 * n**2))
+    )
+    
+    lower = (centre_adjusted_probability - z * adjusted_standard_deviation) / denominator
+    upper = (centre_adjusted_probability + z * adjusted_standard_deviation) / denominator
+    
+    return max(0.0, lower), min(1.0, upper)
 
-def calculate_confidence_intervals(error_rates: List[Dict[str, Any]], iterations: int = 10000) -> List[Dict[str, Any]]:
+def calculate_confidence_intervals(
+    error_rates_data: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """
-    Calculate Wilson score confidence intervals for error rates.
+    Calculate Wilson score confidence intervals for all error rates.
     
     Args:
-        error_rates: List of dictionaries containing 'type_i_count', 'type_ii_count', 
-                     'sample_size', 'test_type', 'effect_size', etc.
-        iterations: Total number of simulation iterations per condition
-                    
+        error_rates_data: List of dicts with keys:
+            - test_type: str
+            - effect_size: float
+            - sample_size: int
+            - hypothesis: str ('null' or 'alternative')
+            - type1_errors: int (count of Type I errors)
+            - type2_errors: int (count of Type II errors, for power calculation)
+            - iterations: int
+            
     Returns:
-        List of dictionaries with added CI bounds
+        List of dicts with added CI bounds:
+            - type1_ci_lower, type1_ci_upper
+            - power_ci_lower, power_ci_upper (power = 1 - type2_error_rate)
     """
     results = []
-    for row in error_rates:
-        new_row = row.copy()
+    
+    for row in error_rates_data:
+        row_copy = row.copy()
         
-        # Type I error CI
-        type_i_count = row.get('type_i_count', 0)
-        lower_i, upper_i = wilson_score_interval(type_i_count, iterations)
-        new_row['type_i_ci_lower'] = lower_i
-        new_row['type_i_ci_upper'] = upper_i
-        
-        # Power (1 - Type II) CI
-        # If we have type_ii_count, power = 1 - (type_ii / iterations)
-        # But we need CI for power directly or derive from Type II CI
-        type_ii_count = row.get('type_ii_count', 0)
-        lower_ii, upper_ii = wilson_score_interval(type_ii_count, iterations)
-        
-        # Power = 1 - Type II rate
-        # CI for power: [1 - upper_ii_rate, 1 - lower_ii_rate]
-        power_lower = 1.0 - upper_ii
-        power_upper = 1.0 - lower_ii
-        
-        new_row['power_ci_lower'] = max(0.0, power_lower)
-        new_row['power_ci_upper'] = min(1.0, power_upper)
-        new_row['type_ii_ci_lower'] = lower_ii
-        new_row['type_ii_ci_upper'] = upper_ii
-        
-        results.append(new_row)
+        # Type I error CI (when hypothesis is null)
+        if row['hypothesis'] == 'null':
+            n = row['iterations']
+            successes = row['type1_errors']
+            lower, upper = wilson_score_interval(successes, n)
+            row_copy['type1_ci_lower'] = lower
+            row_copy['type1_ci_upper'] = upper
+            
+        # Power CI (when hypothesis is alternative)
+        # Power = 1 - Type II error rate
+        # Type II error count is stored as type2_errors
+        elif row['hypothesis'] == 'alternative':
+            n = row['iterations']
+            # Power successes = iterations - type2_errors
+            power_successes = n - row['type2_errors']
+            lower, upper = wilson_score_interval(power_successes, n)
+            row_copy['power_ci_lower'] = lower
+            row_copy['power_ci_upper'] = upper
+            
+        results.append(row_copy)
         
     return results
 
-def load_error_rates(filepath: str = "data/simulation/error_rates_summary.csv") -> List[Dict[str, Any]]:
+def load_error_rates(filepath: str) -> List[Dict[str, Any]]:
     """
-    Load error rates from the aggregated CSV file.
+    Load error rates from CSV file.
     
     Args:
-        filepath: Path to the error rates CSV
+        filepath: Path to error_rates_summary.csv
         
     Returns:
-        List of dictionaries containing error rate data
+        List of dictionaries with error rate data
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Error rates file not found: {filepath}")
+        logger = get_logger("threshold_finder")
+        logger.warning("load_error_rates", filepath=filepath, error="File not found")
+        return []
         
     results = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert numeric strings to appropriate types
-            processed_row = {}
-            for key, value in row.items():
-                if key in ['sample_size', 'iterations', 'type_i_count', 'type_ii_count']:
-                    processed_row[key] = int(value)
-                elif key in ['effect_size', 'type_i_rate', 'type_ii_rate', 'power']:
-                    processed_row[key] = float(value)
-                else:
-                    processed_row[key] = value
+            # Convert numeric fields
+            processed_row = {
+                'test_type': row['test_type'],
+                'effect_size': float(row['effect_size']),
+                'sample_size': int(row['sample_size']),
+                'hypothesis': row['hypothesis'],
+                'type1_errors': int(row['type1_errors']),
+                'type2_errors': int(row['type2_errors']),
+                'iterations': int(row['iterations']),
+                'type1_error_rate': float(row['type1_error_rate']),
+                'power': float(row['power'])
+            }
             results.append(processed_row)
             
     return results
 
-def find_type_i_threshold(error_rates_with_ci: List[Dict[str, Any]], 
-                          alpha: float = 0.05,
-                          test_type: Optional[str] = None,
-                          effect_size: Optional[float] = None) -> Optional[int]:
+def find_type_i_threshold(
+    error_rates_data: List[Dict[str, Any]],
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Find the smallest sample size where Type I error lower CI bound > alpha.
+    Find the smallest sample size where the Type I error lower CI bound exceeds alpha.
+    
+    This identifies when the test becomes unreliable (over-rejects null).
     
     Args:
-        error_rates_with_ci: List of error rate data with confidence intervals
+        error_rates_data: List of error rate records with CI bounds
         alpha: Nominal significance level (default 0.05)
-        test_type: Filter by specific test type (optional)
-        effect_size: Filter by specific effect size (optional)
         
     Returns:
-        Smallest sample size meeting the threshold, or None if not found
+        Dict with:
+            - test_type: str
+            - effect_size: float (should be 0.0 for Type I)
+            - threshold_n: int or None if never exceeded
+            - ci_lower_at_threshold: float or None
+            - alpha: float
     """
-    filtered = error_rates_with_ci
-    if test_type:
-        filtered = [r for r in filtered if r.get('test_type') == test_type]
-    if effect_size is not None:
-        filtered = [r for r in filtered if abs(float(r.get('effect_size', 0)) - effect_size) < 1e-6]
-        
-    # Sort by sample size
-    filtered.sort(key=lambda x: x['sample_size'])
+    logger = get_logger("threshold_finder")
     
-    for row in filtered:
-        # Only consider Type I error cases (null hypothesis true)
-        # Typically effect_size == 0 or very small for Type I error measurement
-        if row.get('effect_size', 0) == 0:
-            ci_lower = row.get('type_i_ci_lower', 0)
-            if ci_lower > alpha:
-                return row['sample_size']
+    # Filter for null hypothesis and Type I error data
+    null_data = [
+        r for r in error_rates_data 
+        if r['hypothesis'] == 'null' and 'type1_ci_lower' in r
+    ]
+    
+    # Sort by sample size
+    null_data.sort(key=lambda x: x['sample_size'])
+    
+    # Group by test_type and effect_size
+    thresholds = {}
+    
+    for row in null_data:
+        key = (row['test_type'], row['effect_size'])
+        
+        if key not in thresholds:
+            # Check if lower CI exceeds alpha
+            if row['type1_ci_lower'] > alpha:
+                thresholds[key] = {
+                    'test_type': row['test_type'],
+                    'effect_size': row['effect_size'],
+                    'threshold_n': row['sample_size'],
+                    'ci_lower_at_threshold': row['type1_ci_lower'],
+                    'alpha': alpha
+                }
+                logger.log("type_i_threshold_found", test_type=row['test_type'], 
+                         effect_size=row['effect_size'], n=row['sample_size'])
+    
+    # Return list of thresholds
+    return list(thresholds.values())
+
+def find_power_threshold(
+    error_rates_data: List[Dict[str, Any]],
+    power_target: float = 0.80,
+    consecutive_increments: int = 3
+) -> List[Dict[str, Any]]:
+    """
+    Identify the smallest n where power CI remains below target for consecutive increments.
+    
+    This identifies when power is insufficient (underpowered tests).
+    
+    Args:
+        error_rates_data: List of error rate records with CI bounds
+        power_target: Target power level (default 0.80)
+        consecutive_increments: Number of consecutive sample sizes to check (default 3)
+        
+    Returns:
+        List of dicts with:
+            - test_type: str
+            - effect_size: float
+            - threshold_n: int or None
+            - power_ci_upper_at_threshold: float or None
+    """
+    logger = get_logger("threshold_finder")
+    
+    # Filter for alternative hypothesis (power data)
+    alt_data = [
+        r for r in error_rates_data 
+        if r['hypothesis'] == 'alternative' and 'power_ci_upper' in r
+    ]
+    
+    # Sort by sample size
+    alt_data.sort(key=lambda x: x['sample_size'])
+    
+    # Group by test_type and effect_size
+    thresholds = {}
+    
+    for key_group in set((r['test_type'], r['effect_size']) for r in alt_data):
+        test_type, effect_size = key_group
+        group = [r for r in alt_data if (r['test_type'], r['effect_size']) == key_group]
+        
+        # Check for consecutive increments below target
+        consecutive_count = 0
+        threshold_n = None
+        power_upper = None
+        
+        for row in group:
+            if row['power_ci_upper'] < power_target:
+                consecutive_count += 1
+                if consecutive_count >= consecutive_increments and threshold_n is None:
+                    threshold_n = row['sample_size']
+                    power_upper = row['power_ci_upper']
+                    logger.log("power_threshold_found", test_type=test_type,
+                             effect_size=effect_size, n=threshold_n)
+                    break
+            else:
+                consecutive_count = 0
                 
-    return None
+        if threshold_n is not None:
+            thresholds[key_group] = {
+                'test_type': test_type,
+                'effect_size': effect_size,
+                'threshold_n': threshold_n,
+                'power_ci_upper_at_threshold': power_upper,
+                'power_target': power_target
+            }
+    
+    return list(thresholds.values())
 
-def find_power_threshold(error_rates_with_ci: List[Dict[str, Any]],
-                         target_power: float = 0.80,
-                         test_type: Optional[str] = None,
-                         effect_size: Optional[float] = None,
-                         consecutive: int = 3) -> Optional[int]:
+def save_thresholds(
+    type_i_thresholds: List[Dict[str, Any]],
+    power_thresholds: List[Dict[str, Any]],
+    output_path: str
+) -> None:
     """
-    Find the smallest sample size where power CI remains >= target_power for 
-    consecutive increments.
+    Save threshold metrics to JSON file.
     
     Args:
-        error_rates_with_ci: List of error rate data with confidence intervals
-        target_power: Target power level (default 0.80)
-        test_type: Filter by specific test type (optional)
-        effect_size: Filter by specific effect size (optional)
-        consecutive: Number of consecutive increments required (default 3)
-        
-    Returns:
-        Smallest sample size meeting the threshold, or None if not found
+        type_i_thresholds: List of Type I error threshold records
+        power_thresholds: List of power threshold records
+        output_path: Path to output JSON file
     """
-    filtered = error_rates_with_ci
-    if test_type:
-        filtered = [r for r in filtered if r.get('test_type') == test_type]
-    if effect_size is not None:
-        filtered = [r for r in filtered if abs(float(r.get('effect_size', 0)) - effect_size) < 1e-6]
-        
-    # Sort by sample size
-    filtered.sort(key=lambda x: x['sample_size'])
+    logger = get_logger("threshold_finder")
     
-    # Filter for alternative hypothesis cases (effect_size > 0)
-    filtered = [r for r in filtered if r.get('effect_size', 0) > 0]
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    if len(filtered) < consecutive:
-        return None
-        
-    consecutive_count = 0
-    for row in filtered:
-        ci_lower = row.get('power_ci_lower', 0)
-        if ci_lower >= target_power:
-            consecutive_count += 1
-            if consecutive_count >= consecutive:
-                return row['sample_size']
-        else:
-            consecutive_count = 0
-            
-    return None
-
-def save_thresholds(thresholds: Dict[str, Any], 
-                    filepath: str = "data/simulation/thresholds.json") -> None:
-    """
-    Save threshold metrics to a JSON file.
-    
-    Args:
-        thresholds: Dictionary containing threshold metrics
-        filepath: Output path for the JSON file
-    """
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(thresholds, f, indent=2)
-
-def main():
-    """
-    Main function to compute and save threshold metrics.
-    Reads error_rates_summary.csv, calculates CIs, identifies thresholds,
-    and saves results to thresholds.json.
-    """
-    error_rates_file = "data/simulation/error_rates_summary.csv"
-    output_file = "data/simulation/thresholds.json"
-    
-    print(f"Loading error rates from {error_rates_file}...")
-    try:
-        error_rates = load_error_rates(error_rates_file)
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        print("Please run the simulation first to generate error_rates_summary.csv")
-        return
-        
-    print(f"Calculating confidence intervals for {len(error_rates)} conditions...")
-    error_rates_with_ci = calculate_confidence_intervals(error_rates)
-    
-    # Identify thresholds for each test type and effect size combination
-    thresholds = {
-        "metadata": {
-            "source_file": error_rates_file,
-            "generated_at": str(__import__('datetime').datetime.now()),
-            "alpha": 0.05,
-            "target_power": 0.80
-        },
-        "thresholds": []
+    # Combine thresholds into a single structure
+    output_data = {
+        'type_i_thresholds': type_i_thresholds,
+        'power_thresholds': power_thresholds,
+        'metadata': {
+            'generated_at': datetime.utcnow().isoformat(),
+            'description': 'Sample size thresholds for Type I error reliability and power adequacy'
+        }
     }
     
-    # Get unique combinations of test_type and effect_size
-    unique_configs = set()
-    for row in error_rates_with_ci:
-        test_type = row.get('test_type', 'unknown')
-        effect_size = row.get('effect_size', 0)
-        unique_configs.add((test_type, effect_size))
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
         
-    print(f"Identifying thresholds for {len(unique_configs)} configurations...")
+    logger.log("thresholds_saved", output_path=output_path,
+              type_i_count=len(type_i_thresholds), 
+              power_count=len(power_thresholds))
+
+def main():
+    """Main entry point for threshold analysis."""
+    logger = get_logger("threshold_finder")
     
-    for test_type, effect_size in sorted(unique_configs):
-        # Type I threshold (only for effect_size == 0)
-        type_i_threshold = None
-        if effect_size == 0:
-            type_i_threshold = find_type_i_threshold(
-                error_rates_with_ci, 
-                alpha=0.05,
-                test_type=test_type,
-                effect_size=effect_size
-            )
-        
-        # Power threshold (for effect_size > 0)
-        power_threshold = None
-        if effect_size > 0:
-            power_threshold = find_power_threshold(
-                error_rates_with_ci,
-                target_power=0.80,
-                test_type=test_type,
-                effect_size=effect_size,
-                consecutive=3
-            )
-        
-        threshold_entry = {
-            "test_type": test_type,
-            "effect_size": effect_size,
-            "type_i_threshold_n": type_i_threshold,
-            "power_threshold_n": power_threshold
-        }
-        thresholds["thresholds"].append(threshold_entry)
-        
-    save_thresholds(thresholds, output_file)
-    print(f"Threshold metrics saved to {output_file}")
-    print(f"Summary:")
-    for t in thresholds["thresholds"]:
-        print(f"  {t['test_type']} (effect={t['effect_size']}): "
-              f"Type I threshold n={t['type_i_threshold_n']}, "
-              f"Power threshold n={t['power_threshold_n']}")
+    # Define paths
+    error_rates_path = "data/simulation/error_rates_summary.csv"
+    thresholds_output_path = "data/simulation/thresholds.json"
+    
+    logger.log("threshold_analysis_start", input_file=error_rates_path)
+    
+    # Load error rates
+    error_rates_data = load_error_rates(error_rates_path)
+    
+    if not error_rates_data:
+        logger.log("threshold_analysis_error", error="No error rate data found")
+        # Create empty thresholds file
+        save_thresholds([], [], thresholds_output_path)
+        return
+    
+    # Calculate confidence intervals
+    error_rates_with_ci = calculate_confidence_intervals(error_rates_data)
+    
+    # Find Type I thresholds
+    type_i_thresholds = find_type_i_threshold(error_rates_with_ci, alpha=0.05)
+    
+    # Find power thresholds
+    power_thresholds = find_power_threshold(
+        error_rates_with_ci, 
+        power_target=0.80, 
+        consecutive_increments=3
+    )
+    
+    # Save results
+    save_thresholds(type_i_thresholds, power_thresholds, thresholds_output_path)
+    
+    logger.log("threshold_analysis_complete", output_file=thresholds_output_path)
 
 if __name__ == "__main__":
+    from datetime import datetime
     main()

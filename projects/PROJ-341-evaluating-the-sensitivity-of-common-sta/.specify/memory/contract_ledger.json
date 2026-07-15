@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "log_error_details",
+    "owner": null
+  },
+  {
+    "symbol": "register_run",
+    "owner": null
+  }
+]
