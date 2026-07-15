@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-770-resting-state-network-modularity-predict",
   "stage": "in_progress",
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-770-resting-state-network-modularity-predict/code'",
+  "class": "deterministic_repair",
+  "fingerprint": "filesystem_file_exists",
+  "consecutive_count": 100,
+  "first_seen": "2026-07-15T12:43:44.790335+00:00",
   "last_seen": "2026-07-15T12:43:44.790335+00:00",
-  "count": 100
+  "retry_after": "2026-07-16T10:03:44.790335+00:00",
+  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-770-resting-state-network-modularity-predict/code'",
+  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-770-resting-state-network-modularity-predict/code'",
+  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
+  "status": "retry_scheduled"
 }

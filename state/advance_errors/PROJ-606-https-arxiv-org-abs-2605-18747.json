@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
   "stage": "in_progress",
-  "last_error": "invalid transition in_progress -> clarified",
+  "class": "invariant",
+  "fingerprint": "invalid_transition",
+  "consecutive_count": 1,
+  "first_seen": "2026-06-30T20:19:34.660514+00:00",
   "last_seen": "2026-06-30T20:19:34.660514+00:00",
-  "count": 1
+  "retry_after": null,
+  "last_error": "invalid transition in_progress -> clarified",
+  "evidence": "invalid transition in_progress -> clarified",
+  "remediation": "An invalid state-machine transition was attempted \u2014 a code bug, not a flake; retrying can never fix it. Route to AGENT_BLOCKED and fix the transition logic.",
+  "status": "terminal"
 }

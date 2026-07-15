@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "stage": "in_progress",
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/security'",
+  "class": "deterministic_repair",
+  "fingerprint": "filesystem_file_exists",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-05T09:15:17.086383+00:00",
   "last_seen": "2026-07-05T09:15:17.086383+00:00",
-  "count": 1
+  "retry_after": "2026-07-05T09:25:17.086383+00:00",
+  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/security'",
+  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/security'",
+  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
+  "status": "retry_scheduled"
 }

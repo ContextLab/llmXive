@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-674-gc-content-and-thermal-stability-of-arch",
   "stage": "tasked",
-  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-674-gc-content-and-thermal-stability-of-arch/specs/001-gc-content-and-thermal-stability-of-arch/tasks.md.\n  Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (7 occurrences); sample=['[Linus Pauling Review]', '[Rosalind Franklin / Linus Pauling R\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "class": "permanent",
+  "fingerprint": "template_rejection",
+  "consecutive_count": 3,
+  "first_seen": "2026-07-15T12:43:19.268152+00:00",
   "last_seen": "2026-07-15T12:43:19.268152+00:00",
-  "count": 3
+  "retry_after": null,
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-674-gc-content-and-thermal-stability-of-arch/specs/001-gc-content-and-thermal-stability-of-arch/tasks.md.\n  Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (7 occurrences); sample=['[Linus Pauling Review]', '[Rosalind Franklin / Linus Pauling R\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-674-gc-content-and-thermal-stability-of-arch/specs/001-gc-content-and-thermal-stability-of-arch/tasks.md. Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (7 occurrences); sample=['[Linus Pauling Review]', '[Rosalind Franklin / Linus Pauling R Missing context: High density of [brac",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
 }

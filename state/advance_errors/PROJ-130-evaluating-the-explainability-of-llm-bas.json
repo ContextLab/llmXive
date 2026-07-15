@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-130-evaluating-the-explainability-of-llm-bas",
   "stage": "specified",
-  "last_error": "Clarifier left 3 of 3 markers unresolved (attempt 1/5); will not advance. Unresolved: ['Does Defects4J contain human rationale text for all selected bugs?', 'Are there known safety\u2011critical test failures in Defects4J that should be treated specially?', 'Desired power level (e.g., 0.8) and whether 50 bugs is sufficient.']",
+  "class": "emitter_context",
+  "fingerprint": "unresolved_markers",
+  "consecutive_count": 1,
+  "first_seen": "2026-06-29T16:11:20.156268+00:00",
   "last_seen": "2026-06-29T16:11:20.156268+00:00",
-  "count": 1
+  "retry_after": null,
+  "last_error": "Clarifier left 3 of 3 markers unresolved (attempt 1/5); will not advance. Unresolved: ['Does Defects4J contain human rationale text for all selected bugs?', 'Are there known safety\u2011critical test failures in Defects4J that should be treated specially?', 'Desired power level (e.g., 0.8) and whether 50 bugs is sufficient.']",
+  "evidence": "Clarifier left 3 of 3 markers unresolved (attempt 1/5); will not advance. Unresolved: ['Does Defects4J contain human rationale text for all selected bugs?', 'Are there known safety\u2011critical test failures in Defects4J that should be treated specially?', 'Desired power level (e.g., 0.8) and whether 50 bugs is sufficient.']",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
 }

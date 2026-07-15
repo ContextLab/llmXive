@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-575-training-long-context-vision-language-mo",
   "stage": "paper_analyzed",
-  "last_error": "invalid transition paper_analyzed -> paper_planned",
+  "class": "invariant",
+  "fingerprint": "invalid_transition",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-01T07:47:49.792045+00:00",
   "last_seen": "2026-07-01T07:47:49.792045+00:00",
-  "count": 1
+  "retry_after": null,
+  "last_error": "invalid transition paper_analyzed -> paper_planned",
+  "evidence": "invalid transition paper_analyzed -> paper_planned",
+  "remediation": "An invalid state-machine transition was attempted \u2014 a code bug, not a flake; retrying can never fix it. Route to AGENT_BLOCKED and fix the transition logic.",
+  "status": "terminal"
 }

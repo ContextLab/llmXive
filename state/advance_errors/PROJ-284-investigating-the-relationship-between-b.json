@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "stage": "in_progress",
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['anthropic.claude-sonnet-4-6'] failed on backend 'dartmouth'; errors: anthropic.claude-sonnet-4-6(model-down attempt 1): Dartmouth model 'anthropic.claude-sonnet-4-6' hung past 180s deadline (no response received) | local: transformers is not installed; required by local backend",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 2,
+  "first_seen": "2026-07-14T04:59:15.498068+00:00",
   "last_seen": "2026-07-14T04:59:15.498068+00:00",
-  "count": 2
+  "retry_after": "2026-07-14T05:19:15.498068+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['anthropic.claude-sonnet-4-6'] failed on backend 'dartmouth'; errors: anthropic.claude-sonnet-4-6(model-down attempt 1): Dartmouth model 'anthropic.claude-sonnet-4-6' hung past 180s deadline (no response received) | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['anthropic.claude-sonnet-4-6'] failed on backend 'dartmouth'; errors: anthropic.claude-sonnet-4-6(model-down attempt 1): Dartmouth model 'anthropic.claude-sonnet-4-6' hung past 180s deadline (no response received) | local: transformers is not installed; required by local backend",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }

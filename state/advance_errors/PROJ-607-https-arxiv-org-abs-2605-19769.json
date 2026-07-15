@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
   "stage": "paper_specified",
-  "last_error": "Paper clarifier left 3 of 3 markers unresolved (attempt 4/5); will not advance. Unresolved: ['The specific \"ordering metric\" to be used for the \"Engine vs. Agent\" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).', 'The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the reader.', 'Whether the \"Limitations\" section should include a specific recommendation for future work (e.g., \"A larger sample size is required for statistical significance\") or simply state the constraint.']",
+  "class": "emitter_context",
+  "fingerprint": "unresolved_markers",
+  "consecutive_count": 4,
+  "first_seen": "2026-06-30T23:12:31.904112+00:00",
   "last_seen": "2026-06-30T23:12:31.904112+00:00",
-  "count": 4
+  "retry_after": null,
+  "last_error": "Paper clarifier left 3 of 3 markers unresolved (attempt 4/5); will not advance. Unresolved: ['The specific \"ordering metric\" to be used for the \"Engine vs. Agent\" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).', 'The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the reader.', 'Whether the \"Limitations\" section should include a specific recommendation for future work (e.g., \"A larger sample size is required for statistical significance\") or simply state the constraint.']",
+  "evidence": "Paper clarifier left 3 of 3 markers unresolved (attempt 4/5); will not advance. Unresolved: ['The specific \"ordering metric\" to be used for the \"Engine vs. Agent\" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).', 'The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the ",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
 }

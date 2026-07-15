@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-793-viq-text-aligned-visual-quantized-repres",
   "stage": "paper_ingested",
-  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/Hemabhushan/capstone_sakuka_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "class": "permanent",
+  "fingerprint": "unreachable_reference",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-01T14:03:45.066438+00:00",
   "last_seen": "2026-07-01T14:03:45.066438+00:00",
-  "count": 1
+  "retry_after": null,
+  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/Hemabhushan/capstone_sakuka_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "evidence": "research.md reference is unreachable: 'https://huggingface.co/datasets/Hemabhushan/capstone_sakuka_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
 }

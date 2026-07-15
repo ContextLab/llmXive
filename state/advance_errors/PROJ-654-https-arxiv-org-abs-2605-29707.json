@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
   "stage": "paper_ingested",
-  "last_error": "PROJ-654-https-arxiv-org-abs-2605-29707: no paper/source/*.tex draft to seed from \u2014 the ingested paper LaTeX is missing",
+  "class": "emitter_context",
+  "fingerprint": "no_seed_draft",
+  "consecutive_count": 4,
+  "first_seen": "2026-07-01T23:40:01.622792+00:00",
   "last_seen": "2026-07-01T23:40:01.622792+00:00",
-  "count": 4
+  "retry_after": null,
+  "last_error": "PROJ-654-https-arxiv-org-abs-2605-29707: no paper/source/*.tex draft to seed from \u2014 the ingested paper LaTeX is missing",
+  "evidence": "PROJ-654-https-arxiv-org-abs-2605-29707: no paper/source/*.tex draft to seed from \u2014 the ingested paper LaTeX is missing",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
 }

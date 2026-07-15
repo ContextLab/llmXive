@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-190-investigating-the-relationship-between-b",
   "stage": "in_progress",
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-190-investigating-the-relationship-between-b/data/raw'",
+  "class": "deterministic_repair",
+  "fingerprint": "filesystem_file_exists",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-05T00:54:16.035971+00:00",
   "last_seen": "2026-07-05T00:54:16.035971+00:00",
-  "count": 1
+  "retry_after": "2026-07-05T01:04:16.035971+00:00",
+  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-190-investigating-the-relationship-between-b/data/raw'",
+  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-190-investigating-the-relationship-between-b/data/raw'",
+  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
+  "status": "retry_scheduled"
 }

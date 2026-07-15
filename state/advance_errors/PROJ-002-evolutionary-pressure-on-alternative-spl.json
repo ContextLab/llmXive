@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-002-evolutionary-pressure-on-alternative-spl",
   "stage": "clarified",
-  "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(model-down attempt 1): Dartmouth model 'google.gemma-3-27b-it' hung past 180s deadline (no response received) | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline (no response received) | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f5421905110>, 'Connection to chat.dartmouth.edu timed out. (connect timeout=",
+  "class": "transient",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-06-29T08:53:52.656983+00:00",
   "last_seen": "2026-06-29T08:53:52.656983+00:00",
-  "count": 1
+  "retry_after": "2026-06-29T09:03:52.656983+00:00",
+  "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(model-down attempt 1): Dartmouth model 'google.gemma-3-27b-it' hung past 180s deadline (no response received) | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline (no response received) | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f5421905110>, 'Connection to chat.dartmouth.edu timed out. (connect timeout=",
+  "evidence": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): Dartmouth model 'qwen.qwen3.5-122b' hung past 360s deadline (no response received) | google.gemma-3-27b-it(model-down attempt 1): Dartmouth model 'google.gemma-3-27b-it' hung past 180s deadl",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }

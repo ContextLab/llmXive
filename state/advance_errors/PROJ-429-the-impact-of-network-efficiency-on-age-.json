@@ -1,7 +1,14 @@
 {
   "project_id": "PROJ-429-the-impact-of-network-efficiency-on-age-",
   "stage": "planned",
-  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md.\n  Rules fired: unfilled_bracket_density=14 bracket markers; sample=['[Dep: T006_run]', '[Dep: T005_run]', '[Dep: T006_run]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "class": "permanent",
+  "fingerprint": "template_rejection",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-13T12:01:14.730914+00:00",
   "last_seen": "2026-07-13T12:01:14.730914+00:00",
-  "count": 1
+  "retry_after": null,
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md.\n  Rules fired: unfilled_bracket_density=14 bracket markers; sample=['[Dep: T006_run]', '[Dep: T005_run]', '[Dep: T006_run]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md. Rules fired: unfilled_bracket_density=14 bracket markers; sample=['[Dep: T006_run]', '[Dep: T005_run]', '[Dep: T006_run]'] Missing context: High density of [bracketed] placeholders \u2014 likely never fi",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
 }
