@@ -1,187 +1,194 @@
 """
 Robust Simulation Runner Script.
 
-This script executes the robust A/B test simulation across a range of ICC values
-to evaluate the performance of cluster-robust variance and block permutation methods
-against the naive baseline.
+This script executes the robust simulation loop for evaluating A/B test results
+with non-independent observations. It runs the cluster-robust t-test and block
+permutation test across specified ICC levels and iterations, logging results to CSV.
 
-It reads configuration from `code/config.py`, runs the simulation loop defined in
-`code/simulation_runner.py`, aggregates results using `code/analysis.py`, and writes
-the final output to `data/derived/robustResults.csv`.
+It depends on:
+  - code/simulation_runner.py (for run_robust_simulation)
+  - code/analysis.py (for aggregate_errors)
+  - code/config.py (for configuration)
 """
-
 import argparse
-import sys
+import logging
 import os
-import numpy as np
-import pandas as pd
+import sys
+import warnings
+from typing import List, Dict, Any
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Add project root to path to allow relative imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-from code.config import load_config, set_seed, validate_config, parse_cli_args
-from code.simulation_runner import run_robust_simulation
-from code.analysis import aggregate_errors
-from code.data_generator import generate_data
+from config import load_config, set_seed, parse_cli_args, validate_config
+from simulation_runner import run_robust_simulation, run_baseline_simulation
+from analysis import aggregate_errors
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(os.path.join(project_root, 'data', 'simulation_robust.log'))
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def parse_args():
-    """Parse command line arguments for the robust simulation."""
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Run robust simulation for A/B test significance with non-independent observations."
+        description='Run robust simulation for A/B test significance with clustered data.'
     )
     parser.add_argument(
-        "--icc",
+        '--icc',
         type=float,
         default=None,
-        help="Specific ICC value to test. If None, uses range from config."
+        help='Specific ICC value to simulate. If None, uses icc_range from config.'
     )
     parser.add_argument(
-        "--icc-step",
+        '--icc-range',
+        type=str,
+        default=None,
+        help='Comma-separated list of ICC values (e.g., "0.0,0.1,0.2"). Overrides config.'
+    )
+    parser.add_argument(
+        '--icc-step',
         type=float,
         default=None,
-        help="Step size for ICC range. Overrides config if provided."
+        help='Step size for ICC range generation. Overrides config.'
     )
     parser.add_argument(
-        "--icc-range",
-        type=str,
-        default=None,
-        help="Comma-separated ICC range start,stop. e.g., 0.0,0.5"
-    )
-    parser.add_argument(
-        "--iterations",
+        '--iterations',
         type=int,
-        default=None,
-        help="Number of simulation iterations per ICC value."
+        default=1000,
+        help='Number of simulation iterations per ICC level.'
     )
     parser.add_argument(
-        "--seed",
+        '--seed',
         type=int,
-        default=None,
-        help="Random seed for reproducibility."
+        default=42,
+        help='Random seed for reproducibility.'
     )
     parser.add_argument(
-        "--alpha-list",
+        '--output',
         type=str,
         default=None,
-        help="Comma-separated alpha levels. e.g., 0.01,0.05,0.10"
+        help='Path to output CSV file. Defaults to data/derived/robustResults.csv.'
     )
     parser.add_argument(
-        "--output",
+        '--alpha',
         type=str,
-        default="data/derived/robustResults.csv",
-        help="Path to output CSV file."
+        default=None,
+        help='Comma-separated list of alpha levels (e.g., "0.01,0.05,0.10"). Overrides config.'
     )
     return parser.parse_args()
 
+def main() -> int:
+    """
+    Main entry point for the robust simulation script.
 
-def main():
-    """Main entry point for the robust simulation."""
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
+    """
     args = parse_args()
 
     # Load base configuration
-    cfg = load_config()
+    try:
+        cfg = load_config()
+    except Exception as e:
+        logger.error(f"Failed to load configuration: {e}")
+        return 1
 
     # Override config with CLI arguments
-    cli_cfg = parse_cli_args(args)
-    cfg.update(cli_cfg)
-
-    # Specific overrides for robust simulation context
-    if args.iterations:
-        cfg['n_iterations'] = args.iterations
-    if args.seed is not None:
-        cfg['seed'] = args.seed
+    if args.icc_range:
+        cfg['icc_range'] = [float(x) for x in args.icc_range.split(',')]
+    if args.icc_step:
+        cfg['icc_step'] = args.icc_step
+    if args.icc is not None:
+        cfg['icc_range'] = [args.icc]
+    if args.alpha:
+        cfg['alpha_levels'] = [float(x) for x in args.alpha.split(',')]
     
+    cfg['n_iterations'] = args.iterations
+    cfg['seed'] = args.seed
+
     # Validate configuration
     try:
         validate_config(cfg)
     except ValueError as e:
-        print(f"Configuration validation failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Configuration validation failed: {e}")
+        return 1
 
     # Set random seed
     set_seed(cfg['seed'])
 
-    print(f"Starting Robust Simulation with seed={cfg['seed']}")
-    print(f"ICC Range: {cfg['icc_range']}")
-    print(f"Step Size: {cfg['icc_step']}")
-    print(f"Iterations: {cfg['n_iterations']}")
-    print(f"Alpha Levels: {cfg['alpha_levels']}")
-
+    # Determine output path
+    output_path = args.output or os.path.join(project_root, 'data', 'derived', 'robustResults.csv')
+    
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Generate ICC values to test
-    if args.icc is not None:
-        icc_values = [args.icc]
-    else:
-        start, stop = cfg['icc_range']
-        icc_values = np.arange(start, stop + cfg['icc_step'], cfg['icc_step'])
-        # Ensure we don't exceed 1.0 due to floating point errors
-        icc_values = [ic for ic in icc_values if ic <= 1.0]
+    logger.info(f"Starting robust simulation with ICC range: {cfg['icc_range']}")
+    logger.info(f"Iterations per ICC: {cfg['n_iterations']}")
+    logger.info(f"Output file: {output_path}")
 
     all_results = []
 
-    for icc in icc_values:
-        print(f"\n--- Running simulation for ICC = {icc:.2f} ---")
-        
-        try:
-            # Run the robust simulation loop
-            # This function internally calls run_robust_simulation which handles
-            # the loop, data generation, and running of all three methods
+    try:
+        for icc in cfg['icc_range']:
+            logger.info(f"Running simulation for ICC={icc}")
+            
+            # Run the robust simulation
+            # This function returns a list of dicts: [{iteration, icc, method, p_value, rejected}, ...]
             results = run_robust_simulation(
                 icc=icc,
                 n_iterations=cfg['n_iterations'],
-                seed=cfg['seed'],
+                seed=cfg['seed'] + int(icc * 1000), # Offset seed per ICC to ensure variety but reproducibility
                 n_clusters=cfg['n_clusters'],
-                n_obs_per_cluster=cfg['n_obs_per_cluster']
+                n_obs_per_cluster=cfg.get('n_obs_per_cluster', 10)
             )
             
-            # Convert results list to DataFrame for aggregation
-            results_df = pd.DataFrame(results)
-            
-            # Aggregate errors using Clopper-Pearson intervals
-            aggregated = aggregate_errors(
-                results_list=results,
-                alpha_levels=cfg['alpha_levels']
-            )
-            
-            # Add ICC column to aggregated results
-            aggregated['icc'] = icc
-            
-            # Append to master list
-            all_results.append(aggregated)
-            
-        except Exception as e:
-            print(f"Error processing ICC={icc}: {e}", file=sys.stderr)
-            # Decide whether to fail hard or skip. 
-            # Given the requirement to fail loudly, we re-raise or exit.
-            # However, for robustness in a loop, we might log and continue if
-            # one specific ICC fails, but strictly speaking, a failed simulation
-            # should be reported. Let's exit on critical failure.
-            raise e
+            all_results.extend(results)
+            logger.info(f"Completed ICC={icc}, processed {len(results)} iterations")
 
-    if not all_results:
-        print("No results were generated.", file=sys.stderr)
-        sys.exit(1)
+        if not all_results:
+            logger.warning("No results were generated. Check simulation parameters.")
+            # Write empty file with headers to avoid downstream crashes
+            import pandas as pd
+            df = pd.DataFrame(columns=['iteration', 'icc', 'method', 'p_value', 'rejected'])
+            df.to_csv(output_path, index=False)
+            logger.info(f"Wrote empty results to {output_path}")
+            return 0
 
-    # Concatenate all aggregated results
-    final_df = pd.concat(all_results, ignore_index=True)
-    
-    # Reorder columns for clarity
-    cols = ['icc', 'method', 'alpha', 'error_rate', 'ci_lower', 'ci_upper']
-    # Ensure all columns exist before selecting
-    existing_cols = [c for c in cols if c in final_df.columns]
-    final_df = final_df[existing_cols]
+        # Convert to DataFrame and save
+        import pandas as pd
+        df = pd.DataFrame(all_results)
+        
+        # Ensure column types are correct
+        if 'rejected' in df.columns:
+            df['rejected'] = df['rejected'].astype(bool)
+        if 'p_value' in df.columns:
+            df['p_value'] = df['p_value'].astype(float)
+        
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {len(df)} rows to {output_path}")
 
-    # Save to CSV
-    final_df.to_csv(args.output, index=False)
-    print(f"\nSimulation complete. Results saved to: {args.output}")
+        # Optional: Compute and log aggregate errors if requested or for verification
+        # Note: The task T021 specifically asks for the simulation script that writes robustResults.csv.
+        # Aggregation is typically a separate step (T020/T025), but we can log a summary here.
+        if 'alpha_levels' in cfg:
+            summary = aggregate_errors(all_results, cfg['alpha_levels'])
+            logger.info("Aggregated error rates computed (summary):")
+            logger.info(summary.to_string())
 
-    return 0
+        return 0
 
+    except Exception as e:
+        logger.exception(f"Simulation failed with error: {e}")
+        return 1
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

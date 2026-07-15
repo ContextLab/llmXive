@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-239-evaluating-the-statistical-significance-
-last_run_id: 6a97134e-d64c-47b2-b8d9-8e995fa249de
+last_run_id: 7a6f5ffd-1ae2-4b6a-a5e3-5f24b69b69ba
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance
 title: Evaluating the Statistical Significance of A/B Test Results with Non-Independent
   Observations
-updated_at: '2026-07-15T17:36:06.148701Z'
+updated_at: '2026-07-15T21:03:49.286132Z'

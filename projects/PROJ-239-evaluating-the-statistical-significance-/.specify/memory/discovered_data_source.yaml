@@ -1,0 +1,15 @@
+status: none
+intent: download UCI Online Retail dataset via Python OpenML fetch_openml python package
+  dataset
+required_fields:
+- InvoiceNo
+- StockCode
+- Description
+- Quantity
+- InvoiceDate
+- UnitPrice
+- CustomerID
+- Country
+cache_key: 165e23f8d2edd1ae711a89d33d3872bb2bcb7cd87d19839cc6787b3d15e09fc5
+searched_at: '2026-07-15T20:22:23.181651+00:00'
+retry_count: 1

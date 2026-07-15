@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-239-evaluating-the-statistical-significance-",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/simulation_runner.py (rc=1); python code/simulation_runner.py --icc 0.1 --alpha 0.05 --iterations 100 (rc=1); 3 declared deliverable(s) absent: data/derived/baseline_results.csv; data/derived/final_report.csv; data/derived/robustResults.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/simulation_runner.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py\", line 10, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/simulation_runner.py --icc 0.1 --alpha 0.05 --iterations 100 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-239-evaluating-the-statistical-significance-/code/simulation_runner.py\", line 10, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-15T20:21:34Z"
+}

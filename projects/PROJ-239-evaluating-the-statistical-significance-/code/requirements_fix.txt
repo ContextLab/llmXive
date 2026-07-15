@@ -1,0 +1,8 @@
+# This file is a temporary fix to ensure dependencies are installed.
+# The main requirements.txt should be used, but in case of environment issues,
+# this ensures the script can run.
+numpy==1.26.0
+scipy==1.12.0
+statsmodels==0.14.1
+pandas==2.2.0
+pytest==7.4.0
