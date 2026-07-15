@@ -18,11 +18,11 @@ This project quantifies the relationship between combinatorial invariants (cross
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `requests`, `pyyaml`, `seaborn`  
 **Storage**: Local file system (`data/raw`, `data/processed`, `docs/reproducibility`)  
 **Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM)  
 **Project Type**: Computational research / Data analysis  
 **Performance Goals**: Complete pipeline execution ≤ 6 hours on CPU-only runner  
 **Constraints**: No GPU, no deep learning, memory usage < 7GB, disk usage < 14GB  
-**Scale/Scope**: ~9,988 prime knots (source: OEIS A002863, https://oeis.org/A002863), filtered to hyperbolic subset
+**Scale/Scope**: A large set of prime knots (source: OEIS A002863, https://oeis.org/A002863), filtered to hyperbolic subset
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

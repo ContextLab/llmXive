@@ -1,0 +1,69 @@
+# Feature Specification: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
+
+**Feature Branch**: `001-knot-complexity-analysis`
+**Created**: 2026-06-12
+**Status**: Draft
+**Input**: User description: "Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Download and Parse Knot Data from Knot Atlas (Priority: P1)
+
+As a researcher, I need to download knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number ≤ 13 crossings so that I have a testable dataset for correlation analysis.
+
+**Why this priority**: This is the foundational step without which no analysis can proceed. The dataset quality and completeness directly determines the validity of all downstream findings.
+
+**Independent Test**: Can be fully tested by executing the data download script and verifying the output contains all prime knots with crossing number ≤ 13 crossings with consistent representation of crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields. A validation against standard knot tables (KnotInfo, Hoste-Thistlethwaite-Weeks enumeration) confirms dataset completeness for the highest crossing number in scope.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is accessible, **When** the download script executes, **Then** the dataset contains all prime knots with crossing number ≤ 13 crossings with crossing number, braid index, hyperbolic volume, and alternating/non-alternating classification fields populated
+2. **Given** the dataset is downloaded, **When** a data quality check runs, **Then** ≥ 95% of knots with computable invariants have all invariants populated (crossing number, braid index, hyperbolic volume present)
+
+---
+
+### User Story 2 - Establish Measurement Precision for Core Invariants (Priority: P2)
+
+As a researcher, I need to **document agreement** between Knot Atlas and independent reference values for core invariants (crossing number, braid index) before correlation analysis proceeds so that I can validate measurement accuracy across different classes of prime knots. **Phase 1 Scope**: Only core invariants (crossing number, braid index) are validated in Phase 1. Additional invariants (arc index, Seifert circle count, bridge number) are deferred to Phase 2+ per original idea methodology boundary. (See FR-014, SC-015)
+
+**Why this priority**: This addresses marie-curie's feedback on measurement precision standards. "We did not claim a new element until the atomic weight could be determined with precision." Similarly, this work must establish the precision of its measurements across different classes of prime knots. The crossing number is well-defined (tabulated), but the braid index requires careful experimental validation.
+
+**Independent Test**: Can be fully tested by generating scatter plots and summary statistics showing the crossing number vs. braid index relationship for alternating knots separately from non-alternating knots, with validation against reference values where available.
+
+**Acceptance Scenarios**:
+
+1. **Given** the parsed dataset, **When** the precision validation module runs, **Then** each knot record includes crossing number and braid index values where available from Knot Atlas
+2. **Given** the computed invariants, **When** exploratory plots are generated, **Then** scatter plots show crossing number vs. braid index with distinct stratification for alternating and non-alternating prime knots
+
+**Phase 2+ Deferred Note**: Algorithm validation for additional invariants (arc index, Seifert circle count, bridge number) against KnotInfo reference values aims to achieve ≥ 90% match against reference values. If reference coverage is ≥ 90% but match rate is < 90%, validation fails and limitation documented. This acceptance scenario is not applicable to Phase 1 implementation.
+
+---
+
+### User Story 3 - Fit Regression Models to Assess Joint Predictive Relationships (Priority: P3)
+
+As a researcher, I need to fit multiple regression models to test linear vs. non-linear relationships for associating hyperbolic volume from crossing number and braid index, and assess correlation against exploratory sample so that I can determine whether the joint invariants describe the association with geometric complexity.
+
+**Why this priority**: This is the core analytical output that answers the research question. It builds on the data foundation and exploratory analysis to produce the predictive model and validation results. **Core Methodology**: Analysis focuses on crossing number and braid index as separate predictors (per original idea), not composite measures.
+
+**Independent Test**: Can be fully tested by executing the regression and validation pipeline on an exploratory sample and producing correlation coefficients and goodness-of-fit metrics. Results are considered valid if correlation coefficients, effect sizes, and model metrics are reported with appropriate statistical context, regardless of whether thresholds are met.
+
+**Acceptance Scenarios**:
+
+1. **Given** the exploratory analysis results, **When** regression models are fitted, **Then** at least three model types (linear, polynomial, and logarithmic) are compared with goodness-of-fit metrics (R², AIC/BIC, MAE) documented for each (See SC-002)
+2. **Given** regression model residuals are computed, **When** residual analysis runs, **Then** specific hyperbolic knot families (e.g., pretzel, hyperbolic non-alternating) that deviate significantly (≥ 2 standard deviations from the fitted trend) from the global trend are identified and documented. **Residual Family Analysis**: This acceptance scenario implements the methodology from the original idea which explicitly included "Analyze residuals to identify specific knot families that deviate significantly from the global trend." Since torus and satellite knots are filtered out per FR-012, residual analysis targets only hyperbolic knot families.
+3. **Given** alternating and non-alternating knot classifications, **When** descriptive comparison analysis runs, **Then** group difference analysis is performed with mean differences and variance ratios reported for the crossing number vs. braid index relationship between groups
+
+---
+
+### User Story 4 - Edge Case Handling, Data Quality, and Reproducibility Documentation (Priority: P4)
+
+As a researcher, I need the system to handle edge cases (API unavailability, missing invariants, ambiguous classifications, crossing number ties) with documented fallback behaviors, AND produce complete reproducibility documentation for all code and data transformations, so that analysis can proceed robustly and results can be independently verified.
+
+**Why this priority**: Edge case handling ensures reproducibility and robustness. Without explicit handling, silent failures or inconsistent behavior could invalidate downstream results. Reproducibility documentation is essential for scientific validation and community verification.
+
+**Independent Test**: Can be fully tested by (1) simulating edge cases (API failures, missing data fields, ambiguous classifications) and verifying that the system produces appropriate flags, logs, and partial results rather than crashing or silently excluding data, AND (2) verifying that all reproducibility artifacts (checksums, logs, derivation notes, random seeds) are present and complete according to FR-007.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Knot Atlas is unavailable, **When** retry logic executes, **Then** exponential backoff is applied and partial results are cached to disk after a threshold of consecutive failures
+2. **Given** a knot record has missing invariant data, **When** the computation module processes it, **Then** the record is flagged with missing_invariant_flags rather than being silently excluded
