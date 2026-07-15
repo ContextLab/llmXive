@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-504-evaluating-the-impact-of-variable-select
-last_run_id: 361da8c5-05bf-44a8-9940-ac73855a1a52
+last_run_id: 4a2aed79-e200-4ab3-b658-2a7e1e484ffa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select
 title: Evaluating the Impact of Variable Selection on Statistical Power in Linear
   Regression
-updated_at: '2026-07-04T07:32:35.381863Z'
+updated_at: '2026-07-15T16:55:43.639651Z'

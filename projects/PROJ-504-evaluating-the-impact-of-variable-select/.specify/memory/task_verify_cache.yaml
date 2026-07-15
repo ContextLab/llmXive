@@ -1,0 +1,12 @@
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or example files for a `data/processed/` storage module\
+    \ were provided, nor any Parquet/CSV outputs demonstrating deterministic\u2011\
+    seed saving. The required artifact is missing, so the task is not satisfied."
+T022:
+  c: false
+  h: 1f84f31bbc2de6ea4682b80cc8d564c4c3c489ad18562a8a7ca20ec1472d98d5
+  r: "The required artifact `tests/integration/test_selectors.py` does not exist in\
+    \ the repository, so the integration test function `test_full_selection_pipeline`\
+    \ is missing. Without this file, the task\u2019s requirement is not satisfied."

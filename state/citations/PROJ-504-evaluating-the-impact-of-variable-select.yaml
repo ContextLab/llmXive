@@ -1,4 +1,4 @@
-- artifact_hash: c93ba9014e8360d45cacaf825356c4be37dff9d993dc7a371a101a6c47383a2c
+- artifact_hash: 420d8f47c34c399d18568d3cace7d5039b135da6a5287bc1e27c010f4e33f825
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: Welcome to the Tidyverse
   kind: doi
   value: 10.21105/joss.01686
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-07-04T07:32:03.350680Z'
+  verified_at: '2026-07-15T16:55:15.907716Z'

@@ -1,0 +1,535 @@
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Citation DOI:10.21105/joss.01686
+  claim_id: c_94ca329e
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686., extract covariance structures,
+    and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:14:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 10 datasets loaded with at least 100 rows and 3 predictors
+  claim_id: c_b2f03852
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that A substantial number of synthetic outcome vectors\
+    \ per (dataset, SNR, Sparsity) tuple are generated and stored in data/processed/\
+    \ with correct metadata."
+  evidence:
+    candidates:
+    - - Look for 10 datasets loaded with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_loaded_with_at_least_100_rows_and_3_predictors
+  kind: magnitude
+  raw_text: "Verify that 10 datasets with \u2265100 rows and \u22653 predictors are\
+    \ loaded"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T16:14:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Simulate synthetic outcome vectors across 4 SNR and 4 Sparsity levels
+  claim_id: c_9c24e45b
+  context: 'The method involves selecting representative datasets from the OpenML
+    repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686.,
+    extract covariance structures, and simulate synthetic outcome vectors across 4
+    SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulate synthetic outcome vectors across 4 SNR and Sparsity levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:14:50Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Power calculation matches expected values within 0.01 tolerance
+  claim_id: c_8ccd9e2c
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:15:16Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Unit of analysis is dataset times SNR times Sparsity
+  claim_id: c_b839b99d
+  context: "Implement code/analysis/comparators.py to perform Kruskal-Wallis tests\
+    \ on the aggregated condition means (output of T034b) from results/simulation_results.csv\
+    \ per Spec FR-005; unit of analysis is n=dataset\xD7SNR\xD7Sparsity (FR-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_of_analysis_is_dataset_times_SNR_times_Sparsity
+  kind: entity_fact
+  raw_text: "unit of analysis is n=dataset\xD7SNR\xD7Sparsity"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:04Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pipeline completion within 6 hours on 2 vCPUs
+  claim_id: c_a148d9f3
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure completion within 6 hours on 2 vCPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:19Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: OpenML dataset reference DOI:10.21105/joss.01686
+  claim_id: c_a3e25760
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686., extract covariance structures,
+    and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:16:42Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Independent test requires loading 10 datasets with at least 100 rows
+    and 3 predictors
+  claim_id: c_10f4e1e3
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that A substantial number of synthetic outcome vectors\
+    \ per (dataset, SNR, Sparsity) tuple are generated and stored in data/processed/\
+    \ with correct metadata."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_loading_10_datasets_with_at_least
+  kind: magnitude
+  raw_text: "Verify that 10 datasets with \u2265100 rows and \u22653 predictors are\
+    \ loaded"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Simulation uses 4 SNR levels and 4 Sparsity levels
+  claim_id: c_eb0675b0
+  context: 'The method involves selecting representative datasets from the OpenML
+    repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686.,
+    extract covariance structures, and simulate synthetic outcome vectors across 4
+    SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulate synthetic outcome vectors across 4 SNR and Sparsity levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Power calculation tolerance is within 0.01
+  claim_id: c_2cdc29da
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Unit of analysis for Kruskal-Wallis is dataset times SNR times Sparsity
+  claim_id: c_c24a73ae
+  context: "Implement code/analysis/comparators.py to perform Kruskal-Wallis tests\
+    \ on the aggregated condition means (output of T034b) from results/simulation_results.csv\
+    \ per Spec FR-005; unit of analysis is n=dataset\xD7SNR\xD7Sparsity (FR-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_of_analysis_for_Kruskal-Wallis_is_dataset_times_SNR_tim
+  kind: entity_fact
+  raw_text: "unit of analysis is n=dataset\xD7SNR\xD7Sparsity"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:16:46Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours
+  claim_id: c_0016c156
+  context: Implement runtime profiling in code/utils/profiler.py to measure total
+    execution time per phase and ensure the full pipeline completes within 6 hours
+    (FR-008); add logging for slow steps to identify bottlenecks
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure the full pipeline completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:17:20Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: OpenML paper DOI 10.21105/joss.01686
+  claim_id: c_718f1098
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686., extract covariance structures...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:18:00Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 10 datasets with at least 100 rows and 3 predictors loaded
+  claim_id: c_af6ad19b
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that A substantial number of synthetic outcome vectors\
+    \ per (dataset, SNR, Sparsity) tuple are generated..."
+  evidence:
+    candidates:
+    - - Look for 10 datasets with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_with_at_least_100_rows_and_3_predictors_loaded
+  kind: magnitude
+  raw_text: "Verify that 10 datasets with \u2265100 rows and \u22653 predictors are\
+    \ loaded"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T16:18:03Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 4 SNR and Sparsity levels for synthetic outcome vectors
+  claim_id: c_403e7312
+  context: '...extract covariance structures, and simulate synthetic outcome vectors
+    across 4 SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate synthetic outcome vectors across 4 SNR and Sparsity levels with
+    ground-truth coefficients
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:18:15Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: test_downloader_fetches_10_datasets asserts 10 datasets
+  claim_id: c_aef0161a
+  context: 'Unit test for OpenML downloader in tests/unit/test_downloader.py: function
+    test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: function test_downloader_fetches_10_datasets asserts len(datasets) ==
+    10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:18:55Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: datasets validated with at least 100 rows and 3 predictors
+  claim_id: c_4035debe
+  context: "Implement code/data/downloader.py to fetch regression datasets from OpenML\
+    \ with retry logic and checksumming; validate \u2265 100 rows and \u2265 3 predictors\
+    \ (FR-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_validated_with_at_least_100_rows_and_3_predictors
+  kind: magnitude
+  raw_text: "validate \u2265 100 rows and \u2265 3 predictors"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:19:23Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: datasets with condition number greater than 10^10 skipped
+  claim_id: c_910d21e7
+  context: Implement code/data/downloader.py logic to skip datasets with condition
+    number > 10^10 and log warning to code/utils/logger.py (FR-001)
+  evidence:
+    candidates:
+    - - ''
+      - 50000000000.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_condition_number_greater_than_10%5E10_skipped
+  kind: magnitude
+  raw_text: skip datasets with condition number > 10^10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T16:19:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: power calculation matches expected values within 0.01 tolerance
+  claim_id: c_752abffa
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:19:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: unit of analysis is dataset times SNR times sparsity
+  claim_id: c_4fe61a28
+  context: "Implement code/analysis/comparators.py to perform Kruskal-Wallis tests\
+    \ on the aggregated condition means (output of T034b) from results/simulation_results.csv\
+    \ per Spec FR-005; unit of analysis is n=dataset\xD7SNR\xD7Sparsity (FR-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_of_analysis_is_dataset_times_SNR_times_sparsity
+  kind: entity_fact
+  raw_text: "unit of analysis is n=dataset\xD7SNR\xD7Sparsity"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:19:55Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: pipeline completion within 6 hours on 2 vCPUs
+  claim_id: c_2d2e1749
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure completion within 6 hours on 2 vCPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:19:55Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: parallelization uses joblib with n_jobs 2
+  claim_id: c_d38b7bcc
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:20:33Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: full pipeline completion within 6 hours
+  claim_id: c_0d1b89bf
+  context: Implement runtime profiling in code/utils/profiler.py to measure total
+    execution time per phase and ensure the full pipeline completes within 6 hours
+    (FR-008); add logging for slow steps to identify bottlenecks
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure the full pipeline completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:20:33Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: Citation DOI:10.21105/joss.01686.
+  claim_id: c_ec2eab3e
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686., extract covariance structures,
+    and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:20:50Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: Reference DOI 10.21105/joss.01686
+  claim_id: c_54f2ee69
+  context: 'The method involves selecting representative datasets from the OpenML
+    repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686.,
+    extract covariance structures, and simulate synthetic outcome vectors across 4
+    SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:22:09Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Simulate synthetic outcome vectors across 4 SNR and 4 sparsity levels
+  claim_id: c_860a0124
+  context: 'References: DOI:10.21105/joss.01686., extract covariance structures, and
+    simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulate synthetic outcome vectors across 4 SNR and Sparsity levels with
+    ground-truth coefficients
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:22:09Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: OpenML Python package reference DOI 10.21105/joss.01686
+  claim_id: c_9d986e02
+  context: 'References: DOI:10.21105/joss.01686., extract covariance structures, and
+    simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: DOI:10.21105/joss.01686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T16:22:32Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: Citation DOI 10.21105/joss.01686 referenced in project description
+  claim_id: c_74390ee0
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. References: DOI:10.21105/joss.01686.,
+    extract covariance structures, and simulate synthetic outcome vectors across 4
+    SNR and Sparsity levels with ground-truth coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T16:36:52Z'

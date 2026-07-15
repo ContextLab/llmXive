@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-504-evaluating-the-impact-of-variable-select/` containing `code/`, `data/raw/`, `data/simulated/`, `results/`, `tests/unit/`, `tests/integration/` (FR-001)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0`, `openml>=0.14.0`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
-- [ ] T003 [P] Configure linting and formatting by creating `code/pyproject.toml` with `[tool.black]` section (target-version = 3.11, line-length = 88) and `code/.flake8` file with `[flake8]` section (max-line-length = 88, extend-ignore = E203) to enforce style consistency (FR-003)
+- [ ] T001 Create project structure per implementation plan: `projects/PROJ-504-evaluating-the-impact-of-variable-select/` containing `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` (FR-001)
+- [X] T002 Initialize Python project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0`, `openml>=0.14.0`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
+- [X] T003 [P] Configure linting and formatting by creating `code/pyproject.toml` with `[tool.black]` section (target-version = 3.11, line-length = 88) and `code/.flake8` file with `[flake8]` section (max-line-length = 88, extend-ignore = E203) to enforce style consistency (FR-003)
 
 ---
 
@@ -57,12 +57,12 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup `data/raw/` and `data/simulated/` directory structure with `.gitkeep`
-- [ ] T005 [P] Create `code/data/__init__.py` and `code/analysis/__init__.py`
-- [ ] T006 [P] Create base configuration loader in `code/config.py` to manage seeds and paths; must load keys: `seed`, `openml_ids`, `snr_levels`, `sparsity_levels`, `output_path` (FR-006)
-- [ ] T007 Create base data models in `code/models.py`: `SimulatedDataset` (fields: X, Y, true_coefficients, snr, sparsity, seed, dataset_id) and `PowerMetric` (fields: method, snr, sparsity, alpha, power_rate, ci_lower, ci_upper) (FR-007)
-- [ ] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T009 Setup environment configuration management for CI limits (limited CPU, constrained RAM)
+- [ ] T004 Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
+- [X] T005 [P] Create `code/data/__init__.py` and `code/analysis/__init__.py`
+- [X] T006 [P] Create base configuration loader in `code/config.py` to manage seeds and paths; must load keys: `seed`, `openml_ids`, `snr_levels`, `sparsity_levels`, `output_path` (FR-006)
+- [X] T007 Create base data models in `code/models.py`: `SimulatedDataset` (fields: X, Y, true_coefficients, snr, sparsity, seed, dataset_id) and `PowerMetric` (fields: method, snr, sparsity, alpha, power_rate, ci_lower, ci_upper) (FR-007)
+- [X] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [ ] T009 [P] Setup environment configuration management for CI limits: explicitly configure and expose 'vCPU' and 'RAM' constraints in `code/config.py` and `code/utils/limits.py` for downstream tasks to reference (FR-008, SC-003, SC-004)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,24 +72,25 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Download a set of real OpenML regression datasets for evaluation. The research question focuses on assessing the generalizability of the proposed method across diverse regression tasks. The method involves selecting representative datasets from the OpenML repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686., extract covariance structures, and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth coefficients.
 
-**Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded, and that A substantial number of synthetic outcome vectors per (dataset, SNR, Sparsity) tuple are generated and stored in `data/simulated/` with correct metadata.
+**Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded, and that A substantial number of synthetic outcome vectors per (dataset, SNR, Sparsity) tuple are generated and stored in `data/processed/` with correct metadata.
 
 ### Tests for User Story 1 (TDD-First) ⚠️
 
 > **NOTE: Write these tests FIRST (TDD-First), ensure they FAIL before implementation**
 
-- [ ] T010 [TDD-First] [P] [US1] Unit test for OpenML downloader in `tests/unit/test_downloader.py`: function `test_downloader_fetches_10_datasets` asserts `len(datasets) == 10` and `all(d.n_rows >= 100)` (FR-001)
-- [ ] T011 [TDD-First] [P] [US1] Unit test for simulator in `tests/unit/test_simulators.py`: function `test_simulator_generates_correct_snr` asserts generated Y variance matches SNR target within tolerance (FR-002)
-- [ ] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_24000_rows` asserts `len(results_df) == 24000` (Plan target: Multiple datasets × multiple SNR levels × 3 Sparsity × 200 sims) (FR-002, US-1)
+- [X] T010 [TDD-First] [P] [US1] Unit test for OpenML downloader in `tests/unit/test_downloader.py`: function `test_downloader_fetches_10_datasets` asserts `len(datasets) == 10` and `all(d.n_rows >= 100)` (FR-001)
+- [X] T011 [TDD-First] [P] [US1] Unit test for simulator in `tests/unit/test_simulators.py`: function `test_simulator_generates_correct_snr` asserts generated Y variance matches SNR target within tolerance (FR-002)
+- [X] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_expected_rows` asserts `len(results_df) == config.simulation_count` (where `config.simulation_count` is the pilot-verified count per condition) (FR-002, US-1)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/data/downloader.py` to fetch regression datasets from OpenML with retry logic and checksumming; validate ≥ 100 rows and ≥ 3 predictors (FR-001)
-- [ ] T014 [P] [US1] Implement `code/data/downloader.py` logic to skip datasets with condition number > 10^10 and log warning to `code/utils/logger.py` (FR-001)
-- [ ] T016 [US1] Implement `code/data/simulators.py` configuration to support SNR levels {, 1.0, 2.0, 5.0} and Sparsity levels including 0.2 and 0.4, and other representative values (FR-002)
-- [ ] T015 [US1] Implement `code/data/simulators.py` to generate synthetic Y vectors using real X covariance and ground-truth coefficients; includes memory-efficient chunking (process a batch of simulations) and monitoring via `psutil` to abort if RAM exceeds a predefined high threshold (FR-002, SC-004)
-- [ ] T017 [US1] Implement `code/data/simulators.py` to record true coefficients and simulation metadata for every run (FR-002)
-- [ ] T019 [US1] Create `data/simulated/` storage logic to save results as Parquet/CSV with deterministic seeds (FR-002)
+- [X] T013 [P] [US1] Implement `code/data/downloader.py` to fetch regression datasets from OpenML with retry logic and checksumming; validate ≥ 100 rows and ≥ 3 predictors (FR-001)
+- [X] T014 [P] [US1] Implement `code/data/downloader.py` logic to skip datasets with condition number > 10^10 and log warning to `code/utils/logger.py` (FR-001)
+- [X] T016 [US1] Implement `code/data/simulators.py` configuration to support SNR levels including low magnitudes and Sparsity levels {, 0.2, 0.4} (FR-002)
+- [X] T015 [US1] Implement `code/data/simulators.py` to generate synthetic Y vectors using real X covariance and ground-truth coefficients; includes memory-efficient chunking (process a batch of simulations) and monitoring via `psutil` to abort if RAM exceeds a substantial threshold (FR-002, SC-004)
+- [X] T017 [US1] Implement `code/data/simulators.py` to record true coefficients and simulation metadata for every run (FR-002)
+- [X] T018 [US1] Implement logic in `code/data/pipeline.py` to select a representative subset of valid datasets from the fetched pool, ensuring the count constraint (FR-001)
+- [ ] T019 [US1] Create `data/processed/` storage logic in `code/data/storage.py` to save results as Parquet/CSV with deterministic seeds; explicitly enforce the 'exactly a fixed number of datasets' constraint before writing simulation results (FR-002)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,8 +104,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (TDD-First) ⚠️
 
-- [ ] T020 [TDD-First] [P] [US2] Unit test for selection methods in `tests/unit/test_selectors.py`: function `test_forward_stepwise_selects_correct_vars`
-- [ ] T021 [TDD-First] [P] [US2] Unit test for power calculation in `tests/unit/test_metrics.py`: function `test_power_calculation_matches_ground_truth`
+- [X] T020 [TDD-First] [P] [US2] Unit test for selection methods in `tests/unit/test_selectors.py`: function `test_forward_stepwise_selects_correct_vars`
+- [X] T021 [TDD-First] [P] [US2] Unit test for power calculation in `tests/unit/test_metrics.py`: function `test_power_calculation_matches_ground_truth`
 - [ ] T022 [TDD-First] [P] [US2] Integration test for selection+refit pipeline in `tests/integration/test_selectors.py`: function `test_full_selection_pipeline`
 
 ### Implementation for User Story 2 (Implementation MUST follow tests)
@@ -112,8 +113,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T023 [P] [US2] Implement `code/analysis/selectors.py` for Forward Stepwise selection using CPU-only execution (FR-003)
 - [ ] T024 [P] [US2] Implement `code/analysis/selectors.py` for Backward Elimination selection using CPU-only execution (FR-003)
 - [ ] T025 [P] [US2] Implement `code/analysis/selectors.py` for LASSO selection using CPU-only execution (FR-003)
-- [ ] T026 [US2] Implement `code/analysis/selectors.py` to record selected variables and decision thresholds (p-value/lambda) for every run; output format: append to a JSONL file at `results/selection_log.jsonl` with keys `variable_name`, `selected`, `threshold_value`, `method` (FR-003)
-- [ ] T027 [US2] Implement `code/analysis/metrics.py` to refit OLS on LASSO-selected variables; calculate p-values for power determination; **PRIMARY METRIC**: Empirical Power (proportion of true non-zero coefficients selected AND significant with p < 0.05) (FR-004, FR-009)
+- [ ] T026 [US2] Implement `code/analysis/metrics.py` to record selected variables, decision thresholds, and collinearity diagnostics (VIF/condition number) directly into the main simulation results dataframe (Parquet/CSV) at `results/simulation_results.csv`; do NOT write to separate JSONL files (FR-003, FR-007, Constitution Principle IV, VII)
+- [ ] T027 [US2] Implement `code/analysis/metrics.py` to refit OLS on variables selected by Forward Stepwise, Backward Elimination, AND LASSO; calculate p-values for power determination; **PRIMARY METRIC**: Empirical Power (proportion of true non-zero coefficients selected AND significant with p < 0.05) (FR-004, FR-009)
 - [ ] T028 [US2] Implement `code/analysis/metrics.py` to calculate empirical power as proportion of true non-zero coefficients selected AND significant (p < 0.05) per Spec FR-004; includes logic to filter `true_coefficients != 0` before calculating the denominator (FR-004)
 - [ ] T029 [US2] Implement `code/analysis/metrics.py` to calculate VIF or condition number for all datasets as collinearity diagnostics (FR-007)
 - [ ] T031 [US2] Save aggregated power metrics to `results/simulation_results.csv` with method, SNR, Sparsity, and alpha metadata (FR-004)
@@ -137,11 +138,10 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [ ] T034a [US3] Validate `results/simulation_results.csv` contains required columns (method, snr, sparsity, power_rate) and sufficient rows to ensure simulation-level granularity is preserved for T035 (FR-005)
-- [ ] T034b [US3] Implement aggregation logic in `code/analysis/comparators.py` to compute dataset-level mean power per method/SNR/Sparsity combination for diagnostic reporting (Required input for T036)
-- [ ] T035 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the **simulation-level mean power** (aggregated per condition) from `results/simulation_results.csv` per Spec FR-005 (FR-005)
+- [ ] T035 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the **simulation-level data** (n=24,000 rows) from `results/simulation_results.csv` per Spec FR-005; unit of analysis is individual simulation (FR-005)
 - [ ] T036 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity on simulation-level data per Spec FR-005 (FR-005)
-- [ ] T037 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha across a range of low values (FR-006)
-- [ ] T038 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method and sparsity level (FR-003)
+- [ ] T037 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha across a range of representative values (FR-006)
+- [ ] T038 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method, explicitly faceted or differentiated by Sparsity level in the code logic (FR-003, US-3)
 - [ ] T039 [US3] Implement `code/viz/plots.py` to save all plots to `results/plots/`
 - [ ] T040 [US3] Generate final summary report as Markdown at `results/final_report.md` with sections: 'Executive Summary', 'Statistical Results (Kruskal-Wallis, Dunn)', 'Power Curves', and 'Methodology Notes' (FR-005)
 
@@ -170,8 +170,8 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +237,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
