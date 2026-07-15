@@ -1,9 +1,11 @@
 """
-Runtime monitoring utilities for the llmXive pipeline.
+Runtime monitoring and instrumentation for the pipeline.
 
-This module provides functionality to instrument and measure the total pipeline runtime,
-logging results to verify compliance with SC-005 (total runtime < 6 hours).
+This module provides utilities to measure total pipeline runtime,
+log elapsed time to results/runtime.log, and assert compliance
+with the 6-hour limit (SC-005).
 """
+
 import os
 import time
 import logging
@@ -13,179 +15,115 @@ from datetime import datetime
 from typing import Optional
 
 # Constants
-MAX_RUNTIME_SECONDS = 6 * 3600  # 6 hours in seconds
-START_TIME_FILE = Path("data/processed/pipeline_start_time.json")
-RUNTIME_LOG_FILE = Path("results/runtime.log")
+SIX_HOURS_SECONDS = 6 * 60 * 60
+RESULTS_DIR = Path("results")
+RUNTIME_LOG_PATH = RESULTS_DIR / "runtime.log"
+START_TIME_MARKER_PATH = RESULTS_DIR / ".pipeline_start_time"
 
-def setup_runtime_logger(name: str = "runtime_monitor") -> logging.Logger:
-    """
-    Setup and return a logger for runtime monitoring.
-    
-    Args:
-        name: Logger name
-        
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger(name)
+
+def setup_runtime_logger() -> logging.Logger:
+    """Set up and return the runtime logger."""
+    logger = logging.getLogger("runtime_monitor")
     logger.setLevel(logging.INFO)
-    
+
     if not logger.handlers:
-        # Create file handler
-        log_dir = Path("results")
-        log_dir.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_dir / "runtime_monitor.log")
-        file_handler.setLevel(logging.INFO)
-        
-        # Create formatter
+        handler = logging.StreamHandler()
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-        file_handler.setFormatter(formatter)
-        
-        logger.addHandler(file_handler)
-        
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
     return logger
 
-def record_start_time(logger: Optional[logging.Logger] = None) -> float:
+
+def record_start_time() -> None:
     """
-    Record the pipeline start time to a file.
-    
-    Args:
-        logger: Optional logger instance
-        
-    Returns:
-        The recorded start time (Unix timestamp)
+    Record the current pipeline start time to a marker file.
+    This should be called at the very beginning of the pipeline.
     """
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     start_time = time.time()
-    start_data = {
-        "start_timestamp": start_time,
-        "start_datetime": datetime.fromtimestamp(start_time).isoformat()
-    }
-    
-    # Ensure data directory exists
-    START_TIME_FILE.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(START_TIME_FILE, 'w') as f:
-        json.dump(start_data, f, indent=2)
-        
-    if logger:
-        logger.info(f"Pipeline start time recorded: {start_data['start_datetime']}")
-        
-    return start_time
+    with open(START_TIME_MARKER_PATH, "w") as f:
+        f.write(str(start_time))
 
-def load_pipeline_start_time(logger: Optional[logging.Logger] = None) -> Optional[float]:
-    """
-    Load the pipeline start time from the stored file.
-    
-    Args:
-        logger: Optional logger instance
-        
-    Returns:
-        Start time (Unix timestamp) or None if not found
-    """
-    if not START_TIME_FILE.exists():
-        if logger:
-            logger.warning("Pipeline start time file not found. Cannot measure runtime.")
-        return None
-        
-    try:
-        with open(START_TIME_FILE, 'r') as f:
-            data = json.load(f)
-        start_time = data.get("start_timestamp")
-        if logger:
-            logger.info(f"Loaded pipeline start time: {datetime.fromtimestamp(start_time).isoformat()}")
-        return start_time
-    except (json.JSONDecodeError, KeyError) as e:
-        if logger:
-            logger.error(f"Error loading start time: {e}")
-        return None
 
-def measure_and_log_runtime(logger: Optional[logging.Logger] = None) -> bool:
+def load_pipeline_start_time() -> Optional[float]:
     """
-    Measure the total pipeline runtime and log the result.
-    
-    Reads the start time from the stored file, calculates elapsed time,
-    logs the result to results/runtime.log, and asserts runtime < 6 hours.
-    
-    Args:
-        logger: Optional logger instance
-        
+    Load the pipeline start time from the marker file.
+    Returns None if the file does not exist.
+    """
+    if not START_TIME_MARKER_PATH.exists():
+        return None
+    with open(START_TIME_MARKER_PATH, "r") as f:
+        return float(f.read().strip())
+
+
+def measure_and_log_runtime() -> float:
+    """
+    Measure elapsed time since pipeline start, log to runtime.log,
+    and assert compliance with the 6-hour limit.
+
     Returns:
-        True if runtime < 6 hours, False otherwise
+        float: Elapsed time in seconds.
+
+    Raises:
+        RuntimeError: If elapsed time exceeds 6 hours.
     """
-    if logger is None:
-        logger = setup_runtime_logger()
-        
-    start_time = load_pipeline_start_time(logger)
+    logger = setup_runtime_logger()
+
+    start_time = load_pipeline_start_time()
     if start_time is None:
-        logger.error("Cannot measure runtime: start time not recorded.")
-        return False
-        
+        logger.error("Pipeline start time not found. Ensure record_start_time() was called.")
+        raise RuntimeError("Pipeline start time not found.")
+
     end_time = time.time()
     elapsed_seconds = end_time - start_time
     elapsed_hours = elapsed_seconds / 3600
-    
-    # Format duration
-    hours = int(elapsed_seconds // 3600)
-    minutes = int((elapsed_seconds % 3600) // 60)
-    seconds = elapsed_seconds % 60
-    duration_str = f"{hours}h {minutes}m {seconds:.2f}s"
-    
-    # Create log entry
+
+    # Log to runtime.log
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().isoformat()
+
     log_entry = {
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "end_time": datetime.fromtimestamp(end_time).isoformat(),
+        "timestamp": timestamp,
         "elapsed_seconds": elapsed_seconds,
         "elapsed_hours": elapsed_hours,
-        "duration_formatted": duration_str,
-        "compliance_status": "PASS" if elapsed_seconds < MAX_RUNTIME_SECONDS else "FAIL",
-        "max_allowed_seconds": MAX_RUNTIME_SECONDS,
-        "max_allowed_hours": 6
+        "start_time_iso": datetime.fromtimestamp(start_time).isoformat(),
+        "end_time_iso": timestamp,
+        "compliance_status": "PASS" if elapsed_seconds <= SIX_HOURS_SECONDS else "FAIL"
     }
-    
-    # Ensure results directory exists
-    RUNTIME_LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Append to runtime log
-    with open(RUNTIME_LOG_FILE, 'a') as f:
-        f.write(f"=== Pipeline Runtime Check ===\n")
-        f.write(f"Start: {log_entry['start_time']}\n")
-        f.write(f"End:   {log_entry['end_time']}\n")
-        f.write(f"Elapsed: {duration_str} ({elapsed_seconds:.2f} seconds)\n")
-        f.write(f"Max Allowed: 6 hours ({MAX_RUNTIME_SECONDS} seconds)\n")
-        f.write(f"Status: {log_entry['compliance_status']}\n")
-        f.write(f"JSON: {json.dumps(log_entry, indent=2)}\n")
-        f.write(f"\n")
-        
-    logger.info(f"Pipeline runtime: {duration_str} ({elapsed_seconds:.2f}s)")
-    logger.info(f"Compliance with SC-005 (< 6 hours): {log_entry['compliance_status']}")
-    
-    if elapsed_seconds >= MAX_RUNTIME_SECONDS:
-        logger.error(f"Runtime violation: {elapsed_seconds:.2f}s >= {MAX_RUNTIME_SECONDS}s")
-        return False
-        
-    return True
 
-def main():
+    with open(RUNTIME_LOG_PATH, "w") as f:
+        json.dump(log_entry, f, indent=2)
+
+    logger.info(f"Pipeline runtime: {elapsed_hours:.2f} hours ({elapsed_seconds:.2f} seconds)")
+
+    # Assert compliance with SC-005
+    if elapsed_seconds > SIX_HOURS_SECONDS:
+        error_msg = f"Pipeline exceeded 6-hour limit (SC-005). Elapsed: {elapsed_hours:.2f} hours."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+    logger.info("Compliance with SC-005 (6-hour limit) verified.")
+    return elapsed_seconds
+
+
+def main() -> None:
     """
-    Main entry point for runtime monitoring.
-    
-    This function measures the total pipeline runtime from the recorded start time,
-    logs the result to results/runtime.log, and asserts compliance with SC-005.
+    Entry point for runtime monitoring.
+    Measures elapsed time, logs it, and checks compliance.
     """
     logger = setup_runtime_logger()
-    logger.info("Starting runtime measurement for pipeline compliance check (SC-005)")
-    
-    success = measure_and_log_runtime(logger)
-    
-    if success:
-        logger.info("SUCCESS: Pipeline runtime is within the 6-hour limit.")
-    else:
-        logger.error("FAILURE: Pipeline runtime exceeded the 6-hour limit.")
-        
-    return 0 if success else 1
+    logger.info("Starting runtime measurement...")
+
+    try:
+        elapsed = measure_and_log_runtime()
+        logger.info(f"Runtime measurement complete: {elapsed:.2f} seconds")
+    except RuntimeError as e:
+        logger.error(str(e))
+        raise
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

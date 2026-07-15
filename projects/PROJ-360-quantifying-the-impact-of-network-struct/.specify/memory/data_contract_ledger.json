@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/processed/metrics.csv",
+    "required": []
+  }
+]
