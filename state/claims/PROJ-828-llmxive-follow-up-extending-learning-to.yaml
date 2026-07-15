@@ -1,0 +1,738 @@
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: fetch GSM8K subset of at least 1000 problems from HuggingFace
+  claim_id: c_1fe91e74
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_GSM8K_subset_of_at_least_1000_problems_from_HuggingFac
+  kind: magnitude
+  raw_text: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:21:47Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: verify pruned TinyLlama model has hidden size 512 and approximately 300
+    million parameters
+  claim_id: c_209a8663
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify hidden_size=512 and final param count ~300M
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:22:02Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: verify projection math cosine similarity is at least 0.99
+  claim_id: c_f663391a
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T014'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_projection_math_cosine_similarity_is_at_least_0.99
+  kind: magnitude
+  raw_text: "Verify projection math (cosine similarity \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:22:28Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: select k for cumulative explained variance of at least 80% with default
+    k equal to 10
+  claim_id: c_ebf95da7
+  context: 'Phase 3: User Story 1 - T020'
+  evidence:
+    candidates:
+    - - ''
+      - 80.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Select_k_for_cumulative_explained_variance_of_at_least_80%25_w
+  kind: magnitude
+  raw_text: "Implement logic to select k such that cumulative explained variance \u2265\
+    \ 80% (default k=10 if none)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T02:26:07Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: ensure memory usage during SVD is less than 7GB
+  claim_id: c_8c238170
+  context: 'Phase 3: User Story 1 - T022'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_during_SVD_is_less_than_7GB
+  kind: magnitude
+  raw_text: Log memory usage during SVD to ensure < 7GB limit
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:26:20Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: verify update direction cosine similarity with subspace basis is at least
+    0.99
+  claim_id: c_26b95aca
+  context: 'Phase 4: User Story 2 - Goal'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_update_direction_cosine_similarity_with_subspace_basi
+  kind: magnitude
+  raw_text: "Verify update direction cosine similarity with subspace basis \u2265\
+    \ 0.99"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:26:39Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: log cosine similarity between applied update and subspace basis must
+    be at least 0.99
+  claim_id: c_3ee25cb2
+  context: 'Phase 4: User Story 2 - T029'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_cosine_similarity_between_applied_update_and_subspace_ba
+  kind: magnitude
+  raw_text: "Log cosine similarity between applied update and subspace basis (must\
+    \ be \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:26:49Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: perform Wilcoxon signed-rank test with minimum sample size of 3
+  claim_id: c_73bb966e
+  context: 'Phase 5: User Story 3 - T038b-a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Wilcoxon signed-rank test logic in src/analysis/metrics.py (N=3
+    minimum)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:26:59Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: orchestrate training runs for 4 variants with 3 seeds
+  claim_id: c_1388f980
+  context: 'Phase 5: User Story 3 - Execution Tasks - T042-a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate initial training runs for 4 variants (OPD, Low-Rank RL, Standard
+    RL, Random Projection) with N=3 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:28:07Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: trigger re-runs if effect size is less than 0.5 up to 10 seeds
+  claim_id: c_f465d082
+  context: 'Phase 5: User Story 3 - T048'
+  evidence:
+    candidates:
+    - - ''
+      - 10.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-runs_if_effect_size_is_less_than_0.5_up_to_10_see
+  kind: magnitude
+  raw_text: Implement adaptive sample size logic to trigger re-runs if effect size
+    < 0.5 (up to N=10)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T02:28:40Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: trigger variant reduction strategy if 6-hour execution limit is at risk
+  claim_id: c_a26afb71
+  context: 'Phase 5: User Story 3 - T049'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor execution time and trigger Variant Reduction Strategy if 6-hour
+    limit is at risk
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:29:00Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: all training must run on 2 vCPU and 7GB RAM within 6 hours
+  claim_id: c_e049d36f
+  context: Notes section - Critical constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:30:37Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: validate 6-hour limit compliance with 3 seeds and 4 variants
+  claim_id: c_9198af15
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T054'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure 6-hour limit compliance (with N=3
+    seed count and 4 variants)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:30:53Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Fetch GSM8K subset of at least 1,000 problems from HuggingFace datasets
+  claim_id: c_cd19e5a4
+  context: "T007 Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_GSM8K_subset_of_at_least_1,000_problems_from_HuggingFa
+  kind: magnitude
+  raw_text: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:33:45Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Pruned TinyLlama model has hidden size 512 and parameter count approximately
+    300 million
+  claim_id: c_84437240
+  context: 'T009 Implement src/models/config.py to programmatically prune TinyLlama
+    to a reduced parameter scale. Logic: Detect source model layer count. If a reduced
+    number of layers, remove the final subset (indices 6-10). If 24 layers, remove
+    last 18. Verify hidden_size=512 and final param count ~300M.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify hidden_size=512 and final param count ~300M
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:33:45Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Projection math verification requires cosine similarity greater than
+    or equal to 0.99
+  claim_id: c_b22799a4
+  context: "T014 [P] Create tests/unit/test_projection.py to verify projection math\
+    \ (cosine similarity \u2265 0.99)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Projection_math_verification_requires_cosine_similarity_grea
+  kind: magnitude
+  raw_text: "Verify projection math (cosine similarity \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:33:54Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early training window defined as minimum 50 steps
+  claim_id: c_6c8e86fb
+  context: T018c [P] Implement logic in src/analysis/metrics.py to define the 'early'
+    window (first [deferred] of training steps, minimum 50 steps) and write it to
+    results/early_window_config.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the 'early' window (first [deferred] of training steps, minimum
+    50 steps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:36:43Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Select k for cumulative explained variance greater than or equal to 80%
+    with default k=10
+  claim_id: c_2b1bce32
+  context: "T020 [US1] Implement logic to select k such that cumulative explained\
+    \ variance \u2265 80% (default k=10 if none)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_k_for_cumulative_explained_variance_greater_than_or_e
+  kind: magnitude
+  raw_text: "Implement logic to select k such that cumulative explained variance \u2265\
+    \ 80% (default k=10 if none)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:36:48Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: SVD memory usage must be less than 7GB
+  claim_id: c_8b9bb2eb
+  context: T022 [US1] Log memory usage during SVD to ensure < 7GB limit
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SVD_memory_usage_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: Log memory usage during SVD to ensure < 7GB limit
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:36:52Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Update direction cosine similarity with subspace basis must be greater
+    than or equal to 0.99
+  claim_id: c_b92f5adb
+  context: "Independent Test: Run PPO training with projection active, verify update\
+    \ direction cosine similarity with subspace basis \u2265 0.99."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Update_direction_cosine_similarity_with_subspace_basis_must
+  kind: magnitude
+  raw_text: "Verify update direction cosine similarity with subspace basis \u2265\
+    \ 0.99"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:36:54Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Log cosine similarity between applied update and subspace basis must
+    be greater than or equal to 0.99
+  claim_id: c_2eb98cea
+  context: "T029 [US2] Log cosine similarity between applied update and subspace basis\
+    \ (must be \u2265 0.99)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_cosine_similarity_between_applied_update_and_subspace_ba
+  kind: magnitude
+  raw_text: "Log cosine similarity between applied update and subspace basis (must\
+    \ be \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:36:56Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test requires minimum N=3 seeds
+  claim_id: c_9d4f80e0
+  context: T038b-a [US3] Implement Wilcoxon signed-rank test logic in src/analysis/metrics.py
+    (N=3 minimum) with dynamic power calculation and conditional re-run flagging.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Wilcoxon signed-rank test logic in src/analysis/metrics.py (N=3
+    minimum)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:37:13Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Initial training runs for 4 variants with 3 seeds per variant
+  claim_id: c_a534ab75
+  context: T042-a [US3] Orchestrate initial training runs for 4 variants (OPD, Low-Rank
+    RL, Standard RL, Random Projection) with N=3 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate initial training runs for 4 variants (OPD, Low-Rank RL, Standard
+    RL, Random Projection) with N=3 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:37:13Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Conditional re-run for 4 variants with 10 seeds per variant
+  claim_id: c_18aedd27
+  context: T042-b [US3] Orchestrate conditional re-run for 4 variants with N=10 seeds
+    if T048c triggers (Managed by T042-b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate conditional re-run for 4 variants with N=10 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:37:37Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Re-run training if effect size is less than 0.5 up to 10 seeds
+  claim_id: c_45b79f2e
+  context: T048 [US3] Implement adaptive sample size logic in src/analysis/power_analysis.py
+    to trigger re-runs if effect size < 0.5 (up to N=10) OR flag for human review
+    if time limit is exceeded.
+  evidence:
+    candidates:
+    - - ''
+      - 10.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Re-run_training_if_effect_size_is_less_than_0.5_up_to_10_see
+  kind: magnitude
+  raw_text: Trigger re-runs if effect size < 0.5 (up to N=10)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T02:39:41Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours
+  claim_id: c_8fca4852
+  context: T049 [US3] Monitor execution time and trigger Variant Reduction Strategy
+    if 6-hour limit is at risk.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure pipeline completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:42:28Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Training runs on CPU with 2 vCPUs and 7GB RAM within 6 hours
+  claim_id: c_7379e3cc
+  context: 'CRITICAL: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6
+    hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:42:28Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: GSM8K subset fetch size at least 1000 problems from HuggingFace
+  claim_id: c_41e2abdd
+  context: "T007 Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GSM8K_subset_fetch_size_at_least_1000_problems_from_HuggingF
+  kind: magnitude
+  raw_text: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:53:59Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: TinyLlama pruned model hidden size 512 and parameter count approximately
+    300M
+  claim_id: c_3c510835
+  context: 'T009 Implement src/models/config.py to programmatically prune TinyLlama
+    to a reduced parameter scale. Logic: Detect source model layer count. If a reduced
+    number of layers, remove the final subset (indices 6-10). If 24 layers, remove
+    last 18. Verify hidden_size=512 and final param count ~300M.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify hidden_size=512 and final param count ~300M
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:53:59Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Projection math cosine similarity at least 0.99
+  claim_id: c_284b138b
+  context: "T014 [P] Create tests/unit/test_projection.py to verify projection math\
+    \ (cosine similarity \u2265 0.99)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Projection_math_cosine_similarity_at_least_0.99
+  kind: magnitude
+  raw_text: "Verify projection math (cosine similarity \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:54:06Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early training window minimum 50 steps
+  claim_id: c_af52e332
+  context: T018c [P] Implement logic in src/analysis/metrics.py to define the 'early'
+    window (first [deferred] of training steps, minimum 50 steps) and write it to
+    results/early_window_config.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the 'early' window (first [deferred] of training steps, minimum
+    50 steps)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:54:07Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Cumulative explained variance at least 80% with default k 10
+  claim_id: c_8e54212d
+  context: "T020 [US1] Implement logic to select k such that cumulative explained\
+    \ variance \u2265 80% (default k=10 if none)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cumulative_explained_variance_at_least_80%25_with_default_k_10
+  kind: magnitude
+  raw_text: "Select k such that cumulative explained variance \u2265 80% (default\
+    \ k=10 if none)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:56:34Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: SVD memory usage limit less than 7 GB
+  claim_id: c_9798e452
+  context: T022 [US1] Log memory usage during SVD to ensure < 7GB limit
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SVD_memory_usage_limit_less_than_7_GB
+  kind: magnitude
+  raw_text: Log memory usage during SVD to ensure < 7GB limit
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:56:39Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Update direction cosine similarity with subspace basis at least 0.99
+  claim_id: c_75c7ee06
+  context: "Independent Test: Run PPO training with projection active, verify update\
+    \ direction cosine similarity with subspace basis \u2265 0.99."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Update_direction_cosine_similarity_with_subspace_basis_at_le
+  kind: magnitude
+  raw_text: "Verify update direction cosine similarity with subspace basis \u2265\
+    \ 0.99"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:56:43Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Cosine similarity between applied update and subspace basis at least
+    0.99
+  claim_id: c_2865476b
+  context: "T029 [US2] Log cosine similarity between applied update and subspace basis\
+    \ (must be \u2265 0.99)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_between_applied_update_and_subspace_basis
+  kind: magnitude
+  raw_text: "Log cosine similarity between applied update and subspace basis (must\
+    \ be \u2265 0.99)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:56:58Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test sample size minimum 3
+  claim_id: c_72f56223
+  context: T038b-a [US3] Implement Wilcoxon signed-rank test logic in src/analysis/metrics.py
+    (N=3 minimum) with dynamic power calculation and conditional re-run flagging.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Wilcoxon signed-rank test logic (N=3 minimum)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:58:13Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Initial training runs 4 variants with 3 seeds
+  claim_id: c_dce5ff48
+  context: T042-a [US3] Orchestrate initial training runs for 4 variants (OPD, Low-Rank
+    RL, Standard RL, Random Projection) with N=3 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate initial training runs for 4 variants (OPD, Low-Rank RL, Standard
+    RL, Random Projection) with N=3 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T02:58:14Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Adaptive sample size re-run if effect size less than 0.5 and N less than
+    10
+  claim_id: c_e50d38eb
+  context: 'T048c [US3] Execute conditional branching logic: if effect size < 0.5
+    AND N < 10 AND time permits, re-invoke T042-b via CLI flag --rerun-seeds (Depends
+    on T048b)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adaptive_sample_size_re-run_if_effect_size_less_than_0.5_and
+  kind: magnitude
+  raw_text: Re-run analysis on new data if effect size < 0.5 AND N < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:00:33Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Variant reduction strategy triggered if 6 hour limit at risk
+  claim_id: c_837aaaa4
+  context: T049 [US3] Monitor execution time and trigger Variant Reduction Strategy
+    if 6-hour limit is at risk.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger Variant Reduction Strategy if 6-hour limit is at risk
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:01:37Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Training on 2 vCPU 7 GB RAM within 6 hours
+  claim_id: c_f6717b0f
+  context: 'CRITICAL: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6
+    hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:01:38Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Quickstart validation 6 hour limit with 3 seeds and 4 variants
+  claim_id: c_363d26b6
+  context: T054 Run quickstart.md validation to ensure 6-hour limit compliance (with
+    N=3 seed count and 4 variants)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure 6-hour limit compliance (with N=3
+    seed count and 4 variants)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:01:38Z'

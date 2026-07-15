@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (src/, tests/, data/, results/)
-- [ ] T002 Initialize Python 3.10 project with `torch`, `transformers`, `datasets`, `peft`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (src/, tests/, data/, results/)
+- [X] T002 Initialize Python 3.10 project with `torch`, `transformers`, `datasets`, `peft`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -92,7 +92,7 @@
 - [ ] T019 [US1] Implement **layer-wise SVD logic** in `src/training/projection_utils.py` for accumulated updates
 - [ ] T020 [US1] Implement logic to select $k$ such that cumulative explained variance ≥ 80% (default $k=10$ if none)
 - [ ] T021 [US1] Save stable subspace matrix (shape $k \times n_{params}$) to `results/opd_subspace.npy`
-- [ ] T022 [US1] Log memory usage during SVD to ensure < 7GB limit
+- [ ] T022 [US1] Log memory usage during SVD to ensure < 7GB limit [UNRESOLVED-CLAIM: c_9798e452 — status=not_enough_info]
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,7 +115,7 @@
 - [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021)
 - [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
 - [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
-- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis (must be ≥ 0.99)
+- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis (must be ≥ 0.99) [UNRESOLVED-CLAIM: c_2865476b — status=not_enough_info]
 - [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
 - [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array).
 
@@ -177,7 +177,7 @@
 - [ ] T051 Code cleanup and refactoring of training loops
 - [ ] T052 Performance optimization for CPU execution (batching, mixed precision)
 - [ ] T053 [P] Additional unit tests in `tests/unit/`
-- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and 4 variants)
+- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and 4 variants) [UNRESOLVED-CLAIM: c_363d26b6 — status=not_enough_info]
 - [ ] T055 Verify all `results/` artifacts have SHA-256 hashes recorded in `state/`
 
 ---
@@ -189,8 +189,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -256,9 +256,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (OPD Baseline)
-   - Developer B: User Story 2 (Low-Rank RL)
-   - Developer C: User Story 3 (Analysis & Baselines)
+ - Developer A: User Story 1 (OPD Baseline)
+ - Developer B: User Story 2 (Low-Rank RL)
+ - Developer C: User Story 3 (Analysis & Baselines)
 3. Stories complete and integrate independently
 
 ---
@@ -272,7 +272,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours. No GPU, no 8-bit quantization.
+- **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours [UNRESOLVED-CLAIM: c_f6717b0f — status=not_enough_info]. No GPU, no 8-bit quantization.
 - **CRITICAL**: Use real GSM8K data from HuggingFace; no synthetic data or fabrication.
 - **NOTE**: Task T042-a orchestrates N=3 pilot runs for 4 variants. T042-b handles conditional re-runs to N=10 if power analysis requires and time permits.
 - **NOTE**: T018b and T030b explicitly log per-step vectors **layer-wise** to separate files to satisfy FR-008 and memory constraints.
