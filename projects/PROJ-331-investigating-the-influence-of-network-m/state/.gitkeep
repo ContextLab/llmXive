@@ -1,0 +1,2 @@
+# This file ensures the state directory exists in git
+# Manifests and versioning files will be stored here.

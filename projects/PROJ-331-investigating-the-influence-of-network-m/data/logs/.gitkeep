@@ -1,0 +1,2 @@
+# This file ensures the data/logs directory exists in git
+# Log files (e.g., pipeline.log) will be written here.

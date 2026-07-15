@@ -43,7 +43,7 @@
 
 **Why this priority**: This story delivers the scientific answer to the research question and provides transparent evidence for reviewers.
 
-**Independent Test**: Execute the analysis script on the full set of 50 subjects; verify that a `results.pdf` is generated containing one page per motif type with a scatter plot, partial correlation coefficient, corrected p‑value, and a statement of significance.
+**Independent Test**: Execute the analysis script on the full set of subjects; verify that a `results.pdf` is generated containing one page per motif type with a scatter plot, partial correlation coefficient, corrected p‑value, and a statement of significance.
 
 **Acceptance Scenarios**:
 

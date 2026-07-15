@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a reproducible, CPU-constrained pipeline to investigate whether specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The system downloads HCP diffusion and rs-fMRI data (or uses pre-seeded data), constructs Schaefer parcellated connectomes (preserving both binary and weighted forms), enumerates 3-node motifs against degree-preserving null models (100 iterations), and computes partial correlations controlling for network density. Statistical rigor is enforced via FDR (Benjamini-Hochberg) correction, permutation testing, and power analysis, with all results rendered in a single PDF report.
+This project implements a reproducible, CPU-constrained pipeline to investigate whether specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The system downloads HCP diffusion and rs-fMRI data (or uses pre-seeded data), constructs Schaefer parcellated connectomes (preserving both binary and weighted forms), enumerates small-node motifs against degree-preserving null models (A fixed number of iterations), and computes partial correlations controlling for network density. Statistical rigor is enforced via FDR (Benjamini-Hochberg) correction, permutation testing, and power analysis, with all results rendered in a single PDF report.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a reproducible, CPU-constrained pipeline to investigate 
 **Project Type**: Scientific data pipeline / CLI  
 **Performance Goals**: Motif enumeration ≤ 300s/subject; Full pipeline ≤ 6h; PDF generation ≤ 2m  
 **Constraints**: No GPU; Memory ≤ 7GB; Disk ≤ 14GB; Must handle missing subjects gracefully; Must include mandatory associational disclaimer.  
-**Scale/Scope**: N=50 subjects; 3-node motifs only; Schaefer-100 parcellation (100x100 matrices).
+**Scale/Scope**: N=50 subjects; -node motifs only; Schaefer-100 parcellation (100x100 matrices).
 
 > **Dataset Fit Note**: The plan relies on the HCP S1200 Release which provides raw diffusion tractography (streamlines/NIFTI) and resting-state fMRI for the same subjects. The pipeline performs local tractography-to-matrix conversion (streamline counting) and applies the Schaefer-100 parcellation to ensure node correspondence.
 
@@ -78,7 +78,7 @@ results/
 ### Phase 0: Research & Data Verification (Pre-Implementation)
 *   **Goal**: Verify dataset availability, variable fit, and versioning setup.
 *   **FR/SC Mapping**:
-    *   **FR-001 / SC-001**: Verify HCP S1200 Release contains both DWI and rs-fMRI for 50+ subjects.
+    *   **FR-001 / SC-001**: Verify HCP S1200 Release contains both DWI and rs-fMRI for A substantial number of subjects.
     *   **FR-010 / SC-005**: Verify power analysis parameters (N=50, alpha=0.05) are feasible.
     *   **Constitution V**: Execute `scripts/hash_artifacts.sh` to generate SHA256 hashes for all data/code artifacts and update `state/...yaml` `updated_at` timestamp.
 *   **Action**: Query verified dataset sources (see `research.md`). Confirm Schaefer-100 atlas compatibility. Generate initial checksums for any pre-seeded data.
@@ -102,7 +102,7 @@ results/
     *   **SC-002**: Ensure execution ≤ 300s/subject on 2-core CPU (achieved by limiting to 100 iterations and using `networkx`).
     *   **Edge Case**: If null model fails to converge after a predetermined number of retries, exclude subject from that specific motif's analysis (set z-score to `null` in JSON, do not assign 0).
 *   **Method**: `networkx` for subgraph isomorphism counting. Output normalized to `motif_profile.schema.yaml`.
-*   **Thresholding Strategy**: Compute z-scores at three density thresholds (10%, 20%, 30%). Aggregate final `motif_z_scores` using the **median** value across thresholds to mitigate thresholding bias. Raw per-threshold scores stored in `motif_z_scores_raw`.
+*   **Thresholding Strategy**: Compute z-scores at three density thresholds. Aggregate final `motif_z_scores` using the **median** value across thresholds to mitigate thresholding bias. Raw per-threshold scores stored in `motif_z_scores_raw`.
 
 ### Phase 3: Statistical Analysis
 *   **Goal**: Correlate motifs with rsFC metrics, apply corrections.
@@ -130,7 +130,7 @@ results/
 ## Statistical Rigor & Feasibility Notes
 
 *   **Multiple Comparisons**: Benjamini-Hochberg (FDR) correction applied across all directed 3-node motifs to account for correlation structure. Bonferroni is avoided as it is overly conservative for correlated tests.
-*   **Power**: With N=50 and FDR-adjusted alpha, detectable r is likely ~0.4 (two-tailed test assumed for conservatism). This is explicitly reported in the power analysis section (FR-010). The report will acknowledge the risk of Type II errors for moderate effect sizes.
+*   **Power**: With N=50 and FDR-adjusted alpha, detectable r is likely moderate in magnitude (two-tailed test assumed for conservatism). This is explicitly reported in the power analysis section (FR-010). The report will acknowledge the risk of Type II errors for moderate effect sizes.
 *   **Causal Claims**: None. The plan explicitly frames results as associational (FR-009, Constitution Principle VII).
 *   **Collinearity**: VIF check performed before partial correlation. If VIF > 5 for the control variable, the plan reports collinearity and adjusts the statistical approach.
 *   **Circularity**: Global Efficiency is calculated on the *weighted* structural graph (unthresholded), while motifs are calculated on the *binary* graph (thresholded). The control variable is *network density* (not global degree) to avoid statistical redundancy with the null model which preserves degree.

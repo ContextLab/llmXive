@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory exists in git
+# Processed data (e.g., .npy, .json) will be generated here.
