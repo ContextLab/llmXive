@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-21T05:49:18.749612Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-754-linking-resting-state-fmri-entropy-to-re
-last_run_id: e366706d-8208-4224-9198-5e906376265c
+last_run_id: d6da1e98-62f6-4064-8c94-57f1c1f48c80
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re
 title: "Linking Resting-State fMRI Entropy to Real-World Decision Risk\u2011Taking"
-updated_at: '2026-07-03T22:53:09.132833Z'
+updated_at: '2026-07-15T10:24:50.328486Z'

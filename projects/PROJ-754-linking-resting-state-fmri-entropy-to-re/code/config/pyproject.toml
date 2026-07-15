@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-754-linking-resting-state-fmri-entropy-to-re"
+version = "0.1.0"
+description = "Linking Resting-State fMRI Entropy to Real-World Decision Risk-Taking"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "nibabel>=5.0.0",
+    "pyentropy>=1.0.0",
+    "statsmodels>=0.14.0",
+    "nilearn>=0.10.0",
+    "scikit-learn>=1.2.0",
+    "tqdm>=4.65.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | reports
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["code*"]

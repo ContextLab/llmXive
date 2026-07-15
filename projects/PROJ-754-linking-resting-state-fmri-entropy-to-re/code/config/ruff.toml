@@ -1,0 +1,59 @@
+# Ruff configuration for PROJ-754
+# See: https://beta.ruff.rs/docs/configuration/
+
+[lint]
+# Enable a set of rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+    "TCH", # flake8-type-checking
+    "PL",  # Pylint
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for this project
+ignore = [
+    "PLR2004", # Magic value comparison
+    "S101",    # Use of assert (we use it for type checks)
+    "B008",    # Do not perform function call in argument defaults (common in dataclasses)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "data/",
+    "reports/",
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files
+"tests/*" = [
+    "S101",   # Allow asserts in tests
+    "PLR2004", # Allow magic values in tests
+]
+
+[lint.isort]
+known-first-party = ["code", "tests", "specs"]
+force-sort-within-sections = false
+
+[lint.pydocstyle]
+convention = "google"

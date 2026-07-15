@@ -1,0 +1,1 @@
+"""Entropy analysis module."""

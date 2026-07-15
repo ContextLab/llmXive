@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-linking-resting-state-fmri-entropy-to-re/spec.md`
 
 ## Summary
-The project must (1) download a subset of 200 HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with Domain‑Specific Risk‑Taking (DSRT) scores, (2) compute multiscale sample entropy (mSE) for each cortical parcel (scales 1‑5, averaged), and (3) fit a mass‑univariate **Ordinary Least Squares (OLS)** regression per parcel predicting DSRT from entropy while controlling for age, sex, and mean framewise displacement (FD). Results require permutation‑based family‑wise error (FWE) correction (5 000 permutations using the Freedman-Lane method) and a sensitivity analysis over entropy tolerance `r` and pattern length `m`. All steps must run on a CPU‑only GitHub Actions runner within the free‑tier resource limits.
+The project must () download a subset of 200 HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with Domain‑Specific Risk‑Taking (DSRT) scores, (2) compute multiscale sample entropy (mSE) for each cortical parcel (across multiple scales, averaged), and (3) fit a mass‑univariate **Ordinary Least Squares (OLS)** regression per parcel predicting DSRT from entropy while controlling for age, sex, and mean framewise displacement (FD). Results require permutation‑based family‑wise error (FWE) correction (using the Freedman-Lane method) and a sensitivity analysis over entropy tolerance `r` and pattern length `m`. All steps must run on a CPU‑only GitHub Actions runner within the free‑tier resource limits.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -42,8 +42,8 @@ All principles are satisfied; no violations identified.
 | **0 – Research** | Define dataset strategy, statistical methods, compute feasibility. | – | – |
 | **1 – Data Acquisition** | Download HCP time series (200 subjects) and DSRT scores; **verify presence of required columns (subject_id, DSRT, age, sex, mean_fd)**; **exclude subjects with mean FD ≥ 0.2 mm**; exclude missing DSRT. | FR‑001, FR‑002, FR‑006 (observational framing) | SC‑001 (runtime), SC‑002 (memory) |
 | **2 – Entropy Computation** | Compute multiscale sample entropy (scales 1‑5) per parcel; average across scales; flag parcels with insufficient points. | FR‑003, FR‑008 (sensitivity setup) | SC‑002 (memory), SC‑003 (output completeness) |
-| **3 – Statistical Modeling** | Fit **OLS** model per parcel: `DSRT ~ Entropy + Age + Sex + MeanFD`. Compute VIF for covariates. Perform 5 000 **Freedman-Lane** permutations to build max‑t null distribution. Apply FWE correction (p < 0.05). **Conduct post-hoc power analysis (F-test)**. | FR‑004, FR‑005, FR‑006, FR‑008 | SC‑004 (report), SC‑005 (VIF), SC‑006 (power) |
-| **4 – Reporting & Sensitivity** | Produce PDF report, parcel‑wise NIfTI map of significant clusters, power analysis, and sensitivity tables over `r` ∈ {0.1,0.15,0.2} and `m` ∈ {3,5,7}. | FR‑007 (CPU‑only), FR‑008 (execution) | SC‑003, SC‑004, SC‑005, SC‑006 |
+| **3 – Statistical Modeling** | Fit **OLS** model per parcel: `DSRT ~ Entropy + Age + Sex + MeanFD`. Compute VIF for covariates. Perform a sufficient number of **Freedman-Lane** permutations to build a max‑t null distribution. Apply FWE correction (p < 0.05). **Conduct post-hoc power analysis (F-test)**. | FR‑004, FR‑005, FR‑006, FR‑008 | SC‑004 (report), SC‑005 (VIF), SC‑006 (power) |
+| **4 – Reporting & Sensitivity** | Produce PDF report, parcel‑wise NIfTI map of significant clusters, power analysis, and sensitivity tables over `r` ∈ {low, medium, high} and `m` ∈ {3,5,7}. | FR‑007 (CPU‑only), FR‑008 (execution) | SC‑003, SC‑004, SC‑005, SC‑006 |
 | **5 – Quality Assurance** | Verify checksums, log exclusions, enforce graceful failure for missing credentials or timeout of permutation testing. | FR‑001 (credential handling), FR‑002 (missing DSRT), FR‑007 (CPU‑only) | SC‑001 (timeout handling) |
 
 Each functional requirement (FR‑001 – FR‑008) and success criterion (SC‑001 – SC‑006) is explicitly mapped to a concrete phase or step.
@@ -59,7 +59,7 @@ Each functional requirement (FR‑001 – FR‑008) and success criterion (S
 | Reporting & sensitivity (Phase 4) | ≤30 min |
 | **Total** | ≤4 h (comfortably under 6 h limit) |
 
-\*Times are based on prior benchmarks of `pyentropy` on a 2‑core CI runner.
+\*Times are based on prior benchmarks of `pyentropy` on a multi-core CI runner.
 
 ## Risks & Mitigations
 - **Permutation runtime**: If 5 000 permutations exceed 3 h, the script will monitor elapsed time and abort with a clear timeout error (SC‑001). Users can optionally reduce permutations via a CLI flag.

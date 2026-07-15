@@ -20,30 +20,30 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
+- [ ] T001 Create project structure per implementation plan <!-- FAILED: unspecified -->
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, nibabel, pyentropy, statsmodels, nilearn, scikit-learn, tqdm)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on your plan.md):
 
-- [ ] T004 Setup `data/` directory structure and `data/checksums.txt` logging mechanism
+- [ ] T004 Setup `data/` directory structure and `data/checksums.txt` logging mechanism <!-- SKIPPED: non-mapping output -->
 - [ ] T005 [P] Implement robust environment variable management (HCP_TOKEN) with graceful failure on missing credentials
 - [ ] T006 [P] Setup logging infrastructure to record subject exclusions and processing steps
 - [ ] T007 Create base data entities (Subject, Parcel) in `src/entities/`
@@ -82,14 +82,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement HCP S3 downloader in `src/data/download_hcp.py` to fetch Spatially parcellated time series
-
-The research question investigates how spatial resolution influences the reliability of functional connectivity estimates. The method employs a parcellation-based approach to aggregate voxel-level signals into region-wise time series, drawing on established frameworks (e.g., Craddock et al., 2012; Glasser et al., 2016). and behavioral data for N=200 subjects
+- [ ] T012 [P] [US1] Implement HCP S3 downloader in `src/data/download_hcp.py` to fetch Spatially parcellated time series and behavioral data for N=200 subjects, selecting subjects deterministically using random seed 42
 - [ ] T013 [US1] Implement data validation script in `src/data/validate_data.py` to check for required columns (subject_id, DSRT, age, sex, mean_fd) and handle missing DSRT
 - [ ] T014 [US1] Implement motion quality control filter in `src/data/filter_motion.py` to exclude subjects with mean FD ≥ 0.2mm and log exclusion counts
 - [ ] T015 [US1] Create aggregated clean dataset CSV/Parquet in `data/cleaned/subjects_200_filtered.csv`
 - [ ] T016 [US1] Generate checksum for all **downloaded** raw artifacts and append to `data/checksums.txt`
 - [ ] T017 [US1] Generate checksum for **derived** intermediate file `data/cleaned/subjects_200_filtered.csv` and append to `data/checksums.txt`
+- [ ] T018 [US1] Implement resampling pipeline in `src/data/resample_to_4mm.py` to interpolate standard HCP parcellated time series to 4mm resolution, ensuring FR-003 input validity
+- [ ] T019 [US1] Implement residual noise variance computation in `src/data/compute_noise_variance.py` to derive the noise-variance covariate required by FR-009, outputting to `data/derived/noise_variance.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,8 +108,8 @@ The research question investigates how spatial resolution influences the reliabi
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement multiscale sample entropy function (scales -5) using `pyentropy` in `src/analysis/entropy.py`
-- [ ] T021 [US2] Implement parcel-wise processing loop in `src/analysis/compute_entropy.py` to handle one parcel at a time to stay under a moderate RAM footprint consistent with standard consumer hardware constraints.
+- [ ] T020 [P] [US2] Implement multiscale sample entropy function (scales 1–5) using `pyentropy` in `src/analysis/entropy.py` with default parameters: embedding dimension m=2, tolerance r=0.15
+- [ ] T021 [US2] Implement parcel-wise processing loop in `src/analysis/compute_entropy.py` to handle one parcel at a time, ensuring peak RAM usage does not exceed a defined threshold. This task is NOT parallel-safe and must run serially.
 - [ ] T022 [US2] Implement logic to flag and handle parcels with insufficient timepoints (invalid flagging)
 - [ ] T023 [US2] Generate averaged entropy metric by **explicitly averaging across scales** per parcel per subject
 - [ ] T024 [US2] Save final entropy matrix to `data/derived/entropy_matrix.csv` (subjects × parcels)
@@ -126,21 +126,22 @@ The research question investigates how spatial resolution influences the reliabi
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for MixedLM model fitting and VIF calculation in `tests/unit/test_stats.py`
-- [ ] T025 [P] [US3] Unit test for max-t permutation logic in `tests/unit/test_permutations.py`
+- [ ] T025 [P] [US3] Unit test for MixedLM model fitting and VIF calculation in `tests/unit/test_stats.py`
+- [ ] T026 [P] [US3] Unit test for max-t permutation logic in `tests/unit/test_permutations.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement Variance Inflation Factor (VIF) calculation for covariates and assert VIF < 5 in `src/stats/collinearity.py`
-- [ ] T027 [US3] Implement mass-univariate **Mixed-Effects Model (MixedLM)** fitting (`DSRT ~ Entropy + Age + Sex + MeanFD + (1|Subject)`) in `src/stats/model_fitting.py`
-- [ ] T028 [US3] Implement Freedman-Lane permutation test (A sufficient number of iterations will be performed to ensure convergence., max-t statistic) in `src/stats/permutation_test.py` with timeout monitoring
-- [ ] T029 [US3] Implement FWE correction logic to threshold p-values at < 0.05
-- [ ] T030 [US3] Implement post-hoc power analysis (F-test) in `src/stats/power_analysis.py`
-- [ ] T031 [US3] Generate parcel-wise NIfTI map of significant clusters in `data/results/significant_map.nii.gz`
-- [ ] T032 [US3] **Implement Sensitivity Driver**: Create a wrapper script in `src/stats/sensitivity_driver.py` that orchestrates re-runs of T027-T031 for the full x3 grid of parameters: `r ∈ {a small positive value, 0.15, 0.2}` AND `m ∈ {5, 7} and other odd integers` (A series of multiple runs will be conducted to evaluate the robustness of the proposed method across varying initial conditions, as outlined in the research question. This approach aligns with the experimental design described in prior work (DOI:10.1234/example).), aggregating results into a sensitivity table.
-- [ ] T033 [US3] Implement robustness check: Re-run the full statistical pipeline (T027-T031) on the **low-motion subset (FD < 0.2mm)** and generate a comparative report in `reports/robustness_check.pdf`
-- [ ] T034 [US3] Generate final PDF report in `reports/analysis_report.pdf` including associational framing, power analysis, sensitivity tables, and robustness check results
-- [ ] T035 [US3] Update `state/projects/PROJ-754-...yaml` with SHA-256 hashes of all final artifacts
+- [ ] T027 [P] [US3] Implement Variance Inflation Factor (VIF) calculation for covariates and {{claim:c_ca86a376}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) in `src/stats/collinearity.py`
+- [ ] T028 [US3] Implement mass-univariate **Mixed-Effects Model (MixedLM)** fitting (`DSRT ~ Entropy + Age + Sex + MeanFD + NoiseVariance + (1|Subject)`) in `src/stats/model_fitting.py`. Subject ID is used as a random effect (1|Subject) per Spec FR-004.
+- [ ] T029 [US3] Implement Freedman-Lane permutation test (A sufficient number of iterations, max-t statistic) in `src/stats/permutation_test.py` with random seed 42 for shuffling. Explicitly construct the max-statistic null distribution across all parcels for FWE correction per FR-005 and Constitution VII. Include timeout monitoring.
+- [ ] T030 [US3] Implement FWE correction logic to threshold p-values at < 0.05
+- [ ] T031 [US3] Implement post-hoc power analysis (F-test) in `src/stats/power_analysis.py` to calculate power for effect size d=0.3. Explicitly flag the study as 'Underpowered' in the report if Power < 0.80.
+- [ ] T032 [US3] Generate parcel-wise NIfTI map of significant clusters in `data/results/significant_map.nii.gz`
+- [ ] T033a [US3] **Define Baseline**: Create a configuration script in `src/stats/sensitivity_baseline.py` that explicitly defines the primary baseline parameters: r=0.15, m=1-5 (averaged), A large number of permutations.
+- [ ] T033b [US3] **Implement Sensitivity Driver**: Create a wrapper script in `src/stats/sensitivity_driver.py` that orchestrates re-runs of T028-T032 for the full x grid of parameters: `r ∈ {0.1, 0.15, 0.2}` AND `m ∈ {3, 5, 7}`. Implement logic to monitor total runtime; if the grid exceeds 5 hours, dynamically reduce the number of permutations to a lower magnitude for subsequent runs and log the reduction.
+- [ ] T034 [US3] Implement robustness check: Re-run the full statistical pipeline (T028-T032) on the **low-motion subset (FD < 0.2mm)** and generate a comparative report in `reports/robustness_check.pdf`. Justified by Constitution Principle VI (Neuroimaging Motion Control).
+- [ ] T035 [US3] Generate final PDF report in `reports/analysis_report.pdf` including associational framing, power analysis (with underpowered flag if applicable), sensitivity tables, and robustness check results.
+- [ ] T036 [US3] Update `state/projects/PROJ-754-...yaml` with SHA-256 hashes of all final artifacts
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,11 +151,11 @@ The research question investigates how spatial resolution influences the reliabi
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` explaining the entropy calculation and permutation method
-- [ ] T037 Code cleanup and refactoring of data loading utilities
-- [ ] T038 Performance optimization for the permutation loop (parallelization within 2 CPU cores if feasible, otherwise optimized serial)
-- [ ] T039 [P] Additional unit tests for edge cases (empty datasets, timeout triggers) in `tests/unit/`
-- [ ] T040 Run quickstart.md validation to ensure full pipeline execution fits within 6 hours
+- [ ] T037 [P] Documentation updates in `docs/` explaining the entropy calculation and permutation method
+- [ ] T038 Code cleanup and refactoring of data loading utilities
+- [ ] T039 Performance optimization for the permutation loop using joblib with n_jobs=2 (or optimized serial if 2 cores unavailable)
+- [ ] T040 [P] Additional unit tests for edge cases (empty datasets, timeout triggers) in `tests/unit/`
+- [ ] T041 Run quickstart.md validation to ensure full pipeline execution fits within 6 hours
 
 ---
 
@@ -165,8 +166,8 @@ The research question investigates how spatial resolution influences the reliabi
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -232,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Entropy)
-   - Developer C: User Story 3 (Stats)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Entropy)
+ - Developer C: User Story 3 (Stats)
 3. Stories complete and integrate independently
 
 ---
@@ -248,6 +249,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (A minimal virtual environment configured with a small number of CPU cores, 7GB RAM, and 14GB disk.). No GPU, no 8-bit quantization, no large model loading.
+- **Critical Constraint**: All tasks must run on CPU-only CI (A minimal virtual environment configured with a small number of CPU cores, a moderate amount of RAM, and 14GB disk.). No GPU, no 8-bit quantization, no large model loading.
 - **Data Integrity**: All analysis tasks must use real HCP data downloaded via T012. No synthetic data fabrication.
-- **Sensitivity Analysis**: Task T032 is a driver that re-runs the pipeline 9 times; ensure CI resources are allocated accordingly.
+- **Sensitivity Analysis**: Task T033b is a driver that re-runs the pipeline 9 times; ensure CI resources are allocated accordingly. If runtime exceeds 5 hours, permutations are reduced to a documented fallback threshold.
+- **Model Architecture**: Task T028 implements Mixed-Effects Model (MixedLM) with (1|Subject) random effect as explicitly mandated by Spec FR-004.
+- **Noise Covariate**: Task T019 computes residual noise variance, which is included as a covariate in T028 to satisfy FR-009.
+- **Resampling**: Task T018 ensures 4mm parcellated time series are generated from standard HCP data to satisfy FR-003.
+- **Power Analysis**: Task T031 includes explicit logic to flag the study as underpowered if Power < 0.80.

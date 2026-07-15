@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/HumanConnectomeProject/HCP-1200/resolve/main/behavioral_data.csv
   verified_at: '2026-07-03T22:37:28.379033Z'
+- artifact_hash: 4012e2636d79e1170a38617e770546cd9002916d95076bdd9d8bf5f85e33d78d
+  artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-07-15T10:31:26.210235Z'
