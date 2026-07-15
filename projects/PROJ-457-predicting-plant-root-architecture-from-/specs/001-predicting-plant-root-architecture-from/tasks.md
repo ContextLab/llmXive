@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/models/`, `artifacts/plots/`, `artifacts/reports/`
-- [ ] T002 Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas` and run `pip install -r code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T002 Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas` and run `pip install -r code/requirements.txt`, then pin versions via `pip freeze > code/requirements.txt`
+- [ ] T003 [P] Configure linting (flake8/black): Create `.flake8` and `pyproject.toml` with black/flake8 settings and run `black --check code/`
 
 ---
 
@@ -57,9 +57,8 @@
 
 - [ ] T004 Create `code/config.py` to load paths, seeds, and constants from `config.yaml`
 - [ ] T007 [P] Create base data models/classes for `RootPhenotypeRecord` and `SoilNutrientRecord` in `code/models.py`
-- [ ] T005 [P] Implement schema validation contracts in `tests/contract/test_schemas.py` (raw_root, raw_soil, merged, output) - *Prerequisite: T007*
 - [ ] T006 [P] Setup logging infrastructure in `code/config.py` (file + console handlers)
-- [ ] T008 Setup environment configuration management (`.env` or `config.yaml` template)
+- [ ] T008 Setup environment configuration management: Create `code/config.yaml.template` with keys: `DATA_PATH`, `SEED`, `LOG_LEVEL`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,20 +74,25 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_schemas.py`
+- [ ] T009 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_schemas.py` - *Prerequisite: T018*
 - [ ] T010 [P] [US1] Unit test for KNN imputation logic (k=5, Euclidean) in `tests/unit/test_preprocessing.py`
 - [ ] T011 [P] [US1] Unit test for log-transformation handling of zeros/negatives in `tests/unit/test_preprocessing.py`
 - [ ] T012 [US1] Integration test for full ingestion pipeline end-to-end in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `data_ingestion.py` to download/parse RootReader and PlantPheno data (FR-001)
-- [ ] T014 [P] [US1] Implement `data_ingestion.py` logic to fetch ISRIC soil data via verified loader OR load user-provided file (fallback for reproducibility) and handle missing coordinates via nearest neighbor interpolation within a defined spatial threshold (FR-002, FR-012)
-- [ ] T015 [US1] Implement filtering logic in `data_ingestion.py` to exclude species with n<20 (FR-001) - *Note: Combine with T015.1 for full filtering*
-- [ ] T015.1 [US1] Implement filtering logic in `data_ingestion.py` to explicitly exclude rows where `data_source_type` is 'experimental' or 'controlled' (FR-012) - *Prerequisite: T013*
-- [ ] T018 [US1] Merge root and soil datasets in `data_ingestion.py` ensuring no data leakage (species-level integrity) - *Prerequisite: T015, T015.1*
-- [ ] T016 [US1] Implement `preprocessing.py` for log-transformation of root metrics and z-score normalization of nutrients (FR-003, Const VII) - *Prerequisite: T018*
-- [ ] T017 [US1] Implement `preprocessing.py` KNN imputation (k=5, Euclidean, numeric only) with mean fallback (FR-003) - *Prerequisite: T018*
+- [ ] T013 [P] [US1] Implement `code/data_ingestion.py` to download/parse RootReader and PlantPheno data (FR-001)
+  - **Constraint**: Use `datasets.load_dataset` with `streaming=True` if dataset is large; otherwise use direct URL fetch.
+  - **Constraint**: MUST fail loudly (raise Exception) if real data fetch fails; NO synthetic fallback.
+- [ ] T014 [P] [US1] Implement `code/data_ingestion.py` logic to fetch ISRIC soil data via verified loader and handle missing coordinates via nearest neighbor interpolation within a defined radius using `geopandas` (FR-002, FR-012)
+  - **Constraint**: Implement spatial join logic at an appropriate spatial resolution. The research question remains: [Research Question]. The method remains: [Method]. References: [References].; log exclusion method if interpolation fails.
+  - **Constraint**: NO user-provided file fallback; automated fetching is required for reproducibility.
+- [ ] T015 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude species with n<20 AND exclude rows where `data_source_type` is 'experimental' or 'controlled' (FR-001, FR-012)
+  - **Constraint**: Detect 'data_source_type' column; if missing, raise ValueError with specific message or map known alternative column names.
+  - **Constraint**: Log exclusion counts for both filters.
+- [ ] T018 [US1] Merge root and soil datasets in `code/data_ingestion.py` ensuring no data leakage (species-level integrity) - *Prerequisite: T013, T014, T015*
+- [ ] T016 [US1] Implement `code/preprocessing.py` for log-transformation of root metrics and z-score normalization (global, across all species) of nutrients (FR-003, Const VII) - *Prerequisite: T018*
+- [ ] T017 [US1] Implement `code/preprocessing.py` KNN imputation (k=5, Euclidean, numeric only) with mean fallback (FR-003) - *Prerequisite: T018*
 - [ ] T019 [US1] Add logging for exclusion counts (species < 20, missing nutrients, experimental data) and transformation steps
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,14 +113,20 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `modeling.py` to perform k-fold cross-validation split strictly by species (FR-006) - *Prerequisite: T018 (US1 output)*
-- [ ] T024 [US2] Implement LMM fitting in `modeling.py` using `statsmodels` (REML, Satterthwaite p-values, species as random intercept) (FR-004)
-- [ ] T025 [US2] Implement Random Forest baseline in `modeling.py` (max_depth=5) for comparison (FR-005)
-- [ ] T026 [US2] Implement F-test for overall model significance and coefficient p-values in `modeling.py` (FR-008)
-- [ ] T027 [US2] Implement multiple-comparison correction (Bonferroni or FDR) for hypothesis testing in `modeling.py` (FR-010)
+- [ ] T023 [US2] Implement `code/modeling.py` to perform k-fold cross-validation split strictly by species (FR-006) - *Prerequisite: T018 (US1 output)*
+  - **Constraint**: Use `GroupKFold` from `scikit-learn` with `groups=species`.
+- [ ] T024 [US2] Implement LMM fitting in `code/modeling.py` using `statsmodels` (REML, Satterthwaite p-values, species as random intercept) (FR-004)
+  - **Constraint**: Ensure CPU-only execution (no GPU); use REML estimation.
+- [ ] T025 [US2] Implement Random Forest baseline in `code/modeling.py` (max_depth=5) for comparison (FR-005)
+  - **Constraint**: Ensure CPU-only execution; limit `n_estimators` to ensure runtime < 6h.
+- [ ] T026 [US2] Implement F-test for overall model significance and coefficient p-values in `code/modeling.py` (FR-008)
+- [ ] T027 [US2] Implement multiple-comparison correction (Bonferroni or FDR) for hypothesis testing in `code/modeling.py` (FR-010)
 - [ ] T028 [US2] Implement sensitivity analysis of nutrient coefficients against literature ranges (FR-011)
-- [ ] T029 [US2] Generate output JSON with adjusted R², RMSE, p-values, and cross-validation mean R² for both models (FR-004, FR-005, FR-006)
-- [ ] T029.1 [US2] Implement logic in `modeling.py` to calculate the difference between LMM R² and RF R² and evaluate if it is within the 5% threshold defined in SC-002 (FR-006, SC-002) - *Prerequisite: T029*
+- [ ] T029 [US2] Generate output JSON with adjusted R², RMSE, p-values, and cross-validation mean R² for both models; include logic to compare LMM R² vs RF R² and set `success_criterion_met: False` if difference > 5% (FR-004, FR-005, FR-006, SC-002) - *Prerequisite: T023, T024, T025*
+  - **Constraint**: Explicitly flag success/failure of SC-002 in the output artifact.
+- [ ] T029.1 [US2] Implement logic in `code/modeling.py` to calculate the R² difference (LMM - RF) and store it in the output JSON under key `r2_delta` (SC-002) - *Prerequisite: T029*
+- [ ] T029.2 [US2] Implement logic in `code/modeling.py` to evaluate the `r2_delta` against the 5% threshold (SC-002), set `sc002_status` to "PASS" or "FAIL" in the output JSON, and ensure the final report reflects this status - *Prerequisite: T029.1*
+- [ ] T029.3 [US2] Implement logic in `code/modeling.py` to act on the `sc002_status`: if "FAIL", update the final report artifacts to explicitly state the model failed the success criterion and log the specific deviation magnitude; ensure this status is propagated to `artifacts/reports/metrics.json` (SC-002) - *Prerequisite: T029.2*
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,11 +145,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `visualization.py` to generate partial dependence plots (wide percentile range) for nutrient-architecture relationships (FR-007)
-- [ ] T033 [US3] Implement `visualization.py` to save figures as PNGs, enforcing total size ≤100MB (FR-007, SC-004)
-- [ ] T034 [US3] Implement `reporting.py` to compile final report including R², p-values, plots, and associational framing (FR-009)
-- [ ] T035 [US3] Implement `reporting.py` to document excluded species and data coverage metrics (SC-001, SC-005)
-- [ ] T035.1 [US3] Implement logic in `reporting.py` to calculate the merge success rate (merged count / total available) required by SC-001 (SC-001) - *Prerequisite: T034*
+- [ ] T032 [P] [US3] Implement `code/visualization.py` to generate partial dependence plots (wide percentile range) for nutrient-architecture relationships (FR-007)
+  - **Constraint**: Use `seaborn` or `matplotlib`; range th-95th percentile.
+- [ ] T033 [US3] Implement `code/visualization.py` to save figures as PNGs, enforcing total size ≤100MB (FR-007, SC-004)
+  - **Constraint**: Compress images or reduce DPI if size exceeds limit; log final size.
+- [ ] T034 [US3] Implement `code/reporting.py` to compile final report including R², p-values, plots, and associational framing (FR-009)
+  - **Constraint**: Explicitly state "associational" not "causal".
+- [ ] T035 [US3] Implement `code/reporting.py` to document excluded species and data coverage metrics (SC-001, SC-005)
+- [ ] T035.1 [US3] Implement logic in `code/reporting.py` to calculate the merge success rate (merged_count / total_available) and write to `artifacts/reports/metrics.json` under key `merge_success_rate` (SC-001) - *Prerequisite: T034*
 - [ ] T036 [US3] Verify biological plausibility of coefficients against literature in final report (FR-011, SC-006)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -249,3 +262,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint Check**: All tasks designed for CPU-only (2 cores, 7GB RAM), no GPU, ≤6h runtime. No 8-bit/4-bit quantization or large model training.
+- **Data Integrity**: All data loaders MUST fail loudly on fetch error; no synthetic fallbacks.
+- **Streaming**: Large datasets MUST be streamed or sampled explicitly; no synthetic stand-ins.

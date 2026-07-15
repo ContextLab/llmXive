@@ -1,147 +1,146 @@
 """
-Base data classes/entities for the adsorption isotherm prediction pipeline.
+Core data entities for the adsorption isotherm prediction pipeline.
 
-These classes provide a structured representation of the core domain entities:
-Adsorbate, Adsorbent, and IsothermParameter. They are designed to be
-compatible with the data schema defined in contracts/dataset.schema.yaml.
+This module defines the fundamental data classes representing adsorbates,
+adsorbents, and the target isotherm parameters used throughout the project.
 """
-
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
 from enum import Enum
+import json
 
 
 class AdsorbateState(Enum):
-    """Enumeration for the physical state of the adsorbate."""
+    """Enumeration of possible physical states for an adsorbate."""
     GAS = "gas"
     LIQUID = "liquid"
     SUPERCRITICAL = "supercritical"
+    SOLID = "solid"
 
 
 @dataclass
 class Adsorbate:
     """
-    Represents the adsorbate molecule.
-
+    Represents a chemical adsorbate molecule.
+    
     Attributes:
-        material_id: Unique identifier for the material (e.g., 'Kr', 'CH4').
-        name: Common chemical name.
-        formula: Chemical formula (e.g., 'Kr', 'CH4').
+        material_id: Unique identifier for the material instance.
+        smi: SMILES string representation of the molecule.
+        iupac_name: Official IUPAC name.
+        common_name: Common or trade name.
         molecular_weight: Molecular weight in g/mol.
+        state: Physical state at standard conditions.
         kinetic_diameter: Kinetic diameter in Angstroms (Å).
-        polarizability: Polarizability in Å³.
-        quadrupole_moment: Quadrupole moment in Debye (D).
+        polarizability: Molecular polarizability in Å³.
+        dipole_moment: Dipole moment in Debye.
+        quadrupole_moment: Quadrupole moment (tensor or scalar representation).
         h_bond_donors: Number of hydrogen bond donors.
         h_bond_acceptors: Number of hydrogen bond acceptors.
-        van_der_waals_volume: Van der Waals volume in Å³.
-        state: Physical state at STP.
-        rdkit_smiles: RDKit SMILES string if available.
+        van_der_waals_volume: van der Waals volume in Å³.
+        surface_area: Molecular surface area in Å².
+        logp: Partition coefficient (octanol-water).
         metadata: Additional arbitrary properties.
     """
     material_id: str
-    name: Optional[str] = None
-    formula: Optional[str] = None
+    smi: str
+    iupac_name: Optional[str] = None
+    common_name: Optional[str] = None
     molecular_weight: Optional[float] = None
-    kinetic_diameter: Optional[float] = None
-    polarizability: Optional[float] = None
-    quadrupole_moment: Optional[float] = None
-    h_bond_donors: int = 0
-    h_bond_acceptors: int = 0
-    van_der_waals_volume: Optional[float] = None
-    state: AdsorbateState = AdsorbateState.GAS
-    rdkit_smiles: Optional[str] = None
+    state: Optional[AdsorbateState] = None
+    kinetic_diameter: Optional[float] = None  # Å
+    polarizability: Optional[float] = None  # Å³
+    dipole_moment: Optional[float] = None  # Debye
+    quadrupole_moment: Optional[float] = None  # Debye·Å (or appropriate unit)
+    h_bond_donors: Optional[int] = None
+    h_bond_acceptors: Optional[int] = None
+    van_der_waals_volume: Optional[float] = None  # Å³
+    surface_area: Optional[float] = None  # Å²
+    logp: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary compatible with the dataset schema."""
-        return {
-            "material_id": self.material_id,
-            "name": self.name,
-            "formula": self.formula,
-            "molecular_weight": self.molecular_weight,
-            "kinetic_diameter": self.kinetic_diameter,
-            "polarizability": self.polarizability,
-            "quadrupole_moment": self.quadrupole_moment,
-            "h_bond_donors": self.h_bond_donors,
-            "h_bond_acceptors": self.h_bond_acceptors,
-            "van_der_waals_volume": self.van_der_waals_volume,
-            "state": self.state.value,
-            "rdkit_smiles": self.rdkit_smiles,
-            **self.metadata
-        }
+        """Convert the instance to a dictionary, serializing enums."""
+        data = self.__dict__.copy()
+        if self.state is not None:
+            data['state'] = self.state.value
+        return data
+
+    def to_json(self) -> str:
+        """Serialize the instance to a JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
 
 
 @dataclass
 class Adsorbent:
     """
-    Represents the adsorbent material (e.g., MOF, CNT, Zeolite).
-
+    Represents a porous material (adsorbent) used for adsorption.
+    
     Attributes:
-        material_id: Unique identifier for the adsorbent (e.g., 'MOF-5', 'CNT-1').
-        name: Common name.
-        type: Type of material (e.g., 'MOF', 'CNT', 'Zeolite').
+        material_id: Unique identifier for the material.
+        name: Common name or identifier (e.g., "MOF-5", "CNT").
+        type: Material class (e.g., "MOF", "CNT", "Zeolite", "Activated Carbon").
         surface_area: BET surface area in m²/g.
         pore_volume: Total pore volume in cm³/g.
-        pore_size: Average pore size in Å.
-        functional_groups: List of functional groups present.
-        metadata: Additional arbitrary properties.
+        pore_size_distribution: List of pore sizes in nm (optional).
+        functional_groups: List of surface functional groups.
+        synthesis_method: Brief description of synthesis.
+        metadata: Additional properties.
     """
     material_id: str
-    name: Optional[str] = None
+    name: str
     type: Optional[str] = None
-    surface_area: Optional[float] = None
-    pore_volume: Optional[float] = None
-    pore_size: Optional[float] = None
-    functional_groups: List[str] = field(default_factory=list)
+    surface_area: Optional[float] = None  # m²/g
+    pore_volume: Optional[float] = None  # cm³/g
+    pore_size_distribution: Optional[List[float]] = None  # nm
+    functional_groups: Optional[List[str]] = None
+    synthesis_method: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary compatible with the dataset schema."""
-        return {
-            "material_id": self.material_id,
-            "name": self.name,
-            "type": self.type,
-            "surface_area": self.surface_area,
-            "pore_volume": self.pore_volume,
-            "pore_size": self.pore_size,
-            "functional_groups": self.functional_groups,
-            **self.metadata
-        }
+        """Convert the instance to a dictionary."""
+        return self.__dict__.copy()
+
+    def to_json(self) -> str:
+        """Serialize the instance to a JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
 
 
 @dataclass
 class IsothermParameter:
     """
-    Represents the target isotherm parameters for a specific Adsorbate-Adsorbent pair.
-
+    Represents the target isotherm parameters derived from experimental or simulated data.
+    
+    This class holds the regression targets for the machine learning models.
+    
     Attributes:
-        adsorbate_id: Reference to the adsorbate material_id.
-        adsorbent_id: Reference to the adsorbent material_id.
-        langmuir_capacity: Langmuir saturation capacity (mol/kg or mmol/g).
-        henry_constant: Henry's law constant (mmol/kg/bar or similar).
-        isotherm_type: Type of isotherm (e.g., 'Type I', 'Type II').
-        temperature: Temperature at which measurement was taken (K).
-        pressure_range: Tuple of (min_pressure, max_pressure) in bar.
-        metadata: Additional measurement metadata.
+        record_id: Unique identifier for the specific adsorption measurement record.
+        adsorbate_id: Reference to the Adsorbate material_id.
+        adsorbent_id: Reference to the Adsorbent material_id.
+        temperature: Temperature in Kelvin.
+        pressure_unit: Unit of pressure (e.g., 'bar', 'Pa', 'atm').
+        langmuir_capacity: Langmuir maximum capacity (q_max) in mol/kg or mmol/g.
+        langmuir_k: Langmuir affinity constant (K_L) in 1/pressure_unit.
+        henry_constant: Henry's law constant (K_H) in mol/kg/bar (or similar).
+        isotherm_type: Type of isotherm (e.g., "Type I", "Type II").
+        source: Origin of the data (e.g., "NIST", "Synthetic", "Literature").
+        metadata: Additional experimental conditions or notes.
     """
+    record_id: str
     adsorbate_id: str
     adsorbent_id: str
-    langmuir_capacity: Optional[float] = None
-    henry_constant: Optional[float] = None
+    temperature: float  # Kelvin
+    pressure_unit: str = "bar"
+    langmuir_capacity: Optional[float] = None  # mol/kg
+    langmuir_k: Optional[float] = None  # 1/bar
+    henry_constant: Optional[float] = None  # mol/kg/bar
     isotherm_type: Optional[str] = None
-    temperature: Optional[float] = None
-    pressure_range: Optional[tuple] = None
+    source: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary compatible with the dataset schema."""
-        return {
-            "adsorbate_id": self.adsorbate_id,
-            "adsorbent_id": self.adsorbent_id,
-            "langmuir_capacity": self.langmuir_capacity,
-            "henry_constant": self.henry_constant,
-            "isotherm_type": self.isotherm_type,
-            "temperature": self.temperature,
-            "pressure_range": self.pressure_range,
-            **self.metadata
-        }
+        """Convert the instance to a dictionary."""
+        return self.__dict__.copy()
+
+    def to_json(self) -> str:
+        """Serialize the instance to a JSON string."""
+        return json.dumps(self.to_dict(), indent=2)

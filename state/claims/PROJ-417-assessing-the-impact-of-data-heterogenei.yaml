@@ -2244,3 +2244,490 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T04:39:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Viechtbauer 2010 conducted meta-analyses in R with the metafor package
+    published in Journal of Statistical Software volume 36 issue 3 pages 1-48
+  claim_id: c_e8eba53a
+  context: 'Original Citation: Viechtbauer, W. (2010). Conducting Meta-Analyses in
+    R with the metafor Package. Journal of Statistical Software, 36(3), 1-48.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Journal of Statistical Software volume 36 issue 3 pages 1-48
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Viechtbauer_2010_conducted_meta-analyses_in_R_with_the_metaf
+    source_value: https://en.wikipedia.org/wiki/Viechtbauer_2010_conducted_meta-analyses_in_R_with_the_metaf
+    subject: Viechtbauer 2010 conducted meta-analyses in R with the metafor package
+  kind: relational
+  raw_text: Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor
+    Package. Journal of Statistical Software, 36(3), 1-48.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:43:00Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Data originally from Bang et al 2009
+  claim_id: c_0122b4b4
+  context: 'Data originally from: Bang, H., et al. (2009). (Referenced in the metafor
+    package documentation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Data originally from: Bang, H., et al. (2009).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:43:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: coverage at tau^2=0 indistinguishable from 0.95 within 1.5 percent
+  claim_id: c_ab2f2a72
+  context: Implement logic in metrics.py to verify coverage at tau^2=0 is statistically
+    indistinguishable from 0.95 (within +/- 1.5%, alpha=0.05, CI=95%)
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Implement logic in metrics.py to verify coverage at tau^2=0 is statistically
+    indistinguishable from 0.95 (within +/- 1.5%, alpha=0.05, CI=95%).
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T15:43:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:44:18Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: test_variance_check.json contains mean variance within 0.01 of target
+  claim_id: c_752ad304
+  context: Unit test test_generator.py verifying that generated variance matches injected
+    tau^2 within Monte Carlo error (500 replicates). Verify output artifact data/results/test_variance_check.json
+    contains mean variance within 0.01 of target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact data/results/test_variance_check.json contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:44:39Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 2500 total replicates across 5 levels
+  claim_id: c_6499cbb1
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total). Verify the process completes within 360 minutes
+    (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run generator.py for the full set (5 levels x 500 replicates = 2,500 total).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:44:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: process completes within 360 minutes with RAM usage under 7GB
+  claim_id: c_aa0b0484
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total). Verify the process completes within 360 minutes
+    (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:45:26Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation_raw.json contains 2500 records
+  claim_id: c_f6ed1151
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total). Verify the process completes within 360 minutes
+    (6 hours) and RAM usage < 7GB on CPU-only runner. Verify integrity of data/results/simulation_raw.json
+    (2,500 records).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify integrity of data/results/simulation_raw.json (2,500 records).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:45:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: exclude replicates with N less than 5 studies
+  claim_id: c_b1885d67
+  context: 'Implement logic in generator.py to handle N < 5 studies by flagging/excluding
+    replicates (Edge Case: Small Study Effects)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_replicates_with_N_less_than_5_studies
+  kind: magnitude
+  raw_text: Implement logic in generator.py to handle N < 5 studies by flagging/excluding
+    replicates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:47:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction application with alpha equal 0.05 divided by 5
+  claim_id: c_5f7e4924
+  context: Unit test test_stats.py verifying Bonferroni correction application (alpha
+    = 0.05/5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test test_stats.py verifying Bonferroni correction application (alpha
+    = 0.05/5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:47:29Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep execution for levels 0.05 0.1 and 0.5
+  claim_id: c_e81e81ec
+  context: Implement sensitivity sweep execution in main.py for levels {0.05, 0.1,
+    0.5} and generate comparative plots. Output data/results/sensitivity_sweep.csv
+    and data/results/sensitivity_plots/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity sweep execution in main.py for levels {0.05, 0.1,
+    0.5} and generate comparative plots.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:47:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: aggregate pipeline completes within 6 hours with less than 7GB RAM
+  claim_id: c_53f841d5
+  context: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner (SC-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregate_pipeline_completes_within_6_hours_with_less_than_7
+  kind: magnitude
+  raw_text: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:48:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation tasks run on 2 cores with 7GB RAM within 6 hours
+  claim_id: c_5435ae96
+  context: 'CRITICAL: All simulation tasks must run on CPU-only (2 cores, 7GB RAM)
+    within 6 hours. No GPU/CUDA dependencies allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:48:42Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Viechtbauer 2010 Journal of Statistical Software 36(3) 1-48
+  claim_id: c_f9c38101
+  context: 'Original Citation: Viechtbauer, W. (2010). Conducting Meta-Analyses in
+    R with the metafor Package. Journal of Statistical Software, 36(3), 1-48.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor
+    Package. Journal of Statistical Software, 36(3), 1-48.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:49:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Bang et al 2009 data source
+  claim_id: c_2cc46f7f
+  context: 'Data originally from: Bang, H., et al. (2009). Referenced in the metafor
+    package documentation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Data originally from: Bang, H., et al. (2009).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:49:13Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: metafor package distributed under GPL license
+  claim_id: c_6508a5a3
+  context: The dataset is part of the `metafor` package, distributed under the GPL
+    license.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q27016752
+        url: https://www.wikidata.org/wiki/Q27016752
+        value: GNU General Public License, version 2.0 or later
+      quote: 'P2479: GPL-2.0-only'
+      source_id: Q10513450
+      url: https://www.wikidata.org/wiki/Q10513450
+      value: GPL-2.0
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset is distributed under the GPL license.
+  resolved_value: GPL-2.0
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T15:49:24Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
+  attempts: 1
+  canonical: dat.bang2009 dataset source is metafor R package
+  claim_id: c_9c6d1e39
+  context: 'Data Sources -> Base Dataset: Source: dat.bang2009 from the metafor R
+    package.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dat.bang2009_dataset_source_is_metafor_R_package
+  kind: entity_fact
+  raw_text: The base dataset is dat.bang2009 from the metafor R package.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
+  attempts: 1
+  canonical: Viechtbauer 2010 metafor package paper Journal of Statistical Software
+    36(3) 1-48
+  claim_id: c_630eed37
+  context: 'Citation: Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the
+    metafor Package. Journal of Statistical Software, 36(3), 1-48.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Viechtbauer, W. (2010) published Conducting Meta-Analyses in R with the
+    metafor Package in the Journal of Statistical Software, 36(3), 1-48.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:16Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
+  attempts: 1
+  canonical: Original data source Bang et al 2009
+  claim_id: c_44e89db2
+  context: 'Original Data: Bang, H., et al. (2009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The original data is from Bang, H., et al. (2009).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:22Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: coverage at tau squared equals zero indistinguishable from 0.95 within
+    1.5 percent
+  claim_id: c_acc8845b
+  context: Implement logic in `metrics.py` to verify coverage at $\tau^2=0$ is statistically
+    indistinguishable from **0.95** (within $\pm 1.5\%$, alpha=0.05, CI=95%)
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Verify coverage at $\tau^2=0$ is statistically indistinguishable from
+    0.95 (within $\pm 1.5\%$, alpha=0.05, CI=95%).
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T15:50:47Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: mean variance within 0.01 of target in test_variance_check.json
+  claim_id: c_11a632cc
+  context: Unit test `test_generator.py` verifying that generated variance matches
+    injected $\tau^2$ within Monte Carlo error (500 replicates). **Verify output artifact
+    `data/results/test_variance_check.json` contains mean variance within 0.01 of
+    target **.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact `data/results/test_variance_check.json` contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 2500 total replicates generated (5 levels x 500 replicates)
+  claim_id: c_b36ddacd
+  context: '**Full Scale Performance Test**: Run `generator.py` for the full set (5
+    levels $\times$ 500 replicates = 2,500 total). Verify the process completes within
+    360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run `generator.py` for the full set (5 levels \xD7 500 replicates = 2,500\
+    \ total)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: simulation process completes in 360 minutes with less than 7GB RAM
+  claim_id: c_51f48011
+  context: Run `generator.py` for the full set (5 levels $\times$ 500 replicates =
+    2,500 total). Verify the process completes within 360 minutes (6 hours) and RAM
+    usage < 7GB on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_process_completes_in_360_minutes_with_less_than_7
+  kind: magnitude
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:52Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha equals 0.05 divided by 5
+  claim_id: c_7299f7da
+  context: Unit test `test_stats.py` verifying Bonferroni correction application ($\alpha
+    = 0.05/5$)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Bonferroni correction application ($\alpha = 0.05/5$).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:50:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep executed for heterogeneity levels 0.05, 0.1, and 0.5
+  claim_id: c_13b0f65c
+  context: Implement sensitivity sweep execution in `main.py` for levels $\{0.05,
+    0.1, 0.5\}$ and generate comparative plots.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity sweep execution in `main.py` for levels $\{0.05,
+    0.1, 0.5\}$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:51:06Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: aggregate pipeline completes in 6 hours with less than 7GB RAM
+  claim_id: c_d08589b6
+  context: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner (SC-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregate_pipeline_completes_in_6_hours_with_less_than_7GB_R
+  kind: magnitude
+  raw_text: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T15:51:09Z'

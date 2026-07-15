@@ -1,65 +1,49 @@
 """
-Script to generate the final report CSV aggregating simulation results.
+Module to generate the final comparison report from simulation results.
 
-This script reads the baseline and robust simulation results, aggregates
-them into a unified dataframe, computes empirical Type I error rates and
-95% confidence intervals using the Clopper-Pearson method, and writes
-the final report to `data/derived/final_report.csv`.
-
-Dependencies:
-    - code/simulation_runner.py (run_baseline_simulation, run_robust_simulation)
-    - code/analysis.py (aggregate_errors, select_ci_method)
-    - code/config.py (load_config, set_seed, validate_config, ALPHA_LEVELS, ICC_RANGE)
+This script aggregates results from baseline and robust simulations,
+computes empirical Type I error rates with Clopper-Pearson confidence intervals,
+and writes the final report to data/derived/final_report.csv.
 """
 import argparse
 import os
 import sys
 import warnings
-
 import numpy as np
 import pandas as pd
-
-# Add project root to path if running as script
-if os.path.basename(os.path.dirname(__file__)) == 'code':
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-else:
-    # Assume we are in the root or code dir
-    pass
-
-from code.config import load_config, set_seed, validate_config, ALPHA_LEVELS, ICC_RANGE
-from code.simulation_runner import run_baseline_simulation, run_robust_simulation
+from code.config import load_config, set_seed, validate_config, parse_cli_args
 from code.analysis import aggregate_errors, select_ci_method
 
-
 def parse_args():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Generate the final aggregated report from simulation results."
+        description="Generate the final statistical significance report."
     )
     parser.add_argument(
         "--icc-range",
         type=float,
         nargs="+",
         default=None,
-        help="List of ICC values to simulate (overrides config)."
+        help="List of ICC values to process (e.g., 0.0 0.1 0.2). Overrides config."
     )
     parser.add_argument(
         "--icc-step",
         type=float,
         default=None,
-        help="Step size for ICC range (overrides config)."
+        help="Step size for ICC generation if range not provided."
     )
     parser.add_argument(
         "--alpha-list",
         type=float,
         nargs="+",
         default=None,
-        help="List of alpha levels (overrides config)."
+        help="List of alpha levels (e.g., 0.01 0.05 0.10). Overrides config."
     )
     parser.add_argument(
         "--iterations",
         type=int,
         default=1000,
-        help="Number of simulation iterations per ICC."
+        help="Number of simulation iterations (for consistency check)."
     )
     parser.add_argument(
         "--seed",
@@ -67,133 +51,145 @@ def parse_args():
         default=42,
         help="Random seed for reproducibility."
     )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/derived/final_report.csv",
-        help="Output path for the final report CSV."
-    )
-    parser.add_argument(
-        "--n-clusters",
-        type=int,
-        default=None,
-        help="Number of clusters (overrides config)."
-    )
-    parser.add_argument(
-        "--n-obs-per-cluster",
-        type=int,
-        default=None,
-        help="Number of observations per cluster (overrides config)."
-    )
     return parser.parse_args()
 
-
 def main():
+    """Main entry point for generating the final report."""
     args = parse_args()
+    set_seed(args.seed)
 
-    # Load base config
+    # Load base config and apply CLI overrides
     cfg = load_config()
-
-    # Override with CLI args if provided
     if args.icc_range is not None:
         cfg['icc_range'] = args.icc_range
     if args.icc_step is not None:
         cfg['icc_step'] = args.icc_step
     if args.alpha_list is not None:
         cfg['alpha_levels'] = args.alpha_list
-    if args.n_clusters is not None:
-        cfg['n_clusters'] = args.n_clusters
-    if args.n_obs_per_cluster is not None:
-        cfg['n_obs_per_cluster'] = args.n_obs_per_cluster
 
-    # Validate config
     validate_config(cfg)
-    set_seed(args.seed)
+
+    # Determine ICC values to process
+    if 'icc_range' in cfg and cfg['icc_range'] is not None:
+        icc_values = sorted(cfg['icc_range'])
+    else:
+        # Generate range if not explicitly set
+        start = 0.0
+        end = cfg.get('icc_max', 0.5)
+        step = cfg.get('icc_step', 0.1)
+        icc_values = np.arange(start, end + step/2, step).tolist()
 
     # Ensure output directory exists
-    output_dir = os.path.dirname(args.output)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    os.makedirs("data/derived", exist_ok=True)
 
-    print(f"Starting final report generation with {args.iterations} iterations per ICC.")
-    print(f"ICC Range: {cfg.get('icc_range', ICC_RANGE)}")
-    print(f"Alpha Levels: {cfg.get('alpha_levels', ALPHA_LEVELS)}")
+    results = []
 
-    all_results = []
+    # Load baseline results if available
+    baseline_path = "data/derived/baseline_results.csv"
+    if os.path.exists(baseline_path):
+        try:
+            df_baseline = pd.read_csv(baseline_path)
+            # Group by ICC and method (usually 'naive')
+            # Expected columns: icc, method, p_value (or similar)
+            # We need to re-aggregate to match the final report format
+            # Assuming the baseline runner stored raw p-values
+            if 'p_value' in df_baseline.columns:
+                # Group by ICC and method
+                grouped = df_baseline.groupby(['icc', 'method'])['p_value'].apply(list).reset_index()
+                grouped.columns = ['icc', 'method', 'p_values']
+                for _, row in grouped.iterrows():
+                    icc = row['icc']
+                    method = row['method']
+                    p_vals = row['p_values']
+                    for alpha in cfg['alpha_levels']:
+                        errors = [1 if p < alpha else 0 for p in p_vals]
+                        n = len(errors)
+                        if n > 0:
+                            error_rate = sum(errors) / n
+                            ci_method = select_ci_method(error_rate, n)
+                            # Use scipy.stats.beta for Clopper-Pearson
+                            # Lower bound: beta.ppf(alpha/2, sum+1, n-sum)
+                            # Upper bound: beta.ppf(1-alpha/2, sum+1, n-sum)
+                            # Note: scipy uses shape parameters a, b
+                            # If sum=0, lower=0; if sum=n, upper=1
+                            if sum(errors) == 0:
+                                ci_lower = 0.0
+                            else:
+                                ci_lower = beta.ppf(alpha/2, sum(errors), n - sum(errors) + 1)
+                            if sum(errors) == n:
+                                ci_upper = 1.0
+                            else:
+                                ci_upper = beta.ppf(1 - alpha/2, sum(errors) + 1, n - sum(errors))
+                            
+                            results.append({
+                                'ICC': icc,
+                                'Alpha': alpha,
+                                'Method': method,
+                                'Empirical_Error_Rate': error_rate,
+                                'CI_Lower': ci_lower,
+                                'CI_Upper': ci_upper
+                            })
+        except Exception as e:
+            warnings.warn(f"Failed to process baseline results: {e}")
+    else:
+        warnings.warn(f"Baseline results not found at {baseline_path}. Skipping baseline method.")
 
-    # Use the ICC range from config or defaults
-    icc_values = cfg.get('icc_range', ICC_RANGE)
-    alpha_levels = cfg.get('alpha_levels', ALPHA_LEVELS)
-    n_iterations = args.iterations
-    n_clusters = cfg.get('n_clusters', 100)
-    n_obs_per_cluster = cfg.get('n_obs_per_cluster', 10)
-    seed = args.seed
+    # Load robust results if available
+    robust_path = "data/derived/robustResults.csv"
+    if os.path.exists(robust_path):
+        try:
+            df_robust = pd.read_csv(robust_path)
+            if 'p_value' in df_robust.columns:
+                grouped = df_robust.groupby(['icc', 'method'])['p_value'].apply(list).reset_index()
+                grouped.columns = ['icc', 'method', 'p_values']
+                for _, row in grouped.iterrows():
+                    icc = row['icc']
+                    method = row['method']
+                    p_vals = row['p_values']
+                    for alpha in cfg['alpha_levels']:
+                        errors = [1 if p < alpha else 0 for p in p_vals]
+                        n = len(errors)
+                        if n > 0:
+                            error_rate = sum(errors) / n
+                            ci_method = select_ci_method(error_rate, n)
+                            if sum(errors) == 0:
+                                ci_lower = 0.0
+                            else:
+                                ci_lower = beta.ppf(alpha/2, sum(errors), n - sum(errors) + 1)
+                            if sum(errors) == n:
+                                ci_upper = 1.0
+                            else:
+                                ci_upper = beta.ppf(1 - alpha/2, sum(errors) + 1, n - sum(errors))
+                            
+                            results.append({
+                                'ICC': icc,
+                                'Alpha': alpha,
+                                'Method': method,
+                                'Empirical_Error_Rate': error_rate,
+                                'CI_Lower': ci_lower,
+                                'CI_Upper': ci_upper
+                            })
+        except Exception as e:
+            warnings.warn(f"Failed to process robust results: {e}")
+    else:
+        warnings.warn(f"Robust results not found at {robust_path}. Skipping robust methods.")
 
-    for icc in icc_values:
-        print(f"Running simulations for ICC = {icc}...")
-        # Run baseline (naive)
-        baseline_results = run_baseline_simulation(
-            icc=icc,
-            n_iterations=n_iterations,
-            seed=seed + int(icc * 1000),  # Unique seed per ICC
-            n_clusters=n_clusters,
-            n_obs_per_cluster=n_obs_per_cluster
-        )
+    if not results:
+        raise RuntimeError("No simulation results found to generate the final report. "
+                           "Please run the baseline and/or robust simulations first.")
 
-        # Run robust methods
-        robust_results = run_robust_simulation(
-            icc=icc,
-            n_iterations=n_iterations,
-            seed=seed + int(icc * 1000) + 10000,  # Unique seed per ICC
-            n_clusters=n_clusters,
-            n_obs_per_cluster=n_obs_per_cluster
-        )
+    # Create DataFrame and sort
+    final_df = pd.DataFrame(results)
+    final_df = final_df.sort_values(by=['ICC', 'Alpha', 'Method'])
 
-        # Combine results for this ICC
-        # Format: list of dicts with 'method', 'p_value'
-        combined = []
-        for r in baseline_results:
-            combined.append({'method': 'naive_ttest', 'p_value': r['p_value']})
-        for r in robust_results:
-            # robust_results contains entries for 'cluster_robust' and 'block_permutation'
-            combined.append({'method': r['method'], 'p_value': r['p_value']})
-
-        # Aggregate errors for this ICC
-        df_agg = aggregate_errors(combined, alpha_levels, n_iterations)
-        df_agg['icc'] = icc
-
-        all_results.append(df_agg)
-
-    if not all_results:
-        print("No results generated. Check simulation functions.")
-        sys.exit(1)
-
-    final_df = pd.concat(all_results, ignore_index=True)
-
-    # Ensure column order and naming matches spec
-    # Expected: ICC, Alpha, Method, Empirical_Error_Rate, CI_Lower, CI_Upper
-    # aggregate_errors returns: method, icc, alpha, error_rate, ci_lower, ci_upper
-    final_df = final_df.rename(columns={
-        'icc': 'ICC',
-        'alpha': 'Alpha',
-        'method': 'Method',
-        'error_rate': 'Empirical_Error_Rate',
-        'ci_lower': 'CI_Lower',
-        'ci_upper': 'CI_Upper'
-    })
-
-    # Reorder columns
-    final_df = final_df[['ICC', 'Alpha', 'Method', 'Empirical_Error_Rate', 'CI_Lower', 'CI_Upper']]
-
-    # Save to CSV
-    final_df.to_csv(args.output, index=False)
-    print(f"Final report written to {args.output}")
+    # Write to CSV
+    output_path = "data/derived/final_report.csv"
+    final_df.to_csv(output_path, index=False)
+    print(f"Final report written to {output_path}")
     print(f"Total rows: {len(final_df)}")
+    print(final_df.head())
 
-    # Print a sample
-    print("\nSample of final report:")
-    print(final_df.head(10))
-
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -41,9 +41,9 @@
 - [X] T006 [P] [US1] Create `code/data/validate_schema.py` to validate generated data against `contracts/dataset.schema.yaml`
 - [X] T007 [P] [US1] Implement `code/data/download.py` to attempt NIST/MOF-1000 fetch and write `verification_log.json` on failure
 - [ ] T008 Create base data classes/entities for Adsorbate, Adsorbent, and IsothermParameter
-- [ ] T009 Configure environment variable management and logging infrastructure in `code/__init__.py`
+- [X] T009 Configure environment variable management and logging infrastructure in `code/__init__.py`
 - [ ] T010 Setup pytest configuration and test directory structure (`tests/unit`, `tests/integration`, `tests/contract`)
-- [ ] T011 [P] Create `code/main.py` orchestrator to support both synthetic and external data flows (US1, US2, US3)
+- [X] T011 [P] Create `code/main.py` orchestrator to support both synthetic and external data flows (US1, US2, US3)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,14 +59,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Contract test for schema compliance in `tests/contract/test_dataset_schema.py`
+- [X] T012 [P] [US1] Contract test for schema compliance in `tests/contract/test_dataset_schema.py`
 - [X] T013 [P] [US1] Unit test for RDKit descriptor calculation in `tests/unit/test_descriptors.py`
 
 ### Implementation for User Story 1
 
 - [X] T014 [P] [US1] Implement `code/data/descriptors.py` to calculate molecular weight, polar surface area, polarizability, H-bond counts, van der Waals volume (per FR-001), AND kinetic diameter (required for SC-002 consensus check) using RDKit. Note: Kinetic diameter is an additional requirement for SC-002, not FR-001.
 - [X] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and handle missing pore volume (impute/exclude with logging) (FR-002); depends on T014
-- [~] T016 [US1] Implement outlier detection in `code/data/preprocess.py` to flag adsorbates with identical descriptors but conflicting targets; depends on T014, T015; output must be `data/processed/outliers.csv` with columns [material_id, descriptor_hash, target_variance] (Edge Cases)
+- [ ] T016 [US1] Implement outlier detection in `code/data/preprocess.py` to flag adsorbates with identical descriptors but conflicting targets; depends on T014, T015; output must be `data/processed/outliers.csv` with columns [material_id, descriptor_hash, target_variance] (Edge Cases)
 - [X] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline (Download -> Synthetic Gen -> Preprocess -> Outlier Check); depends on T015, T016
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -81,7 +81,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 3:
  - **File Created**: `tests/contrac...
  ^
@@ -97,8 +97,8 @@ expected alphabetic or numeric character, but found '*'
 - [X] T021 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting models (FR-004)
 - [X] T022 [US2] Implement 5-fold cross-validation and hyperparameter tuning in `code/models/train.py`
 - [X] T023 [US2] Implement `code/models/evaluate.py` to calculate R², RMSE, MAE on the independent test set (SC-001)
-- [~] T024 [US2] Implement null model comparison (predicting mean) and verify a significant RMSE improvement
-- [~] T025 [US2] Implement permutation-based p-value calculation for feature importances
+- [ ] T024 [US2] Implement null model comparison (predicting mean) and verify a significant RMSE improvement
+- [ ] T025 [US2] Implement permutation-based p-value calculation for feature importances
 - [X] T026 [US2] Implement Benjamini-Hochberg FDR correction for p-values in `code/models/evaluate.py` (FR-006, SC-005)
 - [X] T027 [US2] Update `code/main.py` orchestrator to support running the pipeline on the external literature dataset (Phase 3); depends on T020, T021
 
@@ -115,7 +115,7 @@ expected alphabetic or numeric character, but found '*'
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028 [P] [US3] Contract test for SHAP output format in `tests/contract/test_shap_output.py`
-- [~] T029 [P] [US3] Integration test for feature ranking validation in `tests/integration/test_feature_ranking.py`
+- [ ] T029 [P] [US3] Integration test for feature ranking validation in `tests/integration/test_feature_ranking.py`
 
 ### Implementation for User Story 3
 
@@ -141,7 +141,7 @@ expected alphabetic or numeric character, but found '*'
 - [~] T039 Performance optimization: Ensure pipeline runtime < 6h on GitHub Actions free-tier (SC-004) <!-- ATOMIZE: requested -->
 - [~] T040 [P] Additional unit tests for edge cases (empty datasets, single material) in `tests/unit/`
 - [X] T041 Security hardening: Sanitize inputs in `code/data/download.py`
-- [ ] T042 Run `quickstart.md` validation if available
+- [~] T042 Run `quickstart.md` validation if available
 
 ---
 

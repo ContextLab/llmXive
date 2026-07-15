@@ -1,9 +1,2 @@
-? T001a [P] Create project root directory `projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/`
-  and subdirectories (`code/`, `data/`, `tests/`, `state/`)
-: 2
-? 'T001b [P] Create `.gitignore` file with specific entries: `data/`, `__pycache__/`,
-  `*.pyc`, `.env`, `state/projects/*.yaml` (except.gitkeep)'
-: 1
-? T001c [P] Create `code/` directory structure including `__init__.py`, `ingestion/`,
-  `analysis/`, `stats/`, `utils/`, `models/`
-: 1
+T001a: 1
+T001b: 1

@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T004** — The claim provides no visible files in `specs/001-assess-heterogeneity-impact/contracts/`; the three schema files (`simulated_dataset.schema.yaml`, `estimation_result.schema.yaml`, `aggregated_metric.schema.yaml`) are not present, and there is no evidence that the `EstimationResult` schema contains a required `I^2` field. The required artifacts are missing.
-- **T006** — The required `code/main.py` file does not exist in the repository, so there is no entry point, no pipeline orchestration, and no CLI argument handling. The implementer must add a non‑empty `code/main.py` that implements the described functionality.
-- **T040** — The required artifact `data/raw/cochrane_base.csv` does not exist, and no URL or fetch command is provided, so the task of downloading and saving the dataset has not been fulfilled. The implementer must add a script (or command) that retrieves a verified Cochrane dataset (or cited synthetic base) and writes it to `data/raw/cochrane_base.csv`.
-- **T041** — The provided `data/raw/README.md` documents the citation but does not include an explicit source URL or accession ID, and there is no evidence that `research.md` was updated to contain this information. Both the URL/accession ID and the `research.md` update are required to satisfy the task.
+- **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006** — declared artifact(s) missing/empty/invalid: code/main.py
+- **T040** — declared artifact(s) missing/empty/invalid: data/raw/cochrane_base.csv
+- **T008** — declared artifact(s) missing/empty/invalid: data/results/test_variance_check.json

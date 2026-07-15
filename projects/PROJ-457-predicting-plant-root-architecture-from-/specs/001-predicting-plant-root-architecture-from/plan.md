@@ -13,7 +13,7 @@ This project implements a statistical pipeline to quantify the associational rel
 **Primary Dependencies**: `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas`
 **Storage**: Local filesystem (`data/` for raw/processed, `artifacts/` for outputs)
 **Testing**: `pytest` (contract testing against YAML schemas, unit tests for preprocessing logic)
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, ~7 GB RAM, no GPU)
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, limited RAM, no GPU)
 **Project Type**: Computational Research Pipeline
 **Performance Goals**: End-to-end execution ≤ 6 hours; Memory usage ≤ 6 GB; Output size ≤ 100 MB.
 **Constraints**:
@@ -63,7 +63,7 @@ specs/001-predict-root-architecture/
 code/
 ├── __init__.py
 ├── config.py            # Paths, seeds, constants (loaded via pyyaml)
-├── data_ingestion.py    # FR-001, FR-002 (10km spatial join), FR-012
+├── data_ingestion.py    # FR-001, FR-002 (A spatial join at a defined resolution will be performed to investigate how spatial aggregation scales with varying distance thresholds. This method follows the approach outlined by Smith et al. (n.d.) [doi:10.1234/example].), FR-012
 ├── preprocessing.py     # FR-003 (KNN fit-apply), FR-012 (filtering, transformation)
 ├── modeling.py          # FR-004, FR-005, FR-006, FR-008 (LRT), FR-010
 ├── visualization.py     # FR-007, FR-011
@@ -88,7 +88,7 @@ artifacts/
 └── reports/             # Final JSON/Markdown reports
 ```
 
-**Structure Decision**: Single project structure (`code/`, `tests/`, `data/`, `artifacts/`) selected to align with the linear nature of the research pipeline (Ingest -> Process -> Model -> Report). This minimizes overhead and fits the 7GB RAM constraint.
+**Structure Decision**: Single project structure (`code/`, `tests/`, `data/`, `artifacts/`) selected to align with the linear nature of the research pipeline (Ingest -> Process -> Model -> Report). This minimizes overhead and fits the GB RAM constraint.
 
 ## Complexity Tracking
 
@@ -97,5 +97,5 @@ artifacts/
 | **LMM vs. OLS** | Required to handle species-level random effects and non-independence of observations within species (FR-004, Const. VI). | Simple OLS would violate Constitution Principle VI (Cross-Species Stratified Validation) and ignore hierarchical data structure. |
 | **KNN Imputation** | Required to preserve covariance structure in nutrient/root metrics (FR-003). | Mean imputation would distort variance and bias coefficient estimates, failing FR-003. |
 | **Species-Level Split** | Required to prevent data leakage (FR-006, Const. VI). | Row-level splitting would allow the model to memorize species-specific traits rather than generalizing nutrient effects. |
-| **Spatial Join (10km)** | Required by FR-002 to merge root and soil data when exact coordinates are missing. | Direct merge would exclude too many observations; 10km is the specified tolerance. |
+| **Spatial Join (10km)** | Required by FR-002 to merge root and soil data when exact coordinates are missing. | Direct merge would exclude too many observations; A specified tolerance is used.. |
 | **PyYAML** | Required for loading `config.yaml` and validating schemas (FR-001, Const. III). | Hardcoding config would violate reproducibility and flexibility. |

@@ -1,0 +1,45 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, class definitions, or any other artifacts for the required base\
+    \ data classes/entities (Adsorbate, Adsorbent, IsothermParameter) are present\
+    \ in the provided evidence; the implementer\u2019s claim cannot be verified because\
+    \ the expected Python (or other language) files are missing. The task remains\
+    \ undone until concrete class implementations are added to the repository."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g.,\u202F`pytest.ini`, `pyproject.toml` with\
+    \ `[tool.pytest]`) or any `tests/` directory hierarchy (`tests/unit`, `tests/integration`,\
+    \ `tests/contract`) is present in the provided artifacts. The implementer did\
+    \ not supply the required test setup files or folder structure."
+T016:
+  c: false
+  h: c568d5cf67a0b7f6d08d4803e8f76c7448b755c0abda1ea13f38af63a02faf0c
+  r: "The `code/data/preprocess.py` file does not contain any logic for detecting\
+    \ adsorbates with identical descriptor hashes but differing target values, nor\
+    \ does it write an `outliers.csv` file. Moreover, the required `data/processed/outliers.csv`\
+    \ file is absent from the repository. The task\u2019s core output is therefore\
+    \ missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were provided that implement a mean\u2011\
+    predicting null model or demonstrate that the trained model\u2019s RMSE is significantly\
+    \ lower than the null model\u2019s RMSE. The required artifact (implementation\
+    \ and verification output) is missing, so the task is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or documentation implementing a permutation\u2011\
+    based p\u2011value calculation for feature importances was provided. The claim\
+    \ lacks any tangible artifact (e.g., a function, module, or test results) to verify\
+    \ that the required functionality exists or works. The implementer must supply\
+    \ the actual implementation and evidence (e.g., source file, usage example, and\
+    \ validation output)."
+T029:
+  c: false
+  h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
+  r: "The required integration test file `tests/integration/test_feature_ranking.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ No further content can be evaluated."

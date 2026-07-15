@@ -1,3 +1,1 @@
-"""
-Data models for cosmic ray analysis.
-"""
+# Data models module

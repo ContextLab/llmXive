@@ -1,29 +1,23 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
 description: >
-  Schema for the results of applying an estimator (Fixed-Effects, DL, REML)
-  to a specific simulated dataset replicate. Includes pooled estimates,
-  confidence intervals, and heterogeneity metrics.
+  Schema for the results of applying an estimator to a simulated dataset.
+  Includes pooled estimates, confidence intervals, and heterogeneity metrics.
 type: object
 required:
-  - simulation_id
   - replicate_id
   - estimator_name
   - pooled_effect
-  - se_pooled
+  - pooled_se
   - ci_lower
   - ci_upper
-  - tau2_estimated
+  - tau_squared_estimate
   - i_squared
-  - bias
-  - coverage_flag
+  - convergence_status
 properties:
-  simulation_id:
-    type: string
-    description: ID of the simulation run this result belongs to.
   replicate_id:
-    type: integer
-    description: ID of the specific replicate.
+    type: string
+    description: Reference to the simulated dataset replicate_id.
   estimator_name:
     type: string
     enum:
@@ -33,39 +27,44 @@ properties:
     description: Name of the estimator used.
   pooled_effect:
     type: number
-    description: The estimated pooled effect size (theta_hat).
-  se_pooled:
+    description: The estimated overall effect size (mu_hat).
+  pooled_se:
     type: number
-    description: Standard error of the pooled estimate.
+    description: Standard error of the pooled effect.
   ci_lower:
     type: number
     description: Lower bound of the 95% confidence interval.
   ci_upper:
     type: number
     description: Upper bound of the 95% confidence interval.
-  tau2_estimated:
+  tau_squared_estimate:
     type: number
-    description: Estimated between-study variance (tau^2).
+    description: Estimated between-study variance.
   i_squared:
     type: number
+    minimum: 0
+    maximum: 100
     description: >
-      I^2 statistic representing the percentage of total variation across
-      studies due to heterogeneity rather than chance.
-      Calculated as (Q - df) / Q * 100.
-  bias:
+      I^2 statistic representing the percentage of variation across studies
+      that is due to heterogeneity rather than chance.
+      Calculated as max(0, (Q - df) / Q) * 100.
+  q_statistic:
     type: number
-    description: Difference between pooled_effect and true_effect.
-  coverage_flag:
-    type: boolean
-    description: True if the true_effect falls within [ci_lower, ci_upper].
+    description: Cochran's Q statistic.
+  df:
+    type: integer
+    description: Degrees of freedom (k - 1).
   convergence_status:
     type: string
     enum:
       - success
       - failed
       - skipped
-    description: Status of the estimator convergence.
-  notes:
-    type: string
-    description: Optional notes (e.g., "REML failed to converge").
+    description: Status of the estimation process.
+  true_tau_squared:
+    type: number
+    description: The ground-truth tau^2 for bias calculation reference.
+  true_mu:
+    type: number
+    description: The ground-truth mu for bias calculation reference.
 additionalProperties: false

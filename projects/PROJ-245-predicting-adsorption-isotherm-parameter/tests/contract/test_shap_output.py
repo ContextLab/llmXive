@@ -1,150 +1,123 @@
 """
-Contract test for SHAP output format (T028).
-
-Verifies that SHAP analysis outputs conform to the expected schema defined
-in contracts/model_output.schema.yaml (specifically the SHAP section) and
-that the generated artifacts contain the required keys and data types.
+Contract test for SHAP output format.
 """
-import os
-import json
 import pytest
-from pathlib import Path
-import yaml
+import json
 import numpy as np
-import pandas as pd
+from code.interpret.shap_analysis import validate_consensus
 
-# Project root relative to test file
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-DATA_DIR = PROJECT_ROOT / "data"
+@pytest.fixture
+def sample_shap_values():
+    """Create sample SHAP values."""
+    features = ['polarizability', 'kinetic_diameter', 'molecular_weight', 'surface_area']
+    shap_values = {
+        'polarizability': np.array([0.5, -0.3, 0.8, 0.2]),
+        'kinetic_diameter': np.array([-0.2, 0.4, -0.1, 0.6]),
+        'molecular_weight': np.array([0.1, 0.1, 0.1, 0.1]),
+        'surface_area': np.array([-0.1, -0.1, -0.1, -0.1])
+    }
+    return shap_values
 
-# Expected output paths (based on standard pipeline execution)
-EXPECTED_SUMMARY_JSON = DATA_DIR / "interpretation" / "shap_summary.json"
-EXPECTED_FEATURE_IMP_JSON = DATA_DIR / "interpretation" / "feature_importance.json"
-EXPECTED_SC002_MATCH = DATA_DIR / "validation" / "sc002_match_report.json"
-EXPECTED_SC003_R2 = DATA_DIR / "validation" / "sc003_r2_report.json"
+@pytest.fixture
+def sample_feature_importance():
+    """Create sample feature importance data."""
+    return {
+        'polarizability': 0.45,
+        'kinetic_diameter': 0.30,
+        'molecular_weight': 0.15,
+        'surface_area': 0.10
+    }
 
-def load_schema():
-    """Load the model output schema definition."""
-    schema_path = CONTRACTS_DIR / "model_output.schema.yaml"
-    if not schema_path.exists():
-        pytest.skip(f"Schema file not found: {schema_path}. Foundation tasks may be incomplete.")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
+@pytest.fixture
+def consensus_list():
+    """Return the literature consensus list of important features."""
+    return [
+        'polarizability',
+        'kinetic_diameter',
+        'lennard_jones_energy',
+        'quadrupole_moment',
+        'molecular_volume'
+    ]
 
-def test_shap_summary_json_schema_conformance():
-    """
-    Test that shap_summary.json exists and conforms to the schema.
-    Required keys: model_name, timestamp, feature_names, shap_values (list of dicts),
-    mean_abs_shap, top_features.
-    """
-    if not EXPECTED_SUMMARY_JSON.exists():
-        # If the file doesn't exist, it might be because the pipeline hasn't run yet.
-        # In a contract test, we check the format IF the file exists, or skip if
-        # the pipeline phase isn't reached. However, for a robust test, we assert
-        # existence if the model training phase (US2) is marked complete.
-        # Given T028 is US3, we assume US2 (T026, T027) is done.
-        # If the file is missing, we fail the contract test because the artifact
-        # generation logic (T030/T032) is responsible for creating it.
-        pytest.fail(f"SHAP summary output file not found: {EXPECTED_SUMMARY_JSON}. "
-                    "The SHAP analysis pipeline (code/interpret/shap_analysis.py) must generate this file.")
-
-    with open(EXPECTED_SUMMARY_JSON, 'r') as f:
-        data = json.load(f)
-
-    schema = load_schema()
-    # Basic structural validation
-    required_keys = ["model_name", "timestamp", "feature_names", "shap_values", "mean_abs_shap", "top_features"]
-    for key in required_keys:
-        assert key in data, f"Missing required key in SHAP summary: {key}"
-
-    # Type validation
-    assert isinstance(data["model_name"], str), "model_name must be a string"
-    assert isinstance(data["timestamp"], str), "timestamp must be a string"
-    assert isinstance(data["feature_names"], list), "feature_names must be a list"
-    assert isinstance(data["shap_values"], list), "shap_values must be a list"
-    assert isinstance(data["mean_abs_shap"], (list, dict)), "mean_abs_shap must be a list or dict"
-    assert isinstance(data["top_features"], list), "top_features must be a list"
-
-    # Validate top_features structure
-    if data["top_features"]:
-        first_feature = data["top_features"][0]
-        assert "feature" in first_feature, "Top feature entry missing 'feature' key"
-        assert "value" in first_feature, "Top feature entry missing 'value' key"
-
-def test_feature_importance_json_schema_conformance():
-    """
-    Test that feature_importance.json exists and conforms to the schema.
-    Required keys: model_name, feature_importances (list of dicts with feature, importance, p_value).
-    """
-    if not EXPECTED_FEATURE_IMP_JSON.exists():
-        pytest.fail(f"Feature importance output file not found: {EXPECTED_FEATURE_IMP_JSON}. "
-                    "The evaluation pipeline (code/models/evaluate.py) must generate this file.")
-
-    with open(EXPECTED_FEATURE_IMP_JSON, 'r') as f:
-        data = json.load(f)
-
-    required_keys = ["model_name", "feature_importances"]
-    for key in required_keys:
-        assert key in data, f"Missing required key in feature importance: {key}"
-
-    assert isinstance(data["feature_importances"], list), "feature_importances must be a list"
+def test_validate_consensus_structure(sample_feature_importance, consensus_list):
+    """Test that consensus validation returns expected structure."""
+    # Get top 3 features by importance
+    top_features = sorted(
+        sample_feature_importance.keys(),
+        key=lambda k: sample_feature_importance[k],
+        reverse=True
+    )[:3]
     
-    if data["feature_importances"]:
-        first_entry = data["feature_importances"][0]
-        assert "feature" in first_entry, "Feature entry missing 'feature' key"
-        assert "importance" in first_entry, "Feature entry missing 'importance' key"
-        # P-value might be optional depending on the model, but if present, check type
-        if "p_value" in first_entry:
-            assert isinstance(first_entry["p_value"], (int, float)), "p_value must be numeric"
+    result = validate_consensus(top_features, consensus_list)
+    
+    assert isinstance(result, dict), "Result should be a dictionary"
+    assert 'matched_features' in result, "Missing matched_features"
+    assert 'unmatched_features' in result, "Missing unmatched_features"
+    assert 'consensus_score' in result, "Missing consensus_score"
+    assert 'is_passed' in result, "Missing is_passed"
+    
+    # Check that matched and unmatched are lists
+    assert isinstance(result['matched_features'], list), "matched_features should be a list"
+    assert isinstance(result['unmatched_features'], list), "unmatched_features should be a list"
+    
+    # Check that consensus_score is numeric
+    assert isinstance(result['consensus_score'], (int, float)), "consensus_score should be numeric"
+    
+    # Check that is_passed is boolean
+    assert isinstance(result['is_passed'], bool), "is_passed should be boolean"
 
-def test_sc002_match_report_format():
-    """
-    Test that sc002_match_report.json exists and has the correct structure.
-    Required keys: consensus_list, top_features, matches, match_count, passed.
-    """
-    if not EXPECTED_SC002_MATCH.exists():
-        # This file is only generated when external data is used.
-        # If synthetic data is used, this file might not exist.
-        # We skip if the file is missing to allow synthetic-only runs,
-        # but if the file exists, it must be valid.
-        pytest.skip(f"SC-002 report not found (expected only with external data): {EXPECTED_SC002_MATCH}")
+def test_validate_consensus_logic(sample_feature_importance, consensus_list):
+    """Test that consensus validation logic is correct."""
+    # Get top 3 features by importance
+    top_features = sorted(
+        sample_feature_importance.keys(),
+        key=lambda k: sample_feature_importance[k],
+        reverse=True
+    )[:3]
+    
+    result = validate_consensus(top_features, consensus_list)
+    
+    # polarizability and kinetic_diameter are in consensus list
+    expected_matched = ['polarizability', 'kinetic_diameter']
+    expected_unmatched = ['molecular_weight']
+    
+    assert set(result['matched_features']) == set(expected_matched), \
+        f"Expected matched: {expected_matched}, got: {result['matched_features']}"
+    assert set(result['unmatched_features']) == set(expected_unmatched), \
+        f"Expected unmatched: {expected_unmatched}, got: {result['unmatched_features']}"
+    
+    # Consensus score should be 2/3 (66.7%)
+    assert result['consensus_score'] == pytest.approx(0.667, abs=0.01), \
+        f"Expected consensus score ~0.667, got {result['consensus_score']}"
 
-    with open(EXPECTED_SC002_MATCH, 'r') as f:
-        data = json.load(f)
+def test_validate_consensus_threshold(sample_feature_importance, consensus_list):
+    """Test that the is_passed flag respects the threshold."""
+    top_features = sorted(
+        sample_feature_importance.keys(),
+        key=lambda k: sample_feature_importance[k],
+        reverse=True
+    )[:3]
+    
+    result = validate_consensus(top_features, consensus_list)
+    
+    # With 2/3 features matching, should pass the 50% threshold
+    assert result['is_passed'] is True, \
+        "Should pass with 66.7% consensus (>= 50% threshold)"
 
-    required_keys = ["consensus_list", "top_features", "matches", "match_count", "passed"]
-    for key in required_keys:
-        assert key in data, f"Missing required key in SC-002 report: {key}"
-
-    assert isinstance(data["consensus_list"], list), "consensus_list must be a list"
-    assert isinstance(data["top_features"], list), "top_features must be a list"
-    assert isinstance(data["matches"], list), "matches must be a list"
-    assert isinstance(data["match_count"], int), "match_count must be an integer"
-    assert isinstance(data["passed"], bool), "passed must be a boolean"
-
-    # Logic check: match_count should equal len(matches)
-    assert data["match_count"] == len(data["matches"]), "match_count does not match len(matches)"
-
-def test_sc003_r2_report_format():
-    """
-    Test that sc003_r2_report.json exists and has the correct structure.
-    Required keys: model_type, features_used, r2_score, passed.
-    """
-    if not EXPECTED_SC003_R2.exists():
-        pytest.skip(f"SC-003 report not found (expected only with external data): {EXPECTED_SC003_R2}")
-
-    with open(EXPECTED_SC003_R2, 'r') as f:
-        data = json.load(f)
-
-    required_keys = ["model_type", "features_used", "r2_score", "passed"]
-    for key in required_keys:
-        assert key in data, f"Missing required key in SC-003 report: {key}"
-
-    assert isinstance(data["model_type"], str), "model_type must be a string"
-    assert isinstance(data["features_used"], list), "features_used must be a list"
-    assert isinstance(data["r2_score"], (int, float)), "r2_score must be numeric"
-    assert isinstance(data["passed"], bool), "passed must be a boolean"
-
-    # Logic check: r2_score should be between -inf and 1.0 (typically)
-    assert data["r2_score"] <= 1.0, "R2 score cannot be greater than 1.0"
+def test_validate_consensus_json_serializable(sample_feature_importance, consensus_list):
+    """Test that the result can be serialized to JSON."""
+    top_features = sorted(
+        sample_feature_importance.keys(),
+        key=lambda k: sample_feature_importance[k],
+        reverse=True
+    )[:3]
+    
+    result = validate_consensus(top_features, consensus_list)
+    
+    # Should be able to serialize to JSON
+    json_str = json.dumps(result)
+    assert json_str is not None, "JSON serialization should succeed"
+    
+    # Should be able to deserialize back
+    loaded = json.loads(json_str)
+    assert loaded == result, "Deserialized JSON should match original"

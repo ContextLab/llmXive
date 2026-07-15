@@ -5,6 +5,4 @@ scikit-learn
 matplotlib
 pyyaml
 pytest
-urllib3
-ssl
-# No new dependencies added for T040; standard library urllib is used for fetching.
+requests

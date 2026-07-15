@@ -1,57 +1,63 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AggregatedMetric
 description: >
-  Schema for aggregated results across multiple replicates for a specific
-  heterogeneity level and estimator. Used for final reporting and plotting.
+  Schema for aggregated statistical results across multiple replicates
+  for a specific heterogeneity level and estimator.
 type: object
 required:
   - heterogeneity_level
+  - true_tau_squared
   - estimator_name
   - num_replicates
   - mean_bias
-  - mean_i_squared
   - coverage_rate
-  - coverage_p_value
-  - is_coverage_acceptable
+  - coverage_test_p_value
+  - mean_i_squared
+  - convergence_failure_rate
 properties:
   heterogeneity_level:
+    type: string
+    description: The level name (e.g., "tau_0.1").
+  true_tau_squared:
     type: number
-    description: The target tau^2 level for this aggregation.
+    description: The true tau^2 for this group.
   estimator_name:
     type: string
     enum:
       - FixedEffects
       - DerSimonianLaird
       - REML
-    description: Estimator used.
+    description: The estimator aggregated.
   num_replicates:
     type: integer
-    description: Number of replicates included in this aggregation.
+    minimum: 1
+    description: Total number of replicates processed.
   mean_bias:
     type: number
-    description: Average bias across replicates.
-  std_bias:
-    type: number
-    description: Standard deviation of bias.
-  mean_i_squared:
-    type: number
-    description: Average I^2 statistic across replicates.
+    description: Mean difference between estimated and true effect.
   coverage_rate:
     type: number
-    description: Proportion of replicates where true effect was in CI.
-  coverage_p_value:
+    minimum: 0
+    maximum: 1
+    description: Proportion of replicates where the CI contained the true effect.
+  coverage_test_p_value:
     type: number
-    description: P-value from the binomial test against 0.95.
-  is_coverage_acceptable:
-    type: boolean
-    description: True if coverage rate is within acceptable bounds (e.g., 0.935-0.965).
-  statistical_test:
-    type: string
-    description: Name of the statistical test performed (e.g., "Binomial", "Kruskal-Wallis").
-  test_statistic:
+    description: P-value from the exact binomial test against nominal 0.95 coverage.
+  mean_i_squared:
     type: number
-    description: The test statistic value.
-  notes:
-    type: string
-    description: Additional context or warnings.
+    description: Mean I^2 statistic across replicates.
+  convergence_failure_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Proportion of replicates where estimation failed.
+  kruskal_wallis_p_value:
+    type: number
+    description: P-value from Kruskal-Wallis test comparing bias across estimators (if applicable).
+  anova_p_value:
+    type: number
+    description: P-value from ANOVA test comparing bias across estimators (if applicable).
+  shapiro_wilk_p_value:
+    type: number
+    description: P-value from Shapiro-Wilk test for normality of bias distribution.
 additionalProperties: false

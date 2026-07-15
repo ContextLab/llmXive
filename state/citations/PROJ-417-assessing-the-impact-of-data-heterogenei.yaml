@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 8d984a5e97fbae5aeb2601b57da7ac00d0b53ef5b97e52472f7e4addb66bca3a
+  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'CRAN: Package metafor'
+  kind: url
+  value: https://cran.r-project.org/web/packages/metafor/index.html
+  verification_status: pending
+  verified_against_url: https://cran.r-project.org/web/packages/metafor/index.html
+  verified_at: '2026-07-15T15:49:25.165348Z'
+- artifact_hash: 2f2c68cc25dcb8bd2862bfeb8d823cc22f0d1012a3e87e839d9eadbdf79b26d3
+  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'CRAN: Package metafor'
+  kind: url
+  value: https://cran.r-project.org/web/packages/metafor/index.html
+  verification_status: pending
+  verified_against_url: https://cran.r-project.org/web/packages/metafor/index.html
+  verified_at: '2026-07-15T15:49:27.619550Z'

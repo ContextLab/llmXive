@@ -1,6 +1,5 @@
-# Data artifacts (large binary/text files)
+# Data artifacts (large files, binary formats)
 data/
-!data/.gitkeep
 
 # Python bytecode and cache
 __pycache__/
@@ -8,42 +7,28 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Environment variables and secrets
+# Environment and secrets
 .env
 .env.local
 .env.*.local
 
-# State management (keep .gitkeep, ignore generated YAML)
+# Project state (exclude specific keep files)
 state/projects/*.yaml
 !state/projects/.gitkeep
-!state/projects/**/.gitkeep
 
-# IDE and Editor files
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS specific
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Logs (if generated in root)
+# Logs and temporary files
 *.log
+tmp/
+temp/
