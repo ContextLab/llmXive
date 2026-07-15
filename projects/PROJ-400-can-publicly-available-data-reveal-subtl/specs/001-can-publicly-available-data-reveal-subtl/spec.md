@@ -29,7 +29,7 @@ The system MUST perform a weighted meta-analysis of the retrieved D-coefficients
 
 **Why this priority**: This is the core scientific analysis. It directly addresses the research question by synthesizing independent measurements to determine if the combined data reveals a non-zero T-violation or establishes a tighter upper bound than individual experiments.
 
-**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected D-coefficients and uncertainties, verifying the calculated weighted average and combined uncertainty match the theoretical expectation within a defined tolerance.
+**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected D-coefficients and uncertainties, verifying the calculated weighted average and combined uncertainty match the theoretical expectation within 1% relative error.
 
 **Acceptance Scenarios**:
 
@@ -50,16 +50,16 @@ The system MUST perform a consistency test (Cochran's Q test) to check for heter
 **Acceptance Scenarios**:
 
 1. **Given** multiple D-coefficient measurements, **When** the consistency test runs, **Then** the system calculates Cochran's Q statistic and the associated p-value to determine if the measurements are consistent (p > 0.05).
-2. **Given** the combined dataset, **When** the sensitivity analysis runs, **Then** the system calculates the sensitivity limit as the inverse-variance weighted average of the individual uncertainties.
+2. **Given** the combined dataset, **When** the sensitivity analysis runs, **Then** the system calculates the sensitivity limit as the standard error of the weighted mean.
 3. **Given** the derived upper bound, **When** the validation step runs, **Then** the system cross-references the result with the Particle Data Group (PDG) review and flags if the new bound is looser than the current world average.
 
 ---
 
 ### Edge Cases
 
-- What happens when the NNDC ENSDF database is temporarily unavailable or returns a 404 error for a specific nucleus? (System must retry 3 times with exponential backoff, then log the failure and proceed with available nuclei).
+- What happens when the NNDC ENSDF database is temporarily unavailable or returns a 404 error for a specific nucleus? (System must retry a limited number of times with exponential backoff, then log the failure and proceed with available nuclei).
 - How does the system handle nuclei where the D-coefficient is reported as a range rather than a point estimate? (System must use the midpoint for calculation and propagate the range width as the uncertainty, or exclude if the range is too wide).
-- What happens if the consistency test results in a p-value exactly equal to 0 or 1 due to floating-point precision limits? (System must clamp values to [1e-10, 1-1e-10] and log a warning).
+- What happens if the consistency test results in a p-value exactly equal to 0 or 1 due to floating-point precision limits? (System must clamp values to [e-10, 1-1e-10] and log a warning).
 - How does the system handle a nucleus with only a single published measurement? (System must skip the consistency test and report the single measurement's result and uncertainty directly).
 
 ## Requirements
@@ -69,8 +69,8 @@ The system MUST perform a consistency test (Cochran's Q test) to check for heter
 - **FR-001**: System MUST retrieve published T-violation D-coefficients and their uncertainties for specified nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database, ensuring data is aligned by nuclear state and source experiment. (See US-1)
 - **FR-002**: System MUST perform a weighted meta-analysis of the retrieved D-coefficients using inverse-variance weighting to calculate a combined central value and uncertainty. (See US-2)
 - **FR-003**: System MUST convert the combined D-coefficient result into a 95% confidence interval upper bound, reporting the result with explicit numerical limits. (See US-2)
-- **FR-004**: System MUST perform a consistency test using Cochran's Q statistic with [deferred] shuffles (for p-value estimation if analytic solution is unavailable) to check for heterogeneity among the measurements. (See US-3)
-- **FR-005**: System MUST calculate the sensitivity limit of the combined dataset as the inverse-variance weighted average of the individual uncertainties, representing the experimental noise floor. (See US-3)
+- **FR-004**: System MUST perform a consistency test using Cochran's Q statistic with an analytic chi-square distribution to check for heterogeneity among the measurements. (See US-3)
+- **FR-005**: System MUST calculate the sensitivity limit of the combined dataset as the standard error of the weighted mean (1/sqrt(sum(1/sigma_i^2))), representing the experimental noise floor. (See US-3)
 - **FR-006**: System MUST validate the derived upper bounds by cross-referencing them with the Particle Data Group (PDG) review limits and flag any results that are looser than the current world average. (See US-3)
 
 ### Key Entities
@@ -87,7 +87,7 @@ The system MUST perform a consistency test (Cochran's Q test) to check for heter
 
 - **SC-001**: The combined D-coefficient upper bound is measured against the constraints reported in the Particle Data Group (PDG) review for the same nucleus. (See US-3)
 - **SC-002**: The p-value from the Cochran's Q consistency test is measured against the standard significance threshold of 0.05 to determine if measurements are consistent. (See US-3)
-- **SC-003**: The sensitivity limit (experimental noise floor) is measured against the weighted average of the individual measurement uncertainties to verify precision. (See US-3)
+- **SC-003**: The sensitivity limit (experimental noise floor) is measured against the theoretical minimum uncertainty achievable given the input dataset (calculated as 1/sqrt(sum(1/sigma_i^2))) to verify precision. (See US-3)
 - **SC-004**: The meta-analysis accuracy is measured against a mock dataset with a known injected D-coefficient and uncertainties, verifying the result is within 1% relative error of the injected value. (See US-2)
 - **SC-005**: The data retrieval success rate is measured against the total number of requested nuclei in the target list {6He, 19Ne}, targeting ≥ 90% successful retrievals for nuclei with available data. (See US-1)
 
@@ -98,4 +98,5 @@ The system MUST perform a consistency test (Cochran's Q test) to check for heter
 - The published measurements of the D-coefficient are independent and their uncertainties are correctly reported.
 - The meta-analysis approach (inverse-variance weighting) is appropriate for combining these independent experimental results.
 - The Standard Model prediction for the T-violation D-coefficient is effectively zero, serving as the null hypothesis baseline.
-- The "data fusion" is a meta-analysis of published results, not a statistical correlation of raw spectra from different experiments.
+- The "data fusion" is a meta-analysis of published results, not a statistical correlation of raw spectra from different experiments. Cross-modal covariance between independent momentum and polarization aggregates is physically invalid for archival data due to the lack of event-level pairing; therefore, the research is strictly limited to meta-analysis of published D-coefficients.
+- Cochran's Q test is used solely to check for statistical consistency of reported values, acknowledging that it cannot distinguish between heterogeneity of true T-violation and systematic errors in binned data.

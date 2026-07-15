@@ -1,61 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: MetaAnalysisResult Schema
-description: "Schema for the aggregated meta-analysis results."
-type: object
+title: "MetaAnalysisResult"
+description: "Schema for the aggregated statistical output of the meta-analysis for a specific nucleus."
+type: "object"
 properties:
   nucleus:
-    type: string
-    description: "Name of the nucleus."
+    type: "string"
+    description: "Name of the nucleus being analyzed."
   weighted_average:
-    type: number
-    description: "Inverse-variance weighted average of D-coefficients."
+    type: "number"
+    description: "The inverse-variance weighted average of D-coefficients."
   combined_uncertainty:
-    type: number
-    exclusiveMinimum: 0
-    description: "Combined uncertainty of the weighted average."
-  n_measurements:
-    type: integer
-    minimum: 1
-    description: "Number of measurements included."
+    type: "number"
+    description: "The uncertainty of the weighted average."
   p_value_heterogeneity:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "P-value from Cochran's Q test. Null if n_measurements < 2."
+    type: "number"
+    description: "P-value from Cochran's Q test for consistency."
   d_upper_bound_95:
-    type: number
-    description: "95% confidence interval upper bound for |D|."
+    type: "number"
+    description: "One-sided 95% confidence interval upper bound."
+  n_measurements:
+    type: "integer"
+    description: "Number of measurements included in the analysis."
+  is_consistent:
+    type: "boolean"
+    description: "True if p_value_heterogeneity > 0.05."
   sensitivity_limit:
-    type: number
-    description: "Experimental noise floor (weighted average of uncertainties)."
-  pdg_comparison:
-    type: string
+    type: "number"
+    description: "Standard error of the weighted mean (experimental noise floor)."
+  model_type:
+    type: "string"
     enum:
-      - tighter
-      - looser
-      - consistent
-      - no_pdg_data
-    description: "Comparison against PDG 2022 limits."
-  random_seed:
-    type: integer
-    description: "Random seed used for any stochastic fallbacks (e.g., shuffle tests)."
-  z_score:
-    type: number
-    description: "Z-score for the null hypothesis test (Combined Mean / Combined Uncertainty)."
-  hypothesis_result:
-    type: string
-    enum:
-      - non-zero
-      - null
-    description: "Result of the Z-test against D=0."
+      - "fixed_effect"
+      - "random_effects"
+    description: "The statistical model used (Fixed Effect or Random Effects)."
 required:
   - nucleus
   - weighted_average
   - combined_uncertainty
-  - n_measurements
+  - p_value_heterogeneity
   - d_upper_bound_95
+  - n_measurements
+  - is_consistent
   - sensitivity_limit
-  - pdg_comparison
-  - random_seed
-  - z_score
-  - hypothesis_result
+  - model_type
+additionalProperties: false

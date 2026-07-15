@@ -1,37 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: DMeasurement Schema
-description: "Schema for individual D-coefficient measurements from archival data."
-type: object
+title: "DMeasurement"
+description: "Schema for a single published measurement of the T-violation D-coefficient."
+type: "object"
 properties:
   nucleus:
-    type: string
-    description: "Name of the nucleus (e.g., '6He')."
+    type: "string"
+    description: "Name of the nucleus (e.g., '6He', '19Ne')."
   mass_number:
-    type: integer
+    type: "integer"
     description: "Mass number of the nucleus."
   value:
-    type: number
-    description: "The D-coefficient value."
+    type: "number"
+    description: "The reported D-coefficient value."
   uncertainty:
-    type: number
-    exclusiveMinimum: 0
-    description: "The standard uncertainty of the measurement."
+    type: "number"
+    description: "The reported standard error of the measurement."
   source_experiment:
-    type: string
-    description: "Name or ID of the experiment."
+    type: "string"
+    description: "Name of the experiment that produced the measurement."
   reference_id:
-    type: string
-    description: "Citation reference (DOI or arXiv ID)."
-  is_range:
-    type: boolean
-    description: "True if the value was derived from a range."
-  original_range:
-    type: string
-    description: "Original range string if applicable."
+    type: "string"
+    description: "Citation, DOI, or unique identifier for the source."
+  retrieval_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "range_inferred"
+      - "static_fallback"
+    description: "Status of the data retrieval process. 'static_fallback' indicates the value was loaded from the hardcoded reference."
 required:
   - nucleus
-  - mass_number
   - value
   - uncertainty
   - source_experiment
   - reference_id
+additionalProperties: false

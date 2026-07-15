@@ -1,26 +1,26 @@
-resolved_at: '2026-07-14T07:11:01.058166+00:00'
+resolved_at: '2026-07-15T07:39:31.732384+00:00'
 datasets:
 - intent: NNDC
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Age-stratified_diagnostic_performance_of_the_ovarian-adnexal_reporting_and_data_system_for_adnexal_masses_a_focus_on_school-age_children_early_and_middle_adolescents_docx/32991068
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Age-stratified_diagnostic_performance_of_the_ovarian-adnexal_reporting_and_data_system_for_adnexal_masses_a_focus_on_school-age_children_early_and_middle_adolescents_docx/32991065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Age-stratified_diagnostic_performance_of_the_ovarian-adnexal_reporting_and_data_system_for_adnexal_masses_a_focus_on_school-age_children_early_and_middle_adolescents_docx/32991059
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+  - url: https://tandf.figshare.com/articles/journal_contribution/Beyond_sticky_floors_Executive_gender_diversity_and_firm-level_gender_pay_inequality_in_UK_firms/32991070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Long-reads_metagenomics_reveals_the_effects_of_dulse_supplementation_on_the_poultry_caecal_bacteriome_and_its_associated_genetic_repertoire_docx/32991056
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,11 +28,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18600380
+  - url: https://zenodo.org/records/14991103
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14991103
+  - url: https://zenodo.org/records/18600380
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -68,23 +68,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+  - url: https://figshare.com/articles/dataset/eukaryotic_RNA_polymerase_Rpo8_evolutionary_origin_Asgard_archaea_function_conservation_/32947580
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+  - url: https://figshare.com/articles/media/_b_Top_GEO_Agencies_to_Improve_AI_Search_Visibility_in_2026_b_/32991197
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+  - url: https://preprints.opticaopen.org/articles/preprint/Landscape_of_Optics_and_Photonics_Industry_in_Thailand/32817563
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+  - url: https://figshare.com/articles/dataset/Context_Is_the_Lever_Capability_Is_the_Ceiling_Static_Augmentation_for_LLM_Unit_Test_Generation/32844818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Being_Keepers_Line_Language_as_Survival_Methodology/32979266
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -108,6 +108,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21366491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21366491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21347782
     source: datacite
     status: wrong_format
@@ -117,14 +125,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21330487
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21330487
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21293959
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -169,23 +169,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+  - url: https://aacr.figshare.com/articles/figure/Supplemental_Figure_1_from_Cancer-Associated_Fibroblasts_Promote_Epithelial_Mesenchymal_Transition_and_Classical_to_Basal_Subtype_Shift_in_Pancreatic_Cancer/32991395
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
-  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+  - url: https://aacr.figshare.com/articles/figure/Supplemental_Figure_10_from_Cancer-Associated_Fibroblasts_Promote_Epithelial_Mesenchymal_Transition_and_Classical_to_Basal_Subtype_Shift_in_Pancreatic_Cancer/32991392
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+  - url: https://aacr.figshare.com/articles/figure/Supplemental_Figure_11_from_Cancer-Associated_Fibroblasts_Promote_Epithelial_Mesenchymal_Transition_and_Classical_to_Basal_Subtype_Shift_in_Pancreatic_Cancer/32991389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S1_from_KRAS_Signaling_Inhibition_Induces_a_Targetable_Metabolic_Dependency_on_Lipophagy-Dependent_Fatty_Acid_Oxidation_in_Pancreatic_Cancer/32991390
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S10_from_KRAS_Signaling_Inhibition_Induces_a_Targetable_Metabolic_Dependency_on_Lipophagy-Dependent_Fatty_Acid_Oxidation_in_Pancreatic_Cancer/32991384
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -205,27 +205,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19371140
+  - url: https://zenodo.org/records/19174281
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21350444
+  - url: https://zenodo.org/records/21369643
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21350444
+  - url: https://zenodo.org/records/21369643
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.11583
+  - url: https://zenodo.org/records/19794589
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21346848
+  - url: https://zenodo.org/records/19794589
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21346848
+  - url: https://zenodo.org/records/21365981
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

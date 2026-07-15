@@ -3,69 +3,80 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `venv`
-- Access to GitHub Actions (for CI execution) or a local Linux environment.
+- `pip`
+- Access to the internet (for optional NNDC fetch; static data works offline)
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository** and navigate to the project directory:
    ```bash
-   git clone <repo-url>
    cd projects/PROJ-400-can-publicly-available-data-reveal-subtl
    ```
 
-2. **Create a virtual environment**:
+2. **Create a virtual environment** and install dependencies:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
    ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` will pin `requests`, `pandas`, `scipy`, `numpy`, `pyyaml`, `pytest`, `pdfplumber`.*
+   *Note: `scikit-learn` is NOT required. Dependencies are `requests`, `pandas`, `numpy`, `scipy`, `pyyaml`, `pytest`.*
 
 ## Running the Pipeline
 
-### 1. Data Retrieval (and Fallback)
-The system attempts to fetch data from the PDG 2024 Review. If the network is unreachable or the PDF parsing fails, it logs an error and halts the scientific analysis (unless `--test-mode` is explicitly set for CI testing with mock data).
-
+### Full Execution
+To run the complete data retrieval (static fallback + optional fetch), meta-analysis, and validation pipeline:
 ```bash
-python code/main.py --mode retrieve
+python code/main.py --nuclei "6He,19Ne"
 ```
-*Output*: `data/processed/harmonized_d_measurements.csv`
+- This command loads the **static fallback** data for 6He and 19Ne.
+- It *attempts* to fetch updated data from NNDC (non-blocking).
+- Results are saved to `data/derived/`.
 
-### 2. Meta-Analysis & Validation
-Runs the statistical analysis (Z-test, inverse-variance weighting), consistency checks (Cochran's Q), and PDG 2022 comparison.
+### Running Specific Modules
 
+#### 1. Data Retrieval Only (Static + Optional Fetch)
 ```bash
-python code/main.py --mode analyze
-```
-*Output*: `data/processed/meta_analysis_results.csv`, `results/summary_report.md`
-
-### 3. Consistency Check (Shuffle Fallback)
-Explicitly runs the shuffle fallback for Cochran's Q if the analytic p-value is borderline and n < 5.
-
-```bash
-python code/main.py --mode shuffle --shuffles 10000
+python code/data_retrieval.py --nuclei "6He,19Ne" --output data/derived/harmonized.csv
 ```
 
-### 4. Testing
-Run the unit and contract tests.
-
+#### 2. Meta-Analysis Only
 ```bash
-pytest tests/
+python code/meta_analysis.py --input data/derived/harmonized.csv --output data/derived/meta_results.csv
 ```
 
-## Expected Outputs
+#### 3. Sign-Flip Permutation Testing (Null Hypothesis)
+```bash
+python code/permutation_test.py --input data/derived/harmonized.csv --shuffles 10000 --output data/derived/null_distribution.csv
+```
 
-- **CSV Files**: Harmonized measurements and meta-analysis results.
-- **Markdown Report**: A summary of the combined D-coefficient, Z-test result (discovery vs. limit), upper bound, and consistency p-value.
-- **Logs**: Detailed logs of any skipped nuclei or API failures.
+#### 4. Validation Against PDG (Static Reference)
+```bash
+python code/validation.py --input data/derived/meta_results.csv --output data/derived/validation_results.csv
+```
+*Note: PDG data is loaded from a static reference (hardcoded in code), not an external URL.*
+
+## Verifying Results
+
+1. **Check Checksums**: Ensure data integrity by running:
+   ```bash
+   sha256sum data/derived/*
+   ```
+   Compare against `data/checksums.txt` (generated automatically).
+
+2. **Review Output**: Open `paper/results.md` to see the generated report.
+   - Verify the "Combined D-Coefficient" and "Upper Bound".
+   - Check the "Consistency Test" p-value (should be > 0.05 for consistent data).
+   - Confirm the "Validation" status against PDG.
+
+3. **Run Tests**:
+   ```bash
+   pytest tests/
+   ```
+   - Unit tests verify statistical formulas (including Sign-Flip logic).
+   - Integration tests verify the data pipeline (using the static fallback).
 
 ## Troubleshooting
 
-- **API Timeout**: If the PDG API/PDF is down, the script will log a warning and proceed with mock data **ONLY** if `--test-mode` is set. Otherwise, it halts to prevent unverified scientific results.
-- **Missing Nucleus**: If a requested nucleus (e.g., 6He) has no data, it is excluded from the analysis, and the report notes "insufficient data".
-- **Circularity Avoidance**: The system compares against the 2022 PDG limit, not the 2024 limit, to ensure valid validation.
+- **NNDC Connection Error**: The script will log the error and proceed with the **static fallback** data. The pipeline will not fail.
+- **Missing Data**: If a nucleus has no data (even in static fallback), it will be excluded from the meta-analysis. Check `data/derived/harmonized.csv` for the `retrieval_status` column.
+- **PDG Data Load Error**: The PDG data is hardcoded. If the validation step fails, check the `code/validation.py` for the static reference values.
