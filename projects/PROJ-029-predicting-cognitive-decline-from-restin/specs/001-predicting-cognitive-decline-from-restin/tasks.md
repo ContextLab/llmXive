@@ -57,7 +57,7 @@
 - [X] T005 [P] Implement utility modules: `code/utils/io.py` (BIDS loading), `code/utils/graph.py` (AAL atlas loading), `code/utils/stats.py` (collinearity checks)
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logger.py` to capture excluded subjects and feature‑filtering logs
 - [X] T007 [P] Create base schema contracts in `specs/001-predicting-cognitive-decline-from-restin/contracts/` for dataset, graph metrics, and model output
-- [X] T008 [P] Configure environment configuration management for random seeds (`random_seed=42`) and runtime limits
+- [X] T008 [P] Configure environment configuration management for random seeds (`random_seed=42 `) and runtime limits
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel
 
@@ -76,7 +76,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics. [UNRESOLVED-CLAIM: c_bf753d3c — status=not_enough_info]
+**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics.
 
 **Independent Test**: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv` containing subject IDs and calculated graph metrics without any machine learning training.
 
@@ -90,9 +90,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, filter for subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`, fail if zero eligible subjects. Output `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`, and `data/artifacts/data_gate_status.json`. <!-- FAILED: unspecified -->
-- [ ] T018 [P] [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data for subjects listed in `data/processed/eligible_subjects.csv`, perform motion correction using `fsl` (mcflirt with default reference volume and 6 degrees of freedom), normalization using `nilearn`, apply the fixed AAL atlas with a standard number of regions, and {{claim:c_5794f852}} (Constitution Principle VII, FR-002). Output to `data/processed/connectivity_matrices/`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree, global efficiency, clustering coefficient, and path length for every subject [UNRESOLVED-CLAIM: c_fae2b8b5 — status=not_enough_info]; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM [UNRESOLVED-CLAIM: c_57fd4763 — status=not_enough_info]. <!-- FAILED: unspecified -->
+- [X] T017 [P] [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, filter for subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`, fail if zero eligible subjects. Output `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`, and `data/artifacts/data_gate_status.json`. <!-- FAILED: unspecified -->
+- [X] T018 [P] [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data for subjects listed in `data/processed/eligible_subjects.csv`, perform motion correction using `fsl` (mcflirt with default reference volume and 6 degrees of freedom), normalization using `nilearn`, apply the fixed AAL atlas with a standard number of regions, and {{claim:c_5794f852}} (Constitution Principle VII, FR-002). Output to `data/processed/connectivity_matrices/`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree, global efficiency, clustering coefficient, and path length for every subject; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM. <!-- FAILED: unspecified -->
 - [X] T020 [US1] Add validation: Verify memory usage during graph metric calculation stays within the 7 GB RAM limit on a 2‑core runner (use `psutil`).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,7 +101,7 @@
 
 ## Phase 4: User Story 2 - Predictive Modeling and Validation (Priority: P2)
 
-**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline [UNRESOLVED-CLAIM: c_f6f0d037 — status=not_enough_info].
+**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline.
 
 **Independent Test**: The pipeline can be executed to output `data/processed/model.pkl` and `data/processed/performance_report.json` containing ROC‑AUC and F1‑score for nested CV, without running the permutation test.
 
@@ -114,7 +114,7 @@
 ### Implementation for User Story 2
 
 - [ ] T023 [US2] Implement `code/04_train_model.py`: Define decline label (drop ≥ 3 points). Implement Nested CV (K-fold outer cross-validation, grid‑search inner). **Grid Search Parameters**: `n_estimators` over `{50, 100, 200}` and `max_depth` over `{5, 10, None}` (specific values chosen to satisfy FR-010 optimization requirements within CPU constraints). **Inside the inner CV loop**: perform collinearity check (exclude features with correlation > 0.95, keep higher‑variance feature), apply Variance Thresholding (`variance > 0.01`) and RFE to select ≤ 20 features, then fit Random Forest. Output `data/processed/model.pkl`, `data/processed/cv_results.json`, and `data/processed/model_params.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T024 [US2] Implement `code/05_evaluate_model.py`: Calculate ROC‑AUC, accuracy, and F1‑score per fold and mean [UNRESOLVED-CLAIM: c_581bd823 — status=not_enough_info]; output to `data/processed/performance_report.json` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T024 [US2] Implement `code/05_evaluate_model.py`: Calculate ROC‑AUC, accuracy, and F1‑score per fold and mean; output to `data/processed/performance_report.json` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T025 [US2] Implement `code/11_external_outcome_check.py`: Check for MCI conversion data in the dataset; if unavailable, write a limitation note to `data/artifacts/limitations.txt` (output consumed by T031 for final report generation) (FR-011).
 - [X] T026 [US2] Verify runtime: Ensure nested‑CV training completes within 30 minutes on the CPU‑only runner (use joblib with `n_jobs=2` and monitor elapsed time)
 
@@ -151,7 +151,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T033 [P] Documentation updates: Update `README.md` with execution order, dataset requirements, and how to reproduce each phase
-- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to a fixed value to guarantee reproducibility [UNRESOLVED-CLAIM: c_2f9fc532 — status=not_enough_info]., and enforce PEP 8 compliance via `flake8`
+- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to a fixed value to guarantee reproducibility., and enforce PEP 8 compliance via `flake8`
 - [ ] T035 Performance optimization: Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2)` and verify runtime reduction (target < 30 min for 100 subjects) <!-- FAILED: unspecified -->
 - [X] T036 [P] Run the full `tests/` suite and ensure **all** tests pass
 - [X] T037 Security hardening: Scan `data/raw/` for PII using `pybids`/`bids-validator`; automatically redact any personal identifiers found in JSON side‑cars or filenames

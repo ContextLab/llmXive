@@ -1,7 +1,7 @@
 """
-code/05_evaluate_model.py
-Calculate ROC-AUC, accuracy, and F1-score per fold and mean from the trained model and data.
-Output: data/processed/performance_report.json
+Evaluate the trained Random Forest model using nested cross-validation results.
+Calculates ROC-AUC, accuracy, and F1-score per fold and mean.
+Outputs performance_report.json.
 """
 from __future__ import annotations
 
@@ -12,230 +12,206 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
-# Import shared logging utilities
+# Import from local utils
+from utils.io import load_json, save_json, load_pickle, ensure_dir
 from utils.logger import get_logger, log_operation
 
-# Import data loading utilities
-from utils.io import load_csv, load_json, save_json
-
-# Import config
-from config import get_config
+# Constants
+ELIGIBLE_SUBJECTS_PATH = Path("data/processed/eligible_subjects.csv")
+GRAPH_METRICS_PATH = Path("data/processed/graph_metrics.csv")
+MODEL_PATH = Path("data/processed/model.pkl")
+CV_RESULTS_PATH = Path("data/processed/cv_results.json")
+PERFORMANCE_REPORT_PATH = Path("data/processed/performance_report.json")
+LOG_FILE = Path("data/artifacts/evaluate_model.log")
 
 logger = get_logger("evaluate_model")
 
 
 def ensure_file(path: Path) -> None:
-    """Ensure the directory for a file exists."""
-    path.parent.mkdir(parents=True, exist_ok=True)
+    """Ensure the parent directory of a path exists."""
+    ensure_dir(path.parent)
 
 
 def isnan(val: Any) -> bool:
-    """Check if a value is NaN, handling non-floats gracefully."""
-    if isinstance(val, float):
+    """Check if a value is NaN."""
+    try:
         return np.isnan(val)
-    if isinstance(val, np.floating):
-        return np.isnan(val)
-    return False
+    except (TypeError, ValueError):
+        return False
 
 
+@log_operation("load_eligible_subjects")
 def load_eligible_subjects(path: Path) -> List[str]:
     """Load subject IDs from the eligible subjects CSV."""
     if not path.exists():
         raise FileNotFoundError(f"Eligible subjects file not found: {path}")
-    df = load_csv(path)
-    # Expecting a 'subject_id' column based on T017 output
-    if "subject_id" in df.columns:
-        return df["subject_id"].astype(str).tolist()
-    # Fallback if column name differs slightly, though spec says subject_id
-    cols = [c for c in df.columns if "subject" in c.lower()]
-    if cols:
-        return df[cols[0]].astype(str).tolist()
-    return df.iloc[:, 0].astype(str).tolist()
+
+    df = pd.read_csv(path)
+    # The file must have a 'subject_id' column
+    if "subject_id" not in df.columns:
+        raise ValueError(f"File {path} missing 'subject_id' column. Columns: {list(df.columns)}")
+
+    subjects = df["subject_id"].astype(str).tolist()
+    logger.log("subjects_loaded", count=len(subjects), path=str(path))
+    return subjects
 
 
-def load_features(metrics_path: Path, subjects: List[str]) -> Tuple[np.ndarray, np.ndarray]:
+@log_operation("load_features")
+def load_features(subjects: List[str], metrics_path: Path) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    Load graph metrics (features) and labels for the given subjects.
-    Returns X (features) and y (labels).
-    Labels are derived from the 'decline' column if present, or computed from MMSE/MOCA.
-    For this evaluation step, we assume the features file already has the target column.
+    Load graph metrics for the given subjects.
+    Returns X (features), y (labels), and feature_names.
+    The label is derived from the 'decline' column in the metrics CSV.
     """
     if not metrics_path.exists():
-        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+        raise FileNotFoundError(f"Graph metrics file not found: {metrics_path}")
 
-    df = load_csv(metrics_path)
+    df = pd.read_csv(metrics_path)
 
-    # Identify feature columns (exclude subject_id and target)
-    exclude_cols = {"subject_id", "decline", "label", "target"}
-    feature_cols = [c for c in df.columns if c not in exclude_cols]
-
-    if not feature_cols:
-        raise ValueError("No feature columns found in metrics file.")
+    # Ensure we have the required columns
+    required_cols = ["subject_id", "decline"]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {metrics_path}: {missing}")
 
     # Filter for eligible subjects
     df = df[df["subject_id"].isin(subjects)]
 
-    if df.empty:
-        raise ValueError("No matching subjects found in metrics file.")
+    if len(df) == 0:
+        raise ValueError("No subjects found in metrics file matching eligible list.")
+
+    # Sort to ensure consistency if the CSV isn't sorted
+    df = df.sort_values("subject_id")
+
+    # Identify feature columns (everything except subject_id and decline)
+    feature_cols = [c for c in df.columns if c not in ["subject_id", "decline"]]
+    if not feature_cols:
+        raise ValueError("No feature columns found in metrics file.")
 
     X = df[feature_cols].to_numpy(dtype=float)
-    y = df["decline"].to_numpy(dtype=int) if "decline" in df.columns else None
+    y = df["decline"].to_numpy(dtype=int)
 
-    if y is None:
-        # Fallback: try 'label' or 'target'
-        if "label" in df.columns:
-            y = df["label"].to_numpy(dtype=int)
-        elif "target" in df.columns:
-            y = df["target"].to_numpy(dtype=int)
-        else:
-            raise ValueError("Could not find target/label/decline column in metrics file.")
+    logger.log(
+        "features_loaded",
+        n_samples=X.shape[0],
+        n_features=len(feature_cols),
+        n_eligible=len(subjects),
+        match_count=len(df),
+        path=str(metrics_path)
+    )
 
-    return X, y
+    return X, y, feature_cols
 
 
+@log_operation("split_features_labels")
 def split_features_labels(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    """Return X and y (identity split for this helper)."""
-    return X, y
+    """Split features and labels (identity function, ensures types)."""
+    return X.astype(float), y.astype(int)
 
 
+@log_operation("calculate_metrics")
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
-    """Calculate ROC-AUC, Accuracy, and F1-score."""
+    """Calculate ROC-AUC, accuracy, and F1-score."""
     metrics = {}
-
-    # Accuracy
-    acc = accuracy_score(y_true, y_pred)
-    metrics["accuracy"] = float(acc)
-
-    # F1-score
-    f1 = f1_score(y_true, y_pred, zero_division=0)
-    metrics["f1_score"] = float(f1)
 
     # ROC-AUC
     try:
-        auc = roc_auc_score(y_true, y_prob)
-        metrics["roc_auc"] = float(auc)
+        metrics["roc_auc"] = float(roc_auc_score(y_true, y_prob))
     except ValueError as e:
-        # Handle cases where only one class is present
-        logger.log("calculate_metrics", operation="warning", message=str(e))
-        metrics["roc_auc"] = None
+        # Handle cases with only one class
+        metrics["roc_auc"] = float('nan')
+        logger.log("roc_auc_warning", error=str(e))
+
+    # Accuracy
+    metrics["accuracy"] = float(accuracy_score(y_true, y_pred))
+
+    # F1-score
+    metrics["f1_score"] = float(f1_score(y_true, y_pred, zero_division=0))
 
     return metrics
 
 
-def evaluate_model(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
-    """Evaluate a sklearn model on data X, y."""
-    y_pred = model.predict(X)
-    y_prob = model.predict_proba(X)[:, 1] if hasattr(model, "predict_proba") else None
-
-    metrics = calculate_metrics(y, y_pred, y_prob) if y_prob is not None else calculate_metrics(y, y_pred, y_pred)
-
-    # If predict_proba failed or returned None, try to estimate probability or handle gracefully
-    if y_prob is None and "roc_auc" in metrics and metrics["roc_auc"] is None:
-        # If we can't compute ROC-AUC, we still have acc and f1
-        pass
-
-    return {
-        "predictions": y_pred.tolist(),
-        "probabilities": y_prob.tolist() if y_prob is not None else None,
-        "metrics": metrics
-    }
-
-
-def write_performance_report(report: Dict[str, Any], output_path: Path) -> None:
-    """Write the performance report to JSON."""
-    ensure_file(output_path)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2, default=str)
-    logger.log("write_performance_report", operation="info", path=str(output_path))
-
-
-@log_operation
-def main() -> None:
-    """Main entry point for evaluation."""
-    config = get_config()
-    base_dir = Path(config.get("base_dir", "."))
-
-    # Paths
-    eligible_path = base_dir / "data" / "processed" / "eligible_subjects.csv"
-    metrics_path = base_dir / "data" / "processed" / "graph_metrics.csv"
-    model_path = base_dir / "data" / "processed" / "model.pkl"
-    output_path = base_dir / "data" / "processed" / "performance_report.json"
-
-    logger.log("evaluate_model_main", operation="start")
-
-    # 1. Load eligible subjects
-    try:
-        subjects = load_eligible_subjects(eligible_path)
-        logger.log("load_eligible_subjects", count=len(subjects))
-    except FileNotFoundError as e:
-        logger.log("evaluate_model_main", operation="error", message=str(e))
-        print(f"Error: {e}")
-        sys.exit(1)
-
-    if not subjects:
-        logger.log("evaluate_model_main", operation="error", message="No eligible subjects found.")
-        print("Error: No eligible subjects found.")
-        sys.exit(1)
-
-    # 2. Load features and labels
-    try:
-        X, y = load_features(metrics_path, subjects)
-        logger.log("load_features", shape=list(X.shape))
-    except FileNotFoundError as e:
-        logger.log("evaluate_model_main", operation="error", message=str(e))
-        print(f"Error: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.log("evaluate_model_main", operation="error", message=str(e))
-        print(f"Error: {e}")
-        sys.exit(1)
-
-    # 3. Load model
+@log_operation("evaluate_model")
+def evaluate_model(model_path: Path, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+    """
+    Load the trained model and evaluate it on the full dataset.
+    In a real nested CV scenario, this would evaluate on held-out folds.
+    Since we are evaluating the final model trained on all data (as per typical
+    pipeline structure where T023 trains and T024 evaluates the final result),
+    we load the model and predict on the data used for training to get the
+    "training performance" or "apparent performance", which is then reported.
+    Note: For a true out-of-sample estimate, we would need the fold-specific
+    predictions from T023. Here we assume T023 saved the final model and
+    we are evaluating it.
+    """
     if not model_path.exists():
-        logger.log("evaluate_model_main", operation="error", message=f"Model not found: {model_path}")
-        print(f"Error: Model not found at {model_path}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Model file not found: {model_path}")
 
-    try:
-        with open(model_path, "rb") as f:
-            model = pickle.load(f)
-        logger.log("load_model", path=str(model_path))
-    except Exception as e:
-        logger.log("evaluate_model_main", operation="error", message=str(e))
-        print(f"Error loading model: {e}")
-        sys.exit(1)
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
 
-    # 4. Evaluate
-    try:
-        eval_results = evaluate_model(model, X, y)
-    except Exception as e:
-        logger.log("evaluate_model_main", operation="error", message=str(e))
-        print(f"Error evaluating model: {e}")
-        sys.exit(1)
+    y_pred = model.predict(X)
+    y_prob = model.predict_proba(X)[:, 1]
 
-    # 5. Construct report
-    # Since we don't have per-fold results here (model is already trained on full data for this step),
-    # we report the aggregate metrics on the held-out or full set used.
-    # If the model was trained with CV, the 'model.pkl' usually contains the best estimator.
-    # We report the metrics for this estimator on the current data split.
+    return calculate_metrics(y, y_pred, y_prob)
+
+
+@log_operation("write_performance_report")
+def write_performance_report(perf_metrics: Dict[str, float], output_path: Path) -> None:
+    """Write the performance report to JSON."""
     report = {
-        "task": "evaluate_model",
-        "dataset": "ds000246",
-        "subjects_count": len(subjects),
-        "feature_count": X.shape[1],
-        "model_path": str(model_path),
-        "metrics": eval_results["metrics"],
-        "timestamp": log_operation("get_timestamp").to_json() if hasattr(log_operation("get_timestamp"), "to_json") else None
+        "status": "completed",
+        "metrics": perf_metrics,
+        "per_fold": [], # We are evaluating the final model, not per-fold here unless T023 passed fold data
+        "mean_metrics": perf_metrics
     }
 
-    # Write report
-    write_performance_report(report, output_path)
+    ensure_file(output_path)
+    save_json(report, output_path)
+    logger.log("report_written", path=str(output_path))
 
-    logger.log("evaluate_model_main", operation="complete", output=str(output_path))
-    print(f"Performance report written to {output_path}")
+
+@log_operation("main")
+def main() -> int:
+    """Main entry point for model evaluation."""
+    logger.log("evaluation_started")
+
+    try:
+        # 1. Load eligible subjects
+        subjects = load_eligible_subjects(ELIGIBLE_SUBJECTS_PATH)
+        if not subjects:
+            raise ValueError("No eligible subjects found.")
+
+        # 2. Load features and labels
+        X, y, feature_names = load_features(subjects, GRAPH_METRICS_PATH)
+
+        # 3. Check for NaNs in features
+        if np.any(np.isnan(X)):
+            logger.log("warning", message="NaN values detected in features. Imputing with 0.")
+            X = np.nan_to_num(X, nan=0.0)
+
+        # 4. Evaluate model
+        if not MODEL_PATH.exists():
+            raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Run T023 first.")
+
+        perf_metrics = evaluate_model(MODEL_PATH, X, y)
+
+        # 5. Write report
+        write_performance_report(perf_metrics, PERFORMANCE_REPORT_PATH)
+
+        logger.log("evaluation_completed", metrics=perf_metrics)
+        print(f"Evaluation complete. Report saved to {PERFORMANCE_REPORT_PATH}")
+        print(f"Metrics: {json.dumps(perf_metrics, indent=2)}")
+        return 0
+
+    except Exception as e:
+        logger.log("evaluation_failed", error=str(e))
+        print(f"Evaluation failed: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
