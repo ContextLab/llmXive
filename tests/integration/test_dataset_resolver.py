@@ -169,25 +169,37 @@ def test_resolve_datasets_candidates_tried_granularity(file_server, monkeypatch)
     assert result.datasets[0].candidates[0]["url"].endswith("good.csv")
 
 
-def test_write_manifest_roundtrip(tmp_path):
-    import yaml
+def test_resolve_datasets_is_a_candidate_proposer_no_dead_manifest(file_server, monkeypatch):
+    """D7: ``resolve_datasets`` is a candidate PROPOSER only — it returns a
+    ``ResolvedDatasets`` for in-process consumption (``render_planner_block``) and
+    must NOT persist the dead write-only ``resolved_datasets.yaml`` manifest.
 
-    from llmxive.librarian.dataset_resolver import (
-        ResolvedDatasets,
-        ResolvedIntent,
-        write_manifest,
+    Guards against re-introducing ``write_manifest`` (removed) or any resolver-side
+    manifest write.
+    """
+    import llmxive.librarian.dataset_resolver as dr
+    from llmxive.librarian.dataset_sources import DatasetCandidate
+
+    # ``write_manifest`` is gone entirely.
+    assert not hasattr(dr, "write_manifest")
+
+    root, base = file_server
+    (root / "good.csv").write_text("a,b\n1,2\n3,4\n")
+    monkeypatch.setattr(
+        dr, "_gather_candidates",
+        lambda intent: [DatasetCandidate("DS", f"{base}/good.csv", "good", "huggingface")],
     )
-    rd = ResolvedDatasets(datasets=[
-        ResolvedIntent("QM9", "verified",
-                       candidates=[{"url": "https://x/y", "source": "huggingface",
-                                    "format": "parquet", "relevance": 0.9,
-                                    "sample_check": {"downloaded_bytes": 10, "parsed": True}}],
-                       candidates_tried=[]),
-    ])
-    path = write_manifest(rd, project_dir=tmp_path)
-    doc = yaml.safe_load(path.read_text())
-    assert doc["datasets"][0]["intent"] == "QM9"
-    assert doc["datasets"][0]["candidates"][0]["url"] == "https://x/y"
+    monkeypatch.setattr(dr, "extract_dataset_intents", lambda spec: ["DS"])
+
+    proj = root / "projects" / "PROJ-X"
+    proj.mkdir(parents=True)
+    rd = dr.resolve_datasets("the DS dataset", project_dir=proj, repo_root=root, top_n=3)
+
+    # The return value still drives the planner block (candidate proposer)...
+    assert rd.datasets[0].status == "verified"
+    assert dr.render_planner_block(rd)
+    # ... but NO dead manifest was written to disk.
+    assert not (proj / ".specify" / "memory" / "resolved_datasets.yaml").exists()
 
 
 def test_unresolved_intents_lists(tmp_path):

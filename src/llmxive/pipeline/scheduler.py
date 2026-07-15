@@ -46,6 +46,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
+from llmxive.pipeline import advance_ledger
 from llmxive.pipeline import lock as lockmod
 from llmxive.state import project as project_store
 from llmxive.types import Project, Stage
@@ -229,7 +230,16 @@ def _eligible_candidates(
     stage: Stage | None,
 ) -> list[Project]:
     """Return projects eligible for scheduling: non-terminal, non-locked,
-    and (if `stage` is given) at that exact stage."""
+    NOT on an advance-error hold, and (if `stage` is given) at that exact stage.
+
+    The advance-error hold (issue #1139, defect D5) is the fix for the every-tick
+    re-pick of a permanently-failing project: a project whose typed ledger record
+    (:mod:`llmxive.pipeline.advance_ledger`) is still active for its CURRENT stage
+    is skipped while it is inside a transient backoff window or held in a
+    ``rerouted``/``terminal`` disposition awaiting a re-plan / operator. A record
+    for a different stage is stale (the project advanced past the failing step) and
+    is ignored, so a hold can never permanently strand a project. Terminal STAGES
+    (``_NEVER_PICK``) and locks are still honoured exactly as before."""
     projects = project_store.list_all(repo_root=repo_root)
     out: list[Project] = []
     for p in projects:
@@ -238,6 +248,8 @@ def _eligible_candidates(
         if lockmod.is_locked(p.id, repo_root=repo_root):
             continue
         if stage is not None and p.current_stage != stage:
+            continue
+        if advance_ledger.is_on_hold(p, repo_root=repo_root):
             continue
         out.append(p)
     return out

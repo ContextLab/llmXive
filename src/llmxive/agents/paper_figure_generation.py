@@ -16,6 +16,7 @@ from llmxive.agents.base import Agent, AgentContext
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import repo_root as _repo_root
+from llmxive.state.project import feature_dir_for
 
 
 def _read_optional(path: Path) -> str:
@@ -49,8 +50,14 @@ class PaperFigureGenerationAgent(Agent):
 
         constitution = paper_dir / ".specify" / "memory" / "constitution.md"
         paper_constitution = _read_optional(constitution)
-        paper_plans = sorted((paper_dir / "specs").glob("*/plan.md"))
-        paper_plan_text = paper_plans[0].read_text(encoding="utf-8") if paper_plans else ""
+        # Resolve the CURRENT paper feature dir via the canonical pointer-first
+        # selector (state.project.feature_dir_for) rather than the first/oldest
+        # ``specs/*/`` glob, which resolves a STALE prior kickback cycle
+        # (spec 023 defect #17).
+        paper_feature_dir = feature_dir_for(project_dir, track="paper")
+        paper_plan_text = (
+            _read_optional(paper_feature_dir / "plan.md") if paper_feature_dir else ""
+        )
 
         data_summary = (
             _summarize_data_file(data_source_path) if data_source_path else "(no data path)"

@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.config import repo_root as _repo_root
+from llmxive.state._io import atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -212,10 +213,21 @@ def record(
     reason: str,
     artifacts: list[str],
     failures: list[str],
+    failure_class: str | None = None,
+    evidence: list[str] | None = None,
     repo_root: Path | None = None,
 ) -> dict[str, Any]:
     """Persist one execution attempt. Bumps ``fix_rounds`` on failure (so the
-    bounded auto-fix loop terminates), resets it to 0 on success."""
+    bounded auto-fix loop terminates), resets it to 0 on success.
+
+    ``failure_class`` is the durable :class:`llmxive.execution.failure_class.FailureClass`
+    value (compute_env / data_unreachable / fabrication / execution_bug /
+    unknown) the runner classified this failure as — persisted so downstream
+    re-plan feedback and terminal routing branch on the REAL cause instead of
+    re-parsing ``reason``/``failures`` strings (issue #1139 P1-2). ``evidence``
+    is the short list of matched signature strings that justified the class.
+    Both are cleared on success.
+    """
     existing = load(project_id, repo_root=repo_root) or {}
     prior_rounds = existing.get("fix_rounds", 0)
     prior_rounds = int(prior_rounds) if isinstance(prior_rounds, int) and prior_rounds >= 0 else 0
@@ -243,12 +255,20 @@ def record(
         #     so the routing layer can finally cap the outer loop.
         "total_attempts": 0 if ok else prior_attempts + 1,
         "replan_rounds": 0 if ok else _nonneg_int(existing.get("replan_rounds")),
+        # Durable failure classification (issue #1139 P1-2): the runner already
+        # knows whether this was a compute-env wall, an unreachable data source,
+        # fabrication, or an ordinary code bug — persist it so re-plan feedback
+        # and terminal routing branch on the real cause, not a re-parse of
+        # `reason`. Cleared on success.
+        "failure_class": None if ok else (failure_class or None),
+        "evidence": [] if ok else [str(e)[:600] for e in (evidence or [])][:20],
         "updated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    _path(project_id, repo_root=repo_root).write_text(
-        json.dumps(rec, indent=2) + "\n", encoding="utf-8"
+    atomic_write_text(
+        _path(project_id, repo_root=repo_root),
+        json.dumps(rec, indent=2) + "\n",
     )
     return rec
 
@@ -278,8 +298,9 @@ def bump_model_tier(
     existing.setdefault("project_id", project_id)
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    _path(project_id, repo_root=repo_root).write_text(
-        json.dumps(existing, indent=2) + "\n", encoding="utf-8"
+    atomic_write_text(
+        _path(project_id, repo_root=repo_root),
+        json.dumps(existing, indent=2) + "\n",
     )
     return nxt
 
@@ -320,8 +341,9 @@ def reset_fix_loop(project_id: str, *, repo_root: Path | None = None) -> None:
     existing["updated_at"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    _path(project_id, repo_root=repo_root).write_text(
-        json.dumps(existing, indent=2) + "\n", encoding="utf-8"
+    atomic_write_text(
+        _path(project_id, repo_root=repo_root),
+        json.dumps(existing, indent=2) + "\n",
     )
 
 
@@ -369,8 +391,9 @@ def record_offload(
     }
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    _path(project_id, repo_root=repo_root).write_text(
-        json.dumps(rec, indent=2) + "\n", encoding="utf-8"
+    atomic_write_text(
+        _path(project_id, repo_root=repo_root),
+        json.dumps(rec, indent=2) + "\n",
     )
     return rec
 
@@ -400,8 +423,9 @@ def clear_offload(project_id: str, *, repo_root: Path | None = None) -> None:
     existing["updated_at"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    _path(project_id, repo_root=repo_root).write_text(
-        json.dumps(existing, indent=2) + "\n", encoding="utf-8"
+    atomic_write_text(
+        _path(project_id, repo_root=repo_root),
+        json.dumps(existing, indent=2) + "\n",
     )
 
 

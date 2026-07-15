@@ -26,6 +26,11 @@
 #   web/data/* which is rebuilt next tick regardless.
 # * Always `git rebase --abort` before each attempt so we NEVER operate on a
 #   conflicted tree.
+# * VERIFY the push landed (issue #1139): after a "successful" push, re-fetch
+#   origin/main from the server and confirm our commit is contained in it before
+#   claiming success — a masked exit code (the git-push-exitcode-mask class) or a
+#   concurrent force-update would otherwise report pushed=true while the tick's
+#   work was actually lost. A failed verify falls through and re-races.
 # * FAIL LOUD (exit 1) if we still can't push after the retries — the project
 #   state on origin is then simply unchanged (no corruption); it stays
 #   schedulable and a later tick re-does the work. A masked success is worse
@@ -86,10 +91,22 @@ for i in $(seq 1 "$ATTEMPTS"); do
     echo "fetch failed (attempt $i); retrying" >&2; sleep $((2 + RANDOM % 5)); continue
   fi
   if git rebase -X theirs origin/main >/dev/null 2>&1; then
+    head_sha="$(git rev-parse HEAD)"
     if git push origin HEAD:main --quiet; then
-      echo "pushed on attempt $i"
-      emit true
-      exit 0
+      # VERIFY the push actually landed (issue #1139 — concurrent persistence
+      # loses work; guard against the exit-code-mask class of bug where a push
+      # is reported OK but the tick's commit is not on origin/main). Re-fetch
+      # origin/main from the SERVER and confirm our commit is contained in it.
+      # If it is NOT an ancestor of the refreshed tip, the work did not persist
+      # (a concurrent force-update, or a masked failure) — do NOT emit success;
+      # fall through and re-race.
+      if git fetch origin main --quiet \
+         && git merge-base --is-ancestor "$head_sha" FETCH_HEAD; then
+        echo "pushed on attempt $i (verified $head_sha landed on origin/main)"
+        emit true
+        exit 0
+      fi
+      echo "push reported success but $head_sha is NOT on origin/main (attempt $i) — re-racing" >&2
     fi
   else
     git rebase --abort 2>/dev/null || true

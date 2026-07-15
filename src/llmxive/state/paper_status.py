@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.config import repo_root as _repo_root
+from llmxive.state._io import atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +81,7 @@ def _save(
     record["updated_at"] = datetime.now(UTC).isoformat()
     record.setdefault("repair_rounds", 0)
     p = _path(paper_id, repo_root=repo_root)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    atomic_write_text(p, json.dumps(record, indent=2) + "\n")
     return record
 
 

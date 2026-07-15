@@ -24,7 +24,6 @@ from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
 from llmxive.librarian.dataset_resolver import (
     render_planner_block,
     resolve_datasets,
-    write_manifest,
 )
 from llmxive.speckit.runner import run_script
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
@@ -120,18 +119,45 @@ class PlannerAgent(SlashCommandAgent):
         )
         spec_path = feature_dir / "spec.md"
         spec_text = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
+        # Weak resolver: reachable + format-sniffed cite-only candidates (a
+        # candidate PROPOSER; no dead write-only manifest is persisted — D7).
         resolved = resolve_datasets(
             spec_text,
             project_dir=ctx.project_dir,
             repo_root=ctx.project_dir.parent.parent,
         )
-        write_manifest(resolved, project_dir=ctx.project_dir)
+        weak_block = render_planner_block(resolved)
+        # PROACTIVE strong discovery at PLAN time (D11): run the SAME
+        # records+field HARD-verifier the execution stage uses, sharing the SAME
+        # on-disk cache (``.specify/memory/discovered_data_source.yaml``), so the
+        # planner plans around a REAL verified source instead of only the weak
+        # reachability sniff — and execution later reads the cache instead of
+        # re-discovering. Best-effort: offline / no-LLM degrades to just the weak
+        # block (never crashes a plan run), and the outcome is cached.
+        strong_block = self._plan_time_discovered_block(ctx.project_dir)
+        dataset_block = "\n\n".join(b for b in (strong_block, weak_block) if b)
         return {
             "feature_dir": str(feature_dir),
             "spec_path": str(spec_path),
             "script_result": result,
-            "dataset_block": render_planner_block(resolved),
+            "dataset_block": dataset_block,
         }
+
+    @staticmethod
+    def _plan_time_discovered_block(project_dir: Path) -> str:
+        """Proactively populate the shared discovery cache and render the verified
+        source (D11). Returns '' offline / when nothing is discovered / on any
+        failure — a plan run must never crash on data discovery."""
+        try:
+            from llmxive.execution.data_source import (
+                ensure_discovered_source,
+                render_feedback_block,
+            )
+
+            return render_feedback_block(ensure_discovered_source(project_dir))
+        except Exception as exc:  # never block planning on discovery
+            logger.warning("plan-time data-source discovery skipped: %s", exc)
+            return ""
 
     def build_prompt(
         self,

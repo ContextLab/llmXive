@@ -22,6 +22,7 @@ import yaml
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
+from llmxive.state._io import atomic_write_text
 from llmxive.types import ReviewRecord
 
 _FRONTMATTER_RE: re.Pattern[str] = re.compile(
@@ -75,9 +76,8 @@ def write(
         review_type=review_type,
         repo_root=repo_root,
     )
-    path.parent.mkdir(parents=True, exist_ok=True)
     frontmatter = yaml.safe_dump(payload, sort_keys=True).rstrip("\n")
-    path.write_text(f"---\n{frontmatter}\n---\n\n{body.strip()}\n", encoding="utf-8")
+    atomic_write_text(path, f"---\n{frontmatter}\n---\n\n{body.strip()}\n")
     return path
 
 

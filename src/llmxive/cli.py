@@ -22,32 +22,36 @@ from llmxive.backends import router as backend_router
 
 
 def _record_advance_error(project, exc: Exception) -> None:
-    """Persist a per-project advancement failure so it is reviewable (NOT
-    dismissed) without crashing the run/worker. One file per project -> no
-    cross-worker write conflict; a ``count`` makes a recurring failure (a
-    permanently dead reference, a project the agents cannot converge) visible."""
-    import json
-    from datetime import datetime
-    from llmxive.config import repo_root as _repo_root
+    """Persist a TYPED per-project advancement-failure control record so it is
+    reviewable (NOT dismissed) AND actionable, without crashing the run/worker.
+
+    Delegates to the single :mod:`llmxive.pipeline.advance_ledger` module (shared
+    with the scheduler, Constitution I): it fingerprints the exception into one of
+    the nine real failure classes, increments the CONSECUTIVE-failure count, and
+    assigns a control disposition (transient -> exponential backoff; invariant ->
+    terminal; permanent/emitter -> rerouted). The scheduler then honours that
+    disposition instead of re-picking a permanently-failing project every tick.
+    One file per project -> no cross-worker write conflict."""
     try:
-        d = _repo_root() / "state" / "advance_errors"
-        d.mkdir(parents=True, exist_ok=True)
-        p = d / f"{project.id}.json"
-        prior: dict = {}
-        if p.exists():
-            try:
-                prior = json.loads(p.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
-                prior = {}
-        p.write_text(json.dumps({
-            "project_id": project.id,
-            "stage": project.current_stage.value,
-            "last_error": str(exc)[:1000],
-            "last_seen": datetime.now(UTC).isoformat(),
-            "count": int(prior.get("count", 0)) + 1,
-        }, indent=2), encoding="utf-8")
+        from llmxive.pipeline import advance_ledger
+        advance_ledger.record_failure(project, exc)
     except Exception:
         pass  # error-recording must never break the run
+
+
+def _clear_advance_error(project) -> None:
+    """Neutralize a project's advance-error record after a SUCCESSFUL step.
+
+    Called whenever ``graph.run_one_step`` returns WITHOUT raising — i.e. the
+    project made progress this tick (a stage advance, or an in_progress task
+    ticked off). That breaks the failure streak, so the ledger's
+    ``consecutive_count`` is reset (status -> cleared); the next failure starts a
+    fresh streak at 1. Never raises through to the run loop."""
+    try:
+        from llmxive.pipeline import advance_ledger
+        advance_ledger.clear(project)
+    except Exception:
+        pass  # clearing must never break the run
 
 
 def _cmd_preflight(_args: argparse.Namespace) -> int:
@@ -200,6 +204,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
             _record_advance_error(project, exc)
             break
         print(f"[run]   -> stage={updated.current_stage.value}")
+        # run_one_step returned without raising => the project made progress this
+        # tick (a stage advance, or an in_progress task ticked off). Clear its
+        # advance-error record so consecutive_count reflects CONSECUTIVE failures.
+        _clear_advance_error(project)
         completed += 1
         if updated.current_stage == project.current_stage:
             # In_progress / paper_in_progress legitimately stay in the

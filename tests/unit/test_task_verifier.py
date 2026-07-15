@@ -169,10 +169,16 @@ def test_settled_task_not_rejudged_after_reannotation(tmp_path: Path, monkeypatc
     assert "- [X] " in tasks.read_text(encoding="utf-8")
 
 
-def test_reject_counts_accumulate_across_reannotation(tmp_path: Path, monkeypatch) -> None:
-    """Repeated rejection of the SAME task must reach REJECT_CAP even though the claims
-    layer rewrites its line between ticks — otherwise the redo loop never breaks."""
+def test_reject_cap_records_unverifiable_never_accepts(tmp_path: Path, monkeypatch) -> None:
+    """REJECT_CAP consecutive INCOMPLETE verdicts must NEVER force-accept the task
+    (the fail-open removed in issue #1139). Instead, after the cap the task is
+    reopened ``[ ]`` AND recorded in :mod:`llmxive.state.unverifiable` — which both
+    breaks the redo loop (a recorded task is not re-judged) and signals CORE to
+    route the project to research_full_revision. Reject counts still accumulate
+    across the claims layer's per-tick re-annotation of the line."""
     from types import SimpleNamespace
+
+    from llmxive.state import unverifiable
 
     monkeypatch.setattr(
         tv, "verify_task",
@@ -181,19 +187,27 @@ def test_reject_counts_accumulate_across_reannotation(tmp_path: Path, monkeypatc
     tasks = tmp_path / "tasks.md"
     state = tmp_path / "state.yaml"
     marks = []
+    result: dict = {}
     for tick in range(tv.REJECT_CAP):
-        # Each tick the claims layer stamps a DIFFERENT fresh claim id.
+        # Each tick the claims layer stamps a DIFFERENT fresh claim id. The task has
+        # NO artifact path, so it routes to the (forced-INCOMPLETE) semantic verifier.
         line = (
-            f"T009 Set up logging in `src/utils/logger.py` "
+            f"T009 wire up the pipeline module "
             f"(verify codes [UNRESOLVED-CLAIM: c_tick{tick} — status=not_enough_info])."
         )
         tasks.write_text(f"# Tasks\n\n- [X] {line}\n", encoding="utf-8")
-        tv.run_verification_pass(
+        result = tv.run_verification_pass(
             tmp_path, tasks, already_verified=set(),  # re-claimed by the implementer
             notes_path=tmp_path / "notes.md", state_path=state,
+            project_id="PROJ-CAP", repo_root=tmp_path,
         )
         marks.append(tasks.read_text(encoding="utf-8").split("\n")[2][:6])
 
-    # Rejected the first REJECT_CAP-1 ticks, then ACCEPTED (loop-breaker fires).
-    assert marks[:-1] == ["- [ ] "] * (tv.REJECT_CAP - 1), marks
-    assert marks[-1] == "- [X] ", marks
+    # NEVER accepted — reopened [ ] every tick, and [X] appears at NO point.
+    assert marks == ["- [ ] "] * tv.REJECT_CAP, marks
+    assert "- [X]" not in tasks.read_text(encoding="utf-8")
+    # The final tick recorded the task as unverifiable and flagged it in the result.
+    assert result["unverifiable"] == ["T009"], result
+    recorded = unverifiable.load("PROJ-CAP", repo_root=tmp_path)
+    assert [t["task_key"] for t in recorded] == ["T009"], recorded
+    assert unverifiable.has_unverifiable("PROJ-CAP", repo_root=tmp_path)

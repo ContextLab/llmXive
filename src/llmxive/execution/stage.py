@@ -385,9 +385,27 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
         except Exception as exc:  # never let offload break the local fallback
             logger.warning("GPU offload dispatch skipped for %s: %s", project_id, exc)
 
+    # Classify the failure ONCE (issue #1139 P1-2) and persist the durable class
+    # so re-plan feedback + terminal routing branch on the real cause instead of
+    # re-parsing strings. Reuses the same signature matchers the offload/verified-
+    # source guards use — no forked classifier.
+    from llmxive.execution.failure_class import FailureClass
+
+    _infra = _compute_infra_failures(failures)
+    _dataunavail = _data_unavailable_failures(failures)
+    _fclass = FailureClass.from_signals(
+        compute_infra=bool(_infra),
+        data_unavailable=bool(_dataunavail),
+        fabrication=bool(getattr(res, "fabrication", None)),
+        hollow=bool(getattr(res, "hollow", None)),
+        has_command_failures=bool(failures),
+    )
     execution_status.record(
         project_id, ok=res.ok, reason=res.reason,
-        artifacts=res.artifacts_produced, failures=failures, repo_root=repo,
+        artifacts=res.artifacts_produced, failures=failures,
+        failure_class=None if res.ok else _fclass.value,
+        evidence=None if res.ok else (_infra + _dataunavail)[:20],
+        repo_root=repo,
     )
 
     mem = project_dir / ".specify" / "memory"
@@ -485,7 +503,17 @@ def _poll_offload(project_dir: Path, repo: Path) -> bool:
             rel for rel in pulled
             if (project_dir / rel).is_file() and (project_dir / rel).stat().st_size > 0
         ]
-        if real:
+        # issue #1139 P1-3: a GPU-offload bundle must clear the SAME backend-
+        # independent semantic gate as a local run — non-empty presence is NOT
+        # verification. Without this, a Kaggle run that fabricated its metrics,
+        # produced hollow (null/NaN) numbers, wrote no declared deliverable, or
+        # left only gitignored output advanced straight to research_complete and
+        # minted receipts. Rejoin verify_artifact_bundle so only a genuinely
+        # verified bundle advances; anything else falls to the normal failure path.
+        from llmxive.execution.analysis_runner import verify_artifact_bundle
+
+        gate = verify_artifact_bundle(project_dir, real) if real else None
+        if real and gate is not None and gate.ok:
             execution_status.record(
                 project_id, ok=True,
                 reason=f"GPU offload complete via Kaggle kernel {kernel_ref}",
@@ -495,11 +523,22 @@ def _poll_offload(project_dir: Path, repo: Path) -> bool:
             _mint_artifact_receipts(project_dir, res, repo)
             execution_status.clear_offload(project_id, repo_root=repo)
             (project_dir / ".specify" / "memory" / _FEEDBACK_FILENAME).unlink(missing_ok=True)
-            logger.info("offload %s retrieved %d artifact(s) from Kaggle", project_id, len(real))
+            logger.info(
+                "offload %s retrieved %d VERIFIED artifact(s) from Kaggle",
+                project_id, len(real),
+            )
             return True
-        logger.warning(
-            "offload %s completed but retrieved no real artifacts; falling back", project_id
-        )
+        if real and gate is not None:
+            logger.warning(
+                "offload %s completed but the retrieved bundle FAILED the semantic "
+                "gate — NOT advancing (%s); falling back to a local pass",
+                project_id, gate.reason(),
+            )
+        else:
+            logger.warning(
+                "offload %s completed but retrieved no real artifacts; falling back",
+                project_id,
+            )
         execution_status.record_offload(
             project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
         )
@@ -753,10 +792,28 @@ def _reopen_failing_tasks(
     """Un-check tasks.md lines that reference a failed/missing script path or
     its stem, so the implementer re-implements them. Returns count re-opened.
     """
-    tasks_files = sorted(project_dir.glob("specs/*/tasks.md"))
-    if not tasks_files:
-        return 0
-    tasks_path = tasks_files[0]
+    # Pointer-first (issue #1139 P0 D2): reopen tasks in the CANONICAL current
+    # feature dir (the project's speckit_research_dir pointer), NOT the first
+    # lexicographic specs/*/tasks.md. On a multi-cycle project the first-glob dir
+    # is a STALE prior kickback cycle whose tasks the implementer never re-reads
+    # (it reads the pointer dir), so the whole auto-fix loop was inert.
+    tasks_path: Path | None = None
+    try:
+        from llmxive.state import project as project_store
+
+        _repo = project_dir.parent.parent
+        _proj = project_store.load(project_dir.name, repo_root=_repo)
+        if _proj.speckit_research_dir:
+            _cand = _repo / _proj.speckit_research_dir / "tasks.md"
+            if _cand.is_file():
+                tasks_path = _cand
+    except Exception:
+        tasks_path = None
+    if tasks_path is None:
+        tasks_files = sorted(project_dir.glob("specs/*/tasks.md"))
+        if not tasks_files:
+            return 0
+        tasks_path = tasks_files[0]
     text = tasks_path.read_text(encoding="utf-8", errors="replace")
 
     # Collect failing/missing script paths + stems from the run.

@@ -115,6 +115,13 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS,
         Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED,
         Stage.VALIDATOR_REJECTED,
+        # issue #1139 P1-2 / sec 3.7: execution exhaustion (all model tiers AND
+        # all re-plans spent — the analysis simply cannot run in this
+        # environment) now routes to AGENT_BLOCKED, a distinct, operator-clearable,
+        # re-openable sink, instead of VALIDATOR_REJECTED. This keeps an
+        # infra/data-blocked GOOD idea (COMPUTE_ENV / DATA_UNREACHABLE
+        # FailureClass) from being counted as an idea-quality rejection.
+        Stage.AGENT_BLOCKED,
     },
     # research_complete is now a brief checkpoint where the
     # specialist reviewers run before research_review, so we allow

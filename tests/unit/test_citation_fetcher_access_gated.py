@@ -1,13 +1,19 @@
-"""A bot-blocked/paywalled real host must NOT hard-block advancement.
+"""A bot-blocked/paywalled real host classifies as PENDING, not a false MISMATCH.
 
-The research-accept / paper-accept citation gate blocks UNREACHABLE + MISMATCH
-citations. Real academic sources (publisher pages, OEIS behind Cloudflare,
-KnotInfo, rate-limited registrars) frequently 403/401/429 an automated client —
-the host EXISTS, it just gates the body. Classifying that as UNREACHABLE
-false-flagged real references as fabricated and trapped projects at
-research_review. These pin the access-gated -> PENDING (non-blocking, honestly
-unverified) classification while keeping 404/DNS -> MISMATCH/UNREACHABLE (the
-anti-fabrication gate is preserved).
+Real academic sources (publisher pages, OEIS behind Cloudflare, KnotInfo,
+rate-limited registrars) frequently 403/401/429 an automated client — the host
+EXISTS, it just gates the body. Classifying that as UNREACHABLE false-flagged
+real references as fabricated. These tests pin the access-gated -> PENDING
+classification while keeping 404/DNS -> MISMATCH/UNREACHABLE (the
+anti-fabrication classification is preserved).
+
+Issue #1139 D14/D15 changed what PENDING MEANS at the gate: existence is no
+longer verification. A bare URL/DOI with no cross-checkable cited title now
+classifies PENDING (not a false VERIFIED), and the reference gate is POSITIVE —
+a project advances only when EVERY citation is VERIFIED, so PENDING now BLOCKS
+(bounded retry / substitution upstream) rather than silently passing. These
+tests assert the classification layer here; the positive-gate behavior lives in
+``test_reference_gate_positive.py``.
 """
 
 from __future__ import annotations
@@ -17,8 +23,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from agents.tools import citation_fetcher as cf  # noqa: E402
-from llmxive.types import VerificationStatus  # noqa: E402
+from agents.tools import citation_fetcher as cf
+
+from llmxive.types import VerificationStatus
 
 
 class _Resp:
@@ -64,17 +71,45 @@ def test_url_500_is_still_unreachable(monkeypatch):
     assert out.status == VerificationStatus.UNREACHABLE
 
 
-def test_pending_does_not_block_the_gate():
-    """A PENDING citation must NOT be counted by has_blocking_citations (only
-    UNREACHABLE + MISMATCH block) — that's what makes access-gated refs advanceable.
-    UNREACHABLE/MISMATCH still block (anti-fabrication gate intact)."""
-    from types import SimpleNamespace
+def test_pending_blocks_the_gate(tmp_path):
+    """D15 (issue #1139): the reference gate is now POSITIVE — a project advances
+    ONLY when EVERY citation is currently VERIFIED. A PENDING (present-but-
+    unverified) citation now BLOCKS; a fully-VERIFIED set advances. UNREACHABLE /
+    MISMATCH remain blocking (anti-fabrication gate intact). REAL round-trip
+    through the production citations store + gate."""
+    from datetime import UTC, datetime
 
-    from llmxive.agents.advancement import _has_blocking_citations
-    pending = SimpleNamespace(verification_status=VerificationStatus.PENDING)
-    unreachable = SimpleNamespace(verification_status=VerificationStatus.UNREACHABLE)
-    assert _has_blocking_citations([pending]) is False
-    assert _has_blocking_citations([pending, unreachable]) is True
+    from llmxive.agents.reference_validator import has_blocking_citations
+    from llmxive.state import citations as citations_store
+    from llmxive.types import Citation, CitationKind
+
+    project_id = "PROJ-901-gate"
+
+    def _cite(status, *, cite_id="c-001"):
+        return Citation(
+            cite_id=cite_id,
+            artifact_path=f"projects/{project_id}/specs/plan.md",
+            artifact_hash="0" * 64,
+            kind=CitationKind.URL,
+            value="https://example.com/paper",
+            cited_title="A Real Cited Title",
+            verification_status=status,
+            verified_at=datetime.now(UTC),
+        )
+
+    citations_store.save(project_id, [_cite(VerificationStatus.PENDING)], repo_root=tmp_path)
+    assert has_blocking_citations(project_id, repo_root=tmp_path) is True
+
+    citations_store.save(project_id, [_cite(VerificationStatus.UNREACHABLE)], repo_root=tmp_path)
+    assert has_blocking_citations(project_id, repo_root=tmp_path) is True
+
+    citations_store.save(
+        project_id,
+        [_cite(VerificationStatus.VERIFIED, cite_id="c-001"),
+         _cite(VerificationStatus.VERIFIED, cite_id="c-002")],
+        repo_root=tmp_path,
+    )
+    assert has_blocking_citations(project_id, repo_root=tmp_path) is False
 
 
 def test_is_real_title_rejects_urls_dois_ids():
@@ -85,14 +120,16 @@ def test_is_real_title_rejects_urls_dois_ids():
     assert cf._is_real_title("") is False
 
 
-def test_url_as_cited_title_does_not_false_mismatch():
-    """The reference resolved to the REAL paper (fetched_title) but the citation
-    stored a URL in cited_title — must be VERIFIED on existence, not MISMATCH."""
+def test_bare_url_cited_title_is_pending_not_verified():
+    """D14 (issue #1139): the citation stored a URL/DOI in cited_title, so there is
+    no real cited title to cross-check. The reference RESOLVED to a readable page,
+    but existence != verification — classify PENDING (present-but-unverified,
+    bounded retry/substitution), NOT VERIFIED on existence alone."""
     out = cf._classify_match(
         "https://doi.org/10.48550/arXiv.2503.10452",        # cited_title is a URL
         "[2503.10452] DynaCode: A Dynamic Complexity-Aware Code Benchmark",  # real title
     )
-    assert out == VerificationStatus.VERIFIED
+    assert out == VerificationStatus.PENDING
 
 
 def test_real_title_still_mismatches_when_unrelated():

@@ -37,6 +37,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -47,6 +48,24 @@ from llmxive.speckit._research_guard import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class ReplacementResult:
+    """Outcome of searching for a replacement for ONE dead reference.
+
+    ``url`` is the verified, re-probed replacement (``None`` when none was used).
+    ``reason`` makes the WHY actionable — distinguishing a LEGITIMATE no-op
+    (``"no_verified_replacement"`` — the librarian searched and found nothing
+    reachable) from a SYSTEMIC breakage (``"resolver_error: <Type>: <detail>"`` —
+    the resolver/network itself broke). Both still fail-open (the dead URL falls
+    through to the FR-006 gate), but a systemic breakage is logged as a WARNING so
+    "the repair machinery is down" is not silently indistinguishable from "there
+    is genuinely no replacement." ``reason`` is ``""`` on a successful swap.
+    """
+
+    url: str | None
+    reason: str = ""
 
 # Reachability probe budget for a candidate replacement (seconds). Matches the
 # hard gate's default so "reachable here" == "reachable at the gate".
@@ -96,7 +115,7 @@ def _name_tokens_from_url(url: str) -> str:
     out: list[str] = []
     for seg in raw:
         seg = seg.strip()
-        if not seg or "." in seg and re.search(r"\.[a-z0-9]{1,6}$", seg):
+        if not seg or ("." in seg and re.search(r"\.[a-z0-9]{1,6}$", seg)):
             # Skip filenames / hostnames with extensions (x.csv, host.co).
             if seg.lower() in _URL_NOISE_TOKENS:
                 continue
@@ -136,7 +155,9 @@ def _derive_intent(research_md_text: str, url: str) -> str:
     return " ".join(toks[:24]).strip()
 
 
-def _find_replacement_url(intent: str, *, project_dir: Path, repo_root: Path) -> str | None:
+def _find_replacement_url(
+    intent: str, *, project_dir: Path, repo_root: Path
+) -> ReplacementResult:
     """Ask the librarian for a VERIFIED, reachable replacement URL for ``intent``.
 
     Uses the planner's existing verified-URL source
@@ -146,11 +167,16 @@ def _find_replacement_url(intent: str, *, project_dir: Path, repo_root: Path) ->
     candidates. The chosen URL is then RE-PROBED with the research-guard's own
     ``_probe`` so it is guaranteed to pass the identical hard gate.
 
-    Returns the replacement URL, or ``None`` when nothing verified+reachable was
-    found. NEVER raises — a search/network failure degrades to ``None``.
+    Returns a :class:`ReplacementResult`. NEVER raises — but instead of
+    flattening every failure to a bare ``None`` (which made a systemic resolver/
+    network breakage indistinguishable from a legitimate "nothing found"), it
+    threads a typed ``reason``: ``"resolver_error: …"`` when the resolver itself
+    raised (systemic — logged as a WARNING), ``"no_verified_replacement"`` when it
+    searched and found nothing reachable (a legitimate no-op), and ``""`` on a
+    successful swap.
     """
     if not intent.strip():
-        return None
+        return ReplacementResult(None, "empty_intent")
     try:
         # Imported lazily: dataset_resolver pulls ``requests``/``urllib3`` and
         # the registry-search path, which offline unit tests monkeypatch.
@@ -162,9 +188,16 @@ def _find_replacement_url(intent: str, *, project_dir: Path, repo_root: Path) ->
             repo_root=repo_root,
             budget_s=_RESOLVE_BUDGET_S,
         )
-    except Exception as exc:  # noqa: BLE001 — degrade, never crash the plan run.
-        logger.warning("reference-repair: librarian search failed for %r: %s", intent, exc)
-        return None
+    except Exception as exc:  # degrade, never crash the plan run.
+        # Systemic breakage (resolver bug / network down): keep fail-open but make
+        # the WHY actionable rather than an indistinguishable None.
+        reason = f"resolver_error: {type(exc).__name__}: {exc}"
+        logger.warning(
+            "reference-repair: librarian search BROKE for %r (%s) — degrading to "
+            "unresolved; this is a systemic failure, NOT 'no replacement found'",
+            intent, reason,
+        )
+        return ReplacementResult(None, reason)
 
     for ds in resolved.datasets:
         if ds.status != "verified":
@@ -179,8 +212,8 @@ def _find_replacement_url(intent: str, *, project_dir: Path, repo_root: Path) ->
                 _probe(cand_url, timeout=_PROBE_TIMEOUT)
             except UnreachableReference:
                 continue
-            return cand_url
-    return None
+            return ReplacementResult(cand_url, "")
+    return ReplacementResult(None, "no_verified_replacement")
 
 
 def _project_slug(project_dir: Path) -> str:
@@ -290,30 +323,39 @@ def repair_research_references(
     unresolved: list[str] = []
     for dead_url, reason in dead:
         intent = _derive_intent(research_md, dead_url)
-        replacement = _find_replacement_url(
+        result = _find_replacement_url(
             intent, project_dir=project_dir, repo_root=repo_root
         )
-        if replacement and replacement != dead_url:
-            updated = updated.replace(dead_url, replacement)
+        if result.url and result.url != dead_url:
+            updated = updated.replace(dead_url, result.url)
             repairs.append(
                 {
                     "dead_url": dead_url,
                     "reason": reason,
-                    "replacement_url": replacement,
+                    "replacement_url": result.url,
                     "intent": intent,
                 }
             )
             logger.info(
                 "reference-repair: swapped dead %r → verified %r (intent=%r)",
-                dead_url, replacement, intent,
+                dead_url, result.url, intent,
             )
         else:
             unresolved.append(dead_url)
-            logger.info(
-                "reference-repair: NO verified replacement for dead %r (intent=%r) "
-                "— leaving for the FR-006 gate",
-                dead_url, intent,
-            )
+            if result.reason.startswith("resolver_error:"):
+                # Systemic breakage — surface it distinctly (WARNING) so an
+                # outage isn't silently read as "no replacement exists".
+                logger.warning(
+                    "reference-repair: could NOT repair dead %r (intent=%r) due to "
+                    "a SYSTEMIC failure (%s) — leaving for the FR-006 gate",
+                    dead_url, intent, result.reason,
+                )
+            else:
+                logger.info(
+                    "reference-repair: NO verified replacement for dead %r "
+                    "(intent=%r, %s) — leaving for the FR-006 gate",
+                    dead_url, intent, result.reason or "no_verified_replacement",
+                )
 
     if repairs:
         updated = _append_repair_note(updated, repairs)
@@ -325,4 +367,4 @@ def repair_research_references(
     return files, unresolved
 
 
-__all__ = ["repair_research_references"]
+__all__ = ["ReplacementResult", "repair_research_references"]

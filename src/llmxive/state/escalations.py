@@ -32,6 +32,7 @@ from pathlib import Path
 import yaml
 
 from llmxive.config import repo_root as _repo_root
+from llmxive.state._io import atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -90,10 +91,9 @@ def write_record(
     if not record.timestamp:
         record.timestamp = datetime.now(UTC).isoformat()
     out_dir = _dir(repo_root)
-    out_dir.mkdir(parents=True, exist_ok=True)
     safe_ts = record.timestamp.replace(":", "").replace("+", "Z")
     path = out_dir / f"{record.project_id}__{safe_ts}.yaml"
-    path.write_text(yaml.safe_dump(asdict(record), sort_keys=False), encoding="utf-8")
+    atomic_write_text(path, yaml.safe_dump(asdict(record), sort_keys=False))
     logger.warning(
         "escalation recorded for %s (%s: %d/%d rounds): %s",
         record.project_id, record.loop, record.rounds_used, record.bound, path,
@@ -190,8 +190,8 @@ def file_engine_failure_issue(
         number = int(json.loads(out).get("number", 0))
     except (json.JSONDecodeError, ValueError):
         number = 0
-    ledger.parent.mkdir(parents=True, exist_ok=True)
-    ledger.write_text(
+    atomic_write_text(
+        ledger,
         yaml.safe_dump(
             {
                 "issue_number": number,
@@ -200,7 +200,6 @@ def file_engine_failure_issue(
                 "filed_at": datetime.now(UTC).isoformat(),
             }
         ),
-        encoding="utf-8",
     )
     return number or None
 
@@ -280,7 +279,7 @@ def update_digest(*, repo_root: Path | None = None, gh=None) -> int | None:
                 continue
             if not data.get("digest_id"):
                 data["digest_id"] = str(number)
-                p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+                atomic_write_text(p, yaml.safe_dump(data, sort_keys=False))
     return number
 
 

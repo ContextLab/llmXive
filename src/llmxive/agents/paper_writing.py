@@ -19,6 +19,7 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import repo_root as _repo_root
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
+from llmxive.state.project import feature_dir_for
 
 
 def _read_optional(path: Path) -> str:
@@ -37,15 +38,30 @@ class PaperWritingAgent(Agent):
         target_path_rel = ctx.metadata.get("target_path", "")
         target_path = repo / target_path_rel if target_path_rel else None
 
-        # Pull paper-stage spec + plan + research-stage results.
-        paper_specs = sorted((paper_dir / "specs").glob("*/spec.md"))
-        paper_spec_text = paper_specs[0].read_text(encoding="utf-8") if paper_specs else ""
-        paper_plans = sorted((paper_dir / "specs").glob("*/plan.md"))
-        paper_plan_text = paper_plans[0].read_text(encoding="utf-8") if paper_plans else ""
+        # Pull paper-stage spec + plan + research-stage results. Resolve the
+        # CURRENT paper feature dir via the canonical pointer-first selector
+        # (state.project.feature_dir_for) rather than the first/oldest
+        # ``specs/*/`` glob: on a project that cycled through kickbacks the
+        # first-sorted dir is the STALE prior cycle, so the writer would compose
+        # against a superseded spec/plan (spec 023 defect #17).
+        paper_feature_dir = feature_dir_for(project_dir, track="paper")
+        paper_spec_text = (
+            _read_optional(paper_feature_dir / "spec.md") if paper_feature_dir else ""
+        )
+        paper_plan_text = (
+            _read_optional(paper_feature_dir / "plan.md") if paper_feature_dir else ""
+        )
         constitution = paper_dir / ".specify" / "memory" / "constitution.md"
         paper_constitution = _read_optional(constitution)
         results_summary = _read_optional(project_dir / "results.md")
         existing = _read_optional(target_path) if target_path else ""
+        # Residual WRITING-level reviewer action items carried forward when the
+        # project advanced to research_accepted on the two-tier writing-only
+        # exhaustion path (advancement._carry_forward_writing_residue). These were
+        # judged minor (not science-blocking) but the paper-writing stage MUST
+        # still address them — thread the note forward so it is not a dead-end
+        # (issue #1139 anti-pattern 1: persist-and-forget -> persist-and-consume).
+        writing_residue = _read_optional(project_dir / "paper_writing_residue.md")
 
         system = render_prompt(
             "agents/prompts/paper_writing.md",
@@ -63,7 +79,11 @@ class PaperWritingAgent(Agent):
             f"# Paper plan.md\n\n{paper_plan_text}\n\n"
             f"# Paper constitution\n\n{paper_constitution}\n\n"
             f"# Research-stage results summary\n\n{results_summary}\n\n"
-            f"# Existing section text\n\n{existing}\n\n"
+            + (
+                f"# Residual reviewer notes to address (carried forward)\n\n"
+                f"{writing_residue}\n\n" if writing_residue.strip() else ""
+            )
+            + f"# Existing section text\n\n{existing}\n\n"
             "# Task\n\nReturn the YAML document per the contract."
         )
         return [

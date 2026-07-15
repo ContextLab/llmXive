@@ -5,8 +5,8 @@ name: Pipeline — Advance (deterministic matrix workers)
 # review/paper-speckit, which all just ran the SAME load-balanced
 # `python -m llmxive run` and thus competed as undifferentiated workers).
 #
-# A 12-job matrix where each worker `i` calls
-#   python -m llmxive run --worker i --workers 12
+# A 6-job matrix where each worker `i` calls
+#   python -m llmxive run --worker i --workers 6
 # which DETERMINISTICALLY picks a DISTINCT project via
 # scheduler.pick_for_worker: the jobs are APPORTIONED across stages in proportion
 # to load (the fullest stage gets the most workers, capped at
@@ -15,21 +15,30 @@ name: Pipeline — Advance (deterministic matrix workers)
 # project's changes; the commit-and-push.sh rebase-retry handles the concurrent
 # pushes.
 #
-# Width 12 (was 6): implementation is the pipeline's bottleneck — 433 projects sat
-# at in_progress and none had ever crossed it. A public repo gets 20 free
-# concurrent jobs, so 12 leaves headroom for the other lanes (compile/pages/
-# intake/signoff). With load-apportionment that puts ~8 workers on in_progress
-# per tick, versus 1 under the old flat round-robin.
+# CADENCE + WIDTH (issue #1139, defect D16 — concurrent persistence loses work):
+# reduced from `*/15` × 12 workers to `*/30` × 6 workers. Twelve 150-min-budget
+# jobs firing every 15 min guaranteed many OVERLAPPING ticks running at DIFFERENT
+# HEADs; two such ticks can pick the SAME project (pick_for_worker is
+# deterministic only at a fixed HEAD) and both write its state, and the
+# commit-and-push rebase race then keeps whichever lands last — silently dropping
+# the other tick's completed work. A wider cadence + narrower matrix shrinks the
+# overlap window (fewer simultaneous ticks) and the stale-checkout window without
+# stopping throughput. RECOMMENDED / easy to tune: keep the cron, the matrix
+# list, and the two workflow_dispatch defaults below IN SYNC — schedule `*/30`
+# (was `*/15`), width 6 (was 12; a public repo gets 20 free concurrent jobs, so 6
+# still leaves ample headroom for compile/pages/intake/signoff). Raise them again
+# only once the per-project lease (src/llmxive/pipeline/project_lease.py) + a
+# CAS-verified push make overlapping ticks safe.
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # every 15 minutes
+    - cron: '*/30 * * * *'   # every 30 minutes (was */15; issue #1139 lost-work race)
   workflow_dispatch:
     inputs:
       workers:
         description: "Total matrix workers (must match the matrix size below)."
         required: false
-        default: "12"
+        default: "6"
       max_tasks:
         description: "Scheduler ticks per worker (each in_progress tick batches many tasks)."
         required: false
@@ -55,10 +64,12 @@ jobs:
     # multi-tick loop early so the final step + commit always land.
     timeout-minutes: 150
     strategy:
-      fail-fast: false
-      max-parallel: 12
+      fail-fast: false            # preserved (issue #1139): one worker failing
+                                  # must NOT abort the rest of the matrix.
+      max-parallel: 6             # was 12; see cadence/width note (issue #1139).
       matrix:
-        worker: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        worker: [0, 1, 2, 3, 4, 5]   # width 6 (was 0..11) — keep in sync with
+                                     # max-parallel + the workers dispatch default.
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       LLMXIVE_RUN_WALL_BUDGET_S: "2400"
@@ -88,28 +99,46 @@ jobs:
         run: |
           python -m llmxive run \
             --worker "${{ matrix.worker }}" \
-            --workers "${WORKERS:-12}" \
+            --workers "${WORKERS:-6}" \
             --max-tasks "${MAX_TASKS:-10}"
         env:
           WORKERS: ${{ github.event.inputs.workers }}
           MAX_TASKS: ${{ github.event.inputs.max_tasks }}
-      # Only worker 0 regenerates web data + triggers Pages — otherwise all 12
-      # workers commit web/data/ and fire pages.yml, and the rapid Pages builds
-      # cancel each other (the deploy thrash that leaves the live site stale).
-      - name: Regenerate web data (worker 0 only)
-        if: matrix.worker == 0
-        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
-      - name: Commit + push
+      # Persist this tick's PROJECT STATE first (issue #1139, defect D16): commit
+      # + push BEFORE the (worker-0-only) web-data regeneration. Previously the
+      # long, wholesale web-gen ran while this checkout was still holding the
+      # tick's uncommitted state, and its regenerated web/data/projects.json was
+      # bundled into the hot commit — making that big file the routine merge
+      # conflict AND widening the window in which the state could be lost to a
+      # racing tick. Committing state first shrinks that window and isolates the
+      # web-data churn into its own commit below.
+      - name: Commit + push (project state)
         id: commit
         run: |
           bash scripts/ci/commit-and-push.sh "advance(worker ${{ matrix.worker }}): tick"
+      # Only worker 0 regenerates web data + triggers Pages — otherwise all 6
+      # workers commit web/data/ and fire pages.yml, and the rapid Pages builds
+      # cancel each other (the deploy thrash that leaves the live site stale).
+      # Runs AFTER the state push and does its OWN commit + push, so the
+      # regenerated projects.json lands in a separate, isolated commit and never
+      # holds the state push hostage to a slow web-gen.
+      - name: Regenerate web data (worker 0 only)
+        if: matrix.worker == 0
+        run: python -c "from llmxive.agents.status_reporter import regenerate_web_data; from pathlib import Path; regenerate_web_data(repo_root=Path('.'))"
+      - name: Commit + push (web data, worker 0 only)
+        id: webpush
+        if: matrix.worker == 0
+        run: |
+          bash scripts/ci/commit-and-push.sh "advance(worker 0): regenerate web data"
 
       - name: Trigger Pages deploy
         # GitHub suppresses workflow triggers from GITHUB_TOKEN pushes (to
         # prevent infinite cron loops); workflow_dispatch invoked from another
         # workflow DOES fire regardless. Without this, pages.yml never
         # redeploys after a cron tick even though we touched web/data/.
-        if: matrix.worker == 0 && steps.commit.outputs.pushed == 'true'
+        # Gated on the WEB-DATA push (issue #1139): the site rebuilds only when
+        # web/data/ actually changed, not on every project-state commit.
+        if: matrix.worker == 0 && steps.webpush.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages.yml --ref main
