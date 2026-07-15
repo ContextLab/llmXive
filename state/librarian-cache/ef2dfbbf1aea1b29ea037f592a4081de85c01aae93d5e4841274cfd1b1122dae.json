@@ -1,0 +1,542 @@
+{
+  "fetched_at": "2026-07-15T04:21:36Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Personal Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 57.048,
+    "ended_at": "2026-07-15T04:21:36Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "generative user interface design for personal AI agents"
+        ],
+        [
+          2,
+          "LLM-driven dynamic UI generation"
+        ],
+        [
+          3,
+          "conversational agent interface synthesis"
+        ],
+        [
+          4,
+          "automatic UI layout generation using large language models"
+        ],
+        [
+          5,
+          "natural language to user interface translation"
+        ],
+        [
+          6,
+          "adaptive personal agent interfaces"
+        ],
+        [
+          7,
+          "generative design systems for AI assistants"
+        ],
+        [
+          8,
+          "LLM-based UI component composition"
+        ],
+        [
+          9,
+          "context-aware personal agent interface adaptation"
+        ],
+        [
+          10,
+          "text-to-UI generation in conversational agents"
+        ],
+        [
+          11,
+          "automated front-end code generation from natural language"
+        ],
+        [
+          12,
+          "intelligent personal assistant interface evolution"
+        ],
+        [
+          13,
+          "generative models for interactive agent displays"
+        ],
+        [
+          14,
+          "LLM-guided user experience personalization"
+        ],
+        [
+          15,
+          "semantic UI generation for autonomous agents"
+        ],
+        [
+          16,
+          "dynamic interface construction via language models"
+        ],
+        [
+          17,
+          "agentic UI design and synthesis"
+        ],
+        [
+          18,
+          "natural language driven interface prototyping"
+        ],
+        [
+          19,
+          "generative UI patterns for personal computing"
+        ],
+        [
+          20,
+          "multimodal interface generation using foundation models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "generative user interface design for personal AI agents": 4,
+        "llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Personal Agents\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "generative UI personal agents LLM",
+      "Macaron-A2UI code generation interface synthesis",
+      "agent UI natural language interaction",
+      "UI generation evaluation benchmark usability",
+      "multimodal instruction following interface design"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2311.00382"
+      ]
+    },
+    "per_query_hit_count": {
+      "Macaron-A2UI code generation interface synthesis": 2,
+      "UI generation evaluation benchmark usability": 2,
+      "agent UI natural language interaction": 3,
+      "generative UI personal agents LLM": 2,
+      "llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Personal Agents\" computer science": 3,
+      "multimodal instruction following interface design": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2501.02842",
+          "rationale": "The paper discusses the general impact of generative AI on information access systems (GenIR) and retrieval-augmented generation, but it does not address the specific domain of \"Generative UI\" or \"Personal Agents\" mentioned in the user's question. While both involve generative AI, the paper lacks the specific mechanism (UI generation), application context (personal agents), or empirical population required to serve as a canonical reference for a literature review on extending the \"Macaron-A2UI\" ",
+          "title": "Foundations of GenIR"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-15T04:20:39Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"macaron-a2ui: a model for generative ui in personal agents\" computer science",
+      "raw": "llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Personal Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Web accessibility rests on static standards and developer compliance. That model frays in platforms where content is user-generated: photos arrive blurry or off-frame, descriptions skip size and condition, and page structure shifts from listing to listing. Drawing on six studies conducted between 2022 and 2025 with blind, low-vision, and older adult users of customer-to-customer (C2C) marketplaces, I argue that generative UI can produce adapted interfaces at the point of use, addressing barriers that static design cannot anticipate. Three interventions from this program -- HTML regeneration for screen readers, conversational guidance for older sellers, and audio-guided photo framing for blind sellers -- demonstrate how runtime generation can bridge gaps that standards leave open. I outline what these findings imply for HCI practice: generative UI extends beyond the screen, complements rather than replaces ability-based design, and shifts the designer's role from specifying layouts to specifying policies. This is an expanded arXiv version of a position paper accepted at the CHI 2026 workshop \"What does Generative UI mean for HCI Practice?\"",
+          "claimed_authors": [
+            "Bektur Ryskeldiev"
+          ],
+          "claimed_title": "Generative UI as an Accessibility Bridge: Lessons from C2C E-Commerce",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25455"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Generative UI as an Accessibility Bridge: Lessons from C2C E-Commerce')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+          "claimed_authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "claimed_title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.18805"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most existing natural language database interfaces (NLDBs) were designed to be used with database systems that provide very limited facilities for manipulating time-dependent data, and they do not support adequately temporal linguistic mechanisms (verb tenses, temporal adverbials, temporal subordinate clauses, etc.). The database community is becoming increasingly interested in temporal database systems, that are intended to store and manipulate in a principled manner information not only about the present, but also about the past and future. When interfacing to temporal databases, supporting temporal linguistic mechanisms becomes crucial.\n  We present a framework for constructing natural language interfaces for temporal databases (NLTDBs), that draws on research in tense and aspect theories, temporal logics, and temporal databases. The framework consists of a temporal intermediate representation language, called TOP, an HPSG grammar that maps a wide range of questions involving temporal mechanisms to appropriate TOP expressions, and a provably correct method for translating from TOP to TSQL2, TSQL2 being a recently proposed temporal extension of the SQL database language. This framework was employed to implement a prototype NLTDB using ALE and Prolog.",
+          "claimed_authors": [
+            "I. Androutsopoulos",
+            "G. D. Ritchie",
+            "P. Thanisch"
+          ],
+          "claimed_title": "Time, Tense and Aspect in Natural Language Database Interfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "cmp-lg/9803002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Time, Tense and Aspect in Natural Language Database Interfaces')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
+          "claimed_authors": [
+            "Enes Yavuz Ugan",
+            "Maike Züfle",
+            "Yuka Ko",
+            "Supriti Sinhamahapatra",
+            "Fabian Retkowski",
+            "Seymanur Akti",
+            "Jan Niehues",
+            "Alexander Waibel"
+          ],
+          "claimed_title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.04730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title=\"Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026\")",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18892"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Macaron-A2UI: A Model for Generative UI in Persona', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-07-15T04:21:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fancy Kong",
+            "Congjie Zheng",
+            "Murphy Zhuang",
+            "Rio Yang",
+            "Sueky Zhang",
+            "Hao Fu",
+            "Gene Jin",
+            "Song Cao",
+            "Kaijie Chen",
+            "Andrew Chen",
+            "Pony Ma"
+          ],
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.24830",
+        "summary": "As personal agents evolve to handle complex, user-centric tasks, static plain-text chat is rapidly becoming a bottleneck. Generative UI emerges as the necessary new interface layer, dynamically synthesizing the right controls, options, and state from the interaction context in real time. We present Macaron-A2UI, a model for Generative UI in personal agents. Our goal is to move beyond text-only interaction by enabling agents to generate natural language together with lightweight, executable UI actions for information collection, preference refinement, confirmation, and multi-goal organization. We build a large-scale Generative UI corpus from heterogeneous dialogue sources, introduce A2UI-Bench for controlled evaluation, and train 30B, 235B and 754B models with parameter-efficient LoRA-based supervised fine-tuning followed by reward-driven reinforcement learning. The best Macaron-A2UI model reaches 75.6 overall on A2UI-Bench without explicit schema hints, surpassing the strongest full-schema frontier baseline. We release the models, benchmark, and evaluation protocol to support future work on Generative UI for personal agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.24830",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T04:21:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Advait Sarkar"
+          ],
+          "title": "Will Code Remain a Relevant User Interface for End-User Programming with Generative AI Models?",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.00382",
+        "summary": "The research field of end-user programming has largely been concerned with helping non-experts learn to code sufficiently well in order to achieve their tasks. Generative AI stands to obviate this entirely by allowing users to generate code from naturalistic language prompts. In this essay, we explore the extent to which \"traditional\" programming languages remain relevant for non-expert end-user programmers in a world with generative AI. We posit the \"generative shift hypothesis\": that generative AI will create qualitative and quantitative expansions in the traditional scope of end-user programming. We outline some reasons that traditional programming languages may still be relevant and useful for end-user programmers. We speculate whether each of these reasons might be fundamental and enduring, or whether they may disappear with further improvements and innovations in generative AI. Finally, we articulate a set of implications for end-user programming research, including the possibility of needing to revisit many well-established core concepts, such as Ko's learning barriers and Blackwell's attention investment model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2311.00382",
+          "http_status": 200,
+          "pdf_sample_score": 0.2021,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T04:21:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daksh Pandey"
+          ],
+          "title": "Emergent Dark Patterns in AI-Generated User Interfaces",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.18445",
+        "summary": "The advancement of artificial intelligence has transformed user interface design by enabling adaptive and personalized systems. Alongside these benefits, AI driven interfaces have also enabled the emergence of dark patterns, which are manipulative design strategies that influence user behavior for financial or business gain. As AI systems learn from data that already contains deceptive practices, they can replicate and optimize these patterns in increasingly subtle and personalized ways.\n  This paper examines AI generated dark patterns, their psychological foundations, technical mechanisms, and regulatory implications in India. We introduce DarkPatternDetector, an automated system that crawls and analyzes websites to detect dark patterns using a combination of UI heuristics, natural language processing, and temporal behavioral signals. The system is evaluated on a curated dataset of dark and benign webpages and achieves strong precision and recall.\n  By aligning detection results with India's Digital Personal Data Protection Act, 2023, this work provides a technical and regulatory framework for identifying and mitigating deceptive interface practices. The goal is to support ethical AI design, regulatory enforcement, and greater transparency in modern digital systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.18445",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T04:21:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nitesh Goyal",
+            "Minsuk Chang",
+            "Michael Terry"
+          ],
+          "title": "Designing for Human-Agent Alignment: Understanding what humans want from their agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.04289",
+        "summary": "Our ability to build autonomous agents that leverage Generative AI continues to increase by the day. As builders and users of such agents it is unclear what parameters we need to align on before the agents start performing tasks on our behalf. To discover these parameters, we ran a qualitative empirical research study about designing agents that can negotiate during a fictional yet relatable task of selling a camera online. We found that for an agent to perform the task successfully, humans/users and agents need to align over 6 dimensions: 1) Knowledge Schema Alignment 2) Autonomy and Agency Alignment 3) Operational Alignment and Training 4) Reputational Heuristics Alignment 5) Ethics Alignment and 6) Human Engagement Alignment. These empirical findings expand previous work related to process and specification alignment and the need for values and safety in Human-AI interactions. Subsequently we discuss three design directions for designers who are imagining a world filled with Human-Agent collaborations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.04289",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T04:21:19Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"macaron-a2ui: a model for generative ui in personal agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Input Configuration"
+description: "Schema for validating the input configuration and annotated data for the simulation."
+type: object
+properties:
+  latency_steps:
+    type: array
+    items:
+      type: integer
+    description: "List of injected latency values in milliseconds (e.g., [0, 100, 200, 500, 1000])."
+    minItems: 1
+  ui_densities:
+    type: array
+    items:
+      type: integer
+    description: "List of UI element counts for deterministic fallback (e.g., [1, 3, 5, 10])."
+    minItems: 1
+  patience_mean:
+    type: number
+    description: "Mean of the exponential distribution for user patience in milliseconds."
+    minimum: 0
+  random_seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  annotated_data_path:
+    type: string
+    description: "Path to the CSV file containing annotated interaction turns."
+required:
+  - latency_steps
+  - ui_densities
+  - patience_mean
+  - random_seed
+  - annotated_data_path
+additionalProperties: false

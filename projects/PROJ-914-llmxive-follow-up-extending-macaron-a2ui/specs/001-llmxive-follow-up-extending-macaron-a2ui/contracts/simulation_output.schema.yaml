@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output Record"
+description: "Schema for a single row of simulation results (one trial)."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the simulation run."
+  turn_id:
+    type: string
+    description: "Identifier for the interaction turn."
+  latency_step:
+    type: integer
+    description: "Injected latency in milliseconds."
+    enum: [0, 100, 200, 500, 1000]
+  ui_density:
+    type: integer
+    description: "Number of UI elements rendered."
+    enum: [1, 3, 5, 10]
+  generation_time:
+    type: number
+    description: "Simulated generation time in milliseconds."
+    minimum: 0
+  total_latency:
+    type: number
+    description: "Total response time (generation + injection)."
+    minimum: 0
+  patience_threshold:
+    type: number
+    description: "User's patience limit in milliseconds."
+    minimum: 0
+  abandoned:
+    type: boolean
+    description: "True if the user abandoned the request due to latency."
+  alignment_score:
+    type: number
+    description: "Calculated alignment score (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  ui_completeness:
+    type: boolean
+    description: "True if the UI was rendered successfully."
+  intent_match:
+    type: boolean
+    description: "True if the output matches the ground truth intent."
+  intent_category:
+    type: string
+    description: "Router's classification of the intent."
+    enum: ["High-Confidence", "Ambiguous"]
+  router_confidence:
+    type: number
+    description: "Confidence score from the router."
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - run_id
+  - turn_id
+  - latency_step
+  - ui_density
+  - generation_time
+  - total_latency
+  - patience_threshold
+  - abandoned
+  - alignment_score
+  - ui_completeness
+  - intent_match
+  - intent_category
+  - router_confidence
+additionalProperties: false

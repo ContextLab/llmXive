@@ -1,0 +1,50 @@
+resolved_at: '2026-07-15T04:32:52.172918+00:00'
+datasets:
+- intent: A2UI-Bench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/software/Generative_SEO_for_E-commerce_Scalable_Marketplace_Growth_with_Jeevan_Tech/32989289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/JCU_Timothy_Quimpo_Data_Archive/32988806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/thesis/Memory_and_Attention_in_Deep_Learning/32989295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_pH-Calibrated_Multi-Analyte_MXene_Aerogel_Electrochemical_Platform_Assisted_by_Interpretable_Machine_Learning_for_CSF-Based_Prescreening_of_Postoperative_Bacterial_Meningitis/32989296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Membedah_Sosiologi_Di_Balik_Perubahan_Kurikulum/32988962
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10127445
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7688873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10934589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1300687
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8251074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.24830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
