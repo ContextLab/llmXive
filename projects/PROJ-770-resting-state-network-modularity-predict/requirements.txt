@@ -1,24 +1,24 @@
-# Python 3.11+ dependencies for PROJ-770: Resting-State Network Modularity Predicts Social Network Size
-# Core neuroimaging and machine learning libraries
-nilearn>=0.10.3
-scikit-learn>=1.4.0
-python-louvain>=0.16
-statsmodels>=0.14.1
-nibabel>=5.2.0
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+nibabel>=5.0.0
+nilearn>=0.10.0
+python-louvain>=0.16.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
 
-# Data handling and scientific computing
-pandas>=2.2.0
-numpy>=1.26.0
-scipy>=1.12.0
+# Data handling
+requests>=2.28.0
+h5py>=3.8.0
 
-# Utilities and IO
-requests>=2.31.0
-huggingface_hub>=0.22.0
-boto3>=1.34.0
-botocore>=1.34.0
+# Utilities
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.3.0
+pytest-cov>=4.1.0
 
-# Development and testing (optional for CI)
-pytest>=8.1.0
-ruff>=0.3.0
-black>=24.3.0
+# Memory profiling (optional but recommended)
 memory-profiler>=0.61.0
