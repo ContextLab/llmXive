@@ -19,7 +19,7 @@ The research pipeline must successfully ingest the Recipe1M corpus, FlavorDB che
 
 1. **Given** the Recipe1M dataset, FlavorDB matrix, and Counterfactual Recipe Generation dataset are available via the configured URLs, **When** the pre-processing script runs on a standard GitHub Actions runner, **Then** it outputs a normalized dataset file within 2 hours and consumes less than 6 GB of RAM.
 2. **Given** the raw ingredient lists contain variations like "butter" and "unsalted butter", **When** the normalization step executes using mapping to the FlavorDB canonical list with a Levenshtein distance threshold ≤ 2, **Then** these are mapped to a single canonical ID, and the resulting co-occurrence matrix $C$ reflects the aggregated counts.
-3. **Given** an ingredient pair exists in the corpus but lacks a FlavorDB entry, **When** the feature engineering step processes the pair, **Then** it is either excluded from the analysis or assigned a default similarity score of 0, with a count logged in the summary report.
+3. **Given** an ingredient pair exists in the corpus but lacks a FlavorDB entry, **When** the feature engineering step processes the pair, **Then** it is either excluded from the analysis or assigned a default similarity score of zero, with a count logged in the summary report.
 
 ---
 
@@ -35,7 +35,7 @@ The system must fit a regularized logistic regression model and a hierarchical B
 
 1. **Given** the prepared dataset with binary compatibility labels derived from independent sensory scores, **When** the logistic regression model is trained with L2 regularization, **Then** the output includes a coefficient plot showing the magnitude and direction of each predictor, and the p-value for "flavor similarity" is < 0.05.
 2. **Given** the full model including all predictors, **When** a likelihood-ratio test is performed against a null model containing only co-occurrence frequency, **Then** the test statistic indicates a significant improvement in model fit (p < 0.05), valid because outcome labels are derived from an independent dataset.
-3. **Given** the hierarchical Bayesian model specification, **When** it is fit using CPU-based sampling (e.g., PyMC with NUTS) on the stratified downsampled subset, **Then** the posterior distributions for the effect sizes are generated within 3 hours, and the 95% credible intervals for flavor and role predictors do not overlap zero.
+3. **Given** the hierarchical Bayesian model specification, **When** it is fit using CPU-based sampling (e.g., PyMC with NUTS) on the stratified downsampled subset, **Then** the posterior distributions for the effect sizes are generated within 3 hours, and the credible intervals for flavor and role predictors do not overlap zero.
 
 ---
 
@@ -59,7 +59,7 @@ The system must evaluate the models on a held-out test set, calculating AUC, pre
 
 - **What happens when** the Recipe1M dataset is too large to fit in memory? The system MUST stream data or downsample the corpus to ensure execution within 7 GB RAM, logging the sampling ratio.
 - **How does system handle** ingredients present in the recipe corpus but missing from FlavorDB? These pairs MUST be excluded from the flavor-similarity analysis or imputed with a neutral value, with the exclusion count reported.
-- **What happens when** the co-occurrence frequency for a pair is zero? The log-transform MUST handle this by adding a small epsilon (e.g., 1) or excluding the pair to avoid undefined values.
+- **What happens when** the co-occurrence frequency for a pair is zero? The log-transform MUST handle this by adding a small epsilon or excluding the pair to avoid undefined values.
 
 ## Requirements *(mandatory)*
 
@@ -100,7 +100,7 @@ The system must evaluate the models on a held-out test set, calculating AUC, pre
 
 - The Recipe1M dataset, FlavorDB matrix, and Counterfactual Recipe Generation dataset are available via the specified HuggingFace and Zenodo URLs and are accessible from the GitHub Actions environment without authentication.
 - The "Counterfactual Recipe Generation" dataset provides independent sensory evaluation scores or crowd-sourced preference ratings that can be used as a binary label for culinary compatibility, distinct from the co-occurrence counts.
-- A downsampled subset of the Recipe1M corpus (determined by power analysis to detect effect size ≥ 0.1 with [deferred] power) will be sufficient to train the logistic regression and Bayesian models within the 6-hour runtime limit.
-- The GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM) is sufficient for the CPU-based sampling of the hierarchical Bayesian model if the dataset is appropriately downsampled.
+- A downsampled subset of the Recipe1M corpus (determined by power analysis to detect effect size ≥ 0.1 with [deferred] power) will be sufficient to train the logistic regression and Bayesian models within a defined runtime limit.
+- The GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM) is sufficient for the CPU-based sampling of the hierarchical Bayesian model if the dataset is appropriately downsampled.
 - The functional role of an ingredient can be reliably inferred from its position in the ingredient list and its frequency in the corpus (excluding co-occurrence counts), serving as a valid proxy for "primary" vs. "garnish" roles.
 - The flavor-profile similarity derived from FlavorDB chemical vectors is a valid proxy for the sensory compatibility of ingredient pairs.

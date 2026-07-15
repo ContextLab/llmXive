@@ -1,0 +1,11 @@
+{
+  "N_bayesian": 1280,
+  "target_effect_size": 0.1,
+  "alpha": 0.05,
+  "power": 0.8,
+  "prior_scale": 1.0,
+  "n_chains": 4,
+  "target_rhat": 1.01,
+  "method": "bayesian_convergence_heuristic",
+  "notes": "Estimated for hierarchical model convergence and posterior stability"
+}

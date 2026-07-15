@@ -1,0 +1,16 @@
+T008a:
+  c: false
+  h: e192b437d426ff164c6dcd9214c2719a7e17e50bc2476b6114125ac6aa64d5ea
+  r: "The provided `code/models/diagnostics.py` contains only a Bayesian convergence\
+    \ power analysis and is truncated before any logistic\u2011regression power analysis\
+    \ or JSON\u2011writing logic. Moreover, the required output file `data/power_analysis_logistic.json`\
+    \ does not exist. Both the function to compute `N_logistic` and the artifact it\
+    \ should produce are missing."
+T008b:
+  c: false
+  h: 124889af09908927af0b035bac668ec12d966dce8881a2c7ba7738025ddb402c
+  r: "The `diagnostics.py` file only defines a function that computes a sample\u2011\
+    size dictionary and does not write the result to `data/power_analysis_bayesian.json`.\
+    \ Moreover, the required JSON file is absent from the repository. The task\u2019\
+    s core requirement\u2014outputting `N_bayesian` to the specified JSON file\u2014\
+    is therefore unmet."

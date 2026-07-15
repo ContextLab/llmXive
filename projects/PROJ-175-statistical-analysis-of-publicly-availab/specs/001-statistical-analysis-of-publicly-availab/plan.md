@@ -7,7 +7,7 @@
 
 This project implements a statistical analysis pipeline to predict ingredient substitution success. The core approach involves ingesting the Recipe1M corpus (using text embeddings for similarity), and the Counterfactual Recipe Generation dataset (if verified). We will construct a co-occurrence matrix (frequency), derive semantic/flavor similarity from text embeddings, and infer functional roles via **orthogonalized positional rank** (residuals of rank on frequency) to ensure statistical independence from the null predictor. A regularized logistic regression and a hierarchical Bayesian model will be fitted to predict binary culinary compatibility, explicitly testing whether semantic similarity and functional role add predictive value beyond co-occurrence frequency. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (CPU-only, ≤7 GB RAM, ≤6 hours) via aggressive down-sampling and memory-efficient streaming.
 
-**Critical Constraint**: The pipeline includes a hard fail at Phase 0.1 if the Counterfactual dataset or Recipe1M embeddings are not available from verified sources. No analysis proceeds without verified data.
+**Critical Constraint**: The pipeline includes a hard fail at the initial phase if the Counterfactual dataset or Recipe1M embeddings are not available from verified sources. No analysis proceeds without verified data.
 
 ## Technical Context
 
@@ -19,7 +19,7 @@ This project implements a statistical analysis pipeline to predict ingredient su
 **Project Type**: Data Science / Statistical Analysis Library.
 **Performance Goals**: Full pipeline execution ≤6 hours; Peak RAM ≤6 GB.
 **Constraints**: No GPU; No large-LLM inference; Must handle missing embedding entries; Must handle zero co-occurrence counts.
-**Scale/Scope**: Recipe1M subset (downsampled to fit memory), Text Embeddings (verified), Counterfactual dataset (conditional on verification).
+**Scale/Scope**: RecipeM subset (downsampled to fit memory), Text Embeddings (verified), Counterfactual dataset (conditional on verification).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -98,7 +98,7 @@ projects/PROJ-175-statistical-analysis-of-publicly-availab/
 
 ### Phase 0.0: Environment Setup
 - Setup Python 3.11, install `requirements.txt`.
-- Pin random seeds (42) globally.
+- Pin random seeds globally.
 
 ### Phase 0.1: Data Verification Gate (FR-001b)
 - **Task**: Verify existence and schema of Recipe1M embeddings and Counterfactual dataset.

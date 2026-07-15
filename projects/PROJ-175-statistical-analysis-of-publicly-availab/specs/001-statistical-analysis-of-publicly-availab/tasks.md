@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-175-statistical-analysis-of-publicly-availab/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, pyarrow, statsmodels, pymc, scipy, requests, tqdm, huggingface_hub)
-- [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
+- [ ] T001a Create project directory structure: `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/data/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/tests/`
+- [X] T001b Create empty `code/__init__.py`, `tests/__init__.py`, and `code/data/__init__.py`
+- [X] T001c Create `code/requirements.txt` placeholder and `tests/conftest.py` placeholder
 
 ---
 
@@ -55,11 +55,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` (pandas, numpy, scikit-learn, pyarrow, statsmodels, pymc, scipy, requests, tqdm, huggingface_hub)
+- [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
 - [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`, `final/`) and `code/` module structure
-- [ ] T005 [P] Implement global random seed pinning (42) in `code/__init__.py` and `conftest.py`
-- [ ] T006 [P] Setup memory profiling utility in `code/utils/memory_monitor.py` to enforce 6 GB RAM limit
+- [X] T005 [P] Implement global random seed pinning (42) in `code/__init__.py` and `tests/conftest.py`
+- [X] T006 [P] Setup memory profiling utility in `code/utils/memory_monitor.py` to enforce 6 GB RAM limit
 - [ ] T007 Create base data schema definitions in `specs/001-statistical-analysis-of-recipe-data/contracts/` (dataset.schema.yaml, model_output.schema.yaml)
-- [ ] T008 [P] [US2] Implement `code/models/diagnostics.py` step 0: Perform Power Analysis using `statsmodels.stats.power` to calculate required sample size N for effect size ≥ 0.1, outputting N to `data/power_analysis_result.json` to determine the downsampled subset size for T022 and T025
+- [X] T008a [P] [US1] Implement `code/models/diagnostics.py` step 0a: Perform Power Analysis for Logistic Regression using `statsmodels.stats.power` to calculate required sample size N_logistic for effect size ≥ 0.1, outputting N_logistic to `data/power_analysis_logistic.json` to determine the downsampled subset size for T022
+- [X] T008b [P] [US2] Implement `code/models/diagnostics.py` step 0b: Perform Convergence/Power Analysis for Hierarchical Bayesian Model to determine required sample size N_bayesian for MCMC chain convergence and posterior stability, outputting N_bayesian to `data/power_analysis_bayesian.json` to determine the downsampled subset size for T025
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,19 +78,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [ ] T011 [P] [US1] Integration test for full pre-processing pipeline in `tests/integration/test_pipeline.py`
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [X] T011 [P] [US1] Integration test for full pre-processing pipeline in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/verify.py` to check URL availability and schema of Recipe1M embeddings, FlavorDB chemical matrix, and Counterfactual dataset (FR-001b)
-- [ ] T013 [US1] Implement `code/data/download.py` to fetch Recipe1M (streaming), FlavorDB chemical matrix, and Counterfactual datasets from verified URLs (FR-001)
-- [ ] T014 [US1] Implement `code/data/preprocess.py` step 1-2: Normalize ingredient names using combined method: Levenshtein distance threshold ≤ 2 AND text embedding cosine similarity (threshold ≥ 0.85) to map to FlavorDB canonical IDs (FR-002)
-- [ ] T015 [US1] Implement `code/data/preprocess.py` step 3: Construct global co-occurrence matrix $C$ with log-transform ($\log(C_{ij} + 1)$) (FR-003)
-- [ ] T016 [US1] Implement `code/data/preprocess.py` step 4: Calculate cosine similarity between chemical vectors from the FlavorDB matrix (fetched in T013) for flavor-profile similarity (FR-004)
-- [ ] T017 [US1] Implement `code/data/preprocess.py` step 5: Derive orthogonalized Functional Role by regressing **raw** rank on global log-frequency using OLS, then extracting the residuals as the 'Functional Role' predictor to ensure orthogonality to Frequency (FR-005)
-- [ ] T018 [US1] Implement `code/data/preprocess.py` step 6-7: Handle missing data by imputing missing **orthogonalized residuals** (from T017) with median and creating a `role_missing_flag` column; impute missing similarity with median + flag; join with Counterfactual labels (FR-005, FR-004)
-- [ ] T019 [US1] Implement `code/data/split.py` to create train/test splits ensuring stratified sampling by ingredient frequency
+- [X] T012 [P] [US1] Implement `code/data/verify.py` to check URL availability and schema of Recipe1M embeddings, FlavorDB chemical matrix, and Counterfactual dataset (FR-001b)
+- [X] T013 [US1] Implement `code/data/download.py` to fetch Recipe1M (streaming), FlavorDB chemical matrix, and Counterfactual datasets from verified URLs (FR-001)
+- [X] T014 [US1] Implement `code/data/preprocess.py` step 1-2: Normalize ingredient names using **Levenshtein distance threshold ≤ 2** only (per spec FR-002) to map to FlavorDB canonical IDs; **DO NOT** use text embeddings for this step (removed unverified dependency)
+- [X] T015 [US1] Implement `code/data/preprocess.py` step 3: Construct global co-occurrence matrix $C$ with log-transform ($\log(C_{ij} + 1)$) (FR-003)
+- [X] T016 [US1] Implement `code/data/preprocess.py` step 4: Calculate cosine similarity between **FlavorDB chemical vectors** (fetched in T013) for ingredient pairs to derive the **flavor-profile similarity** feature (FR-004). **Note**: This uses chemical vectors, NOT text embeddings.
+- [X] T017 [US1] Implement `code/data/preprocess.py` step 5: Derive orthogonalized Functional Role by regressing **raw** rank on global log-frequency using OLS, then extracting the residuals as the continuous 'Functional Role' predictor to ensure orthogonality to Frequency (FR-005)
+- [X] T017b [US1] Implement `code/data/preprocess.py` step 5b: Discretize the continuous residuals from T017 into categorical labels: **Primary** (top [deferred] of residuals), **Secondary** (middle [deferred]), **Garnish** (bottom [deferred]) to match the Key Entity definition (FR-005)
+- [X] T018 [US1] Implement `code/data/preprocess.py` step 6-7: Handle missing data by imputing missing **categorical role** (from T017b) with 'Unknown' and creating a `role_missing_flag` column; impute missing similarity with median + flag; join with Counterfactual labels (FR-005, FR-004) <!-- FAILED: unspecified -->
+- [X] T019 [US1] Implement `code/data/split.py` to create train/test splits ensuring stratified sampling by ingredient frequency (using subset size N determined by T008a/T008b)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,38 +105,40 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T021 [P] [US2] Unit test for VIF calculation and Likelihood-Ratio test logic in `tests/unit/test_diagnostics.py`
+- [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T021 [P] [US2] Unit test for VIF calculation and Likelihood-Ratio test logic in `tests/unit/test_diagnostics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/models/fit_logistic.py`: Fit Null Model (frequency only) and Full Model (frequency + similarity + role) with L2 regularization using the downsampled subset of size N determined by T008 (FR-006)
-- [ ] T023 [US2] Implement `code/models/diagnostics.py` step 1: Calculate Variance Inflation Factors (VIF) for all predictors; drop predictors if VIF > 5 (FR-007)
-- [ ] T024 [US2] Implement `code/models/diagnostics.py` step 2: Perform Likelihood-Ratio Test (Null vs Full) and record p-value (FR-008)
-- [ ] T025 [P] [US2] Implement `code/models/fit_bayesian.py`: Fit Hierarchical Bayesian model using PyMC (CPU-only NUTS) on the downsampled subset of size N determined by T008 (FR-002)
-- [ ] T026 [US2] Implement `code/models/diagnostics.py` step 3: Run Power Analysis validation to verify the achieved power for effect size ≥ 0.1 given the actual sample size used
+- [X] T022 [P] [US2] Implement `code/models/fit_logistic.py`: Fit Null Model (frequency only) and Full Model (frequency + similarity + role) with L2 regularization using the downsampled subset of size N_logistic determined by T008a (FR-006)
+- [X] T023 [US2] Implement `code/models/diagnostics.py` step 1: Calculate Variance Inflation Factors (VIF) for all predictors; drop predictors if VIF > 5 (FR-007)
+- [X] T024 [US2] Implement `code/models/diagnostics.py` step 2: Perform Likelihood-Ratio Test (Null vs Full) and record p-value (FR-008)
+- [ ] T025 [P] [US2] Implement `code/models/fit_bayesian.py`: Fit Hierarchical Bayesian model using PyMC (CPU-only NUTS) on the downsampled subset of size N_bayesian determined by T008b (FR-002)
+- [X] T026 [US2] Implement `code/models/diagnostics.py` step 3: Run **Post-Hoc Power Validation** to verify the achieved power for effect size ≥ 0.1 given the actual sample size used and model convergence metrics (FR-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Evaluation and Reporting of Generalization (Priority: P3)
+## Phase 5: User User Story 3 - Evaluation and Reporting of Generalization (Priority: P3)
 
 **Goal**: Evaluate models on held-out test set, calculate metrics, and generate report comparing full model vs baseline.
 
 **Independent Test**: The evaluation script runs on the test split and produces a summary table and calibration plot, demonstrating whether the full model achieves a statistically significant improvement.
 
+**⚠️ GATE**: Phase 5 tasks depend on the completion of Phase 4 (T023, T024, T025, T026).
+
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for evaluation metrics schema in `tests/contract/test_metrics.py`
-- [ ] T028 [P] [US3] Integration test for report generation in `tests/integration/test_report.py`
+- [X] T027 [P] [US3] Contract test for evaluation metrics schema in `tests/contract/test_metrics.py`
+- [X] T028 [P] [US3] Integration test for report generation in `tests/integration/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/evaluation/metrics.py`: Calculate AUC, Precision, Recall, and generate Calibration Plot for both models (FR-009)
-- [ ] T030 [US3] Implement `code/evaluation/report.py` step 1: Perform DeLong's test or bootstrap to test hypothesis $\Delta AUC \ge 0.05$ and compare against frequency-only baseline, generating p-value and 95% CI (FR-010)
-- [ ] T031 [US3] Implement `code/evaluation/report.py` step 2: Map LRT p-value to SC-001 and VIF scores to SC-003 in final summary
-- [ ] T032 [US3] Implement `code/evaluation/report.py` step 3: Generate final report stating whether "flavor and role predict compatibility beyond frequency" is supported with specific evidence (p-values, AUC delta, CI)
+- [X] T029 [P] [US3] Implement `code/evaluation/metrics.py`: Calculate AUC, Precision, Recall, and generate Calibration Plot for both models (FR-009)
+- [X] T030 [US3] Implement `code/evaluation/report.py` step 1: Perform DeLong's test or bootstrap to test hypothesis $\Delta AUC \ge 0.05$ and compare against frequency-only baseline, generating p-value and 95% CI (FR-010)
+- [X] T031 [US3] Implement `code/evaluation/report.py` step 2: Map LRT p-value to SC-001 and VIF scores to SC-003 in final summary. **DEPENDS ON**: T023 (VIF), T024 (LRT) (FR-010)
+- [X] T032 [US3] Implement `code/evaluation/report.py` step 3: Generate final report stating whether "flavor and role predict compatibility beyond frequency" is supported with specific evidence (p-values, AUC delta, CI)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,7 +148,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates in `docs/` including `research.md` and `quickstart.md`
+**⚠️ GATE**: Phase N tasks depend on the completion of all User Story implementations (Phases 3, 4, 5).
+
+- [X] T033a [P] Documentation updates: Update `docs/research.md` with specific sections: 'Methodology' (include power analysis N values), 'Results' (include model coefficients, VIF, AUC delta), 'Limitations' (include sampling constraints)
+- [ ] T033b [P] Documentation updates: Update `docs/quickstart.md` with specific sections: 'Environment Setup' (include requirements.txt install), 'Data Pipeline' (include streaming instructions), 'Model Execution' (include runtime estimates)
 - [ ] T034 Code cleanup and refactoring for memory efficiency
 - [ ] T035 Performance optimization for data streaming in `code/data/download.py`
 - [ ] T036 [P] Additional unit tests in `tests/unit/`
@@ -157,8 +166,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -224,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

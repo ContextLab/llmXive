@@ -1,0 +1,179 @@
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: full model outperforms frequency-only baseline
+  claim_id: c_e154ed5c
+  context: 'Key Finding: The full model (frequency + flavor similarity + functional
+    role) significantly outperforms the frequency-only baseline, providing evidence
+    that flavor chemistry and functional roles drive compatibility predictions independently
+    of historical co-occurrence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_model_outperforms_frequency-only_baseline
+  kind: entity_fact
+  raw_text: The full model (frequency + flavor similarity + functional role) significantly
+    outperforms the frequency-only baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:16:38Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: logistic regression sample size 4500 pairs effect size 0.1 80% power
+    alpha 0.05
+  claim_id: c_27bc7bfa
+  context: "Prior to model fitting, power analyses were conducted to determine the\
+    \ minimum sample size required for statistical significance: Logistic Regression:\
+    \ Power analysis using statsmodels.stats.power determined a required sample size\
+    \ of 4,500 pairs to detect an effect size of \u2265 0.1 with 80% power (\u03B1\
+    =0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "power analysis using statsmodels.stats.power determined a required sample\
+    \ size of 4,500 pairs to detect an effect size of \u2265 0.1 with 80% power (\u03B1\
+    =0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:17:01Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: bayesian model sample size 3200 pairs for stable posterior estimation
+  claim_id: c_653a4112
+  context: 'Bayesian Model: Convergence analysis for the hierarchical MCMC chains
+    indicated a required subset of 3,200 pairs for stable posterior estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convergence analysis for the hierarchical MCMC chains indicated a required
+    subset of 3,200 pairs for stable posterior estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:17:59Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: frequency-only null model AUC 0.682 precision 0.650 recall 0.610
+  claim_id: c_3598ed50
+  context: Model Performance table shows Frequency-Only (Null) AUC 0.682, Precision
+    0.650, Recall 0.610.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Frequency-Only (Null) model achieved an AUC of 0.682, Precision of
+    0.650, and Recall of 0.610.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:18:20Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: full model logistic AUC 0.745 precision 0.710 recall 0.695
+  claim_id: c_21576921
+  context: Model Performance table shows Full Model (Logistic) AUC 0.745, Precision
+    0.710, Recall 0.695.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Full Model (Logistic) achieved an AUC of 0.745, Precision of 0.710,
+    and Recall of 0.695.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:18:42Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: hierarchical bayesian model AUC 0.738 precision 0.705 recall 0.688
+  claim_id: c_817bf6c7
+  context: Model Performance table shows Hierarchical Bayesian AUC 0.738, Precision
+    0.705, Recall 0.688.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hierarchical Bayesian model achieved an AUC of 0.738, Precision of
+    0.705, and Recall of 0.688.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:18:59Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: maximum VIF 2.1 frequency vs similarity
+  claim_id: c_1297c690
+  context: 'VIF Scores: Maximum VIF observed was 2.1 (Frequency vs. Similarity), confirming
+    no severe multicollinearity issues.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum VIF observed was 2.1 for the comparison between Frequency
+    and Similarity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:19:14Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: flavor similarity coefficient 0.840 standard error 0.065 p-value < 0.001
+  claim_id: c_5a7d7f50
+  context: Coefficients (Full Logistic Model) table shows Flavor Similarity Coefficient
+    0.840, Std. Error 0.065, p-value < 0.001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coefficient for Flavor Similarity in the Full Logistic Model was 0.840
+    with a standard error of 0.065 and p-value < 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:19:29Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: role primary coefficient 0.310 standard error 0.048 p-value < 0.001
+  claim_id: c_eff8d8da
+  context: Coefficients (Full Logistic Model) table shows Role (Primary) Coefficient
+    0.310, Std. Error 0.048, p-value < 0.001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coefficient for Role (Primary) in the Full Logistic Model was 0.310
+    with a standard error of 0.048 and p-value < 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:19:44Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/docs/research.md
+  attempts: 1
+  canonical: role secondary coefficient 0.155 standard error 0.052 p-value 0.003
+  claim_id: c_b9040d91
+  context: Coefficients (Full Logistic Model) table shows Role (Secondary) Coefficient
+    0.155, Std. Error 0.052, p-value 0.003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coefficient for Role (Secondary) in the Full Logistic Model was 0.155
+    with a standard error of 0.052 and p-value of 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T21:20:04Z'

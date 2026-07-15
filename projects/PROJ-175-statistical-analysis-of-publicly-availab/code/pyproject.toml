@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-recipe-analysis"
+version = "0.1.0"
+description = "Statistical Analysis of Publicly Available Recipe Data"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "pyarrow",
+    "statsmodels",
+    "pymc",
+    "scipy",
+    "requests",
+    "tqdm",
+    "huggingface_hub",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | build
+    | dist
+    | \.eggs
+    | \.ipynb_checkpoints
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E203", # whitespace before ':' (conflicts with black)
+    "E501", # line too long (handled by black)
+    "W503", # line break before binary operator (conflicts with black)
+]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    ".ipynb_checkpoints",
+]
+
+[tool.ruff.isort]
+known-first-party = ["data", "models", "utils", "evaluation"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

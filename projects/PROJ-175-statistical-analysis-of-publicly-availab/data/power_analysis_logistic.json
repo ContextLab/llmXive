@@ -1,0 +1,8 @@
+{
+  "N_logistic": 1568,
+  "effect_size": 0.1,
+  "alpha": 0.05,
+  "power": 0.8,
+  "ratio": 1.0,
+  "method": "z_test_proportions_approximation"
+}

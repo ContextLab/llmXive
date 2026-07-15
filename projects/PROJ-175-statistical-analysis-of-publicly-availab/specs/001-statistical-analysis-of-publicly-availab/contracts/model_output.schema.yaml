@@ -1,75 +1,116 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the results of the statistical modeling process."
+%YAML 1.2
+---
+title: Model Output Schema for Statistical Analysis
+version: 1.0.0
+description: >
+  Schema for model outputs including logistic regression and Bayesian hierarchical model results.
+  Validates artifacts produced by code/models/fit_logistic.py and code/models/fit_bayesian.py.
+
 type: object
-properties:
-  model_type:
-    type: string
-    description: "Type of model fitted."
-    enum:
-      - "logistic_regression"
-      - "bayesian_hierarchical"
-  coefficients:
-    type: object
-    description: "Dictionary of predictor names to coefficients."
-    additionalProperties:
-      type: number
-  p_values:
-    type: object
-    description: "Dictionary of predictor names to p-values."
-    additionalProperties:
-      type: number
-  vif_scores:
-    type: object
-    description: "Variance Inflation Factors for predictors."
-    additionalProperties:
-      type: number
-  performance_metrics:
-    type: object
-    description: "Evaluation metrics."
-    properties:
-      auc:
-        type: number
-        description: "Area Under the ROC Curve."
-      precision:
-        type: number
-        description: "Precision score."
-      recall:
-        type: number
-        description: "Recall score."
-      calibration_error:
-        type: number
-        description: "Maximum deviation from ideal calibration."
-    required:
-      - auc
-      - precision
-      - recall
-      - calibration_error
-  posterior_distributions:
-    type: object
-    description: "Bayesian posterior summaries."
-    properties:
-      posterior_mean_semantic:
-        type: number
-        description: "Mean of posterior for semantic similarity."
-      credible_interval_semantic:
-        type: object
-        description: "95% Credible Interval."
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
-        required:
-          - lower
-          - upper
-    required:
-      - posterior_mean_semantic
-      - credible_interval_semantic
 required:
   - model_type
+  - sample_size
   - coefficients
   - p_values
   - vif_scores
-  - performance_metrics
+  - metrics
+  - diagnostics
+
+properties:
+  model_type:
+    type: string
+    description: Type of model fitted.
+    enum:
+      - LogisticRegression_Null
+      - LogisticRegression_Full
+      - BayesianHierarchical
+
+  sample_size:
+    type: integer
+    description: Number of samples used for training.
+    minimum: 1
+
+  coefficients:
+    type: object
+    description: Dictionary of feature names to coefficient values.
+    additionalProperties:
+      type: number
+      format: float
+
+  p_values:
+    type: object
+    description: Dictionary of feature names to p-values (for frequentist models).
+    additionalProperties:
+      type: number
+      format: float
+      minimum: 0
+      maximum: 1
+
+  vif_scores:
+    type: object
+    description: Variance Inflation Factor for each predictor.
+    additionalProperties:
+      type: number
+      format: float
+      minimum: 1
+
+  metrics:
+    type: object
+    description: Model performance metrics.
+    properties:
+      auc:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+      log_likelihood:
+        type: number
+        format: float
+      bic:
+        type: number
+        format: float
+      aic:
+        type: number
+        format: float
+    required:
+      - auc
+      - log_likelihood
+
+  diagnostics:
+    type: object
+    description: Model-specific diagnostics.
+    properties:
+      convergence_status:
+        type: string
+        description: Status of model convergence (e.g., 'Success', 'Failed').
+      effective_sample_size:
+        type: integer
+        description: Effective sample size for Bayesian models.
+      likelihood_ratio_statistic:
+        type: number
+        format: float
+        description: Statistic for Null vs Full model comparison.
+      likelihood_ratio_p_value:
+        type: number
+        format: float
+        description: P-value for Likelihood Ratio Test.
+
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of model execution.
+
+  config:
+    type: object
+    description: Hyperparameters and configuration used.
+    properties:
+      regularization_strength:
+        type: number
+        format: float
+      random_seed:
+        type: integer
+      downsample_factor:
+        type: number
+        format: float
+
 additionalProperties: false
