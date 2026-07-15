@@ -1,0 +1,9 @@
+torch-cpu
+transformers
+scikit-learn
+pandas
+networkx
+statsmodels
+pytest
+datasets
+huggingface_hub

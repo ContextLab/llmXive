@@ -27,6 +27,7 @@
 - [ ] T001 Create project structure: `mkdir -p src/features src/modeling src/intervention src/eval src/utils data/raw data/processed data/results data/models tests/unit tests/integration tests/contract`
 - [ ] T002 Create `requirements.txt` with pinned versions: `torch-cpu`, `transformers`, `scikit-learn`, `pandas`, `networkx`, `statsmodels`, `pytest`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003b [P] [SPEC UPDATE] Update `spec.md` FR-003 to change requirement from "distilled T5-small" to "scikit-learn classifier (Random Forest or Logistic Regression)" to align with Plan and implementation; remove exclusion of Llama-3-8B as it is no longer relevant to the corrected scope. <!-- FAILED: unspecified -->
 
 ---
 
@@ -36,18 +37,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`)
-- [ ] T004a [US1] [FR-001] Verify existence and integrity of initial success/failure ground truth labels in raw dataset before deriving secondary labels; Write validation report to `data/results/ground_truth_validation.json`
-- [ ] T005 [P] Implement citation verification script in `src/utils/verify_citations.py` (Read citations from spec.md, query primary sources, write pass/fail status to `data/results/citation_report.json` as a list of objects with 'source', 'status', 'error_message')
-- [ ] T006 [P] Create base configuration loader for paths and seeds in `src/config.py`
-- [ ] T007 Implement memory and time monitoring utility in `src/utils/resource_monitor.py` (logs `/proc/self/status` RSS and wall-clock)
-- [ ] T008 Setup artifact hashing utility in `src/utils/hash_artifacts.py`
-- [ ] T009 [US1] Add tests/unit/test_features.py with function: `test_syntax_tree_depth_calculates_correctly`
-- [ ] T009b [US1] Add tests/unit/test_features.py with function: `test_pragmatic_marker_identification_works`
-- [ ] T010 [US1] Add tests/integration/test_extraction.py with function: `test_parser_handles_empty_file`
-- [ ] T010b [US1] Add tests/integration/test_extraction.py with function: `test_parser_handles_large_file`
-- [ ] T011 [P] Implement dataset fetcher in `src/utils/data_loader.py` to download EnterpriseClawBench from canonical source (NAB/UCI/GitHub) with checksum verification; save to `data/raw/`
-- [ ] T013a [US1] Implement semantic proxy extractor in `src/features/extract.py` to extract error codes and failed function names; save to `data/processed/semantic_proxies.jsonl`
+- [ ] T011 [P] Implement dataset fetcher in `src/utils/data_loader.py` to download EnterpriseClawBench from canonical source (NAB/UCI/GitHub) with checksum verification; save to `data/raw/`; **MUST raise exception on failure, no synthetic fallback**
+- [ ] T004a [US1] [FR-001] Verify existence and integrity of initial success/failure ground truth labels in raw dataset (after T011); Write validation report to `data/results/ground_truth_validation.json` with schema: `{ 'status': 'pass|fail', 'issues': [], 'sample_size': int, 'pass_criteria': 'pass if >95% labels exist' }`
+- [~] T005 [P] Implement citation verification script in `src/utils/verify_citations.py` (Read citations from spec.md using regex for '## References' block, query primary sources via DOI, write pass/fail status to `data/results/citation_report.json` as a list of objects with 'source', 'status', 'error_message')
+- [~] T006 [P] Create base configuration loader for paths and seeds in `src/config.py`
+- [~] T007 Implement memory and time monitoring utility in `src/utils/resource_monitor.py` (logs `/proc/self/status` RSS and wall-clock)
+- [~] T008 Setup artifact hashing utility in `src/utils/hash_artifacts.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -61,13 +56,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement log parser in `src/features/extract.py` to read raw logs from `data/raw/`
-- [ ] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
+- [~] T012 [US1] Implement log parser in `src/features/extract.py` to read raw logs from `data/raw/`
+- [~] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
 - [ ] T014 [US1] Implement token frequency distribution counter in `src/features/extract.py`
 - [ ] T015 [US1] Implement pragmatic marker detector (error recovery, state transitions) in `src/features/extract.py`
-- [ ] T016 [US1] Implement generator-based log parser in `src/features/extract.py` that yields chunks of 100MB to prevent memory overflow; verify peak RSS < 7GB in full pipeline
+- [ ] T016 [US1] Implement generator-based log parser in `src/features/extract.py` that yields chunks of substantial size to prevent memory overflow; verify peak RSS < 7GB in full pipeline
+- [ ] T016b [US1] [FR-007] Invoke `resource_monitor.py` (T007) during T016 execution to explicitly log peak memory usage and verify streaming compliance; save log to `data/results/extraction_memory_log.json`; **Pass if peak RSS < 7GB, else FAIL**
 - [ ] T017 [US1] Generate `data/processed/features.jsonl` with labeled status (success/failure) and feature vectors
-- [ ] T018 [US1] Perform Mann-Whitney U test on feature distributions (failed vs success) AND apply Bonferroni or Benjamini-Hochberg FDR correction; log results to `data/results/distinctiveness_stats.csv` with columns: 'feature', 'p_value', 'corrected_p_value', 'significant'
+- [ ] T018 [US1] Perform Mann-Whitney U test on feature distributions (failed vs success) AND apply FDR correction: **Use Benjamini-Hochberg if features > 10, else Bonferroni**; log results to `data/results/distinctiveness_stats.csv` with columns: 'feature', 'p_value', 'corrected_p_value', 'significant'
+- [ ] T018b [US1] [SC-001] Generate `data/results/distinctiveness_report.md` containing visual plots (histograms/boxplots) and statistical evidence proving feature distinctiveness between failed and successful traces; **Depends on T018**
+- [ ] T009-unit [US1] Add tests/unit/test_features.py with functions: `test_syntax_tree_depth_calculates_correctly`, `test_pragmatic_marker_identification_works`
+- [ ] T010-int [US1] Add tests/integration/test_extraction.py with functions: `test_parser_handles_empty_file`, `test_parser_handles_large_file`
 
 **Checkpoint**: Feature extraction complete; data ready for triplet construction.
 
@@ -75,27 +74,25 @@
 
 ## Phase 4: User Story 2 - Lightweight Adapter Training & Feasibility Prediction (Priority: P2)
 
-**Goal**: Train a distilled T5-small model on feature triplets to predict "correction feasibility" (correctable vs. unfixable) within CPU constraints.
+**Goal**: Train a scikit-learn classifier on feature triplets to predict "correction feasibility" (correctable vs. unfixable) within CPU constraints.
 
-**Independent Test**: Verify loss convergence and binary classification accuracy >50% on held-out validation set without OOM.
+**Independent Test**: Verify accuracy convergence and binary classification accuracy >50% on held-out validation set without OOM.
 
 ### Implementation for User Story 2
 
-- [ ] T021a [US2] Implement Semantic Outcome Oracle logic in `src/modeling/oracle.py` to derive "correctable" labels via rule-based logic: `correctable = (error_type in [syntax, token_mismatch] AND no_reasoning_gap)` where `no_reasoning_gap = absence of semantic error codes (e.g., 404, 500, ValueError)`; ensure logic excludes all US1 features (syntax depth, token freq) to maintain independence
-- [ ] T021b [US2] Implement annotation workflow script in `src/modeling/oracle.py` to generate ground truth labels for "correctable" status
-- [ ] T021c [US2] Execute Manual Expert Annotation workflow on a sample of traces to validate/expand rule-based labels if oracle is insufficient; save to `data/processed/manual_labels.jsonl`
-- [ ] T021d [US2] Verify Oracle Independence: run correlation check between US1 features and oracle labels; fail if correlation > 0.1
-- [ ] T019 [US2] Add tests/unit/test_modeling.py with function: `test_triplet_construction_logic` (depends on T021a)
-- [ ] T019b [US2] Add tests/unit/test_modeling.py with function: `test_semantic_outcome_oracle_labels` (depends on T021a)
-- [ ] T022 [US2] Implement triplet constructor in `src/modeling/dataset.py` linking failed traces to successful corrections using labels from T021a/T021c
-- [ ] T023 [US2] Implement T5-small (≤60M params) model wrapper in `src/modeling/model.py` (CPU-only, default precision)
-- [ ] T024 [US2] Implement training loop in `src/modeling/train.py` with memory monitoring (T007)
-- [ ] T025 [US2] Implement fallback logic in `src/modeling/train.py`: if peak RSS > 6.5GB, skip training, log OOM to `data/results/fallback_log.txt`, and report null model baseline (accuracy=0.5) without heuristic rewrite
-- [ ] T026 [US2] Save trained adapter weights to `data/models/adapter_feasibility.pth`
-- [ ] T027 [US2] Evaluate model on validation set; log accuracy and confusion matrix to `data/results/feasibility_metrics.json`
-- [ ] T030 [US2] Implement Adapter Policy Learner in `src/intervention/policy_learner.py` to fine-tune T5-small on (prompt, AST node diff string) pairs to learn a generalizable correction policy based on abstract fix representations (AST node diffs); **must explicitly verify** that the policy learns from abstract fix representations and not raw traces, and validate generalizability per FR-004
-- [ ] T020 [US2] Add tests/integration/test_training.py with function: `test_loss_convergence` (depends on T024)
-- [ ] T020b [US2] Add tests/integration/test_training.py with function: `test_accuracy_threshold` (depends on T024)
+- [ ] T021a-1 [US2] [FR-002] [P] Derive error schema from raw logs in `data/raw/` to identify available error type fields; save schema to `data/processed/error_schema.json`
+- [ ] T021a [US2] [FR-002] Implement Semantic Outcome Oracle logic in `src/modeling/oracle.py` using the derived schema (T021a-1) to derive "correctable" labels via rule-based logic: `correctable = (error_type in ['syntax', 'token_mismatch'] AND error_type not in ['semantic_error', 'reasoning_gap'])`; **DO NOT use hardcoded HTTP codes**; ensure logic excludes all US1 features to maintain independence
+- [ ] T021b [US2] [FR-002] Implement Oracle Validation script in `src/modeling/oracle.py` to verify rule-based labels are deterministic and consistent on a small random sample (seeded) of the dataset; save validation report to `data/results/oracle_validation.json`
+- [ ] T021d [US2] [FR-002] Verify Oracle Independence: run **Spearman** correlation check between US1 features and oracle labels **per-feature**; fail if correlation > 0.1 (p-value < 0.05); log results to `data/results/oracle_independence.json` with schema: `{ 'feature': str, 'correlation': float, 'p_value': float, 'independent': bool }`
+- [ ] T021e [US2] [FR-002] Enforce Rule-Based Only: Assert that no manual labels exist in the dataset; if manual labels are found, raise an error and halt; log assertion to `data/results/rule_based_enforcement.json`
+- [ ] T022 [US2] Implement triplet constructor in `src/modeling/dataset.py` linking failed traces to successful corrections using labels from T021a; save to `data/processed/triplets.jsonl`
+- [ ] T029-model [US2] Add tests/unit/test_modeling.py with functions: `test_triplet_construction_logic`, `test_semantic_outcome_oracle_labels`
+- [ ] T023-classifier [US2] [FR-003] Implement scikit-learn classifier (Random Forest or Logistic Regression) in `src/modeling/model.py` for feasibility prediction (CPU-only); **DO NOT use T5 for prediction**; save weights to `data/models/adapter_feasibility.pkl`
+- [ ] T024 [US2] Implement training loop in `src/modeling/train.py` for scikit-learn classifier with memory monitoring (T007); **Save checkpoint every epoch**
+- [ ] T025 [US2] [FR-007] Implement OOM fallback in `src/modeling/train.py`: if peak RSS > 6.5GB, load the **last successful checkpoint** (from T024), log OOM to `data/results/fallback_log.txt`, and report null model baseline (accuracy=0.5) without heuristic rewrite; **no dummy model needed**
+- [ ] T025a [US2] [FR-004] Implement convergence fallback in `src/modeling/train.py`: if loss derivative > 1e-4 for 10 epochs, trigger **rule-based syntax correction script** (from T021a logic) to generate `fallback_predictions.jsonl`; log convergence failure to `data/results/convergence_log.txt`
+- [ ] T026 [US2] Evaluate model on validation set; log accuracy and confusion matrix to `data/results/feasibility_metrics.json`
+- [ ] T030-eval [US2] Add tests/integration/test_training.py with functions: `test_loss_convergence`, `test_accuracy_threshold`
 
 **Checkpoint**: Feasibility predictor and policy learner ready; can classify traces and apply corrections.
 
@@ -113,10 +110,13 @@
 - [ ] T028b [US3] Add tests/contract/test_harness.py with function: `test_harness_returns_score`
 - [ ] T031 [US3] Implement Evaluation Harness in `src/eval/harness.py` to run tasks on `data/processed/lite_set.json`
 - [ ] T032 [US3] Run Baseline Evaluation ("Model + Harness") and log scores to `data/results/baseline_scores.csv`
-- [ ] T033 [US3] Run Adapter-Enhanced Evaluation ("Model + Adapter + Policy Learner + Harness") and log scores to `data/results/adapter_scores.csv`
-- [ ] T034 [US3] Implement statistical analysis script in `src/eval/stats.py` to run **McNemar's Test** (if binary outcomes) as primary method per Plan Phase 4, with **Wilcoxon signed-rank** (if continuous) as fallback; output p-value to `data/results/stats_report.json` with schema: 'test_type', 'p_value', 'effect_size', 'conclusion'
-- [ ] T034a [US3] Implement McNemar's Test for binary outcomes as primary method per Plan Phase 4
-- [ ] T034b [US3] Implement Wilcoxon signed-rank test as fallback for continuous outcomes
+- [ ] T033 [US3] Run Adapter-Enhanced Evaluation ("Model + Adapter + Harness") and log scores to `data/results/adapter_scores.csv`
+- [ ] T034 [US3] [FR-005] Implement statistical analysis script in `src/eval/stats.py` with dynamic decision rule:
+ 1. Check if ADS is strictly binary (`set(ads) == {0, 1}`); if yes, use McNemar's test.
+ 2. If continuous, compute `differences = ads_adapter - ads_baseline`.
+ 3. Run Shapiro-Wilk test (alpha=0.05) on `differences`.
+ 4. If p > 0.05 (normal), use paired t-test; else use Wilcoxon signed-rank.
+ Output p-value to `data/results/stats_report.json` with schema: `{'test_type': str, 'statistic': float, 'p_value': float, 'effect_size': float, 'conclusion': str}`
 - [ ] T035 [US3] Add resource monitoring wrapper to `src/eval/harness.py` that asserts peak RSS <= 7GB and runtime <= 6h, raising an error if violated; verify constraints for full evaluation run
 - [ ] T036 [US3] Generate final report in `data/results/evaluation_report.md` including p-value and power analysis
 - [ ] T029 [US3] Add tests/integration/test_evaluation.py with function: `test_baseline_vs_adapter`
@@ -132,9 +132,9 @@
 
 - [ ] T037 [P] Documentation updates in `README.md` and `docs/`
 - [ ] T038 Code cleanup and refactoring
-- [ ] T039 [P] Run `verify_citations.py` gate check
-- [ ] T040 [P] Run `hash_artifacts.py` to update `state/`
-- [ ] T041 Run quickstart.md validation
+- [ ] T040 [P] Run `verify_citations.py` gate check
+- [ ] T041 [P] Run `hash_artifacts.py` to update `state/`
+- [ ] T042 Run quickstart.md validation
 
 ---
 
@@ -145,8 +145,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -210,9 +210,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

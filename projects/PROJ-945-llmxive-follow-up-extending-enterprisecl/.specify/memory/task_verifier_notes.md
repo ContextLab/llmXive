@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory tree or file list showing the required folders (`src/features`, `src/modeling`, `src/intervention`, `src/eval`, `src/utils`, `data/raw`, `data/processed`, `data/results`, `data/models`, `tests/unit`, `tests/integration`, `tests/contract`) was provided. Without concrete evidence that these paths exist, the task is not verified as completed.
+- **T002** — No `requirements.txt` file was provided, and there is no evidence that a file containing the listed packages with exact version pins exists in the project. The task therefore remains unfulfilled.
+- **T003** — The provided artifacts discuss feature extraction and model training, with no configuration files, scripts, or documentation for ruff or black. There is no evidence of a pyproject.toml, .ruff.toml, or any setup that enables linting/formatting, so the task of configuring linting and formatting tools is not satisfied.
+- **T003b** — No updated `spec.md` file is provided, nor any excerpt showing FR‑003 changed to a scikit‑learn classifier or the removal of the Llama‑3‑8B exclusion. The required specification amendment is missing.
+- **T011** — No `src/utils/data_loader.py` file or its contents were provided, and there is no evidence of code that downloads the EnterpriseClawBench dataset, verifies a checksum, saves to `data/raw/`, or raises exceptions on failure. Consequently, the required artifact is missing.
+- **T004a** — The required output file `data/results/ground_truth_validation.json` does not exist, so no validation report was produced to meet the specified schema and pass criteria. The task therefore remains unfinished.
