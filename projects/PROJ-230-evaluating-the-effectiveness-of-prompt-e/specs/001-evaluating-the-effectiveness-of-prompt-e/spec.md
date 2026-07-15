@@ -25,7 +25,7 @@ The system MUST download, filter, and prepare the Python-to-JavaScript translati
 
 ### User Story 2 - Prompt Condition Execution (Priority: P2)
 
-The system MUST execute the four distinct prompt engineering conditions (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) against the prepared dataset using the CodeLlama-7B model via HuggingFace Inference API, storing the generated outputs deterministically.
+The system MUST execute the four distinct prompt engineering conditions (Zero-shot Basic, Zero-shot+Style, Few-shot, Few-shot+Style) against the prepared dataset using the CodeLlama model via HuggingFace Inference API, storing the generated outputs deterministically.
 
 **Why this priority**: This is the core experimental intervention. It generates the raw data (translated code) required to measure correctness and quality.
 
@@ -102,7 +102,7 @@ The system MUST evaluate the generated JavaScript against a *translated* version
 ## Assumptions
 
 - **Assumption about data availability**: The HuggingFace datasets `codeparrot/code-trans-py-js` and `bigcode/evaluation` will remain publicly accessible and contain sufficient valid Python-to-JavaScript pairs to reach the N ≥ 200 target.
-- **Assumption about API reliability**: The HuggingFace Inference API (CodeLlamaB endpoint) will remain available and not impose rate limits that prevent completing the required total number of requests (200 snippets × 4 conditions) within the 6-hour window.
+- **Assumption about API reliability**: The HuggingFace Inference API (CodeLlamaB endpoint) will remain available and not impose rate limits that prevent completing the required total number of requests (a sufficient volume of snippets across all experimental conditions) within the 6-hour window.
 - **Assumption about test translation**: A valid mechanism exists to translate the Python unit tests to JavaScript (e.g., via the same LLM or a dedicated transpiler) such that the translated tests preserve the semantic intent of the original assertions.
 - **Assumption about model behavior**: The CodeLlama-7B model will not hallucinate infinite loops or syntax errors that crash the test runner; any such behavior will be treated as a functional failure.
 - **Assumption about statistical power**: The sample size of N=200 is sufficient to detect a medium effect size (Cohen's h ≈ 0.5) in correctness rates with [deferred] power; if the effect is smaller, the study may be underpowered, which is acknowledged as a limitation.

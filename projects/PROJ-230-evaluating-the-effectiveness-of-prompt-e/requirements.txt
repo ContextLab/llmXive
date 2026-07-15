@@ -1,0 +1,18 @@
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# HuggingFace ecosystem for dataset ingestion and model inference
+datasets>=2.14.0
+transformers>=4.35.0
+accelerate>=0.24.0
+
+# API interaction and utilities
+requests>=2.31.0
+pyyaml>=6.0.0
+
+# Testing
+pytest>=7.4.0
+
+# Node.js runtime is required for evaluation (not pip installable)
+# Ensure 'node' and 'npm' are available in the system PATH.

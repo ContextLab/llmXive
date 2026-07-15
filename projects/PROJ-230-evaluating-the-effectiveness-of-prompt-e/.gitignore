@@ -1,0 +1,38 @@
+# Data artifacts - raw and processed datasets
+data/raw/
+data/processed/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# State and evaluation intermediate files (keep only final summaries)
+state/checksums/*.txt
+data/evaluation/raw_translations/

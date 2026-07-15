@@ -1,0 +1,6 @@
+Translate the following Python code to JavaScript. Adhere to modern JavaScript best practices (ES6+), use strict mode, and ensure variable naming conventions are adapted appropriately (e.g., snake_case to camelCase).
+
+Python Code:
+{python_code}
+
+JavaScript Code:

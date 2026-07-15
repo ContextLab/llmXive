@@ -1,0 +1,25 @@
+Translate the following Python code to JavaScript. Follow modern JavaScript (ES6+) standards, use arrow functions where appropriate, and convert variable naming from snake_case to camelCase.
+
+Example 1:
+Python:
+def calculate_area(radius):
+    return 3.14159 * radius * radius
+
+JavaScript:
+const calculateArea = (radius) => {
+    return 3.14159 * radius * radius;
+};
+
+Example 2:
+Python:
+def is_even(number):
+    return number % 2 == 0
+
+JavaScript:
+const isEven = (number) => number % 2 === 0;
+
+Now translate this:
+Python Code:
+{python_code}
+
+JavaScript Code:

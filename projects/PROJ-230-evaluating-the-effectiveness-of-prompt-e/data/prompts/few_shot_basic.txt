@@ -1,0 +1,27 @@
+Translate the following Python code to JavaScript.
+
+Example 1:
+Python:
+def add(a, b):
+    return a + b
+
+JavaScript:
+function add(a, b) {
+    return a + b;
+}
+
+Example 2:
+Python:
+def greet(name):
+    print(f"Hello, {name}")
+
+JavaScript:
+function greet(name) {
+    console.log(`Hello, ${name}`);
+}
+
+Now translate this:
+Python Code:
+{python_code}
+
+JavaScript Code:

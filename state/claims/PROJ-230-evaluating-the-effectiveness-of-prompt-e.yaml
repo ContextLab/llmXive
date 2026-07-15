@@ -1,0 +1,296 @@
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: corpus of 200 Python-to-JavaScript pairs from HuggingFace CodeTrans BigCode
+    under 7GB RAM
+  claim_id: c_b581a0c7
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:05:39Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: download_datasets.py creates CSV with 200 valid pairs and memory peak
+    under 7GB
+  claim_id: c_bbe58431
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify src/ingestion/download_datasets.py creates a local CSV with \u2265\
+    200 valid pairs and logs a memory peak <7GB during execution."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:05:39Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: api_client.py implementation with 120s timeout and exponential backoff
+  claim_id: c_0fa83dfa
+  context: T020 [US2] Implement src/execution/api_client.py with exponential backoff
+    (limited retry attempts), 120s timeout, error handling for malformed responses,
+    using endpoint No address associated with hostname
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Api_client.py_implementation_with_120s_timeout_and_exponenti
+  kind: entity_fact
+  raw_text: Implement src/execution/api_client.py with exponential backoff (limited
+    retry attempts), 120s timeout, error handling for malformed responses, using endpoint
+    No address associated with hostname
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:06:36Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: run_node_tests.py enforces 10s timeout per test
+  claim_id: c_d2d6db79
+  context: T028 [US3] Implement src/evaluation/run_node_tests.py to execute translated
+    tests against generated JS in a Node.js environment, enforcing 10s timeout per
+    test (DEPENDS ON T027 output)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 62'
+      source_id: Q105180965
+      url: https://www.wikidata.org/wiki/Q105180965
+      value: '62'
+    filled: true
+  kind: entity_fact
+  raw_text: Implement src/evaluation/run_node_tests.py to execute translated tests
+    against generated JS in a Node.js environment, enforcing 10s timeout per test
+  resolved_value: '62'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:06:58Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: tasks must run on CPU-only CI with 7GB RAM limit
+  claim_id: c_f27a2ffa
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    7GB RAM, no GPU). No local LLM training or 8-bit quantization allowed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_must_run_on_CPU-only_CI_with_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI (limited cores, 7GB RAM, no GPU).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:07:55Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: timeout_utils.py enforces 120s API and 10s test timeouts
+  claim_id: c_4c099167
+  context: T009 Implement src/utils/timeout_utils.py for enforcing 120s API timeouts
+    and 10s test timeouts
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timeout_utils.py_enforces_120s_API_and_10s_test_timeouts
+  kind: entity_fact
+  raw_text: Implement src/utils/timeout_utils.py for enforcing 120s API timeouts and
+    10s test timeouts
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:08:37Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: corpus of 200 or more Python-to-JavaScript pairs with memory usage under
+    7GB
+  claim_id: c_0770f036
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:23:24Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: dataset fetch creates CSV with 200 or more valid pairs and memory peak
+    under 7GB
+  claim_id: c_f70f9db9
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify src/ingestion/download_datasets.py creates a local CSV with \u2265\
+    200 valid pairs and logs a memory peak <7GB during execution."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:23:24Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: pipeline runs on CPU-only CI with 7GB RAM limit and no GPU
+  claim_id: c_65af1cd1
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    7GB RAM, no GPU). No local LLM training or 8-bit quantization allowed.'
+  evidence:
+    entailment_evidence: Pipeline runs on CPU-only CI with 7GB RAM limit and no GPU
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_CPU-only_CI_with_7GB_RAM_limit_and_no_GPU
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI (limited cores, 7GB RAM, no GPU).
+  resolved_value: pipeline runs on CPU-only CI with 7GB RAM limit and no GPU
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:23:28Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: corpus of at least 200 Python-to-JavaScript pairs with memory peak under
+    7GB
+  claim_id: c_ce0fd7e6
+  context: "Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority:\
+    \ P1) Goal: Download, filter, and prepare a CPU-tractable corpus of \u2265200\
+    \ Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding\
+    \ 7GB RAM."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corpus_of_at_least_200_Python-to-JavaScript_pairs_with_memor
+  kind: magnitude
+  raw_text: "Download, filter, and prepare a CPU-tractable corpus of \u2265200 Python-to-JavaScript\
+    \ pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:29:57Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: verification of local CSV with at least 200 valid pairs and memory peak
+    under 7GB
+  claim_id: c_4e21d230
+  context: "Independent Test: Verify src/ingestion/download_datasets.py creates a\
+    \ local CSV with \u2265200 valid pairs and logs a memory peak <7GB during execution."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verification_of_local_CSV_with_at_least_200_valid_pairs_and
+  kind: magnitude
+  raw_text: "Verify src/ingestion/download_datasets.py creates a local CSV with \u2265\
+    200 valid pairs and logs a memory peak <7GB during execution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:30:47Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: 120 second API timeout and 10 second test timeout enforcement
+  claim_id: c_e6bc40b5
+  context: T009 Implement src/utils/timeout_utils.py for enforcing 120s API timeouts
+    and 10s test timeouts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/utils/timeout_utils.py for enforcing 120s API timeouts and
+    10s test timeouts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:30:47Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: ESLint complexity rule configuration with value 10
+  claim_id: c_3ae76e8e
+  context: 'T029 [US3] Implement src/evaluation/compute_quality.py using ESLint complexity
+    rule (config: --rule complexity: [, 10]) to calculate cyclomatic complexity and
+    LOC for each translation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/evaluation/compute_quality.py using ESLint complexity rule
+    (config: --rule complexity: [, 10]) to calculate cyclomatic complexity and LOC
+    for each translation.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:31:12Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: 10 second timeout per test in Node.js environment
+  claim_id: c_4b89e6fa
+  context: T028 [US3] Implement src/evaluation/run_node_tests.py to execute translated
+    tests against generated JS in a Node.js environment, enforcing 10s timeout per
+    test (DEPENDS ON T027 output)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 62'
+      source_id: Q105180965
+      url: https://www.wikidata.org/wiki/Q105180965
+      value: '62'
+    filled: true
+  kind: numeric
+  raw_text: Implement src/evaluation/run_node_tests.py to execute translated tests
+    against generated JS in a Node.js environment, enforcing 10s timeout per test.
+  resolved_value: '62'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:31:12Z'
+- artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/specs/001-evaluating-the-effectiveness-of-prompt-e/tasks.md
+  attempts: 1
+  canonical: no local LLM training or 8-bit quantization
+  claim_id: c_52f1ae6c
+  context: 'Critical Constraint: {{claim:c_65af1cd1}} No local LLM training or 8-bit
+    quantization allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No local LLM training or 8-bit quantization allowed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:31:36Z'

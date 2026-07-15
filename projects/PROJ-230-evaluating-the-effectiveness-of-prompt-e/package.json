@@ -1,0 +1,13 @@
+{
+  "name": "proj-230-prompt-engineering-evaluation",
+  "version": "0.1.0",
+  "description": "Evaluation of prompt engineering effectiveness for LLM-based code translation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}

@@ -1,0 +1,6 @@
+Translate the following Python code to JavaScript. Ensure the logic and functionality remain identical.
+
+Python Code:
+{python_code}
+
+JavaScript Code:
