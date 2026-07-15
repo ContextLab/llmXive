@@ -12,8 +12,8 @@
     "python src/benchmark/run_benchmark.py --seed 123 -> rc=1\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py\", line 73, in run_single_task\n    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'"
   ],
   "fix_rounds": 8,
-  "model_tier": 2,
-  "updated_at": "2026-06-30T16:24:15Z",
+  "model_tier": 0,
+  "updated_at": "2026-07-15T00:41:01Z",
   "total_attempts": 23,
   "replan_rounds": 0
 }

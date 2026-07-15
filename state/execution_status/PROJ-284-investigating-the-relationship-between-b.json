@@ -10,8 +10,8 @@
     "python code/main.py --step viz_report -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 10, in <module>\n    from code.data.download import main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py\", line 15, in <module>\n    from nilearn import datasets\nImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-"
   ],
   "fix_rounds": 11,
-  "model_tier": 3,
+  "model_tier": 0,
   "total_attempts": 2,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T22:03:37Z"
+  "updated_at": "2026-07-15T00:41:01Z"
 }
