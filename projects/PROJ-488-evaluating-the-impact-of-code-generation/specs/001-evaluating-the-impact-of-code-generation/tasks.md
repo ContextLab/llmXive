@@ -81,7 +81,7 @@
 
 **Goal**: Apply Mann‑Whitney U tests with Cliff's delta, generate boxplots, produce review guideline recommendations, and verify statistical power and independence assumptions.
 
-- [ ] T026 [US3] [SC-003] Implement power‑analysis module in `code/statistical_analysis.py` to compute achieved power given observed effect size and sample size; enforce ≥ 0.8 power and log warnings otherwise.
+- [X] T026 [US3] [SC-003] Implement power‑analysis module in `code/statistical_analysis.py` to compute achieved power given observed effect size and sample size; enforce ≥ 0.8 power and log warnings otherwise.
 - [X] T027 [US3] [SC-003] Implement independence mitigation: subsample to at most one snippet per original repository (using metadata) **OR** apply cluster‑robust standard errors; prefer subsampling if repository metadata available, else use cluster‑robust SE; document approach in `results/independence.md`.
 - [X] T028 [US3] Implement Mann‑Whitney U test for each metric comparison (human vs LLM) and store raw p‑values.
 - [X] T029 [US3] Compute Cliff's delta effect size with magnitude labels (small/medium/large) for each metric.

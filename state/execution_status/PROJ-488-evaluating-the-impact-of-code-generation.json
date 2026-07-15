@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-488-evaluating-the-impact-of-code-generation",
   "ok": false,
-  "reason": "3 command(s) failed: python code/data_ingestion.py (rc=1); python code/metric_extraction.py (rc=1); python code/statistical_analysis.py (rc=1)",
-  "artifacts": [],
-  "failures": [
-    "python code/data_ingestion.py -> rc=1\n    _path(url_or_filename)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py\", line 305, in resolve_path\n    parsed = parse_hf_uri(f\"{constants.HF_PROTOCOL}{path}\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py\",",
-    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 16, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'",
-    "python code/statistical_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/statistical_analysis.py\", line 9, in <module>\n    from statsmodels.stats.multitest import multipletests\nModuleNotFoundError: No module named 'statsmodels'"
+  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/metrics/statistical_analysis_results.json: EVERY metric is null/NaN ([0].power_analysis.power, [0].power_analysis.effect_size, [0].power_analysis.sample_size, [0].power_analysis.threshold_met\u2026) \u2014 nothing was computed; 1 command(s) failed: python code/metric_extraction.py (rc=1)",
+  "artifacts": [
+    "data/metrics/statistical_analysis_results.json"
   ],
-  "fix_rounds": 1,
+  "failures": [
+    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 16, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'"
+  ],
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T02:16:46Z"
+  "updated_at": "2026-07-15T03:05:19Z"
 }

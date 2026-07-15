@@ -1,0 +1,50 @@
+[
+  {
+    "metric": "cyclomatic_complexity",
+    "power_analysis": {
+      "power": null,
+      "effect_size": null,
+      "sample_size": null,
+      "threshold_met": null,
+      "warning": null
+    },
+    "mann_whitney": null,
+    "cliffs_delta": null
+  },
+  {
+    "metric": "maintainability_index",
+    "power_analysis": {
+      "power": null,
+      "effect_size": null,
+      "sample_size": null,
+      "threshold_met": null,
+      "warning": null
+    },
+    "mann_whitney": null,
+    "cliffs_delta": null
+  },
+  {
+    "metric": "loc",
+    "power_analysis": {
+      "power": null,
+      "effect_size": null,
+      "sample_size": null,
+      "threshold_met": null,
+      "warning": null
+    },
+    "mann_whitney": null,
+    "cliffs_delta": null
+  },
+  {
+    "metric": "bug_count",
+    "power_analysis": {
+      "power": null,
+      "effect_size": null,
+      "sample_size": null,
+      "threshold_met": null,
+      "warning": null
+    },
+    "mann_whitney": null,
+    "cliffs_delta": null
+  }
+]

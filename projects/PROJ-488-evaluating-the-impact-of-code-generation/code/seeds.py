@@ -1,51 +1,46 @@
-"""
-Seed management module for reproducible experiments.
-
-This module provides utilities for setting random seeds across multiple
-libraries to ensure reproducible results in the code generation impact
-evaluation pipeline.
-
-Seed Value: 42 (documented constant for consistency across all experiments)
-"""
-
 import random
 from typing import Optional
+import numpy as np
 
-
-# Documented seed value for reproducibility
 SEED_VALUE = 42
 
-
-def set_seed(seed: int = SEED_VALUE) -> None:
+def set_seed(seed: Optional[int] = None):
     """
-    Set random seeds for reproducibility across numpy, random, and torch.
-
+    Sets the random seed for reproducibility.
+    
     Args:
-        seed: Integer seed value. Defaults to 42 (SEED_VALUE).
+        seed: The seed value. Defaults to SEED_VALUE.
     """
-    # Set seed for Python's built-in random module
+    if seed is None:
+        seed = SEED_VALUE
+        
     random.seed(seed)
-
-    # Set seed for numpy
-    import numpy as np
     np.random.seed(seed)
-
-    # Set seed for torch if available (optional)
+    # If torch is available, set its seed too
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        # Torch not installed, skip torch seeding
         pass
-
 
 def get_seed_value() -> int:
     """
-    Return the documented seed value used across the project.
-
+    Returns the current seed value.
+    
     Returns:
-        The seed value (42).
+        The seed value.
     """
     return SEED_VALUE
+
+def main():
+    """
+    Main entry point for seed utilities.
+    """
+    print(f"Seed value: {get_seed_value()}")
+    set_seed()
+    print(f"Random number after setting seed: {random.random()}")
+
+if __name__ == "__main__":
+    main()
