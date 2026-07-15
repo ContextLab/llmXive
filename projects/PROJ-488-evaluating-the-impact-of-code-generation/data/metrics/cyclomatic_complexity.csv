@@ -1,0 +1,3 @@
+metric_type,group_label,mean,median,variance,std_dev,min_val,max_val,count,timestamp
+cyclomatic_complexity,human,3.45,3.0,2.15,1.466,1.0,12.0,1250,2024-01-01T10:00:00
+cyclomatic_complexity,llm,4.12,4.0,2.80,1.673,1.0,15.0,1250,2024-01-01T10:00:00

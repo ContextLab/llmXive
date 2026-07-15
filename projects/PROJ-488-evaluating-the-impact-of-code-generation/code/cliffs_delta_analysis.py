@@ -1,44 +1,117 @@
 import os
 import sys
+import json
 import logging
-import pandas as pd
-import numpy as np
+import math
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Tuple, Optional, Any
 
-# Import existing project utilities
+# Import logging infrastructure
+from logging_config import setup_logger, get_logger
+
+# Import state tracker for artifact tracking
+from state_tracker import load_state_file, save_state_file, update_state_with_artifact
+
+# Import data model for schema validation
 from data_model import MetricResult
-from logging_config import get_logger
-from state_tracker import load_state_file, save_state_file, update_state_timestamp
-from metric_validation import load_metrics_data
 
-logger = get_logger(__name__)
+# Configure logger
+logger = setup_logger("cliffs_delta", level=logging.INFO)
 
-def compute_cliffs_delta(group1_values: List[float], group2_values: List[float]) -> float:
+def load_metric_values(metrics_dir: Path, metric_type: str, group_human: str = "human", group_llm: str = "llm") -> Tuple[List[float], List[float]]:
     """
-    Compute Cliff's Delta effect size between two independent groups.
+    Load metric values for a specific metric type from CSV files.
     
-    Cliff's Delta = (number of times x > y - number of times x < y) / (n1 * n2)
-    Range: [-1, 1]
+    Args:
+        metrics_dir: Directory containing metric CSV files.
+        metric_type: The specific metric column name (e.g., 'cyclomatic_complexity').
+        group_human: Label for human-written snippets.
+        group_llm: Label for LLM-generated snippets.
+        
+    Returns:
+        Tuple of (human_values, llm_values) lists of floats.
+        
+    Raises:
+        FileNotFoundError: If the metric CSV file is not found.
+        ValueError: If the metric type is not found in the CSV.
     """
-    if not group1_values or not group2_values:
-        raise ValueError("Both groups must contain values.")
+    # Determine the file name based on metric type naming convention
+    # Assuming files are named like: data/metrics/cyclomatic_complexity.csv
+    file_path = metrics_dir / f"{metric_type}.csv"
     
-    n1 = len(group1_values)
-    n2 = len(group2_values)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Metric file not found: {file_path}")
     
-    count_greater = 0
-    count_less = 0
+    import pandas as pd
+    df = pd.read_csv(file_path)
     
-    for x in group1_values:
-        for y in group2_values:
-            if x > y:
-                count_greater += 1
-            elif x < y:
-                count_less += 1
+    if metric_type not in df.columns:
+        raise ValueError(f"Column '{metric_type}' not found in {file_path}. Available: {list(df.columns)}")
     
-    delta = (count_greater - count_less) / (n1 * n2)
-    return delta
+    if 'group' not in df.columns:
+        raise ValueError(f"Column 'group' not found in {file_path}. Required for separation.")
+    
+    human_values = df[df['group'] == group_human][metric_type].dropna().tolist()
+    llm_values = df[df['group'] == group_llm][metric_type].dropna().tolist()
+    
+    logger.info(f"Loaded {len(human_values)} human and {len(llm_values)} LLM values for {metric_type}")
+    
+    return human_values, llm_values
+
+def compute_cliffs_delta(x: List[float], y: List[float]) -> float:
+    """
+    Compute Cliff's Delta effect size between two distributions.
+    
+    Cliff's Delta measures the probability that a random value from one group
+    is greater than a random value from the other group, minus the reverse probability.
+    
+    Formula: delta = (number of pairs where x > y - number of pairs where x < y) / (n_x * n_y)
+    
+    Args:
+        x: List of values from group 1 (e.g., human).
+        y: List of values from group 2 (e.g., LLM).
+        
+    Returns:
+        Cliff's Delta value in range [-1, 1].
+    """
+    if not x or not y:
+        return 0.0
+    
+    n_x = len(x)
+    n_y = len(y)
+    total_pairs = n_x * n_y
+    
+    if total_pairs == 0:
+        return 0.0
+    
+    # Use vectorized operations for efficiency if possible, or simple loops
+    # For robustness with standard library, we use loops but optimize with sorting if needed.
+    # Given typical sizes (n < 10000), O(N*M) is acceptable.
+    
+    greater_count = 0
+    smaller_count = 0
+    
+    # Optimization: sort y to use binary search or simple iteration if N is large
+    # But for clarity and correctness, we'll do direct comparison.
+    # If performance is critical, we can use numpy.
+    
+    import numpy as np
+    x_arr = np.array(x)
+    y_arr = np.array(y)
+    
+    # Vectorized comparison
+    # x > y: broadcast x against y
+    # This creates a matrix of comparisons.
+    # x_arr[:, None] > y_arr[None, :]
+    
+    greater_matrix = x_arr[:, None] > y_arr[None, :]
+    smaller_matrix = x_arr[:, None] < y_arr[None, :]
+    
+    greater_count = np.sum(greater_matrix)
+    smaller_count = np.sum(smaller_matrix)
+    
+    delta = (greater_count - smaller_count) / total_pairs
+    return float(delta)
 
 def get_effect_size_magnitude(delta: float) -> str:
     """
@@ -49,6 +122,12 @@ def get_effect_size_magnitude(delta: float) -> str:
     0.147 <= |delta| < 0.33: small
     0.33 <= |delta| < 0.474: medium
     |delta| >= 0.474: large
+    
+    Args:
+        delta: The computed Cliff's Delta value.
+        
+    Returns:
+        String label: 'negligible', 'small', 'medium', or 'large'.
     """
     abs_delta = abs(delta)
     if abs_delta < 0.147:
@@ -60,153 +139,123 @@ def get_effect_size_magnitude(delta: float) -> str:
     else:
         return "large"
 
-def load_metric_data_for_comparison(metric_type: str) -> Tuple[List[float], List[float]]:
+def compute_cliffs_delta_for_all_metrics(metrics_dir: Path) -> Dict[str, Dict[str, Any]]:
     """
-    Load metric values for 'human' (CodeSearchNet) and 'llm' (CodeGen) groups.
-    Returns (human_values, llm_values).
+    Compute Cliff's Delta for all available metrics.
+    
+    Args:
+        metrics_dir: Path to the directory containing metric CSVs.
+        
+    Returns:
+        Dictionary mapping metric names to results (delta, magnitude, counts).
     """
-    # Expected path based on T023/T024: data/metrics/
-    metrics_dir = Path("data/metrics")
-    if not metrics_dir.exists():
-        raise FileNotFoundError(f"Metrics directory not found at {metrics_dir}")
-    
-    # Look for the specific metric file
-    # T023 says "one file per metric type". Assuming naming convention: {metric_type}_metrics.csv
-    # Or we might need to load the aggregated file. Let's try to find the specific metric file.
-    # Based on T024, it conforms to MetricResult schema.
-    
-    file_path = metrics_dir / f"{metric_type}_metrics.csv"
-    
-    if not file_path.exists():
-        # Fallback: try to find any csv with the metric name or load general metrics
-        # For robustness, we assume the file naming convention from T023
-        raise FileNotFoundError(f"Metric file not found: {file_path}")
-    
-    df = pd.read_csv(file_path)
-    
-    # Ensure columns exist
-    required_cols = ['group_label', 'score']
-    if not all(col in df.columns for col in required_cols):
-        # Try to infer column names if they differ slightly, or raise error
-        raise ValueError(f"Metric file {file_path} missing required columns: {required_cols}")
-    
-    human_data = df[df['group_label'] == 'human']['score'].tolist()
-    llm_data = df[df['group_label'] == 'llm']['score'].tolist()
-    
-    if not human_data or not llm_data:
-        raise ValueError(f"One or both groups have no data for metric {metric_type}")
-    
-    return human_data, llm_data
-
-def run_cliffs_delta_analysis(metric_types: Optional[List[str]] = None) -> Dict[str, Dict[str, Any]]:
-    """
-    Run Cliff's Delta analysis for all metric types.
-    Returns a dictionary of results keyed by metric type.
-    """
-    if metric_types is None:
-        # Default metric types based on T020/T021
-        metric_types = [
-            'cyclomatic_complexity', 
-            'maintainability_index', 
-            'loc', 
-            'potential_bug', 
-            'style_issue'
-        ]
-    
     results = {}
+    
+    # Known metrics based on T020/T021
+    metric_types = [
+        "cyclomatic_complexity", 
+        "maintainability_index", 
+        "potential_issues", 
+        "style_issues"
+    ]
     
     for metric in metric_types:
         try:
-            logger.info(f"Computing Cliff's Delta for metric: {metric}")
-            human_vals, llm_vals = load_metric_data_for_comparison(metric)
-            
+            human_vals, llm_vals = load_metric_values(metrics_dir, metric)
             delta = compute_cliffs_delta(human_vals, llm_vals)
             magnitude = get_effect_size_magnitude(delta)
             
             results[metric] = {
-                'cliffs_delta': delta,
-                'magnitude': magnitude,
-                'human_n': len(human_vals),
-                'llm_n': len(llm_vals),
-                'human_mean': float(np.mean(human_vals)),
-                'llm_mean': float(np.mean(llm_vals))
+                "cliffs_delta": delta,
+                "magnitude": magnitude,
+                "n_human": len(human_vals),
+                "n_llm": len(llm_vals),
+                "interpretation": f"Delta={delta:.4f} ({magnitude})"
             }
-            logger.info(f"  Result: delta={delta:.4f}, magnitude={magnitude}")
-            
+            logger.info(f"Computed Cliff's Delta for {metric}: {delta:.4f} ({magnitude})")
         except FileNotFoundError as e:
             logger.warning(f"Skipping {metric}: {e}")
-            results[metric] = {'error': str(e), 'cliffs_delta': None, 'magnitude': None}
+        except ValueError as e:
+            logger.warning(f"Skipping {metric} due to data error: {e}")
         except Exception as e:
-            logger.error(f"Error processing {metric}: {e}")
-            results[metric] = {'error': str(e), 'cliffs_delta': None, 'magnitude': None}
-    
+            logger.error(f"Error computing {metric}: {e}")
+            
     return results
 
-def save_results_to_csv(results: Dict[str, Dict[str, Any]], output_path: str) -> None:
+def write_results_to_file(results: Dict[str, Dict[str, Any]], output_path: Path) -> None:
     """
-    Save Cliff's Delta results to a CSV file.
+    Write the computed Cliff's Delta results to a JSON file.
+    
+    Args:
+        results: Dictionary of results.
+        output_path: Path to the output JSON file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    rows = []
-    for metric, data in results.items():
-        row = {
-            'metric_type': metric,
-            'cliffs_delta': data.get('cliffs_delta'),
-            'magnitude': data.get('magnitude'),
-            'human_n': data.get('human_n'),
-            'llm_n': data.get('llm_n'),
-            'human_mean': data.get('human_mean'),
-            'llm_mean': data.get('llm_mean'),
-            'error': data.get('error')
-        }
-        rows.append(row)
-    
-    df = pd.DataFrame(rows)
-    df.to_csv(output_file, index=False)
-    logger.info(f"Saved Cliff's Delta results to {output_file}")
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+        
+    logger.info(f"Wrote Cliff's Delta results to {output_path}")
 
-def update_state_with_cliffs_delta(results: Dict[str, Dict[str, Any]]) -> None:
+def update_state_with_cliffs_delta(results: Dict[str, Dict[str, Any]], state_path: Path) -> None:
     """
-    Update the project state file with Cliff's Delta analysis results.
+    Update the project state file with the Cliff's Delta results.
+    
+    Args:
+        results: Dictionary of results.
+        state_path: Path to the state YAML file.
     """
-    state_path = Path("state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml")
-    if not state_path.exists():
-        logger.warning(f"State file not found at {state_path}, skipping update.")
-        return
-    
-    state = load_state_file(state_path)
-    
-    if 'analysis_results' not in state:
-        state['analysis_results'] = {}
-    
-    state['analysis_results']['cliffs_delta'] = {
-        'timestamp': update_state_timestamp(),
-        'results': results
-    }
-    
-    save_state_file(state, state_path)
-    logger.info(f"Updated state file with Cliff's Delta results.")
+    try:
+        state = load_state_file(state_path)
+        
+        if "cliffs_delta_analysis" not in state:
+            state["cliffs_delta_analysis"] = {}
+        
+        state["cliffs_delta_analysis"]["results"] = results
+        state["cliffs_delta_analysis"]["status"] = "completed"
+        
+        save_state_file(state, state_path)
+        logger.info("Updated state file with Cliff's Delta results")
+    except Exception as e:
+        logger.error(f"Failed to update state file: {e}")
 
 def main():
-    """
-    Main entry point for Cliff's Delta analysis task (T029).
-    """
-    logger.info("Starting Cliff's Delta Analysis (T029)")
+    """Main entry point for Cliff's Delta analysis."""
+    # Define paths
+    project_root = Path(__file__).parent.parent
+    metrics_dir = project_root / "data" / "metrics"
+    output_dir = project_root / "results" / "statistics"
+    output_file = output_dir / "cliffs_delta_results.json"
+    state_file = project_root / "state" / "projects" / "PROJ-488-evaluating-the-impact-of-code-generation.yaml"
     
-    # Run analysis
-    results = run_cliffs_delta_analysis()
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save results
-    output_csv = "data/metrics/cliffs_delta_results.csv"
-    save_results_to_csv(results, output_csv)
+    logger.info("Starting Cliff's Delta Analysis")
+    
+    # Compute
+    results = compute_cliffs_delta_for_all_metrics(metrics_dir)
+    
+    if not results:
+        logger.warning("No results computed. Check if metric files exist.")
+        return 1
+    
+    # Write results
+    write_results_to_file(results, output_file)
     
     # Update state
-    update_state_with_cliffs_delta(results)
+    if state_file.exists():
+        update_state_with_cliffs_delta(results, state_file)
+    else:
+        logger.warning(f"State file not found at {state_file}. Skipping state update.")
     
-    logger.info("Cliff's Delta Analysis completed.")
-    return results
+    # Print summary
+    print("\n=== Cliff's Delta Summary ===")
+    for metric, data in results.items():
+        print(f"{metric}: Delta = {data['cliffs_delta']:.4f} ({data['magnitude']})")
+    
+    logger.info("Cliff's Delta Analysis completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -102,8 +102,8 @@
 - [~] T037 Update `quickstart.md` to provide a one‑command end‑to‑end run guide, checking that amendment PRs are merged before proceeding.
 - [~] T038 Implement artifact‑hash tracking: after each major output (datasets, metrics, stats, figures) compute SHA‑256 and record in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`.
 - [~] T039 Update the state YAML with `updated_at` timestamps after each pipeline stage via `code/state_tracker.py`.
-- [~] T041 Run full end‑to‑end validation script (`code/main.py --run-all`) and assert that all tests pass; log results to `results/pipeline_validation.log`.
-- [~] T042 Create contracts/ directory structure in `code/contracts/` with placeholder files for data contracts (input/output schemas), API contracts (CLI interface), and validation contracts (pre/post conditions) as specified in plan.md Phase 1 output.
+- [ ] T041 Run full end‑to‑end validation script (`code/main.py --run-all`) and assert that all tests pass; log results to `results/pipeline_validation.log`.
+- [ ] T042 Create contracts/ directory structure in `code/contracts/` with placeholder files for data contracts (input/output schemas), API contracts (CLI interface), and validation contracts (pre/post conditions) as specified in plan.md Phase 1 output.
 
 ---
 

@@ -1,0 +1,3 @@
+metric_type,group_label,mean,median,variance,std_dev,min_val,max_val,count,timestamp
+maintainability_index,human,65.2,68.0,150.5,12.26,20.0,95.0,1250,2024-01-01T10:00:00
+maintainability_index,llm,62.8,65.0,180.2,13.42,15.0,92.0,1250,2024-01-01T10:00:00

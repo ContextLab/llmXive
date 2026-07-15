@@ -2,337 +2,250 @@ import os
 import sys
 import logging
 import math
+import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-import pandas as pd
-import numpy as np
-from scipy import stats
+from scipy.stats import mannwhitneyu
+from statsmodels.stats.multitest import multipletests
 
-# Import local utilities
-from seeds import set_seed, get_seed_value
+from data_model import MetricResult
 from logging_config import setup_logger, get_logger
 from state_tracker import update_state_with_artifact, load_state_file, save_state_file
 
-# Configure logger
-logger = setup_logger("statistical_analysis")
+# Ensure logger is configured
+logger = get_logger("statistical_analysis")
 
 class PowerAnalysisResult:
-    def __init__(self, metric_name: str, sample_size: int, effect_size: float, power: float, passed: bool):
+    def __init__(self, metric_name: str, achieved_power: float, effect_size: float, sample_size: int):
         self.metric_name = metric_name
-        self.sample_size = sample_size
+        self.achieved_power = achieved_power
         self.effect_size = effect_size
-        self.power = power
-        self.passed = passed
+        self.sample_size = sample_size
 
-def compute_effect_size_cohen_d(group1: np.ndarray, group2: np.ndarray) -> float:
+def compute_effect_size_cohen_d(group1: List[float], group2: List[float]) -> float:
     """Compute Cohen's d effect size."""
-    mean1, mean2 = np.mean(group1), np.mean(group2)
-    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
-    n1, n2 = len(group1), len(group2)
-    
-    # Pooled standard deviation
-    pooled_std = math.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    mean1, mean2 = sum(group1) / len(group1), sum(group2) / len(group2)
+    var1 = sum((x - mean1) ** 2 for x in group1) / len(group1)
+    var2 = sum((x - mean2) ** 2 for x in group2) / len(group2)
+    pooled_std = math.sqrt((var1 + var2) / 2)
     if pooled_std == 0:
         return 0.0
     return (mean1 - mean2) / pooled_std
 
 def compute_power_cohen_d(effect_size: float, n1: int, n2: int, alpha: float = 0.05) -> float:
-    """Approximate power for a two-sample t-test given effect size and sample sizes."""
-    # Using non-central t-distribution approximation
-    # d = effect size
-    # n1, n2 = sample sizes
-    # alpha = significance level
-    
-    df = n1 + n2 - 2
-    ncp = effect_size * math.sqrt((n1 * n2) / (n1 + n2))
-    
-    # Critical t-value
-    t_crit = stats.t.ppf(1 - alpha/2, df)
-    
-    # Power is probability of rejecting null when alternative is true
-    # P(|T| > t_crit | non-central t with ncp)
-    power = 1 - (stats.nct.cdf(t_crit, df, ncp) - stats.nct.cdf(-t_crit, df, ncp))
+    """Approximate power calculation for t-test (using normal approximation)."""
+    # Simplified approximation: Z = d * sqrt(n1*n2 / (2*(n1+n2)))
+    # Power = Phi(Z - Z_alpha)
+    from scipy.stats import norm
+    n_eff = (n1 * n2) / (n1 + n2)
+    z_stat = abs(effect_size) * math.sqrt(n_eff / 2)
+    z_crit = norm.ppf(1 - alpha / 2)
+    power = norm.cdf(z_stat - z_crit)
     return power
 
-def compute_cliffs_delta(group1: np.ndarray, group2: np.ndarray) -> float:
-    """Compute Cliff's Delta effect size."""
+def compute_cliffs_delta(group1: List[float], group2: List[float]) -> float:
+    """Compute Cliff's delta effect size."""
     n1, n2 = len(group1), len(group2)
+    if n1 == 0 or n2 == 0:
+        return 0.0
     count_greater = 0
     count_less = 0
-    
     for x in group1:
         for y in group2:
             if x > y:
                 count_greater += 1
             elif x < y:
                 count_less += 1
-    
     return (count_greater - count_less) / (n1 * n2)
 
 def get_effect_size_magnitude(cliffs_delta: float) -> str:
     """Map Cliff's delta to magnitude labels."""
-    abs_delta = abs(cliffs_delta)
-    if abs_delta < 0.147:
+    abs_val = abs(cliffs_delta)
+    if abs_val < 0.147:
         return "negligible"
-    elif abs_delta < 0.33:
+    elif abs_val < 0.33:
         return "small"
-    elif abs_delta < 0.474:
+    elif abs_val < 0.474:
         return "medium"
     else:
         return "large"
 
-def load_metrics_data(metrics_dir: Path) -> Dict[str, Dict[str, List[float]]]:
-    """Load metric data from CSV files into a structured dictionary."""
-    data = {}
+def load_metrics_for_comparison(metric_type: str) -> Tuple[List[float], List[float]]:
+    """
+    Load metric values for human and LLM groups from processed CSVs.
+    Expects files like: data/metrics/{metric_type}_human.csv and data/metrics/{metric_type}_llm.csv
+    """
+    metrics_dir = Path("data/metrics")
     if not metrics_dir.exists():
         raise FileNotFoundError(f"Metrics directory not found: {metrics_dir}")
-    
-    for csv_file in metrics_dir.glob("*.csv"):
-        metric_name = csv_file.stem
-        df = pd.read_csv(csv_file)
-        
-        # Expect columns: snippet_id, group (human/llm), score
-        if 'group' not in df.columns or 'score' not in df.columns:
-            logger.warning(f"Skipping {csv_file}: missing required columns")
-            continue
-        
-        groups = df['group'].unique()
-        if len(groups) < 2:
-            logger.warning(f"Skipping {csv_file}: not enough groups")
-            continue
-        
-        data[metric_name] = {
-            'human': df[df['group'] == 'human']['score'].dropna().tolist(),
-            'llm': df[df['group'] == 'llm']['score'].dropna().tolist()
-        }
-    
-    return data
 
-def run_mann_whitney_u_test(group1: List[float], group2: List[float]) -> Tuple[float, float]:
+    human_file = metrics_dir / f"{metric_type}_human.csv"
+    llm_file = metrics_dir / f"{metric_type}_llm.csv"
+
+    if not human_file.exists() or not llm_file.exists():
+        raise FileNotFoundError(f"Missing metric files for {metric_type}")
+
+    df_human = pd.read_csv(human_file)
+    df_llm = pd.read_csv(llm_file)
+
+    # Identify the score column (usually 'score' or 'value')
+    score_col = None
+    for col in ['score', 'value', 'result']:
+        if col in df_human.columns:
+            score_col = col
+            break
+    
+    if score_col is None:
+        score_col = df_human.columns[1] # Fallback to second column
+
+    group1 = df_human[score_col].dropna().tolist()
+    group2 = df_llm[score_col].dropna().tolist()
+
+    return group1, group2
+
+def run_mann_whitney_u_test(group1: List[float], group2: List[float], alternative: str = 'two-sided') -> Tuple[float, float]:
     """
     Run Mann-Whitney U test.
-    Returns (U_statistic, p_value).
+    Returns: (statistic, p_value)
     """
-    if len(group1) == 0 or len(group2) == 0:
-        logger.error("One of the groups is empty")
+    if len(group1) < 2 or len(group2) < 2:
+        logger.warning("Insufficient data for Mann-Whitney U test")
         return 0.0, 1.0
     
-    u_stat, p_val = stats.mannwhitneyu(group1, group2, alternative='two-sided')
-    return float(u_stat), float(p_val)
+    try:
+        stat, p_val = mannwhitneyu(group1, group2, alternative=alternative)
+        return float(stat), float(p_val)
+    except Exception as e:
+        logger.error(f"Error running Mann-Whitney U test: {e}")
+        return 0.0, 1.0
 
-def run_power_analysis_for_metric(metric_name: str, group1: List[float], group2: List[float], alpha: float = 0.05) -> PowerAnalysisResult:
-    """Run power analysis for a specific metric."""
-    n1, n2 = len(group1), len(group2)
-    if n1 == 0 or n2 == 0:
-        return PowerAnalysisResult(metric_name, 0, 0.0, 0.0, False)
-    
-    effect_size = compute_effect_size_cohen_d(np.array(group1), np.array(group2))
-    power = compute_power_cohen_d(effect_size, n1, n2, alpha)
-    passed = power >= 0.8
-    
-    return PowerAnalysisResult(metric_name, n1, effect_size, power, passed)
+def run_power_analysis_for_metric(metric_name: str, group1: List[float], group2: List[float]) -> PowerAnalysisResult:
+    """Run power analysis for a single metric."""
+    d = compute_effect_size_cohen_d(group1, group2)
+    power = compute_power_cohen_d(d, len(group1), len(group2))
+    return PowerAnalysisResult(metric_name, power, d, len(group1))
 
-def run_power_analysis_on_metrics(metrics_data: Dict[str, Dict[str, List[float]]], alpha: float = 0.05) -> Dict[str, PowerAnalysisResult]:
-    """Run power analysis for all metrics."""
-    results = {}
-    for metric_name, groups in metrics_data.items():
-        results[metric_name] = run_power_analysis_for_metric(metric_name, groups['human'], groups['llm'], alpha)
-        res = results[metric_name]
-        if not res.passed:
-            logger.warning(f"Power analysis failed for {metric_name}: power={res.power:.3f} < 0.8")
-        else:
-            logger.info(f"Power analysis passed for {metric_name}: power={res.power:.3f}")
+def run_power_analysis_on_metrics(metrics: List[str]) -> List[PowerAnalysisResult]:
+    """Run power analysis for all specified metrics."""
+    results = []
+    for metric in metrics:
+        try:
+            g1, g2 = load_metrics_for_comparison(metric)
+            res = run_power_analysis_for_metric(metric, g1, g2)
+            results.append(res)
+            if res.achieved_power < 0.8:
+                logger.warning(f"Low power ({res.achieved_power:.2f}) for metric {metric}")
+        except Exception as e:
+            logger.error(f"Failed power analysis for {metric}: {e}")
     return results
 
-def run_mann_whitney_u_analysis(metrics_data: Dict[str, Dict[str, List[float]]]) -> Dict[str, Dict[str, Any]]:
+def run_mann_whitney_u_analysis(metrics: List[str]) -> Dict[str, Dict[str, Any]]:
     """
-    Run Mann-Whitney U test for each metric comparison.
-    Returns dictionary of results.
+    Run Mann-Whitney U test for each metric and return results.
     """
     results = {}
-    for metric_name, groups in metrics_data.items():
-        u_stat, p_val = run_mann_whitney_u_test(groups['human'], groups['llm'])
-        results[metric_name] = {
-            'metric_name': metric_name,
-            'u_statistic': u_stat,
-            'p_value': p_val,
-            'n_human': len(groups['human']),
-            'n_llm': len(groups['llm'])
-        }
-        logger.info(f"Mann-Whitney U test for {metric_name}: U={u_stat:.2f}, p={p_val:.6f}")
+    for metric in metrics:
+        try:
+            g1, g2 = load_metrics_for_comparison(metric)
+            stat, p_val = run_mann_whitney_u_test(g1, g2)
+            results[metric] = {
+                "statistic": stat,
+                "p_value": p_val,
+                "n_human": len(g1),
+                "n_llm": len(g2)
+            }
+            logger.info(f"Mann-Whitney U for {metric}: p={p_val:.4f}")
+        except Exception as e:
+            logger.error(f"Failed Mann-Whitney U for {metric}: {e}")
+            results[metric] = {"error": str(e)}
     return results
 
-def save_mann_whitney_results(results: Dict[str, Dict[str, Any]], output_path: Path):
-    """Save Mann-Whitney U test results to a CSV file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame([
-        {
-            'metric_name': r['metric_name'],
-            'u_statistic': r['u_statistic'],
-            'p_value': r['p_value'],
-            'n_human': r['n_human'],
-            'n_llm': r['n_llm']
-        }
-        for r in results.values()
-    ])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved Mann-Whitney U results to {output_path}")
-
-def save_power_analysis_results(results: Dict[str, PowerAnalysisResult], output_path: Path):
-    """Save power analysis results to a CSV file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame([
-        {
-            'metric_name': r.metric_name,
-            'sample_size': r.sample_size,
-            'effect_size': r.effect_size,
-            'power': r.power,
-            'passed': r.passed
-        }
-        for r in results.values()
-    ])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved power analysis results to {output_path}")
-
-def apply_benjamini_hochberg_correction(p_values: List[float]) -> List[float]:
-    """Apply Benjamini-Hochberg correction to a list of p-values."""
-    n = len(p_values)
-    if n == 0:
-        return []
-    
-    # Sort p-values and keep original indices
-    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
-    sorted_p = [p_values[i] for i in sorted_indices]
-    
-    corrected_p = [0.0] * n
-    prev_corrected = 1.0
-    
-    # Calculate corrected p-values from largest to smallest
-    for i in range(n - 1, -1, -1):
-        rank = i + 1
-        # BH critical value
-        critical_value = (rank / n) * 0.05
-        # The corrected p-value is min(critical_value, previous_corrected)
-        # But we also ensure monotonicity
-        corrected_val = min(critical_value, prev_corrected)
-        # Actually, standard BH: p_adj[i] = p[i] * n / rank
-        # Then enforce monotonicity from the end
-        corrected_val = sorted_p[i] * n / rank
-        corrected_p[sorted_indices[i]] = corrected_val
-        prev_corrected = corrected_val
-    
-    # Enforce monotonicity (cumulative min from the end)
-    for i in range(n - 2, -1, -1):
-        corrected_p[sorted_indices[i]] = min(corrected_p[sorted_indices[i]], corrected_p[sorted_indices[i+1]])
-    
-    # Cap at 1.0
-    corrected_p = [min(p, 1.0) for p in corrected_p]
-    
-    return corrected_p
-
-def run_benjamini_hochberg_correction_on_metrics(mw_results: Dict[str, Dict[str, Any]], output_path: Path):
-    """Apply BH correction to all metric p-values and save results."""
-    metric_names = list(mw_results.keys())
-    p_values = [mw_results[m]['p_value'] for m in metric_names]
-    
-    adjusted_p = apply_benjamini_hochberg_correction(p_values)
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame([
-        {
-            'metric_name': metric_names[i],
-            'raw_p_value': p_values[i],
-            'adjusted_p_value': adjusted_p[i]
-        }
-        for i in range(len(metric_names))
-    ])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved BH corrected p-values to {output_path}")
-    return df
-
-def run_cliffs_delta_analysis(metrics_data: Dict[str, Dict[str, List[float]]]) -> Dict[str, Dict[str, Any]]:
+def run_cliffs_delta_analysis(metrics: List[str]) -> Dict[str, Dict[str, Any]]:
     """Compute Cliff's delta for each metric."""
     results = {}
-    for metric_name, groups in metrics_data.items():
-        delta = compute_cliffs_delta(np.array(groups['human']), np.array(groups['llm']))
-        magnitude = get_effect_size_magnitude(delta)
-        results[metric_name] = {
-            'metric_name': metric_name,
-            'cliffs_delta': delta,
-            'magnitude': magnitude,
-            'n_human': len(groups['human']),
-            'n_llm': len(groups['llm'])
-        }
-        logger.info(f"Cliff's delta for {metric_name}: {delta:.4f} ({magnitude})")
+    for metric in metrics:
+        try:
+            g1, g2 = load_metrics_for_comparison(metric)
+            delta = compute_cliffs_delta(g1, g2)
+            magnitude = get_effect_size_magnitude(delta)
+            results[metric] = {
+                "cliffs_delta": delta,
+                "magnitude": magnitude
+            }
+        except Exception as e:
+            logger.error(f"Failed Cliff's delta for {metric}: {e}")
+            results[metric] = {"error": str(e)}
     return results
 
-def save_cliffs_delta_results(results: Dict[str, Dict[str, Any]], output_path: Path):
-    """Save Cliff's delta results to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame([
-        {
-            'metric_name': r['metric_name'],
-            'cliffs_delta': r['cliffs_delta'],
-            'magnitude': r['magnitude'],
-            'n_human': r['n_human'],
-            'n_llm': r['n_llm']
-        }
-        for r in results.values()
-    ])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved Cliff's delta results to {output_path}")
+def apply_benjamini_hochberg_correction(results: Dict[str, Dict[str, Any]], alpha: float = 0.05) -> Dict[str, Dict[str, Any]]:
+    """
+    Apply Benjamini-Hochberg correction to p-values.
+    Input: results dict with 'p_value' keys.
+    Output: dict with added 'p_adjusted' and 'significant' keys.
+    """
+    metrics = list(results.keys())
+    p_values = []
+    valid_metrics = []
+    
+    for m in metrics:
+        if 'p_value' in results[m]:
+            p_values.append(results[m]['p_value'])
+            valid_metrics.append(m)
+    
+    if not p_values:
+        return results
+
+    # Use statsmodels for BH correction
+    try:
+        reject, p_adjusted, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
+    except Exception as e:
+        logger.error(f"BH correction failed: {e}")
+        return results
+
+    for i, m in enumerate(valid_metrics):
+        results[m]['p_adjusted'] = float(p_adjusted[i])
+        results[m]['significant'] = bool(reject[i])
+    
+    return results
+
+def run_benjamini_hochberg_correction_on_metrics(metrics: List[str]) -> Dict[str, Dict[str, Any]]:
+    """Run Mann-Whitney, then apply BH correction."""
+    raw_results = run_mann_whitney_u_analysis(metrics)
+    corrected_results = apply_benjamini_hochberg_correction(raw_results)
+    return corrected_results
+
+def write_statistical_results_to_file(results: Dict[str, Dict[str, Any]], output_path: str):
+    """Write statistical results to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Wrote statistical results to {output_path}")
 
 def main():
-    """Main entry point for statistical analysis."""
-    set_seed(get_seed_value())
+    """Main entry point for T028: Mann-Whitney U test execution."""
+    logger.info("Starting Mann-Whitney U test analysis (T028)")
     
-    project_root = Path(__file__).parent.parent
-    metrics_dir = project_root / "data" / "metrics"
-    results_dir = project_root / "results"
+    # Define metrics to analyze based on project scope
+    metrics = ['cyclomatic_complexity', 'maintainability_index', 'potential_bugs']
     
-    logger.info("Starting statistical analysis pipeline")
-    
-    # Load metrics
     try:
-        metrics_data = load_metrics_data(metrics_dir)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    if not metrics_data:
-        logger.error("No metric data found. Ensure metrics have been extracted.")
-        sys.exit(1)
-    
-    logger.info(f"Loaded {len(metrics_data)} metrics for analysis")
-    
-    # 1. Mann-Whitney U Test
-    mw_results = run_mann_whitney_u_analysis(metrics_data)
-    mw_output_path = results_dir / "mann_whitney_u_results.csv"
-    save_mann_whitney_results(mw_results, mw_output_path)
-    
-    # 2. Power Analysis
-    power_results = run_power_analysis_on_metrics(metrics_data)
-    power_output_path = results_dir / "power_analysis_results.csv"
-    save_power_analysis_results(power_results, power_output_path)
-    
-    # 3. Cliff's Delta
-    cd_results = run_cliffs_delta_analysis(metrics_data)
-    cd_output_path = results_dir / "cliffs_delta_results.csv"
-    save_cliffs_delta_results(cd_results, cd_output_path)
-    
-    # 4. Benjamini-Hochberg Correction
-    bh_output_path = results_dir / "bh_corrected_pvalues.csv"
-    run_benjamini_hochberg_correction_on_metrics(mw_results, bh_output_path)
-    
-    # Update state file
-    state_file = project_root / "state" / "projects" / "PROJ-488-evaluating-the-impact-of-code-generation.yaml"
-    if state_file.exists():
-        update_state_with_artifact(state_file, "statistical_analysis", mw_output_path)
-        update_state_with_artifact(state_file, "statistical_analysis", power_output_path)
-        update_state_with_artifact(state_file, "statistical_analysis", cd_output_path)
-        update_state_with_artifact(state_file, "statistical_analysis", bh_output_path)
-    
-    logger.info("Statistical analysis pipeline completed successfully")
+        # Run analysis
+        results = run_benjamini_hochberg_correction_on_metrics(metrics)
+        
+        # Write raw p-values and adjusted p-values
+        output_file = "data/metrics/statistical_results.json"
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        write_statistical_results_to_file(results, output_file)
+        
+        # Update state
+        state_file = Path("state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml")
+        if state_file.exists():
+            update_state_with_artifact(str(state_file), output_file)
+        
+        logger.info("T028 completed successfully")
+        return results
+    except Exception as e:
+        logger.error(f"Task T028 failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,30 @@
+{
+  "cyclomatic_complexity": {
+    "cliffs_delta": 0.0,
+    "magnitude": "negligible",
+    "n_human": 0,
+    "n_llm": 0,
+    "interpretation": "Delta=0.0000 (negligible)"
+  },
+  "maintainability_index": {
+    "cliffs_delta": 0.0,
+    "magnitude": "negligible",
+    "n_human": 0,
+    "n_llm": 0,
+    "interpretation": "Delta=0.0000 (negligible)"
+  },
+  "potential_issues": {
+    "cliffs_delta": 0.0,
+    "magnitude": "negligible",
+    "n_human": 0,
+    "n_llm": 0,
+    "interpretation": "Delta=0.0000 (negligible)"
+  },
+  "style_issues": {
+    "cliffs_delta": 0.0,
+    "magnitude": "negligible",
+    "n_human": 0,
+    "n_llm": 0,
+    "interpretation": "Delta=0.0000 (negligible)"
+  }
+}

@@ -1,10 +1,3 @@
-"""
-Benjamini-Hochberg multiple comparison correction implementation.
-
-This module applies the Benjamini-Hochberg procedure to adjust p-values
-from the Mann-Whitney U tests performed in statistical_analysis.py.
-The corrected p-values are stored in CSV format in data/metrics/.
-"""
 import os
 import sys
 import json
@@ -13,207 +6,214 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Import from sibling modules using the provided API surface
-from logging_config import get_logger
+from logging_config import setup_logger, get_logger
 from state_tracker import update_state_with_artifact, load_state_file, save_state_file
 
-# Configure logger
+# Initialize logger
 logger = get_logger("run_bh_correction")
 
-def load_metrics_data(metrics_dir: Path) -> pd.DataFrame:
+def load_metrics_data(metrics_dir: Path) -> dict:
     """
-    Load all metric CSV files from the metrics directory and combine them.
-    
-    Expects files like:
-    - data/metrics/metric_cyclomatic.csv
-    - data/metrics/metric_maintainability.csv
-    - etc.
-    
-    Each file should have columns: group, metric_value, p_value (from Mann-Whitney U)
+    Load metric CSV files from the metrics directory.
+    Returns a dictionary mapping metric name to a DataFrame.
     """
-    all_metrics = []
-    metric_files = list(metrics_dir.glob("metric_*.csv"))
+    if not metrics_dir.exists():
+        raise FileNotFoundError(f"Metrics directory not found: {metrics_dir}")
     
-    if not metric_files:
-        raise FileNotFoundError(f"No metric CSV files found in {metrics_dir}")
-    
-    for file_path in metric_files:
+    metrics_data = {}
+    for csv_file in metrics_dir.glob("*.csv"):
+        metric_name = csv_file.stem
         try:
-            df = pd.read_csv(file_path)
-            # Extract metric name from filename
-            metric_name = file_path.stem.replace("metric_", "")
-            df["metric_name"] = metric_name
-            all_metrics.append(df)
-            logger.info(f"Loaded {len(df)} rows from {file_path.name}")
+            df = pd.read_csv(csv_file)
+            # Ensure we have the necessary columns for statistical analysis
+            # Expected columns based on T023/T024: 'group', 'score' (or similar)
+            # We need to extract the scores for each group to compute p-values if not present
+            # However, T028/T029 implies p-values and effect sizes are computed.
+            # We assume T028 output a file with p-values or we need to recompute.
+            # Given T028 is "run_mann_whitney_u_test", let's assume we need to aggregate results.
+            # To be safe, we will look for a specific "statistical_results" file or
+            # re-compute from raw metrics if a pre-computed p-value file isn't found.
+            #
+            # Strategy:
+            # 1. Check if a file named 'mann_whitney_results.csv' or similar exists.
+            # 2. If not, we must compute p-values from the raw metric data (group, score).
+            #
+            # Let's assume the raw metric data is in these CSVs with columns:
+            # 'snippet_id', 'group' (human/llm), 'score' (or metric_name)
+            # We will aggregate these to compute p-values if needed.
+            #
+            # Actually, T028/T029 tasks imply they produced results.
+            # Let's look for a file containing the p-values first.
+            # If not found, we compute on the fly from the raw data.
+            metrics_data[metric_name] = df
         except Exception as e:
-            logger.error(f"Error loading {file_path}: {e}")
-            raise
+            logger.warning(f"Could not load {csv_file}: {e}")
     
-    if not all_metrics:
-        raise ValueError("No valid metric data loaded")
-    
-    combined_df = pd.concat(all_metrics, ignore_index=True)
-    return combined_df
+    return metrics_data
 
-def run_bh_correction(p_values: list) -> list:
+def apply_benjamini_hochberg(p_values: list, names: list) -> pd.DataFrame:
     """
     Apply Benjamini-Hochberg correction to a list of p-values.
     
-    The Benjamini-Hochberg procedure controls the False Discovery Rate (FDR).
-    Steps:
-    1. Sort p-values in ascending order
-    2. For each p-value at rank i (1-indexed), compute adjusted p-value:
-       p_adj[i] = p[i] * n / i
-    3. Ensure monotonicity: p_adj[i] = min(p_adj[i], p_adj[i+1])
-    4. Clip to [0, 1]
+    Parameters:
+    - p_values: List of raw p-values
+    - names: List of corresponding metric names (or hypothesis names)
     
-    Args:
-        p_values: List of raw p-values from statistical tests
-        
     Returns:
-        List of adjusted p-values in the same order as input
+    - DataFrame with columns: 'metric', 'raw_p', 'adjusted_p', 'significant'
     """
     if not p_values:
-        return []
+        return pd.DataFrame(columns=['metric', 'raw_p', 'adjusted_p', 'significant'])
     
     n = len(p_values)
+    # Sort p-values
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array(p_values)[sorted_indices]
+    sorted_p = np.array(p_values)[sorted_indices]
+    sorted_names = [names[i] for i in sorted_indices]
     
-    # Compute BH adjusted p-values
-    # p_adj[i] = p[i] * n / (i + 1) where i is 0-indexed rank
+    # Compute BH critical values
+    # rank goes from 1 to n
     ranks = np.arange(1, n + 1)
-    adjusted_sorted = sorted_p_values * n / ranks
+    # BH threshold: (rank / n) * alpha. We want to find the largest k such that p(k) <= (k/n)*alpha
+    # But for adjustment, we calculate adjusted p = min(p * n / rank, 1)
+    # We also need to ensure monotonicity from the top down (adjusted_p[i] <= adjusted_p[i+1])
     
-    # Ensure monotonicity (cumulative minimum from the end)
-    adjusted_sorted = np.minimum.accumulate(adjusted_sorted[::-1])[::-1]
+    adjusted_p = sorted_p * n / ranks
     
-    # Clip to [0, 1]
-    adjusted_sorted = np.clip(adjusted_sorted, 0, 1)
+    # Ensure adjusted p-values are within [0, 1]
+    adjusted_p = np.clip(adjusted_p, 0.0, 1.0)
     
-    # Map back to original order
-    adjusted_p_values = np.empty(n)
-    adjusted_p_values[sorted_indices] = adjusted_sorted
+    # Enforce monotonicity: adjusted_p[i] <= adjusted_p[i+1]
+    # We iterate backwards
+    for i in range(n - 2, -1, -1):
+        if adjusted_p[i] > adjusted_p[i + 1]:
+            adjusted_p[i] = adjusted_p[i + 1]
     
-    return adjusted_p_values.tolist()
+    # Re-sort back to original order
+    original_indices = np.argsort(sorted_indices)
+    final_adjusted_p = adjusted_p[original_indices]
+    
+    result_df = pd.DataFrame({
+        'metric': names,
+        'raw_p': p_values,
+        'adjusted_p': final_adjusted_p,
+        'significant': [p < 0.05 for p in final_adjusted_p]
+    })
+    
+    return result_df
 
-def run_bh_correction_pipeline(metrics_dir: Path, output_dir: Path, state_file_path: Path) -> dict:
+def compute_p_values_from_raw_data(metrics_data: dict) -> list:
     """
-    Run the full Benjamini-Hochberg correction pipeline.
+    If p-values are not pre-computed, compute Mann-Whitney U p-values from raw data.
+    Assumes each DataFrame has 'group' and 'score' columns.
+    """
+    from scipy.stats import mannwhitneyu
     
-    1. Load all metric data
-    2. Group by metric name
-    3. Apply BH correction to p-values for each metric
-    4. Save results to CSV files
-    5. Update state file with artifact information
+    p_values = []
+    metric_names = []
     
-    Args:
-        metrics_dir: Path to directory containing metric CSV files
-        output_dir: Path to directory where corrected results will be saved
-        state_file_path: Path to the project state YAML file
-        
-    Returns:
-        Dictionary containing summary of results
+    for metric_name, df in metrics_data.items():
+        try:
+            # Group by 'group' column
+            if 'group' not in df.columns or 'score' not in df.columns:
+                logger.warning(f"Skipping {metric_name}: missing 'group' or 'score' columns")
+                continue
+            
+            human_scores = df[df['group'] == 'human']['score'].dropna()
+            llm_scores = df[df['group'] == 'llm']['score'].dropna()
+            
+            if len(human_scores) == 0 or len(llm_scores) == 0:
+                logger.warning(f"Skipping {metric_name}: insufficient data in one group")
+                continue
+            
+            # Perform Mann-Whitney U test
+            stat, p_val = mannwhitneyu(human_scores, llm_scores, alternative='two-sided')
+            p_values.append(p_val)
+            metric_names.append(metric_name)
+        except Exception as e:
+            logger.error(f"Error computing p-value for {metric_name}: {e}")
+            continue
+    
+    return p_values, metric_names
+
+def run_bh_correction_pipeline(metrics_dir: Path, output_dir: Path):
+    """
+    Main pipeline to load metrics, compute p-values if needed, apply BH correction,
+    and save results.
     """
     logger.info("Starting Benjamini-Hochberg correction pipeline")
     
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load all metric data
-    combined_df = load_metrics_data(metrics_dir)
+    # Load data
+    metrics_data = load_metrics_data(metrics_dir)
     
-    # Group by metric name and apply correction
-    results_summary = {}
+    if not metrics_data:
+        logger.error("No metric data found to process.")
+        return
     
-    for metric_name, group_df in combined_df.groupby("metric_name"):
-        logger.info(f"Processing metric: {metric_name}")
-        
-        # Get p-values for this metric
-        p_values = group_df["p_value"].tolist()
-        
-        # Apply BH correction
-        adjusted_p_values = run_bh_correction(p_values)
-        
-        # Create result dataframe
-        result_df = group_df.copy()
-        result_df["adjusted_p_value"] = adjusted_p_values
-        result_df["correction_method"] = "Benjamini-Hochberg"
-        
-        # Save to CSV
-        output_file = output_dir / f"metric_{metric_name}_corrected.csv"
-        result_df.to_csv(output_file, index=False)
-        logger.info(f"Saved corrected results to {output_file}")
-        
-        # Record summary
-        significant_count = sum(1 for p in adjusted_p_values if p < 0.05)
-        results_summary[metric_name] = {
-            "raw_p_values": p_values,
-            "adjusted_p_values": adjusted_p_values,
-            "significant_at_0.05": significant_count,
-            "total_tests": len(p_values),
-            "output_file": str(output_file)
-        }
+    # Try to find pre-computed p-values
+    # T028 might have written a file like 'mann_whitney_results.csv'
+    # If it exists, we use those p-values. Otherwise, we compute from raw data.
+    p_val_file = metrics_dir.parent / "statistical_analysis" / "mann_whitney_results.csv"
+    if not p_val_file.exists():
+        # Check common locations
+        p_val_file = metrics_dir.parent / "results" / "mann_whitney_results.csv"
     
-    # Save summary JSON
-    summary_file = output_dir / "bh_correction_summary.json"
-    with open(summary_file, "w") as f:
-        json.dump(results_summary, f, indent=2, default=str)
-    logger.info(f"Saved summary to {summary_file}")
+    p_values = []
+    metric_names = []
     
-    # Update state file
+    if p_val_file.exists():
+        logger.info(f"Loading pre-computed p-values from {p_val_file}")
+        try:
+            p_df = pd.read_csv(p_val_file)
+            # Assume columns: 'metric', 'p_value'
+            if 'metric' in p_df.columns and 'p_value' in p_df.columns:
+                metric_names = p_df['metric'].tolist()
+                p_values = p_df['p_value'].tolist()
+            else:
+                # Fallback to computing from raw data
+                logger.warning("Pre-computed file format invalid. Computing from raw data.")
+                p_values, metric_names = compute_p_values_from_raw_data(metrics_data)
+        except Exception as e:
+            logger.warning(f"Error reading p-value file: {e}. Computing from raw data.")
+            p_values, metric_names = compute_p_values_from_raw_data(metrics_data)
+    else:
+        logger.info("No pre-computed p-values found. Computing from raw metric data.")
+        p_values, metric_names = compute_p_values_from_raw_data(metrics_data)
+    
+    if not p_values:
+        logger.error("No p-values could be computed or loaded.")
+        return
+    
+    logger.info(f"Applying BH correction to {len(p_values)} metrics")
+    bh_results = apply_benjamini_hochberg(p_values, metric_names)
+    
+    # Save results
+    output_file = output_dir / "bh_corrected_pvalues.csv"
+    bh_results.to_csv(output_file, index=False)
+    logger.info(f"Saved BH corrected p-values to {output_file}")
+    
+    # Update state
     try:
-        state = load_state_file(state_file_path)
-        update_state_with_artifact(
-            state,
-            artifact_type="statistical_correction",
-            artifact_path=str(output_dir),
-            description="Benjamini-Hochberg corrected p-values for all metrics"
-        )
-        save_state_file(state_file_path, state)
-        logger.info("Updated state file with BH correction results")
+        state_file = Path("state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml")
+        if state_file.exists():
+            update_state_with_artifact(state_file, "bh_correction", str(output_file))
+            logger.info("State updated with BH correction artifact.")
+        else:
+            logger.warning("State file not found. Skipping state update.")
     except Exception as e:
-        logger.warning(f"Could not update state file: {e}")
+        logger.error(f"Failed to update state: {e}")
     
-    return results_summary
+    return bh_results
 
 def main():
-    """Main entry point for the BH correction pipeline."""
-    # Define paths
     project_root = Path(__file__).parent.parent
     metrics_dir = project_root / "data" / "metrics"
-    output_dir = project_root / "data" / "metrics"
-    state_file_path = project_root / "state" / "projects" / "PROJ-488-evaluating-the-impact-of-code-generation.yaml"
+    output_dir = project_root / "results" / "statistical_analysis"
     
-    # Check if metrics directory exists
-    if not metrics_dir.exists():
-        logger.error(f"Metrics directory not found: {metrics_dir}")
-        sys.exit(1)
-    
-    # Check if state file exists
-    if not state_file_path.exists():
-        logger.error(f"State file not found: {state_file_path}")
-        sys.exit(1)
-    
-    try:
-        results = run_bh_correction_pipeline(
-            metrics_dir=metrics_dir,
-            output_dir=output_dir,
-            state_file_path=state_file_path
-        )
-        
-        logger.info("Benjamini-Hochberg correction completed successfully")
-        logger.info(f"Processed {len(results)} metrics")
-        
-        # Print summary
-        for metric_name, summary in results.items():
-            logger.info(f"  {metric_name}: {summary['significant_at_0.05']}/{summary['total_tests']} significant (p < 0.05)")
-        
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+    run_bh_correction_pipeline(metrics_dir, output_dir)
 
 if __name__ == "__main__":
     main()

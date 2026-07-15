@@ -1,64 +1,63 @@
-# Quickstart Guide: Evaluating the Impact of Code Generation
-
-This guide provides a one-command end-to-end execution workflow for the **llmXive** project **PROJ-488**.
-It ensures all constitutional amendments are approved before running the pipeline.
+# Quick Start Guide
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` and `venv`
-- Internet access (for dataset downloads)
+Before running this pipeline, ensure the following Constitutional Amendment PRs are **merged** and approved:
 
-## 1. Setup Environment
+- **Amendment VI**: Permitting CodeParrot/CodeGen datasets (see `docs/amendment-vi.md`).
+- **Amendment VII**: Permitting radon/pylint static analysis (see `docs/amendment-vii.md`).
 
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r code/requirements.txt
-```
+The pipeline will check the state file `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` for `amendment_status`. If either amendment is not marked as `approved`, the run will abort with **Error 101**.
 
-## 2. Verify Constitutional Amendments
+## Installation
 
-Before running the pipeline, ensure that the Constitutional Amendment PRs (T009, T010)
-have been reviewed and merged. The script below will check the state file for approval.
+1. Clone the repository and navigate to the project root.
+2. Create a virtual environment (Python 3.11 recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-Run the verification check:
+## One-Command Execution
 
-```bash
-python -c "from amendment_prs import main; main()"
-```
-
-**If this fails**, the pipeline is blocked. Check `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`
-for the `amendment_status` map. Both `amendment-vi` and `amendment-vii` must be `approved`.
-
-## 3. Run the Full Pipeline
-
-Once amendments are approved, execute the full end-to-end analysis with a single command:
+To run the entire pipeline from data ingestion to statistical analysis and guideline generation, execute:
 
 ```bash
 python code/main.py --run-all
 ```
 
 This command performs the following steps in order:
-1. **Ingestion**: Downloads CodeSearchNet and CodeParrot/CodeGen datasets (with backoff).
-2. **Filtering**: Filters for Python snippets and balances length distributions.
-3. **Metric Extraction**: Computes Radon and Pylint metrics (CPU-only).
-4. **Statistical Analysis**: Runs Mann-Whitney U tests, Cliff's delta, and power analysis.
-5. **Visualization**: Generates boxplots and saves them to `results/figures/`.
-6. **Guidelines**: Generates review guidelines based on significant findings.
-7. **State Tracking**: Updates `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` with artifact hashes.
+1. **Amendment Check**: Verifies that Amendment VI and VII are approved in the state file.
+2. **Data Ingestion**: Downloads CodeSearchNet and CodeParrot/CodeGen datasets, filters to Python functions, and balances lengths.
+3. **Metric Extraction**: Computes radon complexity and pylint bug indicators.
+4. **Statistical Analysis**: Performs Mann-Whitney U tests, Cliff's delta, and Benjamini-Hochberg correction.
+5. **Visualization**: Generates boxplots for all metrics.
+6. **Guideline Generation**: Produces review recommendations based on significant results.
+7. **State Update**: Records artifact hashes and timestamps.
 
-## 4. Expected Outputs
+## Output Artifacts
 
 After successful completion, the following artifacts will be available:
 
-- **Data**: `data/processed/snippets/`, `data/metrics/`
-- **Results**: `results/statistics.json`, `results/figures/`, `results/guidelines.md`
-- **State**: `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` (updated with hashes)
+- **Datasets**: `data/raw/`, `data/processed/`
+- **Metrics**: `data/metrics/` (CSV files)
+- **Results**:
+ - Statistical results: `results/statistical_analysis.json`
+ - Visualizations: `results/figures/`
+ - Guidelines: `results/guidelines.md`
+ - Sensitivity analysis: `results/sensitivity.md`
+ - Pilot study: `results/pilot_study.md`
+- **State**: `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`
 
 ## Troubleshooting
 
-- **Error 101**: Dataset verification failed. Check internet connection and HuggingFace access.
-- **Error 102**: AST parsing or metric validation failed. Check logs in `logs/`.
-- **Error 103**: Median length difference could not be balanced. Check `data/processed/length_filter.log`.
-- **Amendment Blocked**: If the state file indicates amendments are not approved, do not proceed until they are merged.
+- **Error 101**: Amendment PRs not approved. Check `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` and ensure amendments are merged.
+- **Error 102**: Dataset validation failed (e.g., < 95% valid AST parses). Check logs in `results/pipeline_validation.log`.
+- **Error 103**: Length filtering failed to achieve comparable median lengths.
+- **Error 104**: Insufficient valid snippets (< 1000 per group).
+
+For detailed logs, check `results/pipeline_validation.log`.

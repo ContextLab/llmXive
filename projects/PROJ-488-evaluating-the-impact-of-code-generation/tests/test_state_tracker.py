@@ -1,14 +1,16 @@
-"""Tests for state tracking utilities."""
-
-import os
-from pathlib import Path
-import tempfile
 import pytest
+import os
+import tempfile
+import shutil
+from pathlib import Path
+from datetime import datetime
+import yaml
 
+# Adjust import path for testing
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.state_tracker import (
+from state_tracker import (
     compute_file_hash,
     compute_directory_hash,
     load_state_file,
@@ -17,87 +19,195 @@ from code.state_tracker import (
     update_state_timestamp,
     register_artifact_hash,
     get_artifact_state,
-    verify_artifact_integrity
+    verify_artifact_integrity,
+    update_state_after_pipeline_stage,
+    STATE_FILE_PATH,
+    PROJECT_ROOT
 )
 
+@pytest.fixture
+def temp_state_dir():
+    """Create a temporary directory for state files during testing."""
+    temp_dir = tempfile.mkdtemp()
+    # Temporarily override STATE_FILE_PATH for testing
+    original_path = STATE_FILE_PATH
+    new_path = Path(temp_dir) / "test_state.yaml"
+    # We can't easily mock the global variable, so we'll test with the real path
+    # but ensure we clean up afterwards
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-class TestStateTracker:
-    """Test suite for state tracking utilities."""
+def test_compute_file_hash():
+    """Test that file hash computation works correctly."""
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test content")
+        temp_path = f.name
+    
+    try:
+        hash1 = compute_file_hash(temp_path)
+        hash2 = compute_file_hash(temp_path)
+        assert hash1 == hash2
+        assert len(hash1) == 64  # SHA-256 hex length
+    finally:
+        os.unlink(temp_path)
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.state_path = Path(self.temp_dir) / "test_state.yaml"
-        self.test_file = Path(self.temp_dir) / "test_file.txt"
-        self.test_file.write_text("test content")
+def test_compute_directory_hash():
+    """Test that directory hash computation works correctly."""
+    temp_dir = tempfile.mkdtemp()
+    try:
+        # Create a test file
+        test_file = Path(temp_dir) / "test.txt"
+        test_file.write_text("test content")
+        
+        hash1 = compute_directory_hash(temp_dir)
+        hash2 = compute_directory_hash(temp_dir)
+        assert hash1 == hash2
+        assert len(hash1) == 64
+    finally:
+        shutil.rmtree(temp_dir)
 
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+def test_load_state_file_creates_new():
+    """Test that load_state_file creates a new file if it doesn't exist."""
+    # This test relies on the actual state file existing or being created
+    state = load_state_file()
+    assert "project_id" in state
+    assert "created_at" in state
+    assert "updated_at" in state
+    assert "artifacts" in state
+    assert "amendment_status" in state
 
-    def test_compute_file_hash(self):
-        """Test file hash computation."""
-        file_hash = compute_file_hash(self.test_file)
-        assert file_hash is not None
-        assert len(file_hash) == 64  # SHA-256 hex string length
+def test_update_state_timestamp():
+    """Test that update_state_timestamp updates the timestamp."""
+    state_before = load_state_file()
+    old_timestamp = state_before.get("updated_at")
+    
+    update_state_timestamp()
+    
+    state_after = load_state_file()
+    new_timestamp = state_after.get("updated_at")
+    
+    # Parse timestamps to compare
+    old_dt = datetime.fromisoformat(old_timestamp)
+    new_dt = datetime.fromisoformat(new_timestamp)
+    
+    assert new_dt >= old_dt
 
-    def test_load_state_file_nonexistent(self):
-        """Test loading non-existent state file."""
-        state = load_state_file(Path(self.temp_dir) / "nonexistent.yaml")
-        assert "state" in state
+def test_update_state_after_pipeline_stage():
+    """Test that update_state_after_pipeline_stage updates state correctly."""
+    stage_name = "test_stage"
+    
+    # Get state before
+    state_before = load_state_file()
+    
+    # Update state
+    update_state_after_pipeline_stage(stage_name)
+    
+    # Get state after
+    state_after = load_state_file()
+    
+    # Verify updated_at changed
+    old_dt = datetime.fromisoformat(state_before.get("updated_at"))
+    new_dt = datetime.fromisoformat(state_after.get("updated_at"))
+    assert new_dt >= old_dt
+    
+    # Verify pipeline stage was recorded
+    assert "pipeline_stages" in state_after
+    assert stage_name in state_after["pipeline_stages"]
+    assert "completed_at" in state_after["pipeline_stages"][stage_name]
 
-    def test_save_and_load_state_file(self):
-        """Test saving and loading state file."""
-        test_state = {"state": {"test": "value"}}
-        save_state_file(self.state_path, test_state)
-        assert self.state_path.exists()
-        loaded = load_state_file(self.state_path)
-        assert loaded["state"]["test"] == "value"
+def test_update_state_with_artifact():
+    """Test that update_state_with_artifact adds artifact to state."""
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
+        f.write(b"test artifact content")
+        temp_file = f.name
+    
+    try:
+        # Get state before
+        state_before = load_state_file()
+        artifacts_before = len(state_before.get("artifacts", {}))
+        
+        # Update state with artifact
+        update_state_with_artifact(temp_file, "test_type")
+        
+        # Get state after
+        state_after = load_state_file()
+        artifacts_after = len(state_after.get("artifacts", {}))
+        
+        # Verify artifact was added
+        assert artifacts_after == artifacts_before + 1
+        
+        # Find the artifact key
+        artifact_key = None
+        for key in state_after["artifacts"].keys():
+            if key.endswith(".txt"):
+                artifact_key = key
+                break
+        
+        assert artifact_key is not None
+        assert state_after["artifacts"][artifact_key]["type"] == "test_type"
+        assert "hash" in state_after["artifacts"][artifact_key]
+        assert "updated_at" in state_after["artifacts"][artifact_key]
+    finally:
+        os.unlink(temp_file)
 
-    def test_update_state_with_artifact(self):
-        """Test updating state with artifact."""
-        state = update_state_with_artifact(
-            self.state_path,
-            self.test_file,
-            "test_artifact",
-            {"description": "test"}
-        )
-        assert "state" in state
-        assert "artifacts" in state["state"]
-        assert "test_artifact" in state["state"]["artifacts"]
-        assert "updated_at" in state["state"]["artifacts"]["test_artifact"]
+def test_register_artifact_hash():
+    """Test that register_artifact_hash registers artifact and returns hash."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        registered_hash = register_artifact_hash(temp_file, "test_type")
+        assert registered_hash is not None
+        assert len(registered_hash) == 64
+        
+        # Verify it's in state
+        state = load_state_file()
+        artifact_key = str(Path(temp_file).relative_to(PROJECT_ROOT))
+        assert artifact_key in state["artifacts"]
+        assert state["artifacts"][artifact_key]["hash"] == registered_hash
+    finally:
+        os.unlink(temp_file)
 
-    def test_update_state_timestamp(self):
-        """Test updating state timestamp."""
-        state = update_state_timestamp(self.state_path, {"action": "test"})
-        assert "state" in state
-        assert "updated_at" in state["state"]
+def test_verify_artifact_integrity():
+    """Test artifact integrity verification."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        # Register the artifact
+        register_artifact_hash(temp_file, "test_type")
+        
+        # Verify integrity (should be True)
+        artifact_key = str(Path(temp_file).relative_to(PROJECT_ROOT))
+        assert verify_artifact_integrity(artifact_key) is True
+        
+        # Modify the file
+        Path(temp_file).write_text("modified content")
+        
+        # Verify integrity (should be False)
+        assert verify_artifact_integrity(artifact_key) is False
+    finally:
+        os.unlink(temp_file)
 
-    def test_register_artifact_hash(self):
-        """Test registering artifact hash."""
-        state = register_artifact_hash(self.state_path, self.test_file)
-        assert "artifacts" in state["state"]
-        assert self.test_file.name in state["state"]["artifacts"]
-
-    def test_get_artifact_state(self):
-        """Test getting artifact state."""
-        update_state_with_artifact(self.state_path, self.test_file, "my_artifact")
-        artifact_state = get_artifact_state(self.state_path, "my_artifact")
+def test_get_artifact_state():
+    """Test retrieving artifact state."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        # Register the artifact
+        register_artifact_hash(temp_file, "test_type")
+        
+        # Get artifact state
+        artifact_key = str(Path(temp_file).relative_to(PROJECT_ROOT))
+        artifact_state = get_artifact_state(artifact_key)
+        
         assert artifact_state is not None
-        assert artifact_state["path"] == str(self.test_file)
-
-    def test_verify_artifact_integrity(self):
-        """Test verifying artifact integrity."""
-        update_state_with_artifact(self.state_path, self.test_file, "verify_test")
-        is_valid = verify_artifact_integrity(self.state_path, "verify_test")
-        assert is_valid is True
-
-        # Modify file and verify fails
-        self.test_file.write_text("modified content")
-        is_valid = verify_artifact_integrity(self.state_path, "verify_test")
-        assert is_valid is False
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert artifact_state["type"] == "test_type"
+        assert "hash" in artifact_state
+    finally:
+        os.unlink(temp_file)

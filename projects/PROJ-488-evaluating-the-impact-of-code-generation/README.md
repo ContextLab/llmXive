@@ -1,22 +1,24 @@
-# Evaluating the Impact of Code Generation on Code Review Quality
+# Evaluating the Impact of Code Generation (PROJ-488)
 
-## Project Overview
+This project evaluates the impact of LLM-generated code (CodeParrot/CodeGen) versus human-written code (CodeSearchNet) using static analysis metrics (radon, pylint) and statistical testing (Mann-Whitney U, Cliff's delta).
 
-This project investigates the differences in code quality metrics between human-written code (CodeSearchNet) and LLM-generated code (CodeParrot/CodeGen). We utilize static analysis tools (radon, pylint) to extract metrics, perform statistical comparisons (Mann-Whitney U, Cliff's delta), and generate review guidelines.
+## ⚠️ Constitutional Amendment Status
 
-## ⚠️ CRITICAL: Constitutional Amendment Status
+**CRITICAL**: Before running the pipeline, ensure that the Constitutional Amendment PRs have been approved and merged:
+- **Amendment VI**: Permitting use of CodeParrot/CodeGen as the LLM-generated code source.
+- **Amendment VII**: Permitting use of radon and pylint for metric extraction.
 
-**Before running this pipeline, you MUST verify that the following Constitutional Amendments have been approved:**
+Check the current status in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` under `amendment_status`. **Do not proceed** if amendments are not marked as `approved`.
 
-1. **Amendment to Principle VI**: Permits use of CodeParrot/CodeGen as the LLM-generated code source.
-2. **Amendment to Principle VII**: Permits use of radon and pylint for metric extraction.
+## Prerequisites
 
-Check the current status in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` under the `amendment_status` key.
-If the status is not "approved", do **not** proceed with the pipeline execution.
+- Python 3.11+
+- pip
+- Access to HuggingFace datasets (internet connection required)
 
 ## Installation
 
-1. Ensure you have Python 3.11+ installed.
+1. Clone the repository and navigate to the project root.
 2. Create a virtual environment:
  ```bash
  python -m venv venv
@@ -29,62 +31,81 @@ If the status is not "approved", do **not** proceed with the pipeline execution.
 
 ## Execution
 
-### Running the Full Pipeline
+### End-to-End Pipeline
 
-To execute the entire pipeline from data ingestion to visualization:
+To run the full pipeline (Data Ingestion → Preprocessing → Metric Extraction → Statistical Analysis → Visualization):
 
 ```bash
 python code/main.py --run-all
 ```
 
-This will:
-1. Download and preprocess datasets (CodeSearchNet, CodeParrot/CodeGen).
-2. Filter for Python functions and validate AST parsing.
-3. Extract static analysis metrics (radon, pylint).
-4. Perform statistical analysis (Mann-Whitney U, Cliff's delta, power analysis).
-5. Generate visualizations and review guidelines.
+This command will:
+1. Verify amendment status.
+2. Download and preprocess datasets (CodeSearchNet, CodeParrot/CodeGen).
+3. Filter for Python functions and balance lengths.
+4. Extract static analysis metrics.
+5. Perform statistical comparisons.
+6. Generate visualizations and guidelines.
 
-### Running Individual Modules
+### Step-by-Step Execution
 
-You can also run specific stages independently:
+If you prefer to run stages individually:
 
-- **Data Ingestion**:
+1. **Data Ingestion & Preprocessing**:
  ```bash
  python code/data_ingestion.py
+ python code/data_filtering.py
+ python code/length_filtering.py
  ```
-- **Metric Extraction**:
+
+2. **Metric Extraction**:
  ```bash
  python code/metric_extraction.py
  ```
-- **Statistical Analysis**:
+
+3. **Statistical Analysis**:
  ```bash
  python code/statistical_analysis.py
+ python code/cliffs_delta_analysis.py
+ python code/run_bh_correction.py
  ```
-- **Visualization**:
+
+4. **Visualization**:
  ```bash
  python code/visualization.py
  ```
-- **Guideline Generation**:
+
+5. **Guideline Generation**:
  ```bash
  python code/guideline_generator.py
  ```
 
+## Output Artifacts
+
+- **Processed Data**: `data/processed/`
+- **Metrics**: `data/metrics/`
+- **Figures**: `results/figures/`
+- **Reports**: `results/` (guidelines.md, sensitivity.md, justification.md, etc.)
+- **State**: `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml`
+
 ## Project Structure
 
-- `code/`: Source code modules.
-- `data/raw/`: Raw downloaded datasets.
-- `data/processed/`: Filtered and preprocessed code snippets.
-- `data/metrics/`: Extracted metric CSVs (e.g., complexity, bug indicators).
-- `results/`: Final outputs including figures, guidelines, and reports.
-- `state/`: State tracking and artifact hashes.
-- `specs/`: Design documents and specifications.
-
-## Logging
-
-Logs are written to `results/pipeline_validation.log` and console output.
-The logger is snippet-ID aware for traceability.
+```
+.
+├── code/ # Source code modules
+├── data/
+│ ├── raw/ # Raw downloaded datasets
+│ ├── processed/ # Filtered and sampled data
+│ └── metrics/ # Aggregated metric scores
+├── results/ # Final outputs (figures, reports)
+├── state/ # Pipeline state and hashes
+├── specs/ # Design documents
+├── tests/ # Unit and integration tests
+├── README.md
+├── quickstart.md
+└── requirements.txt
+```
 
 ## License
 
-This project is part of the llmXive automated science pipeline.
-Refer to the project's license file for details.
+This project follows the llmXive research pipeline guidelines.
