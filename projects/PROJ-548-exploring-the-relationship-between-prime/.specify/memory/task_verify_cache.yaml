@@ -1,0 +1,15 @@
+T009:
+  c: false
+  h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
+  r: The required file `tests/unit/test_sieve.py` does not exist, so no unit test
+    for the segmented sieve logic is present to verify primality or chunk boundaries.
+    The task remains undone.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, results file, KS statistic, p\u2011value, or plot)\
+    \ was provided to demonstrate that the empirical maximal gap distribution was\
+    \ compared to the GUE extreme\u2011value distribution using a Kolmogorov\u2011\
+    Smirnov test. Consequently the claim cannot be verified. The implementer must\
+    \ supply the analysis code and the resulting output (e.g., `ks_results.json` or\
+    \ similar) showing the computed KS statistic and p\u2011value."

@@ -1,0 +1,15 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory tree or file listings were provided showing the required folders (`src/data/`, `src/analysis/`, `src/utils/`, `src/cli/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `data/results/`, `results/`, `state/`). Without concrete evidence that these paths exist, the task is not satisfied. The implementer must create and show the full project structure.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or a `ruff` section, or a pre‑commit hook setup) were provided, so the required artifact for configuring ruff and black does not exist. The implementer must add the appropriate configuration files and ensure they are non‑empty.
+- **T006** — No code, configuration file, or documentation implementing deterministic random seed management for Monte Carlo or simulation tasks was provided; the only artifacts shown relate to data ingestion and analysis, not to seed handling. Consequently the required feature is not demonstrated.
+- **T008** — declared artifact(s) missing/empty/invalid: src/utils/io.py, state.yaml
+- **T012** — The provided `src/data/generate_primes.py` is truncated (ends mid‑line) and does not contain any code that writes the computed gaps to `data/processed/primes_gaps.csv`. Moreover, the required output CSV file is missing from the repository. The task’s core requirement—generating and streaming prime gap data to the specified CSV—is therefore not satisfied.
+- **T013a** — The provided `src/data/ingest_zeros.py` defines URL‑reachability checks but does not contain any logic that writes the verification results to `state.yaml`, and the `state.yaml` file itself is absent. Consequently the task’s requirement to record verification status in `state.yaml` is not fulfilled.
+- **T018b** — declared artifact(s) missing/empty/invalid: src/analysis/distribution_test.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/analysis/distribution_test.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/analysis/distribution_test.py
+- **T021a** — declared artifact(s) missing/empty/invalid: src/analysis/distribution_test.py
+- **T022** — No artifact (e.g., script, results file, KS statistic, p‑value, or plot) was provided to demonstrate that the empirical maximal gap distribution was compared to the GUE extreme‑value distribution using a Kolmogorov‑Smirnov test. Consequently the claim cannot be verified. The implementer must supply the analysis code and the resulting output (e.g., `ks_results.json` or similar) showing the computed KS statistic and p‑value.

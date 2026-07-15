@@ -1,0 +1,14 @@
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+pyyaml>=6.0
+requests>=2.28.0
+pytest>=7.3.0
+
+# Linting and formatting
+ruff>=0.0.280
+black>=23.3.0
+
+# Additional dependencies for analysis
+matplotlib>=3.7.0

@@ -17,7 +17,7 @@ This project implements a statistical analysis pipeline to test the distribution
 **Project Type**: Computational research pipeline  
 **Performance Goals**: Complete full pipeline (sieve + analysis) in < 6 hours (Addresses SC-004); peak RAM < 7 GB (Addresses SC-004).  
 **Constraints**: No GPU; no local generation of zeta zeros unless verified source is unreachable (per Constitution Principle II); strict memory chunking for sieve (Addresses FR-001).  
-**Scale/Scope**: ~664 million primes up to $10^{10}$; ~+ zeta zeros (depending on verified source availability).
+**Scale/Scope**: A substantial number of primes up to $10^{10}$.; ~+ zeta zeros (depending on verified source availability).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

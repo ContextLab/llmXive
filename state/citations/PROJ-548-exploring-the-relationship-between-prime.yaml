@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://www.lmfdb.org/zeros/zeta/
   verified_at: '2026-07-05T22:18:20.077298Z'
-- artifact_hash: 864c6add1fa04582aa676de2c930b43eb6e7ee494324e87c9c3244247a5ed792
+- artifact_hash: 4a62486c21576b9c582b0bf2f2140b6f940461caa23bc1a845a2d49e168367ba
   artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -28,10 +28,10 @@
   fetched_title: LMFDB - Zeros of $\zeta(s)$
   kind: url
   value: https://www.lmfdb.org/zeros/zeta/`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.lmfdb.org/zeros/zeta/
-  verified_at: '2026-07-06T01:23:56.829646Z'
-- artifact_hash: 864c6add1fa04582aa676de2c930b43eb6e7ee494324e87c9c3244247a5ed792
+  verified_at: '2026-07-15T23:49:03.888850Z'
+- artifact_hash: 4a62486c21576b9c582b0bf2f2140b6f940461caa23bc1a845a2d49e168367ba
   artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: http://www.dtc.umn.edu/~odlyzko/doc/zeta.zeros/`
   verification_status: mismatch
   verified_against_url: https://www-users.cse.umn.edu/~odlyzko/doc/zeta.zeros/
-  verified_at: '2026-07-06T01:23:56.829646Z'
+  verified_at: '2026-07-15T23:49:03.888850Z'
