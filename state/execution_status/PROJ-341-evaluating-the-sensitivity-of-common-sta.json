@@ -4,13 +4,13 @@
   "reason": "3 command(s) failed: python code/main.py (rc=1); python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 (rc=1); python code/main.py --mode validation (rc=1); 6 declared deliverable(s) absent: data/simulation/error_rates_summary.csv; data/simulation/p_values_raw.csv; data/simulation/real_data_power.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 10, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
-    "python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 10, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
-    "python code/main.py --mode validation -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 10, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'"
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 15, in <module>\n    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py\", line 33, in <module>\n    def validate_distribution_params(dist_type: str, params: Dict) -> bool:\n                                  ",
+    "python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 15, in <module>\n    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py\", line 33, in <module>\n    def validate_distribution_params(dist_type: str, para",
+    "python code/main.py --mode validation -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 15, in <module>\n    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py\", line 33, in <module>\n    def validate_distribution_params(dist_type: str, params: Dict) -> bool:\n                "
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T05:20:21Z"
+  "updated_at": "2026-07-15T06:33:57Z"
 }

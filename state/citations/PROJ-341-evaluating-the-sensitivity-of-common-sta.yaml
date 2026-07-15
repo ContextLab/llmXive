@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: 364283fdab6e8e794e84515a7b308e3e7e3087673d8d9e9bd8fa93611cdd8461
+- artifact_hash: fb34605e27e34bb796a6fbcf0b28a2767935719289b4d69525548be0facaab7b
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,15 +52,4 @@
   value: https://arxiv.org/abs/1405.1250
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-07-15T05:57:30.653643Z'
-- artifact_hash: 364283fdab6e8e794e84515a7b308e3e7e3087673d8d9e9bd8fa93611cdd8461
-  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Power - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Power_
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-15T05:57:30.653643Z'
+  verified_at: '2026-07-15T07:00:23.605151Z'

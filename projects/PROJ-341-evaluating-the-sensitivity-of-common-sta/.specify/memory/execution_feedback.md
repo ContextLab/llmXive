@@ -8,19 +8,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 10, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 15, in <module>
+    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py", line 33, in <module>
+    def validate_distribution_params(dist_type: str, params: Dict) -> bool:
+                                                             ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 10, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 15, in <module>
+    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py", line 33, in <module>
+    def validate_distribution_params(dist_type: str, params: Dict) -> bool:
+                                                             ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/main.py --mode validation -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 10, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py", line 15, in <module>
+    from code.simulation.data_generator import generate_normal_data, generate_multinomial_data, generate_contingency_table_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/simulation/data_generator.py", line 33, in <module>
+    def validate_distribution_params(dist_type: str, params: Dict) -> bool:
+                                                             ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 
 ## Declared deliverables still missing
 
@@ -29,7 +38,7 @@ ModuleNotFoundError: No module named 'psutil'
 - data/simulation/real_data_power.json
 - data/simulation/real_data_pvalues.csv
 - data/simulation/thresholds.json
-- data/simulation/validation_metrics.json
+- data/simulation_metadata.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -53,14 +62,17 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/simulation/output_writer.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/simulation/p_values_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/simulation/real_data_power.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/analysis/report_generator.py` — NOT invoked by the run-book
     - `code/analysis/validation_metrics.py` — NOT invoked by the run-book
     - `code/analysis/bootstrapper.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/simulation/real_data_power.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/simulation/real_data_pvalues.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/analysis/report_generator.py` — NOT invoked by the run-book
     - `code/analysis/validation_metrics.py` — NOT invoked by the run-book
     - `code/analysis/real_data_runner.py` — NOT invoked by the run-book
+    - `code/analysis/bootstrapper.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/simulation/real_data_pvalues.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/simulation/thresholds.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
@@ -71,8 +83,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/visualization/plotter.py` — NOT invoked by the run-book
     - `code/visualization/saver.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/simulation/thresholds.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/simulation/validation_metrics.json` is declared but was NOT written. Scripts referencing it:
+- `data/simulation_metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
-    - `code/analysis/report_generator.py` — NOT invoked by the run-book
-    - `code/analysis/validation_metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/simulation/validation_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/utils/checksum_utils.py` — NOT invoked by the run-book
+    - `code/utils/metadata_manager.py` — NOT invoked by the run-book
+    - `code/analysis/validator.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/simulation_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

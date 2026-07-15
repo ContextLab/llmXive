@@ -1,121 +1,127 @@
-import os
-import csv
-import tempfile
 import pytest
+import pandas as pd
+import numpy as np
 from code.analysis.aggregator import calculate_error_rates, save_aggregated_results
+import os
+import tempfile
 
-def test_calculate_error_rates_type_1():
-    """
-    Test that Type I error is calculated correctly when Null is True (effect_size=0).
-    Scenario: 10 iterations, all p < 0.05. Expected Type I rate = 1.0.
-    """
-    # Create mock data
-    mock_data = [
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.04},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.03},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.02},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.001},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.049},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.03},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.02},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01},
-        {'sample_size': 10, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.04},
-    ]
-
-    # Write to temp CSV
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['sample_size', 'effect_size', 'test_type', 'p_value'])
-        writer.writeheader()
-        writer.writerows(mock_data)
-        temp_path = f.name
-
-    try:
-        results = calculate_error_rates(temp_path, alpha=0.05)
-        assert len(results) == 1
-        res = results[0]
-        assert res['null_true_trials'] == 10
-        assert res['type_1_errors'] == 10
-        assert abs(res['type_1_error_rate'] - 1.0) < 1e-9
-        assert res['null_false_trials'] == 0
-    finally:
-        os.unlink(temp_path)
-
-def test_calculate_error_rates_type_2():
-    """
-    Test that Type II error is calculated correctly when Null is False (effect_size > 0).
-    Scenario: 10 iterations, all p >= 0.05. Expected Type II rate = 1.0.
-    """
-    mock_data = [
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.10},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.20},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.50},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.60},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.05}, # Exactly alpha -> not reject -> Type II
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.70},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.80},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.90},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.15},
-        {'sample_size': 20, 'effect_size': 0.5, 'test_type': 't-test', 'p_value': 0.25},
-    ]
-
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['sample_size', 'effect_size', 'test_type', 'p_value'])
-        writer.writeheader()
-        writer.writerows(mock_data)
-        temp_path = f.name
-
-    try:
-        results = calculate_error_rates(temp_path, alpha=0.05)
-        assert len(results) == 1
-        res = results[0]
-        assert res['null_false_trials'] == 10
-        assert res['type_2_errors'] == 10
-        assert abs(res['type_2_error_rate'] - 1.0) < 1e-9
-        assert res['power'] == 0.0
-    finally:
-        os.unlink(temp_path)
-
-def test_mixed_conditions():
-    """
-    Test aggregation with mixed null/alt hypotheses and different test types.
-    """
-    mock_data = [
-        # Condition A: Null True, 50% reject (Type I = 0.5)
-        {'sample_size': 5, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.01},
-        {'sample_size': 5, 'effect_size': 0.0, 'test_type': 't-test', 'p_value': 0.10},
-        # Condition B: Alt True, 50% fail to reject (Type II = 0.5)
-        {'sample_size': 5, 'effect_size': 1.0, 'test_type': 't-test', 'p_value': 0.10},
-        {'sample_size': 5, 'effect_size': 1.0, 'test_type': 't-test', 'p_value': 0.01},
-        # Condition C: Chi-squared, Null True
-        {'sample_size': 5, 'effect_size': 0.0, 'test_type': 'chi-squared', 'p_value': 0.01},
-    ]
-
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['sample_size', 'effect_size', 'test_type', 'p_value'])
-        writer.writeheader()
-        writer.writerows(mock_data)
-        temp_path = f.name
-
-    try:
-        results = calculate_error_rates(temp_path, alpha=0.05)
-        assert len(results) == 3
+class TestAggregator:
+    
+    def test_calculate_error_rates_type_i(self):
+        """Test Type I error rate calculation (H0 true)"""
+        # Create synthetic data: H0 true, 100 iterations, 5 rejections (alpha=0.05)
+        data = {
+            'sample_size': [5] * 100,
+            'effect_size': [0.0] * 100,
+            'test_type': ['t-test'] * 100,
+            'p_value': [0.01] * 5 + [0.1] * 95,  # 5 rejections
+            'hypothesis': ['H0'] * 100
+        }
+        df = pd.DataFrame(data)
         
-        # Sort results for predictable indexing
-        results.sort(key=lambda x: (x['test_type'], x['effect_size']))
+        result = calculate_error_rates(df, alpha=0.05)
         
-        # Condition A (t-test, 0.0)
-        cond_a = next(r for r in results if r['test_type'] == 't-test' and r['effect_size'] == 0.0)
-        assert cond_a['type_1_error_rate'] == 0.5
-        assert cond_a['null_true_trials'] == 2
+        assert not result.empty
+        assert len(result) == 1
+        assert result.iloc[0]['error_type'] == 'Type_I'
+        assert result.iloc[0]['error_rate'] == 0.05  # 5/100
+        assert result.iloc[0]['error_count'] == 5
         
-        # Condition B (t-test, 1.0)
-        cond_b = next(r for r in results if r['test_type'] == 't-test' and r['effect_size'] == 1.0)
-        assert cond_b['type_2_error_rate'] == 0.5
-        assert cond_b['null_false_trials'] == 2
+    def test_calculate_error_rates_type_ii(self):
+        """Test Type II error rate calculation (H1 true)"""
+        # Create synthetic data: H1 true, 100 iterations, 80 rejections (power=0.80)
+        # Type II = 1 - power = 0.20
+        data = {
+            'sample_size': [50] * 100,
+            'effect_size': [0.5] * 100,
+            'test_type': ['t-test'] * 100,
+            'p_value': [0.01] * 80 + [0.1] * 20,  # 80 rejections
+            'hypothesis': ['H1'] * 100
+        }
+        df = pd.DataFrame(data)
         
-        # Condition C (chi-squared, 0.0)
-        cond_c = next(r for r in results if r['test_type'] == 'chi-squared' and r['effect_size'] == 0.0)
-        assert cond_c['type_1_error_rate'] == 1.0
-    finally:
-        os.unlink(temp_path)
+        result = calculate_error_rates(df, alpha=0.05)
+        
+        assert not result.empty
+        assert len(result) == 1
+        assert result.iloc[0]['error_type'] == 'Type_II'
+        assert result.iloc[0]['error_rate'] == 0.20  # 20/100 (fail to reject when H1 true)
+        assert result.iloc[0]['error_count'] == 20
+        
+    def test_calculate_error_rates_multiple_conditions(self):
+        """Test aggregation across multiple sample sizes and test types"""
+        data = {
+            'sample_size': [5] * 50 + [10] * 50,
+            'effect_size': [0.0] * 50 + [0.0] * 50,
+            'test_type': ['t-test'] * 50 + ['anova'] * 50,
+            'p_value': [0.01] * 2 + [0.1] * 48 + [0.01] * 3 + [0.1] * 47,
+            'hypothesis': ['H0'] * 100
+        }
+        df = pd.DataFrame(data)
+        
+        result = calculate_error_rates(df, alpha=0.05)
+        
+        assert len(result) == 2
+        
+        # Check t-test row
+        ttest_row = result[result['test_type'] == 't-test'].iloc[0]
+        assert ttest_row['sample_size'] == 5
+        assert ttest_row['error_rate'] == 0.04  # 2/50
+        
+        # Check anova row
+        anova_row = result[result['test_type'] == 'anova'].iloc[0]
+        assert anova_row['sample_size'] == 10
+        assert anova_row['error_rate'] == 0.06  # 3/50
+        
+    def test_save_aggregated_results(self):
+        """Test saving results to CSV"""
+        data = {
+            'sample_size': [5],
+            'effect_size': [0.0],
+            'test_type': ['t-test'],
+            'hypothesis': ['H0'],
+            'error_type': ['Type_I'],
+            'total_iterations': [100],
+            'error_count': [5],
+            'error_rate': [0.05],
+            'alpha_threshold': [0.05]
+        }
+        df = pd.DataFrame(data)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_error_rates.csv')
+            save_aggregated_results(df, output_path)
+            
+            assert os.path.exists(output_path)
+            
+            # Verify contents
+            loaded_df = pd.read_csv(output_path)
+            assert len(loaded_df) == 1
+            assert loaded_df.iloc[0]['error_rate'] == 0.05
+            
+    def test_empty_dataframe(self):
+        """Test handling of empty input"""
+        df = pd.DataFrame()
+        result = calculate_error_rates(df)
+        assert result.empty
+        
+    def test_mixed_hypotheses(self):
+        """Test calculation with both H0 and H1 in same dataset"""
+        data = {
+            'sample_size': [5] * 100 + [5] * 100,
+            'effect_size': [0.0] * 200,
+            'test_type': ['t-test'] * 200,
+            'p_value': [0.01] * 5 + [0.1] * 95 + [0.01] * 80 + [0.1] * 20,
+            'hypothesis': ['H0'] * 100 + ['H1'] * 100
+        }
+        df = pd.DataFrame(data)
+        
+        result = calculate_error_rates(df, alpha=0.05)
+        
+        assert len(result) == 2
+        
+        type_i = result[result['error_type'] == 'Type_I'].iloc[0]
+        type_ii = result[result['error_type'] == 'Type_II'].iloc[0]
+        
+        assert type_i['error_rate'] == 0.05
+        assert type_ii['error_rate'] == 0.20
