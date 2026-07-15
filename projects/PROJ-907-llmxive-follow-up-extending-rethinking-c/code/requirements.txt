@@ -1,0 +1,12 @@
+torch==2.3.0+cpu
+--index-url https://download.pytorch.org/whl/cpu
+transformers
+diffusers
+scikit-learn
+torchmetrics
+datasets
+numpy
+pandas
+matplotlib
+scipy
+pillow

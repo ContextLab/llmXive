@@ -1,0 +1,2 @@
+# This file ensures the data directory is tracked by git.
+# Real data files will be generated here by the scripts.

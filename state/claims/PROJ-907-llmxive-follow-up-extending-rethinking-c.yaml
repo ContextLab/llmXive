@@ -1,0 +1,183 @@
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: load pre-trained SiT-XL model with DAR enabled
+  claim_id: c_12973bc0
+  context: 'T005 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/model_loader.py`:
+    Load canonical pre-trained SiT-XL model with DAR enabled (CPU compatible, reduced
+    or standard precision).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_pre-trained_SiT-XL_model_with_DAR_enabled
+  kind: entity_fact
+  raw_text: Load canonical pre-trained SiT-XL model with DAR enabled (CPU compatible,
+    reduced or standard precision).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:49:06Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: implement FID calculation using frozen pre-trained Inception network
+  claim_id: c_37e79bb0
+  context: 'T006 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/metrics.py`:
+    Implement FID calculation using a frozen, pre-trained Inception network (weights
+    fixed, independent of SiT), optimized for CPU execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_FID_calculation_using_frozen_pre-trained_Inception
+  kind: entity_fact
+  raw_text: Implement FID calculation using a frozen, pre-trained Inception network
+    (weights fixed, independent of SiT), optimized for CPU execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:49:38Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: data loader raises exception if real source unreachable
+  claim_id: c_1ca35c24
+  context: 'T035 [P] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/data_loader.py`
+    to fetch ImageNet subsets using `datasets.load_dataset("imagenet-1k", split="validation",
+    streaming=True)`. **CRITICAL**: Remove any `try/except` blocks that fall back
+    to synthetic/mock data; the loader MUST raise an exception if the real source
+    is unreachable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_raises_exception_if_real_source_unreachable
+  kind: entity_fact
+  raw_text: The loader MUST raise an exception if the real source is unreachable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:50:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: process images in batches of size 1 to guarantee less than 7GB RAM usage
+  claim_id: c_b57639aa
+  context: T037 [P] Refactor `src/tracing.py` to process images strictly in batches
+    of size 1 (or small N determined by memory profiling) to guarantee < 7GB RAM usage,
+    with explicit logging of memory peaks after each image.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_images_in_batches_of_size_1_to_guarantee_less_than_7
+  kind: magnitude
+  raw_text: Refactor `src/tracing.py` to process images strictly in batches of size
+    1 (or small N determined by memory profiling) to guarantee < 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:50:49Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: output warning if silhouette score less than 0.25
+  claim_id: c_733d5e1d
+  context: T038 [P] Add a "Null Hypothesis" validation task to `src/clustering.py`
+    that explicitly outputs a warning and a specific flag in `data/results/null_hypothesis_flag.json`
+    if the silhouette score < 0.25, ensuring this edge case is not silently ignored.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_warning_if_silhouette_score_less_than_0.25
+  kind: magnitude
+  raw_text: Add a "Null Hypothesis" validation task to `src/clustering.py` that explicitly
+    outputs a warning and a specific flag in `data/results/null_hypothesis_flag.json`
+    if the silhouette score < 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:51:37Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: iterate through first 100 ImageNet validation images and record routing
+    weight matrices
+  claim_id: c_b75626c3
+  context: 'T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`:
+    Load SiT-XL/2, iterate through **first 100** ImageNet validation images (streamed/batched
+    to stay < 7GB RAM) with a **fixed -timestep schedule** (random seed for selection),
+    record routing weight matrices (softmax distributions) for every block and timestep
+    to `data/routing_cache/`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate through first 100 ImageNet validation images (streamed/batched
+    to stay < 7GB RAM) with a fixed -timestep schedule (random seed for selection),
+    record routing weight matrices (softmax distributions) for every block and timestep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:52:14Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: report high FID degradation greater than 0.5 as valid negative result
+  claim_id: c_24ce3851
+  context: 'T019 [US2] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/benchmark.py`:
+    ... **Error Handling**: Must report high FID degradation (> 0.5) as a valid negative
+    result **by appending the result to `data/results/benchmark_results.csv` and `.json`**
+    without halting.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_high_FID_degradation_greater_than_0.5_as_valid_negati
+  kind: magnitude
+  raw_text: Report high FID degradation (> 0.5) as a valid negative result by appending
+    the result to `data/results/benchmark_results.csv` and `.json` without halting.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:53:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: sweep clustering distance threshold over set 0.01 0.05 0.1
+  claim_id: c_14d22738
+  context: 'T027 [US3] Implement sensitivity analysis in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/sensitivity.py`:
+    **Sweep clustering distance threshold over the EXACT concrete set {,, 0.1}**.
+    For each threshold in this set: ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep clustering distance threshold over the EXACT concrete set {0.01,
+    0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:53:30Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: report range of FID degradation across sweep of three specific values
+  claim_id: c_fe0a8da0
+  context: 'T027 [US3] ... **Verification**: Save sensitivity sweep results to `data/results/sensitivity_sweep.json`.
+    The output MUST explicitly report the **range of FID degradation** observed across
+    the sweep of these three specific values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_range_of_FID_degradation_across_sweep_of_three_specif
+  kind: entity_fact
+  raw_text: The output MUST explicitly report the range of FID degradation observed
+    across the sweep of these three specific values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T09:54:06Z'
