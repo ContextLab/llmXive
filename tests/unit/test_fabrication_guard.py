@@ -104,6 +104,46 @@ def test_synthetic_input_data_authorized_by_idea_is_clean(tmp_path: Path) -> Non
     assert findings == [], f"idea-authorized synthetic data must be clean; got {findings}"
 
 
+def test_negated_synthetic_mention_is_not_flagged(tmp_path: Path) -> None:
+    """A comment that says the code AVOIDS fabrication must not be read AS
+    fabrication. These two lines are verbatim from live projects the gate wrongly
+    blocked (PROJ-306, PROJ-606): the code is doing exactly the right thing —
+    refusing synthetic data — and got flagged for naming it."""
+    for line in (
+        "# If not present, we skip to avoid fake data.",
+        "# using real data (the paper text) rather than synthetic data.",
+        "# do NOT fall back to synthetic data; require the real dataset.",
+        "# no synthetic data is generated anywhere in this pipeline.",
+    ):
+        code = (
+            "import pandas as pd\n"
+            f"{line}\n"
+            "df = pd.read_csv('data/raw/real.csv')\n"
+            "df.describe().to_json('data/out.json')\n"
+        )
+        findings = find_fabrication(_write(tmp_path / f"p{hash(line) & 0xffff}", code=code))
+        assert not any("synthetic" in f.lower() for f in findings), (
+            f"code REFUSING fabrication was flagged as fabrication; line={line!r} "
+            f"findings={findings}"
+        )
+
+
+def test_real_synthetic_generation_still_flagged_despite_nearby_negation(tmp_path: Path) -> None:
+    """The negation guard must be TIGHT: it clears only a negation IMMEDIATELY before
+    the phrase. A sentence that avoids the REAL dataset and then generates synthetic
+    (PROJ-636's README pattern) is still real fabrication and must stay flagged."""
+    code = (
+        "import numpy as np, pandas as pd\n"
+        "# Instead of the 138M-sample real dataset, we generate 200 synthetic rows.\n"
+        "X = np.random.randn(200, 3)\n"
+        "pd.DataFrame(X).to_csv('data/out.csv')\n"
+    )
+    findings = find_fabrication(_write(tmp_path / "pgen", code=code))
+    assert any("synthetic" in f.lower() for f in findings), (
+        f"genuine synthetic generation must stay flagged; got {findings}"
+    )
+
+
 def test_legit_bootstrap_randomness_is_clean(tmp_path: Path) -> None:
     """A bootstrap resample (legit statistical randomness) is not fabrication: the
     reported number is computed FROM real data, not drawn from RNG."""

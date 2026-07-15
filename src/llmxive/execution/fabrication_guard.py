@@ -243,6 +243,28 @@ _SYNTHETIC_DATA_RE = re.compile(
     re.IGNORECASE,
 )
 
+# The synthetic-phrase core (shared with _SYNTHETIC_DATA_RE's first alternative).
+_SYNTH_PHRASE = (
+    r"(?:synthetic|fake|dummy|mock|simulated|randomly[\s-]generated)\s+(?:\w+\s+)?"
+    r"(?:data|dataset|datasets|input|inputs|sample|samples|examples?|records?|corpus|table)"
+)
+# An AVOIDANCE construct: a negation/refusal cue governing the synthetic phrase —
+# "avoid fake data", "rather than synthetic data", "do NOT fall back to synthetic
+# data", "no synthetic data". Such code is REFUSING to fabricate, not doing it; the
+# gate wrongly blocked live projects (PROJ-306, PROJ-606) whose comments said exactly
+# that. The bridge between cue and phrase is bounded AND punctuation-free
+# (``[^.,;:\n]{0,24}?``): a comma or clause break severs a wrongful attachment, so
+# "the real data was not available, so we use synthetic data" (genuine fabrication
+# with an unrelated nearby "not") STAYS flagged, and "Instead of the real dataset, we
+# generate 200 synthetic rows" keeps its "instead of" bound to the real dataset. Fail
+# closed: only a cue clearly attached to the synthetic phrase clears it.
+_AVOIDANCE_RE = re.compile(
+    r"(?:avoid(?:s|ing|ed)?|without|rather\s+than|instead\s+of|refus\w*|prohibit\w*|"
+    r"forbid\w*|never|don'?t|does\s*n'?t|do(?:es)?\s+not|\bnot\b|\bno\b)"
+    r"[^.,;:\n]{0,24}?" + _SYNTH_PHRASE,
+    re.IGNORECASE,
+)
+
 
 def _synthetic_data_authorized(project_dir: Path) -> bool:
     """True iff the project's ORIGINAL research intent explicitly calls for
@@ -283,7 +305,13 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
                 text = f.read_text(encoding="utf-8", errors="ignore")
             except OSError:
                 continue
-            for m in _SYNTHETIC_DATA_RE.finditer(text[:40000]):
+            scanned = text[:40000]
+            avoided = [a.span() for a in _AVOIDANCE_RE.finditer(scanned)]
+            for m in _SYNTHETIC_DATA_RE.finditer(scanned):
+                # Skip a phrase the code is REFUSING (its match falls inside an
+                # avoidance construct — "avoid fake data", "not … synthetic data").
+                if any(lo <= m.start() < hi for lo, hi in avoided):
+                    continue
                 snippet = text[max(0, m.start() - 25): m.end() + 25].replace("\n", " ").strip()
                 out.append(
                     f"{f.relative_to(project_dir).as_posix()}: synthetic/fake INPUT data "
