@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: "Schema for the static routing map output"
+type: object
+properties:
+  static_routing_map:
+    type: object
+    description: "Metadata for the derived static routing map"
+    properties:
+      shape:
+        type: array
+        items:
+          type: integer
+        description: "Expected shape [N_blocks, N_routes]"
+      dtype:
+        type: string
+        const: "torch.float32"
+      derivation_method:
+        type: string
+        enum:
+          - "k-means_dominant_cluster"
+          - "global_average"
+        description: "Method used to derive the map"
+      silhouette_score:
+        type: number
+        description: "Silhouette score if k-means was used (null if global average)"
+    required:
+      - shape
+      - dtype
+      - derivation_method
+required:
+  - static_routing_map
+additionalProperties: false

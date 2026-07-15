@@ -13,7 +13,7 @@
 
 **Why this priority**: This is the foundational step. Without empirical evidence of the routing patterns, no static approximation can be constructed. It validates the core hypothesis that routing is driven by the noise schedule rather than content.
 
-**Independent Test**: Can be fully tested by running the tracing script on a sample of 100 images and verifying that the output contains a complete tensor of routing weights for every block and timestep, and that clustering these weights reveals distinct modes or a valid fallback.
+**Independent Test**: Can be fully tested by running the tracing script on a sample of images and verifying that the output contains a complete tensor of routing weights for every block and timestep, and that clustering these weights reveals distinct modes or a valid fallback.
 
 **Acceptance Scenarios**:
 
@@ -29,7 +29,7 @@
 
 **Why this priority**: This validates the practical utility of the static approximation. It directly addresses the research question of whether the overhead can be eliminated without significant quality loss.
 
-**Independent Test**: Can be fully tested by running the modified static model and the original dynamic model on the same 100-image subset on a CPU-only runner and comparing the resulting inference times and FID scores.
+**Independent Test**: Can be fully tested by running the modified static model and the original dynamic model on the same image subset on a CPU-only runner and comparing the resulting inference times and FID scores.
 
 **Acceptance Scenarios**:
 
@@ -45,7 +45,7 @@
 
 **Why this priority**: This ensures the scientific rigor of the findings. It prevents false positives from random variation and validates the stability of the "canonical" map construction.
 
-**Independent Test**: Can be fully tested by re-running the benchmark 5 times with different seeds and varying the clustering distance threshold, then verifying the reported statistics and variance in FID scores.
+**Independent Test**: Can be fully tested by re-running the benchmark multiple times with different seeds and varying the clustering distance threshold, then verifying the reported statistics and variance in FID scores.
 
 **Acceptance Scenarios**:
 
@@ -59,7 +59,7 @@
 
 - What happens if the k-means clustering fails to converge or identifies only 1 cluster (indicating no distinct phases)? The system MUST flag this as a null result for the phase-separation hypothesis, report the silhouette score, and proceed to generate a "canonical map" using a global average of all timesteps.
 - How does the system handle the scenario where the static model generates images with a significantly higher FID (> 0.5) than the baseline? The system MUST report the high FID difference as a valid (negative) result, indicating the static approximation is invalid for this model architecture, without halting the benchmark.
-- What if the CPU memory limit (7 GB) is exceeded during the tracing of routing weights for all 100 images at once? The system MUST process images in batches of 100 to stay within memory constraints.
+- What if the CPU memory limit is exceeded during the tracing of routing weights for all images at once? The system MUST process images in batches of an appropriate size to stay within memory constraints.
 
 ## Requirements *(mandatory)*
 
@@ -89,14 +89,14 @@
 
 - **SC-001**: Inference latency reduction is measured against the dynamic DAR baseline to report the percentage reduction; **Hypothesis Target**: reduction ≥ 40% on CPU-only hardware (See FR-004, US-2).
 - **SC-002**: Generation quality degradation is measured against the dynamic DAR baseline via FID to report the absolute difference; **Hypothesis Target**: difference < 0.1 points (See FR-005, US-2).
-- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across 5 random seeds, with optional non-parametric bootstrap (1000 resamples) (See FR-006, US-3).
-- **SC-004**: Robustness of the static map is measured against the variation in FID scores when the clustering distance threshold is swept over {0.01, 0.05, 0.1} (See FR-007, US-3).
-- **SC-005**: Memory usage during tracing is measured against the 7 GB RAM limit of the GitHub Actions free-tier runner to ensure the analysis completes without OOM errors (See FR-001, Assumptions).
+- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across multiple random seeds, with optional non-parametric bootstrap (1000 resamples) (See FR-006, US-3).
+- **SC-004**: Robustness of the static map is measured against the variation in FID scores when the clustering distance threshold is swept over a range of low magnitudes. (See FR-007, US-3).
+- **SC-005**: Memory usage during tracing is measured against the available RAM limit of the GitHub Actions free-tier runner to ensure the analysis completes without OOM errors (See FR-001, Assumptions).
 
 ## Assumptions
 
 - The pre-trained SiT-XL/2 model with DAR enabled is available via HuggingFace or the original authors' repository and can be loaded into CPU memory without requiring GPU/CUDA acceleration (e.g., using `load_in_8bit` is not required/used; standard float32 or float16 on CPU is assumed).
-- The ImageNet validation subset (100 images) fits within the ~14 GB disk limit and ~7 GB RAM limit of the GitHub Actions free-tier runner when processed in batches.
+- The ImageNet validation subset (a representative sample) fits within the disk limit and available RAM limit of the GitHub Actions free-tier runner when processed in batches.
 - The "canonical routing map" hypothesis assumes that the optimal information flow is primarily driven by the global noise schedule (timestep) rather than fine-grained input content, which is the core premise being tested.
 - The Inception network used for FID calculation is pre-trained on ImageNet, has fixed weights, and runs efficiently on CPU without requiring GPU acceleration.
 - The k-means clustering algorithm will successfully converge; if it fails to find distinct phases (k < 2 or low silhouette), the system defaults to a global average, acknowledging the null hypothesis.

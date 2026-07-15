@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: "Schema for the trace patterns and benchmark results"
+type: object
+properties:
+  trace_patterns:
+    type: object
+    description: "Metadata for the aggregated trace patterns"
+    properties:
+      shape:
+        type: array
+        items:
+          type: integer
+        description: "Expected shape [batch_size, N_blocks, N_routes]"
+      dtype:
+        type: string
+        const: "float32"
+      source:
+        type: string
+        description: "Source of the data (e.g., 'imagenet-1k trace set')"
+    required:
+      - shape
+      - dtype
+      - source
+  benchmark_results:
+    type: object
+    description: "Metadata for the benchmark results"
+    properties:
+      columns:
+        type: array
+        items:
+          type: string
+        description: "Expected columns: run_id, model_type, seed, latency_seconds, fid_score"
+      rows:
+        type: integer
+        description: "Expected number of rows (5 seeds * 2 models = 10)"
+    required:
+      - columns
+      - rows
+required:
+  - trace_patterns
+  - benchmark_results
+additionalProperties: false
