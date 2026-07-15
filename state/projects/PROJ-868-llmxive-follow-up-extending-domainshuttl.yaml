@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T13:46:42.976678Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-868-llmxive-follow-up-extending-domainshuttl
-last_run_id: 204e8c55-c463-4bc2-9d89-b421677755ba
+last_run_id: 86f277cd-8113-41a7-aade-0efd66036187
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl
 title: 'llmXive follow-up: extending "DomainShuttle: Freeform Open Domain Subject-driven
   Text-to-video Gener"'
-updated_at: '2026-07-13T09:35:36.533218Z'
+updated_at: '2026-07-15T06:44:30.421068Z'

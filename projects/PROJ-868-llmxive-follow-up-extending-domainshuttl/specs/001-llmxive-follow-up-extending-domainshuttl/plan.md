@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid-10M. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [, 24, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
+This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [,, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
 
 ## Technical Context
 
@@ -13,11 +13,11 @@ This project implements a CPU-optimized research pipeline to test the "Dimension
 **Primary Dependencies**: PyTorch (CPU-only), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`)  
 **Testing**: pytest (contract tests against YAML schemas)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, multi-core)  
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU cores, 7GB RAM, multi-core)  
 **Project Type**: Research pipeline / CLI  
 **Performance Goals**: Complete full pipeline (extraction, training, generation, analysis) within 6 hours (free-tier CI limit) on CPU-only runner.  
-**Constraints**: No GPU, no CUDA, no 8-bit quantization, memory usage < 6GB peak, strict adherence to 100-subject limit to ensure feasibility.  
-**Scale/Scope**: 100 subjects, 13 dimensions, 3 style domains = 3,900 generation tasks max (subject to timeout handling).
+**Constraints**: No GPU, no CUDA, no 8-bit quantization, memory usage < 6GB peak, strict adherence to a subject limit to ensure feasibility.  
+**Scale/Scope**: A cohort of subjects, A high-dimensional feature space., style domains = 3,A maximum number of generation tasks will be established. (subject to timeout handling).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -33,7 +33,9 @@ This project implements a CPU-optimized research pipeline to test the "Dimension
 | **IV. Single Source of Truth** | PASS | All metrics (fidelity scores, complexity scores) derived programmatically from `data/` and `code/`; no manual entry. |
 | **V. Versioning Discipline** | PASS | Artifacts will carry content hashes; state file updated on artifact change. |
 | **VI. CPU-First Compression** | PASS | Autoencoders designed for CPU; no CUDA flags; PyTorch default precision; lightweight architecture. |
-| **VII. Phase-Transition Protocol** | PASS | Explicit sweep of 13 dimensions; segmented regression analysis planned; correlation with complexity scores on test set. |
+| **VII. Phase-Transition Protocol** | PASS | Explicit sweep of multiple dimensions
+
+The research question remains: How does the system behave across varying dimensionalities? The method involves conducting an explicit parameter sweep across a range of dimensional configurations. References: [Citation preserved verbatim].; segmented regression analysis planned; correlation with complexity scores on test set. |
 
 ## Project Structure
 
@@ -90,4 +92,4 @@ data/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **None** | The project scope (100 subjects, 13 dims) is intentionally constrained to fit CI limits. | N/A |
+| **None** | The project scope (a constrained number of subjects, 13 dims) is intentionally constrained to fit CI limits. | N/A |

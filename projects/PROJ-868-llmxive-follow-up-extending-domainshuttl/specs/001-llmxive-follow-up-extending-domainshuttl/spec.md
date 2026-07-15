@@ -13,7 +13,7 @@ The research system MUST download a curated subset of diverse subjects from the 
 
 **Why this priority**: This is the foundational data layer. Without valid, complexity-scored embeddings, no compression analysis or identity fidelity testing can occur. It represents the "Input" phase of the scientific method.
 
-**Independent Test**: The pipeline can be tested by running the data loader and encoder, then verifying that the output directory contains 100 tensors and a corresponding CSV of complexity scores, with no missing values.
+**Independent Test**: The pipeline can be tested by running the data loader and encoder, then verifying that the output directory contains a complete set of tensors and a corresponding CSV of complexity scores, with no missing values.
 
 **Acceptance Scenarios**:
 
@@ -89,7 +89,7 @@ The system MUST generate synthetic videos using the compressed vectors and text 
 
 ## Assumptions
 
-- The WebVid-10M dataset is accessible via the provided download links and contains sufficient metadata to filter for 100 diverse subjects with varying visual complexity.
+- The WebVidM dataset is accessible via the provided download links and contains sufficient metadata to filter for 100 diverse subjects with varying visual complexity.
 - The pre-trained DomainShuttle encoder weights are available in a format compatible with CPU-only PyTorch inference without requiring CUDA-specific quantization or loading flags.
 - The visual complexity score derived from the reference images (e.g., based on edge density) is a valid proxy for "semantic complexity" as defined in the research question.
 - The CLIP model used for identity validation is sufficiently lightweight to run on a multi-core CI runner with limited RAM resources. without exceeding memory limits.

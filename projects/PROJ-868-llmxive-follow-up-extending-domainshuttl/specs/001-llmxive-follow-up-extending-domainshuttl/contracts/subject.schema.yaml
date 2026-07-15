@@ -1,32 +1,35 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Subject"
-description: "Schema for a subject entity derived from WebVid-10M."
-type: "object"
-properties:
-  subject_id:
-    type: "string"
-    description: "Unique identifier for the subject."
-  video_url:
-    type: "string"
-    format: "uri"
-    description: "Source URL of the video in WebVid."
-  frame_paths:
-    type: "array"
-    items:
-      type: "string"
-    description: "Relative paths to the 5 extracted keyframe images."
-  complexity_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Visual complexity score (mean of 5-frame edge density/texture variance)."
-  raw_embedding_path:
-    type: "string"
-    description: "Relative path to the high-dimensional embedding tensor."
+$schema: http://json-schema.org/draft-07/schema#
+title: Subject
+description: |
+  Represents a single subject entity from the WebVid-10M dataset.
+  Contains metadata and the path to the reference image used for analysis.
+type: object
 required:
   - subject_id
-  - video_url
-  - frame_paths
+  - category
+  - reference_image_path
   - complexity_score
-  - raw_embedding_path
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject (e.g., video_id or hash)
+    pattern: "^[a-zA-Z0-9_-]+$"
+  category:
+    type: string
+    description: The stratified category label used for sampling
+  reference_image_path:
+    type: string
+    description: Absolute or relative path to the reference image file on disk
+    pattern: "^data/.*\\.(png|jpg|jpeg)$"
+  complexity_score:
+    type: number
+    description: |
+      Normalized visual complexity score (0.0 to 1.0) derived from
+      Sobel edge density across equidistant frames.
+    minimum: 0.0
+    maximum: 1.0
+  metadata:
+    type: object
+    description: Optional additional metadata from the source dataset
+    additionalProperties: true
 additionalProperties: false

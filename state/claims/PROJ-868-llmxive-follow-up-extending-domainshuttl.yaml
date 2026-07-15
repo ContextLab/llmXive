@@ -1,0 +1,328 @@
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fetch 100 diverse subjects from WebVid-10M via stratified sampling across
+    top 10 categories with seed 42
+  claim_id: c_33b25415
+  context: Implement WebVid-10M data loader in src/data/loaders.py to fetch exactly
+    100 diverse subjects via datasets.load_dataset using stratified random sampling
+    by the 'category' column (uniform distribution across top 10 categories) with
+    seed=42, with no synthetic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch exactly 100 diverse subjects via datasets.load_dataset using stratified
+    random sampling by the 'category' column (uniform distribution across top 10 categories)
+    with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:41:33Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: calculate mean Sobel gradient magnitude across 5 equidistant frames per
+    subject
+  claim_id: c_b52fbbd2
+  context: 'Implement visual complexity scoring in src/data/complexity.py using Sobel
+    edge density: calculate mean magnitude of Sobel gradient (kernel size) across
+    5 equidistant frames per subject, with L2 normalization, to calculate a score
+    for each subject''s reference image'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate mean magnitude of Sobel gradient (kernel size) across 5 equidistant
+    frames per subject
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:01Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: support configurable target dimensions 16, 32, 64, 128, 256
+  claim_id: c_ce6a60f8
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime
+    memory check that aborts if usage exceeds 5.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: supporting configurable target dimensions [16, 32, 64, 128, 256]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:42:26Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: enforce batch size 1 and gradient accumulation steps 1
+  claim_id: c_42a94c8a
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime
+    memory check that aborts if usage exceeds 5.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforcing batch_size=1 and gradient_accumulation_steps=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:06Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: abort if runtime memory usage exceeds 5.5 GB
+  claim_id: c_657ded8c
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime
+    memory check that aborts if usage exceeds 5.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: runtime memory check that aborts if usage exceeds 5.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:19Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: abort job and log pipeline timeout if total job time exceeds 6 hours
+  claim_id: c_50b47140
+  context: Implement global pipeline timeout monitor in src/cli.py to aggregate training
+    and generation timeouts; if total job time exceeds 6 hours, abort the job and
+    log data/results/pipeline_timeout.json; this task must be called after T016 and
+    before T019
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if total job time exceeds 6 hours, abort the job and log data/results/pipeline_timeout.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:34Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: generate videos using prompts for Anime, Photorealistic, and Sketch domains
+  claim_id: c_192866bf
+  context: Implement video generation script in src/analysis/generation.py to synthesize
+    videos using frozen DomainShuttle generator, compressed vectors, and prompts for
+    'Anime', 'Photorealistic', 'Sketch' domains
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_videos_using_prompts_for_Anime,_Photorealistic,_and
+  kind: entity_fact
+  raw_text: prompts for 'Anime', 'Photorealistic', 'Sketch' domains
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:44:22Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Pipeline test verifies 100 tensors and CSV of complexity scores with
+    no missing values
+  claim_id: c_89de7390
+  context: 'Independent Test: The pipeline can be tested by running the data loader
+    and encoder, then verifying that the output directory contains 100 tensors and
+    a corresponding CSV of complexity scores, with no missing values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline can be tested by running the data loader and encoder, then
+    verifying that the output directory contains 100 tensors and a corresponding CSV
+    of complexity scores, with no missing values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Fetch 100 diverse subjects via stratified random sampling across top
+    10 categories with seed 42
+  claim_id: c_9595f785
+  context: Implement WebVid-10M data loader in src/data/loaders.py to fetch exactly
+    100 diverse subjects via datasets.load_dataset using stratified random sampling
+    by the 'category' column (uniform distribution across top 10 categories) with
+    seed=42, with no synthetic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch exactly 100 diverse subjects via datasets.load_dataset using stratified
+    random sampling by the 'category' column (uniform distribution across top 10 categories)
+    with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Calculate mean Sobel gradient magnitude across 5 equidistant frames per
+    subject with L2 normalization
+  claim_id: c_6d75605b
+  context: 'Implement visual complexity scoring in src/data/complexity.py using Sobel
+    edge density: calculate mean magnitude of Sobel gradient (kernel size) across
+    5 equidistant frames per subject, with L2 normalization, to calculate a score
+    for each subject''s reference image'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate mean magnitude of Sobel gradient (kernel size) across 5 equidistant
+    frames per subject, with L2 normalization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:46Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Support configurable target dimensions 16, 32, 64, 128, 256
+  claim_id: c_df9b0d70
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: supporting configurable target dimensions [16, 32, 64, 128, 256]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:46Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Enforce batch size 1 and gradient accumulation steps 1
+  claim_id: c_5d36be35
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforcing batch_size=1 and gradient_accumulation_steps=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:46Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Abort if runtime memory usage exceeds 5.5 GB
+  claim_id: c_ff08e2b9
+  context: Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py
+    supporting configurable target dimensions [16, 32, 64, 128, 256], using a multi-layer
+    perceptron with ReLU, hidden layers sized proportionally to the input dimension,
+    enforcing batch_size=1 and gradient_accumulation_steps=1, and including a runtime
+    memory check that aborts if usage exceeds 5.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort if usage exceeds 5.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:58Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Abort job if total time exceeds 6 hours and log to pipeline_timeout.json
+  claim_id: c_d7c4521c
+  context: Implement global pipeline timeout monitor in src/cli.py to aggregate training
+    and generation timeouts; if total job time exceeds 6 hours, abort the job and
+    log data/results/pipeline_timeout.json; this task must be called after T016 and
+    before T019
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if total job time exceeds 6 hours, abort the job and log data/results/pipeline_timeout.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:46:58Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Iterate through dimensions 16, 32, 64, 128, 256 to find first dimension
+    where CLIP score meets threshold
+  claim_id: c_ff40a920
+  context: 'Implement Minimum Dimensionality Calculation in src/analysis/fidelity.py
+    to load fidelity_threshold from src/config/settings.py (raise error if missing),
+    iterate through dimensions [16, 32, 64, 128, 256] for each subject, find the first
+    dimension where CLIP score >= threshold, and save the result as a distinct JSON
+    entity data/results/minimum_dimensions.json containing {subject_id: min_dim}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate through dimensions [16, 32, 64, 128, 256] for each subject, find
+    the first dimension where CLIP score >= threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:22Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Use CLIP ViT-B model and mean of equidistant frames to compute image-image
+    similarity
+  claim_id: c_1a18f989
+  context: Implement CLIP Image Similarity scoring in src/analysis/fidelity.py using
+    a CLIP ViT-B model and mean of a set of equidistant frames strategy to compute
+    image-image similarity between generated frames and reference images
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_CLIP_ViT-B_model_and_mean_of_equidistant_frames_to_compu
+  kind: entity_fact
+  raw_text: using a CLIP ViT-B model and mean of a set of equidistant frames strategy
+    to compute image-image similarity between generated frames and reference images
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:47:43Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: Cohort of subjects multiplied by multiple dimensions multiplied by 3
+    styles
+  claim_id: c_82aa95a9
+  context: Add validation to ensure all potential generation tasks (a cohort of subjects
+    x multiple dimensions x 3 styles) are attempted or logged as skipped/timeout
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: a cohort of subjects x multiple dimensions x 3 styles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:48:00Z'

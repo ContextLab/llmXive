@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No evidence of the required `src/`, `tests/`, or `data/` directories (or any files within them) is provided; the implementer only supplied a feature specification without showing the actual project structure. The task’s core deliverable—a populated project hierarchy—is missing.
+- **T002** — No `requirements.txt` file or its contents were provided; therefore the Python 3.10 project initialization with the specified dependencies has not been demonstrated. The required artifact is missing.
+- **T003** — The implementer provided only a high‑level feature specification for data processing and model training; there are no linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or scripts shown. Consequently the required artifact for task T003 – a functional ruff/flake8 and black setup – is missing.
+- **T004** — No `src/config/settings.py` file or any code snippet defining paths, seeds, or hyperparameters was provided. The evidence consists only of high‑level user story descriptions, which do not demonstrate that the required configuration management module exists or contains the expected settings. The missing artifact must be created and populated with the appropriate configuration values.
+- **T004b** — No evidence of a `src/config/settings.py` file containing a defined `fidelity_threshold` key, its validation logic, or documentation of a default fallback is provided. The required code artifact is missing, so the task is not satisfied.
+- **T005** — No evidence of a `src/utils/io.py` file was presented, nor any code showing checksumming, path handling, or JSON/CSV serialization utilities. The required artifact is missing, so the task is not satisfied.

@@ -1,0 +1,5 @@
+# This file is a legacy alias for pyproject.toml settings.
+# The primary configuration is now in pyproject.toml under [tool.ruff].
+# Keep this file to ensure tools that look for .ruff.toml still function,
+# but they will defer to the pyproject.toml configuration if present.
+extend = "pyproject.toml"
