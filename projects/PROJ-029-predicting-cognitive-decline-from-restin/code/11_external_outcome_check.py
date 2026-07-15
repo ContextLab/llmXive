@@ -14,61 +14,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from utils.logger import get_logger, log_operation
-
-
-@dataclass
-class LogEntry:
-    operation: str = ""
-    parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
-
-
-class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
-
-
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    global _GLOBAL_LOGGER
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-    return _GLOBAL_LOGGER
-
-
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: decorator or direct call."""
-    if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
-
-        @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
-            return func(*a, **k)
-
-        return _wrapper
-
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
+# Import from the shared logger module to ensure contract consistency
+# The shared module (utils/logger.py) already defines the robust logger implementation
+# that satisfies all callers. We import it here to maintain the API surface.
+from utils.logger import get_logger, log_operation, LogEntry, ReproducibilityLogger
 
 
 def check_mci_conversion() -> bool:
@@ -78,6 +27,7 @@ def check_mci_conversion() -> bool:
         True if MCI conversion data is found, False otherwise.
     """
     # Path to the participants file which contains subject-level metadata
+    # This matches the path used by T017 (download_and_filter)
     participants_path = Path("data/raw/ds000246/participants.tsv")
 
     # Check if the file exists
@@ -93,7 +43,7 @@ def check_mci_conversion() -> bool:
 
         # Check header for MCI-related columns
         header = lines[0].lower()
-        mci_keywords = ["mci", "conversion", "diagnosis_change", "outcome"]
+        mci_keywords = ["mci", "conversion", "diagnosis_change", "outcome", "mci_status", "conversion_status"]
         has_mci_data = any(keyword in header for keyword in mci_keywords)
 
         return has_mci_data
@@ -145,10 +95,11 @@ def main() -> int:
             )
             write_limitation(limitation_msg)
             logger.log("check_mci_end", has_data=False, limitation_written=True)
+            # Note: This is not a failure, just a documented limitation
+            return 0
         else:
             logger.log("check_mci_end", has_data=True, limitation_written=False)
-
-        return 0
+            return 0
     except Exception as e:
         logger.log("check_mci_error", error=str(e))
         return 1
