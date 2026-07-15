@@ -155,7 +155,7 @@
 
 - [~] T039 [P] Documentation updates in `docs/` (README, usage examples)
 - [~] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
-- [ ] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
+- [~] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
 - [ ] T043b Vectorize image processing loops if execution time exceeds target.
 - [ ] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`
 - [ ] T045 Run `quickstart.md` validation to ensure reproducibility

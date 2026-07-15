@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.03110",
+  "judged_at": "2026-07-15T01:14:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical bias in pre-print server publication trends statistics",
+  "rationale": "This paper satisfies criterion (b) by measuring a key dependent variable (changes in reference lists and literature framing) within the user's specific domain (preprint-publication pairs), providing empirical data on how scholarly communication evolves from preprint to publication. It also aligns with criterion (c) by establishing a baseline for reference stability (90% unchanged) that is essential for analyzing publication trends and potential biases in the preprint ecosystem.",
+  "relevant": true
+}

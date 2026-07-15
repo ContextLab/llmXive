@@ -21,7 +21,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1103/physrevlett.93.207204
   verified_at: '2026-06-29T23:17:33.608920Z'
-- artifact_hash: 46c5075375a773457aab52d83f504d4a5a8bd455d5fab183e3ee8b8d0ac79478
+- artifact_hash: 91b14d2928a44897b5f46d60b20031be627a1587d4d72599949c23f5a26cfca1
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -32,8 +32,8 @@
   value: https://arxiv.org/abs/1304.4292
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1304.4292
-  verified_at: '2026-07-10T13:44:36.231475Z'
-- artifact_hash: 46c5075375a773457aab52d83f504d4a5a8bd455d5fab183e3ee8b8d0ac79478
+  verified_at: '2026-07-15T01:01:22.393194Z'
+- artifact_hash: 91b14d2928a44897b5f46d60b20031be627a1587d4d72599949c23f5a26cfca1
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-10T13:44:36.231475Z'
+  verified_at: '2026-07-15T01:01:22.393194Z'

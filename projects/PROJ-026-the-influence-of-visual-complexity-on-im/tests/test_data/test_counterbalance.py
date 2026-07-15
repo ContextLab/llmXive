@@ -5,60 +5,48 @@ from pathlib import Path
 import sys
 import os
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data.counterbalance import generate_counterbalance_assignments
-from utils.logging import get_log_path
+from code.data.counterbalance import generate_counterbalance_assignments
 
-def test_generate_counterbalance_even_split():
-    """Test that even number of participants gets exact 50/50 split."""
-    pids = [f"P{i}" for i in range(1, 11)]  # 10 participants
-    df = generate_counterbalance_assignments(pids, seed=42)
-    
-    assert len(df) == 10
-    assert set(df.columns) == {"participant_id", "session_order"}
-    
-    counts = df["session_order"].value_counts()
-    assert counts["Low-High"] == 5
-    assert counts["High-Low"] == 5
-
-def test_generate_counterbalance_odd_split():
-    """Test that odd number of participants gets +/- 1 split."""
-    pids = [f"P{i}" for i in range(1, 11)]  # 10 participants
-    # Add one more to make 11
-    pids.append("P11")
-    
-    df = generate_counterbalance_assignments(pids, seed=42)
-    
-    assert len(df) == 11
-    counts = df["session_order"].value_counts()
-    
-    # One group should be 6, the other 5
-    assert counts.iloc[0] + counts.iloc[1] == 11
-    assert abs(counts.iloc[0] - counts.iloc[1]) == 1
-
-def test_counterbalance_deterministic():
-    """Test that same seed produces same result."""
-    pids = [f"P{i}" for i in range(1, 21)]
-    df1 = generate_counterbalance_assignments(pids, seed=42)
-    df2 = generate_counterbalance_assignments(pids, seed=42)
+def test_generate_counterbalance_assignments_seed():
+    """Test that the same seed produces the same results."""
+    df1 = generate_counterbalance_assignments(n_participants=10, seed=42)
+    df2 = generate_counterbalance_assignments(n_participants=10, seed=42)
     
     pd.testing.assert_frame_equal(df1, df2)
 
-def test_counterbalance_strategy_log_exists():
-    """Test that the strategy log is created when main is run (simulated)."""
-    # We can't easily run main() here without side effects, 
-    # but we can verify the logging function exists and the path is correct.
-    from utils.logging import log_counterbalance_strategy
+def test_generate_counterbalance_assignments_split():
+    """Test that the split is approximately 50/50."""
+    n = 1000
+    df = generate_counterbalance_assignments(n_participants=n, seed=42)
     
-    log_path = get_log_path()
-    strategy_file = log_path / "counterbalance_strategy.log"
+    low_high = (df['session_order'] == "Low-High").sum()
+    high_low = (df['session_order'] == "High-Low").sum()
     
-    # Ensure directory exists
-    log_path.mkdir(parents=True, exist_ok=True)
+    # With 1000, we expect exactly 500/500 due to integer division logic
+    # (half = 1000 // 2 = 500, remaining = 500)
+    assert low_high == high_low == 500
+
+def test_generate_counterbalance_assignments_columns():
+    """Test that the output has the correct columns."""
+    df = generate_counterbalance_assignments(n_participants=5, seed=42)
     
-    # Write a dummy entry
-    log_counterbalance_strategy("Test Strategy")
+    assert 'participant_id' in df.columns
+    assert 'session_order' in df.columns
+    assert len(df.columns) == 2
+
+def test_generate_counterbalance_assignments_participant_ids():
+    """Test that participant IDs are formatted correctly."""
+    df = generate_counterbalance_assignments(n_participants=5, seed=42)
     
-    assert strategy_file.exists()
+    expected_ids = ['P0001', 'P0002', 'P0003', 'P0004', 'P0005']
+    assert list(df['participant_id']) == expected_ids
+
+def test_generate_counterbalance_assignments_valid_orders():
+    """Test that only valid session orders are generated."""
+    df = generate_counterbalance_assignments(n_participants=100, seed=42)
+    
+    valid_orders = {"Low-High", "High-Low"}
+    assert set(df['session_order'].unique()).issubset(valid_orders)

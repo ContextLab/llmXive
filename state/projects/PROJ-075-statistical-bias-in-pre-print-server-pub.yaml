@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T05:24:52.081872Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-075-statistical-bias-in-pre-print-server-pub
-last_run_id: 60971b3a-2b66-45b1-8b03-e590c831b085
+last_run_id: 48d194f1-0544-42f1-9851-e52ae65acefd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Bias in Pre-Print Server Publication Trends
-updated_at: '2026-06-14T13:20:21.389307Z'
+updated_at: '2026-07-15T01:15:15.694918Z'

@@ -1,0 +1,767 @@
+{
+  "fetched_at": "2026-07-15T01:14:30Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Bias in Pre-Print Server Publication Trends",
+      "target_n": 5
+    },
+    "duration_seconds": 153.276,
+    "ended_at": "2026-07-15T01:14:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Publication bias in preprint repositories"
+        ],
+        [
+          2,
+          "Selection bias in arXiv and bioRxiv submissions"
+        ],
+        [
+          3,
+          "Preprint server submission trends analysis"
+        ],
+        [
+          4,
+          "Self-selection bias in scientific preprints"
+        ],
+        [
+          5,
+          "Dissemination bias in open access preprints"
+        ],
+        [
+          6,
+          "Temporal trends in preprint publication rates"
+        ],
+        [
+          7,
+          "Statistical methodology for preprint data analysis"
+        ],
+        [
+          8,
+          "Survivorship bias in preprint-to-journal conversion"
+        ],
+        [
+          9,
+          "Citation bias in preprint literature"
+        ],
+        [
+          10,
+          "Demographic skew in preprint authorship"
+        ],
+        [
+          11,
+          "Field-specific preprint adoption rates"
+        ],
+        [
+          12,
+          "Non-response bias in preprint surveys"
+        ],
+        [
+          13,
+          "Validation of preprint statistical claims"
+        ],
+        [
+          14,
+          "Meta-analysis of preprint study outcomes"
+        ],
+        [
+          15,
+          "Bias correction methods for preprint datasets"
+        ],
+        [
+          16,
+          "Preprint server usage patterns across disciplines"
+        ],
+        [
+          17,
+          "Over-representation of positive results in preprints"
+        ],
+        [
+          18,
+          "Temporal distribution of preprint uploads"
+        ],
+        [
+          19,
+          "Geographical bias in preprint submissions"
+        ],
+        [
+          20,
+          "Impact of preprint availability on publication bias"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Preprint server submission trends analysis": 1,
+        "Publication bias in preprint repositories": 1,
+        "Selection bias in arXiv and bioRxiv submissions": 0,
+        "Self-selection bias in scientific preprints": 2,
+        "Statistical Bias in Pre-Print Server Publication Trends statistics": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "publication bias preprint selection mechanism",
+      "arXiv submission acceptance rate trends",
+      "p-hacking file drawer effect preprints",
+      "time-to-publication statistical significance skew",
+      "selective reporting preprint repository data"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2102.03110"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Bias in Pre-Print Server Publication Trends statistics": 3,
+      "arXiv submission acceptance rate trends": 3,
+      "p-hacking file drawer effect preprints": 3,
+      "publication bias preprint selection mechanism": 3,
+      "selective reporting preprint repository data": 3,
+      "time-to-publication statistical significance skew": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2412.02271",
+          "rationale": "The paper focuses on media bias in news headlines and social media engagement, which is a distinct construct from the user's question regarding statistical bias in pre-print server publication trends. While both contain the word \"bias,\" they refer to different domains (journalistic framing vs. statistical methodology) and different publication venues (news outlets vs. pre-print servers), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "The MediaSpin Dataset: Post-Publication News Headline Edits Annotated for Media Bias"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-15T01:11:57Z",
+    "term_input": {
+      "normalized": "statistical bias in pre-print server publication trends statistics",
+      "raw": "Statistical Bias in Pre-Print Server Publication Trends statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistical graphics and data visualization have long histories, but their modern forms began only in the early 1800s. Between roughly 1850 and 1900 ($\\pm10$), an explosive growth occurred in both the general use of graphic methods and the range of topics to which they were applied. Innovations were prodigious and some of the most exquisite graphics ever produced appeared, resulting in what may be called the ``Golden Age of Statistical Graphics.'' In this article I trace the origins of this period in terms of the infrastructure required to produce this explosive growth: recognition of the importance of systematic data collection by the state; the rise of statistical theory and statistical thinking; enabling developments of technology; and inventions of novel methods to portray statistical data. To illustrate, I describe some specific contributions that give rise to the appellation ``Golden Age.''",
+          "claimed_authors": [
+            "Michael Friendly"
+          ],
+          "claimed_title": "The Golden Age of Statistical Graphics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0906.3979"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='The Golden Age of Statistical Graphics')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This submission has been removed because 'G. Felici' is an apparent pseudonym, in violation of arXiv policies.",
+          "claimed_authors": [
+            "G. Felici"
+          ],
+          "claimed_title": "The meaning of systematic errors, a comment to \"Reply to On the Systematic Errors in the Detection of the Lense-Thirring Effect with a Mars Orbiter\", by Lorenzo Iorio",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "gr-qc/0703020"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='The meaning of systematic errors, a comment to \"Reply to On the Systematic Errors in the Detection of the Lense-Thirring Effect with a Mars Orbiter\", by Lorenzo Iorio')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This submission has been withdrawn by arXiv admins due to fraudulent affiliation claims by the original submitter.",
+          "claimed_authors": [
+            "Yuanyou Cheng",
+            "Glenn J. Fox",
+            "Mehdi Hassani"
+          ],
+          "claimed_title": "Explicit estimates on prime numbers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1407.7158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Explicit estimates on prime numbers')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This submission has been withdrawn by arXiv administrators because it contains fictitious content and was submitted under a pseudonym, which is against arXiv policy.",
+          "claimed_authors": [
+            "Tairen Sun"
+          ],
+          "claimed_title": "A Simulation and Modeling of Access Points with Definition Language",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.1836"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='A Simulation and Modeling of Access Points with Definition Language')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Creating virtual digital replicas from real-world data unlocks significant potential across domains like gaming and robotics. In this paper, we present DRAWER, a novel framework that converts a video of a static indoor scene into a photorealistic and interactive digital environment. Our approach centers on two main contributions: (i) a reconstruction module based on a dual scene representation that reconstructs the scene with fine-grained geometric details, and (ii) an articulation module that identifies articulation types and hinge positions, reconstructs simulatable shapes and appearances and integrates them into the scene. The resulting virtual environment is photorealistic, interactive, and runs in real time, with compatibility for game engines and robotic simulation platforms. We demonstrate the potential of DRAWER by using it to automatically create an interactive game in Unreal Engine and to enable real-to-sim-to-real transfer for robotics applications.",
+          "claimed_authors": [
+            "Hongchi Xia",
+            "Entong Su",
+            "Marius Memmel",
+            "Arhan Jain",
+            "Raymond Yu",
+            "Numfor Mbiziwo-Tiapo",
+            "Ali Farhadi",
+            "Abhishek Gupta",
+            "Shenlong Wang",
+            "Wei-Chiu Ma"
+          ],
+          "claimed_title": "DRAWER: Digital Reconstruction and Articulation With Environment Realism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.15278"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='DRAWER: Digital Reconstruction and Articulation With Environment Realism')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A flourishing empirical literature investigates the prevalence of $p$-hacking based on the distribution of $p$-values across studies. Interpreting results in this literature requires a careful understanding of the power of methods for detecting $p$-hacking. We theoretically study the implications of likely forms of $p$-hacking on the distribution of $p$-values to understand the power of tests for detecting it. Power can be low and depends crucially on the $p$-hacking strategy and the distribution of true effects. Combined tests for upper bounds and monotonicity and tests for continuity of the $p$-curve tend to have the highest power for detecting $p$-hacking.",
+          "claimed_authors": [
+            "Graham Elliott",
+            "Nikolay Kudrin",
+            "Kaspar Wüthrich"
+          ],
+          "claimed_title": "The Power of Tests for Detecting $p$-Hacking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.07950"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='The Power of Tests for Detecting $p$-Hacking')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inspired by the legacy of the Netflix contest, we provide an overview of what has been learned---from our own efforts, and those of others---concerning the problems of collaborative filtering and recommender systems. The data set consists of about 100 million movie ratings (from 1 to 5 stars) involving some 480 thousand users and some 18 thousand movies; the associated ratings matrix is about 99% sparse. The goal is to predict ratings that users will give to movies; systems which can do this accurately have significant commercial applications, particularly on the world wide web. We discuss, in some detail, approaches to \"baseline\" modeling, singular value decomposition (SVD), as well as kNN (nearest neighbor) and neural network models; temporal effects, cross-validation issues, ensemble methods and other considerations are discussed as well. We compare existing models in a search for new models, and also discuss the mission-critical issues of penalization and parameter shrinkage which arise when the dimensions of a parameter space reaches into the millions. Although much work on such problems has been carried out by the computer science and machine learning communities, our goal here is to address a statistical audience, and to provide a primarily statistical treatment of the lessons that have been learned from this remarkable set of data.",
+          "claimed_authors": [
+            "Andrey Feuerverger",
+            "Yu He",
+            "Shashi Khatri"
+          ],
+          "claimed_title": "Statistical Significance of the Netflix Challenge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5649"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Statistical Significance of the Netflix Challenge')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "New sufficient conditions and necessary conditions are developed for two skew diagrams to give rise to the same skew Schur function. The sufficient conditions come from a variety of new operations related to ribbons (also known as border strips or rim hooks). The necessary conditions relate to the extent of overlap among the rows or among the columns of the skew diagram.",
+          "claimed_authors": [
+            "Victor Reiner",
+            "Kristin M. Shaw",
+            "Stephanie van Willigenburg"
+          ],
+          "claimed_title": "Coincidences among skew Schur functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0602634"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Coincidences among skew Schur functions')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When Lenz proposed a simple model for phase transitions in magnetism, he couldn't have imagined that the \"Ising model\" was to become a jewel in field of equilibrium statistical mechanics. Its role spans the spectrum, from a good pedagogical example to a universality class in critical phenomena. A quarter century ago, Katz, Lebowitz and Spohn found a similar treasure. By introducing a seemingly trivial modification to the Ising lattice gas, they took it into the vast realms of non-equilibrium statistical mechanics. An abundant variety of unexpected behavior emerged and caught many of us by surprise. We present a brief review of some of the new insights garnered and some of the outstanding puzzles, as well as speculate on the model's role in the future of non-equilibrium statistical physics.",
+          "claimed_authors": [
+            "R. K. P. Zia"
+          ],
+          "claimed_title": "Twenty five years after KLS: A celebration of non-equilibrium statistical mechanics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.5421"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Twenty five years after KLS: A celebration of non-equilibrium statistical mechanics')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-15T01:13:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Naive Bayes estimator is widely used in text classification problems. However, it doesn't perform well with small-size training dataset. We propose a new method based on Naive Bayes estimator to solve this problem. A correlation factor is introduced to incorporate the correlation among different classes. Experimental results show that our estimator achieves a better accuracy compared with traditional Naive Bayes in real world data.",
+          "claimed_authors": [
+            "Jiangning Chen",
+            "Zhibo Dai",
+            "Juntao Duan",
+            "Heinrich Matzinger",
+            "Ionel Popescu"
+          ],
+          "claimed_title": "Naive Bayes with Correlation Factor for Text Classification Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.06115"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Naive Bayes with Correlation Factor for Text Classification Problem')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We discuss nonparametric tests for parametric specifications of regression quantiles. The test is based on the comparison of parametric and nonparametric fits of these quantiles. The nonparametric fit is a Nadaraya-Watson quantile smoothing estimator.\n  An asymptotic treatment of the test statistic requires the development of new mathematical arguments. An approach that makes only use of plugging in a Bahadur expansion of the nonparametric estimator is not satisfactory. It requires too strong conditions on the dimension and the choice of the bandwidth.\n  Our alternative mathematical approach requires the calculation of moments of Nadaraya-Watson quantile regression estimators. This calculation is done by application of higher order Edgeworth expansions.",
+          "claimed_authors": [
+            "Enno Mammen",
+            "Ingrid Van Keilegom",
+            "Kyusang Yu"
+          ],
+          "claimed_title": "Expansion for moments of regression quantiles with application to nonparametric testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.6179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Expansion for moments of regression quantiles with application to nonparametric testing')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Random-effects models are central to meta-analysis, yet the between-study variance is often underestimated when the number of studies is small. In such settings, confidence intervals become unduly narrow and fail to attain the nominal coverage probability. Although several small-sample corrections, including the Bartlett correction, have been developed under the normal-normal model, corresponding methodology for generalized linear mixed models (GLMMs) remains limited. This study proposes a unified framework for random-effects meta-analysis within the GLMM that relies exclusively on aggregate data and accommodates outcomes that follow any distribution in the exponential family, including the binomial, Poisson, and gamma distributions. To improve interval estimation with few studies, we develop a profile likelihood method with a simplified Bartlett correction (PLSBC), which refines the chi-squared approximation of the profile likelihood ratio statistic without requiring higher-order derivatives. We show theoretically that the proposed estimators preserve the consistency and asymptotic normality of the maximum likelihood estimators. Simulation studies demonstrate that the PLSBC yields nearly unbiased estimates and maintains nominal coverage across a variety of outcome types. Applications to three published meta-analyses with binomial, Poisson, and gamma outcomes indicate that the proposed approach provides robust and interpretable inference with few studies. The PLSBC therefore offers a practical and broadly applicable framework for random-effects meta-analysis when the number of studies is limited.",
+          "claimed_authors": [
+            "Keisuke Hanada",
+            "Tomoyuki Sugimoto"
+          ],
+          "claimed_title": "Random-effects meta-analysis via generalized linear mixed models: A Bartlett-corrected approach for few studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.08758"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Random-effects meta-analysis via generalized linear mixed models: A Bartlett-corrected approach for few studies')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose a new approach to address the text classification problems when learning with partial labels is beneficial. Instead of offering each training sample a set of candidate labels, we assign negative-oriented labels to the ambiguous training examples if they are unlikely fall into certain classes. We construct our new maximum likelihood estimators with self-correction property, and prove that under some conditions, our estimators converge faster. Also we discuss the advantages of applying one of our estimator to a fully supervised learning problem. The proposed method has potential applicability in many areas, such as crowdsourcing, natural language processing and medical image analysis.",
+          "claimed_authors": [
+            "Jiangning Chen",
+            "Zhibo Dai",
+            "Juntao Duan",
+            "Qianli Hu",
+            "Ruilin Li",
+            "Heinrich Matzinger",
+            "Ionel Popescu",
+            "Haoyan Zhai"
+          ],
+          "claimed_title": "A cost-reducing partial labeling estimator in text classification problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.03768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='A cost-reducing partial labeling estimator in text classification problem')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Bayesian computational algorithms tend to scale poorly as data size increases. This has motivated divide-and-conquer-based approaches for scalable inference. These divide the data into subsets, perform inference for each subset in parallel, and then combine these inferences. While appealing theoretical properties and practical performance have been demonstrated for independent observations, scalable inference for dependent data remains challenging. In this work, we study the problem of Bayesian inference from very long time series. The literature in this area focuses mainly on approximate approaches that usually lack rigorous theoretical guarantees and may provide arbitrarily poor accuracy in practice. We propose a simple and scalable divide-and-conquer method, and provide accuracy guarantees. Numerical simulations and real data applications demonstrate the effectiveness of our approach.",
+          "claimed_authors": [
+            "Rihui Ou",
+            "Lachlan Astfalck",
+            "Deborshee Sen",
+            "David Dunson"
+          ],
+          "claimed_title": "Scalable Bayesian inference for time series via divide-and-conquer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.11043"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Scalable Bayesian inference for time series via divide-and-conquer')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose Stein-type estimators for zero-inflated Bell regression models by incorporating information on model parameters. These estimators combine the advantages of unrestricted and restricted estimators. We derive the asymptotic distributional properties, including bias and mean squared error, for the proposed shrinkage estimators. Monte Carlo simulations demonstrate the superior performance of our shrinkage estimators across various scenarios. Furthermore, we apply the proposed estimators to analyze a real dataset, showcasing their practical utility.",
+          "claimed_authors": [
+            "Solmaz Seifollahi",
+            "Hossein Bevrani",
+            "Zakariya Yahya Algamal"
+          ],
+          "claimed_title": "Shrinkage estimators in zero-inflated Bell regression model with application",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.00749"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Shrinkage estimators in zero-inflated Bell regression model with application')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Calibrated probabilistic classifiers are models whose predicted probabilities can directly be interpreted as uncertainty estimates. It has been shown recently that deep neural networks are poorly calibrated and tend to output overconfident predictions. As a remedy, we propose a low-bias, trainable calibration error estimator based on Dirichlet kernel density estimates, which asymptotically converges to the true $L_p$ calibration error. This novel estimator enables us to tackle the strongest notion of multiclass calibration, called canonical (or distribution) calibration, while other common calibration methods are tractable only for top-label and marginal calibration. The computational complexity of our estimator is $\\mathcal{O}(n^2)$, the convergence rate is $\\mathcal{O}(n^{-1/2})$, and it is unbiased up to $\\mathcal{O}(n^{-2})$, achieved by a geometric series debiasing scheme. In practice, this means that the estimator can be applied to small subsets of data, enabling efficient estimation and mini-batch updates. The proposed method has a natural choice of kernel, and can be used to generate consistent estimates of other quantities based on conditional expectation, such as the sharpness of a probabilistic classifier. Empirical results validate the correctness of our estimator, and demonstrate its utility in canonical calibration error estimation and calibration error regularized risk minimization.",
+          "claimed_authors": [
+            "Teodora Popordanoska",
+            "Raphael Sayer",
+            "Matthew B. Blaschko"
+          ],
+          "claimed_title": "A Consistent and Differentiable Lp Canonical Calibration Error Estimator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07810"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='A Consistent and Differentiable Lp Canonical Calibration Error Estimator')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We revisit the finite-sample behavior of single-variable just-identified instrumental variables (just-ID IV) estimators, arguing that in most microeconometric applications, the usual inference strategies are likely reliable. Three widely-cited applications are used to explain why this is so. We then consider pretesting strategies of the form $t_{1}>c$, where $t_{1}$ is the first-stage $t$-statistic, and the first-stage sign is given. Although pervasive in empirical practice, pretesting on the first-stage $F$-statistic exacerbates bias and distorts inference. We show, however, that median bias is both minimized and roughly halved by setting $c=0$, that is by screening on the sign of the \\textit{estimated} first stage. This bias reduction is a free lunch: conventional confidence interval coverage is unchanged by screening on the estimated first-stage sign. To the extent that IV analysts sign-screen already, these results strengthen the case for a sanguine view of the finite-sample behavior of just-ID IV.",
+          "claimed_authors": [
+            "Joshua Angrist",
+            "Michal Kolesár"
+          ],
+          "claimed_title": "One Instrument to Rule Them All: The Bias and Coverage of Just-ID IV",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10556"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='One Instrument to Rule Them All: The Bias and Coverage of Just-ID IV')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider bootstrap inference for estimators which are (asymptotically) biased. We show that, even when the bias term cannot be consistently estimated, valid inference can be obtained by proper implementations of the bootstrap. Specifically, we show that the prepivoting approach of Beran (1987, 1988), originally proposed to deliver higher-order refinements, restores bootstrap validity by transforming the original bootstrap p-value into an asymptotically uniform random variable. We propose two different implementations of prepivoting (plug-in and double bootstrap), and provide general high-level conditions that imply validity of bootstrap inference. To illustrate the practical relevance and implementation of our results, we discuss five examples: (i) inference on a target parameter based on model averaging; (ii) ridge-type regularized estimators; (iii) nonparametric regression; (iv) a location model for infinite variance data; and (v) dynamic panel data models.",
+          "claimed_authors": [
+            "Giuseppe Cavaliere",
+            "Sílvia Gonçalves",
+            "Morten Ørregaard Nielsen",
+            "Edoardo Zanelli"
+          ],
+          "claimed_title": "Bootstrap inference in the presence of bias",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02028"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Bias in Pre-Print Server Publication Trends statistics', candidate_title='Bootstrap inference in the presence of bias')",
+        "failed_at": "2026-07-15T01:13:21Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jeffrey D. Scargle"
+          ],
+          "title": "Publication Bias (The \"File-Drawer Problem\") in Scientific Inference",
+          "venue": "arXiv",
+          "year": 1999
+        },
+        "primary_pointer": "physics/9909033",
+        "summary": "Publication bias arises whenever the probability that a study is published depends on the statistical significance of its results. This bias, often called the file-drawer effect since the unpublished results are imagined to be tucked away in researchers' file cabinets, is potentially a severe impediment to combining the statistical results of studies collected from the literature. With almost any reasonable quantitative model for publication bias, only a small number of studies lost in the file-drawer will produce a significant bias. This result contradicts the well known Fail Safe File Drawer (FSFD) method for setting limits on the potential harm of publication bias, widely used in social, medical and psychic research. This method incorrectly treats the file drawer as unbiased, and almost always misestimates the seriousness of publication bias. A large body of not only psychic research, but medical and social science studies, has mistakenly relied on this method to validate claimed discoveries. Statistical combination can be trusted only if it is known with certainty that all studies that have been carried out are included. Such certainty is virtually impossible to achieve in literature surveys.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/physics/9909033",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T01:13:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Jin",
+            "Kevin Guo",
+            "Dominik Rothenhäusler"
+          ],
+          "title": "Diagnosing the role of observable distribution shift in scientific replications",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.01056",
+        "summary": "Many researchers have identified distribution shift as a likely contributor to the reproducibility crisis in behavioral and biomedical sciences. The idea is that if treatment effects vary across individual characteristics and experimental contexts, then studies conducted in different populations will estimate different average effects. This paper uses ``generalizability\" methods to quantify how much of the effect size discrepancy between an original study and its replication can be explained by distribution shift on observed unit-level characteristics. More specifically, we decompose this discrepancy into ``components\" attributable to sampling variability (including publication bias), observable distribution shifts, and residual factors. We compute this decomposition for several directly-replicated behavioral science experiments and find little evidence that observable distribution shifts contribute appreciably to non-replicability. In some cases, this is because there is too much statistical noise. In other cases, there is strong evidence that controlling for additional moderators is necessary for reliable replication.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2309.01056",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T01:13:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Simon Suh"
+          ],
+          "title": "The Shift Towards Preprints in AI Policy Research: A Comparative Study of Preprint Trends in the U.S., Europe, and South Korea",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.03835",
+        "summary": "The adoption of open science has quickly changed how artificial intelligence (AI) policy research is distributed globally. This study examines the regional trends in the citation of preprints, specifically focusing on the impact of two major disruptive events: the COVID-19 pandemic and the release of ChatGPT, on research dissemination patterns in the United States, Europe, and South Korea from 2015 to 2024. Using bibliometrics data from the Web of Science, this study tracks how global disruptive events influenced the adoption of preprints in AI policy research and how such shifts vary by region. By marking the timing of these disruptive events, the analysis reveals that while all regions experienced growth in preprint citations, the magnitude and trajectory of change varied significantly. The United States exhibited sharp, event-driven increases; Europe demonstrated institutional growth; and South Korea maintained consistent, linear growth in preprint adoption. These findings suggest that global disruptions may have accelerated preprint adoption, but the extent and trajectory are shaped by local research cultures, policy environments, and levels of open science maturity. This paper emphasizes the need for future AI governance strategies to consider regional variability in research dissemination and highlights opportunities for further longitudinal and comparative research to deepen our understanding of open-access adoption in AI policy development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.03835",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T01:13:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aliakbar Akbaritabar",
+            "Dimity Stephen",
+            "Flaminio Squazzoni"
+          ],
+          "title": "A study of referencing changes in preprint-publication pairs across multiple fields",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.03110",
+        "summary": "Manuscripts have a complex development process with multiple influencing factors. Reconstructing this process is difficult without large-scale, comparable data on different versions of manuscripts. Preprints are increasingly available and may provide access to the earliest manuscript versions. Here, we matched 6,024 preprint-publication pairs across multiple fields and examined changes in their reference lists between the manuscript versions as one aspect of manuscripts' development. We also qualitatively analysed the context of references to investigate the potential reasons for changes. We found that 90 percent of references were unchanged between versions and 8 percent were newly added. We found that manuscripts in the natural and medical sciences undergo more extensive reframing of the literature while changes in engineering mostly focused on methodological details. Our qualitative analysis suggests that peer review increases the methodological soundness of scientific claims, improves the communication of findings, and ensures appropriate credit for previous research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2102.03110",
+          "http_status": 200,
+          "pdf_sample_score": 0.2371,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T01:13:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chifumi Nishioka",
+            "Michael Färber",
+            "Tarek Saier"
+          ],
+          "title": "How Does Author Affiliation Affect Preprint Citation Count? Analyzing Citation Bias at the Institution and Country Level",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.02033",
+        "summary": "Citing is an important aspect of scientific discourse and important for quantifying the scientific impact quantification of researchers. Previous works observed that citations are made not only based on the pure scholarly contributions but also based on non-scholarly attributes, such as the affiliation or gender of authors. In this way, citation bias is produced. Existing works, however, have not analyzed preprints with respect to citation bias, although they play an increasingly important role in modern scholarly communication. In this paper, we investigate whether preprints are affected by citation bias with respect to the author affiliation. We measure citation bias for bioRxiv preprints and their publisher versions at the institution level and country level, using the Lorenz curve and Gini coefficient. This allows us to mitigate the effects of confounding factors and see whether or not citation biases related to author affiliation have an increased effect on preprint citations. We observe consistent higher Gini coefficients for preprints than those for publisher versions. Thus, we can confirm that citation bias exists and that it is more severe in case of preprints. As preprints are on the rise, affiliation-based citation bias is, thus, an important topic not only for authors (e.g., when deciding what to cite), but also to people and institutions that use citations for scientific impact quantification (e.g., funding agencies deciding about funding based on citation counts).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.02033",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T01:13:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical bias in pre-print server publication trends statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

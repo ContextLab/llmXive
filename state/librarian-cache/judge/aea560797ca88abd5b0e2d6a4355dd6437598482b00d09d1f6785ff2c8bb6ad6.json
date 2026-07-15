@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.02033",
+  "judged_at": "2026-07-15T01:14:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical bias in pre-print server publication trends statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically measures a specific form of statistical bias (citation bias based on author affiliation) within the exact domain of pre-print servers (bioRxiv), providing essential evidence on how non-scholarly attributes skew publication impact metrics. While it focuses on citation bias rather than general publication trends, it establishes a critical baseline for the \"bias\" component of the user's question regarding pre-print server statistics.",
+  "relevant": true
+}

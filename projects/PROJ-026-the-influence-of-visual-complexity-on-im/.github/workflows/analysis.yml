@@ -1,0 +1,79 @@
+name: Analysis Pipeline CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('code/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: code
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Ensure project structure
+        working-directory: code
+        run: |
+          python setup_project.py
+
+      - name: Run Unit Tests
+        working-directory: code
+        run: |
+          pytest ../tests/ -v
+
+      - name: Run Full Analysis Pipeline
+        working-directory: code
+        run: |
+          # Run the main pipeline which orchestrates Load -> Process -> Analyze -> Plot
+          # This script must execute within the 6-hour timeout defined by the workflow
+          python main.py --null-effect
+
+      - name: Verify Output Artifacts
+        working-directory: code
+        run: |
+          # Verify that the pipeline produced the expected output files
+          if [ ! -f "../data/processed/complexity_scores.csv" ]; then
+            echo "ERROR: data/processed/complexity_scores.csv not found"
+            exit 1
+          fi
+          if [ ! -f "../data/processed/aggregated_d_scores.csv" ]; then
+            echo "ERROR: data/processed/aggregated_d_scores.csv not found"
+            exit 1
+          fi
+          if [ ! -f "../data/results/permutation_results.json" ]; then
+            echo "ERROR: data/results/permutation_results.json not found"
+            exit 1
+          fi
+          if [ ! -f "../data/results/power_analysis.json" ]; then
+            echo "ERROR: data/results/power_analysis.json not found"
+            exit 1
+          fi
+          if [ ! -f "../data/results/sensitivity_results.json" ]; then
+            echo "ERROR: data/results/sensitivity_results.json not found"
+            exit 1
+          fi
+          echo "All required artifacts generated successfully."

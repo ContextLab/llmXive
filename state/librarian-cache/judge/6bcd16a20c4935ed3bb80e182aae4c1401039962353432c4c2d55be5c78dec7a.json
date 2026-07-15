@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "physics/9909033",
+  "judged_at": "2026-07-15T01:13:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical bias in pre-print server publication trends statistics",
+  "rationale": "This paper addresses the core mechanism of \"publication bias\" (the file-drawer problem), which is the primary driver of statistical bias in publication trends, satisfying criterion (a) for measuring the same causal mechanism and criterion (f) as the canonical reference for this specific type of bias. Although the paper focuses on the general phenomenon rather than the specific \"pre-print server\" subset, it establishes the foundational theoretical framework and empirical baseline for understandin",
+  "relevant": true
+}

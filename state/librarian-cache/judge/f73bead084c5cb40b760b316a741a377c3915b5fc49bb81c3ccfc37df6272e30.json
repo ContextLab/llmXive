@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.03835",
+  "judged_at": "2026-07-15T01:14:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical bias in pre-print server publication trends statistics",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable (preprint publication trends and adoption rates) within the specific domain of AI policy research, providing empirical data on how these trends shift over time and across regions. It also aligns with criterion (c) by establishing an empirical baseline for preprint distribution patterns in a specific field, which is essential for analyzing statistical biases or anomalies in broader publication trends.",
+  "relevant": true
+}

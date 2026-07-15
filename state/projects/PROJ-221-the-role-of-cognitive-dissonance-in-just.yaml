@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T20:20:12.103276Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-221-the-role-of-cognitive-dissonance-in-just
-last_run_id: a538f9d0-eaff-475d-af14-4eabe3b1235a
+last_run_id: e188cba1-1307-4704-8b5e-adafaede313e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-221-the-role-of-cognitive-dissonance-in-just/specs/001-the-role-of-cognitive-dissonance-in-just
 title: The Role of Cognitive Dissonance in Justifying Unethical AI Use
-updated_at: '2026-07-13T17:22:18.628432Z'
+updated_at: '2026-07-15T01:23:09.259053Z'

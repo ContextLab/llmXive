@@ -1259,3 +1259,262 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T13:44:35Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation in Phys Rev Lett
+  claim_id: c_13f5ba32
+  context: 'Phase 0: Research & Validation - Populate with scaling ansatz and citation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refael-Moore_citation_in_Phys_Rev_Lett
+  kind: entity_fact
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett., ()).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:45:22Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore Phys Rev Lett 93 207204 2004
+  claim_id: c_ef6dfe7d
+  context: 'Phase 3: Research Validation - Update research.md to explicitly articulate
+    scaling ansatz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:45:23Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: TeNPy TEBD double-precision 64-bit convergence 1e-8 max chi 400
+  claim_id: c_96dbaba4
+  context: 'Phase 2: Foundational - Implement ground state generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/ground_state.py` using TeNPy for imaginary-time TEBD evolution;
+    enforce double-precision (64-bit), convergence tolerance $10^{-8}$, and adaptive
+    bond dimension (max $\chi=400$)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:46:02Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: arXiv cond-mat/0406730
+  claim_id: c_4efe3146
+  context: 'Phase 3: Research Validation - Ensure all citations are correct and formatted.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: arXiv:cond-mat/0406730
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:46:15Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples greater than or equal to 1000
+  claim_id: c_4846df0f
+  context: 'Phase 2: Foundational - Implement bootstrap module.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples_greater_than_or_equal_to_1000
+  kind: magnitude
+  raw_text: Non-parametric percentile bootstrap with $\ge 1000$ resamples to estimate
+    SE and p-value for $\alpha$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:47:20Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Toy model chain length 10
+  claim_id: c_da128885
+  context: 'Phase 3: Research Validation - Implement Toy Model verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a short chain (L=10) with random couplings using TEBD only
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:48:27Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Toy model S(L) values for L 4 8 16
+  claim_id: c_9a516624
+  context: 'Phase 3: Research Validation - Add toy_model_output directory and script.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a table of $S(L)$ values for $L=4, 8, 16$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:51:05Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Workflow execution L 30 delta 0.2 N 100
+  claim_id: c_65ed748a
+  context: 'Phase 4: User Story 1 - Independent Test goal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute workflow with $L=30, \delta=0.2, N=100$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:52:07Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Workflow outputs generated within 6 hours
+  claim_id: c_8ff544e0
+  context: 'Phase 4: User Story 1 - Independent Test goal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `entropy_data.csv`, `scaling_fit.txt`, `entropy_vs_l.png`, and
+    `bootstrap_summary.txt` are generated within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:52:47Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Max realizations 200 and 6-hour runtime limit
+  claim_id: c_0e6273e2
+  context: 'Phase 4: User Story 1 - Implement Pilot Variance Estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce strict cap at max $N_{\text{real}}=200$ and 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:54:20Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Alpha range 0.30 to 0.36 for delta 0
+  claim_id: c_c5bbf6d5
+  context: 'Phase 4: User Story 1 - Integration test assertion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert fitted $\alpha \notin [0.30, 0.36]$ for $\delta=0$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:54:55Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: CI width less than or equal to 0.05 for delta less than or equal to 0.3
+  claim_id: c_8a4e423c
+  context: 'Phase 5: User Story 2 - Independent Test goal.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_width_less_than_or_equal_to_0.05_for_delta_less_than_or_e
+  kind: magnitude
+  raw_text: Verify `delta_vs_exponent.csv` contains multiple rows with numeric $\alpha$
+    and CI width $\le 0.05$ for $\delta \le 0.3$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:56:07Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Delta grid step size greater than 0.2 warning
+  claim_id: c_df59aca4
+  context: 'Phase 5: User Story 2 - Validate Input Grid.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Delta_grid_step_size_greater_than_0.2_warning
+  kind: magnitude
+  raw_text: Warn if `delta_grid.csv` step size > 0.2
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:57:19Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: CI width less than or equal to 0.05 for delta less than or equal to 0.3
+  claim_id: c_87f57125
+  context: 'Phase 5: User Story 2 - Validate CI Width.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_width_less_than_or_equal_to_0.05_for_delta_less_than_or_e
+  kind: magnitude
+  raw_text: Enforce CI width $\le 0.05$ for all $\delta \le 0.3$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:58:05Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Abrupt spikes defined as deviation greater than 3 standard deviations
+  claim_id: c_be3c208e
+  context: 'Phase 7: User Story 4 - Check for Abrupt Spikes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abrupt_spikes_defined_as_deviation_greater_than_3_standard_d
+  kind: magnitude
+  raw_text: 'Check for ''abrupt spikes'' in edge entropy vs $\delta$ curve defined
+    as: deviation > 3 standard deviations'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:00:03Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: TEBD runtime 6 hours for L 30 N 100 on CPU
+  claim_id: c_bba5caf8
+  context: 'Phase 9: Polish & Cross-Cutting Concerns - Performance optimization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:01:22Z'
