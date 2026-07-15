@@ -3678,23 +3678,6 @@
   updated_at: '2026-07-15T09:07:36Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis variation tolerance 10%
-  claim_id: c_c81dd6b1
-  context: "Independent Test: Run sensitivity sweep over a range of values centered\
-    \ around the baseline and verify Reported variations in sensitivity analysis must\
-    \ stay within \xB110%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T09:07:36Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
   canonical: Percolation threshold definition 80% connectivity
   claim_id: c_25b61614
   context: "T027 [US2] Implement percolation threshold detection logic (smallest avg\
@@ -4971,38 +4954,6 @@
   updated_at: '2026-07-15T09:31:18Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
-  canonical: Kirchhoff heat-flow solver residual threshold 1e-6
-  claim_id: c_f0eb5294
-  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6,\
-    \ including logic to detect disconnected graphs"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "residual \u2264 1e-6"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T09:34:30Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 2
-  canonical: Runtime timeout abort threshold 6 hours
-  claim_id: c_50105009
-  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T09:34:31Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
   canonical: "Graph generation tolerance \xB15% for average degree"
   claim_id: c_506357de
   context: "Independent Test: Run the generator for a single target degree... The\
@@ -5236,22 +5187,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T09:37:36Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 2
-  canonical: Sensitivity analysis variation tolerance 10 percent
-  claim_id: c_432ca0c4
-  context: "Independent Test: Run sensitivity sweep... and verify Reported variations\
-    \ in sensitivity analysis must stay within \xB110%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T09:37:37Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
   canonical: "NIST thermal conductivity defaults: Si=149, CNT=3500, Ag=429, Au=418\
@@ -5993,22 +5928,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T10:09:39Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
-  canonical: Runtime timeout limit 6 hours
-  claim_id: c_325e7a5d
-  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T10:09:40Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
   canonical: "Graph generation accuracy: average degree within \xB15% of target"
@@ -6909,22 +6828,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T10:31:17Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
-  canonical: Runtime timeout limit 6 hours
-  claim_id: c_65cb0edf
-  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T10:31:18Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 2
   canonical: "Graph generation average degree tolerance \xB15%"
@@ -8068,22 +7971,6 @@
   status: not_enough_info
   updated_at: '2026-07-15T11:01:15Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 4
-  canonical: Simulation runtime timeout limit 6 hours
-  claim_id: c_fe7a80a4
-  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T11:01:16Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 3
   canonical: requirements.txt contains networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
     pandas 2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
@@ -8892,23 +8779,6 @@
   updated_at: '2026-07-15T11:24:22Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis variation threshold 10%
-  claim_id: c_c9712307
-  context: "Independent Test: Run sensitivity sweep over a range of values centered\
-    \ around the baseline and verify Reported variations in sensitivity analysis must\
-    \ stay within \xB110%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T11:24:23Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
   canonical: Required networkx version 3.2.1
   claim_id: c_c8665d31
   context: 'Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
@@ -9157,22 +9027,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T11:30:12Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
-  canonical: 'Runtime timeout threshold: 6 hours'
-  claim_id: c_546e5ad7
-  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T11:30:14Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 2
   canonical: 'Percolation threshold definition: smallest average degree where 80%
@@ -9650,22 +9504,6 @@
   status: not_enough_info
   updated_at: '2026-07-15T11:42:22Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 2
-  canonical: 'Runtime timeout limit: 6 hours'
-  claim_id: c_ca41e6f1
-  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T11:42:24Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
   canonical: "Percolation threshold definition: smallest average degree where \u2265\
     80% of graph is connected"
@@ -10060,22 +9898,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T12:05:04Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 2
-  canonical: 'Runtime timeout threshold: 6 hours'
-  claim_id: c_26cd2b11
-  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
-    check aborts if > 6 hours (FR-008).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Runtime timeout check aborts if > 6 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T12:05:06Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
   canonical: 'Global timer abort condition: elapsed time > 6 hours'
@@ -10736,24 +10558,6 @@
   status: not_enough_info
   updated_at: '2026-07-15T12:26:08Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 4
-  canonical: 'Python dependencies: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pandas
-    2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
-  claim_id: c_1da5303f
-  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
-    The file MUST contain exactly:'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
-    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T12:29:24Z'
-- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 2
   canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
     \ W/(m\xB7K)"
@@ -10846,6 +10650,736 @@
   updated_at: '2026-07-15T12:31:39Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
   attempts: 1
+  canonical: Sensitivity analysis variations within 10%
+  claim_id: c_260554a0
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:31:45Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivity: Si 149 W/(m\xB7K), CNT 3500 W/(m\xB7\
+    K), Ag 429 W/(m\xB7K), Au 318 W/(m\xB7K)"
+  claim_id: c_d74cb5ab
+  context: "T004 [P] Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/material_db.py with Implement code/material_db.py with\
+    \ NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:46:27Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff solver residual threshold: 1e-6'
+  claim_id: c_cd76690b
+  context: "T013 [US1] Implement Kirchhoff heat-flow solver in code/thermal_solver.py\
+    \ using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver...\
+    \ with residual \u2264 1e-6, including logic to detect disconnected graphs and\
+    \ return zero conductivity while logging Graph disconnected; conductivity set\
+    \ to 0.0 (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Kirchhoff heat-flow solver in code/thermal_solver.py using\
+    \ SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with\
+    \ residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:46:58Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 3
+  canonical: 'Runtime timeout threshold: 6 hours'
+  claim_id: c_26cd2b11
+  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:47:01Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Percolation threshold definition: smallest average degree where 80%
+    connected'
+  claim_id: c_2e8f46ed
+  context: "T027 [US2] Implement percolation threshold detection logic (Percolation\
+    \ threshold detection logic uses the smallest avg degree where \u226580% connected.)\
+    \ in code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_definition:_smallest_average_degree_wh
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:47:27Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Project dependencies are networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
+    pandas 2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
+  claim_id: c_14e863ca
+  context: 'Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:49:42Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivities are Silicon 149, Carbon Nanotube\
+    \ 3500, Silver 429, Gold 318 W/(m\xB7K)"
+  claim_id: c_bc46aee9
+  context: "Implement code/material_db.py with Implement code/material_db.py with\
+    \ NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Generated graph average degree is within 5% of target
+  claim_id: c_3c8ea05d
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:06Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual is less than or equal to 1e-6
+  claim_id: c_242bf025
+  context: "Implement Kirchhoff heat-flow solver in code/thermal_solver.py using SciPy\
+    \ sparse linear algebra with Implement Kirchhoff heat-flow solver... with residual\
+    \ \u2264 1e-6, including logic to detect disconnected graphs and return zero conductivity\
+    \ while logging Graph disconnected; conductivity set to 0.0 (FR-003, Edge Cases)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kirchhoff_heat-flow_solver_residual_is_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout aborts if execution exceeds 6 hours
+  claim_id: c_c35ff3cc
+  context: Implement runtime timeout check in code/main.py to Runtime timeout check
+    aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold is defined as smallest average degree with 80%
+    connectivity
+  claim_id: c_971e3d87
+  context: "Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected.) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_is_defined_as_smallest_average_degree
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:34Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variations must stay within 10%
+  claim_id: c_cfbc13b7
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:50:36Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149 W/(m\xB7K), CNT 3500 W/(m\xB7\
+    K), Ag 429 W/(m\xB7K), Au 318 W/(m\xB7K)"
+  claim_id: c_e8b6ef5d
+  context: "T004 [P] Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:39Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Graph generation accuracy: measured average degree within 5% of target'
+  claim_id: c_de3fa29c
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:41Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff solver residual threshold: 1e-6'
+  claim_id: c_ef5f79d2
+  context: "T013 [US1] Implement Kirchhoff heat-flow solver in code/thermal_solver.py\
+    \ using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver...\
+    \ with residual \u2264 1e-6"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Residual \u2264 1e-6 for Kirchhoff heat-flow solver"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:43Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Runtime timeout limit: 6 hours'
+  claim_id: c_67e028d7
+  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:45Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Percolation threshold definition: smallest average degree with 80% connectivity'
+  claim_id: c_9db9affe
+  context: "T027 [US2] Implement percolation threshold detection logic (Percolation\
+    \ threshold detection logic uses the smallest avg degree where \u226580% connected.)\
+    \ in code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_definition:_smallest_average_degree_wi
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:52Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Sensitivity analysis variation limit: 10%'
+  claim_id: c_43b6fc68
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:51:54Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Dependency versions: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pandas
+    2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_cc68f9a4
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:52:56Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff solver residual threshold 1e-6
+  claim_id: c_8f03b05b
+  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6,\
+    \ including logic to detect disconnected graphs..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:00Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: Runtime timeout limit 6 hours
+  claim_id: c_65cb0edf
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:02Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with 80% connectivity
+  claim_id: c_64b3793a
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected.) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:06Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis variation tolerance 10%
+  claim_id: c_c81dd6b1
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:09Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Required Python package versions: networkx 3.2.1, scipy 1.13.1, numpy
+    1.26.4, pandas 2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_30350935
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:50Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivity values: Si 149, CNT 3500, Ag 429,\
+    \ Au 318 W/(m\xB7K)"
+  claim_id: c_d464e158
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:52Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Graph generation accuracy: measured average degree within 5% of target'
+  claim_id: c_419cf0c2
+  context: "Independent Test: Run the generator for a single target degree... The\
+    \ produced graph's measured average degree is within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:53:54Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff solver residual tolerance: less than or equal to 1e-6'
+  claim_id: c_f81aff2d
+  context: "T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py...\
+    \ with residual \u2264 1e-6"
+  evidence:
+    entailment_evidence: 'Kirchhoff solver residual tolerance: less than or equal
+      to 1'
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Kirchhoff_solver_residual_tolerance:_less_than_or_equal_to_1
+  kind: magnitude
+  raw_text: "Kirchhoff heat-flow solver... with residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-15T12:54:19Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 3
+  canonical: 'Runtime timeout limit: 6 hours'
+  claim_id: c_ca41e6f1
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:54:21Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Percolation threshold definition: smallest average degree with 80% connectivity'
+  claim_id: c_01a85adb
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected.)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_definition:_smallest_average_degree_wi
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:54:25Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis variation limit: 10%'
+  claim_id: c_e7bd4218
+  context: "Independent Test: Run sensitivity sweep... verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:54:27Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Python dependencies networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pandas
+    2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
+  claim_id: c_d1bc7703
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:55:55Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149 W/(m\xB7K), CNT 3500 W/(m\xB7\
+    K), Ag 429 W/(m\xB7K), Au 318 W/(m\xB7K)"
+  claim_id: c_53999908
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:55:57Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 3
+  canonical: Runtime timeout abort threshold 6 hours
+  claim_id: c_50105009
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:56:01Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Graph generation average degree tolerance 5 percent
+  claim_id: c_8e43e99c
+  context: "Independent Test: Run the generator for a single target degree... The\
+    \ produced graph's measured average degree is within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify degree within \xB15%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:56:03Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with 80 percent
+    connectivity
+  claim_id: c_4ae3e152
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected.)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:56:07Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 3
+  canonical: Sensitivity analysis variation tolerance 10 percent
+  claim_id: c_432ca0c4
+  context: "Independent Test: Run sensitivity sweep... and verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:56:09Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 7
+  canonical: 'Python dependencies: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pandas
+    2.2.2, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_1da5303f
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pandas==2.2.2, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:59:32Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivity values: Si 149 W/(m\xB7K), CNT 3500\
+    \ W/(m\xB7K), Ag 429 W/(m\xB7K), Au 318 W/(m\xB7K)"
+  claim_id: c_c1d09992
+  context: "T004 [P] Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/material_db.py with NIST defaults are Si=149, CNT=3500,\
+    \ Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:59:34Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Synthetic nanowire network graph average degree within 5% of target
+  claim_id: c_10fe420d
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:59:36Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual tolerance 1e-6
+  claim_id: c_b8887284
+  context: "T013 [US1] Implement Kirchhoff heat-flow solver in code/thermal_solver.py\
+    \ using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver...\
+    \ with residual \u2264 1e-6, including logic to detect disconnected graphs and\
+    \ return zero conductivity while logging 'Graph disconnected; conductivity set\
+    \ to 0.0' (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:59:38Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Simulation runtime timeout threshold 6 hours
+  claim_id: c_156d1d71
+  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours. (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:59:40Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
   canonical: Percolation threshold defined as smallest average degree with 80% connectivity
   claim_id: c_b74e4d76
   context: "T027 [US2] Implement percolation threshold detection logic (Percolation\
@@ -10863,11 +11397,11 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T12:31:43Z'
+  updated_at: '2026-07-15T12:59:44Z'
 - artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis variations within 10%
-  claim_id: c_260554a0
+  attempts: 2
+  canonical: Sensitivity analysis variation threshold 10%
+  claim_id: c_c9712307
   context: "Independent Test: Run sensitivity sweep over a range of values centered\
     \ around the baseline and verify Reported variations in sensitivity analysis must\
     \ stay within \xB110%."
@@ -10880,4 +11414,1333 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T12:31:45Z'
+  updated_at: '2026-07-15T12:59:47Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si=149, CNT=3500, Ag=429, Au=318\
+    \ W/(m\xB7K)"
+  claim_id: c_b286113f
+  context: "Implement code/material_db.py with Implement code/material_db.py with\
+    \ NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:01:12Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree where connectivity
+    is at least 80%
+  claim_id: c_0c42aac7
+  context: "Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_whe
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:01:17Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: networkx version requirement 3.2.1
+  claim_id: c_7d1f982e
+  context: 'The file MUST contain exactly: networkx==3.2.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: networkx==3.2.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:01:47Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: scipy version requirement 1.13.1
+  claim_id: c_815ffd26
+  context: 'The file MUST contain exactly: scipy==1.13.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.13.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:19Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: numpy version requirement 1.26.4
+  claim_id: c_60d99bd1
+  context: 'The file MUST contain exactly: numpy==1.26.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:40Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: pandas version requirement 2.2.2
+  claim_id: c_437ed9bc
+  context: 'The file MUST contain exactly: pandas==2.2.2'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pandas==2.2.2
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T13:02:51Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: pyyaml version requirement 6.0.1
+  claim_id: c_434b8537
+  context: 'The file MUST contain exactly: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:14Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: pytest version requirement 8.2.2
+  claim_id: c_bcfa46fb
+  context: 'The file MUST contain exactly: pytest==8.2.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.2.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:35Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: statsmodels version requirement 0.14.2
+  claim_id: c_29fc2167
+  context: 'The file MUST contain exactly: statsmodels==0.14.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:59Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies version requirements: networkx 3.2.1, scipy 1.13.1,
+    numpy 1.26.4, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_9c33fbd3
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:21Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff heat-flow solver residual tolerance: 1e-6'
+  claim_id: c_e84a178e
+  context: "T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py using\
+    \ SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with\
+    \ residual \u2264 1e-6, including logic to detect disconnected graphs and return\
+    \ zero conductivity while logging Graph disconnected; conductivity set to 0.0\
+    \ (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Runtime timeout limit: 6 hours'
+  claim_id: c_dbd8baf2
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours. (FR-008). Split into T016a and T016b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Percolation threshold definition: smallest average degree where 80%
+    of nodes are connected'
+  claim_id: c_f253261c
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_definition:_smallest_average_degree_wh
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:35Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pyyaml
+    6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_ee918b30
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:08:41Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Runtime timeout abort threshold: 6 hours'
+  claim_id: c_b43d9fd5
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours. (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:08:49Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Graph generation accuracy: measured average degree within 5% of target'
+  claim_id: c_7acb5bad
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target.. and that an effective conductivity value is produced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:08:51Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Sensitivity analysis variation tolerance: 10%'
+  claim_id: c_a7a7e6e8
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:08:53Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff solver residual tolerance: 1e-6'
+  claim_id: c_21a62b1e
+  context: "T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py using\
+    \ SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with\
+    \ residual \u2264 1e-6, including logic to detect disconnected graphs and return\
+    \ zero conductivity while logging Graph disconnected; conductivity set to 0.0\
+    \ (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:08:56Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Fuchs-Sondheimer size correction trigger: diameter less than 100nm'
+  claim_id: c_9d9b143b
+  context: T012 Implement Fuchs-Sondheimer size-correction factor logic in code/thermal_solver.py
+    with explicit conditional check for wire diameter d < 100nm as required by FR-011
+    (FR-011).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuchs-Sondheimer_size_correction_trigger:_diameter_less_than
+  kind: magnitude
+  raw_text: Explicit conditional check for wire diameter d < 100nm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:10:57Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Python dependencies include networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
+    pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
+  claim_id: c_83cf82b3
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:18Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149 W/(m\xB7K), CNT 3500 W/(m\xB7\
+    K), Ag 429 W/(m\xB7K), Au 318 W/(m\xB7K)"
+  claim_id: c_dd863c4e
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:20Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual threshold 1e-6
+  claim_id: c_88f42961
+  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:22Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: Runtime timeout limit 6 hours
+  claim_id: c_325e7a5d
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:24Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Graph generation average degree tolerance \xB15%"
+  claim_id: c_6c46d60a
+  context: "T017 Unit test for graph generation accuracy... (verify degree within\
+    \ \xB15%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify degree within \xB15%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:26Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Percolation threshold defined as smallest average degree with \u2265\
+    80% connectivity"
+  claim_id: c_65948572
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis variation threshold \xB110%"
+  claim_id: c_4237dfd3
+  context: "Independent Test: Run sensitivity sweep... verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:12:32Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Python project dependencies include networkx 3.2.1, scipy 1.13.1, numpy
+    1.26.4, pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
+  claim_id: c_d20e0052
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly: ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:14:31Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivity values are Silicon 149, Carbon Nanotube\
+    \ 3500, Silver 429, Gold 318 W/(m\xB7K)"
+  claim_id: c_8217fb30
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:14:33Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Synthetic nanowire network graph average degree is within 5% of target
+  claim_id: c_a6fa0af6
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:14:35Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual is less than or equal to 1e-6
+  claim_id: c_fdd6a7ea
+  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kirchhoff_heat-flow_solver_residual_is_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:15:01Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Simulation runtime timeout aborts if greater than 6 hours
+  claim_id: c_be749955
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_runtime_timeout_aborts_if_greater_than_6_hours
+  kind: magnitude
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:15:24Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with 80% connectivity
+  claim_id: c_4bb7f2a1
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:15:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variations stay within 10%
+  claim_id: c_72ef6234
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:15:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: requirements.txt contains specific versions of networkx, scipy, numpy,
+    pyyaml, pytest, statsmodels
+  claim_id: c_8ea0af9f
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    {{claim:c_437ed9bc}} (pi, https://en.wikipedia.org/wiki/Pi), pyyaml==6.0.1, pytest==8.2.2,
+    statsmodels==0.14.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file requirements.txt MUST contain exactly networkx==3.2.1, scipy==1.13.1,
+    numpy==1.26.4, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:16:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
+    \ W/(m\xB7K)"
+  claim_id: c_4f989552
+  context: "T004 [P] Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults for thermal conductivity are Si=149, CNT=3500, Ag=429,\
+    \ Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:16:53Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Synthetic nanowire network graph average degree within 5% of target
+  claim_id: c_6fde505c
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target.. and that an effective conductivity value is produced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15% of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:16:55Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual tolerance 1e-6
+  claim_id: c_7dd72720
+  context: "T013 [US1] Implement Kirchhoff heat-flow solver in code/thermal_solver.py\
+    \ using SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver...\
+    \ with residual \u2264 1e-6, including logic to detect disconnected graphs and\
+    \ return zero conductivity while logging Graph disconnected; conductivity set\
+    \ to 0.0 (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Kirchhoff heat-flow solver uses residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:16:57Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 5
+  canonical: Simulation runtime timeout limit 6 hours
+  claim_id: c_fe7a80a4
+  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:16:59Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with 80% connectivity
+  claim_id: c_827147cf
+  context: "T027 [US2] Implement percolation threshold detection logic (Percolation\
+    \ threshold detection logic uses the smallest avg degree where \u226580% connected..)\
+    \ in code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:17:03Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Python requirements file contains networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2
+  claim_id: c_62ca76c7
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    {{claim:c_437ed9bc}} (pi, https://en.wikipedia.org/wiki/Pi), pyyaml==6.0.1, pytest==8.2.2,
+    statsmodels==0.14.2'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T13:18:53Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si=149, CNT=3500, Ag=429, Au=318\
+    \ W/(m\xB7K)"
+  claim_id: c_bb035d05
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:18:56Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with >= 80%
+    connectivity
+  claim_id: c_994e18a1
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:00Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variations must stay within +/- 10%
+  claim_id: c_650bee5b
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:02Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout aborts if exceeds 6 hours
+  claim_id: c_4d151ba0
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual <= 1e-6
+  claim_id: c_43f933a9
+  context: "T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py using\
+    \ SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with\
+    \ residual \u2264 1e-6, including logic to detect disconnected graphs and return\
+    \ zero conductivity while logging Graph disconnected; conductivity set to 0.0\
+    \ (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:06Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Graph measured average degree within +/- 5% of target
+  claim_id: c_1060b4e3
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target.. and that an effective conductivity value is produced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "measured average degree is within \xB15 % of the target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:26Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Fuchs-Sondheimer size-correction applied for wire diameter < 100nm
+  claim_id: c_d849bee2
+  context: T012 Implement Fuchs-Sondheimer size-correction factor logic in code/thermal_solver.py
+    with explicit conditional check for wire diameter d < 100nm as required by FR-011
+    (FR-011).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fuchs-Sondheimer_size-correction_applied_for_wire_diameter_%3C
+  kind: entity_fact
+  raw_text: wire diameter d < 100nm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:19:46Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 0
+  canonical: requirements.txt contains networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
+    pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2
+  claim_id: c_66e393bf
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    {{claim:c_437ed9bc}} (pi, https://en.wikipedia.org/wiki/Pi), pyyaml==6.0.1, pytest==8.2.2,
+    statsmodels==0.14.2'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T13:20:59Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'NIST thermal conductivity defaults: Si 149 W/(m K), CNT 3500 W/(m K),
+    Ag 429 W/(m K), Au 318 W/(m K)'
+  claim_id: c_8e9a4dd3
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:14Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual tolerance 1e-6
+  claim_id: c_3f7a23df
+  context: "T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py using\
+    \ SciPy sparse linear algebra with Implement Kirchhoff heat-flow solver... with\
+    \ residual \u2264 1e-6, including logic to detect disconnected graphs and return\
+    \ zero conductivity while logging Graph disconnected; conductivity set to 0.0\
+    \ (FR-003, Edge Cases)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:16Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Simulation runtime timeout threshold 6 hours
+  claim_id: c_588260f6
+  context: T016 [US1] Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:19Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Graph generation average degree tolerance 5%
+  claim_id: c_3f15e37d
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target.. and that an effective conductivity value is produced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify degree within \xB15%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:21Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: Percolation threshold defined as smallest average degree with 80% connectivity
+  claim_id: c_38054366
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:25Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis variation tolerance 10%
+  claim_id: c_8bba248b
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:21:27Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pyyaml
+    6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_eecbafcc
+  context: 'T002 Initialize a Python project with dependencies in `projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt`.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:22:49Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
+    \ W/(m\xB7K)"
+  claim_id: c_dc3b6c81
+  context: "T004 Implement `code/material_db.py` with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:22:51Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 3
+  canonical: Kirchhoff heat-flow solver residual threshold 1e-6
+  claim_id: c_f0eb5294
+  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6,\
+    \ including logic to detect disconnected graphs"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:22:53Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout threshold 6 hours
+  claim_id: c_a3e1947c
+  context: T016 Implement runtime timeout check in `code/main.py` to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:22:56Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Graph generation average degree tolerance \xB15%"
+  claim_id: c_48826d52
+  context: "Independent Test: Run the generator for a single target degree... The\
+    \ produced graph's measured average degree is within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify degree within \xB15%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:22:58Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Percolation threshold defined as smallest average degree with \u2265\
+    80% connectivity"
+  claim_id: c_4342e598
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ `code/regression_analysis.py`"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "uses the smallest avg degree where \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:23:32Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis variation tolerance \xB110%"
+  claim_id: c_6215bf8f
+  context: "Independent Test: Run sensitivity sweep... verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:23:34Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies list: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
+    pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_d252fc94
+  context: Task T002 requires initializing a Python project with specific dependencies
+    in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:17Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST default thermal conductivity values: Silicon 149, CNT 3500, Silver\
+    \ 429, Gold 318 W/(m\xB7K)"
+  claim_id: c_7f92fe3b
+  context: Task T004 requires implementing material_db.py with specific NIST default
+    values for thermal conductivity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:19Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff heat-flow solver residual threshold 1e-6
+  claim_id: c_5965a293
+  context: Task T013 requires implementing a Kirchhoff heat-flow solver with a specific
+    residual tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:22Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout abort threshold 6 hours
+  claim_id: c_64dae281
+  context: Task T016 specifies a runtime timeout check that aborts the process if
+    execution exceeds 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:24Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Graph generation accuracy: average degree within 5% of target'
+  claim_id: c_00a9ace9
+  context: Independent test for User Story 1 requires the generated graph's average
+    degree to be within 5% of the target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:26Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold defined as smallest average degree with 80% connectivity
+  claim_id: c_21331dd8
+  context: Task T027 defines the logic for detecting the percolation threshold based
+    on connectivity percentage.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_defined_as_smallest_average_degree_wit
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:32Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variation threshold 10%
+  claim_id: c_e7a418f6
+  context: Independent test for User Story 3 requires reported variations in sensitivity
+    analysis to stay within 10%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:25:34Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pyyaml
+    6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_2de32e51
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 4
+  canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
+    \ W/(m\xB7K)"
+  claim_id: c_1abc9d46
+  context: "T004 Implement code/material_db.py with Implement code/material_db.py\
+    \ with NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K) and validation\
+    \ logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults are Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:32Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Graph generation accuracy: average degree within 5% of target'
+  claim_id: c_afb92ca1
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and The produced graph's The produced graph's measured average degree is\
+    \ within \xB15 % of the target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The produced graph's measured average degree is within \xB15 % of the\
+    \ target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:35Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff solver residual threshold: 1e-6'
+  claim_id: c_3e55bc08
+  context: "T013 Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6,\
+    \ including logic to detect disconnected graphs"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:37Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Runtime timeout threshold: 6 hours'
+  claim_id: c_546e5ad7
+  context: T016 Implement runtime timeout check in code/main.py to Runtime timeout
+    check aborts if > 6 hours (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime timeout check aborts if > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:39Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Percolation threshold definition: smallest average degree with 80% connectivity'
+  claim_id: c_2c48f865
+  context: "T027 Implement percolation threshold detection logic (Percolation threshold\
+    \ detection logic uses the smallest avg degree where \u226580% connected..) in\
+    \ code/regression_analysis.py (SC-003)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_definition:_smallest_average_degree_wi
+  kind: magnitude
+  raw_text: "Percolation threshold detection logic uses the smallest avg degree where\
+    \ \u226580% connected"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:44Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis variation limit: 10%'
+  claim_id: c_1ed52bfb
+  context: "Independent Test: Run sensitivity sweep over a range of values centered\
+    \ around the baseline and verify Reported variations in sensitivity analysis must\
+    \ stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported variations in sensitivity analysis must stay within \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:29:46Z'

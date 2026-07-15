@@ -2,40 +2,21 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/main.py --run-single --seed 42 (rc=1); python code/main.py --run-grid (rc=1); python code/main.py --sensitivity-only (rc=1)
+**Summary**: 1 command(s) failed: python code/main.py --sensitivity-only (rc=1); 1 declared deliverable(s) absent: data/processed/simulation_results.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --run-single --seed 42 -> rc=1
-    INFO:__main__:Starting thermal conductivity simulation pipeline
-INFO:__main__:Loaded 0 existing results
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 329, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 266, in main
-    target_degree=config.target_degree
-                  ^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'SimulationConfig' object has no attribute 'target_degree'
-- python code/main.py --run-grid -> rc=1
-    INFO:__main__:Starting thermal conductivity simulation pipeline
-INFO:__main__:Loaded 0 existing results
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 329, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 266, in main
-    target_degree=config.target_degree
-                  ^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'SimulationConfig' object has no attribute 'target_degree'
 - python code/main.py --sensitivity-only -> rc=1
-    INFO:__main__:Starting thermal conductivity simulation pipeline
-INFO:__main__:Loaded 0 existing results
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 329, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py", line 266, in main
-    target_degree=config.target_degree
-                  ^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'SimulationConfig' object has no attribute 'target_degree'
+    2026-07-15 12:43:41,069 - utils - INFO - Logging configured
+2026-07-15 12:43:41,069 - root - INFO - Starting thermal conductivity simulation pipeline
+2026-07-15 12:43:41,070 - root - INFO - Loaded 0 existing results
+2026-07-15 12:43:41,070 - root - INFO - Starting sensitivity analysis
+2026-07-15 12:43:41,070 - root - INFO - Running sensitivity sweep with factors: [0.5, 0.75, 1.0, 1.25, 1.5]
+2026-07-15 12:43:41,070 - root - ERROR - Pipeline failed: TypeError: get_material_conductivity() takes 1 positional argument but 2 were given
+
+## Declared deliverables still missing
+
+- data/processed/simulation_results.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -44,6 +25,14 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 **CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `get_material_conductivity` — defined in `code/material_db.py`; called 3 way(s):
+
+- code/sensitivity_analysis.py: bulk_k = get_material_conductivity(config.material, config.bulk_conductivity)
+- code/thermal_solver.py: bulk_k = get_material_conductivity(material)
+- code/main.py: bulk_k = get_material_conductivity(config.material, config.bulk_conductivity)
+
+Make `get_material_conductivity` in `code/material_db.py` accept ALL of the above.
 
 ### class `SimulationConfig` (in `code/config.py`) — accessed via method/attribute names this round: `target_degree`
 
@@ -62,3 +51,12 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 Whichever you choose, every call site of `SimulationConfig` across the codebase must stop raising `AttributeError`/`TypeError`.
 
 `SimulationConfig.target_degree` call sites (0):
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/processed/simulation_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/update_state.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/simulation_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

@@ -1,0 +1,16 @@
+status: none
+intent: NIST thermal conductivity reference data nanowire network synthetic RGG python
+  package dataset
+required_fields:
+- node_id
+- x
+- y
+- z
+- edge_source
+- edge_target
+- edge_length
+- edge_radius
+- material
+- thermal_conductivity
+- average_degree
+- connection_probability

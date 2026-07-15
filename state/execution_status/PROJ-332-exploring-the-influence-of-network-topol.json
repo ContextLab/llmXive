@@ -1,16 +1,14 @@
 {
   "project_id": "PROJ-332-exploring-the-influence-of-network-topol",
   "ok": false,
-  "reason": "3 command(s) failed: python code/main.py --run-single --seed 42 (rc=1); python code/main.py --run-grid (rc=1); python code/main.py --sensitivity-only (rc=1)",
+  "reason": "1 command(s) failed: python code/main.py --sensitivity-only (rc=1); 1 declared deliverable(s) absent: data/processed/simulation_results.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --run-single --seed 42 -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has",
-    "python code/main.py --run-grid -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has no attribut",
-    "python code/main.py --sensitivity-only -> rc=1\n    INFO:__main__:Starting thermal conductivity simulation pipeline\nINFO:__main__:Loaded 0 existing results\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 329, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-332-exploring-the-influence-of-network-topol/code/main.py\", line 266, in main\n    target_degree=config.target_degree\n                  ^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SimulationConfig' object has no "
+    "python code/main.py --sensitivity-only -> rc=1\n    2026-07-15 12:43:41,069 - utils - INFO - Logging configured\n2026-07-15 12:43:41,069 - root - INFO - Starting thermal conductivity simulation pipeline\n2026-07-15 12:43:41,070 - root - INFO - Loaded 0 existing results\n2026-07-15 12:43:41,070 - root - INFO - Starting sensitivity analysis\n2026-07-15 12:43:41,070 - root - INFO - Running sensitivity sweep with factors: [0.5, 0.75, 1.0, 1.25, 1.5]\n2026-07-15 12:43:41,070 - root - ERROR - Pipeline failed: TypeError: get_material_conductivity() takes 1 positional argument but 2 were given"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T11:19:19Z"
+  "updated_at": "2026-07-15T12:43:43Z"
 }

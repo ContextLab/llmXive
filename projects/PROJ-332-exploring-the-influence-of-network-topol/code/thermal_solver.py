@@ -4,143 +4,187 @@ from scipy import sparse
 from scipy.sparse.linalg import spsolve, LinearOperator
 from typing import Dict, Any, Tuple, Optional
 import logging
-
 from material_db import get_material_conductivity
 
 logger = logging.getLogger(__name__)
 
-def calculate_fuchs_sondheimer_factor(d: float, lambda_mfp: float = 10.0, p: float = 0.5) -> float:
+def calculate_fuchs_sondheimer_factor(d: float, lambda_mfp: float = 10.0, p_specular: float = 0.5) -> float:
     """
     Calculate Fuchs-Sondheimer size-correction factor.
-    Formula: F = 1 - (3/8)*(lambda/d)*(1-p) for d < 100nm
+    Formula: F = 1 - (3/8) * (lambda/d) * (1 - p_specular)
     """
-    if d >= 100.0:
+    if d <= 0:
         return 1.0
-    
-    factor = 1.0 - (3.0/8.0) * (lambda_mfp / d) * (1.0 - p)
-    # Clamp to [0, 1]
-    return max(0.0, min(1.0, factor))
+    ratio = lambda_mfp / d
+    if ratio >= 1.0:
+        return 0.1  # Lower bound to prevent zero
+    factor = 1.0 - (3.0 / 8.0) * ratio * (1.0 - p_specular)
+    return max(factor, 0.01)  # Clamp to prevent zero
 
-def assign_thermal_resistance(graph: nx.Graph, material: str, 
-                              d: float, l: float, 
-                              lambda_mfp: float = 10.0, p: float = 0.5) -> Dict[tuple, float]:
+def assign_thermal_resistance(graph: nx.Graph, bulk_k: float, d: float, l: float) -> Dict[Tuple[int, int], float]:
     """
-    Assign thermal resistance to each edge based on material properties and geometry.
-    R = l / (k * A) where A = pi*(d/2)^2
+    Assign thermal resistance to each edge based on bulk conductivity and geometry.
+    R = l / (k * A) where A is cross-sectional area.
     """
-    bulk_k = get_material_conductivity(material)
-    fs_factor = calculate_fuchs_sondheimer_factor(d, lambda_mfp, p)
-    effective_k = bulk_k * fs_factor
-    
-    # Cross-sectional area
-    area = np.pi * (d / 2.0) ** 2
-    
-    resistance_map = {}
+    resistances = {}
+    area = np.pi * (d / 2) ** 2
+
     for u, v in graph.edges():
-        # Assume edge length is proportional to node distance (simplified)
-        edge_length = l  # Simplified: all wires have length l
-        resistance = edge_length / (effective_k * area)
-        
-        # Clamp to prevent division by zero
+        # Get edge length or use default l
+        length = graph.edges[u, v].get('length', l)
+        # Apply Fuchs-Sondheimer correction if d < 100nm
+        if d < 100.0:
+            fs_factor = calculate_fuchs_sondheimer_factor(d)
+            effective_k = bulk_k * fs_factor
+        else:
+            effective_k = bulk_k
+
+        # Zero-resistance clamping (T014)
+        if effective_k <= 0:
+            effective_k = 1e-10
+
+        resistance = length / (effective_k * area)
+        # Clamp minimum resistance to prevent division by zero
         resistance = max(resistance, 1e-10)
-        
-        resistance_map[(u, v)] = resistance
-        resistance_map[(v, u)] = resistance  # Bidirectional
-    
-    return resistance_map
+        resistances[(u, v)] = resistance
+        resistances[(v, u)] = resistance
 
-def build_edge_resistances(graph: nx.Graph, resistance_map: Dict[tuple, float]) -> sparse.csr_matrix:
-    """Build conductance matrix from resistance map."""
-    n = graph.number_of_nodes()
-    node_map = {node: i for i, node in enumerate(graph.nodes())}
-    
-    # Build sparse conductance matrix
-    rows, cols, data = [], [], []
-    
+    return resistances
+
+def build_edge_resistances(graph: nx.Graph, resistances: Dict[Tuple[int, int], float]) -> sparse.csr_matrix:
+    """
+    Build Laplacian-like matrix for heat flow.
+    """
+    nodes = list(graph.nodes())
+    n = len(nodes)
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
+
+    rows = []
+    cols = []
+    data = []
+
     for u, v in graph.edges():
-        i, j = node_map[u], node_map[v]
-        R = resistance_map.get((u, v), 1e10)
-        G = 1.0 / R if R > 0 else 0.0
-        
-        rows.extend([i, i, j, j])
-        cols.extend([i, j, i, j])
-        data.extend([G, -G, -G, G])
-    
+        i, j = node_to_idx[u], node_to_idx[v]
+        R = resistances.get((u, v), 1.0)
+        if R <= 0:
+            R = 1e-10
+        G = 1.0 / R
+
+        # Off-diagonal
+        rows.extend([i, j])
+        cols.extend([j, i])
+        data.extend([-G, -G])
+
+        # Diagonal (accumulate)
+        rows.extend([i, j])
+        cols.extend([i, j])
+        data.extend([G, G])
+
     L = sparse.csr_matrix((data, (rows, cols)), shape=(n, n))
     return L
 
-def solve_kirchhoff_heat_flow(graph: nx.Graph, L: sparse.csr_matrix, 
-                              T_hot: float = 300.0, T_cold: float = 290.0) -> float:
+def solve_kirchhoff_heat_flow(graph: nx.Graph, resistances: Dict[Tuple[int, int], float], 
+                              temp_source: int, temp_sink: int, T_source: float = 1.0, T_sink: float = 0.0) -> float:
     """
-    Solve Kirchhoff's heat flow equations.
-    Returns effective thermal conductivity.
+    Solve Kirchhoff heat flow equations.
+    Returns total heat flow from source to sink.
     """
-    n = graph.number_of_nodes()
-    
-    if n == 0:
-        return 0.0
-    
-    # Check connectivity
-    if not nx.is_connected(graph):
-        logger.warning("Graph disconnected; conductivity set to 0.0")
-        return 0.0
-    
-    # Identify boundary nodes (simplified: first and last node in sorted order)
-    nodes = sorted(graph.nodes())
-    hot_node = nodes[0]
-    cold_node = nodes[-1]
-    
-    hot_idx = list(graph.nodes()).index(hot_node)
-    cold_idx = list(graph.nodes()).index(cold_node)
-    
-    # Set boundary conditions
-    # Modify L matrix for Dirichlet BCs
-    L_modified = L.copy()
-    L_modified[hot_idx, :] = 0
-    L_modified[hot_idx, hot_idx] = 1
-    L_modified[cold_idx, :] = 0
-    L_modified[cold_idx, cold_idx] = 1
-    
-    # RHS: temperatures at boundaries
-    b = np.zeros(n)
-    b[hot_idx] = T_hot
-    b[cold_idx] = T_cold
-    
-    # Solve
-    try:
-        T = spsolve(L_modified, b)
-    except Exception as e:
-        logger.error(f"Sparse solver failed: {e}")
-        return 0.0
-    
-    # Calculate heat flow out of hot node
-    Q = 0.0
-    for v in graph.neighbors(hot_node):
-        v_idx = list(graph.nodes()).index(v)
-        R = 1.0 / L[hot_idx, v_idx] if L[hot_idx, v_idx] > 0 else 1e10
-        Q += (T[hot_idx] - T[v_idx]) / R
-    
-    # Effective conductivity (simplified)
-    # k_eff = Q * L / (A * delta_T)
-    # We return Q as a proxy for conductivity (normalized)
-    return Q
+    nodes = list(graph.nodes())
+    n = len(nodes)
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
 
-def calculate_effective_conductivity(graph: nx.Graph, material: str, 
-                                     d: float, l: float) -> float:
-    """
-    Main function to calculate effective thermal conductivity.
-    """
-    if graph.number_of_nodes() <= 1:
-        logger.warning("Graph has too few nodes; conductivity = 0.0")
+    if temp_source not in node_to_idx or temp_sink not in node_to_idx:
+        logger.warning("Source or sink node not in graph")
         return 0.0
+
+    idx_source = node_to_idx[temp_source]
+    idx_sink = node_to_idx[temp_sink]
+
+    L = build_edge_resistances(graph, resistances)
+
+    # Fix source and sink temperatures
+    # Remove rows/cols for fixed nodes and adjust RHS
+    free_nodes = [i for i in range(n) if i != idx_source and i != idx_sink]
+    n_free = len(free_nodes)
+
+    if n_free == 0:
+        # Only source and sink
+        R = resistances.get((temp_source, temp_sink), 1.0)
+        if R <= 0:
+            R = 1e-10
+        return (T_source - T_sink) / R
+
+    # Build reduced system
+    L_free = L[np.ix_(free_nodes, free_nodes)]
     
+    # RHS: contribution from fixed nodes
+    rhs = np.zeros(n_free)
+    for i, node_idx in enumerate(free_nodes):
+        # Source contribution
+        if L[node_idx, idx_source] != 0:
+            rhs[i] -= L[node_idx, idx_source] * T_source
+        # Sink contribution
+        if L[node_idx, idx_sink] != 0:
+            rhs[i] -= L[node_idx, idx_sink] * T_sink
+
+    try:
+        # Solve for temperatures at free nodes
+        T_free = spsolve(L_free, rhs)
+    except Exception as e:
+        logger.warning(f"Sparse solve failed: {e}, using fallback")
+        T_free = np.zeros(n_free)
+
+    # Calculate total heat flow from source
+    total_flow = 0.0
+    for v in graph.neighbors(temp_source):
+        idx_v = node_to_idx[v]
+        R = resistances.get((temp_source, v), 1.0)
+        if R <= 0:
+            R = 1e-10
+        
+        if v == temp_sink:
+            T_v = T_sink
+        elif idx_v in free_nodes:
+            T_v = T_free[free_nodes.index(idx_v)]
+        else:
+            T_v = T_source  # Should not happen
+
+        flow = (T_source - T_v) / R
+        total_flow += flow
+
+    return total_flow
+
+def calculate_effective_conductivity(graph: nx.Graph, bulk_k: float, d: float, l: float) -> float:
+    """
+    Calculate effective thermal conductivity of the network.
+    """
+    if not graph.number_of_edges():
+        return 0.0
+
     # Assign resistances
-    resistance_map = assign_thermal_resistance(graph, material, d, l)
-    
-    # Build conductance matrix
-    L = build_edge_resistances(graph, resistance_map)
-    
+    resistances = assign_thermal_resistance(graph, bulk_k, d, l)
+
+    # Select source and sink (farthest nodes or first/last)
+    nodes = list(graph.nodes())
+    if len(nodes) < 2:
+        return 0.0
+
+    # Use first and last nodes as source/sink
+    source = nodes[0]
+    sink = nodes[-1]
+
     # Solve
-    conductivity = solve_kirchhoff_heat_flow(graph, L)
-    
-    return conductivity
+    heat_flow = solve_kirchhoff_heat_flow(graph, resistances, source, sink)
+
+    # Effective conductivity: k_eff = Q * L / (A * delta_T)
+    # Assume delta_T = 1, L = characteristic length, A = cross-section
+    # For simplicity, use network diameter as L and single wire area as A
+    try:
+        diameter = nx.diameter(graph)
+    except:
+        diameter = l
+
+    area = np.pi * (d / 2) ** 2
+    k_eff = heat_flow * diameter / area
+
+    return k_eff

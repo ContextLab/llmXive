@@ -1,5 +1,5 @@
-'|bulk eff formula lambda':
-  quote: 1.380649e-23 (scipy.constants.k (CODATA 2018, exact by SI definition))
-  source_id: boltzmann
-  url: https://physics.nist.gov/cgi-bin/cuu/Value?k
-  value: '1.380649e-23'
+2|panda:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

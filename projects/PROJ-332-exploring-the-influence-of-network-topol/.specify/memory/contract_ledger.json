@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "get_material_conductivity",
+    "owner": null
+  },
+  {
     "symbol": "target_degree",
     "owner": "SimulationConfig"
   }

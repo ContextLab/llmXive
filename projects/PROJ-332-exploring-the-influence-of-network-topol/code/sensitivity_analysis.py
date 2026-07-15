@@ -4,134 +4,103 @@ from typing import Dict, Any, List, Tuple, Optional
 import logging
 import csv
 import os
-
-from config import SimulationConfig
-from generate_networks import generate_nanowire_network, calculate_average_degree
-from thermal_solver import assign_thermal_resistance, solve_kirchhoff_heat_flow
 from material_db import get_material_conductivity
 
-def run_sensitivity_sweep(config: SimulationConfig, factor_range: List[float]) -> List[Dict[str, Any]]:
-    """Run sensitivity analysis by sweeping scaling factors."""
-    logging.info(f"Running sensitivity sweep with factors: {factor_range}")
-    
-    results = []
-    bulk_k = get_material_conductivity(config.material, config.bulk_conductivity)
-    
-    # Generate base network
-    base_graph = generate_nanowire_network(
-        N=config.N,
-        p=config.p,
-        seed=config.seed,
-        target_degree=config.target_degree
+logger = logging.getLogger(__name__)
+
+def run_sensitivity_sweep(config: Any, baseline_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Run sensitivity sweep over scaling factors.
+    """
+    if not baseline_results:
+        logger.warning("No baseline results for sensitivity analysis")
+        return []
+
+    factors = config.sensitivity_factors
+    sensitivity_results = []
+
+    for factor in factors:
+        logger.info(f"Processing sensitivity factor: {factor}")
+
+        # For each baseline result, apply scaling factor to conductivity
+        for base_row in baseline_results:
+            new_row = base_row.copy()
+            # Scale conductivity
+            if "conductivity" in new_row and new_row["conductivity"] is not None:
+                new_row["conductivity"] = new_row["conductivity"] * factor
+            new_row["scaling_factor"] = factor
+
+            sensitivity_results.append(new_row)
+
+    return sensitivity_results
+
+def calculate_deviation_report(baseline_results: List[Dict[str, Any]], sensitivity_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Calculate deviation report comparing sensitivity results to baseline.
+    """
+    if not baseline_results or not sensitivity_results:
+        return {"deviations": []}
+
+    df_baseline = pd.DataFrame(baseline_results)
+    df_sens = pd.DataFrame(sensitivity_results)
+
+    # Merge on seed, N, p, avg_degree
+    merged = pd.merge(
+        df_sens,
+        df_baseline,
+        on=["seed", "N", "p", "avg_degree"],
+        suffixes=("_sens", "_base")
     )
-    
-    for factor in factor_range:
-        # Create modified config with scaled parameters
-        scaled_config = SimulationConfig(
-            N=config.N,
-            p=config.p,
-            d=config.d * factor,  # Scale diameter
-            l=config.l,
-            seed=config.seed,
-            material=config.material,
-            bulk_conductivity=config.bulk_conductivity,
-            lambda_phonon=config.lambda_phonon,
-            specularity=config.specularity,
-            target_degree=config.target_degree
-        )
-        
-        try:
-            # Calculate thermal resistance with scaled parameters
-            edge_resistances = assign_thermal_resistance(
-                base_graph,
-                bulk_k,
-                scaled_config.d,
-                scaled_config.l,
-                scaled_config.lambda_phonon,
-                scaled_config.specularity
-            )
-            
-            # Solve for conductivity
-            conductivity = solve_kirchhoff_heat_flow(
-                base_graph,
-                edge_resistances,
-                scaled_config.d,
-                scaled_config.l
-            )
-            
-            # Calculate deviation from base
-            base_conductivity = solve_kirchhoff_heat_flow(
-                base_graph,
-                assign_thermal_resistance(
-                    base_graph,
-                    bulk_k,
-                    config.d,
-                    config.l,
-                    config.lambda_phonon,
-                    config.specularity
-                ),
-                config.d,
-                config.l
-            )
-            
-            deviation = (conductivity - base_conductivity) / base_conductivity if base_conductivity > 0 else 0.0
-            
-            results.append({
-                'factor': factor,
-                'conductivity': conductivity,
-                'deviation': deviation,
-                'd_scaled': scaled_config.d
+
+    deviations = []
+    for _, row in merged.iterrows():
+        base_k = row["conductivity_base"]
+        sens_k = row["conductivity_sens"]
+        if base_k and base_k != 0:
+            deviation_pct = ((sens_k - base_k) / base_k) * 100
+            deviations.append({
+                "seed": row["seed"],
+                "factor": row["scaling_factor"],
+                "deviation_pct": deviation_pct
             })
-            
-        except Exception as e:
-            logging.warning(f"Sensitivity sweep failed for factor {factor}: {e}")
-            continue
-    
-    return results
 
-def calculate_deviation_report(sweep_results: List[Dict[str, Any]]) -> pd.DataFrame:
-    """Calculate deviation statistics from sensitivity sweep results."""
-    if not sweep_results:
-        return pd.DataFrame()
-    
-    df = pd.DataFrame(sweep_results)
-    
-    # Calculate statistics
-    stats = {
-        'mean_deviation': df['deviation'].mean(),
-        'std_dev': df['deviation'].std(),
-        'max_deviation': df['deviation'].abs().max(),
-        'min_deviation': df['deviation'].min(),
-        'count': len(df)
-    }
-    
-    return pd.DataFrame([stats])
+    return {"deviations": deviations}
 
-def report_sensitivity_results(sensitivity_metrics: Dict[str, float]) -> None:
-    """Report sensitivity analysis results."""
-    logging.info("Sensitivity Analysis Results:")
-    logging.info(f"  Mean Deviation: {sensitivity_metrics.get('mean_deviation', 0):.4f}")
-    logging.info(f"  Std Dev: {sensitivity_metrics.get('std_dev', 0):.4f}")
-    logging.info(f"  Max Deviation: {sensitivity_metrics.get('max_deviation', 0):.4f}")
-    
-    # Check if within acceptable bounds (±10%)
-    max_dev = sensitivity_metrics.get('max_deviation', 0)
-    if abs(max_dev) <= 0.10:
-        logging.info("  Status: Within acceptable bounds (±10%)")
+def report_sensitivity_results(deviation_report: Dict[str, Any]) -> None:
+    """
+    Report sensitivity results to logger.
+    """
+    deviations = deviation_report.get("deviations", [])
+    if not deviations:
+        logger.info("No sensitivity deviations to report")
+        return
+
+    # Calculate stats
+    dev_values = [d["deviation_pct"] for d in deviations]
+    mean_dev = np.mean(dev_values)
+    max_dev = max(abs(d) for d in dev_values)
+
+    logger.info(f"Sensitivity analysis complete. Mean deviation: {mean_dev:.2f}%, Max deviation: {max_dev:.2f}%")
+
+    # Check if within ±10%
+    if max_dev <= 10.0:
+        logger.info("All deviations within ±10% tolerance")
     else:
-        logging.warning(f"  Status: Exceeds acceptable bounds (±10%). Max deviation: {max_dev:.2%}")
+        logger.warning(f"Some deviations exceed ±10% tolerance (max: {max_dev:.2f}%)")
 
-def analyze_sensitivity(deviation_report: pd.DataFrame) -> Dict[str, float]:
-    """Analyze sensitivity results and return metrics."""
-    if deviation_report.empty:
-        return {
-            'mean_deviation': 0.0,
-            'std_dev': 0.0,
-            'max_deviation': 0.0
-        }
-    
-    return {
-        'mean_deviation': float(deviation_report['mean_deviation'].iloc[0]),
-        'std_dev': float(deviation_report['std_dev'].iloc[0]),
-        'max_deviation': float(deviation_report['max_deviation'].iloc[0])
-    }
+def analyze_sensitivity(config: Any, baseline_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Full sensitivity analysis pipeline.
+    """
+    logger.info("Starting sensitivity analysis")
+
+    # Run sweep
+    sweep_results = run_sensitivity_sweep(config, baseline_results)
+
+    # Calculate deviations
+    dev_report = calculate_deviation_report(baseline_results, sweep_results)
+
+    # Report
+    report_sensitivity_results(dev_report)
+
+    return sweep_results
