@@ -2,179 +2,172 @@ import networkx as nx
 import numpy as np
 from typing import Tuple, Dict, Any, Optional
 import logging
+
 from config import SimulationConfig, load_config, get_simulation_parameters
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def validate_degree_bounds(target_degree: float, N: int) -> None:
-    """
-    Validate that the target average degree is within valid bounds.
-    For a graph with N nodes, the maximum possible average degree is N-1.
-    The minimum is 0.
-    
-    Args:
-        target_degree: The desired average degree.
-        N: Number of nodes in the graph.
-        
-    Raises:
-        ValueError: If target_degree is out of bounds.
-    """
+def validate_degree_bounds(target_degree: float) -> None:
+    """Validate that the target average degree is within physically meaningful bounds."""
     if target_degree < 0:
-        raise ValueError(f"Target degree {target_degree} must be non-negative.")
-    if target_degree > N - 1:
-        raise ValueError(f"Target degree {target_degree} cannot exceed N-1 ({N-1}) for {N} nodes.")
-    logger.debug(f"Degree bounds validated: target={target_degree}, N={N}")
+        raise ValueError(f"Target degree must be non-negative, got {target_degree}")
+    # In a simple graph, max degree is N-1, but average degree can be up to N-1.
+    # We perform a soft check here; strict enforcement happens during generation logic.
+    if target_degree > 1000:
+        logger.warning(f"Target degree {target_degree} is unusually high for nanowire networks.")
 
 def validate_connection_probability(p: float) -> None:
-    """
-    Validate that the connection probability is within [0, 1].
-    
-    Args:
-        p: Connection probability.
-        
-    Raises:
-        ValueError: If p is not in [0, 1].
-    """
-    if not (0.0 <= p <= 1.0):
-        raise ValueError(f"Connection probability {p} must be in [0, 1].")
-    logger.debug(f"Connection probability validated: p={p}")
+    """Validate connection probability p is within [0, 1]."""
+    if not 0.0 <= p <= 1.0:
+        raise ValueError(f"Connection probability p must be in [0, 1], got {p}")
 
-def generate_nanowire_network(N: int, p: float, target_degree: Optional[float] = None, seed: Optional[int] = None) -> nx.Graph:
+def generate_nanowire_network(
+    N: int,
+    p: float,
+    target_degree: Optional[float] = None,
+    seed: Optional[int] = None
+) -> nx.Graph:
     """
     Generate a synthetic nanowire network graph.
-    
-    If target_degree is provided, the function attempts to find a connection
-    probability p' that yields an average degree close to target_degree.
-    If p is provided, it generates an Erdos-Renyi graph with that p.
-    
+
     Args:
-        N: Number of nodes.
-        p: Connection probability (if target_degree is not specified).
-        target_degree: Desired average degree (optional).
+        N: Number of nodes (nanowire junctions).
+        p: Connection probability for Erdos-Renyi generation.
+        target_degree: Optional target average degree. If provided, p is adjusted
+                       to approximate this degree (p = target_degree / (N-1)).
         seed: Random seed for reproducibility.
-        
+
     Returns:
-        A networkx Graph representing the nanowire network.
+        A NetworkX Graph representing the nanowire network.
     """
-    if seed is not None:
-        np.random.seed(seed)
-        
+    if N < 2:
+        raise ValueError("N must be at least 2 for a graph.")
+
     if target_degree is not None:
-        validate_degree_bounds(target_degree, N)
-        # For Erdos-Renyi, expected average degree k = (N-1)*p
-        # So p = k / (N-1)
-        # We clamp p to [0, 1]
-        calculated_p = target_degree / (N - 1) if N > 1 else 0.0
-        calculated_p = max(0.0, min(1.0, calculated_p))
-        logger.info(f"Adjusted connection probability to {calculated_p:.4f} to target degree {target_degree}")
-        G = nx.erdos_renyi_graph(N, calculated_p, seed=seed)
+        validate_degree_bounds(target_degree)
+        # Adjust p to achieve target average degree: <k> = p * (N-1)
+        # Avoid division by zero if N=1 (handled above)
+        effective_p = target_degree / (N - 1)
+        if effective_p > 1.0:
+            logger.warning(f"Target degree {target_degree} too high for N={N}. Capping p at 1.0.")
+            effective_p = 1.0
+        validate_connection_probability(effective_p)
+        p = effective_p
     else:
         validate_connection_probability(p)
-        G = nx.erdos_renyi_graph(N, p, seed=seed)
-        
-    logger.info(f"Generated network: N={N}, edges={G.number_of_edges()}, avg_degree={nx.average_degree_centrality(G):.4f}")
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    G = nx.erdos_renyi_graph(N, p, seed=seed)
+    logger.info(f"Generated graph with N={N}, p={p:.4f}, edges={G.number_of_edges()}")
     return G
 
 def calculate_average_degree(G: nx.Graph) -> float:
     """
     Calculate the average degree of the graph.
-    
-    Args:
-        G: Networkx graph.
-        
+
+    Formula: sum(degrees) / number_of_nodes = 2 * |E| / |V|
+
     Returns:
-        The average degree as a float.
+        float: The average degree.
     """
     if G.number_of_nodes() == 0:
         return 0.0
-    return sum(d for _, d in G.degree()) / G.number_of_nodes()
+    # NetworkX degree_histogram or direct sum
+    degrees = [d for n, d in G.degree()]
+    return float(np.mean(degrees))
 
 def calculate_average_shortest_path_length(G: nx.Graph) -> float:
     """
-    Calculate the average shortest path length of the graph.
-    Handles disconnected graphs by considering only the largest connected component.
-    
-    Args:
-        G: Networkx graph.
-        
+    Calculate the average shortest path length of the connected components.
+
+    Note: If the graph is disconnected, this calculates the average over all
+    reachable pairs in each component, or returns infinity if no paths exist.
+    For nanowire networks, we typically care about the giant component.
+    This implementation computes the average over all pairs in the largest connected component
+    to provide a meaningful metric for percolating networks.
+
     Returns:
-        The average shortest path length, or infinity if the graph is disconnected
-        or has no paths.
+        float: The average shortest path length.
     """
     if G.number_of_nodes() == 0:
-        return float('inf')
-        
+        return 0.0
+
     # Check connectivity
     if not nx.is_connected(G):
-        # Use the largest connected component
+        # If disconnected, we calculate for the largest connected component
+        # as per typical percolation analysis conventions
         largest_cc = max(nx.connected_components(G), key=len)
         subgraph = G.subgraph(largest_cc)
-        if subgraph.number_of_nodes() < 2:
-            return float('inf')
+        if len(largest_cc) < 2:
+            return 0.0
         try:
-            return nx.average_shortest_path_length(subgraph)
+            return float(nx.average_shortest_path_length(subgraph))
         except nx.NetworkXError:
             return float('inf')
     else:
         try:
-            return nx.average_shortest_path_length(G)
+            return float(nx.average_shortest_path_length(G))
         except nx.NetworkXError:
             return float('inf')
 
 def calculate_clustering_coefficient(G: nx.Graph) -> float:
     """
-    Calculate the global clustering coefficient (transitivity) of the graph.
-    This measures the density of triangles in the graph.
-    
-    Args:
-        G: Networkx graph.
-        
+    Calculate the average clustering coefficient of the graph.
+
+    This metric measures the degree to which nodes in a graph tend to cluster together.
+    It is the average of the local clustering coefficients of all nodes.
+
     Returns:
-        The clustering coefficient as a float between 0 and 1.
+        float: The average clustering coefficient.
     """
     if G.number_of_nodes() == 0:
         return 0.0
-        
-    # Use networkx built-in transitivity which is the global clustering coefficient
-    # This is 3 * triangles / number of triplets
-    try:
-        coeff = nx.transitivity(G)
-        logger.debug(f"Calculated clustering coefficient: {coeff}")
-        return coeff
-    except ZeroDivisionError:
-        # No triplets (e.g., no edges or star graph)
-        return 0.0
+    # NetworkX provides a direct function for this
+    return float(nx.average_clustering(G))
 
-def generate_network_grid(N_values: list, p_values: list, seeds: list) -> list:
+def generate_network_grid(
+    N: int,
+    p_values: list,
+    target_degrees: list,
+    seed_base: int = 42
+) -> list:
     """
-    Generate a grid of networks for different parameters.
-    
+    Generate a grid of nanowire networks with varying parameters.
+
     Args:
-        N_values: List of node counts.
-        p_values: List of connection probabilities.
-        seeds: List of random seeds.
-        
+        N: Number of nodes.
+        p_values: List of connection probabilities to test.
+        target_degrees: List of target average degrees to test.
+        seed_base: Base seed for reproducibility.
+
     Returns:
-        A list of dictionaries containing graph and metadata.
+        List of tuples: (G, params_dict)
     """
     results = []
-    for N in N_values:
-        for p in p_values:
-            for seed in seeds:
-                G = generate_nanowire_network(N, p, seed=seed)
-                avg_deg = calculate_average_degree(G)
-                avg_spl = calculate_average_shortest_path_length(G)
-                clustering = calculate_clustering_coefficient(G)
-                
-                results.append({
-                    'N': N,
-                    'p': p,
-                    'seed': seed,
-                    'avg_degree': avg_deg,
-                    'avg_shortest_path_length': avg_spl,
-                    'clustering_coefficient': clustering,
-                    'graph': G
-                })
+    for i, p in enumerate(p_values):
+        for j, target_deg in enumerate(target_degrees):
+            seed = seed_base + i * len(target_degrees) + j
+            G = generate_nanowire_network(N, p, target_degree=target_deg, seed=seed)
+            params = {
+                'N': N,
+                'p': p,
+                'target_degree': target_deg,
+                'seed': seed
+            }
+            results.append((G, params))
     return results
+
+# Ensure the module exports the expected public names explicitly if needed,
+# though the API surface list implies these are the top-level names.
+__all__ = [
+    'validate_degree_bounds',
+    'validate_connection_probability',
+    'generate_nanowire_network',
+    'calculate_average_degree',
+    'calculate_average_shortest_path_length',
+    'calculate_clustering_coefficient',
+    'generate_network_grid'
+]

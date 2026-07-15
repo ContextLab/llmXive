@@ -7,117 +7,192 @@ from statsmodels.stats.outliers_influence import OLSInfluence
 
 logger = logging.getLogger(__name__)
 
-def run_ols_regression(df: pd.DataFrame, x_col: str, y_col: str) -> Dict[str, Any]:
+def run_ols_regression(x: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
     """
     Perform OLS regression on log-transformed data.
-    Returns a dictionary with exponent, confidence interval, and p-value.
+    
+    Args:
+        x: Independent variable (e.g., log(avg_degree))
+        y: Dependent variable (e.g., log(conductivity))
+        
+    Returns:
+        Dictionary containing regression results:
+        - slope: Scaling exponent
+        - intercept: Log-conductivity intercept
+        - p_value: p-value for the slope
+        - r_squared: R-squared value
+        - conf_int: 95% confidence interval for slope
     """
-    if df.empty or x_col not in df.columns or y_col not in df.columns:
-        logger.error("Invalid data for regression.")
-        return {}
-
-    # Drop rows with NaN in relevant columns
-    data = df[[x_col, y_col]].dropna()
-    if len(data) < 2:
-        logger.warning("Insufficient data points for regression.")
-        return {}
-
-    X = np.log(data[x_col].values)
-    y = np.log(data[y_col].values)
-
-    X = sm.add_constant(X)
+    if len(x) < 3:
+        logger.warning("Insufficient data points for regression (< 3).")
+        return {
+            "slope": np.nan,
+            "intercept": np.nan,
+            "p_value": np.nan,
+            "r_squared": np.nan,
+            "conf_int": (np.nan, np.nan)
+        }
+    
+    # Add constant for intercept
+    X = sm.add_constant(x)
     model = sm.OLS(y, X).fit()
-
-    if len(model.params) < 2:
-        logger.error("Regression failed to converge properly.")
-        return {}
-
-    exponent = model.params[1]
+    
+    slope = model.params[1]
+    intercept = model.params[0]
     p_value = model.pvalues[1]
-    conf_int = model.conf_int().iloc[1].tolist()
-
+    r_squared = model.rsquared
+    conf_int = model.conf_int(alpha=0.05).iloc[1].tolist()
+    
     return {
-        "exponent": exponent,
+        "slope": slope,
+        "intercept": intercept,
         "p_value": p_value,
-        "confidence_interval": conf_int,
-        "r_squared": model.rsquared
+        "r_squared": r_squared,
+        "conf_int": conf_int
     }
 
 def calculate_correlation_matrix(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     """
     Calculate correlation matrix for specified columns.
-    """
-    if df.empty:
-        logger.warning("Empty dataframe for correlation matrix.")
-        return pd.DataFrame()
-
-    valid_cols = [c for c in cols if c in df.columns]
-    if len(valid_cols) < 2:
-        logger.warning("Not enough valid columns for correlation.")
-        return pd.DataFrame()
-
-    return df[valid_cols].corr()
-
-def detect_percolation_threshold(results: List[Dict[str, Any]], threshold_pct: float = 0.8) -> Optional[float]:
-    """
-    Detect the percolation threshold: the smallest average degree where
-    at least `threshold_pct` (default 80%) of simulations are connected.
-
-    Args:
-        results: List of simulation result dictionaries containing 'avg_degree' and 'percolation_flag'.
-        threshold_pct: The connectivity fraction threshold (e.g., 0.8 for 80%).
-
-    Returns:
-        The smallest average degree meeting the criteria, or None if not found.
-    """
-    if not results:
-        logger.warning("No results provided for percolation threshold detection.")
-        return None
-
-    # Group by avg_degree to calculate connectivity rate per degree level
-    # We need to aggregate results by avg_degree
-    df = pd.DataFrame(results)
-    if 'avg_degree' not in df.columns or 'percolation_flag' not in df.columns:
-        logger.error("Missing required columns 'avg_degree' or 'percolation_flag' in results.")
-        return None
-
-    # Calculate connectivity rate per avg_degree
-    connectivity_stats = df.groupby('avg_degree')['percolation_flag'].mean().reset_index()
-    connectivity_stats.columns = ['avg_degree', 'connectivity_rate']
-
-    # Filter for degrees where connectivity rate >= threshold
-    valid_degrees = connectivity_stats[connectivity_stats['connectivity_rate'] >= threshold_pct]['avg_degree']
-
-    if valid_degrees.empty:
-        logger.info(f"No average degree found with connectivity >= {threshold_pct*100:.0f}%")
-        return None
-
-    # Return the smallest average degree meeting the criteria
-    threshold_value = valid_degrees.min()
-    logger.info(f"Percolation threshold detected at avg_degree = {threshold_value:.4f} "
-                f"(connectivity rate >= {threshold_pct*100:.0f}%)")
-    return threshold_value
-
-def analyze_scaling_law(df: pd.DataFrame, x_col: str = 'avg_degree', y_col: str = 'conductivity') -> Dict[str, Any]:
-    """
-    Full analysis of scaling law between topology metric and conductivity.
-    Includes regression and percolation threshold detection.
-    """
-    if df.empty:
-        logger.warning("Empty dataframe for scaling law analysis.")
-        return {}
-
-    regression_results = run_ols_regression(df, x_col, y_col)
     
-    # Detect percolation threshold
-    # We need to pass the raw data (list of dicts) to detect_percolation_threshold
-    # or convert df to list of dicts if needed. 
-    # Assuming df contains the full simulation results including percolation_flag
-    percolation_threshold = None
-    if 'percolation_flag' in df.columns:
-        percolation_threshold = detect_percolation_threshold(df.to_dict('records'))
+    Args:
+        df: DataFrame containing the data
+        cols: List of column names to include
+        
+    Returns:
+        Correlation matrix as DataFrame
+    """
+    if not all(col in df.columns for col in cols):
+        missing = set(cols) - set(df.columns)
+        raise ValueError(f"Missing columns in DataFrame: {missing}")
+    
+    return df[cols].corr()
 
+def detect_percolation_threshold(df: pd.DataFrame, connectivity_col: str = 'percolation_flag') -> float:
+    """
+    Detect the percolation threshold: smallest average degree where >= 80% of networks are connected.
+    
+    Args:
+        df: DataFrame with simulation results
+        connectivity_col: Name of column indicating connectivity (1=connected, 0=disconnected)
+        
+    Returns:
+        The percolation threshold value (average degree)
+    """
+    if connectivity_col not in df.columns:
+        raise ValueError(f"Column '{connectivity_col}' not found in DataFrame")
+    
+    # Group by average degree and calculate connectivity rate
+    grouped = df.groupby('avg_degree')[connectivity_col].mean().reset_index()
+    grouped.columns = ['avg_degree', 'connectivity_rate']
+    
+    # Find the smallest avg_degree where connectivity_rate >= 0.80
+    threshold_rows = grouped[grouped['connectivity_rate'] >= 0.80]
+    
+    if threshold_rows.empty:
+        logger.warning("No percolation threshold found (connectivity never reached 80%).")
+        return np.nan
+    
+    threshold = threshold_rows['avg_degree'].min()
+    logger.info(f"Percolation threshold detected at avg_degree = {threshold:.4f}")
+    return threshold
+
+def update_csv_with_percolation_threshold(csv_path: str, threshold: float) -> None:
+    """
+    Update the CSV file by adding a 'percolation_threshold' column with the detected value.
+    
+    Args:
+        csv_path: Path to the simulation results CSV
+        threshold: The detected percolation threshold value
+    """
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    
+    df = pd.read_csv(csv_path)
+    
+    # Add the threshold as a constant column for all rows (or just first row if preferred)
+    # Based on T027a description: "storage of the percolation threshold value into ... as a new column"
+    df['percolation_threshold'] = threshold
+    
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Updated {csv_path} with percolation_threshold = {threshold}")
+
+def analyze_scaling_law(
+    df: pd.DataFrame,
+    x_col: str = 'avg_degree',
+    y_col: str = 'conductivity',
+    percolation_threshold: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Analyze the scaling law between topology (avg_degree) and conductivity.
+    
+    Conditionally reports the scaling exponent only if:
+    1. The mean degree of the dataset exceeds the percolation_threshold (if provided)
+    2. The p-value of the slope is < 0.05
+    
+    Args:
+        df: DataFrame with simulation results
+        x_col: Column name for independent variable (avg_degree)
+        y_col: Column name for dependent variable (conductivity)
+        percolation_threshold: Optional threshold to filter data or condition reporting
+        
+    Returns:
+        Dictionary with analysis results including conditional reporting flags.
+    """
+    # Filter out NaNs
+    valid_data = df[[x_col, y_col]].dropna()
+    
+    if len(valid_data) < 3:
+        logger.warning("Insufficient valid data points for scaling analysis.")
+        return {
+            "slope": np.nan,
+            "p_value": np.nan,
+            "r_squared": np.nan,
+            "is_significant": False,
+            "reporting_condition_met": False,
+            "message": "Insufficient data"
+        }
+    
+    # Log-transform for power-law fitting: log(y) = slope * log(x) + intercept
+    x_log = np.log(valid_data[x_col].values)
+    y_log = np.log(valid_data[y_col].values)
+    
+    results = run_ols_regression(x_log, y_log)
+    
+    mean_degree = valid_data[x_col].mean()
+    reporting_condition_met = True
+    message_parts = []
+    
+    # Check percolation threshold condition if provided
+    if percolation_threshold is not None and not np.isnan(percolation_threshold):
+        if mean_degree <= percolation_threshold:
+            reporting_condition_met = False
+            message_parts.append(f"Mean degree ({mean_degree:.2f}) is below percolation threshold ({percolation_threshold:.2f}).")
+        else:
+            message_parts.append(f"Mean degree ({mean_degree:.2f}) exceeds percolation threshold ({percolation_threshold:.2f}).")
+    else:
+        message_parts.append("No percolation threshold provided for filtering.")
+    
+    # Check statistical significance
+    is_significant = results['p_value'] < 0.05
+    
+    if is_significant:
+        message_parts.append(f"Scaling exponent is statistically significant (p={results['p_value']:.4f} < 0.05).")
+    else:
+        message_parts.append(f"Scaling exponent is NOT statistically significant (p={results['p_value']:.4f} >= 0.05).")
+    
+    if not reporting_condition_met or not is_significant:
+        logger.warning("Conditional reporting requirements not met. Exponent not reported as significant.")
+    
     return {
-        "regression": regression_results,
-        "percolation_threshold": percolation_threshold
+        "slope": results['slope'],
+        "intercept": results['intercept'],
+        "p_value": results['p_value'],
+        "r_squared": results['r_squared'],
+        "conf_int": results['conf_int'],
+        "mean_degree": mean_degree,
+        "percolation_threshold": percolation_threshold,
+        "is_significant": is_significant,
+        "reporting_condition_met": reporting_condition_met,
+        "message": " ".join(message_parts)
     }

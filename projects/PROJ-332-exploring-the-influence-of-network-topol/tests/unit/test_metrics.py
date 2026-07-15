@@ -1,10 +1,14 @@
 import pytest
-import pandas as pd
 from regression_analysis import detect_percolation_threshold
 
 def test_percolation_threshold_logic():
     """
     Verify 80% connectivity cutoff logic.
+    
+    Logic:
+    1. Group rows by avg_degree.
+    2. Calculate connectivity ratio (mean of percolation_flag) for each degree.
+    3. Find the smallest avg_degree where connectivity ratio >= threshold_pct.
     """
     # Create mock data:
     # avg_degree 2.0: 0/1 connected (0%)
