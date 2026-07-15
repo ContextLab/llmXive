@@ -1,0 +1,28 @@
+# Configuration for llmXive plant root architecture project
+# Template file for environment configuration management
+# Copy this file to config.yaml and fill in the values for your environment
+
+# Path to the root data directory
+# Expected to contain 'raw/' and 'processed/' subdirectories
+DATA_PATH: "data"
+
+# Directory for all output artifacts
+OUTPUT_PATH: "artifacts"
+
+# Directory for generated figures and plots
+FIGURES_PATH: "artifacts/plots"
+
+# Directory for generated reports
+REPORTS_PATH: "artifacts/reports"
+
+# Directory for trained models and model metadata
+MODELS_PATH: "artifacts/models"
+
+# Path to the log file relative to the project root
+LOG_FILE: "logs/pipeline.log"
+
+# Random seed for reproducibility in data splitting and model training
+SEED: 42
+
+# Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL: "INFO"

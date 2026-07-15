@@ -1,0 +1,37 @@
+# Project Configuration for Predicting Plant Root Architecture
+# This file is loaded by code/config.py via get_config()
+
+# Data paths relative to project root
+DATA_PATH: data
+
+# Random seed for reproducibility
+SEED: 42
+
+# Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL: INFO
+
+# Model hyperparameters (defaults, can be overridden)
+MODEL:
+  LMM:
+    REML: true
+    method: 'Satterthwaite'
+  RF:
+    max_depth: 5
+    n_estimators: 100
+
+# Preprocessing settings
+PREPROCESSING:
+  KNN_K: 5
+  LOG_TRANSFORM: true
+  ZSCORE_NORMALIZE: true
+
+# Validation thresholds
+VALIDATION:
+  MIN_SPECIES_COUNT: 20
+  MAX_MISSING_NUTRIENTS: 0.5
+  MERGE_SUCCESS_THRESHOLD: 0.95
+
+# Output settings
+OUTPUT:
+  FIGURE_DPI: 150
+  MAX_REPORT_SIZE_MB: 100

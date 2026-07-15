@@ -1,0 +1,37 @@
+T004:
+  c: false
+  h: 279b47b8e5a8d8775611d97d9571dca9b03f6496d315db7bf32d89db3e6a9412
+  r: The provided `code/config.py` exists, but it relies on a `config.yaml` file that
+    is missing, so it cannot actually load the required paths, seeds, and constants.
+    The task explicitly calls for loading these values from `config.yaml`, which is
+    absent. The implementation also contains a minor bug (uses `sys` without importing
+    it), further indicating the artifact is not a complete, functional solution.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results, or documentation for a sensitivity analysis of nutrient coefficients\
+    \ against literature ranges is present; the provided artifacts only cover data\
+    \ ingestion, modeling, and visualization, not the required FR\u2011011 analysis.\
+    \ The task\u2019s specific output (e.g., a script or report showing how coefficient\
+    \ values vary within literature\u2011reported nutrient ranges) is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON output was provided; the implementer did not supply a file containing\
+    \ adjusted\u202FR\xB2, RMSE, p\u2011values, cross\u2011validation mean\u202FR\xB2\
+    \ for both the LMM and RF models, nor the logic to compare the R\xB2 values and\
+    \ set `success_criterion_met`. Without this artifact, the task requirements are\
+    \ not met."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a final report section, table, or narrative) was provided\
+    \ that compares the model coefficients to published literature to assess biological\
+    \ plausibility. The required evidence of literature\u2011based verification is\
+    \ missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of updated files in `docs/` or modifications to `README.md` is provided;
+    the claim lacks any actual documentation artifacts to verify. The required documentation
+    updates are missing.

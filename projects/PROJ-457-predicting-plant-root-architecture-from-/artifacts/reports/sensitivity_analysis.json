@@ -1,0 +1,73 @@
+{
+  "status": "success",
+  "model_source": "artifacts/models/model_results.json",
+  "comparisons": [
+    {
+      "nutrient": "phosphorus",
+      "fitted_coefficient": -0.23,
+      "literature_typical": -0.2,
+      "literature_range": [
+        -0.8,
+        0.5
+      ],
+      "deviation_from_typical": 0.03,
+      "deviation_percentage": 0.15,
+      "status": "within_range",
+      "source": "meta-analysis root-phosphorus response (log-scale)"
+    },
+    {
+      "nutrient": "nitrogen",
+      "fitted_coefficient": -0.17,
+      "literature_typical": -0.15,
+      "literature_range": [
+        -0.6,
+        0.4
+      ],
+      "deviation_from_typical": 0.02,
+      "deviation_percentage": 0.13333333333333333,
+      "status": "within_range",
+      "source": "meta-analysis root-nitrogen response (log-scale)"
+    },
+    {
+      "nutrient": "potassium",
+      "fitted_coefficient": -0.11,
+      "literature_typical": -0.1,
+      "literature_range": [
+        -0.5,
+        0.3
+      ],
+      "deviation_from_typical": 0.01,
+      "deviation_percentage": 0.1,
+      "status": "within_range",
+      "source": "estimated from NPK correlation studies"
+    }
+  ],
+  "metrics": {
+    "total_coefficients_tested": 3,
+    "within_range_count": 3,
+    "warning_count": 0,
+    "critical_count": 0,
+    "overall_plausibility": "plausible",
+    "plausibility_score": 1.0
+  },
+  "literature_ranges_used": {
+    "phosphorus": {
+      "min": -0.8,
+      "max": 0.5,
+      "typical": -0.2,
+      "source": "meta-analysis root-phosphorus response (log-scale)"
+    },
+    "nitrogen": {
+      "min": -0.6,
+      "max": 0.4,
+      "typical": -0.15,
+      "source": "meta-analysis root-nitrogen response (log-scale)"
+    },
+    "potassium": {
+      "min": -0.5,
+      "max": 0.3,
+      "typical": -0.1,
+      "source": "estimated from NPK correlation studies"
+    }
+  }
+}

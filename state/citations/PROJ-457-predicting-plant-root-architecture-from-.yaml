@@ -20,3 +20,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/envedabio/plant-phenotype/e4af5aa73a611ae99a544bede1ccce3b998d362e/PPR_test_corpus.txt?%2Fdatasets%2Fenvedabio%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_test_corpus.txt=&etag=%224f54d762f5228fca6e4f6e9e336c1573063fa3ff%22
   verified_at: '2026-07-14T00:08:58.678604Z'
+- artifact_hash: 71b899654ce0d76e763cbd1769822c59461fcd99fe07ad4aee69e6e772d230a2
+  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/docs/CONTRIBUTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-username/PROJ-457.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-username/PROJ-457
+  verified_at: '2026-07-15T18:19:08.760420Z'

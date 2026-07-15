@@ -1,0 +1,7 @@
+DATA_PATH: "data/raw"
+PROCESSED_PATH: "data/processed"
+SEED: 42
+LOG_LEVEL: INFO
+MODEL_PATH: "artifacts/models"
+PLOTS_PATH: "artifacts/plots"
+REPORTS_PATH: "artifacts/reports"
