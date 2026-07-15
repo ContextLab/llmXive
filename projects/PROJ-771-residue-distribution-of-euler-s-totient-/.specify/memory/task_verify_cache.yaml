@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `code/` directory exists in the repository; the
+    artifact list is empty, so the required directory creation cannot be confirmed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories being
+    present (e.g., no directory listings, creation logs, or files inside them) is
+    provided; therefore the claim that the task is complete cannot be verified. The
+    implementer must create the two directories and supply proof (e.g., a file tree
+    snapshot or command output).
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `results/plots/` and `results/reports/` directories
+    was provided; the claim lacks any artifact showing that these folders were created
+    (e.g., a directory listing or screenshot). The implementer must supply proof that
+    the two directories exist in the repository.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    is provided; the artifact list contains no such paths, so we cannot verify that
+    the directories were created. The implementer must add the two directories (with
+    at least placeholder files if desired) to satisfy the task.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/raw/residues_{prime}_{N}.json` file (or any JSON serialization of a\
+    \ `ResidueDataset`) was presented, and there is no evidence that raw residue counts\
+    \ were saved as required. The implementer provided only a textual description\
+    \ without the actual artifact, so the task\u2019s deliverable is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that implement the required\
+    \ error\u2011handling logic, nor any evidence (e.g., unit tests, screenshots,\
+    \ commit diff) showing that the sieve failure/overflow case logs the offending\u202F\
+    $n$ before any data\u2011save step. The artifact needed to satisfy the task is\
+    \ missing."

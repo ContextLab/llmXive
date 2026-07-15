@@ -1,0 +1,24 @@
+'|alpha fail flag pass primary standard threshold':
+  quote: A hypothesis is generally considered supported when the results match the
+    predicted pattern and that pattern is found to be statistically significant. Under
+    null hypothesis assumption, results are deemed statistically significant when
+    their probability falls below a predetermined threshold (the significance level).
+    This generally answers the question of how unlikely such results would be by chance
+    alone if no true effect existed in the statistical population. If the probability
+    associated with the test statistic exceeds the chosen critical value, the results
+    are considered statistically significant. The p-value represents the probability
+    of obtaining results at least as extreme as observed, assuming the null hypothesis
+    is true. The standard threshold p < 0.05 means accepting a 5% false positive rate.
+    Some fields use smaller p-values, such as p < 0.01 (1% chance of a false positive)
+    or p < 0.001 (0.1% chance of a false positive). But a smaller chance of a false
+    positive often requires greater sample sizes or a greater chance of a false negative
+    (a correct hypothesis being erroneously found incorrect). Although p-value testing
+    is the most commonly used method, it is not the only one.
+  source_id: Replication crisis
+  url: https://en.wikipedia.org/wiki/Replication_crisis
+  value: '0.05'
+'|assert bound cdot formula lebowitz lockard phi plan':
+  quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+  source_id: golden_ratio
+  url: https://en.wikipedia.org/wiki/Golden_ratio
+  value: '1.618033988749895'

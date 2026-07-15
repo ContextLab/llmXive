@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements an empirical investigation into the *rate of convergence* and *deviation magnitude* of Euler's totient function residues $\phi(n) \pmod p$ for small primes $p \in \{3, 5, 7, 11\}$ over a large range $n \in [1, N]$. The technical approach involves a linear sieve algorithm implemented in Python with arbitrary-precision integer arithmetic (Constitution Principle VI) to generate residue counts. 
+This feature implements an empirical investigation into the *rate of convergence* and *deviation magnitude* of Euler's totient function residues $\phi(n) \pmod p$ for small primes $p \in \{5, 7, 11\}$ and other small primes over a large range $n \in [1, N]$. The technical approach involves a linear sieve algorithm implemented in Python with arbitrary-precision integer arithmetic (Constitution Principle VI) to generate residue counts. 
 
 Crucially, the statistical analysis **does not** test a naive uniformity hypothesis (which is a known theorem). Instead, it compares observed deviations against the **theoretical asymptotic distribution with specific error bounds** (Lebowitz-Lockard 2021; Pollack & Roy 2024). To address the dependence structure of the $\phi(n)$ sequence, the plan employs a **Block Bootstrap** procedure to estimate the null distribution of test statistics, ensuring valid p-values for the dependent data. The primary metric is the "error term residual" (ratio of observed deviation to predicted error bound).
 

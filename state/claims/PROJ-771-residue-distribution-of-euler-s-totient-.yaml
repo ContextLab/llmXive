@@ -1,0 +1,251 @@
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Lebowitz-Lockard bound formula for Euler totient error is E_bound = C
+    * N^(1 - 1/phi(p)) and Pollack & Roy bound is O(N * exp(-c * sqrt(log N)))
+  claim_id: c_0d53b82e
+  context: 'T027a [US2] Implement theoretical error bound calculations in `code/stats.py`
+    using the following specific formulas from literature: 1) Lebowitz-Lockard bound:
+    $E_{bound} = C \cdot N^{1 - 1/\phi(p)}$; 2) Pollack & Roy bound: $O(N \cdot \exp(-c
+    \cdot \sqrt{\log N}))$. Implement these as constants/functions for use in T027.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement theoretical error bound calculations in `code/stats.py` using
+    the following specific formulas from literature: 1) Lebowitz-Lockard bound: $E_{bound}
+    = C \cdot N^{1 - 1/\phi(p)}$; 2) Pollack & Roy bound: $O(N \cdot \exp(-c \cdot
+    \sqrt{\log N}))$.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:23:32Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Compute phi for N=5,000,000 within 1 hour on 2 CPU cores
+  claim_id: c_0c7700eb
+  context: 'Critical: Ensure $N=5,000,000$ completes within 1 hour on 2 CPU cores;
+    optimize sieve loop if necessary.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '1.618033988749895'
+    filled: true
+  kind: numeric
+  raw_text: Ensure $N=5,000,000$ completes within 1 hour on 2 CPU cores
+  resolved_value: '1.618033988749895'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T18:23:35Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Lebowitz-Lockard bound formula for error bound is E_bound = C * N^(1
+    - 1/phi(p))
+  claim_id: c_c8d6a014
+  context: 'Implement theoretical error bound calculations in code/stats.py using
+    the following specific formulas from literature: 1) Lebowitz-Lockard bound: E_{bound}
+    = C \cdot N^{1 - 1/\phi(p)}'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '1.618033988749895'
+    filled: true
+  kind: numeric
+  raw_text: The Plan asserts the Lebowitz-Lockard bound formula as E_{bound} = C \cdot
+    N^{1 - 1/\phi(p)}.
+  resolved_value: '1.618033988749895'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T18:32:56Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Pollack & Roy bound formula for error bound is O(N * exp(-c * sqrt(log
+    N)))
+  claim_id: c_593c2148
+  context: 'Implement theoretical error bound calculations in code/stats.py using
+    the following specific formulas from literature: 2) Pollack & Roy bound: O(N \cdot
+    \exp(-c \cdot \sqrt{\log N})).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pollack_%26_Roy_bound_formula_for_error_bound_is_O(N_*_exp(-c
+  kind: entity_fact
+  raw_text: The Plan asserts the Pollack & Roy bound formula as O(N \cdot \exp(-c
+    \cdot \sqrt{\log N})).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:33:49Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Benchmark target for N=5,000,000 is < 1 hour wall-clock time
+  claim_id: c_3d35f8ab
+  context: 'Run the benchmark on N=5,000,000 and record the total wall-clock time
+    and memory peak to results/reports/benchmark_N5M.json (Target: < 1 hour).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_target_for_N=5,000,000_is_%3C_1_hour_wall-clock_time
+  kind: magnitude
+  raw_text: The benchmark target for N=5,000,000 is a total wall-clock time of less
+    than 1 hour.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:34:22Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Chi-squared fallback triggers if expected bin count < 5
+  claim_id: c_c39a69b0
+  context: If any E_k < 5, trigger a fallback to scipy.stats.chisquare with simulation_kwarg=2000
+    (Monte Carlo) or an exact test.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_fallback_triggers_if_expected_bin_count_%3C_5
+  kind: magnitude
+  raw_text: The Chi-squared test fallback triggers when any expected bin count is
+    less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:34:44Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation uses 2000 samples for Chi-squared fallback
+  claim_id: c_7587614f
+  context: trigger a fallback to scipy.stats.chisquare with simulation_kwarg=2000
+    (Monte Carlo) or an exact test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulation uses 2000 samples for the Chi-squared fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:34:58Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Standard alpha threshold is 0.05
+  claim_id: c_3c685bd8
+  context: Implement the primary pass/fail flag logic in code/stats.py based on the
+    standard alpha = 0.05 threshold as required by FR-006.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A hypothesis is generally considered supported when the results match
+        the predicted pattern and that pattern is found to be statistically significant.
+        Under null hypothesis assumption, results are deemed statistically significant
+        when their probability falls below a predetermined threshold (the significance
+        level). This generally answers the question of how unlikely such results would
+        be by chance alone if no true effect existed in the statistical population.
+        If the probability associated with the test statistic exceeds the chosen critical
+        value, the results are considered statistically significant. The p-value represents
+        the probability of obtaining results at least as extreme as observed, assuming
+        the null hypothesis is true. The standard threshold p < 0.05 means accepting
+        a 5% false positive rate. Some fields use smaller p-values, such as p < 0.01
+        (1% chance of a false positive) or p < 0.001 (0.1% chance of a false positive).
+        But a smaller chance of a false positive often requires greater sample sizes
+        or a greater chance of a false negative (a correct hypothesis being erroneously
+        found incorrect). Although p-value testing is the most commonly used method,
+        it is not the only one.
+      source_id: Replication crisis
+      url: https://en.wikipedia.org/wiki/Replication_crisis
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The standard alpha threshold for the primary pass/fail flag is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T18:35:07Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Bonferroni-corrected alpha threshold is 0.05 / 4
+  claim_id: c_8fb6ecbf
+  context: Implement Bonferroni-corrected sensitivity analysis in code/stats.py to
+    determine a secondary pass/fail flag using alpha_{adj} = 0.05/4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected alpha threshold is calculated as 0.05 divided
+    by 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:35:23Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Memory guard fails at 90% usage
+  claim_id: c_dfc41a1f
+  context: Implement MemoryGuard class in code/sieve.py using psutil to enforce a
+    hard limit on memory usage, specifically failing if usage reaches >= 90% of the
+    configured system limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory guard fails if usage reaches 90% of the configured system limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:35:23Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Prime list is {3, 5, 7, 11}
+  claim_id: c_db6847e0
+  context: Create base configuration loader in code/run_analysis.py to handle N, prime
+    list p \in {3, 5, 7, 11}, and the memory limit configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The prime list for residue calculation is restricted to {3, 5, 7, 11}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:36:13Z'
+- artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+  attempts: 1
+  canonical: Theoretical expectation E_k is N/p
+  claim_id: c_2008239e
+  context: Explicitly define E_k^{theo} as N/p (uniform expectation).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_expectation_E_k_is_N/p
+  kind: entity_fact
+  raw_text: The theoretical expectation E_k^{theo} for residue counts is N/p.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T18:36:34Z'
