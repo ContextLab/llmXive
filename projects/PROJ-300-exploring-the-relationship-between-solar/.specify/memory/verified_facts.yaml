@@ -1,6 +1,11 @@
 '|earth km radius':
-  quote: "A globally-average value is usually considered to be 6,371 kilometres (3,959\
-    \ mi) with a 0.3% variability (\xB110 km) for the following reasons."
-  source_id: Earth radius
-  url: https://en.wikipedia.org/wiki/Earth_radius
+  quote: Before the direct measurement of the gravitational constant, estimates of
+    the Earth mass were limited to estimating Earth's mean density from observation
+    of the crust and estimates on Earth's volume. Estimates on the volume of the Earth
+    in the 17th century were based on a circumference estimate of 60 miles (97 km)
+    to the degree of latitude, corresponding to a radius of 5500 km (86% of the Earth's
+    actual radius of about 6371 km), resulting in an estimated volume of about one
+    third smaller than the correct value.
+  source_id: Earth mass
+  url: https://en.wikipedia.org/wiki/Earth_mass
   value: '6371'

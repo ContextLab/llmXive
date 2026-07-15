@@ -119,7 +119,7 @@ def test_prepare_lagged_data_with_nan():
 
 def test_prepare_lagged_data_all_nan():
     """Test handling when all Vsw values are NaN."""
-    dates = pd.date_range(start='2023-01-01', periods=10, freq='1H')
+    dates = pd.date_range(start='2023-01-01', periods=10, freq='H')
     df_sw = pd.DataFrame({'Vsw': [np.nan] * 10}, index=dates)
     df_ey = pd.DataFrame({'Ey': np.random.randn(10)}, index=dates)
     

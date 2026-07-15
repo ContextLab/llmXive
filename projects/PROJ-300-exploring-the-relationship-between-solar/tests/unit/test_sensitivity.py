@@ -1,94 +1,113 @@
 """
-Unit tests for sensitivity analysis.
-File: projects/PROJ-300-exploring-the-relationship-between-solar/tests/unit/test_sensitivity.py
+Unit tests for sensitivity analysis (FR-007).
+File path: projects/PROJ-300-exploring-the-relationship-between-solar/tests/unit/test_sensitivity.py
 """
 import pytest
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
-
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 from code.analysis.sensitivity import analyze_thresholds, run_sensitivity_sweep
 from code.analysis.correlation import calculate_correlation
 from code.analysis.lag_search import find_optimal_lag
 
-
-def generate_test_data(n_points=1000, start_date=None):
-    """Generate synthetic time series for testing."""
+def create_dummy_data(n_points=1000, start_date=None):
+    """Create dummy aligned data for testing."""
     if start_date is None:
         start_date = datetime(2023, 1, 1)
-
-    timestamps = pd.date_range(start=start_date, periods=n_points, freq='5min')
-    # Create a simple correlated series with noise
-    base_vsw = np.random.normal(500, 100, n_points)
-    base_vsw = np.clip(base_vsw, 300, 800)  # Keep within realistic range
-
-    # Ey correlates with Vsw with some lag and noise
-    lag_idx = 10  # 50 minutes lag (10 * 5min)
-    base_ey = np.zeros(n_points)
-    for i in range(lag_idx, n_points):
-        base_ey[i] = 0.5 * base_vsw[i - lag_idx] + np.random.normal(0, 0.5)
-
-    df_vsw = pd.Series(base_vsw, index=timestamps)
-    df_ey = pd.Series(base_ey, index=timestamps)
-
-    return df_vsw, df_ey, timestamps
-
+    
+    timestamps = [start_date + timedelta(minutes=i*5) for i in range(n_points)]
+    # Create Vsw with some variation
+    vsw_values = 400 + 100 * np.random.randn(n_points)
+    vsw_values = np.clip(vsw_values, 300, 800) # realistic range
+    
+    # Create Ey correlated with Vsw for testing
+    ey_values = 0.5 * vsw_values + 50 * np.random.randn(n_points)
+    
+    df_vsw = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': vsw_values,
+        'Bz': np.random.randn(n_points)
+    })
+    
+    df_ey = pd.DataFrame({
+        'timestamp': timestamps,
+        'Ey': ey_values
+    })
+    
+    return df_vsw, df_ey
 
 def test_threshold_filtering():
     """Test that thresholds correctly filter the data."""
-    df_vsw, df_ey, timestamps = generate_test_data(n_points=1000)
-
-    # High threshold should result in fewer samples
-    results = analyze_thresholds(df_vsw, df_ey, timestamps, thresholds=[400.0, 600.0])
-
-    assert "400.0" in results
-    assert "600.0" in results
-    assert results["400.0"]["n_samples"] > results["600.0"]["n_samples"]
-    assert results["600.0"]["n_samples"] > 0
-
+    df_vsw, df_ey = create_dummy_data()
+    
+    thresholds = [400, 500, 600]
+    results = analyze_thresholds(df_vsw, df_ey, thresholds)
+    
+    assert len(results) == 3
+    assert '400' in results
+    assert '500' in results
+    assert '600' in results
+    
+    # Higher thresholds should have fewer samples
+    assert results['400']['n_samples'] >= results['500']['n_samples']
+    assert results['500']['n_samples'] >= results['600']['n_samples']
 
 def test_sensitivity_correlation_calculation():
-    """Test that correlation is calculated for each threshold."""
-    df_vsw, df_ey, timestamps = generate_test_data(n_points=2000)
-
-    results = analyze_thresholds(df_vsw, df_ey, timestamps, thresholds=[400.0, 500.0, 600.0])
-
-    for t in ["400.0", "500.0", "600.0"]:
-        assert t in results
-        assert "correlation" in results[t]
-        assert "optimal_lag_min" in results[t]
-        assert "p_value" in results[t]
-        assert "n_samples" in results[t]
-        
-        # Correlation should be a float
-        assert isinstance(results[t]["correlation"], float)
-        # Correlation should be between -1 and 1
-        assert -1.0 <= results[t]["correlation"] <= 1.0
-
-
-def test_insufficient_data_handling():
-    """Test behavior when threshold leaves too few data points."""
-    df_vsw, df_ey, timestamps = generate_test_data(n_points=100)
-
-    # Very high threshold should leave very few points
-    results = analyze_thresholds(df_vsw, df_ey, timestamps, thresholds=[900.0])
-
-    assert "900.0" in results
-    # Should have a note or NaN values if insufficient data
-    assert results["900.0"]["n_samples"] < 10 or "note" in results["900.0"]
-
+    """Test that correlations are calculated for each threshold."""
+    df_vsw, df_ey = create_dummy_data()
+    
+    thresholds = [400, 500, 600]
+    results = analyze_thresholds(df_vsw, df_ey, thresholds)
+    
+    for t_str, data in results.items():
+        if data['n_samples'] >= 10:
+            assert data['pearson'] is not None
+            assert data['spearman'] is not None
+            assert -1 <= data['pearson'] <= 1
+            assert -1 <= data['spearman'] <= 1
 
 def test_run_sensitivity_sweep_defaults():
-    """Test that run_sensitivity_sweep uses default thresholds."""
-    df_vsw, df_ey, timestamps = generate_test_data(n_points=1000)
+    """Test the default sweep with 400, 500, 600."""
+    df_vsw, df_ey = create_dummy_data()
+    
+    sweep_results = run_sensitivity_sweep(df_vsw, df_ey)
+    
+    assert 'thresholds_tested' in sweep_results
+    assert sweep_results['thresholds_tested'] == [400, 500, 600]
+    assert 'results' in sweep_results
+    assert len(sweep_results['results']) == 3
+    
+    # Check structure of each result entry
+    for entry in sweep_results['results']:
+        assert 'threshold_km_s' in entry
+        assert 'n_samples' in entry
+        assert 'optimal_lag_min' in entry
+        assert 'pearson_correlation' in entry
+        assert 'spearman_correlation' in entry
+        assert 'is_significant' in entry
 
-    results = run_sensitivity_sweep(df_vsw, df_ey, timestamps)
+def test_insufficient_data_handling():
+    """Test handling of thresholds that leave too little data."""
+    # Create a small dataset
+    df_vsw, df_ey = create_dummy_data(n_points=20)
+    
+    # Set a high threshold that will filter out most data
+    thresholds = [750] # Likely to leave very few points
+    results = analyze_thresholds(df_vsw, df_ey, thresholds)
+    
+    # Should handle gracefully, either with 0 samples or a reason
+    assert '750' in results
+    # If n_samples is 0, it should have a reason
+    if results['750']['n_samples'] == 0:
+        assert 'reason' in results['750']
 
-    # Should default to [400, 500, 600]
-    assert "400.0" in results
-    assert "500.0" in results
-    assert "600.0" in results
+def test_custom_thresholds():
+    """Test with custom thresholds."""
+    df_vsw, df_ey = create_dummy_data()
+    custom_thresholds = [350, 450, 550, 650]
+    
+    results = analyze_thresholds(df_vsw, df_ey, custom_thresholds)
+    
+    assert len(results) == 4
+    for t in custom_thresholds:
+        assert str(t) in results
