@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T08:03:04.777552Z'
-current_stage: specified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-857-llmxive-follow-up-extending-longlive-2-0
-last_run_id: 1fbad3a6-fb2c-4c35-b1ec-546925f46c4b
+last_run_id: bddc2809-45ed-41f3-a501-151af66241e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0
 title: 'llmXive follow-up: extending "LongLive-2.0: An NVFP4 Parallel Infrastructure
   for Long Video Generati"'
-updated_at: '2026-07-12T22:28:25.401712Z'
+updated_at: '2026-07-15T07:54:09.115440Z'

@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentResult"
+description: "Schema for a single experiment run result"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run"
+  bit_width:
+    type: "integer"
+    description: "Simulated bit-width (2, 3, 4, 5, or 6)"
+    enum: [2, 3, 4, 5, 6]
+  seed:
+    type: "integer"
+    description: "Random seed used for the run"
+  model_params:
+    type: "integer"
+    description: "Number of parameters in the student model"
+  theoretical_memory_gb:
+    type: "number"
+    description: "Calculated theoretical memory footprint in GB"
+    minimum: 0
+  runtime_memory_gb:
+    type: "number"
+    description: "Measured peak runtime memory in GB (for SC-005 validation)"
+    minimum: 0
+  consistency_score:
+    type: "number"
+    description: "Mean temporal coherence score"
+    minimum: 0
+    maximum: 1
+  convergence_status:
+    type: "string"
+    description: "Status of the training run"
+    enum: ["converged", "collapsed", "timeout"]
+  noise_kl_divergence:
+    type: "number"
+    description: "KL-divergence of quantization emulation noise from uniform distribution"
+    minimum: 0
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Execution timestamp"
+required:
+  - run_id
+  - bit_width
+  - seed
+  - model_params
+  - theoretical_memory_gb
+  - runtime_memory_gb
+  - consistency_score
+  - convergence_status
+  - noise_kl_divergence
+  - timestamp
