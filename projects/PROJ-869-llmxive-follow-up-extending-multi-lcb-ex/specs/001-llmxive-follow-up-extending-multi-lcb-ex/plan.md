@@ -1,27 +1,27 @@
 # Implementation Plan: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages"
 
 **Branch**: `001-llmxive-multilingual-logic-transfer` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-multilingual-logic-transfer/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-multilingual-logic-transfer/spec.md`
+**Input**: Feature specification from `specs/001-llmxive-multilingual-logic-transfer/spec.md`
 
 ## Summary
 
-This feature implements a rigorous evaluation pipeline to test the **associational hypothesis** that providing a "Partial Logic Trace" (the initial algorithmic steps of a ground-truth Python solution) as a few-shot anchor is associated with improved **Logic-Compliant Pass@1 (LC-Pass@1)** in target languages (e.g., rust, kotlin) where models previously failed. The system extracts logic anchors via AST parsing, constructs guided prompts, executes generated code in a CPU-isolated sandbox with strict timeouts, categorizes failures (Syntax, Library, Runtime, Logic Transfer), and performs paired statistical analysis (McNemar's test) on a stratified dataset of tasks. The entire pipeline is designed to run within the constraints of a GitHub Actions free-tier runner (limited CPU, 7GB RAM, 6h limit) without GPU acceleration.
+This feature implements a rigorous evaluation pipeline to test the "Logic Anchor" hypothesis: that providing a partial logic trace (derived from a successful Python solution) as a few-shot anchor improves code generation correctness in target languages (e.g., Rust, Kotlin) where models previously failed. The system extracts the first 3 algorithmic steps from ground-truth Python solutions, injects them into prompts for target-language generation, executes the output in a sandboxed CPU environment, and performs paired statistical analysis (McNemar's test) against a blind baseline. 
 
-**Critical Data Block**: The study relies on a multilingual dataset (Multi-LCB) containing ground-truth solutions in target languages (Rust/Kotlin). If the verified datasets (LCB-R, LCB-R-F) do not contain these fields, the **Statistical Analysis** and **Cross-Language** components are blocked. A fallback strategy is defined: if no multilingual ground truth exists, the study reverts to **Python-to-Python Logic Fidelity** to maintain methodological validity.
+**Crucial Feasibility Adjustment**: To meet the strict 6-hour runtime constraint on a 2-core CPU (SC-004), the primary model is a **1.1B parameter CPU-optimized model (e.g., TinyLlama-1.1B-Chat or Phi-2)**. A medium-sized model is explicitly rejected for the main run as it would require a prohibitive amount of time. The study design is adjusted to test the hypothesis on a smaller, more capable model to ensure feasibility, acknowledging the trade-off in model capability for execution time. If the model fails to generate valid code, a fallback to a 50-task subset with a larger model is defined.
 
-**Note on Causality**: This study uses an observational design. Findings will be framed as **associational improvements** in LC-Pass@1, not causal proof of "reasoning transfer," as the design lacks randomization of tasks to conditions.
+The pipeline is strictly constrained to run on GitHub Actions free-tier (limited CPU, limited RAM, 6h limit) using CPU-quantized models (GGUF via `llama-cpp-python`) and deterministic error categorization based on spec-defined **keyword/control-flow matching** (explicitly rejecting structural AST subgraph checks). The study frames conclusions as **associational improvements on a specific subset of difficult tasks**, not general causal mechanisms, due to the non-randomized, pre-screened dataset.
 
 ## Technical Context
 
-**Language/Version**: Python 3 (for orchestration, AST parsing, stats) | Rust (for sandbox execution of target code) | Kotlin (via JVM, sandboxed)  
-**Primary Dependencies**: `llama-cpp-python` (CPU-only GGUF support), `datasets` (HuggingFace), `ast` (stdlib), `subprocess` (stdlib), `scipy` (stats), `pandas`, `pyyaml`, `pytest`, `joblib` (parallelization)  
-**Storage**: Local filesystem (`data/` for datasets/results, `data/` checksums managed by constitution)  
-**Testing**: `pytest` (unit/integration), custom sandbox execution harness  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multi-core, 7GB RAM, no GPU)  
-**Project Type**: Research pipeline / CLI tool  
-**Performance Goals**: Process 200 tasks (blind + guided) in ≤ 6 hours total runtime; memory footprint < 6GB during inference.  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization requiring CUDA (`bitsandbytes` forbidden); strict timeout per test case; deterministic random seeds; CPU-only model loading via `llama-cpp-python`.  
-**Scale/Scope**: A set of algorithmic tasks (stratified by difficulty/topic); two conditions (blind vs. guided); A selected subset of target languages (rust, kotlin, go). **Fallback**: If multilingual data is missing, scope reduces to Python-only logic fidelity.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `llama-cpp-python` (CPU-only GGUF), `datasets` (HuggingFace), `pandas`, `scipy`, `networkx` (for AST/graph analysis if needed, but spec mandates keyword matching), `pytest`, `docker` (for sandbox isolation, or `subprocess` with strict timeouts).  
+**Storage**: Local file system (`data/` for raw/processed datasets, `results/` for logs/metrics).  
+**Testing**: `pytest` (unit/integration), `docker` (sandbox stability).  
+**Target Platform**: Linux (GitHub Actions free-tier runner).  
+**Project Type**: Computational Research Pipeline / CLI.  
+**Performance Goals**: Process 200 tasks (including 3 blind runs + 1 guided run per task) within ≤6 hours on 2 CPU cores using a **1.1B parameter model**.  
+**Constraints**: No GPU; no `bitsandbytes` (4/8-bit quantization via CUDA); strict timeout per test case; dataset selection must include "Stochasticity Filter" (≥2/3 blind failures); error categorization must use **keyword/control-flow matching** (not structural AST subgraph); **Valid Alternative Check** to exclude library-based solutions from "Logic Transfer Failure".  
+**Scale/Scope**: A set of algorithmic tasks (stratified by difficulty/topic); Multiple execution conditions (3 blind + 1 guided) per task.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -29,15 +29,23 @@ This feature implements a rigorous evaluation pipeline to test the **association
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification / Action Required |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and re-fetching datasets from canonical HuggingFace URLs on every run. |
-| **II. Verified Accuracy** | **PASS** | All dataset references (LCB-R) are from the `# Verified datasets` block. No fabricated URLs. **Note**: Study blocked if multilingual ground truths are not found. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of raw datasets and derivation of new files (filtered sets, results) without modifying raw data. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (LC-Pass@1, p-values) will be derived programmatically from `data/results.csv` and written to `data/statistical_report.yaml`. |
-| **V. Versioning Discipline** | **PASS** | Plan includes content hashing for data artifacts and timestamp updates in `state/`. |
-| **VI. Cross-Language Logic Fidelity** | **PASS** | Explicit "Logic Transfer Failure" categorization (FR-004) ensures logic drift is detected. **Crucially**, the plan defines **LC-Pass@1** such that these cases are *not* counted as passes, satisfying the Constitution's requirement to exclude logic drift from the success metric. |
-| **VII. Paired Statistical Rigor** | **PASS** | Plan mandates McNemar's test on the *same* 200 tasks for both blind and guided conditions, avoiding unpaired comparisons. |
+1.  **I. Reproducibility**: Plan ensures random seeds are pinned in `code/`. External datasets (LCB) are fetched from verified HuggingFace URLs. All transformations produce new files with checksums.
+2.  **II. Verified Accuracy**: All dataset citations in `research.md` and `data-model.md` reference ONLY the verified URLs provided in the `# Verified datasets` block. No fabricated URLs.
+3.  **III. Data Hygiene**: Raw data is preserved; derived data (filtered sets, baseline metrics) are written to new files with documented derivation steps. PII scan will be enforced.
+4.  **IV. Single Source of Truth**: Statistical reports and error distributions trace back to `results/` logs. No hand-typed numbers in `paper/`.
+5.  **V. Versioning Discipline**: All artifacts (datasets, code, results) will carry content hashes. The `state/` YAML will be updated on artifact changes.
+6.  **VI. Cross-Language Logic Fidelity**: The plan explicitly implements "Logic Transfer Failure" detection via **keyword/control-flow matching** (per spec FR-004), rejecting the structural AST subgraph approach. It also includes a "Valid Alternative Check" to exclude library-based solutions, ensuring the metric distinguishes syntax translation from reasoning deficits.
+7.  **VII. Paired Statistical Rigor**: The plan mandates a paired McNemar's test on the exact same 200-task subset for both "blind" and "guided" conditions. Unpaired comparisons are prohibited.
+
+**Resolution of Unresolved Concerns**:
+-   **Stochasticity Filter (FR-006.2)**: The plan includes a dedicated task **T017** to execute the filter logic (re-run blind 3 times, include if fail ≥2/3).
+-   **Baseline Recording (SC-001)**: A specific task **T018** is defined to persist the `data/blind_baseline_metrics.yaml` artifact after the stochasticity filter runs.
+-   **Error Categorization (FR-004)**: The plan explicitly mandates **keyword/control-flow matching** for Logic Transfer Failure, and **T022** details the specific string-matching algorithm, rejecting the AST approach.
+-   **Compute Constraints**: Model loading uses `llama-cpp-python` with GGUF (standard CPU quantization), and the primary model is **1.1B** to ensure 6h runtime. A fallback to a small-scale model/baseline tasks is defined.
+-   **Orchestration for Time Limit (SC-004)**: The plan includes a specific task **T034** to implement the orchestration logic (dynamic task skipping, resource monitoring) to guarantee the ≤6h constraint.
+-   **Dependency Ordering**: The pipeline order is corrected: Data Download → Model Load → Blind Runs (to filter) → Guided Runs → Analysis.
+-   **Selection Bias**: The plan explicitly reframes conclusions as "associational improvements on a specific subset" and includes a "Regression to the Mean" discussion and bootstrap resampling.
+-   **Valid Alternative Check**: The plan updates "Logic Transfer Failure" definition to exclude valid alternative implementations (e.g., library calls).
 
 ## Project Structure
 
@@ -49,8 +57,8 @@ specs/001-llmxive-multilingual-logic-transfer/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (sibling to plan.md)
-└── tasks.md             # Phase 2 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
@@ -58,67 +66,69 @@ specs/001-llmxive-multilingual-logic-transfer/
 ```text
 projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/
 ├── data/
-│   ├── raw/                 # Downloaded parquet files (checksummed)
-│   ├── processed/           # Filtered task sets, logic traces
-│   └── results/             # Execution logs, pass/fail status, stats
+│   ├── raw/             # Downloaded parquet files (checksummed)
+│   ├── processed/       # Filtered task sets, baseline metrics
+│   └── results/         # Execution logs, Pass/Fail matrices
 ├── code/
 │   ├── __init__.py
-│   ├── config.py            # Paths, seeds, model configs
-│   ├── dataset.py           # Loading, filtering, stratification (FR-006)
-│   ├── logic_anchor.py      # AST parsing, trace extraction (FR-001.1)
-│   ├── prompt_builder.py    # Prompt construction (FR-001)
-│   ├── inference.py         # CPU-only model loading & generation (llama-cpp)
-│   ├── sandbox.py           # Execution harness, timeout, error parsing (FR-002, FR-003, FR-004)
-│   ├── stats.py             # McNemar's test, error categorization (FR-005, FR-004)
-│   └── main.py              # Orchestration pipeline (parallelized via joblib)
+│   ├── config.py        # Hyperparameters, seeds, paths
+│   ├── data_loader.py   # Dataset fetching and parsing
+│   ├── model_inference.py # GGUF loading, prompt construction, generation
+│   ├── execution_harness.py # Sandbox execution, timeout enforcement
+│   ├── logic_anchor.py  # Partial Logic Trace extraction (AST parsing)
+│   ├── error_categorizer.py # Keyword/control-flow matching logic (string search)
+│   ├── orchestrator.py  # Task scheduling, resource monitoring, time limits
+│   └── statistical_analysis.py # McNemar's test, report generation
 ├── tests/
-│   ├── unit/
-│   │   ├── test_logic_anchor.py
-│   │   └── test_sandbox.py
-│   ├── integration/
-│   │   └── test_pipeline.py
-│   └── contract/
-│       └── test_schemas.py
-├── requirements.txt         # Pinned dependencies
-└── README.md
+│   ├── unit/            # Unit tests for each module
+│   ├── integration/     # End-to-end pipeline tests
+│   └── contract/        # Schema validation tests
+├── requirements.txt     # Pinned dependencies
+└── run_pipeline.sh      # Entry point script
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead. Separation of concerns (dataset, anchor, inference, sandbox, stats) ensures modularity and testability. The `code/` directory mirrors the functional requirements directly.
+**Structure Decision**: A single cohesive Python package (`code/`) with modular separation of concerns (data, model, execution, analysis) is chosen. This aligns with the "Computational Research Pipeline" nature of the project and facilitates reproducibility on the GitHub Actions runner. The `orchestrator.py` module specifically addresses the time constraint (SC-004) by managing task queues and resource limits.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Selection Bias (FR-006)** | The spec mandates a "Stochasticity Filter" (fail ≥ 2/3 runs) to ensure task difficulty. | Removing this filter violates the spec. The plan retains the filter but adds a **Methodological Risk** section to explicitly acknowledge the resulting bias (regression to the mean) and limits the interpretation of results to this specific subset. |
+|-----------|------------|-------------------------------------|
+| N/A | Constitution Check passed with all concerns resolved. | N/A |
 
-## Statistical Analysis & Metric Definition
+## Implementation Phases & Tasks
 
-**LC-Pass@1 Calculation**: The primary metric is **Logic-Compliant Pass@1 (LC-Pass@1)**.
-`LC-Pass@1_guided = (Count of tasks where Guided Output Passes Tests AND Implements Anchor Steps) / Total Tasks`
+### Phase 0: Data Ingestion & Feasibility Check
+- **T001**: Download raw datasets from verified HuggingFace URLs.
+- **T002**: Verify dataset checksums and record in `state/`.
+- **T003**: **Model Feasibility Gate**: Measure token throughput of the 1.1B GGUF model on the target runner. If throughput < 2 tokens/sec, trigger fallback to 3B model with 50 tasks.
 
-**Logic Fidelity Definition**: A task is considered to "Implement Anchor Steps" if the generated code's Abstract Syntax Tree (AST) contains the subgraph corresponding to the 3 anchor steps extracted from the Python solution. This is a structural check, not keyword matching.
+### Phase 1: Data Preparation & Filtering
+- **T015**: Load CPU-quantized model (GGUF) using `llama-cpp-python` with standard CPU quantization (e.g., `q4_0`). **Explicitly avoid `bitsandbytes`**.
+- **T016**: Implement dataset filtering logic: Select tasks where model failed in target language but succeeded in Python.
+- **T017**: **Implement Stochasticity Filter**: Re-run blind condition 3 times for each candidate task. Include task only if it fails in ≥2 of 3 runs. **Output**: `data/filtered_tasks.json`.
+- **T018**: **Persist Baseline Metrics**: Calculate and write the empirical baseline Pass@1 for the filtered tasks to `data/blind_baseline_metrics.yaml`. **This satisfies SC-001**.
 
-**Logic Transfer Exclusion**: Per Constitution Principle VI, any task where the generated code passes all tests but **fails** the AST structural comparison against the Partial Logic Trace is **not counted** in the numerator of the LC-Pass@1 metric. This ensures the metric reflects true logic transfer, not just functional correctness via a different algorithm.
+### Phase 2: Logic Anchor Extraction
+- **T020**: Implement AST parsing of Python solutions to extract the first few *critical* algorithmic operations (e.g., loops, recursive calls, not just initialization).
+- **T021**: Serialize extracted steps into pseudo-code/Python for the anchor.
 
-**Statistical Test**: McNemar's test is applied to the paired binary outcomes (LC-Pass@k Pass/Fail) for the same set of tasks.
+### Phase 3: Execution & Evaluation
+- **T022**: **Logic Transfer Failure Detection**: Implement **keyword/control-flow matching** logic.
+    - *Algorithm*: Search the generated code string for specific keywords, function names, and control flow structures defined in the anchor (e.g., `for`, `while`, `recursion`, specific variable names).
+    - *Valid Alternative Check*: If the code passes tests but uses a standard library function that encapsulates the anchor steps, mark as "Pass" (or "Library Misuse" if incorrect), NOT "Logic Transfer Failure".
+    - *Reject*: Do NOT use AST subgraph checks.
+- **T023**: Run Guided condition on the 200 tasks.
+- **T024**: Execute generated code in sandbox with 10s timeout.
+- **T025**: Categorize errors using the logic in T022.
 
-**Limitations**: The p-value derived from this test applies only to the specific subset of tasks selected (tasks where the model failed at least once in a pilot run, and specifically those failing ≥2/3 runs per FR-006). It cannot be generalized to all coding tasks without further randomization. The selection filter introduces a bias where the baseline is artificially depressed; improvements must be interpreted as valid only for this "hard" subset.
+### Phase 4: Statistical Analysis & Reporting
+- **T030**: Perform paired McNemar's test on the 200 tasks.
+- **T031**: Perform bootstrap resampling to estimate confidence intervals (addressing regression to the mean).
+- **T032**: Generate `statistical_report.yaml`.
 
-## Fallback Strategy
-
-If the verified datasets (LCB-R, LCB-R-F) do not contain ground-truth solutions in target languages (Rust/Kotlin):
-1.  **Scope Reduction**: The study will be re-scoped to **Python-to-Python Logic Fidelity**.
-2.  **Methodology**: The "Target Language" will be Python. The "Partial Logic Trace" will be extracted from a *different* Python solution (or a subset of the same solution) to test if providing the anchor improves generation of a *new* Python solution.
-3.  **Reporting**: The final report will explicitly state that the study was limited to Python-only due to data constraints, and the "Cross-Language" hypothesis was not tested.
-
-## Methodological Risk: Selection Bias (FR-006 Compliance)
-
-**Observation**: The source specification (FR-006) mandates a "Stochasticity Filter" where tasks are only included if the model fails in ≥ 2 of 3 blind runs.
-**Risk**: This filter creates a "regression to the mean" bias. By selecting only the most difficult/stochastic tasks, the baseline performance is artificially low. Any intervention (even random noise) is statistically likely to show improvement on this specific subset.
-**Mitigation**:
-1.  The plan **strictly adheres** to FR-006 to maintain spec compliance.
-2.  The **Statistical Report** will explicitly label the population as "Tasks with high stochastic failure (≥2/3 runs)" and will **not** claim generalizability to the full dataset.
-3.  The **Discussion** section of the final report will dedicate a paragraph to this limitation, noting that the observed improvement is a lower-bound estimate for the "hard" subset but cannot be extrapolated to the general population of coding tasks.
-4.  The **Research Questions** will be phrased to reflect this constraint: "Is there an improvement in LC-Pass@1 *for this specific subset of high-failure tasks*?"
+### Phase 5: Orchestration & Validation
+- **T033**: Validate execution time (verify total time ≤ 6h).
+- **T034**: **Implement Orchestration Logic**: Build dynamic task skipping, resource monitoring, and parallelization tuning in `orchestrator.py` to **guarantee** the 6h constraint. This task is critical for meeting SC-004.
+- **T035**: Final validation of all artifacts and checksums.

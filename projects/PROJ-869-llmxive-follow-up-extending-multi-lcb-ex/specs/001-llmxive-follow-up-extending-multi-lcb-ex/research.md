@@ -1,95 +1,88 @@
 # Research: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages"
 
-## Research Questions
+## Problem Statement
 
-1. **Primary**: Is there an **associational improvement** in the **Logic-Compliant Pass@1 (LC-Pass@1)** rate of LLMs generating code in target languages (rust, kotlin) when provided a "Partial Logic Trace" (first 3 steps of a Python solution) as a few-shot anchor, compared to a blind baseline, **specifically for tasks exhibiting high stochastic failure (≥2/3 runs)**?
-2. **Secondary**: What is the dominant failure mode for "guided" generations? (Syntax, Library, Runtime, or Logic Transfer Failure?)
-3. **Methodological**: Can a CPU-only inference pipeline (using CodeLlama-1.5B via GGUF) process 200 stratified tasks with full sandbox execution within a 6-hour window on a GitHub Actions free-tier runner?
+The core hypothesis is that Large Language Models (LLMs) fail to generate correct code in low-resource programming languages (e.g., Rust, Kotlin) not because they lack the algorithmic reasoning capability, but because they struggle with syntax translation and idiom adaptation. By providing a "Partial Logic Trace" (the first 3 algorithmic steps from a successful Python solution) as a few-shot anchor, we aim to scaffold the model's reasoning, enabling it to complete the logic in the target language. 
+
+**Important Scope Note**: This study tests the hypothesis on a **specific subset of difficult tasks** (selected via stochasticity filter). The findings will be framed as **associational improvements** on this subset, not general causal claims for the entire population of code generation tasks, due to the non-randomized, pre-screened design.
 
 ## Dataset Strategy
 
-### Source Verification
-The study relies on the **Multi-LCB** dataset (LiveCodeBench extended to multiple languages).
-* **Source**: HuggingFace datasets `huypn16/LCB-R` and `huypn16/LCB-R-F`.
-* **Verified URLs**:
- * `
- * `
-* **Variable Fit**: The dataset contains problem statements and ground-truth Python solutions. **CRITICAL GAP**: The cited datasets (LCB-R, LCB-R-F) are primarily Python-only and **do not contain ground-truth solutions in target languages (rust/kotlin)** required for the "Logic Transfer Failure" verification (FR-004) or cross-language comparison.
-* **Missing Variable Check**: The study requires "previous failed output" from the model (handled by blind run) AND **ground-truth solutions in target languages**. The latter is missing from the cited sources.
+The study relies on the **Multi-LCB** dataset, which extends LiveCodeBench to multiple programming languages. The dataset provides ground-truth solutions in Python and target languages, along with test cases.
 
-### Data Gap & Feasibility Block
-**Status**: **BLOCKED**.
-The study cannot proceed as designed without a verified source for multilingual ground-truth solutions (rust/kotlin). The plan assumes the existence of a "Multi-LCB" extension with these fields. If the verified datasets do not contain them, the "Logic Transfer Failure" metric (FR-004) cannot be computed for cross-language transfer.
-**Action**: The implementation agent must search for a verified multilingual dataset (e.g., a specific fork or extension of LiveCodeBench with rust/kotlin solutions). If no verified source is found, the study MUST be re-scoped to **Python-to-Python Logic Fidelity** (see Plan.md Fallback Strategy) or abandon the "Logic Transfer Failure" metric.
+### Verified Datasets
 
-### Selection Protocol (FR-006) - Adherence & Risk Acknowledgement
-*Note: The source spec (FR-006) mandates a "Stochasticity Filter" (fail ≥2/3 runs). This plan **strictly adheres** to this requirement to maintain spec compliance, while explicitly acknowledging the resulting statistical bias.*
+| Dataset Name | Source URL | Format | Usage in Study |
+| :--- | :--- | :--- | :--- |
+| LCB-R (Test) | https://huggingface.co/datasets/huypn16/LCB-R/resolve/main/data/test-00000-of-00013.parquet | Parquet | Primary source for Python ground-truth solutions and problem statements. |
+| LCB-R-F (Test) | https://huggingface.co/datasets/huypn16/LCB-R-F/resolve/main/data/test-00000-of-00006.parquet | Parquet | Supplementary test cases for cross-validation. |
+| LCB CCP Easy (Train) | https://huggingface.co/datasets/sigcp/lcb_ccp_easy/resolve/main/data/train-00000-of-00001.parquet | Parquet | Used for initial model warm-up or calibration if needed (optional). |
 
-1. **Initial Pool**: Select tasks where the model (blind run) fails in target language (rust/kotlin) at least once in a pilot run.
-2. **Stochasticity Filter (FR-006)**: Include the task **only if** it fails in **≥ 2 of the 3** blind runs.
- * **Risk**: This filter introduces **selection bias (regression to the mean)**. By selecting only the "hardest" or most stochastic tasks, the baseline Pass@1 is artificially depressed. Any intervention is statistically likely to show improvement on this subset.
- * **Mitigation**: The study results will be explicitly framed as applying **only** to this specific subset of "high-failure" tasks. No claims of generalizability to the full dataset will be made. The p-value is valid for the null hypothesis within this subset, but the effect size is confounded by the selection process.
-3. **Stratification**: Ensure the final set (n=200) is stratified by Difficulty (Easy/Medium/Hard) and Topic (DP, Graphs, Math).
-4. **Attrition**: If < 200 tasks remain, sample replacements from the next available pool, maintaining stratification.
-5. **Bias Acknowledgement**: The selected set will consist of "hard" tasks where the model struggles. The statistical results will be explicitly framed as applying only to this subset, not the general population of coding tasks.
+**Dataset Fit Verification**:
+-   **Required Variables**: Problem statement, Python ground-truth solution, target language ground-truth solution (for verification), test cases, difficulty level, topic.
+-   **Verification**: The LCB-R dataset contains `problem_statement`, `python_solution`, `test_cases`, and `difficulty`. The target language solutions are not strictly required for the *guided* condition (as we generate them), but are useful for baseline validation. The dataset provides sufficient coverage for the "Stochasticity Filter" (re-running blind conditions) and stratification by difficulty/topic.
+-   **Constraint Check**: The dataset is in Parquet format, which is efficiently loadable via `pandas` or `datasets` library, fitting within the 7GB RAM constraint when subsetted.
 
-## Methodology & Statistical Rigor
+### Data Selection Protocol
+
+1.  **Initial Pool**: Select tasks from LCB-R where the model (in a pre-screening run) failed in the target language (Pass@1 < 1.0) but succeeded in Python.
+2.  **Stochasticity Filter**: Re-run the "blind" condition (no anchor) 3 times for each candidate task. Include the task in the final evaluation set **only if** it fails in **≥ 2 of the 3** blind runs. This ensures we are testing on genuinely difficult tasks, not stochastic flukes.
+3.  **Attrition Handling**: If the filtered set is < 200, sample replacements from the next available pool (excluding rejected tasks) until the target is reached.
+4.  **Stratification**: Ensure the final set of tasks is stratified by Difficulty (Easy/Medium/Hard) and Topic (e.g., DP, Graphs, Math) to avoid bias. No single Topic > 30% of the set.
+
+## Methodology
 
 ### Experimental Design
-* **Design**: Within-subjects (Paired). Each task in the final set is evaluated under two conditions:
- 1. **Blind**: Standard prompt (Problem Statement + few-shot examples of *other* problems, no logic anchor).
- 2. **Guided**: Prompt includes Problem Statement + **Partial Logic Trace** (first 3 steps of Python solution).
-* **Unit of Analysis**: Task ID.
-* **Outcome**: Binary Pass/Fail (based on sandbox execution of test cases AND AST structural comparison).
 
-### Statistical Analysis (FR-005, SC-002)
-* **Test**: McNemar's test (paired, binary outcome) comparing LC-Pass@1 rates between Blind and Guided conditions on the *same* 200 tasks.
-* **Significance**: Alpha = 0.05.
-* **Power Justification**: With n=200 paired observations, the study has sufficient power to detect a moderate effect size (e.g., a 10-15% absolute improvement in LC-Pass@1) assuming a baseline failure rate of >50%. If the baseline failure rate is low, power is reduced; this will be acknowledged in the report.
-* **Causal Inference**: This is an observational intervention (no randomization of tasks to conditions; all tasks get both). Findings will be framed as **associational improvements** in generation correctness, not causal proof of "reasoning transfer."
-* **Multiple Comparisons**: Only one primary hypothesis test (McNemar's) is performed. If secondary analyses (e.g., per-language) are conducted, a Bonferroni correction will be applied to the alpha threshold.
-* **Limitations**: The p-value applies only to the selected subset of "hard" tasks (filtered by FR-006). The selection bias (regression to the mean) means the observed improvement may be partially an artifact of the selection process. The study explicitly limits its claims to this subset.
+-   **Independent Variable**: Presence of "Partial Logic Trace" (Anchor) in the prompt.
+    -   *Blind Condition*: Prompt contains problem statement + previous failed output (context).
+    -   *Guided Condition*: Prompt contains problem statement + previous failed output + **Partial Logic Trace** (first 3 steps from Python solution).
+-   **Dependent Variable**: Pass@1 (binary: Pass/Fail against test suite).
+-   **Control Variables**: Model version, temperature (fixed), random seed, target language, difficulty level.
+-   **Statistical Test**: Paired McNemar's test comparing Pass@1 rates of the *same* 200 tasks under Blind vs. Guided conditions.
 
-### Measurement Validity
-* **Logic Anchor**: Validated by AST parsing of the ground-truth Python solution. The "first 3 steps" are defined by distinct algorithmic operations (initialization, loop entry, recursive call) to ensure they represent the core logic, not just syntax.
-* **LC-Pass@1**: Validated by the Multi-LCB execution harness (test suite) AND **AST Structural Comparison**.
-* **Error Categorization**: Deterministic rules based on execution logs (FR-004).
- * **Logic Transfer Failure**: Detected via **AST structural comparison** between the generated code and the anchor steps. If the generated code passes tests but its AST structure significantly deviates from the anchor (e.g., different control flow structure for the same logic), it is flagged as "Logic Transfer Failure."
- * **Caveat**: AST comparison is a heuristic. It may miss semantic equivalence achieved via different syntax or false positives if the anchor steps are too rigid. This limitation will be noted in the report.
+### Partial Logic Trace Extraction
 
-### Compute Feasibility & Constraints
-* **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM, No GPU).
-* **Model Strategy**:
- * **Primary**: Use **CodeLlama-1.5B** model in standard precision (float16) or **7B model quantized to Q4_K_M via GGUF** (via `llama-cpp-python`).
- * **Memory Calculation**:
- * 1.5B model: ~2GB RAM (fits easily).
- * 7B GGUF (Q4_K_M): ~4.5GB RAM (fits within 7GB).
- * Large-scale float16 models: ~14GB RAM (OOM).
- * **NO** `bitsandbytes` (requires CUDA).
- * **NO** GPU device mapping.
- * **Quantization**: Use `llama-cpp-python` for GGUF loading on CPU.
-* **Runtime**:
- * Inference time per task (1.5B): ~10-15s (CPU).
- * Inference time per task (7B GGUF): ~30-40s (CPU).
- * Sandbox execution: <10s per test case.
- * **Parallelization**: Tasks are processed in parallel batches (max 4 concurrent) using `joblib` to maximize CPU utilization and meet the 6h limit.
- * **Total Budget**: 200 tasks * 2 conditions * [deferred] = [deferred] ([deferred]) + overhead. Feasible within 6h.
+1.  Parse the ground-truth Python solution into an Abstract Syntax Tree (AST).
+2.  Identify the **first 3 critical algorithmic operations** (e.g., variable initialization, loop entry, recursive call). **Heuristic**: Prioritize steps that are complex or likely to be failure points (e.g., nested loops, recursion) rather than simple initialization.
+3.  Serialize these steps into a pseudo-code or Python syntax block. **Crucially, do not translate to the target language.** The anchor must remain in Python/pseudo-code to avoid syntax bias.
 
-## Risk Assessment & Mitigation
+### Execution & Error Categorization
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Model OOM on CPU** | High (Pipeline fails) | Use 1.5B model or GGUF-quantized 7B. Stream dataset. |
-| **Infinite Loop in Sandbox** | High (Runner hangs) | Enforce hard 10s timeout per test case (FR-003). |
-| **Logic Anchor Extraction Fails** | Medium (Data loss) | Skip task, log "Anchor Extraction Failed", adjust N dynamically. |
-| **Data Gap (No Multilingual Ground Truth)** | **Critical** (Study invalid) | **Block study** until verified multilingual dataset found, or re-scope to Python-only. |
-| **Logic Transfer Detection False Neg** | Medium (Metric inflation) | Refine AST comparison; manual spot-check of a subset. |
-| **Selection Bias (FR-006)** | **High** (Validity of improvement metric) | **Adhere to spec** (FR-006) but **explicitly acknowledge** the bias in the report. Frame results as valid *only* for the "high-failure" subset. Do not claim generalizability. |
+-   **Sandbox**: Execute generated code in an isolated CPU environment (e.g., `subprocess` with `timeout` or Docker).
+-   **Timeout**: Hard limit of 10 seconds per test case to prevent infinite loops (SC-005).
+-   **Error Categorization (FR-004)**:
+    1.  **Syntax Error**: Compilation fails (log contains "error:", "failed to compile").
+    2.  **Library Misuse**: Runtime import error (log contains "ModuleNotFoundError", "ImportError").
+    3.  **Runtime Error**: Execution crash/hang (log contains "RuntimeError", "Panic", "Timeout", "Segmentation fault").
+    4.  **Logic Transfer Failure**: Execution **Passes** all test cases BUT the generated code fails to implement at least one of the 3 anchor steps **AND** does not use a valid alternative (e.g., a standard library function that encapsulates the logic). **Detection Method**: **Keyword/Control-Flow Matching** (e.g., searching for specific function calls, loop structures, or variable names defined in the anchor). *Note: Structural AST subgraph checks are explicitly rejected per spec FR-004.*
 
-## References & Verified Datasets
+### Statistical Analysis
 
-* **Multi-LCB (LCB-R)**: `
-* **Multi-LCB (LCB-R-F)**: `
-* **LiveCodeBench (Original)**: (Referenced conceptually; dataset used is the extended version above).
+-   **Baseline**: Record the Pass@1 rate for the 200 tasks under the Blind condition (after stochasticity filtering).
+-   **Comparison**: Run the Guided condition on the same set of tasks.
+-   **Test**: Perform McNemar's test on the 2x2 contingency table (Blind Pass/Fail vs. Guided Pass/Fail).
+-   **Significance**: Report p-value. If p < 0.05, the improvement is statistically significant.
+-   **Regression to the Mean**: Acknowledge that the stochasticity filter may artificially depress the baseline. Use **bootstrap resampling** to estimate confidence intervals and quantify the uncertainty introduced by the selection process.
 
-*Note: No other dataset URLs are cited. All sources are from the verified block. The study is blocked if these sources do not contain the required multilingual ground truths.*
+## Compute Feasibility & Constraints
+
+-   **Hardware**: GitHub Actions free-tier (standard CPU, moderate RAM, 14GB disk, no GPU).
+-   **Model**: Use a **CPU-quantized 1.1B parameter model** (e.g., TinyLlama-1.1B-Chat-GGUF `q4_0`) via `llama-cpp-python`. This avoids the forbidden `bitsandbytes` (CUDA) and fits within RAM. **A 7B model is rejected** as it would require 13-26 hours, violating the 6h constraint.
+-   **Runtime**: Total pipeline (200 tasks × 4 runs) must complete in ≤ 6 hours.
+    -   *Strategy*: Parallelize independent tasks (e.g., 2 concurrent workers).
+    -   *Optimization*: Use a smaller context window if possible. Skip tasks where the anchor extraction fails.
+    -   *Fallback*: If the base model fails to generate valid code, switch to a larger model with a reduced task set (50 tasks).
+-   **Memory**: Subset the dataset to only the selected tasks before loading into memory. Use streaming for large files if necessary.
+
+## Decision Log
+
+| Decision | Rationale |
+| :--- | :--- |
+| **Use `llama-cpp-python` with GGUF (1.1B)** | Complies with "Assumption about compute" (standard CPU quantization). Avoids `bitsandbytes` which requires CUDA. Fits GB RAM and 6h runtime. The larger model is rejected due to runtime constraints. |
+| **Keyword/Control-Flow Matching for Logic Transfer** | Explicitly mandated by spec FR-004. Structural AST checks are more complex and not authorized. Includes "Valid Alternative Check" to avoid tautology. |
+| **Stochasticity Filter (≥2/3 failures)** | Required by spec FR-006.2 to ensure we are testing on genuinely difficult tasks, not noise. |
+| **Paired McNemar's Test** | Required by spec FR-005 and Constitution Principle VII. Unpaired tests are invalid for this design. |
+| **10s Timeout per Test Case** | Required by spec FR-003 to prevent runner exhaustion (SC-004). |
+| **Stratified Sampling (Topic ≤ 30%)** | Required by spec FR-006.3 to ensure diverse algorithmic coverage. |
+| **Associational Claims** | The study design (pre-screened subset) limits claims to the specific subset, not general causality. |

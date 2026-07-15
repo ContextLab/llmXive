@@ -1,4 +1,4 @@
-resolved_at: '2026-07-13T07:15:05.696423+00:00'
+resolved_at: '2026-07-15T04:45:05.037211+00:00'
 datasets:
 - intent: LCB
   status: verified
@@ -45,26 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://openresearch.newcastle.edu.au/articles/conference_contribution/Autonomous_Dialectics_Mapping_Desire_and_Confict_in_the_Suburban_Peripheries/32972588
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Planetary_health_diet_index_and_low_muscle_mass_in_adults_aged_20_60_years_exploratory_evaluation_of_a_dairy-upweighted_outcome-specific_adaptation_docx/32989631
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Evaluating_the_effectiveness_of_models_in_predicting_the_genetic_outcome_of_reintroduction_strategies/32972573
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Evaluating_the_effectiveness_of_models_in_predicting_the_genetic_outcome_of_reintroduction_strategies/32972573
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Investigating_the_association_between_work_family_conflict_WFC_and_generalized_anxiety_disorder_GAD_in_an_Australian_community-based_cohort_study/32767008
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_An_integrated_body_composition_immunonutritional_signature_for_predicting_immunotherapy_response_and_prognosis_in_gastric_cancer_a_multicenter_retrospective_cohort_study_docx/32989628
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CauseExp-Dataset/31895059
+  - url: https://acs.figshare.com/articles/journal_contribution/Spinterface-like_Mechanism_of_the_Chirality-Induced_Spin_Selectivity_in_Donor_Chiral_Bridge_Acceptor_Complexes/32989625
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Admission_hyperglycemia_in-hospital_glycemic_management_and_discharge_outcomes_in_acute_ischemic_stroke_a_UAE_comprehensive_stroke_center_cohort_pdf/32989622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/LGBTQI_Sexual_Well-Being_and_Embodiment_After_Cancer_A_Mixed-Methods_Study/32767035
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,11 +69,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://mycokeys.pensoft.net/article/39057/element/2/11/
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/13/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://mycokeys.pensoft.net/article/39057/element/2/13/
+  - url: https://mycokeys.pensoft.net/article/39057/element/2/11/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -84,8 +81,12 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10489705
+  - url: https://mycokeys.pensoft.net/article/115678/element/2/12/
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/97185
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://data.mendeley.com/datasets/877b4mb5vz/1
@@ -96,10 +97,6 @@ datasets:
     source: datacite
     status: wrong_format
     reason: HTTP 403
-  - url: https://iris.uniupo.it//handle/11579/97185
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://tandf.figshare.com/articles/journal_contribution/Adsorption_properties_of_lung_cancer_biomarkers_using_-phosphoaluminane_nanosheets_a_first-principles_study/32531556/1
     source: datacite
     status: wrong_format

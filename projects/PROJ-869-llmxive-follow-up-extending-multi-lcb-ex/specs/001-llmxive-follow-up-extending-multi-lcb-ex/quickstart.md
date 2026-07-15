@@ -2,85 +2,82 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to HuggingFace (optional, for private datasets if needed, but public URLs used here)
-*   Sufficient disk space (for model weights + dataset + results)
+-   Python 3.11+
+-   Git
+-   Docker (optional, for sandbox isolation)
+-   Access to GitHub Actions (for CI execution)
 
 ## Setup
 
-1.  **Clone the repository** (or navigate to the project root).
+1.  **Clone the repository**:
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex
     ```
 
-2.  **Create a virtual environment** and install dependencies.
+2.  **Install dependencies**:
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
     pip install -r code/requirements.txt
     ```
+    *Note: `llama-cpp-python` will install CPU-only wheels by default on Linux. Ensure no CUDA flags are set.*
 
-3.  **Download the dataset** (automated by `code/dataset.py` or manually).
+3.  **Download the dataset**:
     ```bash
-    # The script will download and checksum the parquet files
-    python -m code.dataset download
+    python code/data_loader.py --download
     ```
-    *Note: This fetches from verified HuggingFace URLs.*
+    This script fetches the verified LCB datasets from HuggingFace and saves them to `data/raw/`. It also records checksums.
 
-4.  **Verify the environment**.
-    ```bash
-    pytest tests/unit/
-    ```
+4.  **Configure the model**:
+    -   Download a CPU-quantized GGUF model (e.g., `Llama-2-7B-Chat-GGUF` `q4_0`) and place it in `code/models/`.
+    -   Update `code/config.py` with the model path and any hyperparameters (temperature, max tokens).
 
 ## Running the Pipeline
 
-The main pipeline is orchestrated by `code/main.py`.
+The full pipeline (Data Filtering → Blind Runs → Guided Runs → Analysis) can be executed via:
 
-### Step 1: Dataset Filtering & Stratification
-Selects a representative set of tasks meeting the criteria (blind failure, stratification).
 ```bash
-python -m code.dataset filter --output data/processed/filtered_tasks.jsonl
+bash run_pipeline.sh
 ```
 
-### Step 2: Logic Anchor Extraction
-Parses Python solutions to extract the initial algorithmic steps.
-```bash
-python -m code.logic_anchor extract --input data/processed/filtered_tasks.jsonl --output data/processed/anchors.jsonl
-```
+This script will:
+1.  Load and filter the dataset (applying the Stochasticity Filter).
+2.  Run the Blind condition (multiple times per task) to establish the baseline.
+3.  Run the Guided condition (1 time per task) using the Partial Logic Trace.
+4.  Execute the generated code in the sandbox.
+5.  Categorize errors and perform statistical analysis.
+6.  Save all results to `data/results/`.
 
-### Step 3: Inference & Execution (Blind + Guided)
-Runs the model (CPU-only) and sandbox. **This may take several hours.**
-```bash
-# Run Blind Condition
-python -m code.main run --condition blind --input data/processed/filtered_tasks.jsonl --output data/results/blind_results.csv
+### Individual Steps (for debugging)
 
-# Run Guided Condition
-python -m code.main run --condition guided --input data/processed/filtered_tasks.jsonl --output data/results/guided_results.csv
-```
-*Note: The script enforces time-based timeouts and handles errors gracefully.*
+-   **Filter Dataset**:
+    ```bash
+    python code/orchestrator.py --step filter
+    ```
+-   **Run Blind Condition**:
+    ```bash
+    python code/orchestrator.py --step blind --runs 3
+    ```
+-   **Run Guided Condition**:
+    ```bash
+    python code/orchestrator.py --step guided
+    ```
+-   **Analyze Results**:
+    ```bash
+    python code/statistical_analysis.py
+    ```
 
-### Step 4: Statistical Analysis
-Computes Pass@1, McNemar's test, and error categorization.
-```bash
-python -m code.stats analyze --blind data/results/blind_results.csv --guided data/results/guided_results.csv --output data/results/stats.yaml
-```
+## Verifying Results
 
-### Step 5: Report Generation
-Generates a human-readable summary.
-```bash
-python -m code.stats report --input data/results/stats.yaml --output docs/report.md
-```
-
-## Verification
-
-To verify the pipeline on a small subset of tasks for debugging:
-```bash
-python -m code.main run --condition guided --input data/processed/filtered_tasks.jsonl --limit 1 --output debug_results.csv
-```
+1.  Check `data/results/statistical_report.yaml` for the Pass@1 rates and p-value.
+2.  Verify that `data/processed/blind_baseline_metrics.yaml` contains the empirical baseline.
+3.  Ensure the total runtime (logged in `data/results/execution_logs.csv`) is ≤ 6 hours.
+4.  Run the contract tests to validate data schemas:
+    ```bash
+    pytest tests/contract/
+    ```
 
 ## Troubleshooting
 
-*   **OOM (Out of Memory)**: If the model fails to load, reduce `model_size` in `code/config.py` to a 3B parameter model.
-*   **Timeouts**: If the sandbox hangs, check `code/sandbox.py` timeout settings.
-*   **Dataset Missing**: Ensure `data/raw/` contains the parquet files. Re-run `python -m code.dataset download`.
+-   **Out of Memory**: Reduce the batch size in `code/orchestrator.py` or use a smaller GGUF quantization (e.g., `q3_k_m`).
+-   **Timeout Errors**: The timeout per test case is strict. If a task consistently times out, it is logged as a "Runtime Error".
+-   **Model Loading Failure**: Ensure `llama-cpp-python` is installed with CPU support (`pip install llama-cpp-python --force-reinstall --no-binary :all:` if needed, though binary wheels are preferred).

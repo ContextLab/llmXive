@@ -2,59 +2,91 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline, from raw dataset ingestion to final statistical reporting. All data is stored in `data/` and processed via scripts in `code/`.
-
-## Entities
-
-### 1. RawTask
-Represents a single entry from the Multi-LCB dataset.
-*   `task_id` (str): Unique identifier.
-*   `problem_statement` (str): Natural language description.
-*   `python_solution` (str): Ground-truth Python code (source for Logic Anchor).
-*   `target_language` (str): e.g., "rust", "kotlin".
-*   `target_solution` (str): Ground-truth code in target language (for verification).
-*   `test_cases` (list[dict]): Input/output pairs for sandbox execution.
-*   `difficulty` (str): "Easy", "Medium", "Hard".
-*   `topic` (str): e.g., "DP", "Graphs", "Math".
-
-### 2. LogicAnchor
-Derived from `RawTask.python_solution`.
-*   `task_id` (str): Link to source task.
-*   `steps` (list[str]): List of 3 distinct algorithmic steps (pseudo-code or Python).
-*   `extraction_method` (str): "AST", "Manual", "Fallback".
-*   `status` (str): "Success", "Failed".
-
-### 3. GenerationResult
-Output of the inference and execution pipeline.
-*   `task_id` (str): Link to source task.
-*   `condition` (str): "blind" or "guided".
-*   `model_output` (str): Generated code string.
-*   `execution_status` (str): "Pass", "Fail", "Timeout", "CompileError".
-*   `error_type` (str): "Syntax", "Library", "Runtime", "LogicTransfer", "None".
-*   `anchor_verification` (bool): True if generated code implements all 3 anchor steps (only checked for "Pass" cases to detect Logic Transfer).
-*   `latency_ms` (int): Time taken for generation + execution.
-
-### 4. StatisticalReport
-Aggregated results.
-*   `total_tasks` (int): Number of tasks in final set.
-*   `pass_rate_blind` (float): Pass@1 for blind condition.
-*   `pass_rate_guided` (float): Pass@1 for guided condition.
-*   `improvement` (float): `pass_rate_guided - pass_rate_blind`.
-*   `p_value` (float): Result of McNemar's test.
-*   `significance` (bool): True if p < 0.05.
-*   `error_distribution` (dict): Counts of each `error_type` in guided condition.
-*   `stratification_stats` (dict): Pass rates per Difficulty/Topic.
+This document defines the data structures, schemas, and flow for the `llmXive` follow-up project. It ensures that all data artifacts are consistent, checksummed, and traceable to the source specification.
 
 ## Data Flow
 
-1.  **Ingestion**: `datasets.load_dataset(...)` -> `RawTask` objects (stored as `data/raw/lcb.parquet`).
-2.  **Filtering**: `RawTask` -> `FilteredTask` (n=200, stratified).
-3.  **Anchor Extraction**: `FilteredTask` -> `LogicAnchor` (stored as `data/processed/anchors.jsonl`).
-4.  **Inference & Execution**: `FilteredTask` + `LogicAnchor` -> `GenerationResult` (stored as `data/results/generations.csv`).
-5.  **Analysis**: `GenerationResult` -> `StatisticalReport` (stored as `data/results/stats.yaml`).
+1.  **Raw Data**: Downloaded from verified HuggingFace URLs (Parquet).
+2.  **Filtered Dataset**: Subset of tasks selected via the Stochasticity Filter and Stratification rules.
+3.  **Execution Logs**: JSON/CSV logs for each task run (Blind/Guided), containing Pass/Fail status, error type, and raw output.
+4.  **Baseline Metrics**: YAML file storing the empirical Pass@1 for the Blind condition.
+5.  **Statistical Report**: JSON/YAML file containing the McNemar's test results and error distribution.
 
-## Assumptions & Constraints
+## Entity Definitions
 
-*   **Storage**: All intermediate files are text-based (JSONL, CSV, YAML) to minimize size and ensure reproducibility.
-*   **Memory**: `RawTask` is loaded in chunks; `GenerationResult` is appended incrementally to CSV to avoid memory spikes.
-*   **Checksums**: `data/raw/` files are checksummed upon download. `data/processed/` and `data/results/` are checksummed upon generation.
+### EvaluationTask
+
+Represents a single algorithmic problem.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | str | Unique identifier (e.g., from LCB). |
+| `problem_statement` | str | The natural language description of the problem. |
+| `python_solution` | str | Ground-truth Python solution. |
+| `target_language` | str | Target language (e.g., "rust", "kotlin"). |
+| `difficulty` | str | "Easy", "Medium", "Hard". |
+| `topic` | str | Algorithmic topic (e.g., "DP", "Graphs"). |
+| `test_cases` | list | List of input/output pairs for validation. |
+
+### PartialLogicTrace
+
+Represents the extracted anchor steps.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | str | Reference to the parent task. |
+| `steps` | list[str] | The extracted algorithmic steps (pseudo-code/Python). |
+| `extraction_method` | str | "AST_parsing". |
+
+### GenerationResult
+
+Represents the output of the LLM for a specific task and condition.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | str | Reference to the task. |
+| `condition` | str | "blind" or "guided". |
+| `generated_code` | str | The code generated by the model. |
+| `execution_status` | str | "Pass", "Fail". |
+| `error_type` | str | "Syntax", "Library", "Runtime", "Logic Transfer", "None". |
+| `anchor_verification` | bool | True if anchor steps were found in generated code (for Logic Transfer check). |
+| `runtime_ms` | int | Execution time in milliseconds. |
+
+### StatisticalReport
+
+Aggregates the final results.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `total_tasks` | int | Number of tasks in the set (e.g., a substantial collection). |
+| `blind_pass_rate` | float | Pass@1 for the Blind condition. |
+| `guided_pass_rate` | float | Pass@1 for the Guided condition. |
+| `improvement` | float | `guided_pass_rate - blind_pass_rate`. |
+| `p_value` | float | Result from McNemar's test. |
+| `significant` | bool | True if p < 0.05. |
+| `error_distribution` | dict | Count of each error type in the Guided condition. |
+
+## File Structure & Checksums
+
+All files under `data/` must be checksummed.
+
+```text
+data/
+├── raw/
+│   ├── lcb_r_test.parquet       # Source: https://huggingface.co/.../test-00000-of-00013.parquet
+│   └── lcb_r_f_test.parquet     # Source: https://huggingface.co/.../test-00000-of-00006.parquet
+├── processed/
+│   ├── filtered_tasks.json      # A selected set of tasks (checksummed).
+│   ├── blind_baseline_metrics.yaml # Empirical baseline Pass@1 (checksummed).
+│   └── logic_traces.json        # Extracted Partial Logic Traces (checksummed).
+├── results/
+│   ├── execution_logs.csv       # All generation results (checksummed).
+│   └── statistical_report.yaml  # Final analysis (checksummed).
+```
+
+## Data Hygiene Rules
+
+1.  **Immutability**: Raw data files are never modified. Derivations (filtered tasks, traces) are written to new files.
+2.  **Checksums**: Every file in `data/` must have a corresponding SHA-256 hash recorded in `state/`.
+3.  **PII**: No personally identifying information is allowed in `data/`. The LCB dataset is assumed to be clean, but a PII scan will be run before any commit.
+4.  **Versioning**: If the source dataset changes (e.g., new LCB version), the `raw/` files are re-downloaded, and all derived files are regenerated. The `state/` YAML is updated.

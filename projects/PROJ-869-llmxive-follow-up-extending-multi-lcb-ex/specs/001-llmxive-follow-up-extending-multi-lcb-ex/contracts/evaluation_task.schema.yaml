@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationTask"
+description: "Represents a single algorithmic problem for the llmXive follow-up study."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  problem_statement:
+    type: "string"
+    description: "The natural language description of the problem."
+  python_solution:
+    type: "string"
+    description: "Ground-truth Python solution."
+  target_language:
+    type: "string"
+    description: "Target language (e.g., 'rust', 'kotlin')."
+  difficulty:
+    type: "string"
+    enum:
+      - "Easy"
+      - "Medium"
+      - "Hard"
+    description: "Difficulty level of the task."
+  topic:
+    type: "string"
+    description: "Algorithmic topic (e.g., 'DP', 'Graphs')."
+  test_cases:
+    type: "array"
+    description: "List of input/output pairs for validation."
+    items:
+      type: "object"
+      properties:
+        input:
+          type: "string"
+        expected_output:
+          type: "string"
+      required:
+        - "input"
+        - "expected_output"
+required:
+  - "task_id"
+  - "problem_statement"
+  - "python_solution"
+  - "target_language"
+  - "difficulty"
+  - "topic"
+  - "test_cases"
+additionalProperties: false
