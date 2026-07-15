@@ -1,9 +1,7 @@
 """
-Lag Calculation and Application Module.
-
-Calculates physics-based lag and applies shifts to time series.
-
-File path: code/data/lag.py
+Lag calculation and application module.
+Implements FR-012: Physics-based lag calculation and time series shifting.
+File: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
 """
 import numpy as np
 import pandas as pd
@@ -13,53 +11,48 @@ from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
 
 def calculate_physics_lag(vsw_mean: float) -> float:
     """
-    Calculates the physics-based propagation lag (L_phys) in minutes.
+    Calculate physics-based propagation lag in minutes.
     
-    Formula: L_phys = (k * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / Vsw_mean
-    Then converts from seconds to minutes.
+    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM) / Vsw_mean * (1/60)
+    Where Vsw is in km/s, result is in minutes.
+    The factor 60 converts seconds to minutes.
     
     Args:
         vsw_mean: Mean solar wind speed in km/s.
-        
+    
     Returns:
-        Lag in minutes.
+        Lag time in minutes.
     """
     if vsw_mean <= 0:
-        raise ValueError("Vsw mean must be positive")
+        raise ValueError("Vsw_mean must be positive to calculate lag.")
     
-    # Distance in km
-    distance_km = EARTH_RADIUS_KM * TAIL_DISTANCE_RE
+    # Distance = K * Earth Radius (in km)
+    # Time (seconds) = Distance / Speed (km/s)
+    # Time (minutes) = Time (seconds) / 60
+    distance_km = K_PROPAGATION * EARTH_RADIUS_KM
+    time_minutes = (distance_km / vsw_mean) / 60.0
     
-    # Time in seconds
-    time_sec = (K_PROPAGATION * distance_km) / vsw_mean
-    
-    # Convert to minutes
-    time_min = time_sec / 60.0
-    
-    return time_min
+    return time_minutes
 
-def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, column: str) -> pd.DataFrame:
+def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, target_col: str) -> pd.DataFrame:
     """
-    Applies a lag shift to a specific column in the DataFrame.
+    Apply a time shift to a DataFrame based on lag minutes.
     
     Args:
-        df: Input DataFrame.
-        lag_minutes: Lag to apply in minutes.
-        column: Column name to shift.
-        
+        df: DataFrame with 'timestamp' column.
+        lag_minutes: Lag to apply in minutes (positive shifts data back in time).
+        target_col: Column to shift (or all numeric columns if None).
+    
     Returns:
-        DataFrame with the shifted column.
+        DataFrame with shifted timestamps.
     """
     df_shifted = df.copy()
     
-    # Calculate number of steps to shift based on index frequency
-    # Assuming 5-minute resampling
-    freq_minutes = 5
-    steps = int(lag_minutes / freq_minutes)
+    # Shift the timestamp index by the lag duration
+    # If lag is positive, we shift the series "back" in time relative to the event
+    # In pandas, shifting timestamps forward means the data point at t now belongs to t + lag
+    # For correlation, we want to align the cause (solar wind) with the effect (tail)
+    # So we shift the solar wind timestamps forward by the lag amount.
+    df_shifted['timestamp'] = df_shifted['timestamp'] + pd.to_timedelta(lag_minutes, unit='m')
     
-    if steps > 0:
-        df_shifted[column] = df_shifted[column].shift(steps)
-    elif steps < 0:
-        df_shifted[column] = df_shifted[column].shift(steps) # Negative shift for lead
-        
     return df_shifted

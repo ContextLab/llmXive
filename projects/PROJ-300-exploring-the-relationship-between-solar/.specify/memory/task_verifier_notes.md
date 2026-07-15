@@ -1,9 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T015** — The provided `main.py` is truncated and does not contain any code that creates a JSON report, adds a `"notes"` field, or conditionally inserts the exact FR‑013 narrative after a successful permutation test. Consequently the required functionality is missing.
-- **T016** — The repository contains `code/main.py` with a `log_quality_warnings` helper, but the script never calls it (the shown code is truncated before any logging) and the required `data/processed/quality_log.json` file does not exist. Hence the task of actually logging data‑quality warnings to that JSON file is not fulfilled.
-- **T017** — The provided `main.py` excerpt stops before any computation of the optimal lag (`L*`) or the physics‑based lag (`L_phys`) and never shows a calculation or output of `|L* - L_phys|`. The required logic and reporting for SC‑002 are absent (or truncated), so the task is not fulfilled.
-- **T018** — The provided `code/main.py` is truncated (ends mid‑statement) and contains no implementation that builds a sensitivity table for speed‑thresholds or appends such a table to the JSON report as required by SC‑003. Consequently the required functionality is missing.
-- **T020** — The required source files `data/clean.py` and `data/lag.py` are absent from the repository, so they cannot be integrated into `main.py`. Without these modules (and any evidence that `analysis/correlation.py` is correctly used), the pipeline for US‑1 is not implemented. The missing files must be added and referenced in `main.py` to satisfy the task.

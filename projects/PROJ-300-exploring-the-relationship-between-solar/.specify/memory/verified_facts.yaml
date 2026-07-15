@@ -1,5 +1,5 @@
-'|a000040 constant number oei prime referenced':
-  quote: (sequence A000040 in the OEIS).
-  source_id: List of prime numbers
-  url: https://en.wikipedia.org/wiki/List_of_prime_numbers
-  value: A000040
+93|claim e52f93ed verify:
+  quote: 7 2
+  source_id: A000796
+  url: https://oeis.org/A000796
+  value: '7'

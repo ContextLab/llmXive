@@ -1,9 +1,7 @@
 """
-Correlation Analysis Module.
-
-Calculates Pearson/Spearman correlations and performs permutation tests.
-
-File path: code/analysis/correlation.py
+Correlation analysis module.
+Implements FR-005 (Permutation Test) and FR-006 (Bootstrap).
+File: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py
 """
 import numpy as np
 import pandas as pd
@@ -11,119 +9,119 @@ from scipy import stats
 from typing import Tuple, Optional
 from ..config import BOOTSTRAP_ITERATIONS, PERMUTATION_ITERATIONS
 
-def calculate_correlation(
-    x: pd.Series, 
-    y: pd.Series, 
-    permutation_iterations: int = PERMUTATION_ITERATIONS
-) -> Tuple[float, float, float, bool]:
+def calculate_correlation(x: pd.Series, y: pd.Series, method: str = 'pearson') -> Tuple[float, float]:
     """
-    Calculates Pearson and Spearman correlations and performs a permutation test.
+    Calculate correlation coefficient and p-value.
     
     Args:
-        x: First time series.
-        y: Second time series.
-        permutation_iterations: Number of iterations for the permutation test.
-        
+        x: First series.
+        y: Second series.
+        method: 'pearson' or 'spearman'.
+    
     Returns:
-        Tuple of (pearson, spearman, p_val_permutation, significant_flag)
+        Tuple of (correlation, p-value).
     """
-    # Calculate correlations
-    pearson, p_pearson = stats.pearsonr(x, y)
-    spearman, p_spearman = stats.spearmanr(x, y)
-    
-    # Permutation test
-    p_val_perm = circular_block_permutation(x, y, iterations=permutation_iterations)
-    
-    # Significance flag (p < 0.05)
-    significant = p_val_perm < 0.05
-    
-    return pearson, spearman, p_val_perm, significant
+    if method == 'pearson':
+        return stats.pearsonr(x, y)
+    elif method == 'spearman':
+        return stats.spearmanr(x, y)
+    else:
+        raise ValueError(f"Unknown method: {method}")
 
-def circular_block_permutation(
-    x: pd.Series, 
-    y: pd.Series, 
-    iterations: int = PERMUTATION_ITERATIONS,
-    block_size: Optional[int] = None
-) -> float:
+def circular_block_permutation(x: pd.Series, y: pd.Series, alpha: float = 0.05, iterations: int = None) -> Tuple[float, bool]:
     """
-    Performs a circular block permutation test to assess significance.
+    Perform circular block permutation test for significance.
+    FR-005: Empirical p-values using block permutation to preserve temporal structure.
     
     Args:
-        x: First time series.
-        y: Second time series.
-        iterations: Number of permutations.
-        block_size: Size of blocks to preserve temporal dependence.
-        
+        x: Independent variable series.
+        y: Dependent variable series.
+        alpha: Significance level.
+        iterations: Number of permutations (defaults to config).
+    
     Returns:
-        Empirical p-value.
+        Tuple of (empirical_p_value, is_significant).
     """
+    if iterations is None:
+        iterations = PERMUTATION_ITERATIONS
+    
     n = len(x)
-    if n != len(y):
-        raise ValueError("Series must be of equal length")
+    obs_corr, _ = calculate_correlation(x, y, method='pearson')
     
-    # Calculate observed correlation
-    obs_corr, _ = stats.pearsonr(x, y)
-    obs_corr = abs(obs_corr)
-    
-    # Determine block size
-    if block_size is None:
-        # Default block size: 10% of series or 5, whichever is larger
-        block_size = max(5, int(n * 0.1))
+    # Determine block size: first lag where autocorrelation < 0.5
+    # If autocorrelation is weak, use a default block size (e.g., 10% of n)
+    autocorr = x.autocorr()
+    if autocorr > 0.5:
+        block_size = max(1, int(n * 0.1))
+    else:
+        block_size = 1
     
     permuted_corrs = []
-    
     for _ in range(iterations):
-        # Circular shift y by a random amount
+        # Circular shift
         shift = np.random.randint(1, n)
-        y_perm = np.roll(y.values, shift)
+        x_perm = np.roll(x.values, shift)
+        y_perm = np.roll(y.values, shift) # Or just shift y? Usually shift one relative to other
+        # Actually, standard block permutation for time series:
+        # We want to break the relationship between x and y while preserving internal structure.
+        # A simple circular shift of y relative to x is a valid null model for lagged relationships.
         
-        # Calculate correlation
-        corr, _ = stats.pearsonr(x.values, y_perm)
-        permuted_corrs.append(abs(corr))
+        # Let's shift y relative to x
+        y_shifted = np.roll(y.values, shift)
+        
+        # Calculate correlation on shifted data
+        try:
+            corr, _ = calculate_correlation(x.values, y_shifted, method='pearson')
+            permuted_corrs.append(corr)
+        except:
+            continue
     
-    # Calculate p-value
-    p_val = np.mean([c >= obs_corr for c in permuted_corrs])
+    permuted_corrs = np.array(permuted_corrs)
+    # Two-tailed p-value
+    # Count how many permuted stats are as extreme or more extreme than observed
+    extreme_count = np.sum(np.abs(permuted_corrs) >= np.abs(obs_corr))
+    p_val = (extreme_count + 1) / (len(permuted_corrs) + 1)
     
-    return p_val
+    is_significant = p_val < alpha
+    return p_val, is_significant
 
-def moving_block_bootstrap(
-    x: pd.Series, 
-    y: pd.Series, 
-    iterations: int = BOOTSTRAP_ITERATIONS,
-    block_size: Optional[int] = None
-) -> Tuple[float, float]:
+def moving_block_bootstrap(x: pd.Series, y: pd.Series, iterations: int = None) -> Tuple[float, float]:
     """
-    Performs moving block bootstrap to estimate confidence intervals.
+    Moving block bootstrap for confidence intervals.
+    FR-006: 95% confidence intervals.
     
     Args:
-        x: First time series.
-        y: Second time series.
+        x: Independent variable.
+        y: Dependent variable.
         iterations: Number of bootstrap iterations.
-        block_size: Size of blocks.
-        
+    
     Returns:
-        Tuple of (mean_corr, ci_95)
+        Tuple of (mean_corr, 95% CI tuple).
     """
+    if iterations is None:
+        iterations = BOOTSTRAP_ITERATIONS
+    
     n = len(x)
-    if block_size is None:
-        block_size = max(5, int(n * 0.1))
+    block_size = max(1, int(n ** 0.5)) # Heuristic block size
     
     boot_corrs = []
-    
     for _ in range(iterations):
-        # Resample blocks
-        indices = []
-        while len(indices) < n:
-            start = np.random.randint(0, n - block_size + 1)
-            indices.extend(range(start, start + block_size))
-        indices = indices[:n]
+        # Generate block indices
+        num_blocks = n // block_size
+        indices = np.random.randint(0, n, num_blocks * block_size)
+        # Ensure we don't go out of bounds with circular wrap or just truncate
+        indices = indices % n
         
         x_boot = x.iloc[indices].values
         y_boot = y.iloc[indices].values
         
-        corr, _ = stats.pearsonr(x_boot, y_boot)
-        boot_corrs.append(corr)
+        try:
+            corr, _ = calculate_correlation(x_boot, y_boot, method='pearson')
+            boot_corrs.append(corr)
+        except:
+            continue
     
+    boot_corrs = np.array(boot_corrs)
     mean_corr = np.mean(boot_corrs)
     ci_lower = np.percentile(boot_corrs, 2.5)
     ci_upper = np.percentile(boot_corrs, 97.5)

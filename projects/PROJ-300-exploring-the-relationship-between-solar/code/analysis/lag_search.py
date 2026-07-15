@@ -1,9 +1,7 @@
 """
-Lag Search Module.
-
-Identifies the optimal lag that maximizes correlation.
-
-File path: code/analysis/lag_search.py
+Lag search module.
+Implements FR-010: Identify optimal lag L*.
+File: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py
 """
 import numpy as np
 import pandas as pd
@@ -11,57 +9,64 @@ from typing import Tuple, List, Dict, Optional
 from scipy import stats
 from .correlation import calculate_correlation
 from ..data.lag import apply_lag_shift
-from ..config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 
-def find_optimal_lag(
-    df_sw: pd.DataFrame, 
-    df_ey: pd.DataFrame,
-    min_lag: int = LAG_WINDOW_MIN,
-    max_lag: int = LAG_WINDOW_MAX,
-    step: int = LAG_STEP
-) -> Tuple[int, float, List[Dict]]:
+def find_optimal_lag(vsw: pd.Series, ey: pd.Series, min_lag: int, max_lag: int, step: int) -> Tuple[int, float]:
     """
-    Sweeps the lag window to find the optimal lag (L*) that maximizes absolute correlation.
+    Sweep the lag window and identify the lag that maximizes absolute correlation.
+    FR-010: Identify optimal lag L*.
     
     Args:
-        df_sw: Solar wind DataFrame.
-        df_ey: Ey DataFrame.
-        min_lag: Minimum lag to search.
-        max_lag: Maximum lag to search.
-        step: Step size for search.
-        
+        vsw: Solar wind speed series.
+        ey: Tail reconnection rate series.
+        min_lag: Minimum lag in minutes.
+        max_lag: Maximum lag in minutes.
+        step: Step size in minutes.
+    
     Returns:
-        Tuple of (optimal_lag, max_correlation, list_of_results)
+        Tuple of (optimal_lag, max_correlation).
     """
     lags = range(min_lag, max_lag + 1, step)
-    results = []
-    max_corr = -1
-    optimal_lag = min_lag
+    best_lag = min_lag
+    best_corr = -2.0 # Initialize with a value lower than any possible correlation
     
     for lag in lags:
-        # Apply lag
-        df_sw_lagged = apply_lag_shift(df_sw, lag, 'Vsw')
+        # Shift vsw forward by lag
+        vsw_shifted = vsw.copy()
+        # We need to align the data. Since we are shifting timestamps, 
+        # we must re-index or shift the values.
+        # For simplicity in this search, we shift the index of vsw relative to ey.
+        # However, since the data is already aligned by timestamp, we can just 
+        # shift the vsw series values by the number of steps corresponding to the lag.
         
-        # Align
-        common_idx = df_sw_lagged.index.intersection(df_ey.index)
-        vsw_series = df_sw_lagged.loc[common_idx, 'Vsw']
-        ey_series = df_ey.loc[common_idx, 'Ey']
+        # Calculate number of steps to shift
+        # Assuming 5-minute cadence
+        cadence_minutes = 5
+        steps = int(lag / cadence_minutes)
         
-        if len(vsw_series) < 10:
+        if steps == 0:
             continue
         
-        # Calculate correlation
-        pearson, _ = stats.pearsonr(vsw_series, ey_series)
-        abs_corr = abs(pearson)
+        # Shift the series
+        vsw_shifted = vsw.shift(-steps) # Negative shift to look forward in time? 
+        # Actually, if lag is positive, the solar wind takes time to reach the tail.
+        # So the solar wind at time t causes the tail effect at time t + lag.
+        # To align them, we shift the solar wind data forward by lag (so vsw[t] aligns with ey[t+lag]).
+        # In pandas, shifting the index forward means shifting the values back.
+        # Let's shift the vsw values by +steps (so vsw[t] moves to t+steps)
+        vsw_shifted = vsw.shift(steps)
         
-        results.append({
-            "lag": lag,
-            "pearson": pearson,
-            "abs_correlation": abs_corr
-        })
+        # Drop NaNs introduced by shift
+        valid_mask = ~vsw_shifted.isna() & ~ey.isna()
+        vsw_valid = vsw_shifted[valid_mask]
+        ey_valid = ey[valid_mask]
         
-        if abs_corr > max_corr:
-            max_corr = abs_corr
-            optimal_lag = lag
+        if len(vsw_valid) < 10:
+            continue
+        
+        corr, _ = calculate_correlation(vsw_valid, ey_valid, method='pearson')
+        
+        if abs(corr) > abs(best_corr):
+            best_corr = corr
+            best_lag = lag
     
-    return optimal_lag, max_corr, results
+    return best_lag, best_corr
