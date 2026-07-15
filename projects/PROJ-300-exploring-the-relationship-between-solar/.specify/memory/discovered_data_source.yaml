@@ -1,0 +1,8 @@
+status: none
+intent: download NASA OMNIWeb solar wind Vsw Bz and THEMIS EFI Ey via Python package
+  dataset
+required_fields:
+- timestamp
+- Vsw (km/s)
+- Bz (nT)
+- Ey (mV/m)

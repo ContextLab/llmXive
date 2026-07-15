@@ -1,11 +1,5 @@
-'|bootstrap iteration test use':
-  quote: tion. The simulations are conducted for a sample size of n = 200 with B =
-    1000 bootstrap
-  source_id: '1709.06855'
-  url: https://arxiv.org/abs/1709.06855
-  value: '1000'
-'|iteration permutation test use':
-  quote: 9593 100003
-  source_id: A000040
-  url: https://oeis.org/A000040
-  value: '10000'
+'|a000040 constant number oei prime referenced':
+  quote: (sequence A000040 in the OEIS).
+  source_id: List of prime numbers
+  url: https://en.wikipedia.org/wiki/List_of_prime_numbers
+  value: A000040

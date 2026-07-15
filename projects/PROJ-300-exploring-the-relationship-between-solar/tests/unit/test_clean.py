@@ -1,134 +1,122 @@
-"""
-Unit tests for code/data/clean.py
-Tests for FR-003: Data cleaning and resampling functionality.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-
 import sys
 import os
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from data.clean import clean_and_resample
+# Ensure project root is in path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
+from code.data.clean import clean_and_resample
 
 def test_clean_removes_nan():
-    """Test that clean_and_resample removes rows with NaN values."""
-    # Create OMNI data with a NaN
-    dates_omni = pd.date_range(start='2023-01-01', periods=10, freq='1T')
-    df_omni = pd.DataFrame({
-        'timestamp': dates_omni,
-        'Vsw': [400.0] * 5 + [np.nan] + [400.0] * 4,
-        'Bz': [5.0] * 10
+    """Test that clean_and_resample removes NaN values."""
+    # Create DataFrame with NaN values
+    timestamps = pd.date_range(start='2023-01-01', periods=10, freq='5min')
+    df1 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': [400, 410, np.nan, 420, 430, np.nan, 440, 450, 460, 470]
     })
-
-    # Create THEMIS data without NaN
-    dates_themis = pd.date_range(start='2023-01-01', periods=10, freq='1T')
-    df_themis = pd.DataFrame({
-        'timestamp': dates_themis,
-        'Ey': [1.0] * 10
+    
+    df2 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Ey': [1.0, 1.1, 1.2, np.nan, 1.4, 1.5, 1.6, 1.7, np.nan, 1.9]
     })
-
-    df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
-
-    # Check that no NaN values remain in the resulting DataFrames
-    assert not df_omni_clean.isna().any().any()
-    assert not df_themis_clean.isna().any().any()
-    # The row with NaN should be removed, so we expect 9 rows
-    assert len(df_omni_clean) == 9
-    assert len(df_themis_clean) == 9
-
+    
+    # Clean and resample
+    cleaned_df1, cleaned_df2 = clean_and_resample(df1, df2)
+    
+    # Verify no NaN values remain
+    assert not cleaned_df1['Vsw'].isna().any()
+    assert not cleaned_df2['Ey'].isna().any()
+    
+    # Verify rows were removed
+    assert len(cleaned_df1) < len(df1)
+    assert len(cleaned_df2) < len(df2)
 
 def test_clean_resamples_to_5min():
     """Test that clean_and_resample resamples to 5-minute intervals."""
-    # Create high-frequency data (1 minute) for 60 minutes
-    dates_omni = pd.date_range(start='2023-01-01', periods=60, freq='1T')
-    df_omni = pd.DataFrame({
-        'timestamp': dates_omni,
-        'Vsw': [400.0] * 60,
-        'Bz': [5.0] * 60
+    # Create DataFrame with irregular timestamps
+    timestamps = [
+        datetime(2023, 1, 1, 0, 0),
+        datetime(2023, 1, 1, 0, 7),  # 7 minutes
+        datetime(2023, 1, 1, 0, 12), # 12 minutes
+        datetime(2023, 1, 1, 0, 18), # 18 minutes
+        datetime(2023, 1, 1, 0, 23), # 23 minutes
+    ]
+    
+    df1 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': [400, 410, 420, 430, 440]
     })
-
-    dates_themis = pd.date_range(start='2023-01-01', periods=60, freq='1T')
-    df_themis = pd.DataFrame({
-        'timestamp': dates_themis,
-        'Ey': [1.0] * 60
+    
+    df2 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Ey': [1.0, 1.1, 1.2, 1.3, 1.4]
     })
-
-    df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
-
-    # 60 minutes / 5 minutes = 12 points expected (approximately, depending on alignment)
-    # We expect at least 10 points to account for boundary effects
-    assert len(df_omni_clean) >= 10
-    assert len(df_themis_clean) >= 10
-
-    # Check that the frequency is approximately 5 minutes
-    if len(df_omni_clean) > 1:
-        time_diffs = df_omni_clean['timestamp'].diff().dropna()
-        # All time differences should be 5 minutes (with small floating point tolerance)
-        assert all(abs(diff.total_seconds() - 300) < 1 for diff in time_diffs)
-
+    
+    # Clean and resample
+    cleaned_df1, cleaned_df2 = clean_and_resample(df1, df2)
+    
+    # Verify timestamps are at 5-minute intervals
+    time_diffs = cleaned_df1['timestamp'].diff().dropna()
+    expected_diff = pd.Timedelta(minutes=5)
+    
+    for diff in time_diffs:
+        assert diff == expected_diff, f"Expected {expected_diff}, got {diff}"
 
 def test_clean_handles_empty_input():
-    """Test that clean_and_resample handles empty DataFrames gracefully."""
-    df_omni_empty = pd.DataFrame(columns=['timestamp', 'Vsw', 'Bz'])
-    df_themis_empty = pd.DataFrame(columns=['timestamp', 'Ey'])
-
-    df_omni_clean, df_themis_clean = clean_and_resample(df_omni_empty, df_themis_empty)
-
-    assert df_omni_clean.empty
-    assert df_themis_clean.empty
-
+    """Test that clean_and_resample handles empty DataFrames."""
+    df1_empty = pd.DataFrame(columns=['timestamp', 'Vsw'])
+    df2_empty = pd.DataFrame(columns=['timestamp', 'Ey'])
+    
+    # Should not raise an exception
+    cleaned_df1, cleaned_df2 = clean_and_resample(df1_empty, df2_empty)
+    
+    # Should return empty DataFrames
+    assert len(cleaned_df1) == 0
+    assert len(cleaned_df2) == 0
 
 def test_clean_all_nan():
-    """Test handling of a DataFrame that becomes all NaN after dropping."""
-    dates_omni = pd.date_range(start='2023-01-01', periods=5, freq='1T')
-    df_omni = pd.DataFrame({
-        'timestamp': dates_omni,
-        'Vsw': [np.nan] * 5,
-        'Bz': [np.nan] * 5
+    """Test that clean_and_resample handles all-NaN columns."""
+    timestamps = pd.date_range(start='2023-01-01', periods=5, freq='5min')
+    df1 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': [np.nan, np.nan, np.nan, np.nan, np.nan]
     })
-
-    dates_themis = pd.date_range(start='2023-01-01', periods=5, freq='1T')
-    df_themis = pd.DataFrame({
-        'timestamp': dates_themis,
-        'Ey': [1.0] * 5
+    
+    df2 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Ey': [1.0, 1.1, 1.2, 1.3, 1.4]
     })
-
-    df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
-
-    # OMNI should be empty after dropping all-NaN rows
-    assert df_omni_clean.empty
-    # THEMIS might be empty too if no overlap or if it drops due to reindexing
-    # but at least it shouldn't crash
-    assert isinstance(df_themis_clean, pd.DataFrame)
-
+    
+    # Should handle all-NaN column gracefully
+    cleaned_df1, cleaned_df2 = clean_and_resample(df1, df2)
+    
+    # df1 should be empty after removing all-NaN
+    assert len(cleaned_df1) == 0
+    # df2 should also be empty since no common timestamps remain
+    assert len(cleaned_df2) == 0
 
 def test_clean_single_value():
-    """Test handling of a single valid value."""
-    dates_omni = pd.date_range(start='2023-01-01', periods=1, freq='1T')
-    df_omni = pd.DataFrame({
-        'timestamp': dates_omni,
-        'Vsw': [400.0],
-        'Bz': [5.0]
+    """Test that clean_and_resample handles single-value DataFrames."""
+    timestamps = [datetime(2023, 1, 1, 0, 0)]
+    df1 = pd.DataFrame({
+        'timestamp': timestamps,
+        'Vsw': [400]
     })
-
-    dates_themis = pd.date_range(start='2023-01-01', periods=1, freq='1T')
-    df_themis = pd.DataFrame({
-        'timestamp': dates_themis,
+    
+    df2 = pd.DataFrame({
+        'timestamp': timestamps,
         'Ey': [1.0]
     })
-
-    df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
-
-    # Single point might be resampled into existence or dropped if freq doesn't match
-    # The key is it doesn't crash and returns DataFrames
-    assert isinstance(df_omni_clean, pd.DataFrame)
-    assert isinstance(df_themis_clean, pd.DataFrame)
-    # If they align, we might have 1 point
-    if not df_omni_clean.empty:
-        assert len(df_omni_clean) == 1
-        assert len(df_themis_clean) == 1
+    
+    # Should not raise an exception
+    cleaned_df1, cleaned_df2 = clean_and_resample(df1, df2)
+    
+    # Should return single-row DataFrames
+    assert len(cleaned_df1) == 1
+    assert len(cleaned_df2) == 1
+    assert cleaned_df1['Vsw'].iloc[0] == 400
+    assert cleaned_df2['Ey'].iloc[0] == 1.0
