@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -88,17 +88,23 @@
 - [ ] T016 [US1] Implement `rephrase_syntax()` function in `code/data/perturbations.py` for syntactic rephrasing
 - [ ] T017 [US1] Implement semantic validation using `sentence-transformers/all-MiniLM-L6-v2` in `code/data/semantic_validator.py`
 - [ ] T018 [US1] Implement perturbation generation pipeline that generates up to 3 variants, scores all, and filters primary set (>0.95) in `code/data/generate_perturbations.py`
-- [ ] T019 [US1] Implement budget cap logic with deterministic ordering (sort by task_id then perturbation_type) per FR-011 in `code/main.py`
-- [ ] T020 [US1] Add logging for excluded perturbations (raw scores and reasons) to `data/logs/perturbation_raw.log`
-- [ ] T021 [US1] Implement sample size validation and flagging: update report generator in `code/analysis/report_generator.py` to add a boolean flag field for reduced sample size
+- [X] T020 [US1] Add logging for excluded perturbations (raw scores and reasons) to `data/logs/perturbation_raw.log` using JSON format with fields: `task_id`, `perturbation_type`, `raw_score`, `reason`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
+## Phase 3.5: Budget Cap Logic (Cross-Cutting / Post-US1)
+
+**Goal**: Enforce the total generation budget cap (FR-011) after data generation is complete.
+
+- [X] T029 [US1/US2] Implement budget cap logic in `code/main.py` to limit total generations to MAX_SAMPLES=100 (default), prioritizing all original tasks first and filling remaining slots with perturbed prompts in deterministic order (sorted by task_id, then perturbation type)
+
+---
+
 ## Phase 4: User Story 2 - CPU-Compatible Model Inference and Execution (Priority: P2)
 
-**Goal**: Execute StarCoder-3B (4-bit quantized) on CPU, generate code, and capture pass/fail results in a sandboxed environment.
+**Goal**: Execute StarCoder-3B (4-bit quantized) on CPU, generate code, capture pass/fail results.
 
 **Independent Test**: The pipeline can be tested by running inference on a single sample task and verifying the output code executes in the sandbox, returning a pass/fail status within the defined timeout, independent of statistical analysis.
 
@@ -110,7 +116,7 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [US2] Implement StarCoder2-3B loading with `bitsandbytes` 4-bit quantization and CPU offload in `code/model/inference.py`
-- [ ] T025 [US2] Implement generation loop with a configurable timeout and fixed seed (42) in `code/model/inference.py`
+- [ ] T025 [US2] Implement generation loop with a configurable timeout and a fixed seed in `code/model/inference.py`
 - [ ] T026 [US2] Integrate sandbox executor to run generated code with a fixed timeout per test case in `code/model/sandbox.py`
 - [ ] T027 [US2] Implement raw error tagging logic (syntax, timeout, OOM, pass, fail) in `code/model/execution_results.py`
 - [ ] T028 [US2] Add OOM handling to skip sample and log "OOM" flag in `code/model/inference.py`
@@ -121,23 +127,26 @@
 
 ## Phase 5: User Story 3 - Statistical Analysis, Multiplicity Correction, and Error Classification (Priority: P3)
 
-**Goal**: Calculate pass@1 rates, apply McNemar's test with Bonferroni correction, perform Mixed-Effects Logistic Regression, and analyze sensitivity to semantic thresholds.
+**Goal**: Calculate pass@1 rates, apply McNemar's test with Bonferroni correction, perform Mixed-Effects Logistic Regression, analyze sensitivity to semantic thresholds.
 
 **Independent Test**: The pipeline can be tested by feeding a mock CSV of pass/fail results and threshold metadata into the analysis script and verifying the statistical output (p-values, corrected alpha, mixed-effects coefficients, sensitivity report) matches expected calculations.
 
+**Scope Boundary**: Token-level confidence extraction, Expected Calibration Error (ECE), and Mixed-Effects models with confidence predictors are OUT OF SCOPE for this iteration. The analysis is strictly limited to FR-006 through FR-013.
+
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for McNemar's test calculation in `tests/unit/test_statistics.py`
+- [ ] T031 [P] [US3] Unit test for McNemar's test calculation in `tests/unit/test_statistics.py`
+- [ ] T032 [P] [US3] Unit test for sensitivity analysis threshold handling in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement pass@1 calculation for original and perturbed prompts in `code/analysis/statistics.py`
-- [ ] T031 [US3] Implement McNemar's test aggregation across tasks for each perturbation type in `code/analysis/statistics.py`
-- [ ] T032 [US3] Implement Bonferroni correction for multiple comparisons (multiple types) in `code/analysis/statistics.py`
-- [ ] T033 [US3] Implement Mixed-Effects Logistic Regression with 'task' as random effect using `statsmodels` in `code/analysis/statistics.py`
-- [ ] T034 [US3] Implement sensitivity analysis on semantic thresholds across a range of high-confidence values. in `code/analysis/statistics.py`
-- [ ] T035 [US3] Implement error classifier for stratified sampling (≤50 failures or sample of 50) to tag as syntax/logic/hallucination in `code/analysis/error_classifier.py`
-- [ ] T036 [US3] Generate final report aggregating pass@1 degradation, statistical significance, mixed-effects variance, and sensitivity metrics in `code/analysis/report_generator.py`
+- [ ] T033 [US3] Implement pass@1 calculation for original and perturbed prompts in `code/analysis/statistics.py`
+- [ ] T034 [US3] Implement McNemar's test aggregation across tasks for each perturbation type in `code/analysis/statistics.py`
+- [ ] T035 [US3] Implement Bonferroni correction for multiple comparisons (multiple types) in `code/analysis/statistics.py`
+- [ ] T036 [US3] Implement Mixed-Effects Logistic Regression with 'task' as random effect using `statsmodels` in `code/analysis/statistics.py`
+- [ ] T037 [US3] Implement sensitivity analysis on semantic thresholds across a set of representative values spanning the high-confidence range. in `code/analysis/statistics.py`
+- [ ] T038 [US3] Implement error classifier for stratified sampling (≤50 failures or sample of 50) to tag as syntax/logic/hallucination in `code/analysis/error_classifier.py` using stratification by perturbation type and random seed=42
+- [ ] T042 [US3] Generate final report aggregating pass@1 degradation, statistical significance, mixed-effects variance, and sensitivity metrics in `code/analysis/report_generator.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,12 +156,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` including metric definitions
-- [ ] T038 Code cleanup and refactoring
-- [ ] T039 Performance optimization across all stories (ensure CPU usage < 7GB)
-- [ ] T040 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T041 Security hardening for sandbox execution
-- [ ] T042 Run `quickstart.md` validation
+- [ ] T043 [P] Documentation updates in `docs/` including metric definitions (pass@1, McNemar, Bonferroni)
+- [ ] T044 Code cleanup and refactoring
+- [ ] T045 Performance optimization across all stories (ensure CPU usage < 7GB)
+- [ ] T046 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T047 Security hardening for sandbox execution
+- [ ] T048 Run `quickstart.md` validation
 
 ---
 
@@ -163,16 +172,17 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
+ - **Specific Note**: T029 (Budget Cap) depends on T018 (Perturbation Generation) to have counts available. T029 is placed in Phase 3.5 to ensure it runs after US1 generation.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US1 and US2
-  - **Specific Note**: T035-T036 depend on T027 (Raw error tagging) and T024-T025 (Inference results).
+ - **Specific Note**: T037 (Sensitivity) and T038 (Error Classifier) are independent statistical tasks.
 
 ### Within Each User Story
 
@@ -222,9 +232,10 @@ Task: "Implement rephrase_syntax() in code/data/perturbations.py"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo (includes Sensitivity metrics)
-5. Each story adds value without breaking previous stories
+3. Add Budget Cap (T029) → Ensure generation limits are respected
+4. Add User Story 2 → Test independently → Deploy/Demo (Includes CPU Inference)
+5. Add User Story 3 → Test independently → Deploy/Demo (Includes Sensitivity Analysis and Error Classification)
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -232,9 +243,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2 (Focus on CPU Inference)
+ - Developer C: User Story 3 (Focus on Sensitivity Metrics and Error Classification)
 3. Stories complete and integrate independently
 
 ---
@@ -251,3 +262,6 @@ With multiple developers:
 - **Critical Constraint**: All model inference tasks (T024-T028) MUST run on CPU with 4-bit quantization; no CUDA dependencies allowed.
 - **Critical Constraint**: All perturbation tasks (T014-T018) MUST use real HumanEval data; no synthetic/fake data generation.
 - **Critical Constraint**: Semantic similarity threshold is strictly > 0.95; no fallback allowed per spec FR-002/FR-003.
+- **Critical Revision**: The study scope is strictly limited to FR-001 through FR-013. Token-level confidence, ECE, and Mixed-Effects models with confidence predictors are OUT OF SCOPE for this iteration.
+- **Critical Revision**: Budget cap logic (T029) has been moved to Phase 3.5 to ensure it runs after data generation is complete.
+- **Critical Revision**: Tasks T030, T039, T040, T041 have been removed as they represented unapproved scope creep.

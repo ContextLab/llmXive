@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-robustness-eval"
+version = "0.1.0"
+description = "Evaluating the Robustness of LLM-Generated Code to Input Perturbations"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers>=4.40.0",
+    "datasets>=2.19.0",
+    "sentence-transformers>=2.7.0",
+    "bitsandbytes>=0.43.0",
+    "scikit-learn>=1.4.0",
+    "statsmodels>=0.14.2",
+    "pandas>=2.2.0",
+    "torch>=2.2.0",
+    "accelerate>=0.29.0",
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "pytest>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "pytest>=8.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "D", "UP", "B", "C4", "SIM"]
+ignore = ["D203", "D213"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

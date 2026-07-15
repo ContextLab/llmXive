@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-090-evaluating-the-robustness-of-llm-generat
-last_run_id: dfe606f7-b967-410b-b036-0a28cd3394d5
+last_run_id: e8973103-e44d-44d7-9a8e-644e5659e713
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat
 title: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
-updated_at: '2026-07-04T04:54:40.647494Z'
+updated_at: '2026-07-15T15:01:19.748141Z'
