@@ -1,48 +1,105 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Participant Dataset Schema"
-description: "Schema for the merged participant data (cognitive + visual metrics)."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Cognitive and Visual Distraction Dataset
+description: |
+  Schema for the merged dataset linking participant-level cognitive metrics
+  with workspace visual complexity metrics. Used to validate `data/processed/merged_data.csv`.
+type: object
 properties:
   participant_id:
-    type: "string"
-    description: "Unique identifier for the participant."
+    type: string
+    description: Unique identifier for the participant.
+    pattern: "^P\\d{4}$"
+    examples:
+      - "P0001"
+      - "P0042"
+  
+  cognitive_task_type:
+    type: string
+    description: The type of cognitive task performed (Stroop or Flanker).
+    enum:
+      - "Stroop"
+      - "Flanker"
+  
   reaction_time:
-    type: "number"
+    type: number
+    description: Mean reaction time in milliseconds.
     minimum: 0
-    description: "Mean reaction time in milliseconds."
+    exclusiveMinimum: false
+  
   accuracy:
-    type: "number"
+    type: number
+    description: Accuracy rate as a proportion (0.0 to 1.0).
     minimum: 0
     maximum: 1
-    description: "Mean accuracy as a proportion (0.0 to 1.0)."
-  edge_density:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Normalized edge density metric [0, 1]."
-  color_entropy:
-    type: "number"
-    minimum: 0
-    description: "Color entropy value."
-  object_count:
-    type: ["number", "null"]
-    description: "Detected object count. Null if detection failed."
+  
+  workspace_image_path:
+    type: string
+    description: Relative path to the workspace image file.
+    pattern: "^data/raw/.*\\.(jpg|jpeg|png)$"
+  
   lighting_condition:
-    type: "string"
-    description: "Simulated lighting condition (low/medium/high)."
+    type: string
+    description: Lighting condition of the workspace image.
+    enum:
+      - "Natural"
+      - "Artificial"
+      - "Mixed"
+      - "Low"
+  
   room_type:
-    type: "string"
-    description: "Simulated room type (office/living/dining)."
+    type: string
+    description: Type of room depicted in the image.
+    enum:
+      - "Home Office"
+      - "Co-working Space"
+      - "Open Plan"
+      - "Private Office"
+  
   demographic_group:
-    type: "string"
-    description: "Simulated demographic group."
+    type: string
+    description: Demographic grouping for the participant (for stratification).
+    enum:
+      - "Group A"
+      - "Group B"
+      - "Group C"
+  
+  edge_density:
+    type: number
+    description: Normalized edge density (0.0 to 1.0) derived from Canny/Sobel.
+    minimum: 0
+    maximum: 1
+  
+  color_entropy:
+    type: number
+    description: Color entropy value derived from histogram analysis.
+    minimum: 0
+  
+  object_count:
+    type: integer
+    description: Number of distinct objects detected by YOLO model.
+    minimum: 0
+  
+  missing_value_flags:
+    type: object
+    description: Flags indicating which fields are missing for this record.
+    properties:
+      reaction_time:
+        type: boolean
+      accuracy:
+        type: boolean
+      visual_complexity:
+        type: boolean
+    additionalProperties: false
+
 required:
   - participant_id
+  - cognitive_task_type
   - reaction_time
   - accuracy
+  - workspace_image_path
   - edge_density
   - color_entropy
-  - lighting_condition
-  - room_type
-  - demographic_group
+  - object_count
+  - missing_value_flags
+
 additionalProperties: false

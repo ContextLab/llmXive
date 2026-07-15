@@ -1,0 +1,22 @@
+[tool.ruff]
+# Same rules as Black for consistency
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "C901", # complex structure (optional)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils", "setup_directories"]
+force-sort-within-sections = true

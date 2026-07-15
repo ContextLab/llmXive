@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -15,37 +15,39 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, scipy, opencv-python-headless, ultralytics, matplotlib, seaborn, Pillow, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001a [P] Create `code/` directory at repository root
+- [ ] T001b [P] Create `data/` directory at repository root
+- [ ] T001c [P] Create `results/` directory at repository root
+- [ ] T001d [P] Create `tests/` directory at repository root
+- [ ] T001e [P] Create `specs/001-visual-distraction-cognitive-control/` directory structure
 
 ---
 
@@ -55,12 +57,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [X] T002 Create `code/requirements.txt` with pinned dependencies (pandas, numpy, scikit-learn, scipy, opencv-python-headless, ultralytics, matplotlib, seaborn, Pillow, pytest)
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup data directory structure (`data/raw`, `data/processed`) and results directory (`results/statistics`, `results/plots`, `results/sensitivity`, `results/methodology`)
-- [ ] T005 [P] Implement logging infrastructure in `code/utils.py` (handlers, formatters)
-- [ ] T006 [P] Implement checksumming logic (sha256) in `code/utils.py`
-- [ ] T007 [P] Implement global random seed management (pinned seeds) in `code/utils.py`
-- [ ] T008 [P] Implement error handler in `code/utils.py` to log specific errors: 'unmatched_participant_ids' and 'image_processing_failures' with structured JSON messages as per Edge Cases in spec.md
-- [ ] T009 [P] Implement contract test in `tests/contract/test_error_logging.py` to verify that `code/utils.py` logs the specific keys 'unmatched_participant_ids' and 'image_processing_failures` when triggered
+- [X] T005 [P] Implement logging infrastructure in `code/utils.py` (handlers, formatters)
+- [X] T006 [P] Implement checksumming logic (sha256) in `code/utils.py`
+- [X] T007 [P] Implement global random seed management (pinned seeds) in `code/utils.py`
+- [X] T008 [P] Implement error handler in `code/utils.py` to log specific errors: 'unmatched_participant_ids' and 'image_processing_failures' with structured JSON messages as per Edge Cases in spec.md
+- [X] T009 [P] Implement contract test in `tests/contract/test_error_logging.py` to verify that `code/utils.py` logs the specific keys 'unmatched_participant_ids' and 'image_processing_failures` when triggered
 - [ ] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`
 - [ ] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`
 - [ ] T012 [P] Implement contract tests in `tests/contract/` to validate JSON/CSV outputs against schemas
@@ -79,17 +83,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_dataset_schema.py`
+- [X] T013 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_dataset_schema.py`
 - [ ] T014 [P] [US1] Unit test for synthetic data generator ensuring correlation structure (negative correlation) in `tests/unit/test_synthetic_data.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/01_data_acquisition.py` to attempt download of Stroop/Flanker data from HuggingFace/OpenML; fallback to synthetic generation if no linked dataset exists
-- [ ] T016 [US1] Implement synthetic image generation logic in `code/01_data_acquisition.py` using `Pillow` compositing to create diverse workspace images (lighting, room type) for each participant ID
-- [ ] T017 [US1] Implement participant-level data merging logic in `code/01_data_acquisition.py` to join cognitive metrics with image paths, excluding unmatched records and logging counts
-- [ ] T018 [US1] Add data validation step in `code/01_data_acquisition.py` to ensure ≤5% missing values and raise error if N < 100
-- [ ] T019 [US1] Generate `results/methodology/cv_methods.md` containing explicit citations for OpenCV edge detection (Canny/Sobel) and color entropy formulas (Shannon entropy) to satisfy SC-006
-- [ ] T020 [US1] Save processed merged dataset to `data/processed/merged_data.csv` and raw artifacts to `data/raw/`
+- [X] T015 [US1] Implement `code/01_data_acquisition.py` to: (1) Attempt download of Stroop/Flanker data from HuggingFace/OpenML; (2) If a linked dataset with participant-level image paths is found, use it; (3) If NO linked dataset exists (verified by check) OR download fails, **automatically transition to synthetic data generation** simulating the correlation structure. **CRITICAL: Do NOT raise an exception on download failure or missing linked dataset. The synthetic generation path is a valid primary execution path as mandated by FR-001.**
+- [ ] T016 [US1] Implement synthetic image generation logic in `code/01_data_acquisition.py` using `Pillow` compositing to create diverse workspace images (lighting, room type) for each participant ID. **Ensure images are saved to `data/raw/` with deterministic naming. CRITICAL: Also generate and save a `data/raw/metadata.json` file containing `lighting_condition`, `room_type`, and `demographic_group` for every generated image to satisfy Constitution Principle VII.**
+- [X] T017 [US1] Implement participant-level data merging logic in `code/01_data_acquisition.py` to join cognitive metrics with image paths, excluding unmatched records and logging counts.
+- [X] T018 [US1] Add data validation step in `code/01_data_acquisition.py` to ensure ≤5% missing values and raise error if N < 100.
+- [X] T020 [US1] Save processed merged dataset to `data/processed/merged_data.csv` and raw artifacts to `data/raw/`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,9 +112,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Implement edge density calculation in `code/visual_metrics.py` using OpenCV Canny/Sobel edge detection, outputting normalized [0,1] values
-- [ ] T025 [P] [US2] Implement color entropy calculation in `code/02_visual_metrics.py` using histogram-based color distribution analysis
-- [ ] T026 [US2] Implement object count calculation in `code/02_visual_metrics.py` using `ultralytics` YOLOv5n/tiny (CPU mode) with fallback to NaN on detection failure
+- [X] T024 [P] [US2] Implement edge density calculation in `code/02_visual_metrics.py` using OpenCV Canny/Sobel edge detection, outputting normalized values.
+- [X] T025 [P] [US2] Implement color entropy calculation in `code/02_visual_metrics.py` using histogram-based color distribution analysis.
+- [X] T026 [US2] Implement object count calculation in `code/02_visual_metrics.py` using `ultralytics` YOLOv5n/tiny (CPU mode). **CRITICAL: Implement a hard timeout and memory check. If the model exceeds these limits for an image, assign a 'count proxy' value derived from edge density ratio (to ensure pipeline completion within 6h) rather than failing or simulating random counts. Do not simulate object counts; use the real model where possible, fallback to proxy on timeout.**
 - [ ] T027 [US2] Create `code/02_visual_metrics.py` main execution block to process all images in `data/raw/`, compute metrics, and save to `data/processed/visual_metrics_intermediate.csv` (intermediate file). **Depends on T020 completion.**
 - [ ] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) into `data/processed/final_analysis_data.csv`, ensuring US2 waits for US1 completion. **Depends on T020 completion.**
 
@@ -127,20 +130,20 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Contract test for statistics output schema in `tests/contract/test_analysis_schema.py`
+- [X] T029 [P] [US3] Contract test for statistics output schema in `tests/contract/test_analysis_schema.py`
 - [ ] T030 [P] [US3] Unit test for Holm-Bonferroni correction logic in `tests/unit/test_multiplicity_correction.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement Pearson correlation and linear regression in `code/analysis.py` for each predictor-outcome pair (6 tests total)
-- [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation in the analysis script to diagnose collinearity among the three visual complexity metrics
-- [ ] T033 [US3] Implement PCA generation in `code/03_analysis.py` to create `pca_component_1` if VIF ≥ 5 for any predictor, storing results in `data/processed/pca_results.json`
-- [ ] T034 [US3] Implement conditional regression logic in `code/03_analysis.py` to read VIF status and **switch** the regression predictor to `pca_component_1` if VIF ≥ 5, otherwise use raw metrics (satisfies FR-012)
-- [ ] T035 [US3] Implement Holm-Bonferroni family-wise error correction in `code/03_analysis.py`
-- [ ] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair` (satisfies SC-005)
-- [ ] T037 [US3] Implement logic in `code/03_analysis.py` to frame all findings as associational (no causal claims) in output documentation
-- [ ] T038 [US3] Implement scatter plot generation in `code/04_visualization.py` with trend lines for significant correlations (p<0.05) and save to `results/plots/`
-- [ ] T039 [US3] Save final statistics to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present
+- [ ] T031 [US3] Implement Pearson correlation and linear regression in `code/03_analysis.py` for each predictor-outcome pair (A series of tests will be conducted.).
+- [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation in the analysis script to diagnose collinearity among the three visual complexity metrics.
+- [ ] T033 [US3] Implement PCA generation in `code/03_analysis.py` to create `pca_component_1` if VIF ≥ 5 for any predictor, storing results in `data/processed/pca_results.json`.
+- [ ] T034 [US3] Implement conditional regression logic in `code/03_analysis.py` to read VIF status and **switch** the regression predictor to `pca_component_1` if VIF ≥ 5, otherwise use raw metrics (satisfies FR-012).
+- [ ] T035 [US3] Implement Holm-Bonferroni family-wise error correction in `code/03_analysis.py`.
+- [ ] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`. **CRITICAL: Ensure this table is merged into the final `results/statistics/statistics.json` and explicitly referenced in the final report generation step to satisfy SC-005.**
+- [ ] T037 [US3] Implement logic in `code/03_analysis.py` to frame all findings as associational (no causal claims) in output documentation. **CRITICAL: Include citations for OpenCV edge detection and color entropy formulas directly in the final `results/statistics/statistics.json` and `results/report.md` (not a separate file) to satisfy SC-002 and SC-006.**
+- [ ] T038 [US3] Implement scatter plot generation in `code/04_visualization.py` with trend lines for significant correlations (p<0.05) and save to `results/plots/`.
+- [ ] T039 [US3] Save final statistics to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,11 +161,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Implement bootstrap resampling (≥1000 iterations) in `code/03_analysis.py` to compute 95% confidence intervals for correlation coefficients
-- [ ] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations
-- [ ] T043 [US4] Generate `results/sensitivity/binning_results.csv` with columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value` (satisfies FR-010)
-- [ ] T044 [US4] Save bootstrap confidence intervals to `results/sensitivity/bootstrap_results.json`
-- [ ] T045 [US4] Add final report generation step that summarizes sensitivity analysis findings and confirms robustness
+- [ ] T041 [US4] Implement bootstrap resampling (≥1000 iterations) in `code/03_analysis.py` to compute % confidence intervals for correlation coefficients.
+- [ ] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations.
+- [ ] T043 [US4] Generate `results/sensitivity/binning_results.csv` with columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value` (satisfies FR-010).
+- [ ] T044 [US4] Save bootstrap confidence intervals to `results/sensitivity/bootstrap_results.json`.
+- [ ] T045 [US4] Add final report generation step that summarizes sensitivity analysis findings, confirms robustness, and **includes the citations and associational framing** (moved from T019) in the final `results/report.md` document.
 
 ---
 
@@ -170,11 +173,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T046 [P] Documentation updates: Ensure `quickstart.md` explains the synthetic data fallback and associational framing
-- [ ] T047 Code cleanup and refactoring to ensure PEP8 compliance
-- [ ] T048 Performance optimization: Verify total runtime ≤ 6 hours on 2 CPU cores (profile `01_data_acquisition.py` and `02_visual_metrics.py`)
-- [ ] T049 [P] Additional unit tests for edge cases (image failure, zero variance) in `tests/unit/`
-- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution
+- [ ] T046 [P] Documentation updates: Ensure `quickstart.md` explains the synthetic data fallback and associational framing.
+- [ ] T047 Code cleanup and refactoring to ensure PEP8 compliance.
+- [ ] T048 Performance optimization: Verify total runtime ≤ 6 hours on 2 CPU cores (profile `01_data_acquisition.py` and `02_visual_metrics.py`).
+- [ ] T049 [P] Additional unit tests for edge cases (image failure, zero variance) in `tests/unit/`.
+- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution.
 
 ---
 
@@ -185,8 +188,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -253,9 +256,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -269,7 +272,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (cores, limited RAM). No GPU models, no 8-bit quantization, no large LLMs.
-- **Critical Constraint**: Synthetic data must use real distributions exhibiting a negative correlation. and real image generation logic (Pillow), not hardcoded placeholders.
+- **Critical Constraint**: All tasks must run on CPU-only CI (2 cores, limited RAM). No GPU models, no 8-bit quantization, no large LLMs.
+- **Critical Constraint**: Synthetic data must use real distributions exhibiting a negative correlation, and real image generation logic (Pillow), not hardcoded placeholders.
 - **Critical Constraint**: VIF/PCA logic MUST occur in the Analysis phase (T032-T034), not Metric Extraction, to satisfy FR-012.
-- **Critical Constraint**: Summary table of p-values (T036) and binning results (T043) must be generated as explicit CSV artifacts with specified columns.
+- **Critical Constraint**: Summary table of p-values (T036) and binning results (T043) must be generated as explicit CSV artifacts with specified columns and merged into the final statistics output.
+- **Critical Constraint**: Data acquisition (T015) MUST transition to synthetic generation if no linked public dataset exists; it must NOT raise an exception.
+- **Critical Constraint**: Object counting (T026) must use the real model but include a timeout/proxy fallback to ensure runtime constraints are met.
+- **Critical Constraint**: Metadata (lighting, room type) MUST be generated alongside synthetic images (T016) to satisfy Constitution Principle VII.
+- **Critical Constraint**: Citations and associational framing must be included in the final report and statistics output (T037, T045), not in a separate intermediate file.

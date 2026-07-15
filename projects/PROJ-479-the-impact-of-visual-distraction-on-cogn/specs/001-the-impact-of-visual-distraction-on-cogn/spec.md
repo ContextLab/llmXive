@@ -118,7 +118,7 @@ The system MUST conduct bootstrap resampling and alternative complexity metric s
 
 ## Assumptions
 
-- Publicly available cognitive task datasets (Stroop, flanker) with participant-level reaction time and accuracy data exist on HuggingFace Datasets or OpenML, OR synthetic data can be generated to simulate the expected correlation structure (r ≈ -0.2 to -0.4)
+- Publicly available cognitive task datasets (Stroop, flanker) with participant-level reaction time and accuracy data exist on HuggingFace Datasets or OpenML, OR synthetic data can be generated to simulate the expected correlation structure (moderate negative correlation)
 - Workspace environment images corresponding to study participants are available from the same datasets or from publicly accessible repositories (e.g., Kaggle home office image datasets); if not, synthetic images or real images are used with simulated linkage
 - Visual complexity metrics (edge density, color entropy, object count) can be computed from images using CPU-tractable methods (OpenCV, pre-trained detectors) within the 6-hour runtime budget
 - The relationship between visual complexity and cognitive performance is expected to be modest in effect size, consistent with laboratory distraction studies.

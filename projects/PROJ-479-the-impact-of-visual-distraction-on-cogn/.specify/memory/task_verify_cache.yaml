@@ -1,0 +1,53 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `results/statistics`,
+    `results/plots`, `results/sensitivity`, `results/methodology`) is provided; the
+    claim lacks any artifact confirming the directory structure was created.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/contract/` directory or test files were presented, and there is no
+    evidence of JSON/CSV schema validation code. The required contract tests are missing,
+    so the task is not satisfied.
+T016:
+  c: false
+  h: c862d5760a5cf225f501fd967d8cb2ae2a2d2fee1c169d2c2237894371d74d05
+  r: "The `data/raw/metadata.json` file does not exist, and the provided `code/01_data_acquisition.py`\
+    \ snippet ends before any image\u2011saving logic or deterministic naming is implemented,\
+    \ so synthetic images are not actually written to `data/raw/`. Both required artifacts\
+    \ are missing."
+T021:
+  c: false
+  h: 3f2a6e5a6f97b3a2fc58361039569f1114c56771e4076f0a3ee181be04c7e237
+  r: "The required artifact `tests/unit/test_edge_density.py` does not exist in the\
+    \ repository, so no unit test for edge density calculation is present. The task\u2019\
+    s core deliverable is missing."
+T022:
+  c: false
+  h: 53bcc2b1e38cef0ab998d5c0974aa81875cad2947c61eb893174e79d1d96c8a6
+  r: "The required artifact `tests/unit/test_color_entropy.py` does not exist in the\
+    \ repository, so no unit test for the color entropy calculation is present. The\
+    \ task\u2019s core deliverable is missing."
+T023:
+  c: false
+  h: 63b80dc38746c8d73c2c3703c54e07a0e4921f191be68e13541d0b319da80668
+  r: The required file `tests/unit/test_object_count.py` does not exist in the repository,
+    so the unit test for object count handling is missing. The task cannot be considered
+    completed until this test file is added with the appropriate test code.
+T027:
+  c: false
+  h: 84d6c1f1531c0e80f68b5c04f24c2a31cfa2271b14af91a8d1c864fd86d15fd2
+  r: "The repository contains `code/02_visual_metrics.py`, but the displayed portion\
+    \ stops before any `if __name__ == \"__main__\":` block that would iterate over\
+    \ `data/raw/` images and write `visual_metrics_intermediate.csv`. Moreover, the\
+    \ required output file `data/processed/visual_metrics_intermediate.csv` is absent.\
+    \ The task\u2019s core requirement\u2014processing all raw images and saving the\
+    \ computed metrics to the intermediate CSV\u2014is therefore not fulfilled."
+T028:
+  c: false
+  h: 4bac483c6f37e2a328b6c4a0013923f8767eef65d3208fde4417150f5a2e5b32
+  r: The repository lacks `data/processed/final_analysis_data.csv`, and the provided
+    `code/02_visual_metrics.py` does not contain any code that reads `visual_metrics_intermediate.csv`,
+    merges it with `merged_data.csv`, or writes the result to `final_analysis_data.csv`.
+    Consequently, the required merge logic and output file are missing.
