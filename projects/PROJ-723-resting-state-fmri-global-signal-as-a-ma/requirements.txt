@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+nibabel
+requests
+pyyaml
+statsmodels
+scipy
+ruff>=0.1.0
+black>=23.0.0
+pytest
+pytest-cov

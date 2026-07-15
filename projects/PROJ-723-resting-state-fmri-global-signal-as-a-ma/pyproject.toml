@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-fmri-mwq"
+version = "0.1.0"
+description = "Resting-state fMRI Global Signal as a Marker of Mind-Wandering"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "nibabel",
+    "requests",
+    "pyyaml",
+    "statsmodels",
+    "scipy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+extend-exclude = ["data/"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+)/
+'''

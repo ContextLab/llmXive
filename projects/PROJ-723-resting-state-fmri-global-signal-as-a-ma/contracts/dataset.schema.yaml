@@ -1,0 +1,48 @@
+# Schema definition for the HCP resting-state fMRI dataset
+# Used by ingestion.py to verify data integrity before processing
+required_columns:
+  - subject_id
+  - global_signal
+  - global_signal_sd
+  - mwq_score
+  - age
+  - sex
+  - fd
+  - dvars
+column_types:
+  subject_id: str
+  global_signal: float
+  global_signal_sd: float
+  mwq_score: float
+  age: int
+  sex: str
+  fd: float
+  dvars: float
+constraints:
+  subject_id:
+    unique: true
+    not_null: true
+  global_signal_sd:
+    not_null: true
+    non_negative: true
+  mwq_score:
+    not_null: true
+    min: 0
+    max: 100
+  age:
+    not_null: true
+    min: 18
+    max: 100
+  sex:
+    not_null: true
+    allowed_values:
+      - "M"
+      - "F"
+      - "Male"
+      - "Female"
+  fd:
+    not_null: true
+    non_negative: true
+  dvars:
+    not_null: true
+    non_negative: true
