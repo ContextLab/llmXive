@@ -142,6 +142,42 @@ def _resilient_pip_install(py: Path, req: Path) -> None:
         )
 
 
+def _ensure_code_package(project_dir: Path) -> None:
+    """Make ``code/`` an importable package so ``from code.X import Y`` works.
+
+    ``code`` is also a STDLIB module, so without a real ``code/__init__.py`` the
+    import resolves to the stdlib and dies "'code' is not a package" (PROJ-341). An
+    empty ``__init__.py`` turns the project's ``code/`` into a regular package which,
+    with the project root on PYTHONPATH (ahead of the stdlib), shadows it. Harmless
+    to the 334 projects using bare ``from <subpkg>`` imports. Best-effort; never
+    raises — a create failure just leaves the pre-existing behaviour."""
+    code = project_dir / "code"
+    if not code.is_dir():
+        return
+    init = code / "__init__.py"
+    if not init.exists():
+        try:
+            init.write_text("", encoding="utf-8")
+        except OSError as exc:
+            logger.warning("could not create %s: %s", init, exc)
+
+
+def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]:
+    """``base_env`` plus the project root AND ``code/`` on PYTHONPATH.
+
+    Analysis code imports its own modules two ways and BOTH must resolve: the
+    project root enables ``from code.X import Y`` (with :func:`_ensure_code_package`),
+    and ``code/`` enables bare ``from <subpkg> import Y``. Prepended so they win over
+    any inherited PYTHONPATH. Fixes the ModuleNotFoundError class that dominated the
+    execution failures (25 of them) — the analysis crashing on its OWN package."""
+    env = dict(base_env)
+    parts = [str(project_dir), str(project_dir / "code")]
+    if env.get("PYTHONPATH"):
+        parts.append(env["PYTHONPATH"])
+    env["PYTHONPATH"] = os.pathsep.join(parts)
+    return env
+
+
 def run_in_venv(
     *,
     project_dir: Path,
@@ -172,8 +208,9 @@ def run_in_venv(
     # to be globally present, masking the bug). ``os.path.abspath`` makes it
     # cwd-independent WITHOUT dereferencing the venv symlink.
     py = Path(os.path.abspath(ensure_venv(project_dir)))
+    _ensure_code_package(project_dir)
     run_cwd = Path(cwd or project_dir).resolve()
-    env = os.environ.copy()
+    env = _analysis_env(project_dir, os.environ.copy())
     env["PYTHONUNBUFFERED"] = "1"
     if extra_env:
         env.update(extra_env)
@@ -263,6 +300,7 @@ def run_pytest(
     """Run pytest inside the project's venv."""
     import time
     py = ensure_venv(project_dir)
+    _ensure_code_package(project_dir)
     code_dir = project_dir / "code"
     started = time.time()
     timed_out = False
@@ -273,6 +311,7 @@ def run_pytest(
             timeout=timeout_s,
             capture_output=True,
             text=True,
+            env=_analysis_env(project_dir, os.environ.copy()),
         )
         rc = proc.returncode
         out = proc.stdout
