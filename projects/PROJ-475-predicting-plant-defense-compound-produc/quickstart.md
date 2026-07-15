@@ -1,58 +1,50 @@
-# Quickstart Guide
-
-This guide validates the pipeline execution and artifact generation.
+# Quickstart Guide: Plant Defense Compound Prediction Pipeline
 
 ## Prerequisites
-
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
+- pip
+- At least 5GB free disk space
 
-## Execution Steps
+## Setup
+```bash
+pip install -r requirements.txt
+```
 
-1. **Generate Mock Data** (if real data is not available or for CI):
- ```bash
- python code/scripts/generate_mock_data.py
- ```
- This creates:
- - `data/raw/genomic_vcf.json`
- - `data/raw/env_data.json`
- - `data/raw/compound_data.json`
+## Run the Pipeline
+Execute the full pipeline from ingestion to evaluation:
 
-2. **Run Validation Pipeline**:
- ```bash
- python code/data/validation.py
- ```
- This merges datasets and produces `data/processed/merged.csv`.
+```bash
+# Step 1: Generate mock data (for testing/CI)
+python code/scripts/generate_mock_data.py
 
-3. **Run Preprocessing Pipeline** (Imputation, Filtering, VIF):
- ```bash
- python code/data/preprocessing.py
- ```
- This produces:
- - `data/processed/filtered.csv`
- - `data/processed/features_vif.csv`
+# Step 2: Run ingestion pipeline
+python code/data/ingestion.py
 
-4. **Run Model Training**:
- ```bash
- python code/models/training.py
- ```
+# Step 3: Run validation pipeline
+python code/data/validation.py
 
-5. **Run Evaluation**:
- ```bash
- python code/models/evaluation.py
- ```
+# Step 4: Run preprocessing (includes VIF analysis for T020)
+python code/data/preprocessing.py
 
-6. **Run Full Pipeline**:
- ```bash
- python code/main.py
- ```
+# Step 5: Run model training
+python code/models/training.py
 
-## Verification
+# Step 6: Run evaluation
+python code/models/evaluation.py
 
-Ensure the following files exist after execution:
+# Step 7: Update manifest
+python code/scripts/update_manifest.py
+```
+
+## Verify Outputs
+Check that the following files exist:
 - `data/raw/genomic_vcf.json`
 - `data/raw/env_data.json`
 - `data/raw/compound_data.json`
 - `data/processed/filtered.csv`
 - `data/processed/features_vif.csv`
-- `state/PROJ-475-predicting-plant-defense-compound-produc.yaml`
+
+## Run Tests
+```bash
+pytest code/tests/
+```

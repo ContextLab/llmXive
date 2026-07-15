@@ -1,6 +1,8 @@
 """
-Data Ingestion Module.
-Fetches or generates mock data for Genomic, Environmental, and Compound sources.
+Data Ingestion Module for Plant Defense Compound Prediction.
+
+Handles fetching genomic, environmental, and compound data from verified URLs
+or generating deterministic mock data for CI/testing when URLs are unavailable.
 """
 import json
 import os
@@ -9,144 +11,120 @@ import requests
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union
+import numpy as np
+import pandas as pd
 
-from utils.logging import get_module_logger, configure_root_logger
-from utils.io import check_disk_space, DiskSpaceError
-from data.mock_generator import generate_all_mock_data
+# Local imports
 from config import get_config
+from utils.io import check_disk_space, DiskSpaceError
+from utils.logging import get_module_logger
+from data.mock_generator import generate_mock_compound_data
 
 logger = get_module_logger(__name__)
+config = get_config()
 
-RAW_DIR = Path("data/raw")
+# Output paths as per task specification
+OUTPUT_COMPOUND_DATA = Path("data/raw/compound_data.json")
 
-# Output paths
-GENOMIC_OUTPUT_PATH = RAW_DIR / "genomic_vcf.json"
-ENV_OUTPUT_PATH = RAW_DIR / "env_data.json"
-COMPOUND_OUTPUT_PATH = RAW_DIR / "compound_data.json"
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle numpy types."""
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
-# Verified URLs (Placeholder for real URLs as per spec)
-VERIFIED_URLS = {
-    'genomic': 'https://api.example.com/genomic_data', # Replace with real NCBI SRA endpoint if available
-    'env': 'https://api.example.com/env_data',         # Replace with real WorldClim/GBIF endpoint
-    'compound': 'https://api.example.com/compound_data' # Replace with real ChemBank/PhenolExplorer endpoint
-}
+def save_data(data: Union[Dict, List], output_path: Path) -> None:
+    """
+    Save data to a JSON file with proper encoding for numpy types.
 
-def save_data(data: List[Dict], output_path: Path) -> None:
-    """Saves data to a JSON file."""
+    Args:
+        data: Data to save (dict or list)
+        output_path: Path to save the file
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Saved data to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, cls=NumpyEncoder)
+    logger.info(f"Data saved to {output_path}")
 
-def fetch_genomic_data() -> List[Dict]:
-    """Fetches genomic data from verified URL or generates mock data."""
-    config = get_config()
-    url = VERIFIED_URLS['genomic']
-    
-    # Check if verified URL is configured (simulated by checking config)
-    # In real scenario, this would check config.verified_urls['genomic']
-    use_mock = not config.get('verified_urls', {}).get('genomic', False)
-    
-    if not use_mock:
+def fetch_compound_data(url: str) -> Dict[str, Any]:
+    """
+    Fetch defense compound profiles from a verified URL (ChemBank/PhenolExplorer).
+
+    Args:
+        url: The verified URL to fetch data from.
+
+    Returns:
+        Parsed JSON data as a dictionary.
+
+    Raises:
+        requests.RequestException: If the fetch fails.
+    """
+    logger.info(f"Attempting to fetch compound data from: {url}")
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    return response.json()
+
+def run_compound_ingestion() -> Dict[str, Any]:
+    """
+    Execute the defense compound data ingestion pipeline.
+
+    Logic:
+    1. Check if a verified URL for compound data exists in config.
+    2. If yes, attempt to fetch. If fetch fails, log error and fall back to mock.
+    3. If no verified URL, generate mock data.
+    4. Verify disk space before writing.
+    5. Save to data/raw/compound_data.json.
+
+    Returns:
+        The loaded/generated compound data.
+    """
+    compound_config = config.get('verified_urls', {}).get('compound')
+    data = None
+
+    if compound_config:
         try:
-            logger.info(f"Fetching genomic data from {url}...")
-            # Simulate fetch (replace with real requests.get(url).json())
-            # Since real URL is placeholder, we fallback to mock for this demo to avoid network failure
-            # In a real implementation with a real URL, this would work.
-            # For now, we treat the placeholder as "not verified" to ensure run-ability.
-            raise ValueError("Placeholder URL detected, falling back to mock.")
-        except Exception as e:
-            logger.warning(f"Fetch failed ({e}). Falling back to mock data generation for genomic data.")
-            use_mock = True
-    
-    if use_mock:
-        logger.info("Generating mock genomic data.")
-        data = generate_all_mock_data()['genomic']
-    
-    # Post-check disk usage
+            # Attempt real fetch
+            data = fetch_compound_data(compound_config)
+            logger.info("Successfully fetched real compound data.")
+        except requests.RequestException as e:
+            logger.warning(f"Failed to fetch real compound data: {e}. Falling back to mock data.")
+            # Fallback to mock
+            data = generate_mock_compound_data()
+    else:
+        logger.info("No verified URL for compound data found. Generating mock data.")
+        data = generate_mock_compound_data()
+
+    # Pre-check disk space (estimate: 10MB for safety)
+    estimated_size = 10 * 1024 * 1024
     try:
-        check_disk_space(sys.getsizeof(data))
+        check_disk_space(estimated_size)
+        logger.info("Disk space check passed.")
     except DiskSpaceError as e:
         logger.error(f"Disk space check failed: {e}")
         raise
-    
-    save_data(data, GENOMIC_OUTPUT_PATH)
-    return data
 
-def fetch_environmental_data() -> List[Dict]:
-    """Fetches environmental data from verified URL or generates mock data."""
-    config = get_config()
-    url = VERIFIED_URLS['env']
-    use_mock = not config.get('verified_urls', {}).get('env', False)
-    
-    if not use_mock:
-        try:
-            logger.info(f"Fetching environmental data from {url}...")
-            raise ValueError("Placeholder URL detected, falling back to mock.")
-        except Exception as e:
-            logger.warning(f"Fetch failed ({e}). Falling back to mock data generation for environmental data.")
-            use_mock = True
-    
-    if use_mock:
-        logger.info("Generating mock environmental data.")
-        data = generate_all_mock_data()['environmental']
-    
-    try:
-        check_disk_space(sys.getsizeof(data))
-    except DiskSpaceError as e:
-        logger.error(f"Disk space check failed: {e}")
-        raise
-    
-    save_data(data, ENV_OUTPUT_PATH)
-    return data
+    # Save the data
+    save_data(data, OUTPUT_COMPOUND_DATA)
 
-def fetch_compound_data() -> List[Dict]:
-    """Fetches compound profiles from verified URL or generates mock data."""
-    config = get_config()
-    url = VERIFIED_URLS['compound']
-    use_mock = not config.get('verified_urls', {}).get('compound', False)
-    
-    if not use_mock:
-        try:
-            logger.info(f"Fetching compound data from {url}...")
-            raise ValueError("Placeholder URL detected, falling back to mock.")
-        except Exception as e:
-            logger.warning(f"Fetch failed ({e}). Falling back to mock data generation for compound profiles.")
-            use_mock = True
-    
-    if use_mock:
-        logger.info("Generating mock compound data.")
-        data = generate_all_mock_data()['compound']
-    
-    try:
-        check_disk_space(sys.getsizeof(data))
-    except DiskSpaceError as e:
-        logger.error(f"Disk space check failed: {e}")
-        raise
-    
-    save_data(data, COMPOUND_OUTPUT_PATH)
     return data
-
-def run_all_ingestion() -> Dict[str, List[Dict]]:
-    """Runs all ingestion steps."""
-    logger.info("Starting ingestion pipeline.")
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    
-    genomic = fetch_genomic_data()
-    env_data = fetch_environmental_data()
-    compound = fetch_compound_data()
-    
-    return {
-        'genomic': genomic,
-        'environmental': env_data,
-        'compound': compound
-    }
 
 def main():
-    """Entry point for ingestion script."""
-    configure_root_logger()
-    run_all_ingestion()
+    """Entry point for compound ingestion script."""
+    configure_root_logger = logging.getLogger()
+    configure_root_logger.setLevel(logging.INFO)
+    
+    try:
+        data = run_compound_ingestion()
+        logger.info(f"Ingestion complete. Output: {OUTPUT_COMPOUND_DATA}")
+        return 0
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

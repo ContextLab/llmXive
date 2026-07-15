@@ -6,6 +6,5 @@ requests
 pyyaml
 scipy
 pytest
-statsmodels
 ruff
 black

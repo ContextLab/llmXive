@@ -1,14 +1,16 @@
 {
   "project_id": "PROJ-475-predicting-plant-defense-compound-produc",
   "ok": false,
-  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026verified URL or generate mock data.          Args:\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026r.info(f\"Falling back to mock data generation for {descript\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026r.info(f\"Falling back to mock data generation for {descript\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 5 declared deliverable(s) absent: data/processed/features_vif.csv; data/processed/filtered.csv; data/raw/compound_data.json",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/main.py\", line 13, in <module>\n    from models.training import train_model\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/models/__init__.py\", line 7, in <module>\n    from . import evaluation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/models/evaluation.py\", line 20, in <module>\n    from utils.stats impor"
+  "reason": "17 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a from a URL or generate mock data.          This refactors\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ta: {e}. Falling back to mock data.\")          # Generate m\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a.\")          # Generate mock data     logger.info(f\"Genera\u2026\u201d; every produced artifact is gitignored (data/raw/genomic_vcf.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/features_vif.csv; data/processed/filtered.csv; data/raw/compound_data.json",
+  "artifacts": [
+    "data/raw/genomic_vcf.json"
   ],
-  "fix_rounds": 2,
+  "failures": [
+    "python code/main.py -> rc=1\n    , OUTPUT_FILES['genomic'])\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-475-predicting-plant-defense-compound-produc/code/data/ingestion.py\", line 65, in save_data\n    json.dump(data, f, indent=2)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py\", line 179, in dump\n    for chunk in iterable:\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py\", line 430, in _iterencode\n    yield from _iterencode_list(o, _current_indent_level)\n "
+  ],
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T23:10:47Z"
+  "updated_at": "2026-07-14T23:56:21Z"
 }

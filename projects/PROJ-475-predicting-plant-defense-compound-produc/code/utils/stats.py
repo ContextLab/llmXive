@@ -1,163 +1,223 @@
 """
-Statistics module for VIF, Jaccard index, and BH correction.
+Statistics Utility Module.
+
+Provides statistical functions for VIF, Jaccard index, etc.
 """
 import logging
+import sys
 from pathlib import Path
 from typing import List, Set, Dict, Any, Union, Optional, Tuple
 import numpy as np
 import pandas as pd
-from utils.logging import get_module_logger
 
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
-# We need statsmodels for VIF, but we import it locally in functions to avoid
-# hard dependency if not used, or handle import error gracefully.
-# However, the task T020 requires VIF, so we assume statsmodels is installed.
-# The execution failure indicated 'statsmodels' was missing, so we must ensure
-# it is imported correctly here. The user's error log showed:
-# ModuleNotFoundError: No module named 'statsmodels'
-# We will add it to requirements.txt in a real scenario, but here we just import.
-try:
-    import statsmodels.api as sm
-except ImportError:
-    sm = None
-    logger.error("statsmodels not found. VIF calculations will fail.")
-
-def calculate_vif(df: pd.DataFrame, predictor_cols: List[str]) -> pd.DataFrame:
+def calculate_vif(df: pd.DataFrame, feature: str, features: List[str]) -> float:
     """
-    Calculates Variance Inflation Factor (VIF) for given predictors.
+    Calculate Variance Inflation Factor for a specific feature.
+
+    Args:
+        df: DataFrame containing the data.
+        feature: The feature column to calculate VIF for.
+        features: List of all feature columns including the target feature.
+
+    Returns:
+        VIF value.
     """
-    if sm is None:
-        raise ImportError("statsmodels is required for VIF calculation.")
-
-    if df.empty:
-        return pd.DataFrame(columns=['feature', 'VIF'])
-
-    valid_cols = [c for c in predictor_cols if c in df.columns]
-    if not valid_cols:
-        return pd.DataFrame(columns=['feature', 'VIF'])
-
-    X = df[valid_cols].copy()
-    constant_cols = [col for col in X.columns if X[col].std() == 0]
-    X_calc = X.drop(columns=constant_cols)
-
-    if X_calc.empty:
-        return pd.DataFrame(columns=['feature', 'VIF'])
-
-    vif_data = []
-    for col in X_calc.columns:
-        other_cols = [c for c in X_calc.columns if c != col]
-        if not other_cols:
-            vif_val = 1.0
-        else:
-            y = X_calc[col]
-            X_other = X_calc[other_cols]
-            X_other_with_const = sm.add_constant(X_other)
-            model = sm.OLS(y, X_other_with_const).fit()
-            vif_val = 1.0 / (1.0 - model.rsquared)
-        
-        vif_data.append({'feature': col, 'VIF': vif_val})
+    # Remove NaNs for regression
+    valid_cols = [feature] + [f for f in features if f in df.columns]
+    clean_df = df[valid_cols].dropna()
     
-    return pd.DataFrame(vif_data)
+    if len(clean_df) < 2 or len(valid_cols) < 2:
+        return np.nan
 
-def run_vif_analysis(df: pd.DataFrame, predictors: List[str]) -> pd.DataFrame:
-    """
-    Wrapper to run VIF analysis and log results.
-    """
-    vif_df = calculate_vif(df, predictors)
-    for _, row in vif_df.iterrows():
-        if row['VIF'] > 5.0:
-            logger.warning(f"High VIF detected for {row['feature']}: {row['VIF']:.2f}")
-    return vif_df
+    try:
+        # Regress feature against all other features
+        X = clean_df[[f for f in features if f != feature and f in clean_df.columns]]
+        y = clean_df[feature]
+        
+        if X.empty:
+            return 1.0
+        
+        # Add intercept
+        X_with_intercept = pd.concat([pd.Series(1, index=X.index, name='intercept'), X], axis=1)
+        
+        # OLS calculation
+        # beta = (X'X)^-1 X'y
+        # R^2 = 1 - SSE/SST
+        # VIF = 1 / (1 - R^2)
+        
+        # Using numpy for linear algebra
+        X_mat = X_with_intercept.values
+        y_vec = y.values
+        
+        # Check for singular matrix
+        XtX = X_mat.T @ X_mat
+        if np.linalg.cond(XtX) > 1e10:
+            logger.warning(f"Singular matrix detected for VIF calculation of {feature}")
+            return np.inf
+        
+        # Solve for coefficients
+        try:
+            coeffs = np.linalg.solve(XtX, X_mat.T @ y_vec)
+            y_pred = X_mat @ coeffs
+            residuals = y_vec - y_pred
+            
+            ss_res = np.sum(residuals**2)
+            ss_tot = np.sum((y_vec - np.mean(y_vec))**2)
+            
+            if ss_tot == 0:
+                return 1.0
+                
+            r_squared = 1 - (ss_res / ss_tot)
+            if r_squared >= 1.0:
+                return np.inf
+            
+            vif = 1 / (1 - r_squared)
+            return float(vif)
+        except np.linalg.LinAlgError:
+            return np.inf
+    except Exception as e:
+        logger.error(f"Error calculating VIF for {feature}: {e}")
+        return np.nan
 
-def calculate_jaccard_index(set1: Set, set2: Set) -> float:
+def run_vif_analysis(df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
     """
-    Calculates Jaccard index between two sets.
-    """
-    if not set1 and not set2:
-        return 1.0
-    intersection = len(set1.intersection(set2))
-    union = len(set1.union(set2))
-    if union == 0:
-        return 0.0
-    return intersection / union
+    Run VIF analysis on a list of features.
 
-def calculate_jaccard_stability_matrix(feature_sets: List[Set]) -> pd.DataFrame:
-    """
-    Calculates pairwise Jaccard stability matrix.
-    """
-    n = len(feature_sets)
-    matrix = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            matrix[i, j] = calculate_jaccard_index(feature_sets[i], feature_sets[j])
-    return pd.DataFrame(matrix)
+    Args:
+        df: DataFrame.
+        features: List of feature names.
 
-def calculate_mean_jaccard_stability(feature_sets: List[Set]) -> float:
+    Returns:
+        DataFrame with VIF values.
     """
-    Calculates mean Jaccard stability across all pairs.
-    """
-    if len(feature_sets) < 2:
-        return 1.0
-    matrix = calculate_jaccard_stability_matrix(feature_sets)
-    # Upper triangle excluding diagonal
-    n = matrix.shape[0]
-    indices = np.triu_indices(n, k=1)
-    if len(indices[0]) == 0:
-        return 1.0
-    return matrix.values[indices].mean()
-
-def save_jaccard_stability_report(feature_sets: List[Set], output_path: Path) -> None:
-    """
-    Saves Jaccard stability report to a file.
-    """
-    matrix = calculate_jaccard_stability_matrix(feature_sets)
-    matrix.to_csv(output_path)
-    logger.info(f"Saved Jaccard stability report to {output_path}")
+    vif_results = []
+    for feat in features:
+        vif = calculate_vif(df, feat, features)
+        vif_results.append({'feature': feat, 'vif': vif})
+    return pd.DataFrame(vif_results)
 
 def benjamini_hochberg_correction(p_values: List[float], alpha: float = 0.05) -> List[bool]:
     """
-    Applies Benjamini-Hochberg correction to p-values.
-    Returns a list of booleans indicating if the hypothesis is rejected.
+    Apply Benjamini-Hochberg correction to a list of p-values.
+
+    Args:
+        p_values: List of p-values.
+        alpha: Significance level.
+
+    Returns:
+        List of booleans indicating significance after correction.
     """
     n = len(p_values)
     if n == 0:
         return []
     
-    # Sort p-values
+    # Sort p-values and keep original indices
     sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
+    sorted_p_values = np.array(p_values)[sorted_indices]
     
-    # Calculate BH critical values
-    ranks = np.arange(1, n + 1)
-    critical_values = (ranks / n) * alpha
+    # Calculate adjusted p-values (BH procedure)
+    # p_adj[i] = p[i] * n / (i + 1)
+    # But we need to ensure monotonicity
     
-    # Find the largest k such that p(k) <= critical(k)
-    # We iterate from largest to smallest
-    reject = np.zeros(n, dtype=bool)
-    for i in range(n - 1, -1, -1):
-        if sorted_p[i] <= critical_values[i]:
-            reject[:i+1] = True
-            break
+    adjusted_p_values = np.zeros(n)
+    for i in range(n):
+        adjusted_p_values[i] = sorted_p_values[i] * n / (i + 1)
+    
+    # Ensure monotonicity (cumulative min from the end)
+    for i in range(n - 2, -1, -1):
+        adjusted_p_values[i] = min(adjusted_p_values[i], adjusted_p_values[i+1])
+    
+    # Determine significance
+    significant = adjusted_p_values <= alpha
     
     # Map back to original order
-    final_reject = np.zeros(n, dtype=bool)
-    final_reject[sorted_indices] = reject
+    result = [False] * n
+    for idx, is_sig in zip(sorted_indices, significant):
+        result[idx] = is_sig
+        
+    return result
+
+def calculate_jaccard_index(set_a: Set[Any], set_b: Set[Any]) -> float:
+    """
+    Calculate Jaccard index between two sets.
+
+    Args:
+        set_a: First set.
+        set_b: Second set.
+
+    Returns:
+        Jaccard index (0 to 1).
+    """
+    if not set_a and not set_b:
+        return 1.0
+    intersection = len(set_a.intersection(set_b))
+    union = len(set_a.union(set_b))
+    if union == 0:
+        return 0.0
+    return intersection / union
+
+def calculate_jaccard_stability_matrix(feature_sets: List[Set[Any]]) -> pd.DataFrame:
+    """
+    Calculate Jaccard stability matrix for a list of feature sets.
+
+    Args:
+        feature_sets: List of sets of features.
+
+    Returns:
+        DataFrame representing the stability matrix.
+    """
+    n = len(feature_sets)
+    if n == 0:
+        return pd.DataFrame()
     
-    return final_reject.tolist()
+    matrix = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            matrix[i, j] = calculate_jaccard_index(feature_sets[i], feature_sets[j])
+    
+    return pd.DataFrame(matrix)
 
-def apply_bh_correction_to_predictors(predictor_pvals: Dict[str, float], alpha: float = 0.05) -> Dict[str, bool]:
+def calculate_mean_jaccard_stability(feature_sets: List[Set[Any]]) -> float:
     """
-    Applies BH correction to a dictionary of predictor p-values.
-    """
-    predictors = list(predictor_pvals.keys())
-    pvals = list(predictor_pvals.values())
-    results = benjamini_hochberg_correction(pvals, alpha)
-    return dict(zip(predictors, results))
+    Calculate mean Jaccard stability across all pairs.
 
-def main():
-    """Entry point for stats module (for testing)."""
+    Args:
+        feature_sets: List of sets of features.
+
+    Returns:
+        Mean Jaccard index.
+    """
+    if len(feature_sets) < 2:
+        return 1.0
+    
+    matrix = calculate_jaccard_stability_matrix(feature_sets)
+    # Exclude diagonal
+    n = matrix.shape[0]
+    off_diag_sum = matrix.sum().sum() - np.trace(matrix)
+    count = n * n - n
+    if count == 0:
+        return 1.0
+    return off_diag_sum / count
+
+def save_jaccard_stability_report(matrix: pd.DataFrame, path: Path) -> None:
+    """
+    Save Jaccard stability matrix to a CSV file.
+
+    Args:
+        matrix: The stability matrix DataFrame.
+        path: Output path.
+    """
+    matrix.to_csv(path, index=False)
+    logger.info(f"Jaccard stability report saved to {path}")
+
+def main() -> int:
+    """
+    Entry point for stats module (for testing).
+    """
     logger.info("Stats module loaded.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

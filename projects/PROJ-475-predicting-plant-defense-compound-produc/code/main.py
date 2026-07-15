@@ -1,5 +1,10 @@
 """
-Main Pipeline Orchestrator.
+Main entry point for the plant defense compound prediction pipeline.
+
+Orchestrates the full pipeline: Ingestion → Validation → Preprocessing → 
+Feature Engineering → Model Training → Evaluation.
+
+Constitution Principle V: Updates state file with timestamp upon completion.
 """
 import sys
 import os
@@ -9,74 +14,132 @@ from pathlib import Path
 import yaml
 
 from utils.logging import configure_root_logger, get_module_logger
-from data.ingestion import run_all_ingestion
-from data.validation import run_validation_pipeline
-from data.preprocessing import run_preprocessing_pipeline
-from models.training import main as training_main
-from models.evaluation import main as evaluation_main
-from config import get_config
+from config import load_config, get_config
 
 logger = get_module_logger(__name__)
-STATE_FILE = Path("state/PROJ-475-predicting-plant-defense-compound-produc.yaml")
 
-def update_state_file():
-    """Updates the state file with current timestamp (Constitution Principle V)."""
-    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    state = {
-        'project_id': 'PROJ-475-predicting-plant-defense-compound-produc',
-        'updated_at': datetime.now().isoformat(),
-        'status': 'completed'
-    }
-    with open(STATE_FILE, 'w') as f:
-        yaml.dump(state, f)
-    logger.info(f"Updated state file: {STATE_FILE}")
+def update_state_file(state_path: str = "state/PROJ-475-predicting-plant-defense-compound-produc.yaml"):
+    """
+    Update the state file with current timestamp and completion status.
+    
+    Constitution Principle V: Record pipeline completion.
+    """
+    state_file = Path(state_path)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    current_state = {}
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            current_state = yaml.safe_load(f) or {}
+    
+    current_state['updated_at'] = datetime.now().isoformat()
+    current_state['last_run_status'] = 'success'
+    current_state['pipeline_version'] = '1.0.0'
+    
+    with open(state_file, 'w') as f:
+        yaml.dump(current_state, f, default_flow_style=False)
+    
+    logger.info(f"Updated state file: {state_path}")
 
 def run_pipeline():
-    """Runs the full pipeline: Ingestion -> Validation -> Preprocessing -> Training -> Evaluation."""
-    logger.info("Starting full pipeline.")
+    """
+    Execute the full research pipeline.
+    """
+    logger.info("Starting full research pipeline")
     
-    # 1. Ingestion
-    logger.info("Step 1: Ingestion")
-    run_all_ingestion()
-    
-    # 2. Validation
-    logger.info("Step 2: Validation")
+    # Step 1: Ingestion (T010-T012)
+    logger.info("Step 1: Data Ingestion")
     try:
-        run_validation_pipeline()
-    except SystemExit as e:
-        if str(e) == "E-DATA-INSUFFICIENT":
-            logger.error("Pipeline halted: Insufficient data retention.")
+        from data.ingestion import main as ingestion_main
+        if ingestion_main() != 0:
+            logger.error("Ingestion step failed")
             return False
-        raise
+    except Exception as e:
+        logger.error(f"Ingestion step failed: {e}")
+        return False
     
-    # 3. Preprocessing (T015)
-    logger.info("Step 3: Preprocessing (T015)")
-    run_preprocessing_pipeline()
+    # Step 2: Validation (T013-T014)
+    logger.info("Step 2: Data Validation")
+    try:
+        from data.validation import main as validation_main
+        if validation_main() != 0:
+            logger.error("Validation step failed")
+            return False
+    except Exception as e:
+        logger.error(f"Validation step failed: {e}")
+        return False
     
-    # 4. Training
-    logger.info("Step 4: Training")
-    training_main()
+    # Step 3: Preprocessing (T015-T016)
+    logger.info("Step 3: Data Preprocessing")
+    try:
+        from data.preprocessing import main as preprocessing_main
+        if preprocessing_main() != 0:
+            logger.error("Preprocessing step failed")
+            return False
+    except Exception as e:
+        logger.error(f"Preprocessing step failed: {e}")
+        return False
     
-    # 5. Evaluation
-    logger.info("Step 5: Evaluation")
-    evaluation_main()
+    # Step 4: Feature Engineering (T019-T021, T026)
+    logger.info("Step 4: Feature Engineering")
+    try:
+        # T019, T020, T021, T026 are part of preprocessing module
+        # Re-run preprocessing with feature engineering steps if needed
+        from data.preprocessing import run_preprocessing_pipeline
+        run_preprocessing_pipeline()
+    except Exception as e:
+        logger.error(f"Feature engineering step failed: {e}")
+        return False
     
-    # Update State
-    update_state_file()
+    # Step 5: Model Training (T022-T025)
+    logger.info("Step 5: Model Training")
+    try:
+        from models.training import main as training_main
+        if training_main() != 0:
+            logger.error("Model training step failed")
+            return False
+    except Exception as e:
+        logger.error(f"Model training step failed: {e}")
+        return False
     
-    logger.info("Pipeline completed successfully.")
+    # Step 6: Evaluation (T029-T033)
+    logger.info("Step 6: Model Evaluation")
+    try:
+        from models.evaluation import main as evaluation_main
+        if evaluation_main() != 0:
+            logger.error("Model evaluation step failed")
+            return False
+    except Exception as e:
+        logger.error(f"Model evaluation step failed: {e}")
+        return False
+    
+    logger.info("Full pipeline completed successfully")
     return True
 
-def main(config=None):
+def main(config_path: Optional[str] = None):
     """
-    Entry point for the main pipeline.
-    Accepts optional config argument to satisfy all call sites.
+    Main entry point.
+    
+    Args:
+        config_path: Optional path to configuration file.
     """
     configure_root_logger()
-    if config is None:
-        config = get_config()
-    return run_pipeline()
+    
+    # Load configuration
+    if config_path:
+        load_config(config_path)
+    else:
+        get_config()  # Load default config
+    
+    success = run_pipeline()
+    
+    if success:
+        update_state_file()
+        logger.info("Pipeline execution completed successfully")
+        return 0
+    else:
+        logger.error("Pipeline execution failed")
+        return 1
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())
