@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-15T01:38:45.122975Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1055-lightmem-ego-your-ai-memory-for-everyday
-last_run_id: null
+last_run_id: ce2e21d5-1666-41c7-81f3-d2b36dc5ae86
 last_run_status: null
 points_paper: {}
 points_research: {}
