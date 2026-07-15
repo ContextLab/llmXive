@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.06643",
+  "judged_at": "2026-07-15T03:10:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-2.0-rl technical report\" computer science",
+  "rationale": "The paper focuses on network throughput optimization in CSMA/IEEE 802.11 wireless protocols, which is a distinct domain from Large Language Models (LLMs) and image generation RL. It shares no measurable connection to the user's mechanism, variables, or empirical setting, falling under the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

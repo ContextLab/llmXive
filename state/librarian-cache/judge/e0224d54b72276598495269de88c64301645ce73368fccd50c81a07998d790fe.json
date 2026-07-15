@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.10190",
+  "judged_at": "2026-07-15T03:09:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-2.0-rl technical report\" computer science",
+  "rationale": "The paper focuses on robotic reinforcement learning and fine-tuning policies for physical manipulation tasks, which is an off-domain application compared to the user's specific interest in extending a technical report on \"Qwen-Image-2.0-RL\" (a large language/vision model architecture). While both involve \"RL\" and \"fine-tuning,\" the paper does not address the specific model family, the computer science mechanisms of the Qwen-Image architecture, or the specific research context of the user's follo",
+  "relevant": false
+}

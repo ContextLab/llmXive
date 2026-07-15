@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.05930",
+  "judged_at": "2026-07-15T03:10:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-2.0-rl technical report\" computer science",
+  "rationale": "The paper focuses on DNN quantization frameworks for deployment efficiency, which is a distinct technical construct from the user's question regarding the specific follow-up to \"Qwen-Image-2.0-RL\" (a reinforcement learning technical report for an image model). While both involve deep learning, the paper does not measure the same mechanism, variables, or empirical population as the user's specific inquiry into the RL training or architecture of that specific model family, nor does it serve as a f",
+  "relevant": false
+}

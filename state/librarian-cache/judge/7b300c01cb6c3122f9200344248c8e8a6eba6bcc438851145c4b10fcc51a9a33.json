@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.07888",
+  "judged_at": "2026-07-15T03:10:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-2.0-rl technical report\" computer science",
+  "rationale": "The paper focuses on fine-tuning efficiency and data ordering strategies for medical question answering, which does not address the user's specific question regarding the \"Qwen-Image-2.0-RL Technical Report\" or the mechanisms of reinforcement learning in image generation models. There is no overlap in the specific model architecture, modality (text-only vs. image), or the RL training mechanism being investigated, failing all inclusion criteria (a-f) and falling under the \"off-domain entirely\" re",
+  "relevant": false
+}

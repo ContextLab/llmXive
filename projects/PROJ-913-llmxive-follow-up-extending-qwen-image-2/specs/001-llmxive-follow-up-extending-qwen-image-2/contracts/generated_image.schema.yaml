@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeneratedImage"
+description: "Schema for generated image artifacts."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image (UUID)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  model_id:
+    type: "string"
+    description: "Reference to the model."
+    enum:
+      - "base_qwen_image_2.0"
+      - "rl_unified_qwen_image_2.0"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  file_path:
+    type: "string"
+    description: "Path to the image file (relative to data/outputs/)."
+    pattern: "^data/outputs/(base|rl_unified)/.*\\.png$"
+  dimensions:
+    type: "array"
+    description: "Image dimensions (width, height)."
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+required:
+  - image_id
+  - prompt_id
+  - model_id
+  - seed
+  - file_path
+  - dimensions
+additionalProperties: false

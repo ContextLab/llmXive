@@ -1407,6 +1407,10 @@
     "classified_at": "2026-07-10T00:52:56Z",
     "verdict": false
   },
+  "PROJ-913-llmxive-follow-up-extending-qwen-image-2::1.6.0": {
+    "classified_at": "2026-07-15T03:09:24Z",
+    "verdict": false
+  },
   "PROJ-916-llmxive-follow-up-extending-interleaveth::1.6.0": {
     "classified_at": "2026-07-11T09:42:37Z",
     "verdict": false

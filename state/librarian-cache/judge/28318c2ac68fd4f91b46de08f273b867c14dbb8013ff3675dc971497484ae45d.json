@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.09061",
+  "judged_at": "2026-07-15T03:10:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-image-2.0-rl technical report\" computer science",
+  "rationale": "The paper is a general survey on Vision-Language Pre-training (VLP) and does not address the specific \"llmXive\" follow-up or the \"Qwen-Image-2.0-RL\" technical report mentioned in the user's question. It fails to meet any inclusion criteria (a-f) because it lacks the specific mechanism, empirical population, or foundational methodology related to the user's narrow focus on Qwen's RL-based image generation pipeline, instead offering a broad overview of the entire VLP field.",
+  "relevant": false
+}

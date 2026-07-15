@@ -1,0 +1,11 @@
+- artifact_hash: 43138655d7725a9b20695e771f425700b1e8bf1635972d237af193c1cdc58866
+  artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-follow-up.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up
+  verified_at: '2026-07-15T03:42:07.712560Z'
