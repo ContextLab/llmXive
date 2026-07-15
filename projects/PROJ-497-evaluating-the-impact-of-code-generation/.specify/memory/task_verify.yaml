@@ -1,10 +1,5 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `state/`, `tests/`): 2
-? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
-  (transformers, datasets, bandit, scikit-learn, statsmodels, pandas, matplotlib,
-  seaborn, pyyaml, pingouin)
-: 2
-T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`: 2
-? T006 [P] Implement `code/download.py` to fetch HumanEval and MBPP datasets from
-  HuggingFace `datasets` library with SHA-256 checksum verification (Constitution
-  Principle III)
-: 2
+T001: 1
+T002: 1
+T003: 1
+T006: 1
+T009: 1

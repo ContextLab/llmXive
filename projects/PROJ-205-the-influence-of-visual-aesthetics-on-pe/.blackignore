@@ -1,0 +1,15 @@
+# Files and directories to be ignored by Black
+.git/
+.mypy_cache/
+.tox/
+.venv/
+venv/
+__pycache__/
+build/
+dist/
+data/
+figures/
+*.csv
+*.json
+*.html
+*.txt

@@ -27,10 +27,10 @@
 - [ ] T001a [P] Create `code/`, `data/raw`, `data/processed`, `results`, and `specs/` directories
 - [ ] T001b [P] Create empty `__init__.py` and `config.yaml` files in `code/` and `data/` subfolders
 - [ ] T002a [P] Create `requirements.txt` with pinned dependencies: `requests`, `pandas`, `scikit-learn`, `statsmodels`, `pygithub`, `tqdm`, `sentence-transformers`, `networkx`, `pytest`
-- [ ] T002b [P] Initialize git repository and virtual environment (venv) <!-- FAILED: unspecified -->
+- [ ] T002b [P] Initialize git repository and virtual environment (venv) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Create `code/versions.yaml` with pinned versions for SonarQube Scanner, DeepSource CLI, and CodeClimate Engine (as per Plan Constitution VI)
-- [~] T004b [P] Update `code/versions.yaml` to pin the `sentence-transformers` model `all-MiniLM-L6-v2` with its specific commit hash or tag (Constitution Principle VI)
+- [X] T004b [P] Update `code/versions.yaml` to pin the `sentence-transformers` model `all-MiniLM-L6-v2` with its specific commit hash or tag (Constitution Principle VI)
 - [~] T005 [P] Implement `code/utils/hasher.py` for SHA-256 artifact hashing (Constitution Principle V)
 
 ---
@@ -61,12 +61,12 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T011 [P] [US1] Create `tests/contract/test_repository_filter.py` with a failing test that asserts `filter_repos()` raises `ValueError` for invalid license types (Tests the *expected* interface defined in a stub file or module signature)
-- [ ] T012 [P] [US1] Integration test for Docker-based tool execution in `code/tests/test_acquisition.py` (mocked tool output)
+- [~] T012 [P] [US1] Integration test for Docker-based tool execution in `code/tests/test_acquisition.py` (mocked tool output)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
-- [ ] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
+- [~] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
+- [~] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
 - [ ] T015 [US1] Implement repository cloning logic with error handling (retry 2x, log exclusion) in `code/01_data_acquisition.py`
 - [ ] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
 - [ ] T017 [US1] Implement JSON report parsing and normalization for all three tools into a unified schema in `code/01_data_acquisition.py` (FR-003)
@@ -139,7 +139,7 @@
 - [ ] T040 [P] Update `README.md` with execution instructions and data flow diagram
 - [ ] T041 Run `code/utils/hasher.py` to update `state/projects/PROJ-180-evaluating-the-effectiveness-of-automate.yaml` with current artifact hashes
 - [ ] T042 Generate `results/verification_report.json` listing all checked CSV/PNG artifacts in `results/` and their status (PASS/FAIL) (FR-010)
-- [ ] T043 Run full pipeline on a small subset of repositories (30-40 repos, 2 CPU cores, 7GB RAM) to verify end-to-end runtime < 5.5 hours (SC-003)
+- [ ] T043 {{claim:c_e2fb09cb}} (SC-003)
 - [ ] T044 Verify memory usage of peak processes < 6 GB (SC-004)
 - [ ] T045 Run quickstart.md validation (if exists)
 

@@ -1,7 +1,5 @@
-'T001 Create project structure per `projects/PROJ-205-.../` in `plan.md` <!-- FAILED: unspecified -->': 2
-T002 Initialize Python 3.11 project with `requirements.txt` (streamlit, pandas, numpy, scipy, statsmodels, pyyaml): 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
-? 'T004 Create `code/stimuli/text_content.txt` with the fixed neutral text source
-  (source: paste content from `docs/NEUTRAL_TEXT_V1.txt`) <!-- FAILED: unspecified
-  -->'
-: 2
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T009: 1

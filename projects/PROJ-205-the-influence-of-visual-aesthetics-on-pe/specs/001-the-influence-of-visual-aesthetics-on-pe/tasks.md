@@ -60,8 +60,8 @@
 - [X] T006 [P] Create `code/stimuli/minimalist.html` (Low-fidelity CSS, sans-serif, sparse layout; source: `docs/STIMULI_DESIGN_V1.json`)
 - [X] T007 [P] Create `code/stimuli/low_quality.html` (Broken CSS, mismatched fonts, cluttered layout; source: `docs/STIMULI_DESIGN_V1.json`)
 - [X] T008 [P] Create `code/stimuli/neutral.html` (Standard default browser styling, plain text; source: `docs/STIMULI_DESIGN_V1.json`)
-- [~] T009 Setup `data/raw/` and `data/processed/` directory structure
-- [~] T010 Create `code/utils/helpers.py` for CSV export formatting, ID generation, and IP hashing (`hash_ip` function)
+- [ ] T009 Setup `data/raw/` and `data/processed/` directory structure
+- [X] T010 Create `code/utils/helpers.py` for CSV export formatting, ID generation, and IP hashing (`hash_ip` function)
 - [~] T011b [US0] Create `data/consent/irb_approved.txt` with the full, verbatim IRB-approved consent text (source: paste content from `docs/IRB_PROTO_V1.txt`) <!-- FAILED: unspecified -->
 - [~] T011c [US0] Define `IRB_PROTOCOL_ID` environment variable and ensure it is captured in every consent log entry (Constitution Principle VI compliance)
 - [~] T011 [US0] Configure environment variables to point to `data/consent/irb_approved.txt` for the consent form source
@@ -114,8 +114,8 @@
 - [ ] T023d_ui [US1] Render the demographic input form in `code/survey/app.py`: Implement a dropdown for Education with options: [High School, Bachelor's, Master's, PhD] and a number input for Age (years). Ensure validation enforces the ordinal structure.
 - [~] T023d [US1] Implement demographic data collection: Write Age (integer) and Education (integer code 1-4) to `data/raw/submissions.csv` columns, referencing data collected in T023d_ui.
 - [ ] T023e_calc [US1] Implement metadata truncation calculation: Calculate the maximum safe `user_agent` truncation length to ensure `data/raw/submissions.csv` remains < 5MB for N=250. Implement a runtime check and fallback mechanism (truncation or warning) if the limit is exceeded.
-- [ ] T023e [US1] Implement metadata truncation: Truncate `user_agent` strings to the calculated length from T023e_calc. Exclude large binary blobs. Ensure `data/raw/submissions.csv` remains < 5MB (SC-005).
-- [ ] T023f [US1] Implement session state flagging logic: detect 'browser close' (missing timestamp) and 'network failure' (partial submission) and write `session_timeout` and `submission_status` flags to CSV. Mark partial records as `submission_status='excluded'` to ensure they are not retained for analysis.
+- [~] T023e [US1] Implement metadata truncation: Truncate `user_agent` strings to the calculated length from T023e_calc. Exclude large binary blobs. Ensure `data/raw/submissions.csv` remains < 5MB (SC-005).
+- [~] T023f [US1] Implement session state flagging logic: detect 'browser close' (missing timestamp) and 'network failure' (partial submission) and write `session_timeout` and `submission_status` flags to CSV. Mark partial records as `submission_status='excluded'` to ensure they are not retained for analysis.
 
 **Checkpoint**: User Story 1 is fully functional; data can be collected and exported.
 
@@ -129,8 +129,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Create `code/analysis/01_preprocess.py` to load `data/raw/submissions.csv`. Filter rows where: `submission_status != 'complete'` OR `session_timeout == true` OR `rating_count < 8`. Log all excluded rows to `data/processed/excluded_audit.csv` for transparency. Reshape valid data to wide format for ANOVA.
-- [ ] T025 [US2] Implement Repeated-Measures ANOVA in `code/analysis/01_anova.py` (factor: design condition, DV: credibility)
+- [~] T024 [US2] Create `code/analysis/01_preprocess.py` to load `data/raw/submissions.csv`. Filter rows where: `submission_status != 'complete'` OR `session_timeout == true` OR `rating_count < 8`. Log all excluded rows to `data/processed/excluded_audit.csv` for transparency. Reshape valid data to wide format for ANOVA.
+- [~] T025 [US2] Implement Repeated-Measures ANOVA in `code/analysis/01_anova.py` (factor: design condition, DV: credibility)
 - [ ] T026 [US2] Implement partial η² calculation in `code/analysis/01_anova.py`
 - [ ] T027 [US2] Implement conditional logic in `code/analysis/01_anova.py`: if p < 0.05, trigger pairwise t-tests
 - [ ] T028 [US2] Implement Bonferroni-corrected pairwise t-tests in `code/analysis/02_pairwise.py` (comparisons)

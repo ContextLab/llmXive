@@ -1,40 +1,41 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-eval-code-vuln-density"
+name = "llmxive-code-vuln-density"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Generation Models on Code Vulnerability Density"
 requires-python = ">=3.11"
 dependencies = [
-    "transformers==4.36.2",
-    "datasets==2.14.6",
-    "bandit==1.7.5",
-    "scikit-learn==1.3.2",
-    "statsmodels==0.14.0",
-    "pandas==2.1.3",
-    "matplotlib==3.8.2",
-    "seaborn==0.13.0",
-    "pyyaml==6.0.1",
-    "pingouin==0.5.3",
+    "transformers",
+    "datasets",
+    "bandit",
+    "scikit-learn",
+    "statsmodels",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pingouin"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest==7.4.3",
-    "ruff==0.1.6",
-    "black==23.11.0",
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov"
 ]
 
-[tool.setuptools]
-packages = ["code"]
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
     | \.hg
@@ -49,27 +50,45 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 100
+line-length = 88
 target-version = "py311"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
-exclude = [
-    ".git",
+extend-exclude = [
     "__pycache__",
-    "build",
-    "dist",
     ".venv",
+    "data",
+    "results",
+    "state"
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+"code/__init__.py" = ["F401"]
+"code/main.py" = ["B008"]
+
+[tool.ruff.isort]
+known-first-party = ["config", "download", "generate", "analyze", "stats", "main", "state_utils", "setup_project"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests"
+]

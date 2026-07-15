@@ -1,26 +1,18 @@
-# Data Configuration for Automated Code Review Effectiveness Evaluation
-# Generated for task T001b
-
+# Data Configuration
+# Defines storage and validation rules for data artifacts
 storage:
-  raw: "raw"
-  processed: "processed"
+  raw_dir: "raw"
+  processed_dir: "processed"
+  checksums: true
 
 validation:
-  checksum_algorithm: "sha256"
-  required_metadata:
-    - owner
-    - repo
-    - language
-    - commit_hash
-    - tool_name
-    - timestamp
+  required_fields:
+    - "repo_owner"
+    - "repo_name"
+    - "commit_hash"
+    - "tool"
+    - "timestamp"
 
 retention:
-  keep_raw: true
-  auto_cleanup: false
-  max_age_days: 365
-
-processing:
-  batch_size: 10
-  parallel_workers: 4
-  timeout_seconds: 300
+  raw_keep_days: 30
+  processed_keep_days: 365

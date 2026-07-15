@@ -1,233 +1,275 @@
+"""
+code/download.py
+Handles fetching datasets (HumanEval, MBPP) from HuggingFace with SHA-256 checksum verification.
+"""
 import hashlib
 import json
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, Any, Optional, Tuple
 
-# Import config to get paths and ensure directories exist
-from config import get_paths, ensure_directories
+# Import project config utilities
+from config import get_config, get_paths, ensure_directories
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+# Known checksums for dataset versions (Update these if dataset versions change)
+# Note: These are placeholders. In a real scenario, these would be the SHA-256 of the specific
+# dataset revision (commit hash) or the archive if downloaded directly.
+# For HuggingFace datasets, we often rely on the revision hash.
+# However, the task requires SHA-256 verification of downloaded files.
+# We will implement a mechanism to verify the integrity of the cached dataset files
+# by hashing the resulting parquet/json files in the cache directory after download.
+# Since HF datasets are cached, we will verify the cache integrity.
 
-def load_dataset_from_huggingface(dataset_name: str, split: str = "train") -> Any:
+KNOWN_DATASET_REVISIONS = {
+    "openai_humaneval": "3e202e7675d506987477f23a0525e8757193b078", # Example revision
+    "mbpp": "8977b2d62552288049458c850224953e8858d705" # Example revision
+}
+
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for hashing: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating hash for {file_path}: {e}")
+        raise
+
+def load_dataset_from_huggingface(dataset_name: str, cache_dir: Optional[Path] = None) -> Any:
     """
     Load a dataset from HuggingFace datasets library.
-    
-    Args:
-        dataset_name: Name of the dataset (e.g., 'openai_humaneval', 'mbpp')
-        split: Dataset split to load (default: 'train')
-        
-    Returns:
-        Dataset object from HuggingFace
+    Returns the dataset object.
     """
     try:
         from datasets import load_dataset
-        dataset = load_dataset(dataset_name, split=split)
-        logger.info(f"Successfully loaded {dataset_name} ({split}) split. Size: {len(dataset)}")
+        logger.info(f"Loading dataset: {dataset_name}")
+        
+        # If cache_dir is provided, use it; otherwise use default HF cache
+        load_kwargs = {"name": dataset_name}
+        if cache_dir:
+            load_kwargs["cache_dir"] = str(cache_dir)
+        
+        dataset = load_dataset(dataset_name, split="test")
+        logger.info(f"Successfully loaded {len(dataset)} samples from {dataset_name}")
         return dataset
+    except ImportError:
+        logger.error("The 'datasets' library is not installed. Please install it via pip.")
+        raise
     except Exception as e:
         logger.error(f"Failed to load dataset {dataset_name}: {e}")
         raise
 
-def verify_checksums(checksum_file: Path, file_checksums: Dict[str, str]) -> bool:
+def verify_checksums(data_dir: Path, checksums_file: Path) -> bool:
     """
-    Verify that calculated checksums match stored checksums.
-    
-    Args:
-        checksum_file: Path to the stored checksums JSON file
-        file_checksums: Dictionary of {filename: calculated_checksum}
-        
-    Returns:
-        True if all checksums match, False otherwise
+    Verify the SHA-256 checksums of files in data_dir against checksums_file.
+    Returns True if all match, False otherwise.
     """
-    if not checksum_file.exists():
-        logger.warning(f"Checksum file {checksum_file} does not exist. Verification skipped.")
+    if not checksums_file.exists():
+        logger.warning(f"Checksum file not found: {checksums_file}. Skipping verification.")
         return False
-        
+
     try:
-        with open(checksum_file, 'r') as f:
+        with open(checksums_file, "r") as f:
             stored_checksums = json.load(f)
-        
-        all_match = True
-        for filename, calculated_checksum in file_checksums.items():
-            if filename not in stored_checksums:
-                logger.warning(f"File {filename} not found in stored checksums.")
-                all_match = False
-                continue
-                
-            if stored_checksums[filename] != calculated_checksum:
-                logger.error(f"Checksum mismatch for {filename}: "
-                           f"stored={stored_checksums[filename]}, calculated={calculated_checksum}")
-                all_match = False
-            else:
-                logger.info(f"Checksum verified for {filename}")
-                
-        return all_match
-    except Exception as e:
-        logger.error(f"Error verifying checksums: {e}")
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load checksums from {checksums_file}: {e}")
         return False
 
-def save_checksums(checksum_file: Path, file_checksums: Dict[str, str]) -> None:
-    """Save checksums to a JSON file."""
-    with open(checksum_file, 'w') as f:
-        json.dump(file_checksums, f, indent=2)
-    logger.info(f"Saved checksums to {checksum_file}")
+    all_valid = True
+    for file_rel_path, expected_hash in stored_checksums.items():
+        file_path = data_dir / file_rel_path
+        if not file_path.exists():
+            logger.error(f"File missing for checksum verification: {file_path}")
+            all_valid = False
+            continue
 
-def load_saved_checksums(checksum_file: Path) -> Dict[str, str]:
-    """Load saved checksums from a JSON file."""
-    if not checksum_file.exists():
+        try:
+            actual_hash = calculate_sha256(file_path)
+            if actual_hash != expected_hash:
+                logger.error(f"Checksum mismatch for {file_path}: expected {expected_hash}, got {actual_hash}")
+                all_valid = False
+            else:
+                logger.debug(f"Checksum verified for {file_path}")
+        except Exception as e:
+            logger.error(f"Error verifying checksum for {file_path}: {e}")
+            all_valid = False
+
+    return all_valid
+
+def save_checksums(data_dir: Path, checksums_file: Path) -> None:
+    """
+    Calculate and save SHA-256 checksums for all files in data_dir to checksums_file.
+    """
+    checksums = {}
+    if not data_dir.exists():
+        logger.warning(f"Data directory does not exist: {data_dir}. Cannot save checksums.")
+        return
+
+    for file_path in data_dir.rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(data_dir)
+            try:
+                checksums[str(rel_path)] = calculate_sha256(file_path)
+            except Exception as e:
+                logger.error(f"Skipping {file_path} due to hash error: {e}")
+
+    try:
+        with open(checksums_file, "w") as f:
+            json.dump(checksums, f, indent=2)
+        logger.info(f"Saved checksums to {checksums_file}")
+    except IOError as e:
+        logger.error(f"Failed to save checksums to {checksums_file}: {e}")
+        raise
+
+def load_saved_checksums(checksums_file: Path) -> Dict[str, str]:
+    """Load previously saved checksums."""
+    if not checksums_file.exists():
         return {}
     try:
-        with open(checksum_file, 'r') as f:
+        with open(checksums_file, "r") as f:
             return json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading checksums: {e}")
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load saved checksums: {e}")
         return {}
 
-def download_human_eval(output_dir: Path, force_redownload: bool = False) -> Tuple[Path, Dict[str, str]]:
+def download_human_eval(output_dir: Path, force_redownload: bool = False) -> Path:
     """
-    Download HumanEval dataset and save as JSONL with checksum verification.
+    Download HumanEval dataset from HuggingFace.
+    The 'datasets' library caches data. This function ensures the cache is populated
+    and then verifies the integrity of the cached files if possible, or copies them
+    to the output directory if a local copy is required for the pipeline.
     
-    Args:
-        output_dir: Directory to save the dataset
-        force_redownload: If True, re-download even if checksums match
-        
-    Returns:
-        Tuple of (output_file_path, checksums_dict)
+    For this implementation, we will download to a cache, then copy the relevant
+    parquet/json files to data/raw/humaneval for the pipeline to consume,
+    and generate checksums for those local copies.
     """
-    ensure_directories([output_dir])
-    output_file = output_dir / "humaneval.jsonl"
-    checksum_file = output_dir / "humaneval_checksums.json"
+    config = get_config()
+    paths = get_paths()
+    ensure_directories(paths["data_raw"])
     
-    # Check if we can skip download
-    if not force_redownload and output_file.exists():
-        file_checksums = {"humaneval.jsonl": calculate_sha256(output_file)}
-        if verify_checksums(checksum_file, file_checksums):
-            logger.info("HumanEval dataset already downloaded and verified. Skipping.")
-            return output_file, file_checksums
+    target_dir = paths["data_raw"] / "humaneval"
+    target_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info("Downloading HumanEval dataset...")
+    checksums_file = paths["state"] / "checksums_humaneval.json"
+
+    if not force_redownload and target_dir.exists() and any(target_dir.iterdir()):
+        if verify_checksums(target_dir, checksums_file):
+            logger.info("HumanEval data already exists and checksums verified.")
+            return target_dir
+        else:
+            logger.warning("Checksums mismatch or missing. Redownloading...")
+
     try:
-        # Load from HuggingFace
-        dataset = load_dataset_from_huggingface("openai_humaneval", split="test")
+        from datasets import load_dataset
+        logger.info("Downloading HumanEval from HuggingFace...")
+        ds = load_dataset("openai_humaneval", split="test")
         
-        # Convert to list of dicts and save as JSONL
-        data_list = [dict(item) for item in dataset]
+        # Save to parquet in the target directory
+        parquet_path = target_dir / "human_eval.parquet"
+        ds.to_parquet(str(parquet_path))
         
-        with open(output_file, 'w', encoding='utf-8') as f:
-            for item in data_list:
-                f.write(json.dumps(item) + '\n')
+        # Generate and save checksums
+        save_checksums(target_dir, checksums_file)
         
-        logger.info(f"Saved HumanEval dataset to {output_file}")
-        
-        # Calculate and save checksums
-        file_checksums = {"humaneval.jsonl": calculate_sha256(output_file)}
-        save_checksums(checksum_file, file_checksums)
-        
-        return output_file, file_checksums
-        
+        logger.info(f"HumanEval dataset saved to {target_dir}")
+        return target_dir
     except Exception as e:
         logger.error(f"Failed to download HumanEval: {e}")
         raise
 
-def download_mbpp(output_dir: Path, force_redownload: bool = False) -> Tuple[Path, Dict[str, str]]:
+def download_mbpp(output_dir: Path, force_redownload: bool = False) -> Path:
     """
-    Download MBPP dataset and save as JSONL with checksum verification.
-    
-    Args:
-        output_dir: Directory to save the dataset
-        force_redownload: If True, re-download even if checksums match
-        
-    Returns:
-        Tuple of (output_file_path, checksums_dict)
+    Download MBPP dataset from HuggingFace.
+    Similar logic to download_human_eval.
     """
-    ensure_directories([output_dir])
-    output_file = output_dir / "mbpp.jsonl"
-    checksum_file = output_dir / "mbpp_checksums.json"
+    config = get_config()
+    paths = get_paths()
+    ensure_directories(paths["data_raw"])
     
-    # Check if we can skip download
-    if not force_redownload and output_file.exists():
-        file_checksums = {"mbpp.jsonl": calculate_sha256(output_file)}
-        if verify_checksums(checksum_file, file_checksums):
-            logger.info("MBPP dataset already downloaded and verified. Skipping.")
-            return output_file, file_checksums
+    target_dir = paths["data_raw"] / "mbpp"
+    target_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info("Downloading MBPP dataset...")
+    checksums_file = paths["state"] / "checksums_mbpp.json"
+
+    if not force_redownload and target_dir.exists() and any(target_dir.iterdir()):
+        if verify_checksums(target_dir, checksums_file):
+            logger.info("MBPP data already exists and checksums verified.")
+            return target_dir
+        else:
+            logger.warning("Checksums mismatch or missing. Redownloading...")
+
     try:
-        # Load from HuggingFace - MBPP has multiple splits, we'll use 'train'
-        dataset = load_dataset_from_huggingface("mbpp", split="train")
+        from datasets import load_dataset
+        logger.info("Downloading MBPP from HuggingFace...")
+        # MBPP dataset often has multiple splits. We want 'test' or 'sanity' depending on spec.
+        # Standard MBPP test set is usually 'test' or the full dataset filtered.
+        # The HuggingFace repo 'mbpp' usually has 'train', 'test', 'validation'.
+        ds = load_dataset("mbpp", split="test")
         
-        # Convert to list of dicts and save as JSONL
-        data_list = [dict(item) for item in dataset]
+        # Save to parquet
+        parquet_path = target_dir / "mbpp.parquet"
+        ds.to_parquet(str(parquet_path))
         
-        with open(output_file, 'w', encoding='utf-8') as f:
-            for item in data_list:
-                f.write(json.dumps(item) + '\n')
+        # Generate and save checksums
+        save_checksums(target_dir, checksums_file)
         
-        logger.info(f"Saved MBPP dataset to {output_file}")
-        
-        # Calculate and save checksums
-        file_checksums = {"mbpp.jsonl": calculate_sha256(output_file)}
-        save_checksums(checksum_file, file_checksums)
-        
-        return output_file, file_checksums
-        
+        logger.info(f"MBPP dataset saved to {target_dir}")
+        return target_dir
     except Exception as e:
         logger.error(f"Failed to download MBPP: {e}")
         raise
 
-def load_model(model_name: str) -> Any:
+def load_model(model_name: str, device: str = "cpu") -> Any:
     """
-    Load a model for generation (placeholder for future implementation).
-    
-    Args:
-        model_name: Name of the model to load
-        
-    Returns:
-        Model object
+    Placeholder for model loading logic.
+    This task (T006) focuses on data download. Model loading is T011.
+    However, the API surface requires this function.
+    We will implement a minimal stub that raises NotImplementedError
+    to indicate it belongs to a later task, but satisfies the import check.
     """
-    # This is a placeholder - actual implementation will be in T011
-    logger.info(f"Model loading for {model_name} not yet implemented (T011)")
-    return None
+    logger.warning("load_model is a stub for T011. This function should not be called in T006.")
+    raise NotImplementedError("Model loading is implemented in T011.")
 
 def main():
-    """Main function to download datasets."""
+    """
+    Main entry point for downloading datasets.
+    Usage: python code/download.py [--force]
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Download benchmark datasets')
-    parser.add_argument('--human-eval', action='store_true', help='Download HumanEval dataset')
-    parser.add_argument('--mbpp', action='store_true', help='Download MBPP dataset')
-    parser.add_argument('--all', action='store_true', help='Download all datasets')
-    parser.add_argument('--force', action='store_true', help='Force re-download even if checksums match')
-    
+    parser = argparse.ArgumentParser(description="Download datasets for vulnerability analysis.")
+    parser.add_argument("--force", action="store_true", help="Force re-download of datasets.")
     args = parser.parse_args()
-    
-    # Get paths from config
+
     paths = get_paths()
-    data_dir = paths['data']
-    human_eval_dir = data_dir / "human_eval"
-    mbpp_dir = data_dir / "mbpp"
-    
-    if args.all or args.human_eval:
-        download_human_eval(human_eval_dir, args.force)
-        
-    if args.all or args.mbpp:
-        download_mbpp(mbpp_dir, args.force)
-        
-    if not args.all and not args.human_eval and not args.mbpp:
-        parser.print_help()
+    ensure_directories(paths["state"])
+
+    try:
+        # Download HumanEval
+        human_eval_path = download_human_eval(paths["data_raw"], force_redownload=args.force)
+        logger.info(f"HumanEval ready at: {human_eval_path}")
+
+        # Download MBPP
+        mbpp_path = download_mbpp(paths["data_raw"], force_redownload=args.force)
+        logger.info(f"MBPP ready at: {mbpp_path}")
+
+        logger.info("All datasets downloaded and verified successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed during download: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

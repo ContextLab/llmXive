@@ -1,9 +1,8 @@
-# Configuration for Automated Code Review Effectiveness Evaluation
+# Project Configuration
 # Generated for task T001b
-
 project:
-  name: "evaluating-the-effectiveness-of-automate"
-  version: "0.1.0"
+  name: "evaluating-automated-code-review-tools"
+  version: "1.0.0"
 
 paths:
   data_raw: "../data/raw"
@@ -11,27 +10,22 @@ paths:
   results: "../results"
   specs: "../specs"
 
+# Tool versions (pinned in code/versions.yaml)
 tools:
-  sonarqube:
-    enabled: true
-    version: "latest"
-  deepsource:
-    enabled: true
-    version: "latest"
-  codeclimate:
-    enabled: true
-    version: "latest"
+  sonarqube: "latest"
+  deepsource: "latest"
+  codeclimate: "latest"
 
+# Embedding model (pinned in code/versions.yaml)
+embeddings:
+  model: "all-MiniLM-L6-v2"
+
+# Analysis parameters
 analysis:
-  languages:
-    - python
-    - java
-    - javascript
-    - go
-  embedding_model: "all-MiniLM-L6-v2"
-  min_repo_stars: 100
   max_repos: 40
-
-logging:
-  level: INFO
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  languages:
+    - "Python"
+    - "Java"
+    - "JavaScript"
+    - "Go"
+  confidence_level: 0.95

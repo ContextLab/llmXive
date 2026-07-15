@@ -1,8 +1,21 @@
-streamlit>=1.28.0
+# Python 3.11 project dependencies for PROJ-205: Visual Aesthetics & Credibility
+# Core Streamlit application
+streamlit>=1.32.0
+
+# Data manipulation and analysis
 pandas>=2.0.0
 numpy>=1.24.0
+
+# Statistical analysis
 scipy>=1.11.0
 statsmodels>=0.14.0
+
+# Configuration management
 pyyaml>=6.0.0
+
+# Testing (optional but recommended for pipeline)
+pytest>=7.0.0
+
+# Linting and formatting (Phase 3 prerequisite)
 ruff>=0.1.0
 black>=23.0.0

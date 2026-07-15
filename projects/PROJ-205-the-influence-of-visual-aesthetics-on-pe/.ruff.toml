@@ -1,0 +1,14 @@
+# This file is an alternative configuration point for Ruff.
+# The primary configuration is in pyproject.toml to ensure
+# a single source of truth for the project.
+#
+# If you prefer a separate file, delete pyproject.toml's [tool.ruff] section
+# and uncomment the line below to extend the config from here.
+#
+# extend = "pyproject.toml"
+#
+# For now, this file exists to satisfy tool discovery if a user
+# explicitly requests a separate .ruff.toml file, but the active
+# rules are defined in pyproject.toml.
+target-version = "py311"
+line-length = 100

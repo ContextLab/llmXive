@@ -1,0 +1,353 @@
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Query GitHub API for 30 to 40 repos stratified by language and activity
+  claim_id: c_9603309b
+  context: "Phase 3: User Story 1 - Data Collection and Tool Execution Pipeline (Priority:\
+    \ P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/01_data_acquisition.py to query GitHub API for a representative\
+    \ set of 30\u201340 repos stratified by language (Java, Python, JS, Go) and activity"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:00:39Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Generate ground truth sample containing at least 500 validated annotations
+  claim_id: c_e36e3ad2
+  context: 'Phase 4: User Story 2 - Human Review Baseline and Issue Alignment (Priority:
+    P2)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_ground_truth_sample_containing_at_least_500_validat
+  kind: magnitude
+  raw_text: "Implement expert manual validation for the random sample: generate data/processed/validated_ground_truth.json\
+    \ containing the \u2265500 validated annotations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:01:18Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Select stratified random sample of at least 500 code changes or comments
+  claim_id: c_012af159
+  context: 'Phase 4: User Story 2 - Human Review Baseline and Issue Alignment (Priority:
+    P2)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_stratified_random_sample_of_at_least_500_code_changes
+  kind: magnitude
+  raw_text: "Implement 'Random Stream' sampling logic to select a stratified random\
+    \ sample of \u2265500 code changes/comments from the full pool"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:02:17Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Verify alignment accuracy threshold of 0.90
+  claim_id: c_1c9d129a
+  context: 'Phase 4: User Story 2 - Human Review Baseline and Issue Alignment (Priority:
+    P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u22650.90 threshold for alignment accuracy on the expert-validated\
+    \ sample"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:02:17Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Verify end-to-end runtime of less than 5.5 hours for 30 to 40 repos on
+    2 CPU cores and 7GB RAM
+  claim_id: c_e2fb09cb
+  context: 'Phase 6: Polish & Cross-Cutting Concerns'
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Run full pipeline on a small subset of repositories (30-40 repos, 2 CPU
+    cores, 7GB RAM) to verify end-to-end runtime < 5.5 hours
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T10:02:17Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Verify peak process memory usage is less than 6 GB
+  claim_id: c_e629b3e2
+  context: 'Phase 6: Polish & Cross-Cutting Concerns'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_process_memory_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify memory usage of peak processes < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:02:51Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Validate at least 10% of comments for annotation accuracy
+  claim_id: c_b9adacc1
+  context: 'Phase 4: User Story 2 - Human Review Baseline and Issue Alignment (Priority:
+    P2) Independent Test'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_at_least_10%25_of_comments_for_annotation_accuracy
+  kind: magnitude
+  raw_text: Validate that at least 10% of comments are manually validated for annotation
+    accuracy
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:03:18Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: query GitHub API for 30 to 40 repos stratified by language and activity
+  claim_id: c_53b4066d
+  context: "T013 [US1] Implement code/01_data_acquisition.py to query GitHub API for\
+    \ a representative set of 30\u201340 repos stratified by language (Java, Python,\
+    \ JS, Go) and activity (FR-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/01_data_acquisition.py to query GitHub API for a representative\
+    \ set of 30\u201340 repos stratified by language (Java, Python, JS, Go) and activity"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:03Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: generate validated ground truth containing at least 500 validated annotations
+  claim_id: c_b0a5bf51
+  context: "T024b [US2] Implement expert manual validation for the random sample:\
+    \ generate data/processed/validated_ground_truth.json containing the \u2265500\
+    \ validated annotations (FR-004, SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_validated_ground_truth_containing_at_least_500_vali
+  kind: magnitude
+  raw_text: "Implement expert manual validation for the random sample: generate data/processed/validated_ground_truth.json\
+    \ containing the \u2265500 validated annotations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:06Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: select stratified random sample of at least 500 code changes or comments
+  claim_id: c_6a32e01d
+  context: "T024a [US2] Implement 'Random Stream' sampling logic (independent of keywords)\
+    \ to select a stratified random sample of \u2265500 code changes/comments from\
+    \ the full pool, generating data/processed/validation_sample_ids.json (SC-005,\
+    \ Plan Ground Truth Construction)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_stratified_random_sample_of_at_least_500_code_changes
+  kind: magnitude
+  raw_text: "Implement 'Random Stream' sampling logic to select a stratified random\
+    \ sample of \u2265500 code changes/comments from the full pool"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:08Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: verify alignment accuracy threshold of 0.90
+  claim_id: c_057ef4e4
+  context: "T029d [US2] Implement validation step to measure alignment accuracy on\
+    \ the expert-validated sample (T024b) using data/processed/aligned_pairs.json\
+    \ (T029a), generating results/alignment_accuracy_report.json (schema: { \"accuracy\"\
+    : float }) and verify \u22650.90 threshold (SC-005, FR-005). **BLOCKS T032**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22650.90 threshold for alignment accuracy on the expert-validated\
+    \ sample"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:08Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: verify peak process memory usage is less than 6 GB
+  claim_id: c_be13cae8
+  context: T044 Verify memory usage of peak processes < 6 GB (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_process_memory_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify memory usage of peak processes < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:10Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: apply ridge regression fallback if variance inflation factor exceeds
+    5
+  claim_id: c_1be694d5
+  context: 'T035 [US3] Implement VIF calculation for collinearity diagnostics (FR-008)
+    and Ridge regression fallback if VIF > 5 (Plan Assumptions: Collinearity)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Ridge regression fallback if VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:04:10Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: 30 to 40 repos stratified by language and activity
+  claim_id: c_f5a690be
+  context: "Implement `code/01_data_acquisition.py` to query GitHub API for a representative\
+    \ set of 30\u201340 repos stratified by language (Java, Python, JS, Go) and activity\
+    \ (FR-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "query GitHub API for a representative set of 30\u201340 repos stratified\
+    \ by language (Java, Python, JS, Go) and activity"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:05:10Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: 10% of comments manually validated for annotation accuracy
+  claim_id: c_652c64e4
+  context: 'Independent Test: Can be fully tested by processing a single repository''s
+    PR comments, extracting defect tags, and verifying that at least 10% of comments
+    are manually validated for annotation accuracy.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10%25_of_comments_manually_validated_for_annotation_accuracy
+  kind: magnitude
+  raw_text: verify that at least 10% of comments are manually validated for annotation
+    accuracy
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:05:37Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: 500 code changes or comments stratified random sample
+  claim_id: c_a4c79cba
+  context: "Implement 'Random Stream' sampling logic (independent of keywords) to\
+    \ select a stratified random sample of \u2265500 code changes/comments from the\
+    \ full pool, generating `data/processed/validation_sample_ids.json` (SC-005, Plan\
+    \ Ground Truth Construction)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "select a stratified random sample of \u2265500 code changes/comments\
+    \ from the full pool"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:05:37Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: 0.90 threshold for alignment accuracy
+  claim_id: c_cc9ac82a
+  context: "Implement validation step to measure alignment accuracy on the expert-validated\
+    \ sample (T024b) using `data/processed/aligned_pairs.json` (T029a), generating\
+    \ `results/alignment_accuracy_report.json` (schema: `{ \"accuracy\": float }`)\
+    \ and verify \u22650.90 threshold (SC-005, FR-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22650.90 threshold for alignment accuracy"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:05:37Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: Ridge regression fallback if VIF greater than 5
+  claim_id: c_9acb8cf9
+  context: 'Implement VIF calculation for collinearity diagnostics (FR-008) and Ridge
+    regression fallback if VIF > 5 (Plan Assumptions: Collinearity)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ridge_regression_fallback_if_VIF_greater_than_5
+  kind: magnitude
+  raw_text: apply Ridge regression fallback if VIF > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:06:28Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: peak process memory usage less than 6 GB
+  claim_id: c_1e08817e
+  context: Verify memory usage of peak processes < 6 GB (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_process_memory_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: Verify memory usage of peak processes < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T10:06:30Z'

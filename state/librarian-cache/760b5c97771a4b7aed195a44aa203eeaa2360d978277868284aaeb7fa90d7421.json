@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-05T17:41:53Z",
+  "fetched_at": "2026-07-15T10:23:49Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality",
       "target_n": 5
     },
-    "duration_seconds": 47.576,
-    "ended_at": "2026-07-05T17:41:53Z",
+    "duration_seconds": 52.598,
+    "ended_at": "2026-07-15T10:23:49Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "impact of prompt length on code generation performance"
+          "Prompt length impact on code generation accuracy"
         ],
         [
           2,
-          "relationship between context window size and LLM code accuracy"
+          "Effect of context window size on LLM code synthesis"
         ],
         [
           3,
-          "prompt compression effects on software synthesis"
+          "Trade-off between prompt complexity and code correctness"
         ],
         [
           4,
-          "optimal prompt token count for code generation"
+          "Prompt engineering strategies for code generation efficiency"
         ],
         [
           5,
-          "diminishing returns in large language model coding prompts"
+          "Influence of few-shot examples on code generation quality"
         ],
         [
           6,
-          "few-shot prompting length vs code correctness"
+          "Optimal prompt size for large language models in programming"
         ],
         [
           7,
-          "influence of prompt verbosity on generated code quality"
+          "Relationship between input token count and code generation performance"
         ],
         [
           8,
-          "trade-off between context size and code generation latency"
+          "Code generation with constrained prompt lengths"
         ],
         [
           9,
-          "prompt engineering strategies for efficient code synthesis"
+          "Impact of verbose prompts on LLM coding capabilities"
         ],
         [
           10,
-          "scaling laws for code generation with varying prompt sizes"
+          "Prompt verbosity versus code compilation success rates"
         ],
         [
           11,
-          "effect of input token limit on code completion accuracy"
+          "Scaling prompt length for software development tasks"
         ],
         [
           12,
-          "cost-quality trade-offs in LLM-based code generation"
+          "Diminishing returns in prompt size for code generation"
         ],
         [
           13,
-          "minimal prompt requirements for functional code generation"
+          "Contextual information density in code generation prompts"
         ],
         [
           14,
-          "redundancy in prompts for code generation tasks"
+          "Balancing prompt detail and code generation latency"
         ],
         [
           15,
-          "attention mechanisms in code generation relative to prompt size"
+          "Effect of instruction length on generated code quality"
         ],
         [
           16,
-          "prompt optimization for large language model code assistants"
+          "Prompt compression techniques for code generation models"
         ],
         [
           17,
-          "sensitivity of code generation models to input length"
+          "Input sequence length limits in code generation tasks"
         ],
         [
           18,
-          "balancing context richness and generation fidelity in coding LLMs"
+          "Correlation between prompt token count and bug rates"
         ],
         [
           19,
-          "empirical analysis of prompt size vs code correctness"
+          "Minimal prompt requirements for functional code generation"
         ],
         [
           20,
-          "efficiency of code generation models under constrained prompt lengths"
+          "Prompt size sensitivity in transformer-based code models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science": 0,
-        "impact of prompt length on code generation performance": 4
+        "Effect of context window size on LLM code synthesis": 2,
+        "Prompt length impact on code generation accuracy": 4
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "prompt memorization data contamination code generation",
-      "LLM code synthesis benchmark HumanEval BigCode",
-      "few-shot prompting in-context learning scaling",
-      "pass@1 evaluation code quality held-out test",
-      "context window attention mechanism inference latency"
+      "context window length code synthesis",
+      "code generation evaluation HumanEval MBPP",
+      "long-context LLM reasoning complexity",
+      "code quality metrics pass rate correctness",
+      "information dilution retrieval noise prompt engineering"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -125,36 +126,41 @@
     },
     "per_query_hit_count": {
       "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science": 3,
-      "LLM code synthesis benchmark HumanEval BigCode": 3,
-      "context window attention mechanism inference latency": 3,
-      "few-shot prompting in-context learning scaling": 3,
-      "pass@1 evaluation code quality held-out test": 3,
-      "prompt memorization data contamination code generation": 3
+      "code generation evaluation HumanEval MBPP": 2,
+      "code quality metrics pass rate correctness": 3,
+      "context window length code synthesis": 3,
+      "information dilution retrieval noise prompt engineering": 3,
+      "long-context LLM reasoning complexity": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 4,
       "rejections": [
-        {
-          "primary_pointer": "2411.15497",
-          "rationale": "The paper focuses on remote sensing image object detection and data generation using diffusion models, which is an off-domain application compared to the user's question about the trade-off between prompt size and code generation quality in natural language processing. It does not measure the same mechanism, variables, or empirical population, nor does it belong to an alternative vocabulary cluster for code generation or prompt engineering.",
-          "title": "AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation"
-        },
         {
           "primary_pointer": "2509.21375",
           "rationale": "The paper focuses on text-to-image synthesis and the specific challenge of \"counterfactual size\" in visual generation, which is an off-domain application compared to the user's question about code generation quality. While both involve \"prompt size\" as a concept, the paper does not measure the trade-off between prompt length and code quality, nor does it study the code generation domain, failing to meet any of the inclusion criteria (a-f).",
           "title": "Automated Prompt Generation for Creative and Counterfactual Text-to-image Synthesis"
         },
         {
+          "primary_pointer": "2402.12317",
+          "rationale": "The paper focuses on the mechanism of \"evolving retrieval\" and the impact of diverse, updated knowledge bases on execution accuracy, but it does not measure, analyze, or discuss the specific trade-off between prompt size (context length) and code generation quality. While it involves prompts and code generation, it lacks the specific variable (prompt size) and the causal relationship (trade-off analysis) required by the user's question, failing to meet criteria (a) or (b).",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        },
+        {
           "primary_pointer": "2507.22923",
           "rationale": "The paper focuses on the impact of translation strategies and language mismatch in multilingual RAG systems, which is a distinct construct from the user's specific question about the trade-off between prompt size (length) and code generation quality. While both involve LLM prompting, the paper does not measure prompt length, code generation, or the specific efficiency-quality trade-off requested, failing to meet the criteria for same-mechanism evidence or shared variables.",
           "title": "How and Where to Translate? The Impact of Translation Strategies in Cross-lingual LLM Prompting"
+        },
+        {
+          "primary_pointer": "2507.19570",
+          "rationale": "The paper focuses on a specific EDA automation workflow and backend optimization methodology rather than investigating the fundamental trade-off between prompt size and code generation quality. It does not measure prompt length as an independent variable, nor does it analyze the resulting quality metrics in the context of the user's specific research question, failing to meet any of the inclusion criteria (a-f).",
+          "title": "MCP4EDA: LLM-Powered Model Context Protocol RTL-to-GDSII Automation with Backend Aware Synthesis Optimization"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-05T17:41:06Z",
+    "started_at": "2026-07-15T10:22:56Z",
     "term_input": {
       "normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
       "raw": "Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science"
@@ -176,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -195,7 +201,7 @@
           "primary_pointer": "2303.12869"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -211,71 +217,81 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
           "claimed_authors": [
-            "Omer Sela"
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
           ],
-          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.03203"
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
           "claimed_authors": [
-            "Datao Tang",
-            "Hao Wang",
-            "Yudeng Xin",
-            "Hui Qiao",
-            "Dongsheng Jiang",
-            "Yin Li",
-            "Zhiheng Yu",
-            "Xiangyong Cao"
+            "Chengxiang Zhai"
           ],
-          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-07-15T10:23:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents MCP4EDA, the first Model Context Protocol server that enables Large Language Models (LLMs) to control and optimize the complete open-source RTL-to-GDSII design flow through natural language interaction. The system integrates Yosys synthesis, Icarus Verilog simulation, OpenLane place-and-route, GTKWave analysis, and KLayout visualization into a unified LLM-accessible interface, enabling designers to execute complex multi-tool EDA workflows conversationally via AI assistants such as Claude Desktop and Cursor IDE. The principal contribution is a backend-aware synthesis optimization methodology wherein LLMs analyze actual post-layout timing, power, and area metrics from OpenLane results to iteratively refine synthesis TCL scripts, establishing a closed-loop optimization system that bridges the traditional gap between synthesis estimates and physical implementation reality. In contrast to conventional flows that rely on wire-load models, this methodology leverages real backend performance data to guide synthesis parameter tuning, optimization sequence selection, and constraint refinement, with the LLM functioning as an intelligent design space exploration agent. Experimental evaluation on representative digital designs demonstrates 15-30% improvements in timing closure and 10-20% area reduction compared to default synthesis flows, establishing MCP4EDA as the first practical LLM-controlled end-to-end open-source EDA automation system. The code and demo are avaiable at: http://www.agent4eda.com/",
+          "claimed_authors": [
+            "Yiting Wang",
+            "Wanghao Ye",
+            "Yexiao He",
+            "Yiran Chen",
+            "Gang Qu",
+            "Ang Li"
+          ],
+          "claimed_title": "MCP4EDA: LLM-Powered Model Context Protocol RTL-to-GDSII Automation with Backend Aware Synthesis Optimization",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2510.21391"
+          "primary_pointer": "2507.19570"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='MCP4EDA: LLM-Powered Model Context Protocol RTL-to-GDSII Automation with Backend Aware Synthesis Optimization')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This document serves as an overview of the different mechanisms and areas of governance in the BigCode project. It aims to support transparency by providing relevant information about choices that were made during the project to the broader public, and to serve as an example of intentional governance of an open research project that future endeavors can leverage to shape their own approach. The first section, Project Structure, covers the project organization, its stated goals and values, its internal decision processes, and its funding and resources. The second section, Data and Model Governance, covers decisions relating to the questions of data subject consent, privacy, and model release.",
+          "claimed_abstract": "We introduce self-invoking code generation, a new task designed to evaluate the progressive reasoning and problem-solving capabilities of LLMs. In this task, models are presented with a base problem and a related, more complex problem. They must solve the base problem and then utilize its solution to address the more complex one. This work features three key contributions. First, we propose a general recipe for generating more challenging versions of existing benchmarks, resulting in three new benchmarks: HumanEval Pro, MBPP Pro, and BigCodeBench-Lite Pro, specifically designed to assess LLMs on self-invoking code generation. Second, from the analysis of experimental results over twenty LLMs on our benchmarks, we have two important observations: (i) Most LLMs excel in traditional code generation benchmarks like HumanEval and MBPP, but their performance declines on self-invoking tasks. For example, o1-mini achieves 96.2% pass@1 on HumanEval but only 76.2% on HumanEval Pro. (ii) On self-invoking code generation task, the instruction-tuned models demonstrate only marginal improvements compared to the base models. Third, we disclose the types of failure modes that exist in our evaluation results. All these results underscore the need for further advancements in self-invoking code generation tasks and provide a new direction for future research on enhancing LLMs' code reasoning capabilities.",
           "claimed_authors": [
-            " BigCode collaboration",
-            "Sean Hughes",
-            "Harm de Vries",
-            "Jennifer Robinson",
-            "Carlos Muñoz Ferrandis",
-            "Loubna Ben Allal",
-            "Leandro von Werra",
-            "Jennifer Ding",
-            "Sebastien Paquet",
-            "Yacine Jernite"
+            "Zhaojian Yu",
+            "Yilun Zhao",
+            "Arman Cohan",
+            "Xiao-Ping Zhang"
           ],
-          "claimed_title": "The BigCode Project Governance Card",
+          "claimed_title": "HumanEval Pro and MBPP Pro: Evaluating Large Language Models on Self-invoking Code Generation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.03872"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.21199"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='The BigCode Project Governance Card')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='HumanEval Pro and MBPP Pro: Evaluating Large Language Models on Self-invoking Code Generation')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -299,258 +315,178 @@
           "primary_pointer": "2410.12381"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='HumanEval-V: Benchmarking High-Level Visual Reasoning with Complex Diagrams in Coding Tasks')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_abstract": "We study a pipeline that curates reasoning data from initial structured data for improving long-context reasoning in large language models (LLMs). Our approach, $π^2$, constructs high-quality reasoning data through rigorous QA curation: 1) extracting and expanding tables from Wikipedia, 2) from the collected tables and relevant context, generating realistic and multi-hop analytical reasoning questions whose answers are automatically determined and verified through dual-path code execution, and 3) back-translating step-by-step structured reasoning traces as solutions of QA pairs given realistic web-search context. Supervised fine-tuning with \\textsc{\\small{gpt-oss-20b}} and \\textsc{\\small{Qwen3-4B-Instruct-2507}} on $π^2$ yields consistent improvements across four long-context reasoning benchmarks and our alike $π^2$-Bench, with average absolute accuracy gains of +4.3% and +2.7% respectively. Notably, our dataset facilitates self-distillation, where \\textsc{\\small{gpt-oss-20b}} even improves its average performance by +4.4% with its own reasoning traces, demonstrating $π^2$'s usefulness. Our code, data, and models are open-source at https://github.com/vt-pi-squared/pi-squared.",
           "claimed_authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Quyet V. Do",
+            "Thinh Pham",
+            "Nguyen Nguyen",
+            "Sha Li",
+            "Pratibha Zunjare",
+            "Tu Vu"
           ],
-          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_title": "$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2606.05868"
+          "primary_pointer": "2604.05114"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='$π^2$: Structure-Originated Reasoning Data Improves Long-Context Reasoning Ability of Large Language Models')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the realm of few-shot learning, foundation models like CLIP have proven effective but exhibit limitations in cross-domain robustness especially in few-shot settings. Recent works add text as an extra modality to enhance the performance of these models. Most of these approaches treat text as an auxiliary modality without fully exploring its potential to elucidate the underlying class visual features distribution. In this paper, we present a novel approach that leverages text-derived statistics to predict the mean and covariance of the visual feature distribution for each class. This predictive framework enriches the latent space, yielding more robust and generalizable few-shot learning models. We demonstrate the efficacy of incorporating both mean and covariance statistics in improving few-shot classification performance across various datasets. Our method shows that we can use text to predict the mean and covariance of the distribution offering promising improvements in few-shot learning scenarios.",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
           "claimed_authors": [
-            "Yassir Bendou",
-            "Vincent Gripon",
-            "Bastien Pasdeloup",
-            "Giulia Lioi",
-            "Lukas Mauch",
-            "Fabien Cardinaux",
-            "Ghouthi Boukli Hacene"
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
           ],
-          "claimed_title": "Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning",
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.14544"
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The rapid expansion of the digital world has propelled sentiment analysis into a critical tool across diverse sectors such as marketing, politics, customer service, and healthcare. While there have been significant advancements in sentiment analysis for widely spoken languages, low-resource languages, such as Bangla, remain largely under-researched due to resource constraints. Furthermore, the recent unprecedented performance of Large Language Models (LLMs) in various applications highlights the need to evaluate them in the context of low-resource languages. In this study, we present a sizeable manually annotated dataset encompassing 33,606 Bangla news tweets and Facebook comments. We also investigate zero- and few-shot in-context learning with several language models, including Flan-T5, GPT-4, and Bloomz, offering a comparative analysis against fine-tuned models. Our findings suggest that monolingual transformer-based models consistently outperform other models, even in zero and few-shot scenarios. To foster continued exploration, we intend to make this dataset and our research tools publicly available to the broader research community.",
+          "claimed_abstract": "Knowledge graphs can guide large language models (LLMs) reasoning, but the graph seen by a system is usually a retrieved, linked, temporally scoped, and incomplete evidence state rather than a complete account of truth. We develop a theoretical perspective on grounding observable LLM trajectories under such incomplete graph evidence.The evidence state induces entity anchors, typed relation residuals, path energies, and support regions, while the language model supplies a prior over candidate trajectories. We show that, under open-world incompleteness, no hard rule based only on the observed state can both reject every false unsupported trajectory and retain every true-but-unobserved one.We then characterize soft grounding as a KL-regularized deformation of the LLM prior: finite slack preserves support for unsupported but non-contradicted trajectories, whereas hard conditioning appears as an infinite-penalty limit.The framework also yields stability bounds under evidence perturbations and clarifies the constraint regimes appropriate for GraphRAG, KGQA, graph agents, constrained decoding, and faithful generation. The claims are evidence-relative: KG compatibility is treated as declared support, not factual truth.",
           "claimed_authors": [
-            "Md. Arid Hasan",
-            "Shudipta Das",
-            "Afiyat Anjum",
-            "Firoj Alam",
-            "Anika Anjum",
-            "Avijit Sarker",
-            "Sheak Rashed Haider Noori"
+            "Jiaqi Li",
+            "Fanghui Song"
           ],
-          "claimed_title": "Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis",
+          "claimed_title": "Grounding LLM Reasoning under Incomplete Graph Evidence",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.10783"
+          "claimed_year": 2026,
+          "primary_pointer": "2606.30247"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Grounding LLM Reasoning under Incomplete Graph Evidence')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Despite the prevalence of tabular datasets, few-shot learning remains under-explored within this domain. Existing few-shot methods are not directly applicable to tabular datasets due to varying column relationships, meanings, and permutational invariance. To address these challenges, we propose FLAT-a novel approach to tabular few-shot learning, encompassing knowledge sharing between datasets with heterogeneous feature spaces. Utilizing an encoder inspired by Dataset2Vec, FLAT learns low-dimensional embeddings of datasets and their individual columns, which facilitate knowledge transfer and generalization to previously unseen datasets. A decoder network parametrizes the predictive target network, implemented as a Graph Attention Network, to accommodate the heterogeneous nature of tabular datasets. Experiments on a diverse collection of 118 UCI datasets demonstrate FLAT's successful generalization to new tabular datasets and a considerable improvement over the baselines.",
+          "claimed_abstract": "In networked video applications, the frame rate (FR) and quantization stepsize (QS) of a compressed video are often adapted in response to the changes of the available bandwidth. It is important to understand how do the variation of FR and QS and their variation pattern affect the video quality. In this paper, we investigate the impact of temporal variation of FR and QS on the perceptual video quality. Among all possible variation patterns, we focus on videos in which two FR's (or QS's) alternate over a fixed interval. We explore the human responses to such variation by conducting subjective evaluation of test videos with different variation magnitudes and frequencies. We further analyze statistical significance of the impact of variation magnitude, variation frequency, video content, and their interactions. By analyzing the subjective ratings, we propose two models for predicting the quality of video with alternating FR and QS, respectively, The proposed models have simple mathematical forms with a few content-dependent parameters. The models fit the measured data very well using parameters determined by least square fitting with the measured data. We further propose some guidelines for adaptation of FR and QS based on trends observed from subjective test results.",
           "claimed_authors": [
-            "Max Zhu",
-            "Katarzyna Kobalczyk",
-            "Andrija Petrovic",
-            "Mladen Nikolic",
-            "Mihaela van der Schaar",
-            "Boris Delibasic",
-            "Petro Lio"
+            "Yen-Fu Ou",
+            "Wenzhi Lin",
+            "Huiqi Zeng",
+            "Yao Wang"
           ],
-          "claimed_title": "Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces",
+          "claimed_title": "Perceptual Quality of Video with Periodic Frame Rate and Quantization Variation-Subjective Studies and Analytical Modeling",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.10051"
+          "claimed_year": 2014,
+          "primary_pointer": "1406.2018"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Perceptual Quality of Video with Periodic Frame Rate and Quantization Variation-Subjective Studies and Analytical Modeling')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper focuses on numeric data, with emphasis on distinct characteristics like varying significance, unstructured format, mass volume and real-time processing. We propose a novel, context-dependent valuation framework specifically devised to assess quality in numeric datasets. Our framework uses eight relevant data quality dimensions, and provide a simple metric to evaluate dataset quality along each dimension. We argue that the proposed set of dimensions and corresponding metrics adequately captures the unique quality antipatterns that are typically associated with numerical data. The introduction of our framework is part of a wider research effort that aims at developing an articulated numerical data quality improvement approach for Oil and Gas exploration and production workflows that is based on artificial intelligence techniques.",
+          "claimed_abstract": "In recent years, defect prediction has received a great deal of attention in the empirical software engineering world. Predicting software defects before the maintenance phase is very important not only to decrease the maintenance costs but also increase the overall quality of a software product. There are different types of product, process, and developer based software metrics proposed so far to measure the defectiveness of a software system. This paper suggests to use a novel set of software metrics which are based on the similarities detected among the source code files in a software project. To find source code similarities among different files of a software system, plagiarism and clone detection techniques are used. Two simple similarity metrics are calculated for each file, considering its overall similarity to the defective and non defective files in the project. Using these similarity metrics, we predict whether a specific file is defective or not. Our experiments on 10 open source data sets show that depending on the amount of detected similarity, proposed metrics could achieve significantly better performance compared to the existing static code metrics in terms of the area under the curve (AUC).",
           "claimed_authors": [
-            "Milen S. Marev",
-            "Ernesto Compatangelo",
-            "Wamberto Vasconcelos"
+            "Ahmet Okutan"
           ],
-          "claimed_title": "Towards a context-dependent numerical data quality evaluation framework",
+          "claimed_title": "Use of Source Code Similarity Metrics in Software Defect Prediction",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1810.09399"
+          "primary_pointer": "1808.10033"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Towards a context-dependent numerical data quality evaluation framework')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Use of Source Code Similarity Metrics in Software Defect Prediction')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
+          "claimed_abstract": "Repeated sampling with a verifier is the standard way to allocate test-time compute for code generation, with pass@$K$ as the canonical metric. Yet the standard policy class draws $K$ independent samples from a single answer distribution, so attempts often collapse onto near-duplicate reasoning paths and waste the budget on redundant rollouts. This failure is costly in competitive programming, where many problems admit multiple distinct algorithmic strategies and pass@$K$ requires only one correct attempt. We propose Coordinated Pass@$K$ Policy Optimization (CPPO), which turns pass@$K$ generation into joint exploration over strategies: a planner emits a tuple of $K{=}4$ alternative high-level methods, and a shared solver attempts one solution per method. CPPO trains this joint policy with a multiplicative planner reward, $R_{\\mathrm{plan}} = J_ψ\\cdot R_{\\mathrm{out}}$, assigning credit only to valid strategy tuples that lead to verifier-confirmed pass@$K$ success. Across APPS, CodeContests, and LiveCodeBench-v6, CPPO improves pass@$4$ over direct sampling, planning baselines, planner-only SFT, and pass@$K$-oriented RL under the same $K{=}4$ solver-attempt budget, with statistically significant gains on six of nine model--benchmark cells. The largest single gain is $+0.16$ on Qwen3.5-9B LiveCodeBench-v6 over the strongest baseline, PKPO ($0.588 \\rightarrow 0.748$; paired bootstrap, $p < 0.05$).",
           "claimed_authors": [
-            "Ralph Kenna",
-            "Bertrand Berche"
+            "Yilong Li",
+            "Suman Banerjee",
+            "Tong Che"
           ],
-          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1006.3863"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
-        "failed_at": "2026-07-05T17:41:34Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Frequent modifications of unit test cases are inevitable due to software's continuous underlying changes in source code, design, and requirements. Since manually maintaining software test suites is tedious, timely, and costly, automating the process of generation and maintenance of test units will significantly impact the effectiveness and efficiency of software testing processes.\n  To this end, we propose an automated approach which exploits both structural and semantic properties of source code methods and test cases to recommend the most relevant and useful unit tests to the developers. The proposed approach initially trains a neural network to transform method-level source code, as well as unit tests, into distributed representations (embedded vectors) while preserving the importance of the structure in the code. Retrieving the semantic and structural properties of a given method, the approach computes cosine similarity between the method's embedding and the previously-embedded training instances. Further, according to the similarity scores between the embedding vectors, the model identifies the closest methods of embedding and the associated unit tests as the most similar recommendations.\n  The results on the Methods2Test dataset showed that, while there is no guarantee to have similar relevant test cases for the group of similar methods, the proposed approach extracts the most similar existing test cases for a given method in the dataset, and evaluations show that recommended test cases decrease the developers' effort to generating expected test cases.",
-          "claimed_authors": [
-            "Mosab Rezaei",
-            "Hamed Alhoori",
-            "Mona Rahimi"
-          ],
-          "claimed_title": "Test Case Recommendations with Distributed Representation of Code Syntactic Features",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.03174"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Test Case Recommendations with Distributed Representation of Code Syntactic Features')",
-        "failed_at": "2026-07-05T17:41:34Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The computational burden of attention in long-context language models has motivated two largely independent lines of work: sparse attention mechanisms that reduce complexity by attending to selected tokens, and gated attention variants that improve training sta-bility while mitigating the attention sink phenomenon. We observe that these approaches address complementary weaknesses and propose Gated Sparse Attention (GSA), an architecture that realizes the benefits of both. GSA incorporates a gated lightning indexer with sigmoid activations that produce bounded, interpretable selection scores, an adaptive sparsity controller that modulates the number of attended tokens based on local uncertainty, and dual gating at the value and output stages. We establish theoretical foundations for the approach, including complexity analysis, expressiveness results, and convergence guarantees. In experiments with 1.7B parameter models trained on 400B tokens, GSA matches the efficiency of sparse-only baselines (12-16x speedup at 128K context) while achieving the quality gains associated with gated attention: perplexity improves from 6.03 to 5.70, RULER scores at 128K context nearly double, and attention to the first token, a proxy for attention sinks, drops from 47% to under 4%. Training stability improves markedly, with loss spikes reduced by 98%.",
-          "claimed_authors": [
-            "Alfred Shen",
-            "Aaron Shen"
-          ],
-          "claimed_title": "Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models",
+          "claimed_title": "Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2601.15305"
+          "primary_pointer": "2605.27000"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Cast a Wider Net: Coordinated Pass@K Policy Optimization for Code Reasoning')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Although large language models (LLMs) have achieved significant success in natural language processing, they still struggle with long-context comprehension. Traditional approaches to mitigating this issue typically rely on fine-tuning or retraining, which is both resource-intensive and challenging to deploy in lightweight industrial settings. In this paper, we investigate the potential to accomplish this without any additional resources. Through an in-depth study of the attention mechanism in LLMs, we propose a method called Scaled ReAttention (SRA) to strengthen LLMs' ability to interpret and retrieve information by strategically manipulating their attention scores during inference. Through extensive experiments, we demonstrate that integrating SRA significantly boosts LLMs' performance on a variety of downstream tasks, highlighting its practical potential for enhancing language understanding without incurring the overhead of traditional training.",
+          "claimed_abstract": "The Information Retrieval in Software Engineering (IRSE) track aims to develop solutions for automated evaluation of code comments in a machine learning framework based on human and large language model generated labels. In this track, there is a binary classification task to classify comments as useful and not useful. The dataset consists of 9048 code comments and surrounding code snippet pairs extracted from open source github C based projects and an additional dataset generated individually by teams using large language models. Overall 56 experiments have been submitted by 17 teams from various universities and software companies. The submissions have been evaluated quantitatively using the F1-Score and qualitatively based on the type of features developed, the supervised learning model used and their corresponding hyper-parameters. The labels generated from large language models increase the bias in the prediction model but lead to less over-fitted results.",
           "claimed_authors": [
-            "Yifei Gao",
-            "Shaohong Chen",
-            "Lei Wang",
-            "Ruiting Dai",
-            "Ziyun Zhang",
-            "Kerui Ren",
-            "Jiaji Wu",
-            "Jun Cheng"
+            "Srijoni Majumdar",
+            "Soumen Paul",
+            "Debjyoti Paul",
+            "Ayan Bandyopadhyay",
+            "Samiran Chattopadhyay",
+            "Partha Pratim Das",
+            "Paul D Clough",
+            "Prasenjit Majumder"
           ],
-          "claimed_title": "Pay Attention to What You Need",
+          "claimed_title": "Generative AI for Software Metadata: Overview of the Information Retrieval in Software Engineering Track at FIRE 2023",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2307.13365"
+          "primary_pointer": "2311.03374"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Pay Attention to What You Need')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Generative AI for Software Metadata: Overview of the Information Retrieval in Software Engineering Track at FIRE 2023')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Predicting users' preferences based on their sequential behaviors in history is challenging and crucial for modern recommender systems. Most existing sequential recommendation algorithms focus on transitional structure among the sequential actions, but largely ignore the temporal and context information, when modeling the influence of a historical event to current prediction.\n  In this paper, we argue that the influence from the past events on a user's current action should vary over the course of time and under different context. Thus, we propose a Contextualized Temporal Attention Mechanism that learns to weigh historical actions' influence on not only what action it is, but also when and how the action took place. More specifically, to dynamically calibrate the relative input dependence from the self-attention mechanism, we deploy multiple parameterized kernel functions to learn various temporal dynamics, and then use the context information to determine which of these reweighing kernels to follow for each input. In empirical evaluations on two large public recommendation datasets, our model consistently outperformed an extensive set of state-of-the-art sequential recommendation methods.",
+          "claimed_abstract": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
           "claimed_authors": [
-            "Jibang Wu",
-            "Renqin Cai",
-            "Hongning Wang"
+            "Kidist Amde Mekonnen",
+            "Yubao Tang",
+            "Maarten de Rijke"
           ],
-          "claimed_title": "Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation",
+          "claimed_title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2002.00741"
+          "claimed_year": 2025,
+          "primary_pointer": "2504.05181"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation')",
-        "failed_at": "2026-07-05T17:41:34Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval')",
+        "failed_at": "2026-07-15T10:23:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-15T10:23:24Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -575,41 +511,37 @@
           "final_url": "https://arxiv.org/abs/2303.12869",
           "http_status": 200,
           "pdf_sample_score": 0.25,
-          "query_relevance_score": 0.8,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T17:41:40Z"
+          "verified_at": "2026-07-15T10:23:31Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Haritz Puerto",
-            "Martin Tutek",
-            "Somak Aditya",
-            "Xiaodan Zhu",
-            "Iryna Gurevych"
+            "Muhammad Haseeb"
           ],
-          "title": "Code Prompting Elicits Conditional Reasoning Abilities in Text+Code LLMs",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
           "venue": "arXiv",
-          "year": 2024
+          "year": 2025
         },
-        "primary_pointer": "2401.10065",
-        "summary": "Reasoning is a fundamental component of language understanding. Recent prompting techniques, such as chain of thought, have consistently improved LLMs' performance on various reasoning tasks. Nevertheless, there is still little understanding of what triggers reasoning abilities in LLMs in the inference stage. In this paper, we introduce code prompting, a chain of prompts that transforms a natural language problem into code and directly prompts the LLM using the generated code without resorting to external code execution. We hypothesize that code prompts can elicit certain reasoning capabilities of LLMs trained on text and code and utilize the proposed method to improve conditional reasoning, the ability to infer different conclusions depending on the fulfillment of certain conditions. We find that code prompting exhibits a high-performance boost for multiple LLMs (up to 22.52 percentage points on GPT 3.5, 7.75 on Mixtral, and 16.78 on Mistral) across multiple conditional reasoning datasets. We then conduct comprehensive experiments to understand how code prompts trigger reasoning abilities and which capabilities are elicited in the underlying models. Our analysis of GPT 3.5 reveals that the code formatting of the input problem is essential for performance improvement. Furthermore, code prompts improve sample efficiency of in-context learning and facilitate state tracking of variables or entities.",
+        "primary_pointer": "2508.08322",
+        "summary": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2401.10065",
+          "final_url": "https://arxiv.org/abs/2508.08322",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T17:41:40Z"
+          "verified_at": "2026-07-15T10:23:36Z"
         }
       }
     ]

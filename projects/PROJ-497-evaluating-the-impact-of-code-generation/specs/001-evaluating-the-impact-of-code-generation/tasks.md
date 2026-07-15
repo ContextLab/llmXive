@@ -66,7 +66,7 @@ expected <block end>, but found '<scalar>'
 - [X] T005 [P] Create `code/config/bandit_config.yaml` defining the pinned rule-set and exclusions for static analysis (Constitution Principle VI)
 - [ ] T006 [P] Implement `code/download.py` to fetch HumanEval and MBPP datasets from HuggingFace `datasets` library with SHA-256 checksum verification (Constitution Principle III)
 - [X] T007 Create `code/state_utils.py` to compute and store artifact hashes in `state/artifact_hashes.yaml` upon data completion
-- [~] T008 Implement `code/main.py` as the pipeline orchestrator with argument parsing for model selection and benchmark targets
+- [X] T008 Implement `code/main.py` as the pipeline orchestrator with argument parsing for model selection and benchmark targets
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,7 +80,7 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T009 [P] [US1] Contract test for dataset download integrity in `tests/unit/test_download.py`
+- [ ] T009 [P] [US1] Contract test for dataset download integrity in `tests/unit/test_download.py`
 - [~] T010 [P] [US1] Integration test for single-model generation and analysis loop in `tests/integration/test_generation_pipeline.py`
 
 ### Implementation for User Story 1
@@ -111,10 +111,10 @@ expected <block end>, but found '<scalar>'
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/stats.py` (ZINB) to define and fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `data/processed/aggregated_analysis_dataset.csv`. **Note**: Do NOT use `(1|task_id)` as `task_id` is unique per row. **Fallback**: If ZINB fails to converge after 3 attempts, execute a permutation test on raw counts (FR-005, FR-015). **Input**: Raw counts (no FPR adjustment).
-- [ ] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID, skip tests if n<5 per group, and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
-- [ ] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
-- [ ] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Output**: `data/processed/fpr_metrics.json`. **Note**: This FPR is reported as a sensitivity metric only; do NOT apply the adjustment formula to the primary outcome.
+- [~] T020 [US2] Implement `code/stats.py` (ZINB) to define and fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `data/processed/aggregated_analysis_dataset.csv`. **Note**: Do NOT use `(1|task_id)` as `task_id` is unique per row. **Fallback**: If ZINB fails to converge after 3 attempts, execute a permutation test on raw counts (FR-005, FR-015). **Input**: Raw counts (no FPR adjustment).
+- [~] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID, skip tests if n<5 per group, and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
+- [~] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
+- [~] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Output**: `data/processed/fpr_metrics.json`. **Note**: This FPR is reported as a sensitivity metric only; do NOT apply the adjustment formula to the primary outcome.
 - [ ] T025 [US2] Implement post-hoc power analysis in `code/stats.py` if valid sample count <64; flag dataset as 'under-powered' if power <0.80 (FR-009).
 - [ ] T026 [US2] Implement cross-benchmark (HumanEval vs MBPP) and cross-model (StarCoder vs CodeGen) comparison logic in `code/stats.py` (FR-011, FR-013).
 - [ ] T027 [US2] Generate `data/processed/aggregated_analysis_dataset.csv` with final statistics, effect sizes (IRR), and flags (Plan Phase 2.2).

@@ -1,66 +1,36 @@
-"""
-Script to initialize the project directory structure for PROJ-180.
-
-Creates the required directories as per tasks.md Task T001a:
-- code/
-- data/raw
-- data/processed
-- results
-- specs/
-
-This script ensures the project tree exists before any data acquisition or
-analysis scripts are run.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root (current working directory)
-    project_root = Path.cwd()
+    """
+    Creates the required directory structure for the project:
+    code/, data/raw, data/processed, results, and specs/.
     
-    # Define the required directories relative to the project root
+    This script ensures that all necessary folders exist before 
+    any data acquisition or processing tasks begin.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "results",
-        "specs"
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
+        project_root / "specs"
     ]
     
     created_count = 0
-    skipped_count = 0
-    
-    print(f"Initializing directory structure in: {project_root}")
-    
     for dir_path in directories:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"  [SKIP] {dir_path} (already exists)")
-            skipped_count += 1
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"  [CREATE] {dir_path}")
-                created_count += 1
-            except OSError as e:
-                print(f"  [ERROR] Failed to create {dir_path}: {e}", file=sys.stderr)
-                sys.exit(1)
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"\nDone. Created {created_count} directories, skipped {skipped_count}.")
-    
-    # Verify structure
-    missing = []
-    for dir_path in directories:
-        if not (project_root / dir_path).exists():
-            missing.append(dir_path)
-    
-    if missing:
-        print(f"Warning: The following directories are missing: {missing}", file=sys.stderr)
-        sys.exit(1)
-    else:
-        print("Verification passed: All required directories exist.")
+    print(f"Setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
