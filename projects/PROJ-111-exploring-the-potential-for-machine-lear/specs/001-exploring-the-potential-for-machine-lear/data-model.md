@@ -1,67 +1,54 @@
 # Data Model: Exploring the Potential for Machine Learning to Identify Novel Phase Transitions in Isotropic Systems
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data structures, schemas, and relationships used in the project. All data flows from raw Monte Carlo configurations through preprocessing to latent representations and final analysis results.
-
-## Key Entities
-
-### 1. SpinConfiguration
-Represents a single snapshot of the spin system.
+### 1.1 SpinConfiguration
+Represents a single snapshot of the isotropic spin system.
 *   **Attributes**:
-    *   `lattice_size` (int): $L$ (e.g., 16, 24).
-    *   `temperature` (float): $T$ in units of $J$.
-    *   `spins` (Tensor): Shape `[3, L, L]`. Values are unit vectors $(S_x, S_y, S_z)$.
-    *   `timestamp` (str): ISO 8601 generation time.
-    *   `seed` (int): Random seed used for generation.
-    *   `checksum` (str): SHA-256 of the raw data file (added for Constitution III).
-    *   `tau_int` (float): Integrated autocorrelation time for magnetization at this temperature.
+    *   `lattice_size` (int): Size $L$ of the square lattice.
+    *   `temperature` (float): Simulation temperature $T$ (in units of $J$).
+    *   `model_type` (str): "Heisenberg" or "XY".
+    *   `spins` (ndarray): Tensor of shape `(3, L, L)` for Heisenberg or `(2, L, L)` for XY.
+    *   `metadata`: Dictionary containing simulation parameters (seeds, steps).
 
-### 2. PreprocessedTensor
-The normalized input for the VAE.
+### 1.2 LatentRepresentation
+The compressed vector output from the VAE encoder.
 *   **Attributes**:
-    *   `data` (Tensor): Shape `[N, 3, L, L]`.
-    *   `temperatures` (Array): Shape `[N]`.
-    *   `split` (str): "train" or "validation".
-    *   `checksum` (str): SHA-256 of the file.
+    *   `temperature` (float): The temperature of the input configuration.
+    *   `mu` (ndarray): Mean vector of shape `(10,)`.
+    *   `sigma` (ndarray): Log-variance vector of shape `(10,)`.
+    *   `z` (ndarray): Sampled latent vector of shape `(10,)`.
 
-### 3. LatentRepresentation
-The output of the VAE encoder.
+### 1.3 CriticalSignature
+Derived metric indicating the phase transition.
 *   **Attributes**:
-    *   `mu` (Tensor): Shape `[N, 10]`. Mean of the latent distribution.
-    *   `log_var` (Tensor): Shape `[N, 10]`. Log-variance.
-    *   `temperature` (float): Associated temperature.
-    *   `reconstruction_error` (float): MSE between input and output.
+    *   `t_star` (float): Detected critical temperature.
+    *   `variance_peak` (float): Magnitude of the variance peak.
+    *   `confidence_interval` (tuple): (lower, upper) 95% CI.
+    *   `susceptibility_t_max` (float): Temperature of max susceptibility (ground truth).
+    *   `fss_extrapolated_tc` (float): Extrapolated $T_c$ for $L \to \infty$.
 
-### 4. CriticalSignature
-The final derived metric.
+### 1.4 ModelCheckpoint
+Metadata for the trained VAE model.
 *   **Attributes**:
     *   `model_type` (str): "Heisenberg" or "XY".
-    *   `t_star` (float): Detected critical temperature.
-    *   `ci_lower` (float): 95% CI lower bound.
-    *   `ci_upper` (float): 95% CI upper bound.
-    *   `significance_metric` (float): Signal-to-noise ratio or peak height (replaces p_value from BCPD).
-    *   `ground_truth_chi_extrapolated` (float): Extrapolated critical temperature $T_c(\infty)$ from FSS.
-    *   `is_artifact` (bool): True if peak did not sharpen with L.
+    *   `architecture_hash` (str): SHA-256 of the architecture definition.
+    *   `hyperparameters` (dict): Learning rate, epochs, etc.
+    *   `checksum` (str): SHA-256 of the binary `.pt` file.
+    *   `created_at` (str): ISO timestamp.
 
-## Data Flow
+## 2. Data Flow
 
-1.  **Generation**: `generator.py` $\to$ Raw spin configurations (NumPy `.npy`).
-2.  **Preprocessing**: `loader.py` $\to$ Normalized tensors + stratified split.
-3.  **Training**: `training.py` $\to$ Trained VAE weights (`.pt`).
-4.  **Inference**: `latent_analysis.py` $\to$ Latent means/variances per temperature.
-5.  **Analysis**: `bootstrap.py` $\to$ Final CriticalSignature (JSON/CSV).
+1.  **Input**: Raw simulation parameters (Model, L, T, Seed).
+2.  **Generation**: `data_generation.py` produces `SpinConfiguration` objects.
+3.  **Preprocessing**: `preprocessing.py` normalizes and reshapes to `[batch, channels, L, L]`.
+4.  **Encoding**: `vae_model.py` produces `LatentRepresentation` for each sample.
+5.  **Aggregation**: `analysis.py` computes variance per temperature bin.
+6.  **Output**: `CriticalSignature` stored in JSON/CSV. `ModelCheckpoint` metadata stored in JSON.
 
-## Storage Strategy
+## 3. Storage Format
 
-*   **Raw Data**: `data/raw/` (Checksummed, immutable).
-*   **Processed Data**: `data/processed/` (Derived, versioned).
-*   **Models**: `models/` (Trained weights).
-*   **Results**: `results/` (Final analysis outputs).
-
-## Constraints
-
-*   All tensors must be `float32` to save memory.
-*   File sizes for raw data must not exceed a manageable total volume.
-*   Random seeds must be recorded in metadata for every data file.
-*   `tau_int` must be recorded for every temperature bin to ensure valid bootstrap resampling.
+*   **Raw Data**: `.npy` files (NumPy arrays) in `data/raw/`.
+*   **Processed Data**: `.npy` files in `data/processed/`.
+*   **Models**: `.pt` (PyTorch) in `models/`. Metadata stored in `models/metadata.json` validated against `model-checkpoint.schema.yaml`.
+*   **Results**: `.json` in `data/results/`.

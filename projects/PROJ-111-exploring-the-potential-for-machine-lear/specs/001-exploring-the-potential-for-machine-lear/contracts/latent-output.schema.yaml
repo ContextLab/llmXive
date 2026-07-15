@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: LatentOutput
+description: Schema for VAE latent representations and derived critical signatures.
+type: object
+properties:
+  temperature:
+    type: number
+    description: "Temperature bin for this batch"
+  latent_stats:
+    type: object
+    properties:
+      mean_variance:
+        type: number
+        description: "Sum of variances of the latent means (primary metric)"
+      mean_mean:
+        type: number
+        description: "Mean of the latent means (should be ~0)"
+    required:
+      - mean_variance
+      - mean_mean
+  critical_signature:
+    type: object
+    properties:
+      t_star:
+        type: number
+        description: "Detected critical temperature"
+      confidence_interval_95:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "[lower, upper] 95% CI"
+      peak_magnitude:
+        type: number
+      fss_extrapolated_tc:
+        type: number
+        nullable: true
+        description: "Extrapolated Tc for L->infinity, null if insufficient data"
+      status:
+        type: string
+        enum: ["Detected", "No Transition", "Time Budget Exceeded", "FSS Inconclusive"]
+    required:
+      - t_star
+      - confidence_interval_95
+      - peak_magnitude
+      - status
+required:
+  - temperature
+  - latent_stats
+  - critical_signature
+additionalProperties: false

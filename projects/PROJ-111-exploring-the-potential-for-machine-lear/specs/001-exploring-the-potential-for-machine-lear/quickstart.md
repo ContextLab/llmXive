@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-*   Python 3.10+
-*   `pip`
+*   Python 3.11+
 *   Git
+*   Access to a GitHub Actions runner (or local environment with 2+ CPU cores, 8GB RAM).
 
 ## Installation
 
@@ -22,43 +22,47 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the free-tier runner.*
 
-## Running the Pipeline
+## Execution Workflow
 
-The entire pipeline can be executed via the main entry point. This script handles data generation, training, and analysis in sequence.
-
+### Step 1: Generate Data (Optional if pre-computed)
+If no pre-computed data exists, run the generation script:
 ```bash
-python code/main.py
+python code/data_generation.py --model Heisenberg --L 16,24 --T_range 0.1 3.0 0.1
 ```
+*Output: `data/raw/` with `.npy` files.*
 
-### Configuration
-
-You can override default parameters by editing `code/config.py` or passing arguments:
-
+### Step 2: Preprocess Data
 ```bash
-python code/main.py --lattice 16 --epochs 50 --model heisenberg
+python code/preprocessing.py --input data/raw/ --output data/processed/
 ```
+*Output: Normalized tensors in `data/processed/`.*
 
-### Steps Explained
+### Step 3: Train VAE
+```bash
+python code/train.py --data data/processed/ --epochs 50 --seed 42
+```
+*Output: `models/vae_heisenberg.pt` and training logs.*
 
-1.  **Data Generation**: The script generates Monte Carlo configurations for the specified model and lattice size.
-2.  **Preprocessing**: Data is normalized, split into train/validation sets, and checksummed.
-3.  **Training**: The VAE is trained on CPU. Progress is logged to the console.
-4.  **Analysis**: Latent space variance (reconstruction error) is calculated, Savitzky-Golay smoothing is applied, and the critical temperature is identified.
-5.  **Validation**: Magnetic susceptibility is computed, FSS is performed to extrapolate $T_c(\infty)$, and the ML result is compared against this ground truth.
+### Step 4: Analyze & Detect Transition
+```bash
+python code/analysis.py --model models/vae_heisenberg.pt --data data/processed/
+```
+*Output: `data/results/critical_signature.json` containing $T^*$, CI, and FSS results.*
 
-## Output
+## Validation
 
-Results are saved to the `results/` directory:
-*   `latent_variance.csv`: Variance of reconstruction error per temperature.
-*   `critical_signature.json`: Final $T^*$, confidence intervals, and validation metrics.
-*   `plots/`: Visualizations of the latent space, susceptibility, and peak detection.
+Run the test suite to ensure contract compliance:
+```bash
+pytest tests/ -v
+```
+*Checks: Data shapes, VAE convergence, Peak detection logic, Schema validation.*
 
 ## Troubleshooting
 
-*   **Memory Error**: Reduce `--samples-per-bin` in `config.py`.
-*   **Training Timeout**: The script will auto-stop if it exceeds 6 hours. Reduce `--epochs` or `--lattice` size.
-*   **No Peak Detected**: Check `results/latent_variance.csv`. If the curve is flat, the VAE may not have learned the physics. Try increasing `latent_dim` or `epochs`.
-*   **Autocorrelation Warning**: If `tau_int` is very large, the script may reduce the number of effective samples. Ensure sufficient simulation time.
+*   **Memory Error**: Reduce batch size in `train.py` or sample fewer configurations in `data_generation.py`.
+*   **Timeout**: If running on CI, check if "Time Budget Exceeded" flag is set. The script will output partial results.
+*   **No Peak Detected**: Check `data/results/analysis.log` for "No significant transition detected". Verify temperature range and sampling density.

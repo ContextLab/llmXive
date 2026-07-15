@@ -1,4 +1,4 @@
-resolved_at: '2026-07-14T02:07:21.333616+00:00'
+resolved_at: '2026-07-15T00:45:23.162635+00:00'
 datasets:
 - intent: VAE
   status: unresolved
@@ -8,23 +8,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Induced_C_H_Arylation_of_Pyrimidines_with_Arylazo_Sulfones/32988180
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Phenotype-Embedded_Mapper_Framework_Links_Microbiome_Metabolome_Interaction_Modules_to_Colorectal_Cancer/32988177
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+  - url: https://figshare.com/articles/media/O_Call_07036833482_Oduduwa_University_2026_2027_Application_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Admission_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32988167
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+  - url: https://figshare.com/articles/book/Literature_Review_Blue_Carbon_Research_in_the_Tropical_Western_Indian_Ocean_WIO_/32988113
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/data_for_b_Hydrological_pacing_of_iron_limited_nitrogen_utilization_in_the_western_equatorial_Pacific_margin_over_the_past_140_000_years_b_/32979431
+  - url: https://figshare.com/articles/media/O_Call_07036833482_Paul_University_2026_2027_Application_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Admission_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32988164
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -44,27 +44,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7350768
+  - url: https://zenodo.org/records/1210815
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19135431
+  - url: https://zenodo.org/records/21364538
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19135431
+  - url: https://zenodo.org/records/21364538
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21347632
+  - url: https://zenodo.org/records/21364056
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21347632
+  - url: https://zenodo.org/records/21364056
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7h44j1098
+  - url: https://diglib.eg.org/items/72c76f0a-700b-498a-a78c-32b26983f938
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
