@@ -1,0 +1,96 @@
+# Dataset Schema for Insect Pollinator Network Prediction
+# Defines the structure of the unified feature matrix produced by the preprocessing pipeline.
+# Used for validation of output from code/preprocessing.py
+type: object
+required:
+  - metadata
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - schema_version
+      - generated_at
+      - source_ecosystems
+      - total_pairs
+      - positive_pairs
+      - negative_pairs
+      - feature_columns
+    properties:
+      schema_version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+      generated_at:
+        type: string
+        format: date-time
+      source_ecosystems:
+        type: array
+        items:
+          type: string
+        minItems: 1
+      total_pairs:
+        type: integer
+        minimum: 1
+      positive_pairs:
+        type: integer
+        minimum: 0
+      negative_pairs:
+        type: integer
+        minimum: 0
+      feature_columns:
+        type: array
+        items:
+          type: string
+        minItems: 1
+      label_column:
+        type: string
+        const: "link_label"
+      missingness_flags:
+        type: array
+        items:
+          type: string
+        description: "List of columns flagged for >15% missingness"
+  data:
+    type: array
+    description: "List of rows, each representing a plant-pollinator pair"
+    items:
+      type: object
+      required:
+        - plant_species
+        - pollinator_species
+        - ecosystem_id
+        - link_label
+        - traits
+      properties:
+        plant_species:
+          type: string
+          description: "Scientific name of the plant"
+        pollinator_species:
+          type: string
+          description: "Scientific name of the pollinator"
+        ecosystem_id:
+          type: string
+          description: "Identifier for the ecosystem (e.g., Web of Life dataset ID)"
+        link_label:
+          type: integer
+          enum: [0, 1]
+          description: "1 if interaction observed, 0 if co-occurring but not observed"
+        traits:
+          type: object
+          description: "Encoded trait features for the pair"
+          additionalProperties: true
+          minProperties: 1
+        sampling_effort:
+          type: number
+          minimum: 0
+          description: "Optional: aggregated sampling effort for the pair"
+        missingness_flags:
+          type: array
+          items:
+            type: string
+          description: "List of trait columns with >15% missingness for this pair"
+additionalProperties: false
+description: |
+  This schema validates the processed dataset used for model training.
+  It ensures that all required metadata is present and that the data rows
+  conform to the expected structure with encoded traits and binary labels.

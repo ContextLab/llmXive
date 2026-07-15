@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Feature Matrix Schema"
+description: "Schema for the unified feature matrix used in model training. Note: ecosystem_id, plant_id, and pollinator_id are present for tracking but are NOT used as features in the model."
+type: object
+properties:
+  ecosystem_id:
+    type: string
+    description: "Unique identifier for the ecosystem (used for grouping, NOT a feature)."
+  plant_id:
+    type: string
+    description: "Unique identifier for the plant species (used for grouping, NOT a feature)."
+  pollinator_id:
+    type: string
+    description: "Unique identifier for the pollinator species (used for grouping, NOT a feature)."
+  trait_corolla_depth:
+    type: number
+    description: "Z-score normalized corolla depth (mm)."
+  trait_flower_size:
+    type: number
+    description: "Z-score normalized flower size (mm)."
+  trait_color_blue:
+    type: integer
+    description: "One-hot encoded flag for blue color (0 or 1)."
+  trait_color_white:
+    type: integer
+    description: "One-hot encoded flag for white color (0 or 1)."
+  trait_color_yellow:
+    type: integer
+    description: "One-hot encoded flag for yellow color (0 or 1)."
+  trait_scent_present:
+    type: integer
+    description: "One-hot encoded flag for scent presence (0 or 1)."
+  sampling_effort:
+    type: number
+    description: "Normalized sampling effort (e.g., number of visits). If missing, imputed or flagged."
+  label:
+    type: integer
+    description: "Binary label: 1 if observed link, 0 if unobserved co-occurring pair."
+required:
+  - ecosystem_id
+  - plant_id
+  - pollinator_id
+  - trait_corolla_depth
+  - trait_flower_size
+  - trait_color_blue
+  - trait_color_white
+  - trait_color_yellow
+  - trait_scent_present
+  - sampling_effort
+  - label
+additionalProperties: false

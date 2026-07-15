@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model evaluation metrics and importance scores."
+type: object
+properties:
+  cross_validation_metrics:
+    type: object
+    description: "Metrics from the 5-fold cross-validation."
+    properties:
+      auc_roc_mean:
+        type: number
+        description: "Mean AUC-ROC score."
+      auc_roc_std:
+        type: number
+        description: "Standard deviation of AUC-ROC."
+      precision_recall_auc:
+        type: number
+        description: "Mean Precision-Recall AUC."
+  loeo_generalization_metrics:
+    type: object
+    description: "Metrics from the Leave-One-Ecosystem-Out (LOEO) cross-validation."
+    properties:
+      mean_auc_loeo:
+        type: number
+        description: "Mean AUC-ROC across all LOEO folds."
+      auc_distribution:
+        type: array
+        items:
+          type: number
+        description: "AUC scores for each LOEO fold."
+  null_model_comparison:
+    type: object
+    description: "Comparison against null models."
+    properties:
+      p_value_trait_shuffled:
+        type: number
+        description: "P-value from permutation test against trait-shuffled null model (primary metric for trait efficacy)."
+      p_value_degree_preserving:
+        type: number
+        description: "P-value from permutation test against degree-preserving null model (secondary metric for network topology)."
+      p_value_null_model:
+        type: ["number", "string", "null"]
+        description: "P-value from the primary null model test. Can be null or a string (e.g., 'approximate') if the full test was not completed due to time constraints."
+  trait_importance:
+    type: array
+    description: "Ranked list of traits by permutation importance."
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+        rank:
+          type: integer
+      required:
+        - feature_name
+        - importance_score
+        - rank
+  data_quality_flags:
+    type: object
+    description: "Flags for data issues encountered."
+    properties:
+      ecosystems_skipped:
+        type: array
+        items:
+          type: string
+        description: "List of ecosystem IDs skipped due to missing data."
+      missingness_report:
+        type: object
+        description: "Map of ecosystem ID to missingness percentage."
+      label_noise_sensitivity:
+        type: object
+        description: "Results of sensitivity analysis on label noise."
+        properties:
+          high_confidence_auc:
+            type: number
+            description: "AUC on high-confidence negative subset."
+          delta_importance:
+            type: array
+            description: "Change in importance scores compared to full dataset."
+            items:
+              type: object
+              properties:
+                feature:
+                  type: string
+                delta:
+                  type: number
+required:
+  - cross_validation_metrics
+  - loeo_generalization_metrics
+  - trait_importance
+  - data_quality_flags
+additionalProperties: false

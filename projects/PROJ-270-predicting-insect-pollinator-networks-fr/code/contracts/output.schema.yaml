@@ -1,0 +1,206 @@
+# Output Schema for Model Training and Validation Results
+# Defines the structure of metrics and model artifacts produced by the pipeline.
+type: object
+required:
+  - metadata
+  - metrics
+  - model_info
+properties:
+  metadata:
+    type: object
+    required:
+      - schema_version
+      - generated_at
+      - pipeline_version
+      - seed
+    properties:
+      schema_version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+      generated_at:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      seed:
+        type: integer
+  metrics:
+    type: object
+    required:
+      - cv_results
+      - loeo_results
+      - null_model_comparison
+    properties:
+      cv_results:
+        type: object
+        required:
+          - mean_auc_roc
+          - std_auc_roc
+          - mean_precision
+          - mean_recall
+          - n_folds
+        properties:
+          mean_auc_roc:
+            type: number
+            minimum: 0
+            maximum: 1
+          std_auc_roc:
+            type: number
+            minimum: 0
+          mean_precision:
+            type: number
+            minimum: 0
+            maximum: 1
+          mean_recall:
+            type: number
+            minimum: 0
+            maximum: 1
+          n_folds:
+            type: integer
+            minimum: 2
+          feature_importance:
+            type: array
+            items:
+              type: object
+              required:
+                - feature_name
+                - importance_score
+              properties:
+                feature_name:
+                  type: string
+                importance_score:
+                  type: number
+      loeo_results:
+        type: object
+        required:
+          - mean_auc_roc
+          - std_auc_roc
+          - n_ecosystems
+        properties:
+          mean_auc_roc:
+            type: number
+            minimum: 0
+            maximum: 1
+          std_auc_roc:
+            type: number
+            minimum: 0
+          n_ecosystems:
+            type: integer
+            minimum: 1
+          per_ecosystem_scores:
+            type: array
+            items:
+              type: object
+              required:
+                - ecosystem_id
+                - auc_roc
+              properties:
+                ecosystem_id:
+                  type: string
+                auc_roc:
+                  type: number
+      null_model_comparison:
+        type: object
+        required:
+          - trait_shuffled
+          - degree_preserving
+          - statistical_significance
+        properties:
+          trait_shuffled:
+            type: object
+            required:
+              - mean_auc_roc
+              - std_auc_roc
+            properties:
+              mean_auc_roc:
+                type: number
+              std_auc_roc:
+                type: number
+          degree_preserving:
+            type: object
+            required:
+              - mean_auc_roc
+              - std_auc_roc
+            properties:
+              mean_auc_roc:
+                type: number
+              std_auc_roc:
+                type: number
+          statistical_significance:
+            type: object
+            required:
+              - p_value
+              - is_significant
+              - n_permutations
+            properties:
+              p_value:
+                type: number
+                minimum: 0
+                maximum: 1
+              is_significant:
+                type: boolean
+              n_permutations:
+                type: integer
+                minimum: 1
+              is_approximate:
+                type: boolean
+                description: "True if dynamic iteration scaling fallback was triggered"
+      trait_gap:
+        type: object
+        required:
+          - saturated_model_auc
+          - trait_model_auc
+          - gap
+        properties:
+          saturated_model_auc:
+            type: number
+            minimum: 0
+            maximum: 1
+          trait_model_auc:
+            type: number
+            minimum: 0
+            maximum: 1
+          gap:
+            type: number
+  model_info:
+    type: object
+    required:
+      - model_type
+      - hyperparameters
+      - serialization_path
+    properties:
+      model_type:
+        type: string
+        const: "RandomForestClassifier"
+      hyperparameters:
+        type: object
+        required:
+          - n_estimators
+          - max_depth
+          - class_weight
+        properties:
+          n_estimators:
+            type: integer
+          max_depth:
+            type: integer
+          min_samples_split:
+            type: integer
+          class_weight:
+            type: string
+            const: "balanced"
+      serialization_path:
+        type: string
+      feature_names:
+        type: array
+        items:
+          type: string
+  validation_notes:
+    type: array
+    items:
+      type: string
+    description: "List of warnings or notes about the validation process"
+additionalProperties: false
+description: |
+  This schema validates the final output of the model training and validation pipeline.
+  It ensures that all required metrics, model information, and validation results are present
+  and conform to the expected structure.
