@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.12337",
+  "judged_at": "2026-07-15T04:11:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper investigates user attitudes toward AI chatbots as mental health tools, which is a distinct construct from the user's specific question about the influence of \"metaphorical framing\" on attitudes toward treatment. While both fall under the broad domain of mental health psychology, the paper does not measure the mechanism of metaphorical framing, nor does it study the specific independent variable (framing) required by the user's research question, failing to meet criteria (a) or (b).",
+  "relevant": false
+}

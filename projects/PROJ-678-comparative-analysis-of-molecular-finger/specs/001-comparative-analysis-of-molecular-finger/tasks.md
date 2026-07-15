@@ -132,7 +132,7 @@
 - [~] T025 [US3] Implement `code/evaluate.py` to perform a Paired t-test on the 5-fold CV scores for BOTH ROC-AUC and Precision-Recall AUC differences to determine statistical significance (p < 0.05). <!-- ATOMIZE: requested -->
 - [~] T026 [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC
 - [~] T027 [US3] Implement `code/evaluate.py` to map Morgan fingerprint bits to phosphorus-centered substructures: 1) Identify phosphorus atom (atomic number characteristic of the element) in the molecule; 2) Use RDKit `GetBitInfo` to find bits within a defined radius of the phosphorus atom; 3) Sum the Gini importance for these specific bits; 4) Compare this sum to the total Gini importance.
-- [ ] T028 [US3] Implement `code/evaluate.py` to verify SC-003: explicitly check if the sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by ≥ 15%; record result in report.
+- [~] T028 [US3] Implement `code/evaluate.py` to verify SC-003: explicitly check if the sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by ≥ 15%; record result in report.
 - [ ] T029 [US3] Generate final report `data/processed/research_results.md` containing: (1) Metrics table (ROC-AUC, PR-AUC, Balanced Accuracy per fold), (2) Statistical Test Results (p-values for ROC-AUC and PR-AUC), (3) SC-003 Analysis (Gini sums and threshold verification)
 - [ ] T030 [US3] Add logic to handle "Low Sample Size" warning: if n < 50, skip t-test and report descriptive stats only in `data/processed/research_results.md`
 

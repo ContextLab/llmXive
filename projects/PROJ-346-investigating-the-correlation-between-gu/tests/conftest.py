@@ -1,40 +1,31 @@
 """
-Pytest configuration and fixtures for the project.
-Ensures the project root and code paths are correctly set up for imports.
+Root conftest.py for test discovery and shared fixtures.
+This file ensures the code directory is on the Python path for imports.
 """
 import os
 import sys
 import pytest
 from pathlib import Path
 
-@pytest.fixture(autouse=True)
-def add_project_root_to_path():
-    """Automatically add project root and code directory to sys.path for imports."""
-    # Determine project root based on this file's location
-    current_file = Path(__file__).resolve()
-    # Assuming tests/ is at root or code/tests/ is inside code/
-    # The tasks.md says tests/ is at root, but conftest.py is listed in code/conftest.py in API surface.
-    # We will handle both cases to be safe.
-    
-    if "code" in str(current_file):
-        project_root = current_file.parent.parent
-        code_dir = current_file.parent
-    else:
-        project_root = current_file.parent
-        code_dir = project_root / "code"
+# Add the project root and code directory to sys.path
+# This allows tests to import modules like `from 01_ingest import ...`
+# without needing to run from the code directory specifically.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
 
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+if str(CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(CODE_DIR))
 
-    yield
+@pytest.fixture
+def project_root():
+    return PROJECT_ROOT
 
-def pytest_configure(config):
-    """Configure pytest markers and global settings."""
-    config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
-    )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
+@pytest.fixture
+def data_dir(project_root):
+    return project_root / "data"
+
+@pytest.fixture
+def code_dir(project_root):
+    return project_root / "code"

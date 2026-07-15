@@ -1,0 +1,342 @@
+{
+  "fetched_at": "2026-07-15T04:11:32Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment",
+      "target_n": 5
+    },
+    "duration_seconds": 92.997,
+    "ended_at": "2026-07-15T04:11:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "metaphorical framing in mental health stigma"
+        ],
+        [
+          2,
+          "language framing effects on help-seeking behavior"
+        ],
+        [
+          3,
+          "conceptual metaphors for depression and anxiety treatment"
+        ],
+        [
+          4,
+          "rhetorical strategies in mental health communication"
+        ],
+        [
+          5,
+          "impact of metaphor on mental health attitudes"
+        ],
+        [
+          6,
+          "stigma reduction through metaphorical language"
+        ],
+        [
+          7,
+          "framing mental illness: metaphors and public perception"
+        ],
+        [
+          8,
+          "metaphorical conceptualization of psychological disorders"
+        ],
+        [
+          9,
+          "narrative framing and mental health treatment acceptance"
+        ],
+        [
+          10,
+          "linguistic metaphors in psychiatric care advocacy"
+        ],
+        [
+          11,
+          "metaphors of war versus journey in mental health"
+        ],
+        [
+          12,
+          "attitude change via metaphorical priming in psychology"
+        ],
+        [
+          13,
+          "metaphor use in mental health public education"
+        ],
+        [
+          14,
+          "framing effects on mental health policy support"
+        ],
+        [
+          15,
+          "semantic framing of mental illness in media"
+        ],
+        [
+          16,
+          "metaphorical language and therapeutic alliance"
+        ],
+        [
+          17,
+          "cognitive metaphors in mental health recovery narratives"
+        ],
+        [
+          18,
+          "framing mental health as illness versus experience"
+        ],
+        [
+          19,
+          "metaphorical framing in anti-stigma campaigns"
+        ],
+        [
+          20,
+          "discourse analysis of mental health treatment metaphors"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment psychology": 0,
+        "metaphorical framing in mental health stigma": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "metaphorical framing mental health stigma",
+      "disease metaphor cure metaphor recovery narrative",
+      "illness metaphor language mental health intervention",
+      "treatment-seeking behavior attitude change metaphor",
+      "conceptual metaphor theory stigma reduction framing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.07756"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment psychology": 3,
+      "conceptual metaphor theory stigma reduction framing": 2,
+      "disease metaphor cure metaphor recovery narrative": 3,
+      "illness metaphor language mental health intervention": 1,
+      "metaphorical framing mental health stigma": 1,
+      "treatment-seeking behavior attitude change metaphor": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2307.10513",
+          "rationale": "The paper focuses on the influence of technology and digital interventions on mental health attitudes, which is a distinct construct from the user's specific question regarding \"metaphorical framing.\" While both fall under the broad domain of mental health psychology, the paper does not measure the same mechanism (framing effects), variables (metaphors vs. technology), or empirical population in a way that satisfies the inclusion criteria for a literature review on framing.",
+          "title": "Technology in Association With Mental Health: Meta-ethnography"
+        },
+        {
+          "primary_pointer": "2504.12337",
+          "rationale": "The paper investigates user attitudes toward AI chatbots as mental health tools, which is a distinct construct from the user's specific question about the influence of \"metaphorical framing\" on attitudes toward treatment. While both fall under the broad domain of mental health psychology, the paper does not measure the mechanism of metaphorical framing, nor does it study the specific independent variable (framing) required by the user's research question, failing to meet criteria (a) or (b).",
+          "title": "\"It Listens Better Than My Therapist\": Exploring Social Media Discourse on LLMs as Mental Health Tool"
+        },
+        {
+          "primary_pointer": "2210.15144",
+          "rationale": "The paper investigates gendered stigma in language models rather than the influence of metaphorical framing on human attitudes, failing to address the specific independent variable (metaphorical framing) or the target population (human subjects) required by the user's question. While it touches on the general domain of mental health stigma, it does not measure the same mechanism, establish a baseline for the specific framing effect, or serve as a foundational reference for metaphorical intervent",
+          "title": "Gendered Mental Health Stigma in Masked Language Models"
+        },
+        {
+          "primary_pointer": "2008.07738",
+          "rationale": "The paper focuses on security frameworks and usability for machine learning systems in mental health, which is an off-domain topic entirely distinct from the user's question about the psychological mechanism of \"metaphorical framing\" on treatment attitudes. It shares only the broad keyword \"mental health\" but addresses a completely different construct (cybersecurity vs. cognitive framing) with no overlap in variables, mechanisms, or empirical population relevant to the research question.",
+          "title": "Usable Security for ML Systems in Mental Health: A Framework"
+        },
+        {
+          "primary_pointer": "1511.02281",
+          "rationale": "The paper focuses on robotics technology and its implementation in mental health care, which is a distinct construct from \"metaphorical framing\" and its influence on attitudes. It fails to measure the specific mechanism (framing effects), the relevant variables (attitudes towards treatment), or the domain of linguistic/psychological intervention required by the user's question, falling under the \"Distinct construct\" rejection rule.",
+          "title": "Robotics Technology in Mental Health Care"
+        },
+        {
+          "primary_pointer": "2204.05448",
+          "rationale": "The paper focuses on the correlation between financial behavior and mental health symptoms using objective financial data, which is a distinct construct from the user's question regarding the influence of \"metaphorical framing\" on treatment attitudes. It fails to address the specific mechanism (framing effects), the dependent variable (attitudes towards treatment), or the relevant domain (linguistic/psychological framing) required by the user's research question.",
+          "title": "Financial technologies (FinTech) for mental health: The potential of objective financial data to better understand the relationships between financial behavior and mental health"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-15T04:09:59Z",
+    "term_input": {
+      "normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+      "raw": "The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While the applications and demands of Machine learning (ML) systems in mental health are growing, there is little discussion nor consensus regarding a uniquely challenging aspect: building security methods and requirements into these ML systems, and keep the ML system usable for end-users. This question of usable security is very important, because the lack of consideration in either security or usability would hinder large-scale user adoption and active usage of ML systems in mental health applications.\n  In this short paper, we introduce a framework of four pillars, and a set of desired properties which can be used to systematically guide and evaluate security-related designs, implementations, and deployments of ML systems for mental health. We aim to weave together threads from different domains, incorporate existing views, and propose new principles and requirements, in an effort to lay out a clear framework where criteria and expectations are established, and are used to make security mechanisms usable for end-users of those ML systems in mental health. Together with this framework, we present several concrete scenarios where different usable security cases and profiles in ML-systems in mental health applications are examined and evaluated.",
+          "claimed_authors": [
+            "Helen Jiang",
+            "Erwen Senge"
+          ],
+          "claimed_title": "Usable Security for ML Systems in Mental Health: A Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07738"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Usable Security for ML Systems in Mental Health: A Framework')",
+        "failed_at": "2026-07-15T04:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is a large volume of late antique and medieval Hebrew texts. They represent a crucial linguistic and cultural bridge between Biblical and modern Hebrew. Poetry is prominent in these texts and one of its main haracteristics is the frequent use of metaphor. Distinguishing figurative and literal language use is a major task for scholars of the Humanities, especially in the fields of literature, linguistics, and hermeneutics. This paper presents a new, challenging dataset of late antique and medieval Hebrew poetry with expert annotations of metaphor, as well as some baseline results, which we hope will facilitate further research in this area.",
+          "claimed_authors": [
+            "Michael Toker",
+            "Oren Mishali",
+            "Ophir Münz-Manor",
+            "Benny Kimelfeld",
+            "Yonatan Belinkov"
+          ],
+          "claimed_title": "A Dataset for Metaphor Detection in Early Medieval Hebrew Poetry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.17371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='A Dataset for Metaphor Detection in Early Medieval Hebrew Poetry')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most current approaches to metaphor identification use restricted linguistic contexts, e.g. by considering only a verb's arguments or the sentence containing a phrase. Inspired by pragmatic accounts of metaphor, we argue that broader discourse features are crucial for better metaphor identification. We train simple gradient boosting classifiers on representations of an utterance and its surrounding discourse learned with a variety of document embedding methods, obtaining near state-of-the-art results on the 2018 VU Amsterdam metaphor identification task without the complex metaphor-specific features or deep neural architectures employed by other systems. A qualitative analysis further confirms the need for broader context in metaphor processing.",
+          "claimed_authors": [
+            "Jesse Mu",
+            "Helen Yannakoudakis",
+            "Ekaterina Shutova"
+          ],
+          "claimed_title": "Learning Outside the Box: Discourse-level Features Improve Metaphor Identification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.02246"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Learning Outside the Box: Discourse-level Features Improve Metaphor Identification')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mixed metaphors have been neglected in recent metaphor research. This paper suggests that such neglect is short-sighted. Though mixing is a more complex phenomenon than straight metaphors, the same kinds of reasoning and knowledge structures are required. This paper provides an analysis of both parallel and serial mixed metaphors within the framework of an AI system which is already capable of reasoning about straight metaphorical manifestations and argues that the processes underlying mixing are central to metaphorical meaning. Therefore, any theory of metaphors must be able to account for mixing.",
+          "claimed_authors": [
+            "Mark Lee",
+            "John Barnden"
+          ],
+          "claimed_title": "Mixing Metaphors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "cs/9904004"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Mixing Metaphors')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present novel research methods for collecting and analyzing personal financial data alongside mental health factors, illustrated through a N=1 case study using data from one individual with bipolar disorder. While we have not found statistically significant trends nor our findings are generalizable beyond this case, our approach provides an insight into the challenges of accessing objective financial data. We outline what data is currently available, what can be done with it, and what factors to consider when working with financial data. More specifically, using these methods researchers might be able to identify symptomatic traces of mental ill health in personal financial data such as identifying early warning signs and thereby enable preemptive care for individuals with serious mental illnesses. Based on this work, we have also explored future directions for developing interventions to support financial wellbeing. Furthermore, we have described the technical, ethical, and equity challenges for financial data-driven assessments and intervention methods, as well as provided a broad research agenda to address these challenges. By leveraging objective, personalized financial data in a privacy-preserving and ethical manner help lead to a shift in mental health care.",
+          "claimed_authors": [
+            "Johnna Blair",
+            "Jeff Brozena",
+            "Mark Matthews",
+            "Thomas Richardson",
+            "Saeed Abdullah"
+          ],
+          "claimed_title": "Financial technologies (FinTech) for mental health: The potential of objective financial data to better understand the relationships between financial behavior and mental health",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.05448"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Financial technologies (FinTech) for mental health: The potential of objective financial data to better understand the relationships between financial behavior and mental health')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As artificial intelligence becomes more powerful and a ubiquitous presence in daily life, it is imperative to understand and manage the impact of AI systems on our lives and decisions. Modern ML systems often change user behavior (e.g. personalized recommender systems learn user preferences to deliver recommendations that change online behavior). An externality of behavior change is preference change. This article argues for the establishment of a multidisciplinary endeavor focused on understanding how AI systems change preference: Preference Science. We operationalize preference to incorporate concepts from various disciplines, outlining the importance of meta-preferences and preference-change preferences, and proposing a preliminary framework for how preferences change. We draw a distinction between preference change, permissible preference change, and outright preference manipulation. A diversity of disciplines contribute unique insights to this framework.",
+          "claimed_authors": [
+            "Matija Franklin",
+            "Hal Ashton",
+            "Rebecca Gorman",
+            "Stuart Armstrong"
+          ],
+          "claimed_title": "Recognising the importance of preference change: A call for a coordinated multidisciplinary research effort in the age of AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.10525"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Recognising the importance of preference change: A call for a coordinated multidisciplinary research effort in the age of AI')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatme', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-07-15T04:10:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Warmhold Jan Thomas Mollema",
+            "Thomas Wachter"
+          ],
+          "title": "Artificial Intelligence, conceptual metaphors and conceptual engineering: Are AI-based framings of human behaviour and cognition successful?",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.07756",
+        "summary": "Understanding human behaviour, neuroscience and psychology using concepts from the domain of AI is increasing in popularity. Given the massive integration of AI technologies into our daily lives, AI-related concepts are being used to compare AI systems with human behaviour, brain functions, and cognitive abilities like language acquisition. But scientists and philosophers are also increasingly tempted to take the AI-framing of the human conceptual domain as a literal one. This paper investigates the epistemic and practical success of these 'AI-framings': What does it mean to apply the conceptual constellation of AI to the human conceptual domain? We consider and compare two possible answers: either these examples are conceptual metaphors, or they are attempts at conceptual engineering. Firstly, we argue that when viewed as conceptual metaphors, the AI-framed descriptions risk committing the ''map-territory fallacy''. Secondly, we argue the comparisons also contain a misleading 'double metaphor' because of the metaphorical connection between human psychology and computation at the conceptual foundation of computation. But we also argue that there is a possible semantic catch to the AI-framing, which is captured by the conceptual engineering view. This is that the AI-framings point towards avenues for forms of conceptual engineering. If the challenges of conceptual ethics and reductionism are overcome, some AI-framings might enrich our epistemic and practical lives. So, at its worst - as implicit conceptual metaphor - the AI-framing leads us completely astray; at its best, it prompts us to reflect anew on how the boundaries of our current concepts serve us and how they could be improved.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.07756",
+          "http_status": 200,
+          "pdf_sample_score": 0.3171,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-15T04:10:42Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

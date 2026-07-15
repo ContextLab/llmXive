@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.07756",
+  "judged_at": "2026-07-15T04:11:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "This paper satisfies criterion (a) and (f) as it investigates the epistemic and practical effects of \"AI-framings\" (a specific type of metaphorical framing) on the conceptual domain of human psychology and behavior, directly addressing the mechanism of how metaphorical framing influences understanding and attitudes within the psychology domain. Although it focuses on AI metaphors rather than mental health treatment specifically, it provides foundational evidence on the success and risks of metap",
+  "relevant": true
+}

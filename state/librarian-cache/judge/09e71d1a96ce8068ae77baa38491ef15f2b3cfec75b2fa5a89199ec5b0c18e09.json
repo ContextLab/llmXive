@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.15144",
+  "judged_at": "2026-07-15T04:11:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper investigates gendered stigma in language models rather than the influence of metaphorical framing on human attitudes, failing to address the specific independent variable (metaphorical framing) or the target population (human subjects) required by the user's question. While it touches on the general domain of mental health stigma, it does not measure the same mechanism, establish a baseline for the specific framing effect, or serve as a foundational reference for metaphorical intervent",
+  "relevant": false
+}

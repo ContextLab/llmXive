@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-fingerprint-toxicity-prediction"
+name = "comparative-analysis-molecular-fingerprints"
 version = "0.1.0"
 description = "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "rdkit",
@@ -16,55 +17,18 @@ dependencies = [
     "datasets",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "flake8",
-    "black",
-    "isort",
-]
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
-# Linting configuration (flake8)
 [tool.flake8]
 max-line-length = 88
-extend-ignore = ["E203", "W503"]
+extend-ignore = "E203, W503"
 exclude = [
     ".git",
     "__pycache__",
-    "data",
     "build",
     "dist",
     ".eggs",
-    "*.egg-info",
 ]
-
-# Formatting configuration (black)
-[tool.black]
-line-length = 88
-target-version = ["py39", "py310", "py311"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-)/
-'''
-
-# Import sorting (isort) - compatible with black
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["filter", "fingerprints", "split", "utils", "download", "train", "evaluate"]
-skip = ["data", ".git", "__pycache__", "build", "dist"]

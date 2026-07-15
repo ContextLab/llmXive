@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.07738",
+  "judged_at": "2026-07-15T04:11:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper focuses on security frameworks and usability for machine learning systems in mental health, which is an off-domain topic entirely distinct from the user's question about the psychological mechanism of \"metaphorical framing\" on treatment attitudes. It shares only the broad keyword \"mental health\" but addresses a completely different construct (cybersecurity vs. cognitive framing) with no overlap in variables, mechanisms, or empirical population relevant to the research question.",
+  "relevant": false
+}

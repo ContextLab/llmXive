@@ -9,7 +9,7 @@ import sys
 
 # Ensure sibling modules can be imported
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils import get_logger
+from utils import get_logger, setup_logging
 from constants import SMARTS_PATTERN
 
 logger = get_logger(__name__)
@@ -104,6 +104,7 @@ def main():
 
     try:
         df = load_compounds(input_csv)
+        # Apply the SMARTS pattern constant defined in constants.py
         filtered_df = apply_smarts_filter(df, SMARTS_PATTERN)
         
         if len(filtered_df) == 0:

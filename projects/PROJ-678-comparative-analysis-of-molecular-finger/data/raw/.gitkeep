@@ -1,2 +1,2 @@
-# This directory stores raw, unmodified data downloads.
-# Do not modify files here. Processed data belongs in data/processed/.
+# This directory contains raw data files downloaded from external sources.
+# Do not modify files here.

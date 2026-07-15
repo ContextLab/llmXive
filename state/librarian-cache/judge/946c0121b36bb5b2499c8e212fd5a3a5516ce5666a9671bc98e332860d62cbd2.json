@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.10513",
+  "judged_at": "2026-07-15T04:10:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper focuses on the influence of technology and digital interventions on mental health attitudes, which is a distinct construct from the user's specific question regarding \"metaphorical framing.\" While both fall under the broad domain of mental health psychology, the paper does not measure the same mechanism (framing effects), variables (metaphors vs. technology), or empirical population in a way that satisfies the inclusion criteria for a literature review on framing.",
+  "relevant": false
+}

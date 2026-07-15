@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T05:21:09.035267Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-519-the-influence-of-metaphorical-framing-on
-last_run_id: 6c82ff0c-6b56-41e4-9249-9ff717b57fef
+last_run_id: 49859c20-0842-4fe5-9924-aa2735ddccfa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: The Influence of Metaphorical Framing on Attitudes Towards Mental Health Treatment
-updated_at: '2026-06-14T04:10:08.918421Z'
+updated_at: '2026-07-15T04:12:04.335877Z'

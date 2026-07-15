@@ -1,2 +1,2 @@
-# This directory stores processed data derived from raw datasets.
-# Intermediate and final analysis artifacts are saved here.
+# This directory holds processed data ready for analysis and modeling.
+# Generated artifacts (CSVs, splits, models) will be stored here.

@@ -55,7 +55,7 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `code/01_ingest.py` to fetch microbiome data from ANY valid source defined in spec FR-001 (AGP, Qiita Study 10313, NHANES, or UK Biobank) and save raw parquet; apply FR-001 filters (<10k reads, <0.1% abundance). **MUST use Qiita Study 10313 or AGP as primary source.**
-- [ ] T012 [US1] Implement `code/01_ingest.py` logic to fetch cognitive data from ANY valid source defined in spec FR-002 (NHANES Cognitive Battery or UK Biobank Field 20002) and save raw parquet. **MUST use UK Biobank Field 20002 or NHANES as primary source.**
+- [ ] T012 [US1] Implement `code/01_ingest.py` logic to fetch cognitive data from ANY valid source defined in spec FR-002 (NHANES Cognitive Battery or UK Biobank Field 20002) and save raw parquet. **MUST use UK Biobank Field 20002 or NHANES as primary source.** <!-- FAILED: unspecified -->
 - [ ] T013 [US1] Implement `code/02_preprocess.py` to load cognitive data, handle missing values via MICE (per FR-002), compute z-scores, and save processed parquet
 - [ ] T014 [US1] Implement `code/02_preprocess.py` logic to attempt individual-level merge of microbiome and cognitive data; if failed, invoke `code/07_gap_report.py` (T017)
 - [~] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
@@ -135,7 +135,7 @@
 - [~] T036 [P] Performance optimization: Implement memory chunking in `code/03_correlation.py` to ensure pipeline runs within 6 hours on N=10,000 samples (SC-003) for both full analysis and data gap paths
 - [~] T037 [P] Additional unit tests for edge cases (zero significant taxa, rate-limiting) in `tests/unit/`
 - [~] T038 Security hardening: Sanitize all external URLs and file paths
-- [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.05448",
+  "judged_at": "2026-07-15T04:11:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper focuses on the correlation between financial behavior and mental health symptoms using objective financial data, which is a distinct construct from the user's question regarding the influence of \"metaphorical framing\" on treatment attitudes. It fails to address the specific mechanism (framing effects), the dependent variable (attitudes towards treatment), or the relevant domain (linguistic/psychological framing) required by the user's research question.",
+  "relevant": false
+}

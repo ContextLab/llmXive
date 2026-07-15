@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1511.02281",
+  "judged_at": "2026-07-15T04:11:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of metaphorical framing on attitudes towards mental health treatment psychology",
+  "rationale": "The paper focuses on robotics technology and its implementation in mental health care, which is a distinct construct from \"metaphorical framing\" and its influence on attitudes. It fails to measure the specific mechanism (framing effects), the relevant variables (attitudes towards treatment), or the domain of linguistic/psychological intervention required by the user's question, falling under the \"Distinct construct\" rejection rule.",
+  "relevant": false
+}
