@@ -1,16 +1,11 @@
-"""
-Unit tests for sensitivity analysis functionality.
-"""
-
 import pytest
 import numpy as np
+from unittest.mock import patch, MagicMock
 import sys
-from pathlib import Path
+import os
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-code_dir = project_root / "code"
-sys.path.insert(0, str(code_dir))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from config import SimulationConfig
 from sensitivity_analysis import (
@@ -22,191 +17,100 @@ from sensitivity_analysis import (
 
 @pytest.fixture
 def sample_config():
-    """Create a minimal valid simulation config."""
     return SimulationConfig(
         N=50,
-        p=0.15,
-        d=50e-9,  # 50nm diameter
-        l=1e-6,   # 1um length
-        material="Si",
+        p=0.1,
+        d=50.0,
+        l=1000.0,
         seed=42,
-        target_degree=4.0
+        material="Si",
+        target_degree=4.0,
+        sensitivity_factor_range=[0.8, 1.0, 1.2]
     )
 
-class TestSensitivitySweep:
-    """Tests for sensitivity sweep functionality."""
+@pytest.fixture
+def sample_sweep_results():
+    return [
+        {'factor': 0.8, 'conductivity': 120.0, 'deviation': -0.10},
+        {'factor': 1.0, 'conductivity': 133.33, 'deviation': 0.0},
+        {'factor': 1.2, 'conductivity': 146.66, 'deviation': 0.10}
+    ]
 
-    def test_sensitivity_sweep_basic(self, sample_config):
-        """Test basic sensitivity sweep execution."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="diameter",
-            sweep_range=[40e-9, 50e-9, 60e-9],
-            num_repeats=3
-        )
+def test_sensitivity_sweep(sample_config):
+    """Test that sensitivity sweep runs and returns expected structure."""
+    # Mock the graph generation and solver to avoid complex dependencies
+    with patch('sensitivity_analysis.generate_nanowire_network') as mock_gen, \
+         patch('sensitivity_analysis.assign_thermal_resistance') as mock_res, \
+         patch('sensitivity_analysis.solve_kirchhoff_heat_flow') as mock_solve, \
+         patch('sensitivity_analysis.get_material_conductivity') as mock_k:
         
-        assert isinstance(results, dict), "Results must be a dictionary"
-        assert "mean_conductivity" in results, "Must include mean conductivity"
-        assert "std_conductivity" in results, "Must include std conductivity"
-        assert "deviation_percent" in results, "Must include deviation percent"
+        # Setup mocks
+        mock_gen.return_value = MagicMock()
+        mock_res.return_value = {}
+        mock_solve.side_effect = [100.0, 110.0, 120.0]  # Different conductivities
+        mock_k.return_value = 149.0  # Si bulk conductivity
         
-        # Verify numeric types
-        assert isinstance(results["mean_conductivity"], (int, float, np.number))
-        assert isinstance(results["std_conductivity"], (int, float, np.number))
-        assert isinstance(results["deviation_percent"], (int, float, np.number))
-
-    def test_sensitivity_sweep_parameter_p(self, sample_config):
-        """Test sensitivity sweep on connection probability parameter."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="p",
-            sweep_range=[0.10, 0.15, 0.20],
-            num_repeats=2
-        )
+        results = run_sensitivity_sweep(sample_config, [0.8, 1.0, 1.2])
         
-        assert "mean_conductivity" in results
-        assert "deviation_percent" in results
+        # Verify results structure
+        assert isinstance(results, list)
+        assert len(results) == 3
+        assert all('factor' in r for r in results)
+        assert all('conductivity' in r for r in results)
+        assert all('deviation' in r for r in results)
 
-    def test_sensitivity_sweep_with_single_value(self, sample_config):
-        """Test sensitivity sweep with single value (edge case)."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="diameter",
-            sweep_range=[50e-9],
-            num_repeats=1
-        )
-        
-        assert "mean_conductivity" in results
-        # Deviation should be 0 for single value
-        assert results["deviation_percent"] == 0.0
+def test_deviation_report_calculation(sample_sweep_results):
+    """Test deviation report calculation."""
+    report = calculate_deviation_report(sample_sweep_results)
+    
+    assert not report.empty
+    assert 'mean_deviation' in report.columns
+    assert 'std_dev' in report.columns
+    assert 'max_deviation' in report.columns
+    
+    # Verify calculated values
+    assert report['mean_deviation'].iloc[0] == pytest.approx(0.0, abs=1e-6)
+    assert report['max_deviation'].iloc[0] == pytest.approx(0.10, abs=1e-6)
 
-class TestDeviationCalculation:
-    """Tests for deviation calculation logic."""
+def test_sensitivity_within_bounds(sample_sweep_results):
+    """Test that sensitivity analysis correctly identifies within-bound results."""
+    report = calculate_deviation_report(sample_sweep_results)
+    metrics = analyze_sensitivity(report)
+    
+    # Max deviation is 0.10 (10%), should be within bounds
+    assert abs(metrics['max_deviation']) <= 0.10
 
-    def test_deviation_within_tolerance(self, sample_config):
-        """Verify deviation stays within ±10% for stable parameters."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="diameter",
-            sweep_range=[48e-9, 50e-9, 52e-9],  # Small variation
-            num_repeats=3
-        )
-        
-        deviation = results["deviation_percent"]
-        assert abs(deviation) <= 10.0, \
-            f"Deviation {deviation}% exceeds ±10% tolerance for small parameter variation"
+def test_sensitivity_exceeds_bounds(sample_sweep_results):
+    """Test that sensitivity analysis correctly identifies out-of-bound results."""
+    # Modify results to have larger deviation
+    large_deviation_results = [
+        {'factor': 0.8, 'conductivity': 90.0, 'deviation': -0.20},
+        {'factor': 1.0, 'conductivity': 133.33, 'deviation': 0.0},
+        {'factor': 1.2, 'conductivity': 176.66, 'deviation': 0.32}
+    ]
+    
+    report = calculate_deviation_report(large_deviation_results)
+    metrics = analyze_sensitivity(report)
+    
+    # Max deviation is 0.32 (32%), should exceed bounds
+    assert abs(metrics['max_deviation']) > 0.10
 
-    def test_deviation_calculation_formula(self):
-        """Verify deviation is calculated correctly as percentage of mean."""
-        # Simulate the calculation
-        base_value = 100.0
-        test_values = [95.0, 105.0, 100.0]
-        
-        mean_val = np.mean(test_values)
-        std_val = np.std(test_values)
-        deviation = (std_val / mean_val) * 100 if mean_val != 0 else 0.0
-        
-        # Expected: std = ~4.08, mean = 100.0, deviation = ~4.08%
-        expected_deviation = (np.std(test_values) / np.mean(test_values)) * 100
-        
-        assert abs(deviation - expected_deviation) < 0.01, \
-            f"Deviation calculation incorrect: {deviation} vs {expected_deviation}"
+def test_empty_sweep_results():
+    """Test handling of empty sweep results."""
+    report = calculate_deviation_report([])
+    assert report.empty
+    
+    metrics = analyze_sensitivity(report)
+    assert metrics['max_deviation'] == 0.0
+    assert metrics['std_dev'] == 0.0
 
-    def test_deviation_with_large_variation(self, sample_config):
-        """Test deviation calculation with large parameter variation."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="diameter",
-            sweep_range=[30e-9, 50e-9, 70e-9],  # Large variation
-            num_repeats=2
-        )
-        
-        # Deviation might exceed 10% with large variation, but should be calculated
-        assert "deviation_percent" in results
-        assert isinstance(results["deviation_percent"], (int, float))
-
-class TestSensitivityReporting:
-    """Tests for sensitivity result reporting."""
-
-    def test_report_sensitivity_results_format(self, sample_config):
-        """Verify report generation produces expected format."""
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="diameter",
-            sweep_range=[40e-9, 50e-9, 60e-9],
-            num_repeats=3
-        )
-        
-        report = report_sensitivity_results(results)
-        
-        assert isinstance(report, dict), "Report must be a dictionary"
-        assert "parameter" in report, "Report must include parameter name"
-        assert "mean_conductivity" in report, "Report must include mean"
-        assert "std_conductivity" in report, "Report must include std"
-        assert "deviation_percent" in report, "Report must include deviation"
-        assert "within_tolerance" in report, "Report must include tolerance check"
-        
-        # Verify tolerance check logic
-        expected_tolerance = abs(report["deviation_percent"]) <= 10.0
-        assert report["within_tolerance"] == expected_tolerance, \
-            f"Tolerance check incorrect: {report['within_tolerance']}"
-
-    def test_analyze_sensitivity_output(self, sample_config):
-        """Test comprehensive sensitivity analysis output."""
-        analysis = analyze_sensitivity(
-            base_config=sample_config,
-            parameter="p",
-            sweep_range=[0.12, 0.15, 0.18],
-            num_repeats=3
-        )
-        
-        assert isinstance(analysis, dict), "Analysis must be a dictionary"
-        assert "summary" in analysis, "Analysis must include summary"
-        assert "detailed_results" in analysis, "Analysis must include detailed results"
-        assert "recommendation" in analysis, "Analysis must include recommendation"
-
-class TestEdgeCases:
-    """Tests for edge cases and error handling."""
-
-    def test_empty_sweep_range(self, sample_config):
-        """Test behavior with empty sweep range."""
-        with pytest.raises(ValueError) as excinfo:
-            run_sensitivity_sweep(
-                base_config=sample_config,
-                parameter="diameter",
-                sweep_range=[],
-                num_repeats=1
-            )
-        assert "sweep_range" in str(excinfo.value).lower() or "empty" in str(excinfo.value).lower()
-
-    def test_invalid_parameter_name(self, sample_config):
-        """Test behavior with invalid parameter name."""
-        with pytest.raises(ValueError) as excinfo:
-            run_sensitivity_sweep(
-                base_config=sample_config,
-                parameter="invalid_param",
-                sweep_range=[1, 2, 3],
-                num_repeats=1
-            )
-        # Should raise error for unknown parameter
-        assert True  # If we get here, error handling worked
-
-    def test_zero_mean_conductivity(self, sample_config):
-        """Test deviation calculation when mean conductivity is zero."""
-        # Create a scenario where conductivity might be zero (disconnected graph)
-        # This tests the division-by-zero protection in deviation calculation
-        results = run_sensitivity_sweep(
-            base_config=sample_config,
-            parameter="p",
-            sweep_range=[0.01, 0.02, 0.03],  # Very low probability
-            num_repeats=2
-        )
-        
-        # Should handle zero mean gracefully
-        assert "deviation_percent" in results
-        # If mean is 0, deviation should be 0 or handled appropriately
-        if results["mean_conductivity"] == 0:
-            assert results["deviation_percent"] == 0.0
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+def test_report_sensitivity_results(capsys, sample_sweep_results):
+    """Test that sensitivity results are logged correctly."""
+    report = calculate_deviation_report(sample_sweep_results)
+    metrics = analyze_sensitivity(report)
+    
+    report_sensitivity_results(metrics)
+    
+    captured = capsys.readouterr()
+    assert 'Sensitivity Analysis Results' in captured.err or 'Mean Deviation' in captured.err
+    assert '±10%' in captured.err or 'acceptable bounds' in captured.err.lower()

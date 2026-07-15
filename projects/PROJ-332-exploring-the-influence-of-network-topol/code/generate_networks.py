@@ -2,102 +2,93 @@ import networkx as nx
 import numpy as np
 from typing import Tuple, Dict, Any, Optional
 import logging
+
 from config import SimulationConfig, load_config, get_simulation_parameters
 
 logger = logging.getLogger(__name__)
 
 def validate_degree_bounds(target_degree: float, N: int) -> bool:
     """Validate that target degree is within valid bounds."""
-    if target_degree < 0:
-        raise ValueError("Target degree must be non-negative")
-    if target_degree > N - 1:
-        raise ValueError(f"Target degree cannot exceed N-1 ({N-1})")
+    # Max degree is N-1, min is 0
+    if target_degree < 0 or target_degree > N - 1:
+        logger.error(f"Target degree {target_degree} out of bounds for N={N}")
+        return False
     return True
 
 def validate_connection_probability(p: float) -> bool:
-    """Validate connection probability is in (0, 1)."""
-    if not (0 < p < 1):
-        raise ValueError("Connection probability must be strictly between 0 and 1")
+    """Validate connection probability is in [0, 1]."""
+    if p < 0 or p > 1:
+        logger.error(f"Connection probability {p} out of bounds [0, 1]")
+        return False
     return True
 
-def generate_nanowire_network(N: int, p: float, seed: int, target_degree: Optional[float] = None) -> nx.Graph:
+def generate_nanowire_network(N: int, p: float, seed: int, 
+                              target_degree: Optional[float] = None) -> nx.Graph:
     """
     Generate a nanowire network graph.
-    
-    Args:
-        N: Number of nodes
-        p: Connection probability (for Erdos-Renyi)
-        seed: Random seed
-        target_degree: Optional target average degree (overrides p if provided)
-        
-    Returns:
-        NetworkX graph representing the nanowire network
+    If target_degree is specified, adjust p to achieve it.
     """
+    logger.info(f"Generating network: N={N}, p={p}, target_degree={target_degree}")
+    
+    # Validate inputs
+    if not validate_connection_probability(p):
+        raise ValueError("Invalid connection probability")
+    
+    if target_degree is not None and not validate_degree_bounds(target_degree, N):
+        raise ValueError("Invalid target degree")
+    
+    # Set random seed
     np.random.seed(seed)
     
+    # If target_degree is specified, adjust p
     if target_degree is not None:
-        # Validate target degree
-        validate_degree_bounds(target_degree, N)
-        
-        # Calculate p from target degree: p = target_degree / (N-1)
-        if N > 1:
-            p = target_degree / (N - 1)
-        else:
-            p = 0
-        
-        logger.info(f"Using target_degree={target_degree}, derived p={p:.4f}")
-    
-    validate_connection_probability(p)
+        # Expected degree in Erdos-Renyi is (N-1)*p
+        # So p = target_degree / (N-1)
+        adjusted_p = target_degree / (N - 1) if N > 1 else 0
+        adjusted_p = min(max(adjusted_p, 0), 1)  # Clamp to [0, 1]
+        logger.info(f"Adjusted p from {p} to {adjusted_p} to achieve target degree {target_degree}")
+        p = adjusted_p
     
     # Generate Erdos-Renyi graph
     G = nx.erdos_renyi_graph(N, p, seed=seed)
     
-    # Ensure at least some connectivity if target_degree is specified
-    if target_degree is not None and len(G.edges()) == 0 and N > 1:
-        # Add minimal edges to ensure connectivity
-        edges = [(i, (i+1) % N) for i in range(N)]
-        G.add_edges_from(edges)
-        logger.warning("Added minimal edges to ensure connectivity")
+    # Ensure graph is not empty
+    if G.number_of_nodes() == 0:
+        G.add_node(0)
     
+    logger.info(f"Generated graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
     return G
 
-def calculate_average_degree(G: nx.Graph) -> float:
-    """Calculate the average degree of the graph."""
-    if len(G) == 0:
+def calculate_average_degree(graph: nx.Graph) -> float:
+    """Calculate average degree of the graph."""
+    if graph.number_of_nodes() == 0:
         return 0.0
-    degrees = [d for n, d in G.degree()]
-    return float(np.mean(degrees))
+    return sum(dict(graph.degree()).values()) / graph.number_of_nodes()
 
-def calculate_average_shortest_path_length(G: nx.Graph) -> float:
-    """Calculate the average shortest path length."""
-    if len(G) == 0 or not nx.is_connected(G):
+def calculate_average_shortest_path_length(graph: nx.Graph) -> float:
+    """Calculate average shortest path length."""
+    if not nx.is_connected(graph) or graph.number_of_nodes() <= 1:
         return float('inf')
-    try:
-        return nx.average_shortest_path_length(G)
-    except nx.NetworkXError:
-        return float('inf')
+    return nx.average_shortest_path_length(graph)
 
-def calculate_clustering_coefficient(G: nx.Graph) -> float:
-    """Calculate the average clustering coefficient."""
-    if len(G) == 0:
+def calculate_clustering_coefficient(graph: nx.Graph) -> float:
+    """Calculate average clustering coefficient."""
+    if graph.number_of_nodes() == 0:
         return 0.0
-    return nx.average_clustering(G)
+    return nx.average_clustering(graph)
 
-def generate_network_grid(N_values: list, p_values: list, seeds: list) -> list:
-    """
-    Generate a list of (N, p, seed) tuples for grid search.
-    
-    Args:
-        N_values: List of node counts
-        p_values: List of connection probabilities
-        seeds: List of random seeds
-        
-    Returns:
-        List of parameter tuples
-    """
-    grid = []
+def generate_network_grid(N_values: list, p_values: list, seeds: list, 
+                          target_degree: Optional[float] = None) -> list:
+    """Generate a grid of networks with different parameters."""
+    networks = []
     for N in N_values:
         for p in p_values:
             for seed in seeds:
-                grid.append({'N': N, 'p': p, 'seed': seed})
-    return grid
+                G = generate_nanowire_network(N, p, seed, target_degree)
+                networks.append({
+                    'graph': G,
+                    'N': N,
+                    'p': p,
+                    'seed': seed
+                })
+    return networks

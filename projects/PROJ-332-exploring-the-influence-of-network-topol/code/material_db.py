@@ -1,45 +1,34 @@
-"""
-Material Database Module for Nanowire Network Thermal Conductivity Simulations.
+import logging
+from typing import Dict, Optional
 
-Provides access to bulk thermal conductivity values for standard materials
-with NIST-derived defaults and validation logic.
-"""
+logger = logging.getLogger(__name__)
 
-# NIST-derived default thermal conductivity values in W/(m·K)
-# Source: NIST Reference on Constants, Units, and Uncertainty
+# NIST default thermal conductivities in W/(m·K)
 NIST_DEFAULTS = {
-    "Si": 149.0,
-    "CNT": 3500.0,
-    "Ag": 429.0,
-    "Au": 318.0,
+    'Si': 149.0,
+    'CNT': 3500.0,
+    'Ag': 429.0,
+    'Au': 318.0
 }
 
-def get_material_conductivity(material_name: str) -> float:
+def get_material_conductivity(material: str) -> float:
     """
-    Retrieve the bulk thermal conductivity for a given material.
-
-    Args:
-        material_name: Name of the material (e.g., "Si", "CNT", "Ag", "Au").
-
-    Returns:
-        Thermal conductivity value in W/(m·K).
-
-    Raises:
-        ValueError: If the material is not found in the local store or NIST defaults.
+    Get thermal conductivity for a material.
+    Raises ValueError if material not found.
     """
-    if material_name in NIST_DEFAULTS:
-        return NIST_DEFAULTS[material_name]
-
-    raise ValueError(
-        f"Material {material_name} not found in local store or NIST defaults; "
-        "please provide value in W/(m·K)."
-    )
+    material_upper = material.upper()
+    
+    if material_upper in NIST_DEFAULTS:
+        return NIST_DEFAULTS[material_upper]
+    
+    # Check if it's a known material in lowercase
+    if material in NIST_DEFAULTS:
+        return NIST_DEFAULTS[material]
+    
+    error_msg = f"Material {material} not found in local store or NIST defaults; please provide value in W/(m·K)."
+    logger.error(error_msg)
+    raise ValueError(error_msg)
 
 def list_available_materials() -> list:
-    """
-    List all materials available in the database.
-
-    Returns:
-        List of material names.
-    """
+    """List all available materials in the database."""
     return list(NIST_DEFAULTS.keys())

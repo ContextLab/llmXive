@@ -4,49 +4,69 @@ import csv
 import logging
 import time
 import argparse
-from typing import List, Dict, Any, Optional
+import json
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 
 from config import SimulationConfig, load_config, get_simulation_parameters
-from generate_networks import generate_nanowire_network, calculate_average_degree, generate_network_grid
-from thermal_solver import solve_kirchhoff_heat_flow, calculate_effective_conductivity, calculate_fuchs_sondheimer_factor
-from material_db import get_material_conductivity
-from regression_analysis import run_ols_regression, detect_percolation_threshold, analyze_scaling_law
-from sensitivity_analysis import run_sensitivity_sweep, calculate_deviation_report
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('simulation_pipeline.log')
-    ]
+from generate_networks import (
+    generate_nanowire_network,
+    calculate_average_degree,
+    calculate_average_shortest_path_length,
+    calculate_clustering_coefficient,
+    generate_network_grid
 )
-logger = logging.getLogger(__name__)
+from thermal_solver import (
+    calculate_fuchs_sondheimer_factor,
+    assign_thermal_resistance,
+    build_edge_resistances,
+    solve_kirchhoff_heat_flow,
+    calculate_effective_conductivity
+)
+from material_db import get_material_conductivity, list_available_materials
+from regression_analysis import (
+    run_ols_regression,
+    calculate_correlation_matrix,
+    detect_percolation_threshold,
+    update_csv_with_percolation_threshold,
+    analyze_scaling_law
+)
+from sensitivity_analysis import (
+    run_sensitivity_sweep,
+    calculate_deviation_report,
+    report_sensitivity_results,
+    analyze_sensitivity
+)
+from utils import setup_logging, write_csv_row, format_error
 
-# Constants
-RUNTIME_LIMIT_SECONDS = 6 * 60 * 60  # 6 hours
-CSV_FIELDNAMES = [
-    'seed', 'N', 'p', 'avg_degree', 'conductivity', 'percolation_flag', 
-    'scaling_factor', 'd', 'l', 'material', 'target_degree', 
-    'shortest_path', 'clustering_coeff', 'percolation_threshold',
-    'regression_exponent', 'regression_p_value', 'sensitivity_deviation'
-]
+# Global timer for runtime limit check
+_start_time = None
 
-def load_existing_results(filepath: str) -> List[Dict[str, Any]]:
-    """Load existing results from CSV if it exists."""
+def check_runtime_limit(config: SimulationConfig) -> bool:
+    """Check if runtime limit has been exceeded. Returns True if OK, False if exceeded."""
+    global _start_time
+    if _start_time is None:
+        _start_time = time.time()
+        return True
+    
+    elapsed_hours = (time.time() - _start_time) / 3600.0
+    if elapsed_hours > config.runtime_limit_hours:
+        print("Runtime ceiling (6h) exceeded. Aborting grid.")
+        sys.exit(1)
+    return True
+
+def load_existing_results(csv_path: str) -> List[Dict[str, Any]]:
+    """Load existing results from CSV file."""
     results = []
-    if os.path.exists(filepath):
+    if os.path.exists(csv_path):
         try:
-            with open(filepath, 'r', newline='') as f:
+            with open(csv_path, 'r', newline='') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     # Convert numeric fields
-                    numeric_fields = ['N', 'p', 'avg_degree', 'conductivity', 'd', 'l', 
-                                    'target_degree', 'shortest_path', 'clustering_coeff',
-                                    'percolation_threshold', 'regression_exponent', 
-                                    'regression_p_value', 'sensitivity_deviation']
+                    numeric_fields = ['N', 'p', 'avg_degree', 'conductivity', 
+                                    'scaling_factor', 'percolation_threshold',
+                                    'sensitivity_deviation', 'sensitivity_std', 'sensitivity_mean']
                     for field in numeric_fields:
                         if field in row and row[field]:
                             try:
@@ -54,40 +74,52 @@ def load_existing_results(filepath: str) -> List[Dict[str, Any]]:
                             except ValueError:
                                 pass
                     results.append(row)
-            logger.info(f"Loaded {len(results)} existing results")
         except Exception as e:
-            logger.warning(f"Failed to load existing results: {e}")
-    else:
-        logger.info("No existing results file found, starting fresh")
+            logging.warning(f"Could not load existing results: {e}")
     return results
 
-def append_results_to_csv(filepath: str, results: List[Dict[str, Any]]) -> None:
-    """Append results to CSV file, creating it if necessary."""
+def append_results_to_csv(csv_path: str, results: List[Dict[str, Any]]) -> None:
+    """Append results to CSV file."""
     if not results:
         return
     
-    # Ensure file exists with headers
-    file_exists = os.path.exists(filepath)
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(csv_path) if os.path.dirname(csv_path) else '.', exist_ok=True)
     
-    with open(filepath, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDNAMES)
+    # Check if file exists to determine if header is needed
+    file_exists = os.path.exists(csv_path)
+    
+    with open(csv_path, 'a', newline='') as f:
+        fieldnames = ['seed', 'N', 'p', 'avg_degree', 'conductivity', 
+                     'percolation_flag', 'scaling_factor', 
+                     'percolation_threshold', 'sensitivity_deviation', 
+                     'sensitivity_std', 'sensitivity_mean']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        
         if not file_exists:
             writer.writeheader()
-        writer.writerows(results)
-    
-    logger.info(f"Appended {len(results)} results to {filepath}")
+        
+        for result in results:
+            # Ensure all fields are present
+            row = {k: result.get(k, '') for k in fieldnames}
+            writer.writerow(row)
 
-def run_single_simulation(config: SimulationConfig, seed: Optional[int] = None) -> Dict[str, Any]:
+def run_single_simulation(config: SimulationConfig) -> Optional[Dict[str, Any]]:
     """Run a single simulation with given parameters."""
-    if seed is not None:
-        config.seed = seed
+    global _start_time
+    if _start_time is None:
+        _start_time = time.time()
     
-    start_time = time.time()
+    # Check runtime limit
+    if not check_runtime_limit(config):
+        return None
     
     try:
+        # Get material conductivity
+        bulk_k = get_material_conductivity(config.material, config.bulk_conductivity)
+        
         # Generate network
-        logger.info(f"Generating network: N={config.N}, p={config.p}, seed={config.seed}")
-        G = generate_nanowire_network(
+        graph = generate_nanowire_network(
             N=config.N,
             p=config.p,
             seed=config.seed,
@@ -95,33 +127,39 @@ def run_single_simulation(config: SimulationConfig, seed: Optional[int] = None) 
         )
         
         # Calculate graph metrics
-        avg_degree = calculate_average_degree(G)
-        shortest_path = calculate_average_shortest_path_length(G) if len(G) > 1 else 0.0
-        clustering = calculate_clustering_coefficient(G)
+        avg_degree = calculate_average_degree(graph)
+        avg_path = calculate_average_shortest_path_length(graph)
+        clustering = calculate_clustering_coefficient(graph)
         
-        # Check for disconnected graph
-        percolation_flag = nx.is_connected(G) if len(G) > 1 else False
-        if not percolation_flag and len(G) > 1:
-            logger.warning("Graph disconnected; conductivity set to 0.0")
+        # Check for percolation (largest component ratio)
+        components = list(nx.connected_components(graph))
+        largest_component_size = len(max(components, key=len))
+        percolation_flag = largest_component_size / config.N >= 0.8
+        
+        if not percolation_flag and len(components) > 1:
+            logging.warning("Graph disconnected; conductivity set to 0.0")
             conductivity = 0.0
         else:
-            # Get material conductivity
-            bulk_k = get_material_conductivity(config.material)
-            
-            # Calculate Fuchs-Sondheimer factor
-            fs_factor = calculate_fuchs_sondheimer_factor(
-                d=config.d,
-                lambda_bulk=config.lambda_bulk,
-                p_specular=config.p_specular
+            # Calculate thermal resistance
+            edge_resistances = assign_thermal_resistance(
+                graph, 
+                bulk_k, 
+                config.d, 
+                config.l,
+                config.lambda_phonon,
+                config.specularity
             )
             
-            # Assign thermal resistance and solve
-            effective_k = calculate_effective_conductivity(
-                G, bulk_k, config.d, config.l, fs_factor
+            # Solve Kirchhoff equations
+            conductivity = solve_kirchhoff_heat_flow(
+                graph, 
+                edge_resistances,
+                config.d,
+                config.l
             )
-            conductivity = effective_k
         
-        elapsed = time.time() - start_time
+        # Calculate scaling factor (relative to bulk)
+        scaling_factor = conductivity / bulk_k if bulk_k > 0 else 0.0
         
         result = {
             'seed': config.seed,
@@ -129,155 +167,199 @@ def run_single_simulation(config: SimulationConfig, seed: Optional[int] = None) 
             'p': config.p,
             'avg_degree': avg_degree,
             'conductivity': conductivity,
-            'percolation_flag': int(percolation_flag),
-            'scaling_factor': 1.0,  # Placeholder for future use
-            'd': config.d,
-            'l': config.l,
-            'material': config.material,
-            'target_degree': config.target_degree,
-            'shortest_path': shortest_path,
-            'clustering_coeff': clustering,
-            'percolation_threshold': None,
-            'regression_exponent': None,
-            'regression_p_value': None,
-            'sensitivity_deviation': None
+            'percolation_flag': 1 if percolation_flag else 0,
+            'scaling_factor': scaling_factor,
+            'percolation_threshold': config.percolation_threshold or 0.0,
+            'sensitivity_deviation': config.sensitivity_deviation or 0.0,
+            'sensitivity_std': config.sensitivity_std or 0.0,
+            'sensitivity_mean': config.sensitivity_mean or 0.0
         }
         
-        logger.info(f"Simulation completed in {elapsed:.2f}s: k={conductivity:.4f}")
+        logging.info(f"Simulation completed: N={config.N}, p={config.p}, "
+                    f"avg_degree={avg_degree:.2f}, conductivity={conductivity:.2f}")
+        
         return result
         
     except Exception as e:
-        logger.error(f"Simulation failed: {e}")
-        raise
+        logging.error(f"Simulation failed: {format_error(e)}")
+        return None
 
 def run_grid_simulation(config: SimulationConfig) -> List[Dict[str, Any]]:
-    """Run simulations across a grid of parameters with timeout check."""
+    """Run simulations over a grid of parameters."""
     results = []
-    start_time = time.time()
     
-    logger.info(f"Starting grid simulation: N=[{config.N_min}, {config.N_max}], p=[{config.p_min}, {config.p_max}]")
+    logging.info("Starting grid simulation")
     
-    # Generate grid parameters
-    N_values = [int(config.N_min + i * (config.N_max - config.N_min) / (config.N_steps - 1)) 
-               for i in range(config.N_steps)]
-    p_values = [config.p_min + i * (config.p_max - config.p_min) / (config.p_steps - 1) 
-               for i in range(config.p_steps)]
+    # Use grid parameters if defined, otherwise use single values
+    N_values = config.grid_N_values if config.grid_N_values else [config.N]
+    p_values = config.grid_p_values if config.grid_p_values else [config.p]
     
-    grid_params = []
     for N in N_values:
         for p in p_values:
-            for seed in range(3):  # 3 seeds per configuration
-                grid_params.append({'N': N, 'p': p, 'seed': seed})
-    
-    logger.info(f"Running {len(grid_params)} simulations")
-    
-    for i, params in enumerate(grid_params):
-        # Global Timer Check
-        elapsed = time.time() - start_time
-        if elapsed > RUNTIME_LIMIT_SECONDS:
-            logger.error("Runtime ceiling (6h) exceeded. Aborting grid.")
-            sys.exit(1)
-        
-        logger.info(f"[{i+1}/{len(grid_params)}] Running N={params['N']}, p={params['p']:.3f}, seed={params['seed']}")
-        
-        try:
-            sim_config = SimulationConfig(
-                N=params['N'],
-                p=params['p'],
+            # Create modified config for this iteration
+            iter_config = SimulationConfig(
+                N=N,
+                p=p,
                 d=config.d,
                 l=config.l,
-                seed=params['seed'],
+                seed=config.seed,
                 material=config.material,
+                bulk_conductivity=config.bulk_conductivity,
+                lambda_phonon=config.lambda_phonon,
+                specularity=config.specularity,
+                runtime_limit_hours=config.runtime_limit_hours,
                 target_degree=config.target_degree,
-                lambda_bulk=config.lambda_bulk,
-                p_specular=config.p_specular,
-                timeout_seconds=config.timeout_seconds
+                output_csv=config.output_csv
             )
             
-            result = run_single_simulation(sim_config)
-            results.append(result)
-            
-        except Exception as e:
-            logger.error(f"Failed simulation {i+1}: {e}")
-            # Continue with next simulation
-            continue
+            result = run_single_simulation(iter_config)
+            if result:
+                results.append(result)
     
-    logger.info(f"Grid simulation completed. Total time: {time.time() - start_time:.2f}s")
     return results
 
-def run_sensitivity_analysis(config: SimulationConfig, base_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Run sensitivity analysis on existing results."""
-    if not base_results:
-        logger.warning("No base results for sensitivity analysis")
-        return []
-    
-    logger.info("Starting sensitivity analysis")
+def run_sensitivity_analysis(config: SimulationConfig) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
+    """Run sensitivity analysis on simulation results."""
+    logging.info("Starting sensitivity analysis")
     
     # Run sensitivity sweep
-    sensitivity_results = run_sensitivity_sweep(base_results, config)
+    sweep_results = run_sensitivity_sweep(
+        config=config,
+        factor_range=config.sensitivity_factor_range
+    )
     
     # Calculate deviation report
-    deviation_report = calculate_deviation_report(sensitivity_results)
+    deviation_report = calculate_deviation_report(sweep_results)
     
-    # Update base results with sensitivity metrics
-    for i, result in enumerate(base_results):
-        if i < len(deviation_report):
-            result['sensitivity_deviation'] = deviation_report[i]['deviation']
+    # Analyze sensitivity
+    sensitivity_metrics = analyze_sensitivity(deviation_report)
     
-    logger.info("Sensitivity analysis completed")
-    return base_results
+    # Update config with sensitivity results
+    config.sensitivity_deviation = sensitivity_metrics.get('max_deviation', 0.0)
+    config.sensitivity_std = sensitivity_metrics.get('std_dev', 0.0)
+    config.sensitivity_mean = sensitivity_metrics.get('mean_deviation', 0.0)
+    
+    logging.info(f"Sensitivity analysis complete: "
+                f"max_deviation={config.sensitivity_deviation:.4f}, "
+                f"std_dev={config.sensitivity_std:.4f}")
+    
+    return sweep_results, sensitivity_metrics
 
 def main():
     """Main entry point for the simulation pipeline."""
-    parser = argparse.ArgumentParser(description="Thermal Conductivity Simulation Pipeline")
-    parser.add_argument('--run-single', action='store_true', help="Run single simulation")
-    parser.add_argument('--run-grid', action='store_true', help="Run grid simulation")
-    parser.add_argument('--sensitivity-only', action='store_true', help="Run sensitivity analysis only")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed for single simulation")
-    parser.add_argument('--config', type=str, help="Path to config file (not implemented)")
+    global _start_time
+    _start_time = time.time()
+    
+    # Setup logging
+    setup_logging()
+    logging.info("Starting thermal conductivity simulation pipeline")
+    
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Nanowire network thermal conductivity simulation")
+    parser.add_argument('--run-single', action='store_true', help='Run single simulation')
+    parser.add_argument('--run-grid', action='store_true', help='Run grid simulation')
+    parser.add_argument('--sensitivity-only', action='store_true', help='Run only sensitivity analysis')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--N', type=int, help='Number of nodes')
+    parser.add_argument('--p', type=float, help='Connection probability')
+    parser.add_argument('--target-degree', type=float, help='Target average degree')
+    parser.add_argument('--material', type=str, help='Material name')
+    parser.add_argument('--output', type=str, help='Output CSV path')
     
     args = parser.parse_args()
     
-    logger.info("Starting thermal conductivity simulation pipeline")
-    
     # Load configuration
     config = load_config()
-    logger.info(f"Configuration loaded: {get_simulation_parameters()}")
     
-    # Ensure output directory exists
-    os.makedirs(config.output_dir, exist_ok=True)
-    results_file = os.path.join(config.output_dir, config.results_file)
+    # Override with command line arguments
+    if args.seed:
+        config.seed = args.seed
+    if args.N:
+        config.N = args.N
+    if args.p:
+        config.p = args.p
+    if args.target_degree:
+        config.target_degree = args.target_degree
+    if args.material:
+        config.material = args.material
+    if args.output:
+        config.output_csv = args.output
     
     # Load existing results
-    existing_results = load_existing_results(results_file)
+    existing_results = load_existing_results(config.output_csv)
+    logging.info(f"Loaded {len(existing_results)} existing results")
+    
+    all_results = []
     
     try:
-        if args.run_single:
-            logger.info("Running single simulation")
-            result = run_single_simulation(config, seed=args.seed)
-            append_results_to_csv(results_file, [result])
+        if args.sensitivity_only:
+            # Run only sensitivity analysis
+            sensitivity_results, sensitivity_metrics = run_sensitivity_analysis(config)
+            
+            # Create result entries with sensitivity metrics
+            for N in config.grid_N_values:
+                for p in config.grid_p_values:
+                    result = {
+                        'seed': config.seed,
+                        'N': N,
+                        'p': p,
+                        'avg_degree': 0.0,  # Will be computed
+                        'conductivity': 0.0,  # Will be computed
+                        'percolation_flag': 0,
+                        'scaling_factor': 0.0,
+                        'percolation_threshold': config.percolation_threshold or 0.0,
+                        'sensitivity_deviation': config.sensitivity_deviation,
+                        'sensitivity_std': config.sensitivity_std,
+                        'sensitivity_mean': config.sensitivity_mean
+                    }
+                    all_results.append(result)
+            
+        elif args.run_single:
+            # Run single simulation
+            result = run_single_simulation(config)
+            if result:
+                all_results.append(result)
             
         elif args.run_grid:
-            logger.info("Running grid simulation")
-            new_results = run_grid_simulation(config)
-            append_results_to_csv(results_file, new_results)
+            # Run grid simulation
+            grid_results = run_grid_simulation(config)
+            all_results.extend(grid_results)
             
-            # Optional: Run regression analysis on new results
-            if new_results:
-                logger.info("Running regression analysis on new results")
-                # This would integrate with T029
+            # Run regression analysis on grid results
+            if len(grid_results) > 1:
+                regression_results = run_ols_regression(grid_results)
+                percolation_threshold = detect_percolation_threshold(grid_results)
                 
-        elif args.sensitivity_only:
-            logger.info("Running sensitivity analysis")
-            updated_results = run_sensitivity_analysis(config, existing_results)
-            append_results_to_csv(results_file, updated_results)
-            
+                # Update config with percolation threshold
+                config.percolation_threshold = percolation_threshold
+                
+                # Run sensitivity analysis on grid results
+                if len(grid_results) >= 3:
+                    sensitivity_results, sensitivity_metrics = run_sensitivity_analysis(config)
+                    
+                    # Update all results with sensitivity metrics
+                    for result in all_results:
+                        result['sensitivity_deviation'] = config.sensitivity_deviation
+                        result['sensitivity_std'] = config.sensitivity_std
+                        result['sensitivity_mean'] = config.sensitivity_mean
         else:
-            logger.error("No action specified. Use --run-single, --run-grid, or --sensitivity-only")
-            sys.exit(1)
+            # Default: run single simulation
+            result = run_single_simulation(config)
+            if result:
+                all_results.append(result)
+        
+        # Append results to CSV
+        if all_results:
+            append_results_to_csv(config.output_csv, all_results)
+            logging.info(f"Appended {len(all_results)} results to {config.output_csv}")
+        
+        # Log summary
+        if all_results:
+            avg_conductivity = sum(r['conductivity'] for r in all_results) / len(all_results)
+            logging.info(f"Pipeline complete. Average conductivity: {avg_conductivity:.2f} W/(m·K)")
             
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logging.error(f"Pipeline failed: {format_error(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

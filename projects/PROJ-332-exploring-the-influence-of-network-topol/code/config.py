@@ -1,167 +1,123 @@
 import os
-from typing import Optional, Dict, Any
-from dataclasses import dataclass, field
 import logging
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Any
+import time
 
 @dataclass
 class SimulationConfig:
-    """Configuration for thermal conductivity simulations."""
+    """Configuration container for simulation parameters."""
+    
     # Core simulation parameters
-    N: int = 100
-    p: float = 0.1
-    d: float = 10.0  # nm
-    l: float = 100.0  # nm
-    seed: int = 42
-    material: str = "Si"
+    N: int = 100  # Number of nodes
+    p: float = 0.1  # Connection probability
+    d: float = 50.0  # Wire diameter in nm
+    l: float = 1000.0  # Wire length in nm
+    seed: int = 42  # Random seed
+    
+    # Material parameters
+    material: str = "Si"  # Material name (default: Silicon)
+    bulk_conductivity: Optional[float] = None  # Override bulk conductivity
+    
+    # Solver parameters
+    lambda_phonon: float = 10.0  # Phonon mean free path in nm
+    specularity: float = 0.5  # Specularity parameter for Fuchs-Sondheimer
+    
+    # Analysis parameters
+    runtime_limit_hours: float = 6.0  # Maximum runtime in hours
+    target_degree: float = 4.0  # Target average degree for generation
     
     # Grid simulation parameters
-    N_min: int = 50
-    N_max: int = 200
-    N_steps: int = 5
-    p_min: float = 0.05
-    p_max: float = 0.5
-    p_steps: int = 5
-    
-    # Target degree for specific generation modes
-    target_degree: float = 4.0
-    
-    # Fuchs-Sondheimer parameters
-    lambda_bulk: float = 10.0  # nm
-    p_specular: float = 0.5
+    grid_N_values: list = field(default_factory=lambda: [50, 100, 200])
+    grid_p_values: list = field(default_factory=lambda: [0.05, 0.1, 0.2, 0.3])
+    grid_degree_values: list = field(default_factory=lambda: [2.0, 3.0, 4.0, 5.0])
     
     # Sensitivity analysis parameters
-    sensitivity_range: tuple = field(default=(0.8, 1.2, 5))
+    sensitivity_factor_range: list = field(default_factory=lambda: [0.5, 0.75, 1.0, 1.25, 1.5])
+    sensitivity_metric: str = "conductivity"  # Metric to analyze
     
-    # Runtime limits
-    timeout_seconds: int = 6 * 60 * 60  # 6 hours
+    # Output paths
+    output_csv: str = "data/processed/simulation_results.csv"
+    log_file: Optional[str] = None
     
-    # Paths
-    output_dir: str = "data/processed"
-    results_file: str = "simulation_results.csv"
+    # Percolation threshold (computed)
+    percolation_threshold: Optional[float] = None
     
-    # Logging
-    log_level: str = "INFO"
+    # Sensitivity results (computed)
+    sensitivity_deviation: Optional[float] = None
+    sensitivity_std: Optional[float] = None
+    sensitivity_mean: Optional[float] = None
 
     def __post_init__(self):
-        """Validate configuration after initialization."""
-        if self.N < 2:
-            raise ValueError("N must be at least 2")
-        if not (0 < self.p < 1):
-            raise ValueError("p must be between 0 and 1")
-        if self.d <= 0 or self.l <= 0:
-            raise ValueError("d and l must be positive")
-        if self.N_min >= self.N_max:
-            raise ValueError("N_min must be less than N_max")
-        if self.p_min >= self.p_max:
-            raise ValueError("p_min must be less than p_max")
-
-    def __getattr__(self, name: str) -> Any:
-        """
-        Tolerant fallback for unknown attributes/methods.
-        This ensures that if any code attempts to access an attribute
-        that isn't explicitly defined (e.g., logging methods or future
-        extensions), it returns a no-op callable instead of raising AttributeError.
-        """
-        if name.startswith('_'):
-            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        """Validate and post-process configuration."""
+        if self.bulk_conductivity is None:
+            # Will be loaded from material_db later
+            pass
         
-        def _no_op(*args, **kwargs):
+        # Ensure lists are mutable
+        if isinstance(self.grid_N_values, tuple):
+            self.grid_N_values = list(self.grid_N_values)
+        if isinstance(self.grid_p_values, tuple):
+            self.grid_p_values = list(self.grid_p_values)
+        if isinstance(self.grid_degree_values, tuple):
+            self.grid_degree_values = list(self.grid_degree_values)
+        if isinstance(self.sensitivity_factor_range, tuple):
+            self.sensitivity_factor_range = list(self.sensitivity_factor_range)
+
+    # Logger-like fallback for tolerance
+    def __getattr__(self, name):
+        # Any unknown attribute access returns a no-op callable
+        def _noop(*args, **kwargs):
             return None
-        
-        return _no_op
+        return _noop
 
-def load_config() -> SimulationConfig:
-    """
-    Load simulation configuration from environment variables with sensible defaults.
+def load_config(env_prefix: str = "SIM_") -> SimulationConfig:
+    """Load configuration from environment variables with defaults."""
+    config_dict = {}
     
-    Environment variables:
-    - SIM_N: Node count (default: 100)
-    - SIM_P: Connection probability (default: 0.1)
-    - SIM_D: Wire diameter in nm (default: 10.0)
-    - SIM_L: Wire length in nm (default: 100.0)
-    - SIM_SEED: Random seed (default: 42)
-    - SIM_MATERIAL: Material name (default: "Si")
-    - SIM_N_MIN: Min nodes for grid (default: 50)
-    - SIM_N_MAX: Max nodes for grid (default: 200)
-    - SIM_N_STEPS: Steps for N grid (default: 5)
-    - SIM_P_MIN: Min probability for grid (default: 0.05)
-    - SIM_P_MAX: Max probability for grid (default: 0.5)
-    - SIM_P_STEPS: Steps for p grid (default: 5)
-    - SIM_TARGET_DEGREE: Target average degree (default: 4.0)
-    - SIM_LAMBDA_BULK: Bulk mean free path in nm (default: 10.0)
-    - SIM_P_SPECULAR: Specularity parameter (default: 0.5)
-    - SIM_TIMEOUT: Timeout in seconds (default: 21600)
-    """
-    def get_int(key: str, default: int) -> int:
-        val = os.getenv(key)
-        if val is None:
-            return default
-        try:
-            return int(val)
-        except ValueError:
-            logging.warning(f"Invalid integer for {key}: {val}, using default {default}")
-            return default
+    # Map environment variables to config fields
+    env_mapping = {
+        "N": "SIM_N",
+        "p": "SIM_P",
+        "d": "SIM_D",
+        "l": "SIM_L",
+        "seed": "SIM_SEED",
+        "material": "SIM_MATERIAL",
+        "bulk_conductivity": "SIM_BULK_CONDUCTIVITY",
+        "lambda_phonon": "SIM_LAMBDA",
+        "specularity": "SIM_SPECULARITY",
+        "runtime_limit_hours": "SIM_RUNTIME_LIMIT",
+        "target_degree": "SIM_TARGET_DEGREE",
+        "output_csv": "SIM_OUTPUT_CSV",
+    }
+    
+    for field_name, env_var in env_mapping.items():
+        value = os.environ.get(env_var)
+        if value is not None:
+            # Try to convert to appropriate type
+            try:
+                if field_name in ["N", "seed"]:
+                    config_dict[field_name] = int(value)
+                elif field_name in ["p", "d", "l", "bulk_conductivity", 
+                                   "lambda_phonon", "specularity", 
+                                   "runtime_limit_hours", "target_degree"]:
+                    config_dict[field_name] = float(value)
+                else:
+                    config_dict[field_name] = value
+            except ValueError:
+                logging.warning(f"Invalid value for {field_name}: {value}, using default")
+    
+    return SimulationConfig(**config_dict)
 
-    def get_float(key: str, default: float) -> float:
-        val = os.getenv(key)
-        if val is None:
-            return default
-        try:
-            return float(val)
-        except ValueError:
-            logging.warning(f"Invalid float for {key}: {val}, using default {default}")
-            return default
-
-    def get_str(key: str, default: str) -> str:
-        val = os.getenv(key)
-        return val if val is not None else default
-
-    return SimulationConfig(
-        N=get_int("SIM_N", 100),
-        p=get_float("SIM_P", 0.1),
-        d=get_float("SIM_D", 10.0),
-        l=get_float("SIM_L", 100.0),
-        seed=get_int("SIM_SEED", 42),
-        material=get_str("SIM_MATERIAL", "Si"),
-        N_min=get_int("SIM_N_MIN", 50),
-        N_max=get_int("SIM_N_MAX", 200),
-        N_steps=get_int("SIM_N_STEPS", 5),
-        p_min=get_float("SIM_P_MIN", 0.05),
-        p_max=get_float("SIM_P_MAX", 0.5),
-        p_steps=get_int("SIM_P_STEPS", 5),
-        target_degree=get_float("SIM_TARGET_DEGREE", 4.0),
-        lambda_bulk=get_float("SIM_LAMBDA_BULK", 10.0),
-        p_specular=get_float("SIM_P_SPECULAR", 0.5),
-        timeout_seconds=get_int("SIM_TIMEOUT", 6 * 60 * 60),
-        output_dir=get_str("SIM_OUTPUT_DIR", "data/processed"),
-        results_file=get_str("SIM_RESULTS_FILE", "simulation_results.csv"),
-        log_level=get_str("SIM_LOG_LEVEL", "INFO")
-    )
-
-def get_simulation_parameters() -> Dict[str, Any]:
-    """
-    Get a dictionary of all current simulation parameters.
-    Useful for logging and reproducibility.
-    """
-    config = load_config()
+def get_simulation_parameters(config: SimulationConfig) -> Dict[str, Any]:
+    """Extract simulation parameters from config for logging."""
     return {
-        'N': config.N,
-        'p': config.p,
-        'd': config.d,
-        'l': config.l,
-        'seed': config.seed,
-        'material': config.material,
-        'N_min': config.N_min,
-        'N_max': config.N_max,
-        'N_steps': config.N_steps,
-        'p_min': config.p_min,
-        'p_max': config.p_max,
-        'p_steps': config.p_steps,
-        'target_degree': config.target_degree,
-        'lambda_bulk': config.lambda_bulk,
-        'p_specular': config.p_specular,
-        'timeout_seconds': config.timeout_seconds,
-        'output_dir': config.output_dir,
-        'results_file': config.results_file,
-        'log_level': config.log_level
+        "N": config.N,
+        "p": config.p,
+        "d": config.d,
+        "l": config.l,
+        "seed": config.seed,
+        "material": config.material,
+        "target_degree": config.target_degree,
+        "runtime_limit_hours": config.runtime_limit_hours,
     }
