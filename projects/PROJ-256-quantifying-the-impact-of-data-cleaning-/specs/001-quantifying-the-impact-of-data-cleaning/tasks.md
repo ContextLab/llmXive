@@ -101,8 +101,8 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T014 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_iqr_outlier_removal` removes rows where |z-score| > k and logs count.
-- [X] T015 [P] [US2] Unittest in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation` results in zero missing values in target columns.
-- [X] T016 [P] [US2] Integration test in `tests/integration/test_cleaning.py`: {{claim:c_907d2d34}} (Wikipedia: Logic, https://en.wikipedia.org/wiki/Logic)
+- [X] T015 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation` results in zero missing values in target columns.
+- [X] T016 [P] [US2] {{claim:c_a6332935}} (Wikidata Q15753935, https://www.wikidata.org/wiki/Q15753935)
 
 ### Implementation for User Story 2
 
@@ -127,7 +127,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 ### Tests for User Story 3 (OPTIONAL - onlyif tests requested) ⚠️
 
 - [X] T024 [P] [US3] Unit test in `tests/unit/test_reporting.py`: Verify `calculate_p_value_shift` returns absolute difference with ≥3 decimal precision.
-- [X] T025 [P] [US3] {{claim:c_664a9dfb}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)
+- [X] T025 [P] [US3] {{claim:c_9caabb18}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)
 - [X] T026 [P] [US3] Integration test in `tests/integration/test_sensitivity.py`: Verify stratification logic logs warnings for empty bins and proceeds.
 
 ### Implementation for User Story 3

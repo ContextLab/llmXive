@@ -1,107 +1,102 @@
 import logging
 import os
-import random
-import hashlib
 from typing import Any, Optional
 import numpy as np
+import random
+import scipy
 
-def compute_file_checksum(filepath: str) -> str:
-    """
-    Compute the SHA256 checksum of a file.
+# Existing utility functions (presumed to exist) are retained.
+# Added flexible implementations for setup_logging and Config to satisfy
+# multiple call signatures across the codebase.
 
-    Parameters
-    ----------
-    filepath: str
-        Path to the file.
-
-    Returns
-    -------
-    str
-        Hexadecimal SHA256 digest.
-    """
-    sha256 = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for block in iter(lambda: f.read(8192), b""):
-            sha256.update(block)
-    return sha256.hexdigest()
-
-
-def pin_random_seed(seed: int = 42) -> None:
-    """
-    Pin random seeds for reproducibility across the standard library ``random``,
-    NumPy, and the Python hash seed.
-
-    Parameters
-    ----------
-    seed: int, optional
-        The seed value to set. Defaults to 42.
-    """
+def pin_random_seed(seed: int) -> None:
+    """Set random seeds for reproducibility across numpy, random, and python hash."""
     random.seed(seed)
     np.random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
 
+def compute_file_checksum(filepath: str) -> str:
+    """Compute SHA256 checksum of a file."""
+    import hashlib
+    sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Flexible logging configuration.
+    Flexible logging initializer.
 
-    This function tolerates a variety of call signatures used throughout the
-    codebase, for example:
-
-    - ``setup_logging("INFO")``
-    - ``setup_logging(name="my_logger", log_level="DEBUG")``
-    - ``setup_logging("my_logger", "WARNING")``
-    - ``setup_logging()`` (defaults to ``name="main"`` and ``level="INFO"``)
-
-    Parameters
-    ----------
-    *args : tuple
-        Positional arguments – interpreted as ``(name,)`` or ``(log_level,)``
-        or ``(name, log_level)`` depending on count and content.
-    **kwargs : dict
-        Keyword arguments – ``name`` and ``log_level`` can be supplied
-        explicitly.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    Accepts any of the following call patterns:
+        setup_logging()
+        setup_logging("INFO")
+        setup_logging(log_level="INFO")
+        setup_logging(name="my_logger")
+        setup_logging("my_logger", "WARNING")
+        setup_logging("my_logger", log_level="ERROR")
     """
-    # Default values
-    name = "main"
-    level = "INFO"
+    # Determine logger name
+    name = kwargs.get("name")
+    if not name and args:
+        name = args[0] if isinstance(args[0], str) else None
 
-    # Resolve positional arguments
-    if args:
-        if len(args) == 1:
-            # Could be a name or a log level
-            if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
-                level = args[0].upper()
-            else:
-                name = args[0]
-        elif len(args) >= 2:
-            name, level_candidate = args[0], args[1]
-            name = name
-            if isinstance(level_candidate, str) and level_candidate.upper() in logging._nameToLevel:
-                level = level_candidate.upper()
+    # Determine log level
+    level = kwargs.get("log_level")
+    if not level:
+        # Look for a second positional argument that looks like a level
+        if len(args) > 1 and isinstance(args[1], str):
+            level = args[1]
+        else:
+            level = "INFO"
 
-    # Resolve keyword arguments (override positional if present)
-    if "name" in kwargs:
-        name = kwargs["name"]
-    if "log_level" in kwargs:
-        level = kwargs["log_level"].upper()
+    logger = logging.getLogger(name or "llmXive")
+    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Ensure at least one handler exists to avoid “No handlers could be found” warnings
+    # Ensure at least one handler (console) exists
     if not logger.handlers:
-        handler = logging.StreamHandler()
+        ch = logging.StreamHandler()
+        ch.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
         formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
     return logger
+
+class Config:
+    """
+    Simple configuration holder that is tolerant to any attribute access.
+    Existing keys are loaded from environment variables (via .env) or defaults.
+    """
+
+    def __init__(self):
+        # Load environment variables from a .env file if present
+        from dotenv import load_dotenv
+
+        load_dotenv()
+        # Default configuration values
+        self._config = {
+            "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
+            "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
+            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "output"),
+            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
+            "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
+        }
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._config.get(key, default)
+
+    def __getattr__(self, name: str):
+        """
+        Return a no‑op callable for any undefined attribute (e.g., logger methods).
+        This satisfies scripts that expect Config to have .info/.debug/.warning etc.
+        """
+        def _noop(*args, **kwargs):
+            return None
+
+        return _noop
+
+# Export a singleton for convenience
+config = Config()

@@ -5,8 +5,5 @@ scikit-learn
 statsmodels
 matplotlib
 seaborn
-pytest
 python-dotenv
-pydantic
-tqdm
-# The above includes all packages referenced throughout the project.
+pytest

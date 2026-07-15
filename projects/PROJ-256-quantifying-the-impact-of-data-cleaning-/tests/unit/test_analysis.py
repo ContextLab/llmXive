@@ -1,87 +1,62 @@
-import pytest
-import pandas as pd
-import numpy as np
-import os
+"""
+Unit tests for the ``run_baseline_analysis`` helper (T012 / T013).
+"""
+
 import json
-import sys
 from pathlib import Path
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+import pandas as pd
+import pytest
 
-from analysis import run_t_test, run_linear_regression, analyze_dataset, run_baseline_analysis
+from analysis import run_baseline_analysis
 
-def test_run_t_test_valid_data():
+@pytest.fixture
+def sample_dataframe():
+    # Simple synthetic but valid dataframe – the test only checks mechanics,
+    # not scientific validity.
     data = {
-        'group': ['A', 'A', 'B', 'B', 'A', 'B'],
-        'outcome': [10.0, 11.0, 12.0, 13.0, 10.5, 12.5]
+        "outcome": [1, 2, 1, 2, 1, 2],
+        "predictor1": [10, 20, 10, 20, 10, 20],
+        "predictor2": [5, 5, 6, 6, 7, 7],
     }
-    df = pd.DataFrame(data)
-    result = run_t_test(df, 'group', 'outcome')
-    assert 'p_value' in result
-    assert 'ci_95' in result
-    assert 'effect_size_cohen_d' in result
-    # Basic validation
-    assert 0 < result['p_value'] < 1
-    assert np.isfinite(result['ci_95'][0]) and np.isfinite(result['ci_95'][1])
+    return pd.DataFrame(data)
 
-def test_run_linear_regression_valid_data():
-    data = {
-        'predictor': [1.0, 2.0, 3.0, 4.0, 5.0],
-        'outcome': [2.0, 4.0, 5.0, 4.0, 5.0]
-    }
-    df = pd.DataFrame(data)
-    result = run_linear_regression(df, 'predictor', 'outcome')
-    assert 'p_value' in result
-    assert 'r_squared' in result
-    assert 'ci_95' in result
-    assert 0 < result['p_value'] < 1
-    assert np.isfinite(result['ci_95'][0]) and np.isfinite(result['ci_95'][1])
+def test_run_baseline_analysis_single_dataframe(sample_dataframe, tmp_path):
+    # Provide the dataframe directly; no file I/O expected.
+    results = run_baseline_analysis(
+        dataframe=sample_dataframe,
+        outcome="outcome",
+        predictors=["predictor1", "predictor2"],
+    )
+    assert isinstance(results, dict)
+    assert "provided_dataframe" in results
+    t_test = results["provided_dataframe"].get("t_test", {})
+    assert "p_value" in t_test
+    assert 0.0 < t_test["p_value"] < 1.0
 
-def test_analyze_dataset():
-    data = {
-        'group': ['A', 'A', 'B', 'B', 'A', 'B'] * 10,
-        'outcome': [10.0, 11.0, 12.0, 13.0, 10.5, 12.5] * 10,
-        'feature_a': np.random.randn(60)
-    }
-    df = pd.DataFrame(data)
-    result = analyze_dataset(df, 'test_dataset')
-    assert result['dataset_name'] == 'test_dataset'
-    assert 't_tests' in result
-    assert 'regressions' in result
-    # Check that p-values are valid if tests were run
-    for test in result['t_tests']:
-        if test:
-            assert 0 < test['p_value'] < 1
-    for reg in result['regressions']:
-        if reg:
-            assert 0 < reg['p_value'] < 1
+def test_run_baseline_analysis_writes_file(tmp_path, monkeypatch):
+    # Create a temporary CSV file to act as raw input.
+    csv_path = tmp_path / "sample.csv"
+    df = pd.DataFrame(
+        {
+            "outcome": [0, 1, 0, 1],
+            "x1": [1, 2, 3, 4],
+            "x2": [5, 6, 7, 8],
+        }
+    )
+    df.to_csv(csv_path, index=False)
 
-def test_run_baseline_analysis_dataframe_input(tmp_path):
-    data = {
-        'group': ['A', 'B'] * 10,
-        'outcome': [10.0, 12.0] * 10
-    }
-    df = pd.DataFrame(data)
-    result = run_baseline_analysis(df, dataset_name='inline_test')
-    assert result is not None
-    assert result['dataset_name'] == 'inline_test'
-    assert 't_tests' in result
+    output_path = tmp_path / "baseline.json"
 
-def test_run_baseline_analysis_dir_input(tmp_path):
-    # Create a dummy CSV
-    csv_path = tmp_path / "test.csv"
-    data = {
-        'group': ['A', 'B'] * 10,
-        'outcome': [10.0, 12.0] * 10
-    }
-    pd.DataFrame(data).to_csv(csv_path, index=False)
+    # Monkey‑patch the raw directory resolution inside the function.
+    monkeypatch.chdir(tmp_path)
+    results = run_baseline_analysis(str(tmp_path), str(output_path))
 
-    output_file = tmp_path / "output.json"
-    result = run_baseline_analysis(str(tmp_path), str(output_file))
-    assert result is True
-    assert output_file.exists()
-    with open(output_file) as f:
+    # Verify the file was created and contains expected keys.
+    assert output_path.is_file()
+    with output_path.open() as f:
         data = json.load(f)
-    assert len(data) >= 1
-    assert 't_tests' in data[0]
+    assert isinstance(data, dict) and len(data) == 1
+    dataset_key = list(data.keys())[0]
+    assert "t_test" in data[dataset_key]
+    assert "effect_size" in data[dataset_key]

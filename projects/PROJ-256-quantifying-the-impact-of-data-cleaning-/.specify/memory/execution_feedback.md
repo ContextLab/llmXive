@@ -1,8 +1,20 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- data/processed/baseline_metrics.json: results file is EMPTY ({}) — the analysis produced no values
+- every produced artifact is gitignored (data/processed/baseline_metrics.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/baseline_metrics.json: results file is EMPTY ({}) — the analysis produced no values; every produced artifact is gitignored (data/processed/baseline_metrics.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
 
 ## Failing / missing run-book commands
 
@@ -14,7 +26,6 @@ ImportError: cannot import name 'pin_random_seed' from 'utils' (/home/runner/wor
 
 ## Declared deliverables still missing
 
-- data/processed/baseline_metrics.json
 - data/processed/cleaned_metrics.json
 - data/processed/null_fpr_metrics.json
 
@@ -26,18 +37,22 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 10 way(s):
+### `run_baseline_analysis` — defined in `code/analysis.py`; called 14 way(s):
 
 - code/t023_reanalyze_cleaned_variants.py: metrics = run_baseline_analysis(
 - code/t012_run_baseline_analysis.py: run_baseline_analysis()
-- code/t013_record_baseline_metrics.py: run_baseline_analysis(str(raw_dir), str(output_file))
+- code/reporting.py: baseline_metrics = run_baseline_analysis(dataframe=df)
+- code/reporting.py: cleaned_metrics = run_baseline_analysis(dataframe=cleaned_df)
+- code/t013_record_baseline_metrics.py: metrics = run_baseline_analysis(
 - code/analysis.py: 1. run_baseline_analysis(dataframe=df)
 - code/analysis.py: 2. run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'])
 - code/analysis.py: 3. run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json')
 - code/analysis.py: 4. run_baseline_analysis('data/raw', 'data/processed/baseline_metrics.json')
 - code/analysis.py: 5. run_baseline_analysis(raw_dir, output_file, extra_kwargs_dict)
-- code/t033_outlier_threshold_sweep.py: return run_baseline_analysis(dataframe=df)
-- code/t032_permutation_null_fpr.py: metrics = run_baseline_analysis(dataframe=df)
+- code/t033_outlier_threshold_sweep.py: raw_metrics = run_baseline_analysis(dataframe=df_raw, outcome=outcome_col, predictors=predictors)
+- code/t033_outlier_threshold_sweep.py: cleaned_metrics = run_baseline_analysis(dataframe=df_cleaned, outcome=outcome_col, predictors=predictors)
+- code/t033_outlier_threshold_sweep.py: null_metrics = run_baseline_analysis(dataframe=df_null_cleaned, outcome=outcome_col, predictors=predictors)
+- code/t032_permutation_null_fpr.py: metrics = run_baseline_analysis(
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
@@ -50,24 +65,24 @@ Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 - code/t034_generate_forest_plot.py: logger = setup_logging(log_level="INFO")
 - code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
 - code/t023_reanalyze_cleaned_variants.py: logger = setup_logging(log_level="INFO")
-- code/utils.py: - setup_logging()
-- code/utils.py: - setup_logging("INFO")
-- code/utils.py: - setup_logging(log_level="INFO")
-- code/utils.py: - setup_logging(name="my_logger", log_level="DEBUG")
-- code/utils.py: - setup_logging("my_logger", "DEBUG")
-- code/utils.py: - setup_logging("my_logger")
+- code/utils.py: - ``setup_logging()``                               – defaults to INFO level.
+- code/utils.py: - ``setup_logging("INFO")``                         – level only (positional).
+- code/utils.py: - ``setup_logging(log_level="DEBUG")``              – keyword level.
+- code/utils.py: - ``setup_logging(name="my_logger")``               – keyword name only.
+- code/utils.py: - ``setup_logging("my_logger", "WARNING")``        – name then level (positional).
+- code/utils.py: - ``setup_logging("my_logger", log_level="ERROR")`` – mixed positional/keyword.
 - code/t044_runtime_profiling.py: setup_logging()
 - code/cleanup_utils.py: setup_logging(log_level)
 - code/t035_generate_ci_heatmap.py: logger = setup_logging(log_level="INFO")
 - code/profiler.py: setup_logging()
+- code/reporting.py: logger = setup_logging(log_level="INFO")
+- code/reporting.py: logger = setup_logging("INFO")
 - code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
 - code/t041_generate_final_report.py: logger = setup_logging(log_level="INFO")
 - code/main.py: logger = setup_logging(log_level="INFO")
 - code/data_loader.py: logger = setup_logging("INFO")
-- code/t013_record_baseline_metrics.py: logger = setup_logging(log_level="INFO")
-- code/t040_create_comparison_report.py: logger: logging.Logger = setup_logging(log_level="INFO")
-- code/t030_dataset_size_sensitivity.py: logger = setup_logging(log_level="INFO")
-- code/t039_log_excluded_datasets.py: logger = setup_logging(log_level="INFO")
+- code/t013_record_baseline_metrics.py: 1. Initialise logging (accepts both ``setup_logging("INFO")`` and the
+- code/t013_record_baseline_metrics.py: keyword form ``setup_logging(log_level="INFO")``).
 
 Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
@@ -102,6 +117,7 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
 - code/config.py: Scripts import ``get_config`` and use ``config.get(key, default)`` to obtain
+- code/utils.py: logger.setLevel(logging._nameToLevel.get(level, logging.INFO))
 - code/t044_runtime_profiling.py: total_duration = sum(item.get("duration_seconds", 0) for item in profiling_data)
 - code/t044_runtime_profiling.py: "name": item.get("function") or item.get("block"),
 - code/t044_runtime_profiling.py: "duration_seconds": item.get("duration_seconds"),
@@ -118,16 +134,6 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/baseline_metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
-    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
-    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
-    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/models.py` — NOT invoked by the run-book
-    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
-    - `code/reporting.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book

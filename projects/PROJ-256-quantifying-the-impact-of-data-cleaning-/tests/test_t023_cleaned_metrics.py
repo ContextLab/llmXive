@@ -1,56 +1,46 @@
 """
-Unit test for the T023 re‑analysis script.
-
-The test creates a tiny synthetic cleaned CSV file, runs the script,
-and checks that ``cleaned_metrics.json`` is produced and contains
-a valid JSON object.
+Basic integration test for T023 – ensures that the cleaned‑metrics JSON file is
+produced and contains at least one entry with valid numeric values.
 """
-
 import json
 import os
 from pathlib import Path
 
 import pandas as pd
 
-import sys
+from t023_reanalyze_cleaned_variants import main as t023_main
+from utils import setup_logging, pin_random_seed
 
-# Ensure the project root is on the path so imports work
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-
-from t023_reanalyze_cleaned_variants import main as reanalyse_main
-
-
-def test_reanalyse_creates_cleaned_metrics(tmp_path):
-    # Arrange: create a minimal cleaned CSV in the expected location
+def test_cleaned_metrics_generated(tmp_path, monkeypatch):
+    # Create a tiny synthetic cleaned dataset (real data not required for the test,
+    # but the analysis code works on any numeric CSV).
     processed_dir = Path("data/processed")
     processed_dir.mkdir(parents=True, exist_ok=True)
+    test_csv = processed_dir / "dummy_cleaned.csv"
+    df = pd.DataFrame({
+        "outcome": [1, 2, 3, 4, 5],
+        "predictor1": [5, 4, 3, 2, 1],
+        "predictor2": [2, 3, 2, 3, 2],
+    })
+    df.to_csv(test_csv, index=False)
 
-    csv_path = processed_dir / "sample_cleaned.csv"
-    df = pd.DataFrame(
-        {
-            "outcome": [0, 1, 0, 1],
-            "feat1": [1.2, 2.3, 1.1, 2.0],
-            "feat2": [3.4, 3.5, 3.3, 3.6],
-        }
-    )
-    df.to_csv(csv_path, index=False)
+    # Run the script
+    t023_main()
 
-    # Act: run the re‑analysis script
-    reanalyse_main()
+    # Verify output file exists and contains valid data
+    output_file = processed_dir / "cleaned_metrics.json"
+    assert output_file.is_file(), "cleaned_metrics.json was not created"
 
-    # Assert: cleaned_metrics.json exists and is valid JSON
-    metrics_path = processed_dir / "cleaned_metrics.json"
-    assert metrics_path.is_file(), "cleaned_metrics.json was not created"
-
-    with open(metrics_path, "r", encoding="utf-8") as f:
+    with open(output_file) as f:
         data = json.load(f)
 
-    assert isinstance(data, dict)
-    assert "sample_cleaned.csv" in data
-    # Basic sanity checks on the metric structure
-    metrics = data["sample_cleaned.csv"]
-    assert "t_test" in metrics
-    assert "linear_regression" in metrics
-    # Ensure numeric values are present
-    assert isinstance(metrics["t_test"].get("p_value"), float)
-    assert isinstance(metrics["linear_regression"].get("r_squared"), float)
+    # At least one entry should be present
+    assert "dummy_cleaned.csv" in data
+
+    metrics = data["dummy_cleaned.csv"]
+    # Check that a p‑value exists and is within (0,1)
+    p_val = metrics["t_test"]["p_value"]
+    assert 0.0 < p_val < 1.0, f"Invalid p‑value {p_val}"
+    # Linear regression p‑value also in (0,1)
+    lr_p = metrics["linear_regression"]["p_value"]
+    assert 0.0 < lr_p < 1.0, f"Invalid linear regression p‑value {lr_p}"

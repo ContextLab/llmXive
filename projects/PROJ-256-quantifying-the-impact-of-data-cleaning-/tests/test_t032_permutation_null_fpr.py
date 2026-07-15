@@ -1,70 +1,40 @@
-"""
-Unit test for the permutation‑null FPR generation script (T032).
-
-The test creates a tiny synthetic CSV dataset in ``data/raw``,
-runs the ``generate_null_fpr_metrics`` function, and checks that:
-  * The output JSON file is created.
-  * The JSON contains the expected top‑level keys.
-  * The per‑dataset FPR is a float between 0 and 1.
-The synthetic data is deliberately tiny but valid; the test does not
-rely on any external network resources.
-"""
-
 import json
 import os
 from pathlib import Path
 
-import pandas as pd
-import pytest
-
-# Import the function under test
 from t032_permutation_null_fpr import generate_null_fpr_metrics
 
-@pytest.fixture
-def tiny_dataset(tmp_path):
-    """Create a minimal CSV file with a clear outcome column."""
-    df = pd.DataFrame(
-        {
-            "target": [0, 1, 0, 1, 0, 1],
-            "feature1": [5, 3, 6, 2, 7, 1],
-            "feature2": [10, 20, 10, 20, 10, 20],
-        }
-    )
+def test_generate_null_fpr_metrics_creates_file(tmp_path):
+    # Use a temporary directory for raw data to avoid side‑effects.
     raw_dir = tmp_path / "raw"
     raw_dir.mkdir()
-    csv_path = raw_dir / "tiny.csv"
-    df.to_csv(csv_path, index=False)
-    return raw_dir
+    # Create a tiny synthetic CSV (real data not required for the test logic)
+    csv_path = raw_dir / "sample.csv"
+    csv_path.write_text(
+        "target,feat1,feat2\n"
+        "1,0.1,0.2\n"
+        "0,0.3,0.4\n"
+        "1,0.5,0.6\n"
+    )
+    output_file = tmp_path / "null_fpr.json"
 
-def test_generate_null_fpr_metrics_creates_output(tiny_dataset, tmp_path):
-    output_path = tmp_path / "processed" / "null_fpr_metrics.json"
-
-    # Run the function with a small number of permutations for speed
     result = generate_null_fpr_metrics(
-        raw_dir=tiny_dataset,
-        output_file=output_path,
+        raw_dir=str(raw_dir),
+        outcome="target",
+        predictors=["feat1", "feat2"],
         n_permutations=200,
-        alpha=0.05,
+        output_file=str(output_file),
     )
 
-    # Verify the JSON file exists and is loadable
-    assert output_path.is_file(), "Output JSON file was not created"
-    with open(output_path, "r", encoding="utf-8") as f:
-        loaded = json.load(f)
+    # Verify the function returns a dictionary with expected keys
+    assert isinstance(result, dict)
+    assert set(result.keys()) == {"total_permutations", "false_positive_rate", "p_value_threshold"}
 
-    # Basic structural checks
-    assert "metadata" in loaded
-    assert "datasets" in loaded
-    assert "overall_fpr" in loaded
+    # Verify the output file exists and contains valid JSON
+    assert output_file.is_file()
+    data = json.loads(output_file.read_text())
+    assert data["total_permutations"] == 200
+    assert 0.0 <= data["false_positive_rate"] <= 1.0
+    assert data["p_value_threshold"] == 0.05
 
-    # There should be exactly one dataset entry
-    assert list(loaded["datasets"].keys()) == ["tiny.csv"]
-
-    dataset_metrics = loaded["datasets"]["tiny.csv"]
-    # FPR should be a float between 0 and 1
-    fpr = dataset_metrics.get("fpr")
-    assert isinstance(fpr, float)
-    assert 0.0 <= fpr <= 1.0
-
-    # The function's return value should match the file contents
-    assert result == loaded
+    # Clean‑up is handled by the pytest tmp_path fixture.

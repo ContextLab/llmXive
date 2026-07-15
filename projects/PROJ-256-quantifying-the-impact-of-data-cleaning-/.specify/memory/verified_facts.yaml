@@ -1,36 +1,5 @@
-23|38195c23 claim:
-  quote: Logic has been studied since antiquity. Early approaches include Aristotelian
-    logic, Stoic logic, Nyaya, and Mohism. Aristotelian logic focuses on reasoning
-    in the form of syllogisms. It was considered the main system of logic in the Western
-    world until it was replaced by modern formal logic, which has its roots in the
-    work of late 19th-century mathematicians such as Gottlob Frege. Today, the most
-    commonly used system is classical logic. It consists of propositional logic and
-    first-order logic. Propositional logic only considers logical relations between
-    full propositions. First-order logic also takes the internal parts of propositions
-    into account, like predicates and quantifiers. Extended logics accept the basic
-    intuitions behind classical logic and apply it to other fields, such as metaphysics,
-    ethics, and epistemology, as frameworks for reasoning about what is possible or
-    necessary, what is or should be, and what is believed or known. Deviant logics,
-    on the other hand, reject certain classical intuitions and provide alternative
-    explanations of the basic laws of logic.
-  source_id: Logic
-  url: https://en.wikipedia.org/wiki/Logic
-  value: classical logic
-5|676fa5ef claim:
-  quote: Logic has been studied since antiquity. Early approaches include Aristotelian
-    logic, Stoic logic, Nyaya, and Mohism. Aristotelian logic focuses on reasoning
-    in the form of syllogisms. It was considered the main system of logic in the Western
-    world until it was replaced by modern formal logic, which has its roots in the
-    work of late 19th-century mathematicians such as Gottlob Frege. Today, the most
-    commonly used system is classical logic. It consists of propositional logic and
-    first-order logic. Propositional logic only considers logical relations between
-    full propositions. First-order logic also takes the internal parts of propositions
-    into account, like predicates and quantifiers. Extended logics accept the basic
-    intuitions behind classical logic and apply it to other fields, such as metaphysics,
-    ethics, and epistemology, as frameworks for reasoning about what is possible or
-    necessary, what is or should be, and what is believed or known. Deviant logics,
-    on the other hand, reject certain classical intuitions and provide alternative
-    explanations of the basic laws of logic.
-  source_id: Logic
-  url: https://en.wikipedia.org/wiki/Logic
-  value: classical logic
+869|5198f869 claim:
+  quote: 'P123: Elsevier'
+  source_id: Q15753935
+  url: https://www.wikidata.org/wiki/Q15753935
+  value: Elsevier

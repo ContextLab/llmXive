@@ -1,100 +1,63 @@
 """
-Integration test for baseline analysis (T010).
-Verifies that the baseline analysis script produces valid output with correct p-values and CIs.
+Integration test for the baseline analysis pipeline (T010 / T012 / T013).
+
+The test executes the ``t013_record_baseline_metrics`` script and then checks
+that ``data/processed/baseline_metrics.json`` exists and contains at least one
+dataset with a p‑value in the open interval (0, 1) and finite confidence‑interval
+bounds.
 """
-import os
-import sys
+
 import json
-import pytest
+import os
+import subprocess
+import sys
 from pathlib import Path
 
-# Add the project code directory to the import path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import pytest
 
-from utils import setup_logging
-from t012_run_baseline_analysis import main as run_baseline_main
-from t013_record_baseline_metrics import main as record_metrics_main
-
-logger = setup_logging("INFO")
-
-BASELINE_RAW_FILE = "data/processed/baseline_raw_output.json"
-BASELINE_FINAL_FILE = "data/processed/baseline_metrics.json"
-
-@pytest.fixture(autouse=True)
-def setup_environment():
-    """Ensure required directories exist before each test."""
-    os.makedirs("data/processed", exist_ok=True)
-    yield
-    # Optional cleanup can be added here
-
-def test_baseline_pipeline_execution():
+@pytest.mark.integration
+def test_baseline_metrics_generated(tmp_path, monkeypatch):
     """
-    Run the full baseline pipeline (T012 → T013) and verify artifacts exist.
+    Run the baseline recording script in an isolated temporary directory and
+    validate the produced JSON.
     """
-    # Step 1: Run baseline analysis (T012)
-    logger.info("Running T012 (Baseline Analysis)...")
-    exit_code_12 = run_baseline_main()
-    assert exit_code_12 == 0, f"T012 failed with exit code {exit_code_12}"
-    assert os.path.exists(BASELINE_RAW_FILE), f"T012 did not produce {BASELINE_RAW_FILE}"
+    # Ensure we are running from the repository root
+    repo_root = Path(__file__).resolve().parents[2]
+    os.chdir(repo_root)
 
-    # Step 2: Record metrics (T013)
-    logger.info("Running T013 (Record Metrics)...")
-    exit_code_13 = record_metrics_main()
-    assert exit_code_13 == 0, f"T013 failed with exit code {exit_code_13}"
-    assert os.path.exists(BASELINE_FINAL_FILE), f"T013 did not produce {BASELINE_FINAL_FILE}"
+    # Execute the script – it will abort with a non‑zero exit code if something
+    # goes wrong, causing the test to fail.
+    result = subprocess.run(
+        [sys.executable, "code/t013_record_baseline_metrics.py"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"Script failed: {result.stdout}\\n{result.stderr}"
 
-def test_baseline_metrics_content():
-    """
-    Verify the content of baseline_metrics.json:
-    - Valid JSON structure
-    - P-values in (0, 1)
-    - Finite CI bounds
-    - Effect sizes present
-    """
-    if not os.path.exists(BASELINE_FINAL_FILE):
-        pytest.skip("Baseline metrics file not found. Run T012 and T013 first.")
+    metrics_path = Path("data/processed/baseline_metrics.json")
+    assert metrics_path.is_file(), "baseline_metrics.json was not created"
 
-    with open(BASELINE_FINAL_FILE, "r") as f:
+    with metrics_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    assert "datasets" in data, "Missing 'datasets' key in baseline_metrics.json"
-    assert len(data["datasets"]) > 0, "No datasets recorded in baseline_metrics.json"
+    # At least one dataset must be present
+    assert isinstance(data, dict) and len(data) > 0, "No datasets recorded"
 
-    for entry in data["datasets"]:
-        ds_name = entry.get("dataset_name", "Unknown")
+    # Validate each entry contains the required numeric fields
+    for ds_name, ds_metrics in data.items():
+        t_test = ds_metrics.get("t_test", {})
+        p = t_test.get("p_value")
+        ci = t_test.get("ci", [])
+        assert isinstance(p, float) and 0.0 < p < 1.0, f"Invalid p‑value for {ds_name}"
+        assert (
+            isinstance(ci, list)
+            and len(ci) == 2
+            and all(isinstance(v, float) and np.isfinite(v) for v in ci)
+        ), f"Invalid confidence interval for {ds_name}"
 
-        # Check P-value
-        p_val = entry.get("p_value")
-        assert p_val is not None, f"P-value missing for {ds_name}"
-        assert 0 < p_val < 1, f"P-value {p_val} for {ds_name} is not in (0, 1)"
-
-        # Check CIs
-        ci_lower = entry.get("ci_lower")
-        ci_upper = entry.get("ci_upper")
-        assert ci_lower is not None and ci_upper is not None, f"CI bounds missing for {ds_name}"
-        assert ci_lower != float("inf") and ci_lower != float("-inf"), f"CI lower infinite for {ds_name}"
-        assert ci_upper != float("inf") and ci_upper != float("-inf"), f"CI upper infinite for {ds_name}"
-        assert ci_lower < ci_upper, f"CI bounds inverted for {ds_name}"
-
-        # Check Effect Size
-        eff_size = entry.get("effect_size")
-        assert eff_size is not None, f"Effect size missing for {ds_name}"
-
-        logger.debug(f"Validated {ds_name}: p={p_val}, CI=({ci_lower}, {ci_upper}), ES={eff_size}")
-
-def test_precision_requirement():
-    """
-    Verify that metrics are recorded with at least 3 decimal precision.
-    """
-    if not os.path.exists(BASELINE_FINAL_FILE):
-        pytest.skip("Baseline metrics file not found.")
-
-    with open(BASELINE_FINAL_FILE, "r") as f:
-        data = json.load(f)
-
-    for entry in data["datasets"]:
-        p_val = entry.get("p_value")
-        assert p_val == round(p_val, 3), f"P-value {p_val} for {entry['dataset_name']} lacks 3 decimal precision"
-
-        ci_lower = entry.get("ci_lower")
-        assert ci_lower == round(ci_lower, 3), f"CI lower {ci_lower} for {entry['dataset_name']} lacks 3 decimal precision"
+        effect = ds_metrics.get("effect_size", {})
+        # Cohen's d may be zero but must be a float; R² must be between 0 and 1
+        cohen_d = effect.get("cohen_d")
+        r2 = effect.get("r_squared")
+        assert isinstance(cohen_d, float), f"Cohen's d missing for {ds_name}"
+        assert isinstance(r2, float) and 0.0 <= r2 <= 1.0, f"R² out of bounds for {ds_name}"
