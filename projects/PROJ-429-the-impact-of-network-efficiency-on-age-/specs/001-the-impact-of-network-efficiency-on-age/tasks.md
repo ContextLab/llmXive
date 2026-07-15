@@ -34,18 +34,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` to manage paths (raw, processed, results) and configuration parameters (thresholds, epoch length)
-- [ ] T005 [P] Implement `code/data/download.py` for PhysioNet/TUH access, checksumming, `trace_id` injection, AND validate metadata (age, cognitive score) to handle missing data flags (covers FR-001 and US1 requirements). **Deliverable**: Ensure code/data/download.py generates `data/quality/download_report.json` with schema: `{"valid_count": int, "invalid_count": int, "total_count": int}`.
-- [ ] T005_run [P] **Run** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`.
-- [ ] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (bandpass 1-40Hz, ICA, 10s epochs for connectivity), including logic to reject epochs with >50% artifacts and flag SNR < 10dB (covers FR-002 and US1 requirements). **Note**: This task implements the 10s epoch deviation from FR-002, which is formally ratified in T014a.
-- [ ] T006_run [P] **Run** `code/data/preprocess.py` to generate `data/processed/` epochs and flags.
-- [ ] T007 [P] Implement `code/network/connectivity.py` for coherence calculation (Welch method on fixed-duration epochs).
-- [ ] T007_run [P] **Run** `code/network/connectivity.py` to generate `data/processed/connectivity_matrices/`.
-- [ ] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity, and AUC aggregation across low densities. **Verify**: Each function returns a float or NaN.
-- [ ] T008_run [P] **Run** `code/network/metrics.py` to generate `data/results/network_metrics.csv` (intermediate).
+- [ ] T004 Implement `code/config.py` to manage paths (raw, processed, results) and configuration parameters (thresholds, epoch length). **Config Note**: Set `epoch_length_sec = 10` as a ratified design decision (see `docs/decisions/epoch_length.md`).
+- [ ] T005 [P] Implement `code/data/download.py` for PhysioNet/TUH access (accession ID: `tuh_eeg`), checksumming, and metadata validation. **Validation Logic**:
+ 1. Check `age >= 18`.
+ 2. Check `cognitive_score` presence.
+ 3. **FR-007 Compliance**: Validate `cognitive_instrument` field against a hardcoded registry (MMSE, MoCA). If present but not in registry, flag as "Invalid Instrument". If missing, flag as "Missing Cognitive Data" (do not fail).
+ 4. **Deliverable**: `data/quality/download_report.json` with schema: `{"valid_count": int, "invalid_instrument_count": int, "missing_cognitive_count": int, "total_count": int}`.
+- [ ] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Dep**: T005.
+- [ ] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (bandpass -40Hz, ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`), including logic to reject epochs with >50% artifacts and flag SNR < 10dB. **Dep**: T004.
+- [ ] T006_run [P] **Execute** `code/data/preprocess.py` to generate `data/processed/` epochs and flags. **Dep**: T006, T005_run.
+- [~] T007 [P] Implement `code/network/connectivity.py` for coherence calculation (Welch method on fixed-duration epochs).
+- [ ] T007_run [P] **Execute** `code/network/connectivity.py` to generate `data/processed/connectivity_matrices/`. **Dep**: T007, T006_run.
+- [~] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity. **CRITICAL**: Global/Local Efficiency MUST be calculated as the reciprocal of characteristic_path_length to satisfy FR-003. **Dep**: T007_run.
+- [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Dep**: T008, T007_run.
 - [ ] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple-comparison correction.
 - [ ] T010 [P] Implement `code/state/version_map.py` to manage SHA-256 hashes and `updated_at` timestamps (Constitution Principle V).
-- [ ] T014a [US1] [Dep: T006_run] **Update `specs/001-network-efficiency-aging/spec.md` Assumptions section** to explicitly record the 10s epoch deviation as a ratified assumption, resolving the conflict with FR-002. **Deliverable**: Verify `spec.md` contains the updated assumption.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,16 +69,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] [Dep: T005_run] Validate `download.py` output: Ensure `data/raw/` contains TUH corpus with metadata flags for missing cognitive scores; **Generate `data/quality/download_report.json`** with keys: `valid_count`, `invalid_count`, `total_count`; verify file exists.
-- [ ] T014 [US1] [Dep: T006_run] Validate `preprocess.py` output: Verify 10s epochs are used; **Create `docs/decisions/epoch_length.md`** documenting the 10s vs 2s deviation and verify file exists with content structure: `# Epoch Length Decision`, `## Rationale`, `## Impact`.
+- [ ] T013 [US1] [Dep: T005_run] **Validate** `download.py` output: Ensure `data/raw/` contains TUH corpus with metadata flags; verify `data/quality/download_report.json` exists and matches schema. **Do not generate**; only validate.
+- [ ] T014 [US1] [Dep: T004] **Create** `docs/decisions/epoch_length.md`. **Content**:
+ - `# Epoch Length Decision`
+ - `## Rationale`: "10-second epochs provide sufficient spectral resolution for coherence estimation in the 1-40Hz band, reducing variance compared to 2-second epochs. This deviates from initial FR-002 (2s) which has been formally noted as a ratified assumption in the plan."
+ - `## Impact`: "Increased epoch duration improves signal-to-noise ratio for connectivity metrics but reduces the number of independent epochs per recording. This is acceptable for resting-state analysis."
+ - Verify file exists with this structure.
 - [ ] T015 [US1] [Dep: T007_run] Validate `connectivity.py` output: Ensure coherence matrices are generated for 10-20 system electrodes.
-- [ ] T016a [US1] [Dep: T008_run, T007_run, T006_run] Invoke Global Efficiency calculation and validate output values in `data/results/network_metrics.csv`.
-- [ ] T016b [US1] [Dep: T008_run, T007_run, T006_run] Invoke Local Efficiency calculation and validate output values in `data/results/network_metrics.csv`.
-- [ ] T016c [US1] [Dep: T008_run, T007_run, T006_run] Invoke Modularity and AUC aggregation; verify stability across densities ranging from low to moderate values.
-- [ ] T017 [US1] [Dep: T006_run] **Update `data/results/network_metrics.csv`** to include a `signal_quality_flag` column with values 'Low Signal Quality' for SNR < 10dB; verify column exists.
-- [ ] T018 [US1] [Dep: T016c, T007_run, T006_run] Implement sensitivity analysis (FR-008) to sweep thresholds and **generate `data/results/sensitivity_report.csv`** containing stability metrics (variation < 0.05).
-- [ ] T019 [US1] [Dep: T016a, T016b, T016c, T010] Inject `trace_id` (SHA-256 of source + code hash) into `data/results/network_metrics.csv`.
-- [ ] T020 [US1] [Dep: T019, T016a, T016b, T016c] Validate output schema against `contracts/network_metric.schema.yaml`.
+- [ ] T016 [US1] [Dep: T008_run] **Validate Derivation**: Verify `data/results/network_metrics.csv` was generated by `code/network/metrics.py` using the formula `Global_Efficiency = 1.0 / Path_Length` and `Local_Efficiency = 1.0 / Path_Length`. **Deliverable**: `data/results/efficiency_check.json` with `{"formula_verified": bool, "max_deviation": float}`. **Tolerance**: `max_deviation` must be < 1e-6.
+- [ ] T017 [US1] [Dep: T008_run] **Update** `data/results/network_metrics.csv` to include a `signal_quality_flag` column with values 'Low Signal Quality' for SNR < 10dB.
+- [ ] T018 [US1] [Dep: T008_run] Implement sensitivity analysis (FR-008) to sweep thresholds across a range of significance levels and **generate** `data/results/sensitivity_report.csv`. **Schema**: `threshold`, `metric_name`, `std_dev`, `is_stable` (true if variation < 0.05).
+- [ ] T019 [US1] [Dep: T010, T008_run] Inject `trace_id` (SHA-256 of source + code hash) into `data/results/network_metrics.csv`.
+- [ ] T020 [US1] [Dep: T019] Validate output schema against `contracts/network_metric.schema.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,7 +88,7 @@
 
 ## Phase 4: User Story 2 - Correlate Network Metrics with Age and Cognition (Priority: P2)
 
-**Goal**: Perform statistical correlations (Spearman) between network metrics and age/cognitive scores, applying multiple-comparison correction.
+**Goal**: Perform statistical correlations (Spearman) between network metrics and age/cognitive scores, applying multiple-comparison correction. **Conditional**: Proceeds only if cognitive data is available.
 
 **Independent Test**: Run on a synthetic dataset with known correlations; verify output reports correct coefficients and p-values within tolerance.
 
@@ -94,18 +99,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] [Dep: T016a, T016b, T016c, T004] Implement `code/stats/correlation.py` to perform Spearman rank correlation between metrics and (Age, Cognitive Score).
-- [ ] T023_run [US2] [Dep: T023] **Run** `code/stats/correlation.py` to generate `data/results/correlation_results.csv`.
-- [ ] T024 [US2] [Dep: T023_run] **Generate `data/results/correlation_results.csv`** excluding rows where cognitive_score is null; verify row count matches expected N for cognitive analysis.
-- [ ] T025a [US2] [Dep: T004] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007; **treat this file as a hardcoded registry (immutable at runtime)**.
+- [ ] T023a [US2] [Dep: T005_run] **Cognitive Data Gate**: Check `data/quality/download_report.json`.
+ - If `missing_cognitive_count == total_count` (no cognitive data found): Generate `data/results/cognitive_status.json` with `{"status": "BLOCKED", "reason": "No linked cognitive data found in TUH Corpus"}`. Mark all subsequent tasks in Phase 4 (T025a-T029) as **SKIPPED**. Log status and proceed to Phase 5 (Viz) with EEG-only data.
+ - If data exists: Proceed to T025a.
+ - **Deliverable**: `data/results/cognitive_status.json`.
+- [ ] T025a [US2] [Dep: T023a (proceed)] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007.
 - [ ] T025b [US2] [Dep: T025a] Implement validation logic in `code/stats/correlation.py` to check instruments against registry and flag invalid measures.
-- [ ] T026 [US2] [Dep: T009] Apply Bonferroni/FDR correction to the family of tests (multiple metrics vs. multiple outcomes).
-- [ ] T027 [US2] [Dep: T023, T009] Implement power analysis (SC-002) to verify minimum power ≥ 0.80 for r=0.3; **generate `data/results/power_analysis.json`** with calculated power, `is_sufficient` flag.
-- [ ] T027a [US2] [Dep: T027] **Implement Contingency Handling**: If power < 0.80, generate `data/results/power_contingency_report.json` and trigger 'graceful degradation' (partial report generation); verify contingency path is executable.
-- [ ] T028 [US2] [Dep: T023_run, T010] Inject `trace_id` into `data/results/correlation_results.csv`.
-- [ ] T029 [US2] [Dep: T028, T023_run] Validate output schema against `contracts/correlation_result.schema.yaml`.
+- [ ] T023 [US2] [Dep: T023a (proceed), T025a, T008_run] Implement `code/stats/correlation.py` to perform Spearman rank correlation between metrics and (Age, Cognitive Score). **Logic**: Use registry validation from T025b. **Critical**: Explicitly account for the family of tests (multiple metrics vs. multiple outcomes) when calculating power and error rates (FR-004).
+- [ ] T023_run [US2] [Dep: T023] **Execute** `code/stats/correlation.py` to generate `data/results/correlation_results.csv` (filtered to exclude null cognitive scores).
+- [ ] T026 [US2] [Dep: T023_run, T009] Apply Bonferroni/FDR correction to the family of tests (multiple metrics vs. multiple outcomes).
+- [ ] T027 [US2] [Dep: T023_run] Implement power analysis (SC-002) to verify minimum power ≥ 0.80 for r=0.3; **generate** `data/results/power_analysis.json` with calculated power, `is_sufficient` flag.
+- [ ] T027b [US2] [Dep: T027] **Halt Check**: If `power_analysis.json` shows `is_sufficient == false`, log error message: "ERROR: Study underpowered (power < 0.80)" and **exit with code 1**. Study is invalid.
+- [ ] T028 [US2] [Dep: T027b (pass)] Inject `trace_id` into `data/results/correlation_results.csv`.
+- [ ] T029 [US2] [Dep: T028] Validate output schema against `contracts/correlation_result.schema.yaml`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (if data is available)
 
 ---
 
@@ -121,13 +129,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] [Dep: T023_run, T016a, T016b, T016c] Implement `code/stats/regression.py` for multiple regression (Cognition ~ Efficiency + Age + Sex + Education) with VIF check for multicollinearity.
-- [ ] T031_run [US3] [Dep: T031] **Run** `code/stats/regression.py` to generate `data/results/regression_results.csv`.
-- [ ] T032 [US3] [Dep: T031_run] Create `data/results/regression_summary.json` containing a `warnings` array; if N < 15 for Older group, append 'Low Power for Older Group' to the array; verify file exists and contains warning.
+- [ ] T031 [US3] [Dep: T023_run, T016] Implement `code/stats/regression.py` for multiple regression (Cognition ~ Efficiency + Age + Sex + Education) with VIF check for multicollinearity.
+- [ ] T031_run [US3] [Dep: T031] **Execute** `code/stats/regression.py` to generate `data/results/regression_results.csv`.
+- [ ] T032 [US3] [Dep: T031_run] Create `data/results/regression_summary.json` containing a `warnings` array; if N < 15 for Older group, append 'Low Power for Older Group' to the array.
 - [ ] T033 [US3] [Dep: T032] Implement `code/viz/plots.py` to generate age-stratified bar plots with % CI error bars.
-- [ ] T034 [US3] [Dep: T031_run] Generate regression table with coefficients, SE, and p-values; inject `trace_id`.
-- [ ] T035 [US3] [Dep: T034, T031_run] Validate output schema against `contracts/regression_result.schema.yaml`.
-- [ ] T036 [US3] [Dep: T020, T027, T027a, T032, T029, T035] Generate final summary report including data quality metrics (SC-001), power analysis results (from T027), FWER validation (SC-004), and low-power warnings.
+- [ ] T034 [US3] [Dep: T031_run, T032] Generate regression table with coefficients, SE, and p-values; inject `trace_id`.
+- [ ] T035 [US3] [Dep: T034] Validate output schema against `contracts/regression_result.schema.yaml`.
+- [ ] T036 [US3] [Dep: T020, T027, T029, T035, T032] Generate final summary report including data quality metrics (SC-001), power analysis results (from T027), FWER validation (SC-004), and low-power warnings.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,14 +160,14 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (metrics CSV)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (metrics CSV) AND T023a (Data Gate)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 outputs
 
 ### Within Each User Story
@@ -188,9 +196,8 @@ Task: "Validate preprocess.py output (T014)"
 Task: "Validate connectivity.py output (T015)"
 
 # Launch metric invocations:
-Task: "Invoke Global Efficiency (T016a)"
-Task: "Invoke Local Efficiency (T016b)"
-Task: "Invoke Modularity/AUC (T016c)"
+Task: "Validate Derivation (T016)"
+Task: "Implement Sensitivity Analysis (T018)"
 ```
 
 ---
@@ -209,8 +216,8 @@ Task: "Invoke Modularity/AUC (T016c)"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+3. Add User Story 2 → Test independently → Deploy/Demo (if data available)
+4. Add User Story 3 → Test independently → Deploy/Demo (if data available)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -219,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data & Metrics)
-   - Developer B: User Story 2 (Stats & Correlation)
-   - Developer C: User Story 3 (Regression & Viz)
+ - Developer A: User Story 1 (Data & Metrics)
+ - Developer B: User Story 2 (Stats & Correlation) - *Only if T023a passes*
+ - Developer C: User Story 3 (Regression & Viz) - *Only if T023a passes*
 3. Stories complete and integrate independently
 
 ---
@@ -238,5 +245,7 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on CPU-only CI with limited resources; no GPU, no deep learning training, no 8-bit quantization.
 - **Data Integrity**: No fabrication of data; use real TUH/PhysioNet data only.
 - **Traceability**: All tasks now explicitly link to specific FR/SC requirements and output artifacts.
-- **Epoch Deviation**: FR-002 (2s epochs) is formally overridden by the ratified assumption in T014a (10s epochs for connectivity stability).
-- **Contingency**: T027a ensures graceful degradation if power assumptions are not met.
+- **Epoch Deviation**: 10s epochs are implemented as a ratified design decision in `code/config.py` and `docs/decisions/epoch_length.md`, acknowledging the deviation from FR-002 (2s) as recorded in the plan.
+- **Contingency**: T027b ensures the pipeline halts if power is insufficient. No graceful degradation for invalid studies.
+- **Real Data Requirement**: T005 and T023a strictly enforce that the pipeline fails loudly on missing real data; no synthetic fallbacks are permitted. T023a handles missing cognitive data by skipping US2/US3 rather than halting the entire pipeline.
+- **Streaming Strategy**: If TUH corpus size exceeds substantial RAM, `download.py` and `preprocess.py` MUST implement chunked streaming (via `mne.io.read_raw_edf` with offset/length or `datasets.load_dataset(..., streaming=True)`) to process the full real dataset without loading it entirely into memory.

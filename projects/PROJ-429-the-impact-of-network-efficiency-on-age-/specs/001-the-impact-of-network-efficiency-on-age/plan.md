@@ -29,7 +29,7 @@ This project quantifies the relationship between resting-state brain network eff
 | **III. Data Hygiene** | **PASS** | Checksums recorded in `state/`; raw data immutable. |
 | **IV. Single Source of Truth** | **PARTIAL** | Results trace to `data/` CSVs, but cognitive results are missing. |
 | **V. Versioning Discipline** | **PASS** | Content hashes used for artifact invalidation. |
-| **VI. Electrophysiological Signal Integrity** | **PASS** | Pipeline uses MNE-Python with bandpass (1-40Hz), ICA, and **Imaginary Coherence**. |
+| **VI. Electrophysiological Signal Integrity** | **PASS** | Pipeline uses MNE-Python with bandpass (low-frequency to high-frequency cutoff), ICA, and **Imaginary Coherence**. |
 | **VII. Non-Circular Predictor-Outcome** | **BLOCKED** | Outcome (Cognition) data missing; independence cannot be verified for final analysis. *Note: Pipeline architecture is valid, but data availability blocks final analysis.* |
 
 ## Project Structure
