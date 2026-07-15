@@ -102,6 +102,31 @@ def test_ladder_skips_paid_tiers_when_opt_in_off(
         es.bump_model_tier(pid, repo_root=tmp_path)  # 1 -> none (paid skipped)
 
 
+def test_fabrication_escalation_never_climbs_to_a_paid_tier(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A stronger PAID model cannot make an unavailable dataset available: the
+    deterministic fabrication guard fires on the code's OUTPUT regardless of which
+    model wrote it. PROJ-284 climbed to a paid Claude tier (11 rounds deep) still
+    fabricating synthetic brain-imaging data — pure waste. Fabrication escalation
+    must cap at the last FREE tier; then re-plan (bounded), never pay to re-fabricate.
+    """
+    (tmp_path / "state" / "execution_status").mkdir(parents=True)
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
+    monkeypatch.setattr(es, "paid_tier_usable", lambda m: True)  # opt-in ON, has budget
+    # A CODE BUG can use the paid tier; fabrication cannot.
+    assert es.next_usable_tier(1) == 2                       # paid reachable in general
+    assert es.next_usable_tier(1, free_only=True) is None    # ...but not free_only
+    assert es.next_usable_tier(0, free_only=True) == 1       # free second opinion is fine
+
+    pid = "PROJ-284-fab"
+    es.record(pid, ok=False, reason="fabricated results", artifacts=[], failures=["x"],
+              repo_root=tmp_path)
+    es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)   # 0 -> 1 (free)
+    with pytest.raises(ValueError):
+        es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # 1 -> none (no paid)
+
+
 def test_execution_model_override_resolves_tier(tmp_path: Path) -> None:
     (tmp_path / "state" / "execution_status").mkdir(parents=True)
     pid = "PROJ-012-override"

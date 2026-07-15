@@ -1559,15 +1559,25 @@ def _decide_next_stage(
             #   2. ALL TIERS EXHAUSTED — RE-PLAN: write a DETERMINISTIC report
             #      (no LLM) of what worked + what failed + adjust-the-approach,
             #      reset BOTH fix_rounds and model_tier, and route to PLANNED.
+            # FABRICATION does not escalate onto a PAID tier: the deterministic
+            # fabrication guard fires on the code's OUTPUT regardless of which model
+            # wrote it, so paying for a stronger model to re-fabricate is pure waste
+            # (PROJ-284 reached a paid Claude tier still generating synthetic
+            # brain-imaging data). Free escalation is still allowed (cheap; a
+            # different free model might download real data instead of faking it);
+            # once free tiers are exhausted it re-plans rather than paying.
+            _latest = execution_status.load(project.id, repo_root=repo_root) or {}
+            _is_fabrication = "fabricat" in (_latest.get("reason") or "").lower()
             try:
                 new_tier = execution_status.bump_model_tier(
-                    project.id, repo_root=repo_root
+                    project.id, repo_root=repo_root, free_only=_is_fabrication
                 )
                 logger.info(
                     "execution fix-loop hit the cap for %s — escalating to "
-                    "model tier %d (model=%r) and resetting fix_rounds",
+                    "model tier %d (model=%r) and resetting fix_rounds%s",
                     project.id, new_tier,
                     execution_status.tier_model(new_tier) or "<registered default>",
+                    " (free-only: fabrication)" if _is_fabrication else "",
                 )
                 return Stage.IN_PROGRESS
             except ValueError:

@@ -173,7 +173,13 @@ def execution_model_override(
     return override
 
 
-def next_usable_tier(current: int) -> int | None:
+def _is_free_tier(model: str) -> bool:
+    """A ladder entry that costs $0: the empty (registered-default) override or any
+    explicitly-free model."""
+    return (not model) or (model in FREE_MODEL_TIERS)
+
+
+def next_usable_tier(current: int, *, free_only: bool = False) -> int | None:
     """The next tier ABOVE ``current`` whose model is usable, or None if none.
 
     Skips paid tiers that are not currently usable (opt-in off / over budget).
@@ -181,11 +187,20 @@ def next_usable_tier(current: int) -> int | None:
     override happens to equal the default is the caller's concern — here we only
     skip UNUSABLE paid tiers (the registry default is not known to this layer;
     the dispatch resolver collapses a same-as-default override harmlessly).
+
+    ``free_only`` refuses to climb onto a PAID tier at all. Used for FABRICATION
+    failures: the deterministic fabrication guard fires on the code's OUTPUT
+    regardless of which model wrote it, so paying for a stronger model to
+    re-attempt fabrication is pure waste (PROJ-284 reached a paid Claude tier still
+    generating synthetic brain-imaging data). Free escalation is cheap and can
+    occasionally help; paid escalation for fabrication never can.
     """
     ladder = model_tier_ladder()
     for t in range(current + 1, len(ladder)):
         model = ladder[t]
-        if not model or model in FREE_MODEL_TIERS or paid_tier_usable(model):
+        if free_only and not _is_free_tier(model):
+            continue
+        if _is_free_tier(model) or paid_tier_usable(model):
             return t
     return None
 
@@ -238,19 +253,24 @@ def record(
     return rec
 
 
-def bump_model_tier(project_id: str, *, repo_root: Path | None = None) -> int:
+def bump_model_tier(
+    project_id: str, *, repo_root: Path | None = None, free_only: bool = False
+) -> int:
     """MODEL ESCALATION: advance to the next USABLE model tier and RESET
     fix_rounds to 0, so the fix-loop retries the full cap with a different
     model. Returns the new tier. Raises if no higher usable tier exists — the
-    caller (routing) must instead RE-PLAN (never escalate to a human)."""
+    caller (routing) must instead RE-PLAN (never escalate to a human).
+
+    ``free_only`` refuses to climb onto a paid tier (see :func:`next_usable_tier`);
+    the caller passes it for FABRICATION failures, where a paid model cannot help."""
     existing = load(project_id, repo_root=repo_root) or {}
     current = existing.get("model_tier", 0)
     current = int(current) if isinstance(current, int) and current >= 0 else 0
-    nxt = next_usable_tier(current)
+    nxt = next_usable_tier(current, free_only=free_only)
     if nxt is None:
         raise ValueError(
             f"{project_id}: no higher usable model tier above {current} "
-            f"(ladder={model_tier_ladder()!r}) — caller must re-plan"
+            f"(ladder={model_tier_ladder()!r}, free_only={free_only}) — caller must re-plan"
         )
     existing["model_tier"] = nxt
     existing["fix_rounds"] = 0  # fresh full cap at the new tier
