@@ -1,0 +1,748 @@
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: 'SyntheticProblem dataclass fields: id, premises, operators, solution,
+    entropy_level, metadata'
+  claim_id: c_fe49b26c
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SyntheticProblem_dataclass_fields:_id,_premises,_operators,
+  kind: entity_fact
+  raw_text: 'Implement `SyntheticProblem` dataclass in `code/models/synthetic_problem.py`
+    with fields `id: str`, `premises: List[str]`, `operators: List[str]`, `solution:
+    str`, `entropy_level: str`, `metadata: Dict[str, Any]`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:45:17Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: 'ResourceMonitor class methods: start, stop, get_peak_ram_gb'
+  claim_id: c_605013b3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T008'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ResourceMonitor_class_methods:_start,_stop,_get_peak_ram_gb
+  kind: entity_fact
+  raw_text: Implement `ResourceMonitor` class in `code/utils/resource_monitor.py`
+    with methods `start()`, `stop()`, `get_peak_ram_gb()`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:46:10Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Reproducibility verification script computes SHA256 checksums of generated
+    CSVs
+  claim_id: c_3c6091a8
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T041'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q50376371
+        url: https://www.wikidata.org/wiki/Q50376371
+        value: sha256
+      quote: SHA-256
+      source_id: Q110651361
+      url: https://www.wikidata.org/wiki/Q110651361
+      value: SHA-256
+    filled: true
+  kind: entity_fact
+  raw_text: Add reproducibility verification script `code/utils/reproducibility_check.py`
+    that runs the generator twice with the same seed from `Config`, computes SHA256
+    checksums of generated CSVs, and fails the CI if they differ
+  resolved_value: SHA-256
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T00:46:22Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Propositional logic problem generator function in logic_generator.py
+  claim_id: c_0e2d8303
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T011'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propositional_logic_problem_generator_function_in_logic_gene
+  kind: entity_fact
+  raw_text: Implement propositional logic problem generator function `generate_propositional_problem()`
+    in `code/generators/logic_generator.py`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:48:14Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Arithmetic problem generator function in logic_generator.py
+  claim_id: c_aeae9fd4
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T011-B'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Arithmetic_problem_generator_function_in_logic_generator.py
+  kind: entity_fact
+  raw_text: Implement arithmetic problem generator function `generate_arithmetic_problem()`
+    in the same module
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:49:07Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Total sample count N greater than or equal to 3,000 for entropy subsets
+  claim_id: c_6609988e
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T012'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_sample_count_N_greater_than_or_equal_to_3,000_for_entr
+  kind: magnitude
+  raw_text: "Produce High\u2011Entropy, Low\u2011Entropy, and Target\u2011Specific\
+    \ subsets, each receiving [deferred] samples (total N \u2265 3,000) with appropriate\
+    \ metadata flags"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:50:34Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Generalization Set test sample count N_test greater than or equal to
+    500
+  claim_id: c_d66d3c0f
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T013'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generalization_Set_test_sample_count_N_test_greater_than_or
+  kind: magnitude
+  raw_text: "Implement generation of a distinct Generalization Set (`data/raw/test_set.csv`)\
+    \ with N_test \u2265 500"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:51:56Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Entropy statistics function performs two-sample t-test between high and
+    low entropy
+  claim_id: c_f59389fc
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T015'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entropy_statistics_function_performs_two-sample_t-test_betwe
+  kind: entity_fact
+  raw_text: "Implement function `compute_entropy_statistics()` in `code/analysis/metrics.py`\
+    \ that calculates per\u2011sample entropy scores and performs a two\u2011sample\
+    \ t\u2011test (high vs low)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:53:18Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Validation raises SystemExit if t-test p-value is greater than or equal
+    to 0.05
+  claim_id: c_fac6505e
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T015-ENFORCE'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_raises_SystemExit_if_t-test_p-value_is_greater_th
+  kind: magnitude
+  raw_text: "Add validation in `metrics.py` that raises `SystemExit(1)` if the t\u2011\
+    test p\u2011value \u2265 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:54:45Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Generated CSVs saved to specific paths with entropy_level and structure_hash
+    columns
+  claim_id: c_f92f7ca0
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T016'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generated_CSVs_saved_to_specific_paths_with_entropy_level_an
+  kind: entity_fact
+  raw_text: Save generated CSVs to `data/raw/high_entropy.csv`, `data/raw/low_entropy.csv`,
+    `data/raw/target_specific.csv`, and `data/raw/test_set.csv` with columns for all
+    fields defined in `SyntheticProblem`, including `entropy_level` and `structure_hash`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:55:56Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: SHA256 checksums generated for each CSV file
+  claim_id: c_5fa8ea9c
+  context: 'Phase 3: User Story 1 - Synthetic Dataset Generation with Controlled Entropy
+    - T017'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_checksums_generated_for_each_CSV_file
+  kind: entity_fact
+  raw_text: Generate SHA256 checksums for each CSV and record them in `code/utils/data_hygiene.py`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:57:03Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Student model parameter count less than 100 million; RAM less than 7
+    GB; runtime less than 6 hours
+  claim_id: c_fd5901c1
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - Goal"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Student_model_parameter_count_less_than_100_million;_RAM_les
+  kind: magnitude
+  raw_text: "Execute a CPU\u2011only distillation process where a <100 M\u2011parameter\
+    \ student model learns from teacher traces, strictly adhering to hardware constraints\
+    \ (RAM < 7 GB, < 6 h total runtime)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T00:59:54Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Teacher class generates 10-step CoT traces
+  claim_id: c_8e811b84
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T020"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `code/models/teacher.py` with a lightweight mock LLM class `Teacher`\
+    \ that generates 10\u2011step CoT traces for a given `SyntheticProblem`"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:00:41Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: 'CI script checks for forbidden libraries: bitsandbytes, accelerate,
+    CUDA-related packages'
+  claim_id: c_5b3ccbb9
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T020-AUDIT"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_script_checks_for_forbidden_libraries:_bitsandbytes,_acce
+  kind: entity_fact
+  raw_text: "Add CI script `ci/check_forbidden_libs.sh` that parses `requirements.txt`\
+    \ and fails if `bitsandbytes`, `accelerate`, or any CUDA\u2011related packages\
+    \ are present"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:02Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Student model is DistilBERT-base-uncased-like with less than 100 million
+    parameters
+  claim_id: c_5a8343f7
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T021"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Student_model_is_DistilBERT-base-uncased-like_with_less_than
+  kind: magnitude
+  raw_text: "Create `code/models/student.py` defining a DistilBERT\u2011base\u2011\
+    uncased\u2011like transformer (< 100 M parameters) suitable for CPU inference"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:04:20Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Function computes Shannon entropy of token-level probabilities from teacher
+    trace
+  claim_id: c_9f39f7a8
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T022"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Function_computes_Shannon_entropy_of_token-level_probabiliti
+  kind: entity_fact
+  raw_text: "Implement `compute_trace_entropy(problem: SyntheticProblem, trace: List[str])\
+    \ -> float` in `code/analysis/metrics.py` that measures Shannon entropy of token\u2011\
+    level probabilities from the teacher trace"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:05:21Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Filter trace consistency discards examples where absolute difference
+    between trace entropy and problem entropy score exceeds threshold
+  claim_id: c_8536b3ea
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T022-INT"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_trace_consistency_discards_examples_where_absolute_di
+  kind: entity_fact
+  raw_text: Modify `code/training/distill_loop.py` to call `filter_trace_consistency()`
+    which discards any training example where `abs(trace_entropy - problem_entropy_score)
+    > threshold`; log the number of discarded samples
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:06:16Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Pilot run trains on 100-sample subset and asserts runtime less than 0.5
+    hours
+  claim_id: c_e6de6960
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T045"
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Add a pilot run script `code/training/pilot_resource_check.py` that trains\
+    \ the student on a 100\u2011sample subset, records peak RAM via `ResourceMonitor`,\
+    \ and asserts runtime < 0.5 h"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T01:06:16Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Distillation loop uses KL-divergence loss with early stopping when loss
+    is less than or equal to 0.1
+  claim_id: c_33ff1c00
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T023"
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Implement the main distillation loop in `code/training/distill_loop.py`\
+    \ using KL\u2011divergence loss, no mixed\u2011precision, early stopping when\
+    \ loss \u2264 0.1, and logging of `convergence_epoch`"
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T01:06:17Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Early stopping records epoch where loss threshold is first met
+  claim_id: c_d60e0bba
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T024"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Early_stopping_records_epoch_where_loss_threshold_is_first_m
+  kind: entity_fact
+  raw_text: "Add early\u2011stopping logic to the training loop; record the epoch\
+    \ at which the loss threshold is first met"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:07:33Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: ResourceMonitor enforces 7 GB RAM ceiling and 6 hour wall-clock limit
+  claim_id: c_4c04fc43
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T025"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integrate `ResourceMonitor` hooks into the training script to enforce\
+    \ the 7 GB RAM ceiling and 6 h wall\u2011clock limit, exiting with a specific\
+    \ error code on breach"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:09:02Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Three independent distillation runs executed for High, Low, and Target
+    subsets
+  claim_id: c_47479ebc
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T026"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_independent_distillation_runs_executed_for_High,_Low,
+  kind: entity_fact
+  raw_text: Execute three independent distillation runs (High, Low, Target) by invoking
+    `distill_loop.py` with the appropriate dataset path; store each run's log as a
+    `DistillationRun` JSON in `data/processed/`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:11:14Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Non-convergent runs assigned convergence_epoch equal to max_epochs plus
+    1
+  claim_id: c_cd023e31
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T027"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure non\u2011convergent runs are logged with `\"status\": \"failed_non_converge\"\
+    ` and assign `convergence_epoch` = `max_epochs + 1` for downstream statistical\
+    \ handling"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:12:08Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Validation report summarizes total samples and number filtered per entropy
+    subset
+  claim_id: c_6ca8e2bf
+  context: "Phase 4: User Story 2 - CPU\u2011Tractable Distillation Pipeline - T042"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "After all three runs, generate a validation report `data/processed/trace_consistency_report.json`\
+    \ summarizing total samples, number filtered per entropy subset, and overall pass/fail\
+    \ status for FR\u2011009"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:13:10Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Unit test checks ANOVA result contains f_statistic and p_value
+  claim_id: c_d9a8ef03
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T028'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_checks_ANOVA_result_contains_f_statistic_and_p_val
+  kind: entity_fact
+  raw_text: Write unit test `tests/unit/test_statistical_analysis.py` that feeds synthetic
+    accuracy data into `stats.anova_test` and checks that the returned object contains
+    `f_statistic` and `p_value`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:14:22Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Evaluation script records accuracy and per-sample epoch of loss-threshold
+    crossing
+  claim_id: c_6a1d9744
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T029'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_script_records_accuracy_and_per-sample_epoch_of_l
+  kind: entity_fact
+  raw_text: "Implement evaluation script `code/analysis/evaluation.py` that loads\
+    \ each student model, runs inference on `data/raw/test_set.csv`, and records accuracy\
+    \ and per\u2011sample epoch of loss\u2011threshold crossing"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:15:25Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Evaluation script assertion raises ValueError if set_type is not test_generalization
+  claim_id: c_d1b4cf24
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T029-VERIFY'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_script_assertion_raises_ValueError_if_set_type_is
+  kind: entity_fact
+  raw_text: Add an assertion in `evaluation.py` that raises `ValueError` if any loaded
+    sample has `set_type != "test_generalization"`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:16:22Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: ANOVA function computes F-statistic and raw p-value across three models
+  claim_id: c_c03c925c
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T030'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_function_computes_F-statistic_and_raw_p-value_across_t
+  kind: entity_fact
+  raw_text: "Add function `anova_test(accuracies: Dict[str, List[float]]) -> Dict`\
+    \ in `code/analysis/stats.py` that computes the ANOVA F\u2011statistic and raw\
+    \ p\u2011value across the three models"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:17:15Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Pairwise t-test function performs tests between model groups
+  claim_id: c_3086d0da
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T031'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pairwise_t-test_function_performs_tests_between_model_groups
+  kind: entity_fact
+  raw_text: "Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]])\
+    \ -> Dict` that performs pairwise t\u2011tests between model groups"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:12Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction adjusts ANOVA and pairwise p-values
+  claim_id: c_e67779ce
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T032'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_adjusts_ANOVA_and_pairwise_p-values
+  kind: entity_fact
+  raw_text: "Implement Bonferroni correction in `stats.py` that adjusts all p\u2011\
+    values (ANOVA and pairwise) and returns corrected values"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:20:31Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: StatisticalResult records written to data/processed/statistical_results.json
+  claim_id: c_3dcfdd70
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StatisticalResult_records_written_to_data/processed/statisti
+  kind: entity_fact
+  raw_text: Create `StatisticalResult` records (using the schema from contracts) for
+    each test and write them to `data/processed/statistical_results.json`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:21:23Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Report inserts causal phrase only if corrected p-value is less than 0.05
+  claim_id: c_4b190497
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T034'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_inserts_causal_phrase_only_if_corrected_p-value_is_le
+  kind: magnitude
+  raw_text: "Extend `code/report_generator.py` to produce a human\u2011readable markdown\
+    \ report `docs/research_report.md` that includes the statistical results and,\
+    \ **conditionally**, inserts the phrase \"causal regarding the effect of entropy\
+    \ on performance\" **only if** the corrected p\u2011value < 0.05; otherwise it\
+    \ states \"no statistically significant effect detected\""
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:21:55Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Validation function asserts conditional phrasing logic matches statistical
+    outcome
+  claim_id: c_b57ff2ce
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T034-VALIDATE'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_function_asserts_conditional_phrasing_logic_match
+  kind: entity_fact
+  raw_text: Add a validation function in `report_generator.py` that asserts the conditional
+    phrasing logic matches the statistical outcome, raising an AssertionError on mismatch
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:23:08Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Final statistical summary lists raw and corrected F, t, and p-values
+  claim_id: c_18702c60
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T043'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add a separate JSON summary `data/processed/final_statistical_summary.json`\
+    \ that lists all raw and corrected statistics (F, t, p-values) and the final conclusion,\
+    \ to satisfy SC\u2011001 and SC\u2011002 as a distinct artifact"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:23:43Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Final markdown report and JSON summary committed to repository
+  claim_id: c_41e19c50
+  context: 'Phase 5: User Story 3 - Statistical Validation of Coherence Hypothesis
+    - T035'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_markdown_report_and_JSON_summary_committed_to_reposito
+  kind: entity_fact
+  raw_text: Commit the final markdown report and JSON summary to the repository
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:25:22Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: README and docs updated with usage examples and architecture diagram
+  claim_id: c_31f7765b
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns - T036"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/README_and_docs_updated_with_usage_examples_and_architecture
+  kind: entity_fact
+  raw_text: Update `README.md` and `docs/` with usage examples, architecture diagram,
+    and instructions for reproducing the full pipeline
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:26:26Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: Batch sizes adjusted if peak RAM approaches 7 GB
+  claim_id: c_76158677
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns - T038"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Profile the generator and training loops; adjust batch sizes if peak RAM
+    approaches 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:27:14Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: End-to-end pipeline test ensures total wall-clock time less than 6 hours
+    and RAM less than 7 GB
+  claim_id: c_3c7306ba
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns - T040"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_pipeline_test_ensures_total_wall-clock_time_less
+  kind: magnitude
+  raw_text: "Run `quickstart.md` validation and end\u2011to\u2011end pipeline test\
+    \ on GitHub Actions free\u2011tier runner; ensure total wall\u2011clock time <\
+    \ 6 h and RAM < 7 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:29:19Z'

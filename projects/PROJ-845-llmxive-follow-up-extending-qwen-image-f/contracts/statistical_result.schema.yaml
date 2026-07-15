@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalResult
+description: |
+  Schema for the results of statistical hypothesis tests performed on
+  model performance data (e.g., ANOVA, t-tests).
+type: object
+required:
+  - test_type
+  - statistic
+  - p_value
+  - corrected_p_value
+  - conclusion
+  - correction_method
+properties:
+  test_type:
+    type: string
+    enum:
+      - anova
+      - t_test_pairwise
+    description: The type of statistical test performed.
+  statistic:
+    type: number
+    description: The raw test statistic (e.g., F-statistic or t-statistic).
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: The uncorrected p-value.
+  corrected_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: The p-value after applying the correction method.
+  conclusion:
+    type: string
+    description: Human-readable interpretation of the statistical result.
+  correction_method:
+    type: string
+    enum:
+      - bonferroni
+      - none
+    description: The method used for multiple comparison correction.

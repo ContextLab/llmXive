@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-14T20:43:32.820413Z'
+- artifact_hash: 8e95214594a09a0d59b4270ddada0160d00fd4ca1288e4f5099db0c83e46ee65
+  artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: SHA-256 - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q110651361
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q110651361
+  verified_at: '2026-07-15T01:29:19.516878Z'
