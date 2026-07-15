@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-15T01:38:47.914642Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1056-4d-human-scene-reconstruction-from-low-o
-last_run_id: null
+last_run_id: 5c01e0b5-e8d7-4194-b6f3-7a3efa20debf
 last_run_status: null
 points_paper: {}
 points_research: {}
