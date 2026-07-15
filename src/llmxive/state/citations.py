@@ -15,6 +15,7 @@ import yaml
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
+from llmxive.state._io import atomic_write_text
 from llmxive.types import Citation
 
 
@@ -44,8 +45,7 @@ def save(project_id: str, citations: list[Citation], *, repo_root: Path | None =
     for item in payload:
         validate("citation", item)
     path = _citations_path(project_id, repo_root=repo_root)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(yaml.safe_dump(payload, sort_keys=True), encoding="utf-8")
+    atomic_write_text(path, yaml.safe_dump(payload, sort_keys=True))
     return path
 
 

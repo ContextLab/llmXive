@@ -230,24 +230,30 @@ def validate_artifact(
 
 
 def has_blocking_citations(project_id: str, *, repo_root: Path | None = None) -> bool:
-    """Return True iff the project has any unreachable or mismatch citations.
+    """Return True iff the project has ANY citation that is not currently VERIFIED.
 
-    This is the gate the Advancement-Evaluator consults at the
-    research_review → research_accepted and paper_review → paper_accepted
-    transitions.
+    POSITIVE gate (issue #1139 D15): a project may advance ONLY when EVERY
+    citation carries a fresh ``VERIFIED`` verdict. Anything else — ``PENDING``
+    (present-but-unverified: access-gated, redirect stub, or a bare URL/DOI/id
+    with no cross-checkable title), ``UNREACHABLE``, ``MISMATCH``, or any future
+    non-verified status — is BLOCKING. Existence is no longer mistaken for
+    verification: an unverified reference triggers bounded retry / substitution
+    upstream instead of silently passing the gate.
+
+    A project with no citations is not blocked (there is nothing to verify).
+    This gate is consulted at the research_review → research_accepted /
+    paper_review → paper_accepted transitions and at the paper_complete
+    publish-readiness check.
     """
     cits = citations_store.load(project_id, repo_root=repo_root)
-    return any(
-        c.verification_status in {VerificationStatus.UNREACHABLE, VerificationStatus.MISMATCH}
-        for c in cits
-    )
+    return any(c.verification_status != VerificationStatus.VERIFIED for c in cits)
 
 
 def project_has_unverified_for_review(project: Project, *, repo_root: Path | None = None) -> bool:
-    """FIX C2: applied by Advancement-Evaluator before awarding any review point.
+    """FIX C2: applied by Advancement-Evaluator before advancing a review stage.
 
-    Returns True if the project's reviewed artifacts contain any
-    citation that did not pass verification. Identical semantics to
+    Returns True if the project's reviewed artifacts contain any citation that
+    is not currently VERIFIED. Identical (positive-gate) semantics to
     has_blocking_citations() but accepts a Project for ergonomics.
     """
     return has_blocking_citations(project.id, repo_root=repo_root)

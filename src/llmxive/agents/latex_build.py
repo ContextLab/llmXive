@@ -4,8 +4,11 @@ The Build agent is mostly a wrapper around `pdflatex`; the LLM is
 consulted only to summarize errors. The Fix agent is LLM-driven —
 it edits .tex files to repair compile failures. The runtime alternates
 build/fix until the build succeeds OR a consecutive-failure cap is
-reached, at which point the project transitions to
-`human_input_needed`.
+reached. A persistent failure is NOT escalated to a human (spec 023 /
+issue #303 removed the retired `human_input_needed` transition — the
+sole human gate is publication DOI sign-off): the failure feeds the
+bounded repair loop via the shared revision machinery and is recorded
+as a defect in `state/paper_status/<id>.json`, never a human park.
 """
 
 from __future__ import annotations

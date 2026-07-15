@@ -12,12 +12,10 @@ import json
 import re
 import zipfile
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from pathlib import Path
 
 import requests  # type: ignore[import-untyped]  # no stub package available
 import urllib3  # bundled with requests; ``r.raw.read`` raises RAW urllib3 errors
-import yaml
 
 from llmxive.librarian import dataset_sources as _sources
 from llmxive.librarian import verify as _verify
@@ -125,22 +123,133 @@ def _is_json(line: str) -> bool:
         return False
 
 
-def sniff_format(url: str) -> FormatReport:
+def _download_sample(url: str) -> tuple[bytes, str | None]:
+    """Stream up to ``_SAMPLE_BYTES`` of ``url``; return ``(sample, error)``.
+
+    ``error`` is a human-readable string on an HTTP >=400 or a transient network
+    failure (best-effort: verifying a URL must NEVER crash the caller), else
+    ``None``. Shared by :func:`sniff_format` (format only) and
+    :func:`sample_records` (records + fields) so the streaming/timeout handling
+    lives in ONE place (Constitution I).
+
+    ``r.raw.read`` reads the RAW urllib3 stream, so a read-timeout there raises a
+    urllib3 error (ReadTimeoutError / ProtocolError) that is NOT a
+    requests.RequestException NOR an OSError — the live PROJ-492 run-22 crash
+    (``us.aws.cdn.hf.co Read timed out`` while verifying a cited HF dataset) took
+    down the whole pipeline run; catching urllib3.exceptions.HTTPError too keeps
+    a transient failure to a "couldn't verify", never a crash.
+    """
     try:
         with requests.get(url, stream=True, headers={"User-Agent": USER_AGENT}, timeout=_SNIFF_TIMEOUT) as r:
             if r.status_code >= 400:
-                return FormatReport(False, None, 0, f"HTTP {r.status_code}")
+                return b"", f"HTTP {r.status_code}"
             sample = r.raw.read(_SAMPLE_BYTES, decode_content=True) or b""
-    # ``r.raw.read`` reads the RAW urllib3 stream, so a read-timeout there raises
-    # a urllib3 error (ReadTimeoutError / ProtocolError) that is NOT a
-    # requests.RequestException NOR an OSError — the live PROJ-492 run-22 crash
-    # (`us.aws.cdn.hf.co Read timed out` while verifying a cited HF dataset took
-    # down the whole pipeline run). Verifying a dataset URL is best-effort: a
-    # transient network failure must yield "couldn't verify", never crash the run.
     except (requests.RequestException, OSError, urllib3.exceptions.HTTPError) as exc:
-        return FormatReport(False, None, 0, str(exc))
+        return b"", str(exc)
+    return sample, None
+
+
+def sniff_format(url: str) -> FormatReport:
+    sample, error = _download_sample(url)
+    if error is not None:
+        return FormatReport(False, None, 0, error)
     ok, fmt = _detect_and_parse(sample, url)
     return FormatReport(ok, fmt, len(sample), None if ok else "unrecognized/non-dataset content")
+
+
+@dataclass(frozen=True)
+class SampleRecords:
+    """Result of streaming a sample of a data URL and PARSING it into records.
+
+    Unlike :class:`FormatReport` (format only), this proves the URL actually
+    yields ``record_count > 0`` real records and surfaces the ``fields``
+    (column/key names) of a sample record — so a directly-streamable data URL can
+    be verified SYMMETRICALLY with a pip package (records + field coverage), not
+    merely "the bytes parsed as some format". ``record_count`` is the count in the
+    downloaded sample (a lower bound on the full file), not the whole dataset.
+    """
+
+    parsed: bool
+    format: str | None
+    record_count: int
+    fields: list[str]
+    downloaded_bytes: int
+    error: str | None = None
+
+
+def _count_records(sample: bytes, fmt: str) -> tuple[int, list[str]]:
+    """Count records + extract field names from a text-format ``sample``.
+
+    Handles the text tabular/record formats (csv/tsv/json/jsonl). A trailing
+    partial row/line from sample truncation is dropped so a half-read record is
+    never counted. Binary container formats (zip/gzip/parquet/hdf5/tar) cannot be
+    record-counted from a head sample (e.g. a parquet footer lives at the end), so
+    they return ``(0, [])`` — a data URL that cannot prove records loses to a pip
+    package, exactly as intended (a sniff-only "parsed" is not a verification).
+    """
+    if fmt not in ("csv", "tsv", "json", "jsonl"):
+        return 0, []
+    text = sample.decode("utf-8", errors="replace")
+    truncated = not text.endswith(("\n", "\r"))
+    if fmt in ("csv", "tsv"):
+        delim = "\t" if fmt == "tsv" else ","
+        rows = [r for r in _csv.reader(io.StringIO(text), delimiter=delim) if r]
+        if truncated and rows:
+            rows = rows[:-1]  # drop a truncated final data row
+        if len(rows) < 2:
+            return 0, []
+        header = [c.strip() for c in rows[0]]
+        return len(rows) - 1, header
+    if fmt == "json":
+        try:
+            obj = json.loads(text)
+        except ValueError:
+            return 0, []
+        if isinstance(obj, list):
+            fields = list(obj[0].keys()) if obj and isinstance(obj[0], dict) else []
+            return len(obj), [str(f) for f in fields]
+        if isinstance(obj, dict):
+            return 1, [str(k) for k in obj]
+        return 0, []
+    # jsonl
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if truncated and lines:
+        lines = lines[:-1]  # drop a truncated final record line
+    parsed_objs: list[object] = []
+    for ln in lines:
+        try:
+            parsed_objs.append(json.loads(ln))
+        except ValueError:
+            continue
+    if not parsed_objs:
+        return 0, []
+    first = parsed_objs[0]
+    fields = [str(k) for k in first] if isinstance(first, dict) else []
+    return len(parsed_objs), fields
+
+
+def sample_records(url: str) -> SampleRecords:
+    """Stream a real sample of ``url`` and parse it into ``(record_count, fields)``.
+
+    A URL is verified as a real data source only if the sample both sniffs as a
+    known dataset format AND parses into ``record_count > 0`` records — a format
+    sniff alone (``parsed is True`` with zero records) is a PROXY, not a
+    verification, and must not qualify a source. Best-effort: a transient network
+    failure yields ``parsed=False`` with the error, never a crash.
+    """
+    sample, error = _download_sample(url)
+    if error is not None:
+        return SampleRecords(False, None, 0, [], 0, error)
+    ok, fmt = _detect_and_parse(sample, url)
+    if not ok or fmt is None:
+        return SampleRecords(False, fmt, 0, [], len(sample),
+                             "unrecognized/non-dataset content")
+    count, fields = _count_records(sample, fmt)
+    if count <= 0:
+        return SampleRecords(False, fmt, 0, fields, len(sample),
+                             "sample parsed as a format but yielded 0 records "
+                             "(cannot record-verify from this sample)")
+    return SampleRecords(True, fmt, count, fields, len(sample), None)
 
 
 @dataclass(frozen=True)
@@ -383,21 +492,6 @@ def resolve_datasets(spec_text: str, *, project_dir: Path, repo_root: Path,
             candidates_tried=tried,
         ))
     return ResolvedDatasets(datasets=resolved)
-
-
-def write_manifest(rd: ResolvedDatasets, *, project_dir: Path) -> Path:
-    out = Path(project_dir) / ".specify" / "memory" / "resolved_datasets.yaml"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    doc = {
-        "resolved_at": datetime.now(UTC).isoformat(),
-        "datasets": [
-            {"intent": d.intent, "status": d.status,
-             "candidates": d.candidates, "candidates_tried": d.candidates_tried}
-            for d in rd.datasets
-        ],
-    }
-    out.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
-    return out
 
 
 def unresolved_intents(rd: ResolvedDatasets) -> list[str]:

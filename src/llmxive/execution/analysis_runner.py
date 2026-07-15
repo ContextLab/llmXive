@@ -172,6 +172,101 @@ def declared_deliverables(tasks_md: str) -> set[str]:
     }
 
 
+@dataclass
+class SemanticGate:
+    """Result of the backend-independent semantic verification of a produced
+    artifact bundle (issue #1139 P1-3)."""
+
+    declared_missing: list[str]
+    fabrication: list[str]
+    hollow: list[str]
+    undurable: list[str]
+
+    @property
+    def ok(self) -> bool:
+        return not (
+            self.declared_missing
+            or self.fabrication
+            or self.hollow
+            or self.undurable
+        )
+
+    def reason(self) -> str:
+        parts: list[str] = []
+        if self.fabrication:
+            parts.append(
+                f"{len(self.fabrication)} fabricated/simulated-result signal(s) — "
+                "results are not real measurements: "
+                + "; ".join(self.fabrication[:3])
+            )
+        if self.hollow:
+            parts.append(
+                f"{len(self.hollow)} hollow-result signal(s) — the analysis ran "
+                "but computed nothing: " + "; ".join(self.hollow[:3])
+            )
+        if self.undurable:
+            parts.append(self.undurable[0])
+        if self.declared_missing:
+            parts.append(
+                f"{len(self.declared_missing)} declared deliverable(s) absent: "
+                + "; ".join(self.declared_missing[:3])
+            )
+        return "; ".join(parts)
+
+
+def verify_artifact_bundle(project_dir: Path, produced: list[str]) -> SemanticGate:
+    """Backend-independent SEMANTIC gate over a produced artifact bundle
+    (issue #1139 P1-3). Checks the artifacts are REAL, not merely present:
+
+    * declared deliverables the code actually references exist + are non-empty,
+    * no fabricated/"simulated metrics"/``random.*`` numbers (fabrication_guard),
+    * no hollow null/NaN/empty computed results (hollow_guard),
+    * at least one durable (non-gitignored) artifact a reviewer can open.
+
+    Shared by the local :func:`run_analysis` path AND the Kaggle GPU-offload
+    retrieval path (:func:`llmxive.execution.stage._poll_offload`), so a bundle
+    computed on ANY compute backend rejoins the SAME gate — an offload run can no
+    longer advance to research_complete on non-empty-file presence alone.
+    """
+    tasks_md = _read_tasks(project_dir)
+    declared = declared_deliverables(tasks_md) if tasks_md else set()
+    # Phantom-deliverable guard: gate only on deliverables the code actually
+    # writes (referenced in code/), not planner/tasker phantom filenames.
+    if declared:
+        code_dir = project_dir / "code"
+        code_blob = (
+            "\n".join(
+                p.read_text(encoding="utf-8", errors="ignore")
+                for p in sorted(code_dir.rglob("*.py"))
+            )
+            if code_dir.is_dir()
+            else ""
+        )
+        if code_blob:
+            declared = {d for d in declared if d in code_blob}
+    declared_missing = sorted(
+        d for d in declared if not (project_dir / d).is_file()
+        or (project_dir / d).stat().st_size == 0
+    )
+    from llmxive.execution.fabrication_guard import find_fabrication
+    from llmxive.execution.hollow_guard import (
+        find_hollow_results,
+        find_no_durable_evidence,
+    )
+
+    fabrication = find_fabrication(project_dir)
+    hollow = find_hollow_results(project_dir, produced)
+    undurable = find_no_durable_evidence(
+        project_dir, produced, repo_root=project_dir.parents[1]
+    )
+    return SemanticGate(
+        declared_missing=declared_missing,
+        fabrication=fabrication,
+        hollow=hollow,
+        undurable=undurable,
+    )
+
+
 def run_analysis(
     project_dir: Path,
     *,
@@ -288,74 +383,24 @@ def run_analysis(
         if _is_research_artifact(rel) and (rel not in before or before[rel] != mt)
     )
 
-    # Verify declared deliverables (best-effort: only those the run-book
-    # SHOULD have produced; missing ones are gate failures).
-    tasks_md = _read_tasks(project_dir)
-    declared = declared_deliverables(tasks_md) if tasks_md else set()
-    # Phantom-deliverable guard: a declared deliverable the project's code never
-    # references is a PLANNER/TASKER phantom, not an output the code intends to
-    # write — endemic to reprocessed code papers, where the back-filled tasks.md
-    # invents deliverable filenames independently of the adapted code's real
-    # outputs (the code RUNS and writes real artifacts, e.g. data/results.json,
-    # yet the gate fails on a never-written data/results_subset.csv). Gate only on
-    # deliverables the code actually writes — verified by the code referencing the
-    # path. `bool(produced)` below still requires real artifacts, so this can
-    # never pass a project that produced nothing.
-    if declared:
-        code_dir = project_dir / "code"
-        code_blob = (
-            "\n".join(
-                p.read_text(encoding="utf-8", errors="ignore")
-                for p in sorted(code_dir.rglob("*.py"))
-            )
-            if code_dir.is_dir()
-            else ""
-        )
-        if code_blob:
-            declared = {d for d in declared if d in code_blob}
-    declared_missing = sorted(
-        d for d in declared if not (project_dir / d).is_file()
-        or (project_dir / d).stat().st_size == 0
-    )
+    # Backend-independent SEMANTIC gate (issue #1139 P1-3): declared deliverables
+    # present + non-empty, no fabricated/simulated numbers, no hollow (null/NaN/
+    # empty) results, at least one durable artifact. Extracted into
+    # ``verify_artifact_bundle`` so the Kaggle GPU-offload retrieval path rejoins
+    # the EXACT same gate (an offload run can no longer advance on presence alone).
+    gate = verify_artifact_bundle(project_dir, produced)
+    declared_missing = gate.declared_missing
+    fabrication = gate.fabrication
+    hollow = gate.hollow
+    undurable = gate.undurable
 
     # Advisory (`python -c` smoke-test) failures are reported but do not gate.
     cmd_failures = [r for r in results if not r.ok and not r.advisory]
-    # DETERMINISTIC anti-fabrication gate (PROJ-604): the code can RUN and write
-    # real files while its reported numbers are fabricated — drawn from random.*,
-    # forced by a tautological constant, or openly labelled "simulated metrics"
-    # because the real (GPU) computation could not run. "code ran + a file
-    # appeared" is satisfied by fabrication, so without this a faked benchmark
-    # reaches research_complete and only the LLM panel catches it. A non-empty
-    # finding hard-fails the gate → kickback to implementation for a REAL run.
-    from llmxive.execution.fabrication_guard import find_fabrication
-    from llmxive.execution.hollow_guard import (
-        find_hollow_results,
-        find_no_durable_evidence,
-    )
-
-    fabrication = find_fabrication(project_dir)
-    # DETERMINISTIC hollow-results gate: `bool(produced)` only asks "did a file
-    # appear?" — it never looks INSIDE. fabrication_guard catches numbers that were
-    # FAKED; this catches numbers that were never COMPUTED. PROJ-179 (metacognitive
-    # awareness, run on the IRIS FLOWER dataset) reached research_complete having
-    # written correlation=null, p=null, d_prime=NaN, robustness=[] and its own
-    # {"status": "PASS"}. Every headline number was missing and the gate said ok.
-    hollow = find_hollow_results(project_dir, produced)
-    # ...and a run whose every artifact is gitignored leaves nothing a reviewer can
-    # open or a paper can cite (PROJ-256 advanced on ONE data/processed/*.json).
-    # project_dir is <repo>/projects/<id>, so parents[1] is the repo whose .gitignore
-    # decides durability (the .gitignore is the SSoT — never re-encode its patterns).
-    undurable = find_no_durable_evidence(
-        project_dir, produced, repo_root=project_dir.parents[1]
-    )
     ok = (
         not deadline_exceeded
         and not cmd_failures
         and bool(produced)
-        and not declared_missing
-        and not fabrication
-        and not hollow
-        and not undurable
+        and gate.ok
     )
     reason_parts: list[str] = []
     if fabrication:
@@ -426,6 +471,23 @@ def _find_quickstart(project_dir: Path) -> Path | None:
 
 
 def _read_tasks(project_dir: Path) -> str:
+    # Pointer-first (issue #1139 P0 D2): honour the project's canonical
+    # ``speckit_research_dir`` pointer so a multi-cycle project reads the CURRENT
+    # feature's tasks.md, not the newest-lexicographic one (which may be a stale
+    # kickback cycle). Falls back to newest specs/*/tasks.md only when no pointer
+    # is set (mirrors _find_quickstart).
+    try:
+        from llmxive.state import project as project_store
+
+        repo = project_dir.parent.parent
+        proj = project_store.load(project_dir.name, repo_root=repo)
+        ptr = proj.speckit_research_dir
+        if ptr:
+            t = repo / ptr / "tasks.md"
+            if t.is_file():
+                return t.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     for tasks in sorted((project_dir / "specs").glob("*/tasks.md"), reverse=True):
         try:
             return tasks.read_text(encoding="utf-8", errors="replace")

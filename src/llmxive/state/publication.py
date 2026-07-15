@@ -12,12 +12,11 @@ Contract: specs/013-paper-revision-implementer/contracts/publication-yaml.md
 from __future__ import annotations
 
 import json
-import os
-import tempfile
 from pathlib import Path
 
 import yaml
 
+from llmxive.state._io import atomic_write_text
 from llmxive.types import DOIVersion, Publication
 
 _MIRROR_FIELDS = ("doi", "doi_url", "zenodo_id", "volume", "issue", "doi_versions")
@@ -29,18 +28,6 @@ def _yaml_path(project_id: str, *, repo_root: Path) -> Path:
 
 def _metadata_path(project_id: str, *, repo_root: Path) -> Path:
     return repo_root / "projects" / project_id / "paper" / "metadata.json"
-
-
-def _atomic_write(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(content)
-        os.replace(tmp, path)
-    except Exception:
-        Path(tmp).unlink(missing_ok=True)
-        raise
 
 
 def load(project_id: str, *, repo_root: Path) -> Publication | None:
@@ -63,7 +50,7 @@ def save(
         raise ValueError(
             f"pub.project_id={pub.project_id!r} != project_id={project_id!r}"
         )
-    _atomic_write(
+    atomic_write_text(
         _yaml_path(project_id, repo_root=repo_root),
         yaml.safe_dump(pub.model_dump(mode="json"), sort_keys=False),
     )
@@ -116,4 +103,4 @@ def _mirror_to_metadata_json(
     data["volume"] = pub.volume
     data["issue"] = pub.issue
     data["doi_versions"] = [v.model_dump(mode="json") for v in pub.doi_versions]
-    _atomic_write(p, json.dumps(data, indent=2, sort_keys=False) + "\n")
+    atomic_write_text(p, json.dumps(data, indent=2, sort_keys=False) + "\n")

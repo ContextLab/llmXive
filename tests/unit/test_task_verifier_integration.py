@@ -3,8 +3,13 @@
 After the implementer claims tasks done, a SEPARATE model (outside the implementer
 session) judges whether the artifacts satisfy the requirements. These tests drive
 the REAL ``run_one_step`` batch loop (only the implementer agent + store/registry +
-the verifier's model boundary are stubbed) and pin: accept → stays ``[X]``;
-reject → ``[ ]`` + a note the next implementer reads; transient failure → ``[~]``.
+the verifier's model boundary are stubbed) and pin the SEMANTIC-verdict wiring:
+accept → stays ``[X]``; reject → ``[ ]`` + a note the next implementer reads;
+transient failure → ``[~]``.
+
+The tasks here are intentionally PATHLESS (no ``code/…`` artifact) so they bypass
+the deterministic-first settle and reach the (stubbed/forced) semantic verifier —
+the deterministic file-state path has its own suite (``test_verifier_deterministic``).
 """
 
 from __future__ import annotations
@@ -12,8 +17,6 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-
-import pytest
 
 from llmxive.agents import task_verifier as tv
 from llmxive.pipeline import graph
@@ -43,7 +46,7 @@ def _write_tasks(tmp_path: Path, project: Project, n: int) -> Path:
     t = d / "tasks.md"
     t.write_text(
         "# Tasks\n\n"
-        + "".join(f"- [ ] T{i:03d} do thing {i} in code/a{i}.py\n" for i in range(1, n + 1)),
+        + "".join(f"- [ ] T{i:03d} do thing {i}\n" for i in range(1, n + 1)),
         encoding="utf-8",
     )
     return t
@@ -90,7 +93,7 @@ def test_reject_reverts_task_to_open_and_writes_notes(tmp_path, monkeypatch) -> 
     project = _project()
     t = _write_tasks(tmp_path, project, n=3)
     _wire(monkeypatch, project)
-    _force_verdict(monkeypatch, complete=False, reason="the csv data/a1.py is empty")
+    _force_verdict(monkeypatch, complete=False, reason="the produced output is empty")
 
     graph.run_one_step(project, repo_root=tmp_path)
 
@@ -100,7 +103,7 @@ def test_reject_reverts_task_to_open_and_writes_notes(tmp_path, monkeypatch) -> 
     assert "- [X]" not in text
     notes = tmp_path / "projects" / project.id / ".specify" / "memory" / "task_verifier_notes.md"
     assert notes.is_file()
-    assert "the csv data/a1.py is empty" in notes.read_text(encoding="utf-8")
+    assert "the produced output is empty" in notes.read_text(encoding="utf-8")
 
 
 def test_defer_marks_task_under_review_and_blocks_advancement(tmp_path, monkeypatch) -> None:
@@ -129,7 +132,7 @@ def test_already_verified_tasks_are_not_rejudged(tmp_path, monkeypatch) -> None:
     t = d / "tasks.md"
     # T001 pre-accepted ([X]); T002 still open and will be claimed this tick.
     t.write_text(
-        "# Tasks\n\n- [X] T001 prior work in code/a1.py\n- [ ] T002 new in code/a2.py\n",
+        "# Tasks\n\n- [X] T001 prior work\n- [ ] T002 new work\n",
         encoding="utf-8",
     )
     _wire(monkeypatch, project)

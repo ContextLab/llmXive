@@ -13,6 +13,7 @@ import yaml
 
 from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
 from llmxive.config import repo_root as _repo_root
+from llmxive.state._io import atomic_write_text
 
 
 def _state_root() -> Path:
@@ -73,8 +74,7 @@ def load(project_id: str, *, repo_root: Path | None = None) -> list[Claim]:
 def save(project_id: str, claims: list[Claim], *, repo_root: Path | None = None) -> Path:
     payload = [_claim_to_dict(c) for c in claims]
     path = _claims_path(project_id, repo_root=repo_root)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(yaml.safe_dump(payload, sort_keys=True), encoding="utf-8")
+    atomic_write_text(path, yaml.safe_dump(payload, sort_keys=True))
     return path
 
 

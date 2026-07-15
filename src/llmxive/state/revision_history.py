@@ -17,12 +17,11 @@ Contracts:
 
 from __future__ import annotations
 
-import os
-import tempfile
 from pathlib import Path
 
 import yaml
 
+from llmxive.state._io import atomic_write_text
 from llmxive.types import ImplementerLog, RevisionHistory, RevisionRound
 
 
@@ -35,20 +34,6 @@ def _round_path(project_id: str, round_number: int, *, repo_root: Path) -> Path:
         repo_root / "specs" / "auto-revisions" / project_id
         / f"round-{round_number}" / "implementer-log.yaml"
     )
-
-
-def _atomic_write(path: Path, content: str) -> None:
-    """Write `content` to `path` atomically (tmpfile + rename) so a
-    crash mid-write doesn't leave a half-written YAML behind."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(content)
-        os.replace(tmp, path)
-    except Exception:
-        Path(tmp).unlink(missing_ok=True)
-        raise
 
 
 def load(project_id: str, *, repo_root: Path) -> RevisionHistory:
@@ -73,7 +58,7 @@ def append_round(
         raise ValueError(f"round {round.round_number} already recorded")
     hist.rounds.append(round)
     hist.rounds.sort(key=lambda r: r.round_number)
-    _atomic_write(
+    atomic_write_text(
         _hist_path(project_id, repo_root=repo_root),
         yaml.safe_dump(hist.model_dump(mode="json"), sort_keys=False),
     )
@@ -117,7 +102,7 @@ def save_round(
         raise ValueError(
             f"log.project_id={log.project_id!r} != project_id={project_id!r}"
         )
-    _atomic_write(
+    atomic_write_text(
         _round_path(project_id, round_number, repo_root=repo_root),
         yaml.safe_dump(log.model_dump(mode="json"), sort_keys=False),
     )

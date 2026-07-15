@@ -402,10 +402,18 @@ def _paper_complete_preconditions_met(
     build_result = build_paper(project_id, repo_root=repo_root)
     if not build_result.get("ok"):
         return False
-    # And the produced PDF MUST exist on disk (latex_build sometimes
-    # reports ok without producing the artifact).
-    paper_pdf = project_dir / "paper" / "source" / "main.pdf"
-    if not paper_pdf.exists():
+    # And the produced PDF MUST exist on disk. Consume the producer's OWN
+    # returned ``pdf_path`` — ``build_paper`` renders to ``paper/pdf/main.pdf``
+    # (pdflatex ``-output-directory``), NEVER to ``paper/source/main.pdf``. The
+    # old hard-coded ``source/main.pdf`` check was a path the producer never
+    # writes, so this gate was effectively unsatisfiable for real builder output
+    # (issue #1139 P0: 104 compilable main.tex, 0 pdf at the checked path). Also
+    # require the PDF to be at least as fresh as the source it was built from so
+    # a stale carry-over PDF cannot satisfy the gate.
+    pdf_path_str = build_result.get("pdf_path")
+    if not pdf_path_str or not Path(pdf_path_str).is_file():
+        return False
+    if Path(pdf_path_str).stat().st_mtime < paper_source.stat().st_mtime:
         return False
     # Citation gate.
     from llmxive.agents.reference_validator import has_blocking_citations
@@ -1114,6 +1122,50 @@ def _write_convergence_replan_feedback(
     return text
 
 
+def _write_unverifiable_replan_feedback(
+    project_dir: Path, entries: list[dict[str, Any]]
+) -> str:
+    """DETERMINISTIC re-plan note (NO LLM) for tasks the implementer repeatedly
+    could not make pass verification (issue #1139 D6). Written to the SAME
+    kickback-ingestion file the planner already reads (SSoT — no new channel)."""
+    lines: list[str] = [
+        "# Re-plan: task(s) could not be made to pass verification — "
+        "adjust the approach",
+        "",
+        "The implementer repeatedly failed the verification checks for the task(s) "
+        "below. They were NOT force-accepted (that fail-open was removed in "
+        "issue #1139); instead the project re-plans so a DIFFERENT approach "
+        "(simpler method, different tooling, or a decomposition into individually "
+        "verifiable steps) can produce checkable artifacts.",
+        "",
+        "## Repeatedly-unverifiable tasks",
+        "",
+    ]
+    for e in entries:
+        key = str(e.get("task_key", "?"))
+        reason = str(e.get("last_reason", "")).strip()
+        cnt = e.get("reject_count", "?")
+        lines.append(
+            f"- `{key}` (rejected {cnt}x): {reason}"
+            if reason else f"- `{key}` (rejected {cnt}x)"
+        )
+    lines += [
+        "",
+        "## Required change",
+        "",
+        "Re-plan so each promised deliverable is produced by a step whose output "
+        "can be deterministically verified (a real file with the expected "
+        "schema/content). Avoid the approach that produced the unverifiable work "
+        "above.",
+        "",
+    ]
+    text = "\n".join(lines) + "\n"
+    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
+    return text
+
+
 def _write_execution_replan_feedback(
     project_dir: Path, rec: dict[str, Any]
 ) -> str:
@@ -1157,14 +1209,24 @@ def _write_execution_replan_feedback(
     else:
         lines.append("- (no per-command failures recorded; the run produced no "
                      "real data/figure artifacts)")
+    # Class-SPECIFIC guidance (issue #1139 anti-pattern 4 / P1-2): the durable
+    # failure_class the runner recorded decides the advice, instead of one generic
+    # "make it CPU-tractable" line that mis-steers a data-unreachable or code-bug
+    # failure. GPU→re-scope/offload, data→verified source, fabrication→real data,
+    # bug→fix in place.
+    from llmxive.execution.failure_class import REPLAN_GUIDANCE, FailureClass
+
+    _fc_val = rec.get("failure_class")
+    try:
+        _fc = FailureClass(_fc_val) if _fc_val else FailureClass.UNKNOWN
+    except ValueError:
+        _fc = FailureClass.UNKNOWN
     lines += [
         "",
         "## Required change",
+        f"(diagnosed failure class: **{_fc.value}**)",
         "",
-        "The implementation approach needs adjustment given the errors above — "
-        "re-plan with a design that avoids them. Keep what worked; replace the "
-        "parts of the method that produced the failures above with a "
-        "CPU-tractable, dependency-light alternative that the free CI can run.",
+        REPLAN_GUIDANCE[_fc],
         "",
     ]
     lines += _data_availability_replan_note(project_dir, rec)
@@ -1427,6 +1489,26 @@ def _decide_next_stage(
         decision = consume_convergence_kickback(mem_dir)
         if decision is None:
             continue
+        # issue #1139 D3: only HONOR a convergence kickback whose panel is the one
+        # that runs at the project's CURRENT stage. A sentinel whose stage_label
+        # does NOT match the current stage's panel is STALE / cross-stage — it was
+        # written by an earlier stage's panel (or the other track) and is only
+        # being consumed now, after the project moved to a stage that has NO panel
+        # (in_progress, paper_analyzed, analyzed …) or a DIFFERENT panel. Returning
+        # its to_stage is exactly what produced the recorded `invalid transition
+        # paper_analyzed->paper_planned` / `in_progress->clarified` / `in_progress->
+        # specified` crashes (PROJ-575/601/577/606/644). consume_convergence_kickback
+        # already unlinked the sentinel, so skip it and fall through to normal
+        # forward routing — never drive routing from a stale cross-stage sentinel.
+        if _STAGE_PANEL_LABEL.get(project.current_stage) != decision.stage_label:
+            logger.warning(
+                "ignoring stale/cross-stage convergence kickback for %s: sentinel "
+                "panel %r does not match current stage %s (panel %r) — routing "
+                "forward normally (issue #1139 invalid-transition fix)",
+                project.id, decision.stage_label, project.current_stage.value,
+                _STAGE_PANEL_LABEL.get(project.current_stage),
+            )
+            continue
         if decision.escalate:
             # AUTONOMOUS exhaustion handling (mirrors the execution path,
             # commit 3068830e3): a convergence panel NEVER parks a project at
@@ -1646,6 +1728,27 @@ def _decide_next_stage(
         # next tick observe IN_PROGRESS + all-tasks-done → RESEARCH_COMPLETE.
         return Stage.IN_PROGRESS
     if cur == Stage.IN_PROGRESS:
+        # issue #1139 D6: a task the implementer repeatedly cannot make pass is
+        # recorded UNVERIFIABLE by the task-verifier (reopened `[ ]`, NEVER
+        # force-accepted to `[X]`). Left alone, that reopened task keeps
+        # _all_tasks_done False forever and the project wedges at in_progress. So
+        # RE-PLAN the approach (a legal IN_PROGRESS→PLANNED edge, the same target
+        # as execution exhaustion), write a deterministic note naming the tasks,
+        # and clear the store so the re-planned cycle starts clean. This is the
+        # honest loop-breaker that replaced the fail-open force-accept.
+        from llmxive.state import unverifiable as _unverifiable
+
+        if _unverifiable.has_unverifiable(project.id, repo_root=repo_root):
+            _entries = _unverifiable.load(project.id, repo_root=repo_root)
+            _write_unverifiable_replan_feedback(project_dir, _entries)
+            _unverifiable.clear(project.id, repo_root=repo_root)
+            logger.warning(
+                "%s has %d repeatedly-unverifiable task(s) the implementer could "
+                "not make pass — re-planning (IN_PROGRESS→PLANNED; NOT "
+                "force-accepting incomplete work) [issue #1139 D6]",
+                project.id, len(_entries),
+            )
+            return Stage.PLANNED
         # Spec 023 defect #25: research_complete now requires the analysis to
         # have actually RUN and produced real artifacts (execution_status.ok),
         # not just all task checkboxes ticked. Until the dedicated execution
@@ -1704,16 +1807,22 @@ def _decide_next_stage(
                 rec = execution_status.load(project.id, repo_root=repo_root) or {}
                 if (execution_status.replan_rounds(project.id, repo_root=repo_root)
                         >= execution_status.MAX_REPLAN_ROUNDS):
+                    _fc = rec.get("failure_class") or "unknown"
                     logger.warning(
                         "execution fix-loop exhausted ALL model tiers AND all %d "
-                        "re-plans for %s (%d total failed attempts) — the analysis is "
-                        "not executable in this environment; terminal "
-                        "VALIDATOR_REJECTED rather than another unbounded lap",
+                        "re-plans for %s (%d total failed attempts, "
+                        "failure_class=%s) — the analysis is not executable in "
+                        "this environment; terminal AGENT_BLOCKED (an "
+                        "operator-clearable, re-openable sink) rather than "
+                        "VALIDATOR_REJECTED, so an infra/data-blocked GOOD idea is "
+                        "NOT conflated with an idea-quality rejection "
+                        "(issue #1139 P1-2 / sec 3.7)",
                         execution_status.MAX_REPLAN_ROUNDS, project.id,
                         execution_status.total_attempts(project.id, repo_root=repo_root),
+                        _fc,
                     )
                     _write_execution_replan_feedback(project_dir, rec)
-                    return Stage.VALIDATOR_REJECTED
+                    return Stage.AGENT_BLOCKED
                 _write_execution_replan_feedback(project_dir, rec)
                 execution_status.reset_fix_loop(project.id, repo_root=repo_root)
                 logger.info(

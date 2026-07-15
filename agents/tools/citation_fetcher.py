@@ -28,11 +28,16 @@ this.
 
 Resolves a citation to its primary source and returns
 `{fetched_title, fetched_authors, status}`. Distinguishes:
-  - `verified`    — primary source reachable AND title-overlap ≥ threshold
+  - `verified`    — primary source reachable AND a REAL cited title
+                    cross-checks (token-overlap ≥ threshold, or verbatim body
+                    match). Reachability ALONE never earns verified (D14).
   - `mismatch`    — reachable but title doesn't match the cited title
   - `unreachable` — transient 5xx / timeout / DNS / 4xx (other than 404)
                     — caller may retry on the next scheduled run
-  - `pending`     — should never be returned; caller's responsibility
+  - `pending`     — present-but-unverified: reachable but the title can't be
+                    cross-checked (access-gated body, redirect/bot-wall stub, or
+                    no real cited title stored). Bounded retry / substitution
+                    upstream; the reference gate treats it as blocking.
 
 Per Constitution Principle II (Verified Accuracy), this tool MUST hit
 the primary source on every call. No caching, no faking — the
@@ -83,8 +88,10 @@ def _is_real_title(s: str) -> bool:
     field (or leaves it empty); comparing that against the fetched page title then
     yields ~0 overlap and a FALSE ``mismatch`` — even though the reference resolved
     to the REAL paper (``fetched_title`` is the genuine title). When there is no
-    real title to cross-check, existence (a resolved page WITH a title) is the best
-    signal we have, so the caller treats it as verified rather than fabricated."""
+    real title to cross-check, existence is NOT verification: the caller treats a
+    resolved-but-uncrosscheckable reference as PENDING (present-but-unverified,
+    bounded retry/substitution — recover a real title from DOI/arXiv metadata
+    upstream, then title-match), never VERIFIED (issue #1139 D14)."""
     s = (s or "").strip()
     if not s:
         return False
@@ -161,11 +168,13 @@ def _classify_match(cited_title: str, fetched_title: str) -> VerificationStatus:
     title_unreadable = (not ft) or _is_block_title(ft)
     if not _is_real_title(cited_title):
         # No real cited title to cross-check (the citation stored a URL/DOI/id).
-        return (
-            VerificationStatus.PENDING
-            if title_unreadable
-            else VerificationStatus.VERIFIED
-        )
+        # Existence != verification (issue #1139 D14): a reference that RESOLVED
+        # to a live, readable page but whose cited title we cannot cross-check is
+        # PRESENT-BUT-UNVERIFIED, so DEFER to PENDING (bounded retry/substitution:
+        # resolve DOI/arXiv metadata to recover a real title, then title-match).
+        # Only a real cited-title token-overlap match (below) or a verbatim
+        # body match (``_title_in_body`` in the caller) earns VERIFIED.
+        return VerificationStatus.PENDING
     if title_unreadable:
         # We have a real cited title but the page didn't give us a readable one to
         # compare against — present but unverifiable, not fabricated.

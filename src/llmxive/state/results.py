@@ -15,6 +15,7 @@ import yaml
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.results.receipt import Receipt
+from llmxive.state._io import atomic_write_text
 
 
 def _state_root() -> Path:
@@ -73,9 +74,8 @@ def save(project_id: str, receipt: Receipt,
          *, repo_root: Path | None = None) -> Path:
     """Persist a receipt to state/results/<PROJECT-ID>/<result_id>.yaml."""
     path = _receipt_path(project_id, receipt.result_id, repo_root=repo_root)
-    path.parent.mkdir(parents=True, exist_ok=True)
     payload = _receipt_to_dict(receipt)
-    path.write_text(yaml.safe_dump(payload, sort_keys=True), encoding="utf-8")
+    atomic_write_text(path, yaml.safe_dump(payload, sort_keys=True))
     return path
 
 

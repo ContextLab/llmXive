@@ -17,8 +17,11 @@ hallucinations are filtered out:
          introspects the installed package's real exports and asks the LLM to
          FIX the snippet — this is what converges first-guess-wrong APIs (e.g.
          ``knotinfo`` → ``link_list``) to a working recipe.
-       - ``data_url``: reuse :func:`llmxive.librarian.dataset_resolver.sniff_format`
-         and require ``parsed is True`` (no venv needed).
+       - ``data_url``: stream + PARSE a real sample via
+         :func:`llmxive.librarian.dataset_resolver.sample_records` and require
+         ``record_count > 0`` real records with real field coverage (no venv
+         needed) — symmetric with the pypi records gate; a format sniff alone is
+         a proxy, not a verification, and does NOT qualify the source.
 
 The verification GATE (``parse_records_gate``) is a PURE function so it can be
 unit-tested without network or an LLM: a recipe printing ``RECORDS=0`` or
@@ -41,7 +44,7 @@ from pathlib import Path
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import chat_with_fallback
-from llmxive.librarian.dataset_resolver import sniff_format
+from llmxive.librarian.dataset_resolver import sample_records
 
 # Free reasoning model on the Dartmouth catalog (router falls back to local).
 logger = logging.getLogger(__name__)
@@ -630,23 +633,29 @@ def _verify_pypi_package(
 def _verify_data_url(
     proposal: dict[str, str], *, required_fields: list[str] | None = None
 ) -> VerifiedSource | None:
-    """Verify a data URL by sniffing a real sample (no venv). Returns a
-    VerifiedSource with record_count=0 (sniff is format-level, not a count).
+    """Verify a data URL by STREAMING + PARSING a real sample (no venv).
 
-    Field coverage can't be confirmed from a format sniff, so when the caller
-    requires specific fields a URL source is marked 0.0 coverage — it loses to a
-    pip package whose recipe actually proved the fields are present.
+    Symmetric with :func:`_verify_pypi_package`'s records gate: a URL qualifies
+    only if a downloaded sample both sniffs as a known dataset format AND parses
+    into ``record_count > 0`` real records (via
+    :func:`llmxive.librarian.dataset_resolver.sample_records`). A URL that merely
+    "sniffs parseable" but yields zero countable records is REJECTED — a format
+    sniff is a PROXY, not a verification. ``field_coverage`` is computed from the
+    sample's REAL parsed field names against the caller's ``required_fields`` (so
+    a URL with the wrong schema loses to a richer source and, if it's the best
+    candidate, is rejected by the caller's coverage gate) — never the old
+    ``1.0`` free pass when no fields were requested.
     """
     ref = proposal["ref"]
     if not ref.lower().startswith(("http://", "https://")):
         return None
-    report = sniff_format(ref)
-    if not report.parsed:
+    sr = sample_records(ref)
+    if not sr.parsed or sr.record_count <= 0:
         return None
     return VerifiedSource(
         kind="data_url", ref=ref, access_python=proposal["access_python"],
-        record_count=0, sample_fields=[],
-        field_coverage=0.0 if required_fields else 1.0,
+        record_count=sr.record_count, sample_fields=list(sr.fields),
+        field_coverage=field_coverage(sr.fields, required_fields or []),
     )
 
 

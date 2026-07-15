@@ -17,6 +17,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from llmxive.config import repo_root as _repo_root
 from llmxive.contract_validate import validate
+from llmxive.state._io import atomic_write_text
 from llmxive.types import Outcome, RunLogEntry
 
 
@@ -83,12 +84,17 @@ def append_entry(entry: RunLogEntry, *, repo_root: Path | None = None) -> Path:
         validate("run-log-entry", payload)
     except ValidationError:
         invalid_dir = log_dir / ".invalid"
-        invalid_dir.mkdir(exist_ok=True)
-        (invalid_dir / f"{entry.entry_id}.json").write_text(
-            json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8"
+        # Full-file dump of the parked invalid entry — write atomically so a
+        # crash mid-dump can't leave a truncated postmortem artifact.
+        atomic_write_text(
+            invalid_dir / f"{entry.entry_id}.json",
+            json.dumps(payload, indent=2, sort_keys=True),
         )
         raise
 
+    # The run-log itself is append-only (one JSONL line per invocation); an
+    # append cannot be made atomic the way a full-file rewrite can, so it is
+    # left as a bare append (POSIX single-write append is the tolerable case).
     with log_file.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, sort_keys=True) + "\n")
     return log_file
