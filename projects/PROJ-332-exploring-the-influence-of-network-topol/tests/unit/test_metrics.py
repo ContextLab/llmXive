@@ -1,5 +1,12 @@
+"""
+Unit tests for percolation threshold detection logic.
+
+This module verifies the 80% connectivity cutoff logic implemented
+in regression_analysis.detect_percolation_threshold.
+"""
 import pytest
 from regression_analysis import detect_percolation_threshold
+
 
 def test_percolation_threshold_logic():
     """
@@ -37,6 +44,7 @@ def test_percolation_threshold_logic():
     assert threshold is not None, "Threshold should be detected."
     assert threshold == 4.0, f"Expected threshold 4.0, got {threshold}"
 
+
 def test_percolation_threshold_not_found():
     """
     Verify behavior when no degree meets 80% threshold.
@@ -50,6 +58,7 @@ def test_percolation_threshold_not_found():
     threshold = detect_percolation_threshold(mock_results, threshold_pct=0.8)
     
     assert threshold is None, "Threshold should be None if not found."
+
 
 def test_percolation_threshold_empty():
     """

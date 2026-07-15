@@ -5,93 +5,158 @@ import logging
 import csv
 import os
 
+from thermal_solver import solve_kirchhoff_heat_flow, build_edge_resistances
+import networkx as nx
+
 logger = logging.getLogger(__name__)
 
-def run_sensitivity_sweep(
-    base_params: Dict[str, Any], 
-    param_to_sweep: str, 
-    sweep_values: List[float],
-    simulation_func: callable
-) -> List[Dict[str, Any]]:
+# Sensitivity sweep parameters
+SENSITIVITY_SCALE_RANGE = [0.9, 1.0, 1.1]  # 10% variation range
+NUM_SWEEPS = 5  # Number of Monte Carlo samples per scale factor
+
+def run_sensitivity_sweep(G: nx.Graph, edge_resistances: Dict, k_bulk: float,
+                          diameter: float, length: float) -> Dict[str, float]:
     """
-    Run a sensitivity sweep over a specific parameter.
+    Perform a sensitivity analysis by sweeping scaling factors on edge resistances.
     
     Args:
-        base_params: Dictionary of base simulation parameters.
-        param_to_sweep: Name of the parameter to vary.
-        sweep_values: List of values to test.
-        simulation_func: Function to run the simulation (should accept params).
+        G: The nanowire network graph
+        edge_resistances: Dictionary of edge resistances
+        k_bulk: Bulk thermal conductivity of the material
+        diameter: Wire diameter
+        length: Wire length
     
     Returns:
-        List of result dictionaries for each sweep point.
+        Dictionary containing sensitivity metrics:
+        - deviation: Normalized deviation (max-min)/mean
+        - min_conductivity: Minimum conductivity observed
+        - max_conductivity: Maximum conductivity observed
+        - std_deviation: Standard deviation of conductivities
     """
-    results = []
-    for value in sweep_values:
-        current_params = base_params.copy()
-        current_params[param_to_sweep] = value
-        try:
-            # Call the simulation function
-            res = simulation_func(current_params)
-            res['sensitivity_param_name'] = param_to_sweep
-            res['sensitivity_param_value'] = value
-            results.append(res)
-        except Exception as e:
-            logger.error(f"Sensitivity sweep failed for {param_to_sweep}={value}: {e}")
-    return results
+    if not edge_resistances or not nx.is_connected(G):
+        return {
+            'deviation': 0.0,
+            'min_conductivity': 0.0,
+            'max_conductivity': 0.0,
+            'std_deviation': 0.0
+        }
 
-def report_sensitivity_results(stats: Dict[str, Any]):
-    """
-    Log and print sensitivity analysis results.
+    conductivities = []
     
-    Args:
-        stats: Dictionary containing sensitivity statistics (mean, std, CV, etc.)
-    """
-    logger.info("=== Sensitivity Analysis Report ===")
-    logger.info(f"Mean Conductivity: {stats.get('mean', 0):.4f} W/(m·K)")
-    logger.info(f"Std Deviation: {stats.get('std', 0):.4f} W/(m·K)")
-    logger.info(f"Coefficient of Variation (CV): {stats.get('cv', 0):.4f}")
-    logger.info(f"Min Conductivity: {stats.get('min', 0):.4f} W/(m·K)")
-    logger.info(f"Max Conductivity: {stats.get('max', 0):.4f} W/(m·K)")
-    
-    # Check if variations are within ±10% (SC-004)
-    cv = stats.get('cv', 0)
-    if cv <= 0.10:
-        logger.info("Sensitivity check PASSED: Variations within ±10% (CV ≤ 0.10).")
-    else:
-        logger.warning(f"Sensitivity check FAILED: Variations exceed ±10% (CV = {cv:.4f}).")
+    # Perform Monte Carlo sweep
+    for scale_factor in SENSITIVITY_SCALE_RANGE:
+        for _ in range(NUM_SWEEPS):
+            # Perturb resistances
+            perturbed_resistances = {}
+            for edge, res in edge_resistances.items():
+                # Add small random noise around the scale factor
+                noise = np.random.normal(0, 0.02) # 2% noise
+                perturbed_resistances[edge] = res * scale_factor * (1.0 + noise)
+            
+            try:
+                cond = solve_kirchhoff_heat_flow(G, perturbed_resistances, diameter, length, k_bulk)
+                if cond > 0:
+                    conductivities.append(cond)
+            except Exception as e:
+                logger.warning(f"Solver failed during sensitivity sweep: {e}")
+                continue
 
-def analyze_sensitivity(df: pd.DataFrame, target_col: str) -> Dict[str, Any]:
-    """
-    Analyze the sensitivity of a target column across a sweep.
+    if not conductivities:
+        return {
+            'deviation': 0.0,
+            'min_conductivity': 0.0,
+            'max_conductivity': 0.0,
+            'std_deviation': 0.0
+        }
+
+    conductivities = np.array(conductivities)
+    mean_cond = np.mean(conductivities)
+    std_cond = np.std(conductivities)
+    min_cond = np.min(conductivities)
+    max_cond = np.max(conductivities)
     
-    Args:
-        df: DataFrame containing the sweep results.
-        target_col: Name of the column to analyze (e.g., 'conductivity').
+    # Calculate normalized deviation (relative to mean)
+    deviation = (max_cond - min_cond) / mean_cond if mean_cond > 0 else 0.0
+    
+    logger.debug(f"Sensitivity sweep: mean={mean_cond:.4f}, std={std_cond:.4f}, deviation={deviation:.4f}")
+    
+    return {
+        'deviation': deviation,
+        'min_conductivity': float(min_cond),
+        'max_conductivity': float(max_cond),
+        'std_deviation': float(std_cond)
+    }
+
+def calculate_deviation_report(conductivities: List[float]) -> Dict[str, float]:
+    """
+    Calculate a deviation report from a list of conductivity values.
     
     Returns:
-        Dictionary with sensitivity statistics.
+        Dictionary with mean, std, min, max, and deviation_percent.
     """
-    if df.empty:
-        return {}
+    if not conductivities:
+        return {
+            'mean': 0.0,
+            'std': 0.0,
+            'min': 0.0,
+            'max': 0.0,
+            'deviation_percent': 0.0
+        }
+
+    arr = np.array(conductivities)
+    mean_val = float(np.mean(arr))
+    std_val = float(np.std(arr))
+    min_val = float(np.min(arr))
+    max_val = float(np.max(arr))
     
-    values = df[target_col].dropna()
-    if len(values) == 0:
-        return {}
+    deviation_percent = ((max_val - min_val) / mean_val * 100) if mean_val > 0 else 0.0
     
-    mean_val = values.mean()
-    std_val = values.std()
-    min_val = values.min()
-    max_val = values.max()
-    cv = std_val / mean_val if mean_val != 0 else 0.0
-    
-    stats = {
+    return {
         'mean': mean_val,
         'std': std_val,
         'min': min_val,
         'max': max_val,
-        'cv': cv,
-        'count': len(values)
+        'deviation_percent': deviation_percent
     }
+
+def report_sensitivity_results(metrics: Dict[str, float], threshold: float = 0.10) -> str:
+    """
+    Generate a human-readable report of sensitivity results.
     
-    logger.debug(f"Sensitivity analysis stats: {stats}")
-    return stats
+    Args:
+        metrics: Output from run_sensitivity_sweep
+        threshold: The acceptable deviation threshold (default 10%)
+    
+    Returns:
+        Formatted string report
+    """
+    deviation = metrics.get('deviation', 0.0)
+    status = "PASS" if deviation <= threshold else "FAIL"
+    
+    report = (
+        f"Sensitivity Analysis Report:\n"
+        f"  Deviation: {deviation:.4f} ({deviation*100:.2f}%)\n"
+        f"  Threshold: {threshold*100:.2f}%\n"
+        f"  Status: {status}\n"
+        f"  Min Conductivity: {metrics.get('min_conductivity', 0):.4f}\n"
+        f"  Max Conductivity: {metrics.get('max_conductivity', 0):.4f}\n"
+        f"  Std Deviation: {metrics.get('std_deviation', 0):.4f}\n"
+    )
+    
+    return report
+
+def analyze_sensitivity(G: nx.Graph, edge_resistances: Dict, k_bulk: float,
+                        diameter: float, length: float) -> Dict[str, Any]:
+    """
+    Full sensitivity analysis wrapper.
+    
+    Returns a dictionary with all metrics and the formatted report.
+    """
+    metrics = run_sensitivity_sweep(G, edge_resistances, k_bulk, diameter, length)
+    report = report_sensitivity_results(metrics)
+    
+    return {
+        'metrics': metrics,
+        'report': report,
+        'passed': metrics['deviation'] <= 0.10
+    }
