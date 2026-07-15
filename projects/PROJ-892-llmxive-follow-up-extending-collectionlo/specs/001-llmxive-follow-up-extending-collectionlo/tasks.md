@@ -1,7 +1,7 @@
 # Tasks: Quantization Robustness of Multi-Effect LoRA Adapters
 
 **Input**: Design documents from `/specs/001-lora-quantization-robustness/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Prerequisites**: plan.md (required), spec.md (required for user stories)
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -43,30 +43,28 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `state/`, `tests/`)
-- [ ] T002 Initialize a Python project with pinned dependencies in `code/requirements.txt` (torch-cpu, diffusers, transformers, clip, lpips, pymc, pandas, numpy, scikit-learn)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [ ] T001a [P] Create `code/` directory at repository root
+- [ ] T001b [P] Create `data/` directory at repository root
+- [ ] T001c [P] Create `state/` directory at repository root
+- [ ] T001d [P] Create `tests/` directory at repository root
+- [ ] T002 [P] Create empty `__init__.py` files in `code/`, `data/`, `state/`, `tests/` to ensure Python package recognition
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes CPU Feasibility Hardening, Data Persistence, and Spec/Plan Resolution.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.yaml` with a deterministic seed list containing a diverse set of distinct prompts, model paths (SD 1.5/2.1, CollectionLoRA HF ID), and output paths. Create `data/prompts.txt` containing the explicit list of 10 distinct prompts and effect categories to ensure reproducibility (FR-009).
-- [ ] T005 [P] Implement `code/data_loader.py` to load base model and CollectionLoRA adapter into CPU memory (FR-001) with OOM handling (FR-008)
-- [ ] T006 [P] Implement `code/state_manager.py` to compute SHA-256 hashes for artifacts and manage `state/artifacts.yaml` (FR-013)
-- [ ] T007 [P] Create base entity dataclasses in `code/models.py` (EffectAdapter, ReferenceImage, GenerationResult, AnalysisMetric, StateRecord) following the exact schema definitions (fields, types, validation) in `specs/001-lora-quantization-robustness/data-model.md`.
-- [ ] T008 [P] Implement `code/main.py` orchestration skeleton: Add `try/except` block catching `MemoryError`, logging "Quantization Failure" to stderr, implementing state logic to skip the affected quantization level and continue the pipeline, returning exit code 0 if other steps succeed or 1 if all fail (FR-008)
-- [ ] T009 [P] Implement `code/quantization_utils.py` for zero-shot FP16 -> INT8/INT4 conversion using `torch.ao.quantization` (FR-002, Assumption 6)
-- [ ] T009b [P] [Foundational] Implement `code/data_loader.py` function `compute_and_persist_ranks`: Compute effective LoRA subspace rank via SVD on each per-effect weight matrix with tolerance 1e-5 (FR-010). Input: per-effect weight matrices from loaded adapter. Output: `data/subspace_ranks.json` with schema: `{ "effect_id": str, "rank": int, "tolerance": float }`. This must run immediately after model loading to prevent data loss on crash (FR-007).
-- [ ] T038 [P] [Foundational] Implement `code/memory_guard.py` with explicit `torch.cuda.empty_cache()` (no-op on CPU) and manual garbage collection triggers after every image generation batch to reclaim RAM before the next quantization level starts (FR-001, Edge Case 1)
-- [ ] T038a [P] [Foundational] Implement logic to update `specs/001-lora-quantization-robustness/spec.md` Assumption 1 to explicitly reflect the 7GB Free Tier RAM constraint (replacing the 16GB assumption) to resolve the contradiction between Spec and Plan (FR-001, SC-005).
-- [ ] T039 [P] [Foundational] Implement `code/data_loader.py` logic to fetch the CollectionLoRA adapter from a specific HuggingFace URL (e.g., `huggingface_hub.snapshot_download`) rather than a generic "download from UCI" placeholder, ensuring the URL is reachable and the file size is < 2GB (Assumption 4, Data Hygiene)
-- [ ] T040 [P] [Foundational] Implement `code/quantization_utils.py` fallback logic: If `torch.ao.quantization` fails due to backend unavailability, automatically switch to `torch.quantization` (deprecated but CPU-safe) OR skip the specific level with a "Backend Unavailable" log entry. If fallback is used, implement a "Noise Validation Check" to verify noise profile matches `torch.ao` (Assumption 6, Edge Case 3, Constitution VI).
-- [ ] T043 [P] [Foundational] Implement `code/main.py` function `preflight_memory_check`: Query `psutil.virtual_memory().available` before loading the base model; if < 4GB, abort immediately with a "Insufficient RAM" error to prevent a 6-hour hang (FR-001, Edge Case 1)
+- [ ] T003 [P] Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (must include: `torch`, `diffusers`, `transformers`, `clip`, `lpips`, `numpy`, `pandas`, `pymc`, `arviz`, `scikit-learn`)
+- [ ] T004 [P] Create `code/config.yaml` containing a list of distinct effect prompts and seed values for deterministic generation.
+- [ ] T006 [P] Implement `code/state_manager.py` to handle SHA-256 hashing of artifacts and `state/artifacts.yaml` updates (FR-013)
+- [ ] T007 [P] Create `code/data_loader.py` with logic to download base model (SD 1.5/2.1) and CollectionLoRA adapter from HuggingFace without GPU (FR-001)
+- [ ] T007b [P] Implement logic in `code/data_loader.py` (or `main.py` setup) to rename/copy the downloaded CollectionLoRA adapter to `data/models/adapter_fp16.safetensors` and immediately compute its SHA-256 hash, recording it in `state/artifacts.yaml` (FR-013, FR-010)
+- [ ] T008 [P] Implement `code/main.py` wrapper logic to catch in-process `MemoryError` exceptions and handle subprocess Exit Code 137 (SIGKILL) by logging "Quantization Failure" and gracefully skipping the affected quantization level (FR-008). **Note: This is the sole mechanism for OOM handling; no shell scripts are used.**
+- [ ] T009 [P] Implement `code/data_loader.py` function to load `data/models/adapter_fp16.safetensors`, extract per-effect LoRA weight matrices, compute their Singular Value Decomposition (SVD) to determine effective subspace rank (tolerance threshold), and save results to `data/subspace_ranks.json` (FR-010, FR-007). **Dependencies: T007b**
+- [ ] T009b [P] Create `code/metrics.py` stub with imports for CLIP, LPIPS, and NumPy
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,24 +72,20 @@
 
 ## Phase 3: User Story 1 - Baseline Fidelity Measurement (Priority: P1) 🎯 MVP
 
-**Goal**: Generate a set of images using FP16 CollectionLoRA, extract CLIP embeddings, and compute cosine similarity to establish ground-truth baseline.
+**Goal**: Generate FP16 baseline images, extract CLIP embeddings, and compute cosine similarity to establish ground truth.
 
-**Independent Test**: Run `python code/main.py --mode baseline` on CPU; verify `data/results.csv` contains 10 rows with non-null cosine similarity scores AND `data/reference_images/` contains FP16 images for all effects AND CESR logic is verifiable within this phase.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T010 [P] [US1] Unit test for CLIP embedding extraction in `tests/unit/test_metrics.py`
-- [ ] T011 [P] [US1] Unit test for cosine similarity calculation in `tests/unit/test_metrics.py`
+**Independent Test**: Can be fully tested by running the generation pipeline on the CPU-only runner with FP16 weights and verifying `data/results.csv` contains multiple rows with non-null similarity scores.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/metrics.py` functions: `extract_clip_embedding`, `compute_cosine_similarity` (FR-004)
-- [ ] T013 [US1] Implement `code/generator.py` function `generate_baseline_images` (FP16 only) using prompts from `config.yaml` (FR-003, FR-009)
-- [ ] T013b [US1] Implement `code/generator.py` function `generate_cross_effect_references`: Generate images for ALL effect prompts using FP16 adapter to create the reference pool for CESR calculation. Logic must read effect list from `data/prompts.txt` or config, distinguish 'test prompts' from 'effect prompts', generate images, and explicitly compute the "other prompt" filter (excluding the target prompt ID) to store ReferenceImages with `target_id` and `other_ids` metadata (FR-011, US-1).
-- [ ] T014 [US1] Implement LPIPS distance calculation in `code/metrics.py` for self-consistency check (FR-005)
-- [ ] T015a [US1] Implement `code/generation.py` function `generate_fp16_batch`: Generate a set of FP16 images for target prompts, return list of image paths (US-1, FR-003)
-- [ ] T015b [US1] Implement `code/metrics.py` function `compute_baseline_metrics`: Compute CLIP cosine similarity and LPIPS for the generated batch, return list of metric dicts (US-1, SC-001)
-- [ ] T015c [US1] Implement `code/data_io.py` function `append_baseline_results`: Append the computed baseline metrics to `data/results.csv` (creating file if missing) and verify all rows have non-null cosine similarity scores (US-1, SC-001, FR-008)
+- [ ] T010 [US1] Implement `code/data_loader.py` function to load FP16 CollectionLoRA adapter (`data/models/adapter_fp16.safetensors`) and base model into CPU memory. **Extends T007**: Utilizes the download logic from T007 to fetch the adapter if missing, then loads it into CPU memory (FR-001)
+- [ ] T011 [US1] Implement `code/generator.py` function to generate images using the fixed prompt list from `config.yaml` with FP16 adapter (FR-003, FR-009)
+- [ ] T011b [US1] Implement `code/generator.py` function to generate a single "known reference" image using a fixed seed (from `config.yaml`) and save it to `data/references/baseline_ref.png`. This image serves as the ground truth for LPIPS self-consistency checks in T013 (US-1, FR-005)
+- [ ] T011c [US1] Implement `code/generator.py` function to generate and save a set of "FP16 ReferenceImages" for *all* effect prompts in `data/references/fp16_refs/`. These are required for CESR calculation in US2 (FR-011, US-2). **Dependencies: T011**
+- [ ] T012 [US1] Implement `code/metrics.py` function to extract CLIP image embeddings and compute cosine similarity with prompt text embeddings (FR-004)
+- [ ] T013 [US1] Implement `code/metrics.py` function to compute LPIPS distance between generated FP16 images and the reference image `data/references/baseline_ref.png` (produced by T011b) to verify pipeline functionality (US-1, FR-005). **Dependencies: T011b**
+- [ ] T014 [US1] Implement `code/main.py` logic to run FP16 generation, compute metrics, and save initial `data/results.csv` and `data/generated/` images
+- [ ] T015 [US1] Add logging for baseline generation steps and verify SHA-256 hashes of generated images in `state/artifacts.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,55 +93,38 @@
 
 ## Phase 4: User Story 2 - Quantization Impact Analysis (Priority: P2)
 
-**Goal**: Apply INT8/INT4 quantization, generate images, and measure fidelity drop (concept adherence and pixel fidelity).
+**Goal**: Apply INT8/INT4 quantization, generate images, and measure concept adherence drop and concept bleeding (CESR).
 
-**Independent Test**: Run `python code/main.py --mode quantize`; verify `data/results.csv` is appended with INT8/INT4 rows and delta metrics are computed.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T017 [P] [US2] Unit test for quantization loading (INT8/INT4) in `tests/unit/test_quantization.py`
-- [ ] T018 [P] [US2] Integration test for quantized generation loop in `tests/integration/test_quantization_flow.py`
+**Independent Test**: Can be fully tested by running the quantization pipeline on the CPU runner, generating images, and verifying the delta in cosine similarity is recorded in `data/results.csv`.
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/quantization_utils.py` function `apply_zero_shot_quantization`: Use `torch.ao.quantization.prepare` and `torch.ao.quantization.convert` with default observers to convert FP16 LoRA to INT8/INT4 without gradient updates (FR-002, Assumption 6)
-- [ ] T020 [US2] Implement `code/generator.py` function `generate_quantized_images` (loops through INT8/INT4 adapters) (FR-003)
-- [ ] T021 [US2] Implement `code/metrics.py` function `calculate_cesr`: Compute Cross-Effect Similarity Ratio by comparing quantized output embeddings to FP16 ReferenceImage embeddings of *other* effect prompts (FR-011, US-2). Note: Uses ReferenceImages generated in T013b with pre-filtered `other_ids`.
-- [ ] T021b [US2] Implement `code/metrics.py` helper `filter_other_prompts`: Logic to aggregate pre-computed `other_ids` metadata from T013b (simplified from previous version as filtering is now done in T013b) (FR-011)
-- [ ] T021c [US2] Implement `code/metrics.py` helper `aggregate_cesr`: Logic to aggregate similarities across the filtered set of "other" prompts to produce a single CESR score (FR-011)
-- [ ] T022a [US2] Implement `code/main.py` function `run_quantization_pipeline`: Load FP16 -> Apply Quantization (INT8/INT4) -> Generate Images. Returns list of image paths and writes results to `data/results.csv` (FR-003)
-- [ ] T022b [US2] Implement `code/main.py` function `compute_quantization_metrics`: Compute Cosine Similarity, LPIPS, and CESR for quantized outputs, compute delta vs FP16 baseline (FR-004, FR-005, FR-011)
-- [ ] T022c [US2] Implement `code/main.py` function `append_quantization_results`: Append quantized metrics to `data/results.csv` with error handling to skip rows if quantization failed (FR-008)
-- [ ] T023 [US2] Implement error handling in generation loop to catch `MemoryError` and log "Quantization Failure" flag instead of crashing (FR-008)
-- [ ] T024 [US2] Verify delta calculation (FP16 vs Quantized) handles zero-difference cases without division errors (Edge Case 2)
+- [ ] T016 [P] [US2] Implement `code/data_loader.py` function to apply zero-shot post-training quantization (FP16 -> INT8/INT4) using `torch.ao.quantization` on CPU. **Output**: Save quantized adapters to `data/quantized/adapter_int8.safetensors` and `data/quantized/adapter_int4.safetensors` (FR-002)
+- [ ] T017 [US2] Implement `code/generator.py` function to generate images for INT8 and INT4 adapters using the same prompt list (FR-003)
+- [ ] T018 [US2] Implement `code/metrics.py` function to compute Cross-Effect Similarity Ratio (CESR) by comparing quantized output embeddings against the FP16 ReferenceImages (from `data/references/fp16_refs/` produced by T011c) for *other* effect prompts (excluding the target prompt) to detect concept bleeding (FR-011). **Dependencies: T011c**
+- [ ] T019 [US2] Implement `code/metrics.py` function to compute LPIPS distance between quantized outputs and FP16 baseline outputs (FR-005). **Dependencies: T011**
+- [ ] T020 [US2] Implement `code/main.py` logic to run quantized generations, handle `MemoryError` per level (using logic from T008), compute deltas, and append to `data/results.csv`
+- [ ] T021 [US2] Implement logic to load per-effect LoRA subspace rank from `data/subspace_ranks.json` (produced by T009) and prepare data for correlation analysis. **Input**: `data/subspace_ranks.json` (FR-010)
+- [ ] T022 [US2] Add logging for quantization steps and verify SHA-256 hashes of quantized weights and generated images
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Bayesian Statistical Analysis & Subspace Correlation (Priority: P3)
+## Phase 5: User Story 3 - Bayesian Statistical Analysis (Priority: P3)
 
-**Goal**: Perform Bayesian Hierarchical Model analysis and correlate LoRA subspace rank with concept bleeding.
+**Goal**: Perform Bayesian Hierarchical Model analysis and correlate subspace rank with concept bleeding.
 
-**Independent Test**: Run `python code/statistical_analysis.py`; verify `data/analysis_results.json` contains posterior distributions and correlation coefficients.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Unit test for Bayesian model structure in `tests/unit/test_statistics.py`
-- [ ] T026 [P] [US3] Unit test for correlation calculation and credible interval extraction in `tests/unit/test_statistics.py`
+**Independent Test**: Can be fully tested by running the statistical analysis script on `data/results.csv` and verifying `data/analysis_results.json` contains posterior distributions and correlation coefficients. Note: This task depends on the completion of Phase 3 and Phase 4 to ensure full dataset availability.
 
 ### Implementation for User Story 3
 
-- [ ] T027a [US3] Implement Constitution Amendment Procedure: Create a PR and Sync Impact Report to formally override Constitution Principle VII (ANOVA) in favor of Bayesian Hierarchical Model (BHM) as required by FR-006 and Plan.md Constitution Check (FR-006, US-3).
-- [ ] T027 [P] [US3] Implement `code/data_loader.py` function `load_effect_ranks`: Load pre-computed LoRA subspace ranks from `data/subspace_ranks.json` (computed in T009b) for correlation analysis (FR-010, US-3).
-- [ ] T028 [US3] Implement `code/statistical_analysis.py` Bayesian Hierarchical Model (BHM) using `pymc` or `bambi` (US-3, FR-006, FR-012)
-- [ ] T029 [US3] Implement correlation analysis in `code/statistical_analysis.py`: Rank vs. Bleeding Magnitude (FR-007, US-3)
-- [ ] T030 [US3] Implement Posterior Width Analysis: Check if credible interval width > 0.2; if so, flag result as "Underpowered" (FR-014, SC-003)
-- [ ] T031a [US3] Implement `code/statistical_analysis.py` function `load_results_data`: Load and parse `data/results.csv` into a Pandas DataFrame (SC-001)
-- [ ] T031b [US3] Implement `code/statistical_analysis.py` function `run_bhm_sampling`: Define BHM model structure and execute sampling (US-3, FR-006)
-- [ ] T031c [US3] Implement `code/statistical_analysis.py` function `compute_correlation_analysis`: Compute correlation between rank and bleeding magnitude with 95% credible intervals (FR-007)
-- [ ] T031d [US3] Implement `code/statistical_analysis.py` function `serialize_analysis_results`: Save posterior distributions, correlation coefficients, and flags to `data/analysis_results.json` (SC-003, SC-004)
-- [ ] T032 [US3] Generate final report summary in `data/report.md` including sections: 'Posterior Means', 'Credible Intervals', 'Correlation Analysis', and 'Underpowered Flags'. Map JSON keys from `data/analysis_results.json` to these sections explicitly (US-3)
+- [ ] T023 [P] [US3] Implement `code/statistical_analysis.py` to load `data/results.csv` and structure data for Bayesian Hierarchical Model (images nested within prompts). **Dependencies: Phase 3, Phase 4**
+- [ ] T024 [US3] Implement `code/statistical_analysis.py` to define and run the Bayesian Hierarchical Model using `pymc`/`bambi` to test quantization effects (FR-006, FR-012)
+- [ ] T025 [US3] Implement `code/statistical_analysis.py` to compute correlation between per-effect LoRA subspace rank (from `data/subspace_ranks.json` via T021) and mean concept bleeding magnitude, explicitly testing significance via the Bayesian posterior distribution and reporting 95% credible intervals (FR-007)
+- [ ] T026 [US3] Implement `code/statistical_analysis.py` to perform posterior width analysis and explicitly flag results as "Underpowered" if credible interval width > 0.2 (FR-014)
+- [ ] T027 [US3] Implement `code/main.py` logic to execute the analysis script and save `data/analysis_results.json` with posterior means, credible intervals, and correlation stats
+- [ ] T028 [US3] Implement logic to generate a summary report or console output of the statistical findings
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,13 +132,14 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T033 [P] Run `pytest` suite to ensure all unit and integration tests pass
-- [ ] T034 Verify `state/artifacts.yaml` contains valid SHA-256 hashes for all models and generated data (FR-013)
-- [ ] T035 Update `quickstart.md` with instructions to run the full pipeline on CPU-only runner
-- [ ] T036 Validate total job duration on GitHub Actions `ubuntu-latest` runner is ≤ 6 hours (SC-005)
-- [ ] T037 Ensure `data/results.csv` and `data/analysis_results.json` are correctly formatted and traceable to code (Constitution Principle IV)
+- [ ] T029 [P] Write unit tests for `code/metrics.py` functions (`cosine_similarity`, `lpips_distance`, `cesr_score`) in `tests/test_metrics.py`
+- [ ] T030 [P] Write unit tests for `code/data_loader.py` (quantization loading) in `tests/test_quantization.py`
+- [ ] T031 Run end-to-end validation on `ubuntu-latest` runner to verify total job duration ≤ 6 hours (SC-005)
+- [ ] T032 Update `docs/quickstart.md` with instructions for running the pipeline on CPU-only runners
+- [ ] T033 Final review of `state/artifacts.yaml` to ensure all model weights and data artifacts are checksummed
+- [ ] T034 Draft Constitution Amendment for Principle VII to replace "repeated-measures ANOVA" with "Bayesian Hierarchical Model" and update `plan.md` to reflect "PENDING AMENDMENT" status (FR-006, Constitution Check)
 
 ---
 
@@ -170,7 +148,7 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes CPU Hardening and Spec/Plan Resolution.**
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -178,16 +156,15 @@
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Independent Test now includes CESR baseline generation.**
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 baseline generation for comparison metrics
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 results data. **Requires Constitution Amendment (T027a) first.**
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires FP16 baseline data for delta/CESR calculation
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires full dataset from US1 and US2
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
+- Models/Loaders before Generators
+- Generators before Metrics
+- Metrics before Analysis
 - Story complete before moving to next priority
 
 ### Parallel Opportunities
@@ -196,8 +173,14 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+
+### Cross-Story Dependencies
+
+- **T020 (US2)** depends on **T018** (CESR logic)
+- **T025 (US3)** depends on **T009** (US2) for subspace rank data to perform the correlation analysis.
+- **T023 (US3)** depends on **Phase 3** and **Phase 4** completion (Data availability)
+- **T018 (US2)** depends on **T011c** (ReferenceImage generation)
+- **T013 (US1)** depends on **T011b** (Baseline reference generation)
 
 ---
 
@@ -205,12 +188,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for CLIP embedding extraction in tests/unit/test_metrics.py"
-Task: "Unit test for cosine similarity calculation in tests/unit/test_metrics.py"
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/metrics.py functions"
-Task: "Implement code/generator.py function generate_baseline_images"
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
 ```
 
 ---
@@ -222,12 +205,12 @@ Task: "Implement code/generator.py function generate_baseline_images"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (including CESR baseline)
+4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready (includes RAM hardening)
+1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -241,7 +224,7 @@ With multiple developers:
 2. Once Foundational is done:
    - Developer A: User Story 1
    - Developer B: User Story 2
-   - Developer C: User Story 3 (starts after T027a Constitution Amendment)
+   - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -255,4 +238,3 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Phase 2 now includes all CPU Feasibility and Spec/Plan Resolution tasks to prevent OOM and specification drift.

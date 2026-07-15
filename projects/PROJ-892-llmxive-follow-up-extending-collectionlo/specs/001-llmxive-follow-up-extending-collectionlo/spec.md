@@ -54,7 +54,7 @@ As a researcher, I need to perform a Bayesian hierarchical model analysis to tes
 ### Edge Cases
 
 - What happens if the quantized model fails to load on the CPU runner due to memory constraints (exceeding available system RAM)? The system must catch the `MemoryError` (Exit Code 137) and log a "Quantization Failure" flag for that specific quantization level rather than crashing the entire job.
-- How does the system handle a test prompt that yields identical CLIP embeddings for both FP16 and INT4 (zero difference)? The system must correctly compute the delta as 0.0 and include it in the analysis without causing division-by-zero errors in variance calculations.
+- How does the system handle a test prompt that yields identical CLIP embeddings for both FP16 and INT4 (zero difference)? The system must correctly compute the delta as zero and include it in the analysis without causing division-by-zero errors in variance calculations.
 - What if the `torch.ao.quantization` backend is not available in the free-tier runner environment? The system must fallback to a pure `torch` quantization method or skip the specific quantization level with a clear "Backend Unavailable" log entry.
 
 ## Requirements
@@ -63,14 +63,14 @@ As a researcher, I need to perform a Bayesian hierarchical model analysis to tes
 
 - **FR-001**: System MUST load the pre-trained CollectionLoRA adapter (FP16) and the base model (e.g., Stable Diffusion 1.5) into CPU memory (minimum 16GB RAM) without requiring GPU/CUDA acceleration. (See US-1)
 - **FR-002**: System MUST apply zero-shot post-training quantization to convert LoRA weights from FP16 to INT8 and INT4 formats using `torch.ao.quantization` without performing any gradient updates or re-distillation, ensuring quantization noise isolation. (See US-2)
-- **FR-003**: The system shall generate a set of distinct images, each corresponding to a unique effect category prompt, utilizing the FP16, INT8, and INT4 adapters respectively. (See US-1, US-2)
+- **FR-003**: The system shall generate a set of distinct images, each corresponding to a unique effect category prompt, utilizing the FP, INT8, and INT4 adapters respectively. (See US-1, US-2)
 - **FR-004**: System MUST extract CLIP image embeddings for all generated outputs and compute the cosine similarity between the prompt text embedding and the image embedding. (See US-1, US-2)
 - **FR-005**: System MUST compute the LPIPS (Learned Perceptual Image Patch Similarity) distance between the quantized outputs and the FP16 baseline outputs to quantify pixel-space fidelity loss. (See US-2)
-- **FR-006**: System MUST perform a Bayesian hierarchical model analysis as the primary statistical method to test for significant differences in concept adherence and fidelity loss across the three quantization levels (FP16, INT8, INT4), replacing Repeated-Measures ANOVA. (See US-3)
+- **FR-006**: System MUST perform a Bayesian hierarchical model analysis as the primary statistical method to test for significant differences in concept adherence and fidelity loss across multiple quantization levels, replacing Repeated-Measures ANOVA. (See US-3)
 - **FR-007**: System MUST calculate the correlation between the per-effect LoRA subspace rank and the mean magnitude of concept bleeding for that effect across all prompts, testing significance via the Bayesian posterior distribution. (See US-3)
 - **FR-008**: System MUST detect and log any memory overflow errors (Exit Code 137) on the CPU runner and gracefully skip the affected quantization level rather than terminating the entire pipeline. (See Edge Cases)
 - **FR-009**: System MUST use a deterministic prompt selection procedure (e.g., a fixed seed list of prompts defined in the configuration) to ensure prompt diversity and reproducibility. (See FR-003, US-1)
-- **FR-010**: System MUST retrieve the LoRA subspace rank for each distinct effect matrix within the CollectionLoRA adapter; if unavailable, the system MUST compute the effective rank via Singular Value Decomposition (SVD) on each per-effect weight matrix with a tolerance threshold of 1e-5. (See FR-007, US-3)
+- **FR-010**: System MUST retrieve the LoRA subspace rank for each distinct effect matrix within the CollectionLoRA adapter; if unavailable, the system MUST compute the effective rank via Singular Value Decomposition (SVD) on each per-effect weight matrix with an appropriate tolerance threshold. (See FR-007, US-3)
 - **FR-011**: System MUST compute the Cross-Effect Similarity Ratio (CESR) by measuring the cosine similarity between a quantized output image embedding and the IMAGE embeddings of FP16 ReferenceImages for *other* effect prompts (excluding the target prompt) to detect concept bleeding. (See US-2, US-3)
 - **FR-012**: System MUST utilize a Bayesian hierarchical model to account for the high variance and limited sample size (N=10) in the statistical validation of quantization effects. (See US-3, FR-006)
 - **FR-013**: System MUST record content hashes (SHA-256) for all model weights and generated data artifacts in the `state/` YAML file to ensure versioning discipline. (See Constitution Principle V)
@@ -94,7 +94,7 @@ As a researcher, I need to perform a Bayesian hierarchical model analysis to tes
 
 - **SC-001**: Concept adherence is measured by the cosine similarity between prompt text embeddings and generated image embeddings, referenced against the FP16 baseline values. (See FR-004, US-1)
 - **SC-002**: Pixel fidelity loss is measured by the LPIPS distance between quantized outputs and FP16 baseline outputs, referenced against the zero-difference ideal. Semantic fidelity loss is measured by the CESR (image-to-image similarity), referenced against the zero-bleeding ideal. (See FR-005, FR-011, US-2)
-- **SC-003**: Statistical significance of quantization impact is measured by the Bayesian posterior probability of effect, referenced against the alpha threshold of 0.05. (See FR-006, US-3)
+- **SC-003**: Statistical significance of quantization impact is measured by the Bayesian posterior probability of effect, referenced against a conventional significance threshold. (See FR-006, US-3)
 - **SC-004**: Subspace vulnerability is measured by the Pearson correlation coefficient between the per-effect LoRA subspace rank and mean concept bleeding magnitude per effect, referenced against the null hypothesis of zero correlation (verified via 95% credible interval). (See FR-007, FR-010, US-3)
 - **SC-005**: Compute feasibility is measured by the total job duration on the GitHub Actions `ubuntu-latest` runner (multi-core CPU, 16GB RAM), referenced against the hard limit of ≤6 hours. (See FR-001, US-1)
 - **SC-006**: Concept bleeding is measured by the Cross-Effect Similarity Ratio (CESR), referenced against the baseline FP16 CESR values. (See FR-011, US-2)

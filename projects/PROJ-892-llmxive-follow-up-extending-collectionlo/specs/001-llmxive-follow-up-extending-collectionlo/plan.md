@@ -5,15 +5,7 @@
 
 ## Summary
 
-This plan evaluates the robustness of the *CollectionLoRA* architecture under post‑training quantization (INT8, INT4) using a CPU‑only GitHub Actions runner. The design satisfies all functional requirements (FR‑001…FR‑014) while respecting compute limits (≤6 h, ≤7 GB RAM). Key innovations address previously‑raised methodological and constitutional concerns:
-
-* **Constitution Amendment** – Task T_AMEND creates the PR and Sync Impact Report content to formally replace the mandated ANOVA with a Pooled Bayesian Linear Model (P-BLM), clearing the conflict with Constitution Principle VII.
-* **Prompt‑Effect One‑to‑One Mapping** – Each of the deterministic prompts is uniquely paired with a distinct effect, eliminating random effects and stabilising the model.
-* **Independent Reference Images** – CESR is computed against **LoRA-FreeReferenceImages** (generated without LoRA) of *other* effects, as mandated by FR-011. This breaks the circularity of comparing quantized outputs to LoRA-generated references.
-* **Early Rank Persistence** – Tasks T005 computes and atomically persists LoRA subspace ranks (`data/subspace_ranks.json`) immediately after model loading, guaranteeing availability for downstream correlation analysis.
-* **Strict Quantization Isolation** – No fallback to non‑`torch.ao` backends; missing backend results in a logged skip, preserving Principle VI.
-* **Style‑Classifier Metric** – A lightweight WikiArt‑trained style classifier supplements CLIP similarity, addressing the style‑validation limitation.
-* **Compute Feasibility** – Reduced inference steps for quantized levels to meet the 6-hour limit, with a runtime watchdog (T016) to degrade gracefully if needed.
+This feature implements a rigorous experimental pipeline to evaluate the robustness of the `CollectionLoRA` adapter (which combines multiple distinct visual effects via Asymmetric Orthogonal Prompting) under post-training quantization. The study compares FP (baseline), low-bit, and lower-bit quantized weights on a CPU-only GitHub Actions runner. The primary metrics are concept adherence (Cosine Similarity between CLIP prompt/image embeddings), pixel fidelity (LPIPS), and concept bleeding (Cross-Effect Similarity Ratio). The statistical analysis utilizes a Bayesian Hierarchical Model (BHM) to handle the small sample size (N=10 prompts, treated as random effect groups) and high variance of generative data. The model structure explicitly defines **images nested within prompts** (30 total observations, 10 groups) to correctly estimate variance components. The study specifically tests the hypothesis that low-rank effect subspaces are the primary failure point for INT4 quantization, with a correlation analysis between subspace rank and bleeding magnitude (N=10 effects), which is treated as exploratory due to sample size constraints.
 
 ## Technical Context
 
