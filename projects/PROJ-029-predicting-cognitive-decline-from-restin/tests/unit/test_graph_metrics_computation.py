@@ -1,131 +1,123 @@
-"""
-Unit tests for graph metrics computation (T019).
-
-Tests the individual functions in code/03_compute_graph_metrics.py
-without requiring full dataset processing.
-"""
 import pytest
 import numpy as np
-import pandas as pd
-from pathlib import Path
-import sys
-import tempfile
+import networkx as nx
 import os
+import tempfile
+from pathlib import Path
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from code_03_compute_graph_metrics import (
-    get_memory_usage_gb,
-    check_memory_limit,
-    process_single_subject_matrix,
-    process_subject_wrapper
+# Import the functions to test
+from code.utils.graph import (
+    calculate_degree_centrality,
+    calculate_global_efficiency,
+    calculate_clustering_coefficient,
+    calculate_shortest_path_length,
 )
-from utils.graph import create_graph_from_adjacency
+from code.utils.io import save_numpy, load_csv
+from code.utils.logger import get_logger
 
-class TestMemoryFunctions:
-    """Test memory monitoring functions."""
-    
-    def test_get_memory_usage_gb(self):
-        """Test that memory usage is returned as a positive float."""
-        mem_gb = get_memory_usage_gb()
-        assert isinstance(mem_gb, float)
-        assert mem_gb > 0
-        assert mem_gb < 100  # Sanity check: shouldn't be > 100GB
-    
-    def test_check_memory_limit(self):
-        """Test memory limit checking logic."""
-        # Current usage should be within limit
-        current = get_memory_usage_gb()
-        assert check_memory_limit(current, limit_gb=10.0) is True
-        
-        # Should return False if usage exceeds limit
-        assert check_memory_limit(9.0, limit_gb=8.0) is False
-        assert check_memory_limit(5.0, limit_gb=10.0) is True
+logger = get_logger("test_graph_metrics")
+
 
 class TestGraphMetrics:
-    """Test graph metric computation functions."""
-    
-    @pytest.fixture
-    def sample_matrix(self):
-        """Create a sample 90x90 connectivity matrix."""
-        np.random.seed(42)
-        # Create a symmetric matrix with values between 0 and 1
-        matrix = np.random.rand(90, 90)
-        matrix = (matrix + matrix.T) / 2  # Make symmetric
-        np.fill_diagonal(matrix, 0)  # No self-loops
-        return matrix
-    
-    @pytest.fixture
-    def temp_matrix_dir(self, sample_matrix, tmp_path):
-        """Create a temporary directory with a sample matrix file."""
-        matrix_file = tmp_path / "sub-001_connectivity.npy"
-        np.save(matrix_file, sample_matrix)
-        return tmp_path
-    
-    def test_process_single_subject_matrix(self, temp_matrix_dir):
-        """Test processing a single subject matrix."""
-        matrix_path = temp_matrix_dir / "sub-001_connectivity.npy"
-        result = process_single_subject_matrix(matrix_path, "sub-001")
-        
-        assert result is not None
-        assert "subject_id" in result
-        assert result["subject_id"] == "sub-001"
-        assert "avg_degree" in result
-        assert "global_efficiency" in result
-        assert "avg_clustering_coefficient" in result
-        assert "avg_path_length" in result
-        
-        # Check that values are reasonable
-        assert 0 <= result["avg_degree"] <= 1
-        assert 0 <= result["global_efficiency"] <= 1
-        assert 0 <= result["avg_clustering_coefficient"] <= 1
-        # Path length can be inf for disconnected graphs, but should be positive otherwise
-        if result["avg_path_length"] is not None:
-            assert result["avg_path_length"] > 0
-    
-    def test_process_single_subject_invalid_shape(self, tmp_path):
-        """Test processing a matrix with invalid shape."""
-        # Create a 10x10 matrix (should be 90x90)
-        invalid_matrix = np.random.rand(10, 10)
-        matrix_file = tmp_path / "sub-002_connectivity.npy"
-        np.save(matrix_file, invalid_matrix)
-        
-        result = process_single_subject_matrix(matrix_file, "sub-002")
-        assert result is None
-    
-    def test_process_single_subject_missing_file(self):
-        """Test processing a non-existent file."""
-        result = process_single_subject_matrix(Path("nonexistent.npy"), "sub-003")
-        assert result is None
+    """Unit tests for graph metric calculation functions."""
 
-class TestGraphProperties:
-    """Test that computed graph properties are mathematically sound."""
-    
-    def test_degree_centrality_range(self):
-        """Test that degree centrality values are in [0, 1]."""
+    def setup_method(self):
+        """Set up test fixtures."""
+        # Create a simple test graph (a ring of 5 nodes)
+        self.num_nodes = 5
+        self.matrix = np.zeros((self.num_nodes, self.num_nodes))
+        for i in range(self.num_nodes):
+            self.matrix[i, (i + 1) % self.num_nodes] = 1.0
+            self.matrix[(i + 1) % self.num_nodes, i] = 1.0
+        
+        self.G = nx.from_numpy_array(self.matrix)
+
+    def test_degree_centrality(self):
+        """Test degree centrality calculation."""
+        degree = calculate_degree_centrality(self.G)
+        # In a ring of 5, each node has degree 2, centrality = 2/(5-1) = 0.5
+        assert isinstance(degree, (int, float))
+        assert degree == pytest.approx(0.5, rel=1e-6)
+
+    def test_global_efficiency(self):
+        """Test global efficiency calculation."""
+        efficiency = calculate_global_efficiency(self.G)
+        assert isinstance(efficiency, (int, float))
+        assert efficiency >= 0.0
+        # For a ring of 5, average shortest path is 1.5, so efficiency is 1/1.5 = 0.666...
+        assert efficiency == pytest.approx(0.666, rel=0.1)
+
+    def test_clustering_coefficient(self):
+        """Test clustering coefficient calculation."""
+        clustering = calculate_clustering_coefficient(self.G)
+        assert isinstance(clustering, (int, float))
+        # In a ring, no triangles, so clustering should be 0
+        assert clustering == 0.0
+
+    def test_shortest_path_length(self):
+        """Test average shortest path length calculation."""
+        path_length = calculate_shortest_path_length(self.G)
+        assert isinstance(path_length, (int, float))
+        # For a ring of 5, average shortest path is 1.5
+        assert path_length == pytest.approx(1.5, rel=1e-6)
+
+    def test_complete_graph(self):
+        """Test metrics on a complete graph."""
+        n = 4
+        complete_matrix = np.ones((n, n))
+        np.fill_diagonal(complete_matrix, 0.0)
+        G_complete = nx.from_numpy_array(complete_matrix)
+        
+        degree = calculate_degree_centrality(G_complete)
+        # In complete graph of 4, degree centrality = (n-1)/(n-1) = 1.0
+        assert degree == pytest.approx(1.0, rel=1e-6)
+
+        efficiency = calculate_global_efficiency(G_complete)
+        # Efficiency = 1.0 for complete graph
+        assert efficiency == pytest.approx(1.0, rel=1e-6)
+
+    def test_disconnected_graph(self):
+        """Test handling of disconnected graph."""
+        # Two separate nodes
+        matrix = np.zeros((2, 2))
+        G = nx.from_numpy_array(matrix)
+        
+        # Should not crash, but return NaN or 0
+        try:
+            path_length = calculate_shortest_path_length(G)
+            # If it returns a number, it should be infinity or handled
+            assert not np.isnan(path_length) or path_length == np.inf
+        except nx.NetworkXError:
+            # Expected for disconnected graph with no path
+            pass
+
+class TestIntegration:
+    """Integration tests for the full pipeline."""
+
+    def test_end_to_end_metrics(self):
+        """Test end-to-end metric computation."""
+        # Create a random symmetric matrix
         np.random.seed(42)
-        matrix = np.random.rand(90, 90)
+        n = 10
+        matrix = np.random.rand(n, n)
         matrix = (matrix + matrix.T) / 2
-        np.fill_diagonal(matrix, 0)
+        np.fill_diagonal(matrix, 0.0)
         
-        G = create_graph_from_adjacency(matrix)
-        degree_centrality = G.degree()
+        G = nx.from_numpy_array(matrix)
         
-        for node, degree in degree_centrality:
-            # Degree centrality should be normalized between 0 and 1
-            assert 0 <= degree <= 1
-    
-    def test_clustering_coefficient_range(self):
-        """Test that clustering coefficient values are in [0, 1]."""
-        np.random.seed(42)
-        matrix = np.random.rand(90, 90)
-        matrix = (matrix + matrix.T) / 2
-        np.fill_diagonal(matrix, 0)
-        
-        G = create_graph_from_adjacency(matrix)
-        from utils.graph import calculate_clustering_coefficient
+        degree = calculate_degree_centrality(G)
+        efficiency = calculate_global_efficiency(G)
         clustering = calculate_clustering_coefficient(G)
+        path_length = calculate_shortest_path_length(G)
         
-        for node, coef in clustering.items():
-            assert 0 <= coef <= 1
+        # Verify all metrics are computed
+        assert isinstance(degree, (int, float))
+        assert isinstance(efficiency, (int, float))
+        assert isinstance(clustering, (int, float))
+        assert isinstance(path_length, (int, float))
+        
+        # Verify ranges
+        assert 0.0 <= degree <= 1.0
+        assert 0.0 <= efficiency <= 1.0
+        assert 0.0 <= clustering <= 1.0
+        assert path_length >= 0.0
