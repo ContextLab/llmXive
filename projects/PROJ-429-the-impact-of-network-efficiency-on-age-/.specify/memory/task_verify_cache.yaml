@@ -1,0 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (code/, data/, state/, tests/, docs/)
+    is provided; the implementer did not supply any file listings or contents showing
+    that the project structure from `plan.md` has been created. The task remains undone
+    until those folders are present and contain appropriate placeholder or initial
+    files.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml\
+    \ with black settings) are present, nor any documentation showing that ruff/flake8\
+    \ and black have been set up for the project. The provided artifacts relate only\
+    \ to the EEG network\u2011efficiency feature and do not address the linting/formatting\
+    \ task."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No coherence matrix files, validation logs, or test scripts were provided to\
+    \ demonstrate that `connectivity.py` actually produced coherence matrices for\
+    \ the 10\u201120 electrode system, nor any evidence that the output was checked\
+    \ for correctness. The required artifact is missing."
+T016:
+  c: false
+  h: e316e0e39ab4a86ddab4e7a30fa0cbcf5848fc5024c4e3f37be086d1ce540b83
+  r: The required `data/results/efficiency_check.json` file is missing, so the verification
+    result cannot be provided. Additionally, the provided `metrics.py` is truncated
+    and does not show the actual implementation of the local efficiency calculation,
+    preventing confirmation that both formulas were applied correctly. The task is
+    therefore not completed.

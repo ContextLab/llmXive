@@ -1,0 +1,44 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or listing was provided showing that the required folders\
+    \ (`code/data_ingestion`, `code/modeling`, `code/reporting`, `code/utils`, `tests`,\
+    \ `data/raw`, `data/processed`, `results`, `logs`, `docs`) actually exist; the\
+    \ claim is unsupported by any tangible artifact. The implementer must create the\
+    \ directories and supply evidence (e.g., a `tree` output or screenshot) that they\
+    \ are present and non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact was provided that demonstrates the existence of the required project
+    directory structure nor evidence that it is writable (e.g., a script, log output,
+    or test results). The implementer did not supply any verification of directories,
+    so the task requirement is unmet.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml,\
+    \ setup.cfg, or pre\u2011commit hook setup) are present in the provided evidence,\
+    \ so the requirement to configure flake8 and black is not satisfied. The implementer\
+    \ must add the appropriate configuration artifacts and ensure they are functional."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files, scripts, or modules implementing Pydantic (or dict\u2011based) schema\
+    \ validation for the `data/raw/` or `data/processed/` directories are present\
+    \ in the provided evidence. Consequently, the required validation logic and any\
+    \ associated tests or documentation are missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration, script changes, or `logs/pipeline.log` file were provided;
+    thus there is no evidence that a logging infrastructure capturing warnings has
+    been set up as required.
+T012:
+  c: false
+  h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541
+  r: "The `normalize.py` file is truncated, never imports or uses the `imp3` library,\
+    \ and the LCM imputation function is incomplete. `requirements.txt` is missing\
+    \ entirely, so the required version pin for `imp3` is not present. The `docs/deviation_log.md`\
+    \ documents a different deviation (cross\u2011validation) and does not note any\
+    \ fallback for an unavailable `imp3` library."

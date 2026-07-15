@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Network Efficiency project.
+Test suite for the project.
 """

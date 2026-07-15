@@ -1,16 +1,3 @@
 """
-llmXive Research Pipeline - Code Package
-
-This package contains the core implementation for the temporal discounting
-and procrastination research pipeline.
+Code package for the Temporal Discounting in Procrastination project.
 """
-
-from .config import get_config, PROJECT_ROOT, CONFIG_PATH
-
-__all__ = [
-    "get_config",
-    "PROJECT_ROOT",
-    "CONFIG_PATH",
-]
-
-__version__ = "0.1.0"

@@ -1,6 +1,8 @@
 """
-Modeling and Analysis Functions.
-Implements T015c, T021, T022, T023, T024.
+Modeling module for temporal discounting analysis.
+
+Implements hyperbolic model fitting, OLS regression with interaction terms,
+and diagnostic calculations.
 """
 import os
 import sys
@@ -8,187 +10,375 @@ import json
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
+from scipy.stats import zscore
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-import statsmodels.api as sm
-from typing import Dict, Tuple, List
+from statsmodels.formula.api import ols
+import warnings
+from typing import Dict, List, Tuple, Optional, Any
 
-from .config import DATA_PROCESSED_DIR, get_random_state
-from .utils.checksum import update_artifact_hash
+from config import get_random_state, get_project_root, get_config_value
+
 
 def hyperbolic_function(delay: np.ndarray, k: float) -> np.ndarray:
     """
-    Hyperbolic discounting function: V = A / (1 + k*D)
-    We assume A=100 for all trials in DGP.
+    Calculate the value of a delayed reward using the hyperbolic discounting model.
+    
+    V = A / (1 + k*D)
+    
+    Args:
+        delay: Array of delay times (D)
+        k: Discount rate parameter
+        
+    Returns:
+        Discounted values
     """
-    return 100.0 / (1 + k * delay)
+    return 1.0 / (1.0 + k * delay)
 
-def fit_hyperbolic_model(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    T015c: Fits hyperbolic model to each participant's data to derive k.
-    Input: df with columns [participant_id, delay, choice] (choice: 1=Immediate, 0=Delayed)
-    Returns: DataFrame with participant_id and discount_rate_k
-    """
-    results = []
-    
-    # Group by participant
-    for pid, group in df.groupby("participant_id"):
-        delays = group["delay"].values
-        choices = group["choice"].values # 1 if immediate preferred
-        
-        # We want to fit k such that P(Immediate) is high when k is high.
-        # Model: P(Immediate) = 1 / (1 + exp(-(log_k - log_threshold))) ? 
-        # Or simpler: Fit k directly to indifference points?
-        # Given the DGP generated choices based on probability, we can fit a logistic curve
-        # or just solve for k where V_immediate = V_delayed.
-        
-        # Alternative: Use the generated choices to estimate k via MLE or simple fit.
-        # Let's use a simple approach: minimize squared error between predicted probability and observed choice.
-        # P(Immediate) = 1 - (1 / (1 + k*delay)) = (k*delay) / (1 + k*delay)
-        
-        def model_func(d, k):
-            return (k * d) / (1 + k * d)
-        
-        try:
-            # Initial guess
-            popt, _ = curve_fit(model_func, delays, choices, p0=[0.05], maxfev=2000)
-            k_val = popt[0]
-            # Clip to reasonable bounds
-            k_val = np.clip(k_val, 0.001, 10.0)
-        except RuntimeError:
-            k_val = 0.05 # Fallback
-        
-        results.append({"participant_id": pid, "discount_rate_k": k_val})
-    
-    return pd.DataFrame(results)
 
-def load_and_prepare_data() -> Tuple[pd.DataFrame, Dict]:
+def fit_hyperbolic_model(
+    delays: np.ndarray,
+    values: np.ndarray,
+    participant_id: int,
+    random_state: Optional[np.random.RandomState] = None
+) -> Dict[str, Any]:
     """
-    Loads harmonized data and model config.
-    """
-    data_path = os.path.join(DATA_PROCESSED_DIR, "harmonized_dataset.parquet")
-    config_path = os.path.join(DATA_PROCESSED_DIR, "model_config.json")
+    Fit a hyperbolic discounting model to individual participant data.
     
-    if not os.path.exists(data_path):
-        print("CRITICAL: Harmonized dataset not found. Run ingestion first.")
-        sys.exit(1)
+    Uses scipy.optimize.curve_fit to estimate the discount rate (k) for
+    a single participant based on their indifference points across different delays.
+    
+    Args:
+        delays: Array of delay times (D) for each trial
+        values: Array of normalized subjective values (V) or indifference points
+        participant_id: Unique identifier for the participant
+        random_state: Random state object for reproducibility (from get_random_state())
         
-    df = pd.read_parquet(data_path)
+    Returns:
+        Dictionary containing:
+            - participant_id: The participant identifier
+            - discount_rate_k: The fitted k parameter
+            - success: Boolean indicating if fitting was successful
+            - r_squared: Coefficient of determination (if successful)
+            - message: Status message
+    """
+    if random_state is None:
+        random_state = get_random_state()
     
-    config = {}
-    if os.path.exists(config_path):
-        with open(config_path, "r") as f:
-            config = json.load(f)
+    # Filter out any invalid data points (NaN or infinite values)
+    valid_mask = np.isfinite(delays) & np.isfinite(values)
+    delays_clean = delays[valid_mask]
+    values_clean = values[valid_mask]
     
-    return df, config
+    if len(delays_clean) < 2:
+        return {
+            "participant_id": participant_id,
+            "discount_rate_k": np.nan,
+            "success": False,
+            "r_squared": np.nan,
+            "message": "Insufficient valid data points for fitting"
+        }
+    
+    # Initial guess for k (typically small positive number)
+    # Use a random initialization within a reasonable range to avoid local minima
+    k_init = random_state.uniform(0.001, 0.1)
+    
+    try:
+        # Define bounds for k (must be positive)
+        # Lower bound slightly above 0 to avoid division by zero
+        popt, pcov = curve_fit(
+            hyperbolic_function,
+            delays_clean,
+            values_clean,
+            p0=[k_init],
+            bounds=(0, np.inf),
+            maxfev=2000
+        )
+        
+        k_fitted = popt[0]
+        
+        # Calculate R-squared
+        residuals = values_clean - hyperbolic_function(delays_clean, k_fitted)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((values_clean - np.mean(values_clean))**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        
+        # Ensure k is reasonable (not extremely large)
+        if k_fitted > 1000:
+            return {
+                "participant_id": participant_id,
+                "discount_rate_k": np.nan,
+                "success": False,
+                "r_squared": np.nan,
+                "message": "Fitted k value exceeds reasonable threshold"
+            }
+        
+        return {
+            "participant_id": participant_id,
+            "discount_rate_k": k_fitted,
+            "success": True,
+            "r_squared": r_squared,
+            "message": "Model fitted successfully"
+        }
+        
+    except RuntimeError as e:
+        return {
+            "participant_id": participant_id,
+            "discount_rate_k": np.nan,
+            "success": False,
+            "r_squared": np.nan,
+            "message": f"Fitting failed: {str(e)}"
+        }
+    except Exception as e:
+        return {
+            "participant_id": participant_id,
+            "discount_rate_k": np.nan,
+            "success": False,
+            "r_squared": np.nan,
+            "message": f"Unexpected error: {str(e)}"
+        }
 
-def transform_and_center(df: pd.DataFrame) -> pd.DataFrame:
+
+def load_and_prepare_data(
+    filepath: str,
+    required_columns: List[str] = None
+) -> pd.DataFrame:
     """
-    T021: Log-transform discount rate and mean-center predictors.
+    Load and prepare the harmonized dataset for analysis.
+    
+    Args:
+        filepath: Path to the parquet file containing harmonized data
+        required_columns: List of columns that must be present
+        
+    Returns:
+        Prepared DataFrame
+        
+    Raises:
+        FileNotFoundError: If file does not exist
+        ValueError: If required columns are missing
     """
-    df = df.copy()
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Dataset file not found: {filepath}")
     
-    # Log transform k
-    # Add small epsilon to avoid log(0)
-    df["log_k"] = np.log1p(df["discount_rate_k"])
+    df = pd.read_parquet(filepath)
     
-    # Mean center numeric covariates
-    numeric_cols = ["age", "wm_accuracy", "wm_rt", "procrastination_score"]
-    for col in numeric_cols:
-        if col in df.columns:
-            df[f"{col}_centered"] = df[col] - df[col].mean()
+    if required_columns:
+        missing = set(required_columns) - set(df.columns)
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}")
+    
+    # Drop rows with NaN in critical columns for modeling
+    critical_cols = ['discount_rate_k', 'procrastination_score', 'wm_accuracy']
+    df = df.dropna(subset=critical_cols)
     
     return df
 
+
+def transform_and_center(
+    df: pd.DataFrame,
+    log_k: bool = True,
+    center: bool = True
+) -> pd.DataFrame:
+    """
+    Transform and center predictors for regression analysis.
+    
+    Args:
+        df: Input DataFrame
+        log_k: Whether to apply log transformation to discount_rate_k
+        center: Whether to mean-center continuous predictors
+        
+    Returns:
+        Transformed DataFrame with new columns:
+            - log_k: log-transformed discount rate (if log_k=True)
+            - procrastination_score_centered: centered procrastination score
+            - wm_accuracy_centered: centered WM accuracy
+            - interaction: interaction term (log_k * wm_accuracy)
+    """
+    df_transformed = df.copy()
+    
+    # Log transform discount rate
+    if log_k:
+        # Add small epsilon to avoid log(0)
+        epsilon = 1e-10
+        df_transformed['log_k'] = np.log(df_transformed['discount_rate_k'] + epsilon)
+    else:
+        df_transformed['log_k'] = df_transformed['discount_rate_k']
+    
+    # Mean-center continuous predictors
+    if center:
+        df_transformed['procrastination_score_centered'] = (
+            df_transformed['procrastination_score'] - df_transformed['procrastination_score'].mean()
+        )
+        df_transformed['wm_accuracy_centered'] = (
+            df_transformed['wm_accuracy'] - df_transformed['wm_accuracy'].mean()
+        )
+    else:
+        df_transformed['procrastination_score_centered'] = df_transformed['procrastination_score']
+        df_transformed['wm_accuracy_centered'] = df_transformed['wm_accuracy']
+    
+    # Create interaction term
+    df_transformed['interaction'] = (
+        df_transformed['log_k'] * df_transformed['wm_accuracy_centered']
+    )
+    
+    return df_transformed
+
+
 def calculate_vif(df: pd.DataFrame, formula: str) -> Dict[str, float]:
     """
-    T023: Calculate VIF for all predictors in the model.
-    """
-    # Prepare data for VIF
-    y, X = dmatrices(formula, data=df, return_type='dataframe')
-    X = sm.add_constant(X)
+    Calculate Variance Inflation Factor for predictors in a regression model.
     
-    vif_data = {}
-    for i, col in enumerate(X.columns):
-        if col != "const":
-          vif_data[col] = variance_inflation_factor(X.values, i)
-          
-    return vif_data
+    Args:
+        df: DataFrame containing the variables
+        formula: Statsmodels formula string (e.g., "y ~ x1 + x2")
+        
+    Returns:
+        Dictionary mapping variable names to their VIF values
+    """
+    # Parse formula to get predictors
+    # Simple parsing: split by '+' and clean up
+    parts = formula.split('~')
+    if len(parts) != 2:
+        raise ValueError("Invalid formula format")
+    
+    predictors = parts[1].strip().split('+')
+    predictors = [p.strip() for p in predictors if p.strip()]
+    
+    # Create design matrix
+    from patsy import dmatrix
+    y, X = dmatrix(formula, data=df, return_type='dataframe')
+    
+    # Add intercept column for VIF calculation
+    X = X.assign(intercept=1)
+    
+    vif_dict = {}
+    for col in X.columns:
+        if col == 'intercept':
+            continue
+        try:
+            vif = variance_inflation_factor(X.values, list(X.columns).index(col))
+            vif_dict[col] = vif
+        except Exception:
+            vif_dict[col] = np.nan
+    
+    return vif_dict
 
-def run_regression(df: pd.DataFrame, config: Dict) -> Dict:
+
+def run_regression(
+    df: pd.DataFrame,
+    config_path: str = None
+) -> Dict[str, Any]:
     """
-    T022, T023, T024: Run OLS regression with interaction and VIF check.
+    Run OLS regression with interaction term to test primary hypothesis.
+    
+    Hypothesis: The effect of discount rate on procrastination is moderated by WM capacity.
+    Model: procrastination_score ~ log_k * wm_accuracy + covariates
+    
+    Args:
+        df: Prepared DataFrame with transformed variables
+        config_path: Path to model_config.json (optional, for reduced model)
+        
+    Returns:
+        Dictionary containing regression results
     """
-    df = transform_and_center(df)
+    # Check for reduced model config
+    reduced_model = False
+    excluded_covariates = []
     
-    # Determine covariates based on config
-    excluded = config.get("excluded_covariates", [])
-    base_covariates = ["age_centered", "education"] # education is categorical, needs handling
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            reduced_model = config.get('reduced_model', False)
+            excluded_covariates = config.get('excluded_covariates', [])
     
-    # For simplicity in this demo, we use numeric covariates only
-    # In a full implementation, we'd use patsy formulas for categorical handling
-    model_cols = ["procrastination_score_centered", "wm_accuracy_centered", "log_k"]
+    # Build formula
+    base_predictors = ['log_k', 'wm_accuracy_centered', 'interaction']
     
-    # Check exclusions
-    final_cols = [c for c in model_cols if c.replace("_centered", "") not in excluded]
+    # Add covariates if not excluded
+    covariates = []
+    if not reduced_model:
+        # Add age, education if available and not excluded
+        if 'age' in df.columns and 'age' not in excluded_covariates:
+            covariates.append('age')
+        if 'education' in df.columns and 'education' not in excluded_covariates:
+            covariates.append('education')
     
-    # Interaction term: log_k * wm_accuracy
-    df["interaction"] = df["log_k"] * df["wm_accuracy_centered"]
+    all_predictors = base_predictors + covariates
+    formula = f"procrastination_score_centered ~ {' + '.join(all_predictors)}"
     
-    formula = f"procrastination_score_centered ~ {' + '.join(final_cols)} + interaction"
+    # Fit model
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model = ols(formula, data=df).fit()
     
-    try:
-        model = sm.OLS.from_formula(formula, data=df)
-        results = model.fit()
-    except Exception as e:
-        print(f"CRITICAL: Regression failed: {e}")
-        sys.exit(1)
-    
-    # VIF Check
-    vif_results = calculate_vif(df, formula)
-    high_vif = {k: v for k, v in vif_results.items() if v > 5}
-    if high_vif:
-        print(f"Warning: High VIF detected: {high_vif}")
-    
-    # Extract interaction result
-    interaction_coef = results.params.get("interaction", 0.0)
-    interaction_pval = results.pvalues.get("interaction", 1.0)
-    interaction_ci = results.conf_int().loc["interaction"] if "interaction" in results.conf_int().index else (0.0, 0.0)
-    
-    return {
-        "interaction_coefficient": float(interaction_coef),
-        "interaction_p_value": float(interaction_pval),
-        "interaction_confidence_interval": [float(interaction_ci[0]), float(interaction_ci[1])],
-        "vif_results": {k: float(v) for k, v in vif_results.items()},
-        "model_summary": results.summary().as_text()
+    # Extract results
+    results = {
+        "formula": formula,
+        "n_obs": model.nobs,
+        "r_squared": model.rsquared,
+        "adj_r_squared": model.rsquared_adj,
+        "aic": model.aic,
+        "bic": model.bic,
+        "coefficients": {},
+        "p_values": {},
+        "vif": calculate_vif(df, formula)
     }
+    
+    # Extract coefficient for interaction term
+    for param in model.params.index:
+        if param != 'Intercept':
+            results["coefficients"][param] = float(model.params[param])
+            results["p_values"][param] = float(model.pvalues[param])
+    
+    # Check for significant interaction
+    interaction_p = results["p_values"].get('interaction', 1.0)
+    results["interaction_significant"] = interaction_p < 0.05
+    results["interaction_p_value"] = interaction_p
+    
+    return results
 
-def save_regression_results(results: Dict) -> None:
+
+def save_regression_results(
+    results: Dict[str, Any],
+    output_path: str
+) -> None:
     """
-    T025: Save regression results to JSON.
+    Save regression results to JSON file.
+    
+    Args:
+        results: Dictionary of regression results
+        output_path: Path to output JSON file
     """
-    output_path = os.path.join(DATA_PROCESSED_DIR, "regression_results.json")
-    with open(output_path, "w") as f:
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    update_artifact_hash(output_path, "Regression analysis results")
-    print(f"Saved regression results to {output_path}")
 
-def run_full_analysis() -> None:
-    """
-    Main entry point for modeling tasks.
-    """
-    df, config = load_and_prepare_data()
-    
-    # T015c: Fit k if not present (though ingestion should have done this, we do it here for robustness)
-    if "discount_rate_k" not in df.columns:
-        # This part would require raw delay data, which we assume is available or pre-calculated
-        # For this task, we assume ingestion wrote the k values or we re-calculate if needed.
-        # Since ingestion.py writes harmonized_dataset.parquet, we assume k is there.
-        # If not, we might need to re-run the fitting logic here.
-        # Let's assume ingestion handled it or we skip if missing for now.
-        pass
-    
-    results = run_regression(df, config)
-    save_regression_results(results)
 
-if __name__ == "__main__":
-    run_full_analysis()
+def run_full_analysis(
+    data_path: str,
+    output_path: str,
+    config_path: str = None
+) -> Dict[str, Any]:
+    """
+    Run the full analysis pipeline: load, transform, regress, save.
+    
+    Args:
+        data_path: Path to harmonized dataset
+        output_path: Path to save regression results
+        config_path: Path to model config (optional)
+        
+    Returns:
+        Regression results dictionary
+    """
+    # Load data
+    df = load_and_prepare_data(data_path)
+    
+    # Transform and center
+    df_transformed = transform_and_center(df)
+    
+    # Run regression
+    results = run_regression(df_transformed, config_path)
+    
+    # Save results
+    save_regression_results(results, output_path)
+    
+    return results

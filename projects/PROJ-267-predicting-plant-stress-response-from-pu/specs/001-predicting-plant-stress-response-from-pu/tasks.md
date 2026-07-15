@@ -59,7 +59,7 @@
 
 - [ ] T004 Setup `code/utils/config.py` for random seeds, paths, species/stress constants, and **Reference-Validator threshold** (default 0.7, configurable).
 - [ ] T005 [P] Implement data schema validation using Pydantic or simple dict checks for `data/raw/` and `data/processed/`.
-- [~] T006 [P] Setup logging infrastructure to capture warnings (e.g., dropped rows, missing data) to `logs/pipeline.log`.
+- [ ] T006 [P] Setup logging infrastructure to capture warnings (e.g., dropped rows, missing data) to `logs/pipeline.log`.
 - [X] T007 Create base data loading utilities in `code/utils/data_utils.py` (CSV/Parquet I/O).
 - [X] T008 Implement checksum verification utility in `code/utils/checksums.py` for SHA-256 validation of raw downloads.
 - [X] T023 [P] Create `docs/deviation_log.md` documenting the decision logic for LOOCV vs 5-fold CV (based on sample size n < 50). **This document must exist before T019 runs.** (Constitution Principle VI).
@@ -70,7 +70,7 @@
 
 - [X] T035 [P] [US1] Implement `code/data_ingestion/verify_sources.py` to validate that all citations in `research.md` are verified against primary sources. **Input: `research.md`. Logic: Fetch primary source metadata, verify title-token overlap ≥ threshold (from config.py), verify semantic relevance. Fail if any citation fails validation.** (Constitution Principle II).
 - [X] T036 [P] [US1] Implement `code/data_ingestion/sanity_check.py` to verify that the merged dataset contains **real** measured values (no `random.*` generated numbers, no constant columns with fake IDs). **Fail if any synthetic placeholder data is detected.**
-- [ ] T037 [P] [US1] Implement `code/data_ingestion/sample_check.py` to ensure at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat. **If n < 5 for all species, trigger the "Data Unavailable" halt path and exit cleanly.**
+- [X] T037 [P] [US1] Implement `code/data_ingestion/sample_check.py` to ensure at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat. **If n < 5 for all species, trigger the "Data Unavailable" halt path and exit cleanly.**
 
 **Checkpoint**: Data is verified real and sufficient. Proceed to User Story 1 only if T035-T037 pass.
 
@@ -84,18 +84,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/data_ingestion/download.py` to fetch raw data from NCBI GEO/ProteomeXchange. **Input: `research.md` (contains explicit URLs). Logic: Read URLs from research.md, validate domain (ncbi.nlm.nih.gov, proteomexchange.org, ebi.ac.uk), download files. Raise ValueError if file size < 1KB or domain invalid.** (FR-001).
+- [X] T011 [P] [US1] Implement `code/data_ingestion/download.py` to fetch raw data from NCBI GEO/ProteomeXchange. **Input: `research.md` (contains explicit URLs). Logic: Read URLs from research.md, validate domain (ncbi.nlm.nih.gov, proteomexchange.org, ebi.ac.uk), download files. Raise ValueError if file size < 1KB or domain invalid.** (FR-001).
 - [ ] T012 [P] [US1] Implement `code/data_ingestion/normalize.py` to filter low‑abundance proteins (<50% detection) and apply **Left-Censored Missing (LCM) imputation** using the **`imp3` library (MinProb algorithm)**. **MUST pin `imp3` version in requirements.txt. If `imp3` is unavailable, document deviation in `docs/deviation_log.md`.** (FR-002).
-- [ ] T013 [US1] Implement `code/data_ingestion/merge.py` to map UniProt → Ensembl IDs. **Primary Method: `biomaRt R package (version 2023-10)` via `rpy2`.** **Logic: Install biomaRt v2023-10 via Rscript if missing. Attempt mapping. If biomaRt fails for any ID, raise `RuntimeError` and log failure. DO NOT use fallbacks.** (FR-003, Constitution I).
-- [ ] T014 [US1] Implement `code/data_ingestion/pipeline.py` to orchestrate download → normalize → merge, handling metadata ambiguity (exclude or flag ambiguous records). Include logging for exclusion reasons. (FR-001‑FR‑003).
+- [X] T013 [US1] Implement `code/data_ingestion/merge.py` to map UniProt → Ensembl IDs. **Primary Method: `biomaRt R package (version 2023-10)` via `rpy2`.** **Logic: Install biomaRt v2023-10 via Rscript if missing. Attempt mapping. If biomaRt fails for any ID, raise `RuntimeError` and log failure. DO NOT use fallbacks.** (FR-003, Constitution I).
+- [X] T014 [US1] Implement `code/data_ingestion/pipeline.py` to orchestrate download → normalize → merge, handling metadata ambiguity (exclude or flag ambiguous records). Include logging for exclusion reasons. (FR-001‑FR‑003).
 
 ### Phase 3.6: Integration Metrics (Run AFTER T014)
 
 **Purpose**: Verify implementation tasks and calculate metrics based on pipeline output.
 
-- [ ] T009 [US1] Unit test for **LCM (MinProb)** imputation logic in `tests/unit/test_ingestion.py`. **Functions: `test_lcm_imputation_minprob`, `test_lcm_imputation_filter_low_abundance`.** (Synthetic censored data).
-- [ ] T010 [US1] Unit test for identifier‑mapping logic in `tests/unit/test_ingestion.py`. **Functions: `test_biomaRt_mapping`, `test_biomaRt_failure_raises_error`.** (No fallbacks).
-- [ ] T018 [US1] Implement `code/data_ingestion/completeness.py` to calculate `Data Completeness %` = (Retained Datasets / Initial Query Results) × 100 and write to `results/data_completeness.json`. **Input: Output of T014 (pipeline.py).** (SC‑004).
+- [X] T009 [US1] Unit test for **LCM (MinProb)** imputation logic in `tests/unit/test_ingestion.py`. **Functions: `test_lcm_imputation_minprob`, `test_lcm_imputation_filter_low_abundance`.** (Synthetic censored data).
+- [X] T010 [US1] Unit test for identifier‑mapping logic in `tests/unit/test_ingestion.py`. **Functions: `test_biomaRt_mapping`, `test_biomaRt_failure_raises_error`.** (No fallbacks).
+- [~] T018 [US1] Implement `code/data_ingestion/completeness.py` to calculate `Data Completeness %` = (Retained Datasets / Initial Query Results) × 100 and write to `results/data_completeness.json`. **Input: Output of T014 (pipeline.py).** (SC‑004).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional, tested, and ready for modeling.
 

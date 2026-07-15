@@ -76,18 +76,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Write failing unit test for prompt loading and validation in `tests/unit/test_prompts.py`
-- [ ] T011 [US1] Write failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`
+- [X] T010 [P] [US1] Write failing unit test for prompt loading and validation in `tests/unit/test_prompts.py`
+- [X] T011 [US1] Write failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/generation/loader.py` to download `openai/human-eval` via `datasets` library and cache to `data/raw/humaneval/`
 - [X] T013 [US1] Implement `code/generation/generator.py` with dynamic batch sizing: probe memory, reduce batch size if >7GB, log every reduction step to `memory_log.json`
-- [~] T014 [US1] Implement `code/generation/generator.py` generation loop: generate multiple samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, **log a timeout error and skip the task** if exceeded, and **immediately write raw samples to `data/processed/samples_all.csv`** (task_id, style, sample_id, code, pass_status=null) **before any testing or filtering occurs**. *(Note: 20 samples supersedes FR-003's original 5 per plan.md)*
+- [ ] T014 [US1] Implement `code/generation/generator.py` generation loop: generate multiple samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, **log a timeout error and skip the task** if exceeded, and **immediately write raw samples to `data/processed/samples_all.csv`** (task_id, style, sample_id, code, pass_status=null) **before any testing or filtering occurs**. *(Note: 20 samples supersedes FR-003's original 5 per plan.md)*
 - [X] T015 [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status
 - [X] T016 [US1] Implement `code/generation/tester.py` error handling: catch AST parsing errors, log Task ID/Style, skip sample without crashing
-- [~] T017a [US1] Implement `code/generation/pipeline.py` to update `data/processed/samples_all.csv` with `pass_status` (True/False) based on T015 results. Write to temp file first or update carefully to preserve data hygiene.
-- [~] T017b [US1] Implement `code/generation/pipeline.py` to create `data/processed/samples_valid.csv` by filtering `samples_all.csv` where `pass_status` is True
+- [ ] T017a [US1] Implement `code/generation/pipeline.py` to update `data/processed/samples_all.csv` with `pass_status` (True/False) based on T015 results. Write to temp file first or update carefully to preserve data hygiene.
+- [ ] T017b [US1] Implement `code/generation/pipeline.py` to create `data/processed/samples_valid.csv` by filtering `samples_all.csv` where `pass_status` is True
 - [X] T018 [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if difference between any two style groups exceeds a **substantial magnitude**, **write the flag string "Potentially Biased" to the final report metadata and the output CSV**, as required by FR-016.
 - [X] T018b [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if pass rate for **any** style group is < 1%, **HALT execution immediately**, log "Model Incapability" warning, and **prevent entry into Phase 4 (Metrics)**. **Execute this check immediately after T017b and BEFORE any US2 tasks (T024/T025)**. <!-- FAILED: unspecified -->
 
@@ -111,10 +111,10 @@
 - [X] T021 [P] [US2] Implement `code/analysis/metrics.py` n-gram entropy calculation function
 - [X] T022 [US2] Implement `code/analysis/metrics.py` AST edit distance calculation using `networkx` graph alignment (Zhang-Shasha or similar)
 - [X] T023 [US2] Implement `code/analysis/metrics.py` pairwise computation logic for all valid samples within a task/style group
-- [~] T024 [US2] Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** (reading from `data/processed/samples_all.csv` **after T017a has populated `pass_status`**, but **ignoring the status** to include all rows) and save to `data/processed/metrics_all.csv` <!-- SKIPPED: non-mapping output -->
-- [~] T025 [US2] Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** (reading from `data/processed/samples_valid.csv` produced by T017b) and save to `data/processed/metrics_valid.csv`
+- [ ] T024 [US2] Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** (reading from `data/processed/samples_all.csv` **after T017a has populated `pass_status`**, but **ignoring the status** to include all rows) and save to `data/processed/metrics_all.csv` <!-- SKIPPED: non-mapping output -->
+- [ ] T025 [US2] Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** (reading from `data/processed/samples_valid.csv` produced by T017b) and save to `data/processed/metrics_valid.csv`
 - [X] T026 [US2] Implement `code/analysis/metrics.py` collinearity check: compute **Spearman** correlation coefficient between AST distance and n-gram entropy (per FR-017) using data from T025/T026. If r > 0.9, flag "Redundant Metrics" and recommend AST distance as primary.
-- [~] T027 [US2] Implement logic to inject "Suggestion: Use AST Distance only" into the report generation if collinearity (Spearman r > 0.9) is detected. (Note: This task depends on T026, T024, and T025 completing first).
+- [ ] T027 [US2] Implement logic to inject "Suggestion: Use AST Distance only" into the report generation if collinearity (Spearman r > 0.9) is detected. (Note: This task depends on T026, T024, and T025 completing first).
 - [X] T028 [US2] Implement zero-variance detection in `code/analysis/metrics.py`: log "Zero Variance" warning if a group has no variance
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -152,12 +152,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T038 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
-- [ ] T039 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
-- [ ] T040 [P] Add SHA256 checksumming for raw dataset and record in `state/checksums.json` (Data Hygiene)
-- [ ] T041 [P] Update `state/` file with execution status, memory logs, and final report path
-- [ ] T042 [P] Documentation updates in `specs/001-eval-code-style-diversity/quickstart.md`
-- [ ] T043 [P] Run `pytest` suite to verify all unit and integration tests pass
-- [ ] T044 [P] Performance optimization: verify total runtime < 6 hours on CI (simulate with subset if needed)
+- [~] T039 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
+- [~] T040 [P] Add SHA256 checksumming for raw dataset and record in `state/checksums.json` (Data Hygiene)
+- [~] T041 [P] Update `state/` file with execution status, memory logs, and final report path
+- [~] T042 [P] Documentation updates in `specs/001-eval-code-style-diversity/quickstart.md`
+- [~] T043 [P] Run `pytest` suite to verify all unit and integration tests pass
+- [~] T044 [P] Performance optimization: verify total runtime < 6 hours on CI (simulate with subset if needed)
 
 ---
 

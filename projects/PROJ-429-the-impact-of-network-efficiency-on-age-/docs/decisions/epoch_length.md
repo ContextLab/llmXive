@@ -5,6 +5,3 @@
 
 ## Impact
 Increased epoch duration improves signal-to-noise ratio for connectivity metrics but reduces the number of independent epochs per recording. This is acceptable for resting-state analysis.
-
-## Implementation
-This decision is implemented in `code/config.py` via the `EPOCH_LENGTH_SEC` constant.

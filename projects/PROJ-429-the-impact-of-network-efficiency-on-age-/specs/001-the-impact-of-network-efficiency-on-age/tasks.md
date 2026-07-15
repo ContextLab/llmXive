@@ -23,7 +23,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (code/, data/, state/, tests/, docs/)
-- [ ] T002 Initialize Python 3.11 project with virtualenv and `requirements.txt` (MNE, NetworkX, SciPy, Pandas, Statsmodels, PyWavelets)
+- [X] T002 Initialize Python 3.11 project with virtualenv and `requirements.txt` (MNE, NetworkX, SciPy, Pandas, Statsmodels, PyWavelets)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -34,21 +34,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` to manage paths (raw, processed, results) and configuration parameters (thresholds, epoch length). **Config Note**: Set `epoch_length_sec = 10` as a ratified design decision (see `docs/decisions/epoch_length.md`).
-- [ ] T005 [P] Implement `code/data/download.py` for PhysioNet/TUH access (accession ID: `tuh_eeg`), checksumming, and metadata validation. **Validation Logic**:
+- [X] T004 Implement `code/config.py` to manage paths (raw, processed, results) and configuration parameters (thresholds, epoch length). **Config Note**: Set `epoch_length_sec = 10` as a ratified design decision (see `docs/decisions/epoch_length.md`).
+- [X] T005 [P] Implement `code/data/download.py` for PhysioNet/TUH access (accession ID: `tuh_eeg`), checksumming, and metadata validation. **Validation Logic**:
  1. Check `age >= 18`.
  2. Check `cognitive_score` presence.
  3. **FR-007 Compliance**: Validate `cognitive_instrument` field against a hardcoded registry (MMSE, MoCA). If present but not in registry, flag as "Invalid Instrument". If missing, flag as "Missing Cognitive Data" (do not fail).
  4. **Deliverable**: `data/quality/download_report.json` with schema: `{"valid_count": int, "invalid_instrument_count": int, "missing_cognitive_count": int, "total_count": int}`.
 - [ ] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Dep**: T005.
-- [ ] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (bandpass -40Hz, ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`), including logic to reject epochs with >50% artifacts and flag SNR < 10dB. **Dep**: T004.
+- [X] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (bandpass -40Hz, ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`), including logic to reject epochs with >50% artifacts and flag SNR < 10dB. **Dep**: T004.
 - [ ] T006_run [P] **Execute** `code/data/preprocess.py` to generate `data/processed/` epochs and flags. **Dep**: T006, T005_run.
 - [X] T007 [P] Implement `code/network/connectivity.py` for coherence calculation (Welch method on fixed-duration epochs).
 - [ ] T007_run [P] **Execute** `code/network/connectivity.py` to generate `data/processed/connectivity_matrices/`. **Dep**: T007, T006_run.
 - [X] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity. **CRITICAL**: Global/Local Efficiency MUST be calculated as the reciprocal of characteristic_path_length to satisfy FR-003. **Dep**: T007_run.
 - [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Dep**: T008, T007_run.
-- [ ] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple-comparison correction.
-- [ ] T010 [P] Implement `code/state/version_map.py` to manage SHA-256 hashes and `updated_at` timestamps (Constitution Principle V).
+- [X] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple-comparison correction.
+- [X] T010 [P] Implement `code/state/version_map.py` to manage SHA-256 hashes and `updated_at` timestamps (Constitution Principle V).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,20 +64,20 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T011 [P] [US1] Unit test for `code/network/metrics.py` graph calculations in `tests/unit/test_metrics.py`
+- [X] T011 [P] [US1] Unit test for `code/network/metrics.py` graph calculations in `tests/unit/test_metrics.py`
 - [ ] T012 [P] [US1] Integration test for end-to-end preprocessing and metric generation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] [Dep: T005_run] **Validate** `download.py` output: Ensure `data/raw/` contains TUH corpus with metadata flags; verify `data/quality/download_report.json` exists and matches schema. **Do not generate**; only validate.
-- [ ] T014 [US1] [Dep: T004] **Create** `docs/decisions/epoch_length.md`. **Content**:
+- [X] T014 [US1] [Dep: T004] **Create** `docs/decisions/epoch_length.md`. **Content**:
  - `# Epoch Length Decision`
  - `## Rationale`: "10-second epochs provide sufficient spectral resolution for coherence estimation in the 1-40Hz band, reducing variance compared to 2-second epochs. This deviates from initial FR-002 (2s) which has been formally noted as a ratified assumption in the plan."
  - `## Impact`: "Increased epoch duration improves signal-to-noise ratio for connectivity metrics but reduces the number of independent epochs per recording. This is acceptable for resting-state analysis."
  - Verify file exists with this structure.
-- [ ] T015 [US1] [Dep: T007_run] Validate `connectivity.py` output: Ensure coherence matrices are generated for 10-20 system electrodes.
+- [ ] T015 [US1] [Dep: T007_run] Validate `connectivity.py` output: Ensure coherence matrices are generated for 10-20 system electrodes. <!-- FAILED: unspecified -->
 - [ ] T016 [US1] [Dep: T008_run] **Validate Derivation**: Verify `data/results/network_metrics.csv` was generated by `code/network/metrics.py` using the formula `Global_Efficiency = 1.0 / Path_Length` and `Local_Efficiency = 1.0 / Path_Length`. **Deliverable**: `data/results/efficiency_check.json` with `{"formula_verified": bool, "max_deviation": float}`. **Tolerance**: `max_deviation` must be < 1e-6.
-- [ ] T017 [US1] [Dep: T008_run] **Update** `data/results/network_metrics.csv` to include a `signal_quality_flag` column with values 'Low Signal Quality' for SNR < 10dB.
+- [X] T017 [US1] [Dep: T008_run] **Update** `data/results/network_metrics.csv` to include a `signal_quality_flag` column with values 'Low Signal Quality' for SNR < 10dB.
 - [ ] T018 [US1] [Dep: T008_run] Implement sensitivity analysis (FR-008) to sweep thresholds across a range of significance levels and **generate** `data/results/sensitivity_report.csv`. **Schema**: `threshold`, `metric_name`, `std_dev`, `is_stable` (true if variation < 0.05).
 - [ ] T019 [US1] [Dep: T010, T008_run] Inject `trace_id` (SHA-256 of source + code hash) into `data/results/network_metrics.csv`.
 - [ ] T020 [US1] [Dep: T019] Validate output schema against `contracts/network_metric.schema.yaml`.

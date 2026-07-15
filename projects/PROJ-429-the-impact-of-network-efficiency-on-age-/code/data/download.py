@@ -1,225 +1,278 @@
-"""
-TUH EEG Data Downloader and Validator.
-
-Downloads the TUH EEG corpus from PhysioNet and validates metadata
-according to project requirements (FR-007, age >= 18, cognitive scores).
-"""
 import hashlib
 import json
 import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Any, Optional
+import hashlib
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from typing import Dict, List, Any, Optional
 
-# Add project root to path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# We use the `datasets` library from Hugging Face which provides a robust
+# interface to PhysioNet/TUH EEG data. This avoids manual URL construction
+# and handles streaming/chunking automatically.
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("ERROR: 'datasets' library not found. Please install it via: pip install datasets")
+    sys.exit(1)
 
-from config import get_path, CONFIG
-import requests
-from tqdm import tqdm
+# Import config to ensure directories exist
+# Note: The API surface says `from config import ensure_dirs`.
+# We assume `code/config.py` is in the PYTHONPATH or installed.
+try:
+    from config import ensure_dirs
+except ImportError:
+    # Fallback for direct script execution if path isn't set
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config import ensure_dirs
 
-# Constants
-PHYSIONET_BASE = "https://physionet.org"
-TUH_EEG_PROJECT = "tuh_eeg"
-# Note: Direct download of the full corpus via API is complex.
-# We will use the `physionet` python package or direct file listing if possible.
-# However, for robustness in a research pipeline, we assume the user has
-# either installed the `physionet` package or we fetch via HTTP if credentials allow.
-# Since we cannot hardcode credentials, we will attempt to fetch the file list
-# and download individual files if the user has setup their netrc or environment.
+# Hardcoded registry for FR-007 compliance
+VALID_COGNITIVE_INSTRUMENTS = {"MMSE", "MoCA"}
 
-# For the purpose of this task, we implement a loader that attempts to fetch
-# metadata and files. If the full corpus is too large, we process a subset
-# or stream. The task requires "Real Data Only".
-
-# Valid cognitive instruments per FR-007
-VALID_INSTRUMENTS = {"MMSE", "MoCA"}
-
-def get_file_hash(filepath: Path) -> str:
-    """Calculate SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def validate_record_metadata(record: Dict[str, Any]) -> Tuple[bool, str]:
+def get_file_hash(file_path: str, algorithm: str = "sha256") -> str:
     """
-    Validate a single record's metadata.
+    Compute the hash of a file to verify integrity.
+    Reads in chunks to handle large files.
+    """
+    hash_func = hashlib.new(algorithm)
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_func.update(chunk)
+        return hash_func.hexdigest()
+    except FileNotFoundError:
+        return "FILE_NOT_FOUND"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
+
+def validate_record_metadata(record: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validate a single metadata record according to T005 requirements.
     
-    Returns:
-        Tuple of (is_valid, reason_code)
-        reason_codes: "OK", "INVALID_AGE", "MISSING_COGNITIVE", "INVALID_INSTRUMENT"
+    Rules:
+    1. Check age >= 18.
+    2. Check cognitive_score presence.
+    3. FR-007: Validate cognitive_instrument against registry.
+    
+    Returns a dict with validation flags and status.
     """
-    # 1. Check age >= 18
+    status = "VALID"
+    issues = []
+    
+    # 1. Age Check
     age = record.get("age")
-    if age is None or age < 18:
-        return False, "INVALID_AGE"
-
-    # 2. Check cognitive_score presence
+    if age is None:
+        issues.append("Missing age")
+        status = "INVALID"
+    elif not isinstance(age, (int, float)) or age < 18:
+        issues.append(f"Age < 18 ({age})")
+        status = "INVALID"
+    
+    # 2. Cognitive Score Check
+    # Note: We do not fail if missing, just flag.
     cognitive_score = record.get("cognitive_score")
     cognitive_instrument = record.get("cognitive_instrument")
-
+    
+    missing_cognitive = False
+    invalid_instrument = False
+    
     if cognitive_score is None:
-        # Missing cognitive data is flagged but does not fail the record for existence
-        # The task says: "If missing, flag as 'Missing Cognitive Data' (do not fail)."
-        # We treat "valid" here as "record is usable for EEG analysis", but we track flags.
-        # However, the report schema asks for counts.
-        # Let's define 'valid' in the context of the report as "Record exists and passes age check".
-        # The flags are separate.
-        pass 
+        missing_cognitive = True
+        issues.append("Missing cognitive_score")
+    else:
+        # If score exists, check instrument if present
+        if cognitive_instrument is not None:
+            if cognitive_instrument not in VALID_COGNITIVE_INSTRUMENTS:
+                invalid_instrument = True
+                issues.append(f"Invalid Instrument: {cognitive_instrument}")
+        else:
+            # Score present but instrument missing is not an error per spec,
+            # but we might flag it if strict. Spec says: 
+            # "If present but not in registry, flag as Invalid. 
+            # If missing, flag as Missing Cognitive Data (do not fail)."
+            # This implies if score is present, we don't flag "Missing Cognitive Data".
+            pass
 
-    # 3. Validate cognitive_instrument if present
-    if cognitive_instrument is not None:
-        if cognitive_instrument not in VALID_INSTRUMENTS:
-            return True, "INVALID_INSTRUMENT" # Valid record, but instrument invalid
+    return {
+        "record_id": record.get("id", "unknown"),
+        "status": status,
+        "is_valid": status == "VALID",
+        "issues": issues,
+        "flags": {
+            "missing_cognitive": missing_cognitive,
+            "invalid_instrument": invalid_instrument
+        }
+    }
 
-    return True, "OK"
-
-def fetch_tuh_metadata() -> List[Dict[str, Any]]:
+def fetch_tuh_metadata(output_dir: Path) -> List[Dict[str, Any]]:
     """
-    Fetch metadata for TUH EEG records.
-    In a real scenario, this might involve parsing a manifest or querying an API.
-    Since PhysioNet doesn't have a simple public API for full metadata without auth,
-    we simulate the structure by listing files if we had a manifest.
-    
-    For this implementation, we assume a manifest file might exist or we parse
-    the directory structure if downloaded.
-    
-    Given the constraint of "Real Data Only" and no local data yet:
-    We will attempt to download a small sample of the manifest if available,
-    or raise an error if the environment is not set up for PhysioNet access.
-    
-    NOTE: The TUH EEG dataset is large. We cannot download the full 7GB+ in a single
-    CI run without streaming. We will implement a streaming approach to fetch
-    a representative subset or the full list of file IDs if possible.
-    
-    To satisfy the "Real Data" requirement strictly:
-    We will try to use the `physionet` package which handles authentication.
-    If that fails, we attempt a direct HTTP fetch of a known manifest.
+    Fetch metadata for the TUH EEG dataset.
+    We use the `tuh_eeg` dataset from Hugging Face which maps to PhysioNet.
+    This function streams the metadata to avoid loading huge files into RAM.
     """
-    # Attempt to import physionet package
-    try:
-        import physionet
-    except ImportError:
-        raise RuntimeError(
-            "The 'physionet' package is required to access PhysioNet data. "
-            "Please add it to requirements.txt and install it."
-        )
-
-    # We need to list files. PhysioNet API is restricted.
-    # Alternative: Use the `datasets` library from HuggingFace which has a TUH EEG loader?
-    # The task specifically mentions PhysioNet/TUH access.
-    # Let's try to use the `datasets` library as it often wraps PhysioNet data
-    # and provides a programmatic interface.
+    print(f"Fetching metadata for 'tuh_eeg' dataset to {output_dir}...")
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # We attempt to load the dataset. 
+    # Note: The actual TUH EEG dataset on PhysioNet is large. 
+    # The `datasets` library might require specific configuration or 
+    # a specific subset ID. We try the standard 'tuh_eeg' ID.
+    # If the full dataset is too large, we might need to stream specific splits.
+    # For this implementation, we assume we can access the metadata split 
+    # or a subset that allows iteration.
     
     try:
-        from datasets import load_dataset
-        # Load the dataset metadata (streaming to avoid download)
-        # Note: The dataset ID might vary. 'tuh_eeg' is the accession ID.
-        # HuggingFace often hosts 'physionet/tuh_eeg'.
-        ds = load_dataset("physionet/tuh_eeg", split="train", streaming=True)
+        # Attempt to load the dataset. 
+        # We use streaming=True to handle large datasets efficiently.
+        # We specifically look for a split that contains metadata.
+        # If the dataset doesn't have a 'metadata' split, we iterate the main one.
+        ds = load_dataset("tuh_eeg", split="train", streaming=True)
+        
+        # Convert to list of dicts for processing (or process on the fly)
+        # Since we need to generate a report, we iterate and collect stats.
         records = []
-        # We need to iterate to get metadata. 
-        # The dataset usually contains audio/EEG files and a metadata file.
-        # Let's assume the dataset yields rows with metadata.
-        count = 0
-        for row in ds:
-            records.append(row)
-            count += 1
-            # If we need the full set, we iterate all. 
-            # For this task, we process the stream to generate the report.
+        
+        # We will iterate over the dataset. 
+        # Note: The actual structure of 'tuh_eeg' in HF might vary.
+        # We assume it has fields like 'age', 'cognitive_score', 'cognitive_instrument'.
+        # If the dataset doesn't have these, we will catch it and fail loudly.
+        
+        for item in ds:
+            # Normalize keys if necessary (e.g., lowercase)
+            normalized_item = {k.lower(): v for k, v in item.items()}
+            records.append(normalized_item)
+            
+            # Safety break for testing if the dataset is infinite or huge
+            # In a real run, we would remove this or make it configurable.
+            # However, for the task to be "real", we must process the real data.
+            # If the dataset is too large for the runner, we process in chunks.
+            # For this script, we assume we can iterate enough to get a representative report.
+            # If the dataset is massive, we might limit to N for the report generation
+            # but the task says "Real data only". 
+            # We will process the whole stream if possible, or a reasonable chunk if it's too big.
+            # Given the constraint "Large dataset? Stream the real data", we stream.
+            # We will collect all valid records to write the report.
+            # If the dataset is too large to hold in memory, we write the report incrementally?
+            # The task asks for a JSON report. We can accumulate stats in memory (ints)
+            # and write the JSON at the end. We don't need to store all records.
+            
         return records
+        
     except Exception as e:
-        # Fallback to direct PhysioNet API if datasets fails
-        # This is a simplified fallback; real implementation needs robust auth handling.
-        raise RuntimeError(
-            f"Could not access TUH EEG data via 'datasets' package. "
-            f"Ensure 'datasets' and 'physionet' are installed. Error: {e}"
-        )
+        print(f"ERROR: Failed to fetch 'tuh_eeg' dataset: {e}")
+        print("This script requires a real, accessible source. It will not generate synthetic data.")
+        raise RuntimeError("Real data source inaccessible") from e
 
-def process_and_validate():
-    """Main entry point for downloading and validating."""
-    raw_dir = get_path("raw")
-    quality_dir = get_path("quality")
+def process_and_validate(metadata_path: Path, output_report_path: Path) -> Dict[str, int]:
+    """
+    Process the metadata file (or stream), validate records, and generate the report.
     
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    quality_dir.mkdir(parents=True, exist_ok=True)
-
-    report = {
+    Args:
+        metadata_path: Path to the metadata file (if downloaded) or a placeholder if streaming directly.
+        output_report_path: Path to write the final JSON report.
+        
+    Returns:
+        Dictionary with counts: valid, invalid_instrument, missing_cognitive, total.
+    """
+    counts = {
         "valid_count": 0,
         "invalid_instrument_count": 0,
         "missing_cognitive_count": 0,
         "total_count": 0
     }
-
-    print("Starting TUH EEG data fetch and validation...")
+    
+    # If we are streaming directly from the dataset object, we would iterate there.
+    # Since `fetch_tuh_metadata` returns a list (which might be memory heavy),
+    # let's refactor `fetch_tuh_metadata` to yield items or we iterate here.
+    # Given the constraints, let's assume we iterate the dataset directly here.
+    
+    # Re-implementation of fetching and processing in one go to save memory
+    print("Starting validation process...")
     
     try:
-        # We use streaming to handle large datasets
-        from datasets import load_dataset
-        dataset = load_dataset("physionet/tuh_eeg", split="train", streaming=True)
+        # Load dataset in streaming mode
+        ds = load_dataset("tuh_eeg", split="train", streaming=True)
         
-        processed_count = 0
-        for item in dataset:
-            report["total_count"] += 1
+        for item in ds:
+            normalized_item = {k.lower(): v for k, v in item.items()}
+            validation_result = validate_record_metadata(normalized_item)
             
-            # Extract metadata fields (adjust based on actual dataset schema)
-            # The TUH EEG dataset on HF usually has: 'age', 'sex', 'path', 'subject_id', etc.
-            # Cognitive data might be in a separate split or field if available.
-            # If the dataset on HF does not have cognitive scores, we must handle that.
+            counts["total_count"] += 1
             
-            age = item.get("age")
-            cognitive_score = item.get("cognitive_score") # Might be None
-            cognitive_instrument = item.get("cognitive_instrument") # Might be None
-
-            # Validation Logic
-            is_valid = True
-            reason = "OK"
-
-            if age is None or age < 18:
-                is_valid = False
-                reason = "INVALID_AGE"
+            if validation_result["is_valid"]:
+                counts["valid_count"] += 1
             else:
-                if cognitive_score is None:
-                    report["missing_cognitive_count"] += 1
-                    reason = "MISSING_COGNITIVE"
-                elif cognitive_instrument is not None and cognitive_instrument not in VALID_INSTRUMENTS:
-                    report["invalid_instrument_count"] += 1
-                    reason = "INVALID_INSTRUMENT"
-                else:
-                    report["valid_count"] += 1
-
-            # Save raw file reference if present (just the path string for now)
-            # In a real pipeline, we would download the actual .edf file here.
-            # Since we are validating metadata, we record the existence.
-            if "path" in item:
-                # We don't download the full file to save time/bandwidth in this task,
-                # but we record the metadata. The actual download of .edf files
-                # is usually done in a separate step or by the `physionet` CLI.
-                # For this task, we assume the metadata validation is the primary goal.
-                pass
-
-            processed_count += 1
-            if processed_count % 100 == 0:
-                print(f"Processed {processed_count} records...")
-
+                # Determine specific failure type
+                if validation_result["flags"]["invalid_instrument"]:
+                    counts["invalid_instrument_count"] += 1
+                elif validation_result["flags"]["missing_cognitive"]:
+                    counts["missing_cognitive_count"] += 1
+                # If both or other reasons, we count as invalid but not specific?
+                # The spec implies distinct buckets. We'll count the primary failure.
+                # If both, we count invalid_instrument first? Or just mark as invalid.
+                # Let's assume mutually exclusive for counting or prioritize.
+                # Spec: "If present but not in registry, flag as Invalid... If missing, flag as Missing".
+                # We'll count based on the flags.
+                
         # Write report
-        report_path = quality_dir / "download_report.json"
-        with open(report_path, "w") as f:
-            json.dump(report, f, indent=2)
+        with open(output_report_path, "w") as f:
+            json.dump(counts, f, indent=2)
+            
+        print(f"Validation complete. Report written to {output_report_path}")
+        print(f"Counts: {counts}")
+        return counts
         
-        print(f"Validation complete. Report saved to {report_path}")
-        print(f"Total: {report['total_count']}, Valid: {report['valid_count']}")
-        print(f"Missing Cognitive: {report['missing_cognitive_count']}, Invalid Instrument: {report['invalid_instrument_count']}")
-
     except Exception as e:
-        # Fail loudly as per requirements
-        print(f"CRITICAL ERROR: Failed to fetch or validate data: {e}")
-        raise e
+        print(f"ERROR during processing: {e}")
+        raise
+
+def main():
+    """
+    Main entry point for the download and validation task.
+    1. Ensure directories exist.
+    2. Fetch/Stream TUH EEG metadata.
+    3. Validate records.
+    4. Write report to data/quality/download_report.json.
+    """
+    # Initialize paths
+    base_dir = Path(__file__).parent.parent.parent
+    raw_dir = base_dir / "data" / "raw"
+    quality_dir = base_dir / "data" / "quality"
+    
+    # Ensure directories
+    ensure_dirs(base_dir)
+    
+    report_path = quality_dir / "download_report.json"
+    
+    # Ensure quality dir exists
+    quality_dir.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Starting T005: Download and Validate TUH EEG Metadata")
+    print(f"Target Report: {report_path}")
+    
+    try:
+        # Process and validate
+        # Note: We do not save the raw files to disk in this specific task 
+        # (T005 focuses on metadata validation and report). 
+        # T005_run might handle the actual file download if needed, 
+        # but the task description says "Implement ... for PhysioNet/TUH access ... and metadata validation".
+        # We perform the validation logic now.
+        
+        process_and_validate(None, report_path)
+        
+        print("Task T005 completed successfully.")
+        
+    except Exception as e:
+        print(f"Task T005 failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    process_and_validate()
+    main()

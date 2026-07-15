@@ -1,6 +1,6 @@
-T001 Create project structure per implementation plan: 1
-T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn` dependencies: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Setup `data/raw/` and `data/processed/` directory structure: 1
-T005 [P] Implement `requirements.txt` with pinned versions for reproducibility: 1
-T006 [P] Configure `pytest` framework and directory structure: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T006: 1
+T009: 1

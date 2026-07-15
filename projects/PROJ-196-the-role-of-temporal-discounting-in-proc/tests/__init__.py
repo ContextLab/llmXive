@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Test Package
+Test suite for the Temporal Discounting in Procrastination project.
 """

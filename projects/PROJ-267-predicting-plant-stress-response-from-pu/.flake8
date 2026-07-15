@@ -1,0 +1,24 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .eggs,
+    *.egg-info,
+    data,
+    results,
+    logs,
+    docs,
+    build,
+    dist
+per-file-ignores =
+    # Allow imports in __init__.py for public API exposure
+    code/__init__.py:F401
+    tests/__init__.py:F401
+    # Allow unused arguments in test functions
+    tests/**/*.py:ARG
+# Ignore specific warnings common in scientific code
+ignore = E203, W503, W504
+# Ensure consistent formatting
+max-complexity = 15

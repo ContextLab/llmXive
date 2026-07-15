@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files or directory structure were supplied; there is no evidence\
+    \ of a created repository, folder hierarchy, or placeholder files (e.g., `src/`,\
+    \ `data/`, `scripts/`, `README.md`) that would satisfy \u201CCreate project structure\
+    \ per implementation plan.\u201D The claim cannot be verified without tangible\
+    \ artifacts."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or\
+    \ a virtual environment) were provided, nor any evidence that a Python\u202F3.11\
+    \ project was created with the listed dependencies installed. The implementer\
+    \ must supply the initialized project directory and dependency specifications."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `black` settings, or a `pre-commit` hook) are present in the provided evidence,
+    so the requirement to configure ruff and black is not satisfied. The implementer
+    must add the appropriate configuration artifacts and verify they are functional.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `data/raw/` and `data/processed/` directories
+    actually exist in the repository; the response contains no file listings, screenshots,
+    or code creating these folders. The required directory structure is therefore
+    missing or unverified.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g.,\u202F`pytest.ini`, `conftest.py`) or a\
+    \ test directory (e.g.,\u202F`tests/`) are present, and the provided artifacts\
+    \ relate only to data ingestion and analysis, not to setting up the pytest framework\
+    \ or directory layout. The required testing infrastructure is missing."
+T009:
+  c: false
+  h: 4cefec4f05eb23ccb3fb322406de0db2d4859a8399c3cc7e4b01b9f5d67b43c4
+  r: The `checksum.py` file exists but is truncated and never creates or updates the
+    required `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`
+    (the file is missing). No evidence shows that the utility is invoked to populate
+    `artifact_hashes` for raw/processed artifacts, so the integration requirement
+    is unmet.

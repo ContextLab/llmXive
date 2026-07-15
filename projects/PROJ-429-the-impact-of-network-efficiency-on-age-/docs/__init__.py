@@ -1,3 +1,1 @@
-"""
-Documentation directory for decisions, specs, and guides.
-"""
+"""Documentation directory initialization."""

@@ -1,3 +1,3 @@
 """
-llmXive Automated Science Pipeline - Network Efficiency & Aging
+LLMXive Research Pipeline: Network Efficiency & Aging
 """
