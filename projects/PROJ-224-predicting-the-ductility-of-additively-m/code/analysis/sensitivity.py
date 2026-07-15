@@ -17,263 +17,248 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
 
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Import from sibling modules as per API surface
+from models.lme_model import load_data, prepare_features, fit_lme_model, extract_results, save_results
 
-from statsmodels.regression.mixed_linear_model import MixedLM
-from statsmodels.stats.diagnostic import linear_harvey_collier
-from scipy.stats import chi2
-import warnings
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-DATA_DIR = PROJECT_ROOT / "data"
-LME_RESULTS_PATH = ARTIFACTS_DIR / "lme_results.json"
-DIAGNOSTICS_OUTPUT_PATH = ARTIFACTS_DIR / "diagnostics.json"
-
-def load_lme_results() -> Optional[Dict[str, Any]]:
-    """Load the LME model results artifact."""
-    if not LME_RESULTS_PATH.exists():
-        logger.error(f"LME results artifact not found at {LME_RESULTS_PATH}")
-        return None
-    
+def compute_partial_r2(model, data, target_col):
+    """
+    Compute partial R² for the mixed-effects model.
+    Partial R² = 1 - (Residual SS / Total SS) adjusted for the random effects structure.
+    For a simplified approach in this context, we use the marginal R² logic:
+    R²_partial = 1 - (Var(Residuals) / Var(Total))
+    """
     try:
-        with open(LME_RESULTS_PATH, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load LME results: {e}")
-        return None
-
-def load_curated_data() -> Optional[pd.DataFrame]:
-    """Load the curated dataset."""
-    curated_path = DATA_DIR / "curated_builds.csv"
-    if not curated_path.exists():
-        logger.error(f"Curated data not found at {curated_path}")
-        return None
-    
-    try:
-        return pd.read_csv(curated_path)
-    except Exception as e:
-        logger.error(f"Failed to load curated data: {e}")
-        return None
-
-def compute_partial_r2(
-    full_model: MixedLM,
-    null_model: MixedLM,
-    df_full: int,
-    df_null: int
-) -> float:
-    """
-    Compute partial R-squared for the full model compared to a null model.
-    
-    Partial R² = (Deviance_null - Deviance_full) / Deviance_null
-    
-    Args:
-        full_model: The full mixed-effects model
-        null_model: The intercept-only null model
-        df_full: Degrees of freedom for the full model
-        df_null: Degrees of freedom for the null model
-        
-    Returns:
-        Partial R-squared value
-    """
-    dev_null = null_model.llf * -2  # Deviance = -2 * log-likelihood
-    dev_full = full_model.llf * -2
-    
-    if dev_null == 0:
-        logger.warning("Null model deviance is zero, cannot compute partial R²")
-        return 0.0
-    
-    partial_r2 = (dev_null - dev_full) / dev_null
-    return partial_r2
-
-def likelihood_ratio_test(
-    full_model: MixedLM,
-    null_model: MixedLM,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Perform a likelihood-ratio test between full and null models.
-    
-    Args:
-        full_model: The full mixed-effects model
-        null_model: The intercept-only null model
-        alpha: Significance level for the test
-        
-    Returns:
-        Dictionary containing test statistic, p-value, and decision
-    """
-    ll_full = full_model.llf
-    ll_null = null_model.llf
-    
-    # Likelihood ratio statistic
-    lr_stat = -2 * (ll_null - ll_full)
-    
-    # Degrees of freedom difference (number of fixed effects added)
-    # This is approximate; in practice, we count the number of fixed effects
-    df_diff = len(full_model.fe_params) - 1  # Subtract intercept
-    
-    if df_diff <= 0:
-        logger.warning("No additional degrees of freedom, cannot perform LRT")
-        return {
-            "statistic": 0.0,
-            "p_value": 1.0,
-            "df_diff": 0,
-            "significant": False,
-            "alpha": alpha
-        }
-    
-    # P-value from chi-squared distribution
-    p_value = 1 - chi2.cdf(lr_stat, df_diff)
-    
-    return {
-        "statistic": float(lr_stat),
-        "p_value": float(p_value),
-        "df_diff": int(df_diff),
-        "significant": p_value < alpha,
-        "alpha": alpha
-    }
-
-def run_diagnostics(
-    full_model: MixedLM,
-    null_model: MixedLM,
-    data: pd.DataFrame,
-    fixed_effects: list,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Run comprehensive model diagnostics.
-    
-    Args:
-        full_model: The fitted full mixed-effects model
-        null_model: The fitted null (intercept-only) model
-        data: The dataset used for fitting
-        fixed_effects: List of fixed effect feature names
-        alpha: Significance level for tests
-        
-    Returns:
-        Dictionary containing all diagnostic results
-    """
-    logger.info("Running model diagnostics...")
-    
-    diagnostics = {
-        "partial_r2": None,
-        "likelihood_ratio_test": None,
-        "convergence_status": full_model.converged,
-        "n_observations": len(data),
-        "n_groups": data['alloy_family'].nunique(),
-        "fixed_effects": fixed_effects,
-        "warnings": []
-    }
-    
-    # Compute partial R²
-    try:
-        df_full = len(fixed_effects) + 1  # +1 for intercept
-        df_null = 1  # Only intercept
-        diagnostics["partial_r2"] = compute_partial_r2(full_model, null_model, df_full, df_null)
-        
-        if diagnostics["partial_r2"] < 0.50:
-            logger.warning(f"Partial R² ({diagnostics['partial_r2']:.3f}) is below 0.50 threshold")
-            diagnostics["warnings"].append(f"Partial R² below threshold: {diagnostics['partial_r2']:.3f}")
-    except Exception as e:
-        logger.error(f"Failed to compute partial R²: {e}")
-        diagnostics["warnings"].append(f"Partial R² computation failed: {str(e)}")
-    
-    # Perform likelihood-ratio test
-    try:
-        diagnostics["likelihood_ratio_test"] = likelihood_ratio_test(full_model, null_model, alpha)
-    except Exception as e:
-        logger.error(f"Failed to perform likelihood-ratio test: {e}")
-        diagnostics["warnings"].append(f"LRT computation failed: {str(e)}")
-    
-    # Check for convergence issues
-    if not diagnostics["convergence_status"]:
-        diagnostics["warnings"].append("Model did not converge - results may be unreliable")
-    
-    return diagnostics
-
-def run_sensitivity_analysis(
-    data: pd.DataFrame,
-    formula: str,
-    groups: str,
-    alpha_levels: list = [0.05, 0.10, 0.01]
-) -> Dict[str, Any]:
-    """
-    Run sensitivity analysis across different significance levels.
-    
-    Args:
-        data: The dataset
-        formula: Model formula string
-        groups: Grouping variable name
-        alpha_levels: List of significance levels to test
-        
-    Returns:
-        Dictionary containing sensitivity analysis results
-    """
-    logger.info("Running sensitivity analysis...")
-    
-    results = {
-        "alpha_levels": alpha_levels,
-        "results_by_alpha": {},
-        "coefficient_variation": {},
-        "partial_r2_values": []
-    }
-    
-    # Fit the full model once
-    try:
-        # Prepare data
-        endog = data['ductility']
-        exog = data[formula.split('+')[-1].strip().split(' ')[0].split('*')[0].split('-')[0].strip()]
-        # This is a simplified approach; in practice, we'd use patsy to parse the formula
-        
-        # For now, we'll use the existing full model if available
-        full_model_data = load_lme_results()
-        if full_model_data and 'model_fitted' in full_model_data:
-            # Use the already fitted model
-            pass
+        # Get predictions from the fixed effects part
+        # We need to construct the design matrix X and use the fixed effects coefficients
+        if hasattr(model, 'fe_params'):
+            beta = model.fe_params
         else:
-            logger.warning("No pre-fitted model found, skipping sensitivity analysis")
-            return results
-            
+            # Fallback: assume model has a way to get fixed params
+            logger.warning("Model object does not have 'fe_params' attribute. Attempting standard extraction.")
+            # If it's a statsmodels MixedLMResults object
+            try:
+                beta = model.params
+            except AttributeError:
+                logger.error("Could not extract fixed effects parameters.")
+                return None
+
+        # Prepare features for prediction (excluding target and random effect groups)
+        feature_cols = [c for c in data.columns if c not in [target_col, 'alloy_family']]
+        if 'energy_density' in feature_cols and 'laser_power' in feature_cols:
+            # Handle the VIF logic case where components might be dropped
+            pass
+
+        X = data[feature_cols].values
+        y = data[target_col].values
+
+        # Predict using fixed effects only
+        y_pred = X @ beta
+
+        # Calculate residuals
+        residuals = y - y_pred
+
+        # Total Sum of Squares (centered)
+        ss_total = np.sum((y - np.mean(y))**2)
+        # Residual Sum of Squares
+        ss_res = np.sum(residuals**2)
+
+        if ss_total == 0:
+            logger.warning("Total sum of squares is zero. Cannot compute R².")
+            return 0.0
+
+        partial_r2 = 1 - (ss_res / ss_total)
+        return partial_r2
+
     except Exception as e:
-        logger.error(f"Failed to prepare for sensitivity analysis: {e}")
-        return results
+        logger.error(f"Error computing partial R²: {e}")
+        return None
+
+def likelihood_ratio_test(full_model, null_model):
+    """
+    Perform a likelihood-ratio test between the full model and a null intercept-only model.
+    H0: The fixed effects (excluding intercept) do not improve the model.
+    """
+    try:
+        # Extract log-likelihoods
+        # statsmodels MixedLMResults usually has 'llf' attribute
+        ll_full = full_model.llf
+        ll_null = null_model.llf
+
+        # Test statistic: -2 * (logL_null - logL_full) = 2 * (logL_full - logL_null)
+        lr_stat = 2 * (ll_full - ll_null)
+
+        # Degrees of freedom: difference in number of parameters
+        # df = (k_full - k_null)
+        # We need to count parameters. Usually, fixed effects params count + variance components.
+        # A safe approximation is the difference in the number of fixed effect parameters if random structure is same.
+        # Let's assume the random structure is identical (intercept only vs intercept + fixed)
+        # So df = number of fixed effects in full model (excluding intercept if null is just intercept)
+        # Or simply: len(full_model.fe_params) - len(null_model.fe_params)
+        k_full = len(full_model.fe_params)
+        k_null = len(null_model.fe_params)
+        df = k_full - k_null
+
+        if df <= 0:
+            logger.warning("Degrees of freedom for LRT is <= 0. Check model specification.")
+            return None, None
+
+        # Calculate p-value using Chi-squared distribution
+        from scipy.stats import chi2
+        p_value = 1 - chi2.cdf(lr_stat, df)
+
+        return lr_stat, p_value
+
+    except Exception as e:
+        logger.error(f"Error performing likelihood-ratio test: {e}")
+        return None, None
+
+def run_diagnostics(curated_data_path, results_path, output_path):
+    """
+    Run full model diagnostics including partial R² and Likelihood-Ratio Test.
+    """
+    logger.info(f"Starting diagnostics on {curated_data_path}")
+
+    # Load data
+    if not os.path.exists(curated_data_path):
+        logger.error(f"Curated data file not found: {curated_data_path}")
+        return False
+
+    df = pd.read_csv(curated_data_path)
+    target_col = 'ductility'
+
+    # Ensure required columns exist
+    required_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'energy_density', 'alloy_family', 'ductility']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        logger.error(f"Missing required columns in data: {missing}")
+        return False
+
+    # Prepare features (handle VIF logic: if energy_density is used, drop components)
+    # We assume the LME model was trained with the VIF-filtered set.
+    # We need to identify which columns were used.
+    # For this task, we assume the model artifact or the data reflects the VIF filtering.
+    # Let's assume the standard set after VIF: energy_density, and maybe others if not collinear.
+    # We will attempt to detect the columns used by the model by checking the model's params if possible.
+    # However, for the LRT, we need to fit the null model on the SAME fixed effect columns (minus the ones being tested).
+    # The null model is intercept-only. The full model has the predictors.
+
+    # Fit Full Model (re-fit to ensure we have the object)
+    # Note: In a real pipeline, we might load the fitted model from disk.
+    # But for diagnostics, we need the object. Let's assume we refit or load from a pickle.
+    # Since we can't easily pickle MixedLMResults across environments without care, let's refit using the lme_model module.
+    # We need to know the formula.
     
-    # Since we don't have a direct way to refit with different alphas in the same model,
-    # we'll analyze the coefficient stability by looking at confidence intervals
-    # The alpha affects the width of the CIs, not the point estimates
+    # Determine predictors based on VIF logic (T023)
+    # If Energy Density VIF > 5, we drop P, v, h, t and keep Ev.
+    # Let's assume Ev is the primary predictor if it exists and VIF logic was applied.
+    # We will try to fit a model with Ev, and if that fails, try the full set.
     
-    if full_model_data:
-        coefficients = full_model_data.get('fixed_effects', {})
-        std_errors = full_model_data.get('std_errors', {})
-        
-        for alpha in alpha_levels:
-            ci_width = 2 * 1.96 * (1 + (alpha - 0.05) * 2)  # Approximate adjustment
-            results["results_by_alpha"][alpha] = {
-                "ci_multiplier": 1.96 if alpha == 0.05 else (2.576 if alpha == 0.01 else 1.645),
-                "note": "CI width varies with alpha, point estimates remain constant"
-            }
-        
-        # Compute coefficient variation (simple metric)
-        if coefficients:
-            coef_values = list(coefficients.values())
-            if len(coef_values) > 0:
-                results["coefficient_variation"] = {
-                    "mean": float(np.mean(coef_values)),
-                    "std": float(np.std(coef_values)),
-                    "cv": float(np.std(coef_values) / np.mean(coef_values)) if np.mean(coef_values) != 0 else 0
-                }
+    predictors = ['energy_density']
+    # Fallback if energy_density column is missing or we want to test the full set
+    if 'energy_density' not in df.columns:
+        predictors = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
     
-    return results
+    # Check if columns exist
+    valid_predictors = [p for p in predictors if p in df.columns]
+    if not valid_predictors:
+        logger.error("No valid predictors found for modeling.")
+        return False
+
+    formula = f"{target_col} ~ " + " + ".join(valid_predictors)
+    groups = 'alloy_family'
+
+    logger.info(f"Fitting Full Model with formula: {formula}")
+    try:
+        full_model = fit_lme_model(df, formula, groups)
+        if full_model is None:
+            logger.error("Full model fitting failed or returned None.")
+            return False
+    except Exception as e:
+        logger.error(f"Error fitting full model: {e}")
+        return False
+
+    # Fit Null Model (Intercept only)
+    null_formula = f"{target_col} ~ 1"
+    logger.info(f"Fitting Null Model with formula: {null_formula}")
+    try:
+        null_model = fit_lme_model(df, null_formula, groups)
+        if null_model is None:
+            logger.error("Null model fitting failed.")
+            return False
+    except Exception as e:
+        logger.error(f"Error fitting null model: {e}")
+        return False
+
+    # Compute Partial R²
+    logger.info("Computing Partial R²...")
+    partial_r2 = compute_partial_r2(full_model, df, target_col)
+    if partial_r2 is not None:
+        logger.info(f"Partial R²: {partial_r2:.4f}")
+        if partial_r2 < 0.50:
+            logger.warning(f"Partial R² ({partial_r2:.4f}) is below 0.50. Model explanatory power is low.")
+    else:
+        logger.warning("Could not compute Partial R².")
+
+    # Likelihood-Ratio Test
+    logger.info("Performing Likelihood-Ratio Test...")
+    lr_stat, p_value = likelihood_ratio_test(full_model, null_model)
+    if lr_stat is not None:
+        logger.info(f"LRT Statistic: {lr_stat:.4f}, p-value: {p_value:.6f}")
+        alpha = 0.05
+        if p_value < alpha:
+            logger.info(f"Result is significant at α={alpha}. Reject H0.")
+        else:
+            logger.info(f"Result is NOT significant at α={alpha}. Fail to reject H0.")
+    else:
+        logger.warning("Could not perform Likelihood-Ratio Test.")
+
+    # Save results
+    diagnostics_result = {
+        "partial_r2": partial_r2,
+        "likelihood_ratio_test": {
+            "statistic": lr_stat,
+            "p_value": p_value,
+            "alpha": 0.05,
+            "significant": p_value < 0.05 if p_value is not None else None
+        },
+        "model_convergence": full_model.converged if hasattr(full_model, 'converged') else True,
+        "formula": formula,
+        "null_formula": null_formula
+    }
+
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(diagnostics_result, f, indent=2)
+    
+    logger.info(f"Diagnostics saved to {output_path}")
+    return True
+
+def main():
+    """
+    Main entry point for the sensitivity analysis task.
+    """
+    # Define paths relative to project root
+    # Assuming project root is the parent of 'code'
+    project_root = Path(__file__).resolve().parent.parent.parent
+    curated_data_path = project_root / "data" / "curated_builds.csv"
+    results_path = project_root / "artifacts" / "lme_results.json" # Placeholder, not strictly needed for refit
+    output_path = project_root / "artifacts" / "sensitivity_diagnostics.json"
+
+    # Ensure artifacts directory exists
+    (project_root / "artifacts").mkdir(parents=True, exist_ok=True)
+
+    success = run_diagnostics(str(curated_data_path), str(results_path), str(output_path))
+    
+    if not success:
+        logger.error("Diagnostics run failed.")
+        sys.exit(1)
+    
+    logger.info("Diagnostics completed successfully.")
 
 def main():
     """Main entry point for running diagnostics."""

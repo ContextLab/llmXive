@@ -87,7 +87,7 @@
  - **Merge**: Combine all successful sources.
  - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
  - **Output**: A unified DataFrame.
-- [X] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
  - Merge these descriptors into the unified DataFrame.
  - Log any API failures but proceed with available data.
@@ -103,7 +103,7 @@
 - [X] T019 [US1] Add validation check in `code/data/cleaning.py`:
  - If row count < 50, log critical warning but proceed.
  - Log total excluded records and reasons.
-- [X] T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T020 [US1] Version the `data/curated_builds.csv` artifact: <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
  - Compute SHA-256 hash of the CSV file.
  - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
  - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
@@ -184,7 +184,7 @@
  - Load `MixedEffectsResult` artifact from T027.
  - **Comparison**: Compare the top 3 features from XGBoost with the top 3 coefficients from the LME model.
  - **Conditional Logic**: If FR-005 logic (in T023) resulted in a reduced feature set (e.g., only Energy Density), compare the importance/coefficient of the shared feature(s). If the feature sets are disjoint, log a warning and compare only the intersection of features.
-- [X] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
+- [ ] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
 
 **Checkpoint**: All user stories should now be independently functional
 

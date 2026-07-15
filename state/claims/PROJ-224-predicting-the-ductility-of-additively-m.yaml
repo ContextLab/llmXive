@@ -112,58 +112,234 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T01:31:29Z'
-- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
   attempts: 1
-  canonical: curated dataset contains 50 or more rows
-  claim_id: c_4cce73f5
-  context: 'Dataset Size: The final curated dataset contains $N$ rows (where $N \ge
-    50$), sufficient for the statistical analyses performed.'
+  canonical: Python 3.11 virtual environment initialized
+  claim_id: c_9159d9be
+  context: '[X] T005 [P] Initialize Python 3.11 virtual environment'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The final curated dataset contains N rows (where N >= 50), sufficient
-    for the statistical analyses performed.
+  raw_text: Initialize Python 3.11 virtual environment
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T13:25:47Z'
-- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  updated_at: '2026-07-15T13:02:20Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
   attempts: 1
-  canonical: dataset size is less than 100 rows
-  claim_id: c_f1ae7c44
-  context: 'Splitting Strategy: Given the dataset size ($N < 100$), a Leave-One-Alloy-Family-Out
-    (LOAFO) cross-validation strategy was employed to ensure the model generalizes
-    across different material families.'
+  canonical: requirements.txt includes pandas, numpy, scikit-learn, statsmodels, xgboost,
+    requests, lxml, pyyaml
+  claim_id: c_c4935b41
+  context: '[X] T006 [P] Create `requirements.txt` with pinned versions: pandas, numpy,
+    scikit-learn, statsmodels, xgboost, requests, lxml, pyyaml'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements.txt_includes_pandas,_numpy,_scikit-learn,_stats
+  kind: entity_fact
+  raw_text: 'Create `requirements.txt` with pinned versions: pandas, numpy, scikit-learn,
+    statsmodels, xgboost, requests, lxml, pyyaml'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:41Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Pipeline proceeds if row count is less than 50
+  claim_id: c_819dd33e
+  context: "Implement validation check in `code/data/cleaning.py`:\n - If row count\
+    \ < 50, log critical warning but proceed."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_less_than_100_rows
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_if_row_count_is_less_than_50
   kind: magnitude
-  raw_text: Given the dataset size (N < 100), a Leave-One-Alloy-Family-Out (LOAFO)
-    cross-validation strategy was employed to ensure the model generalizes across
-    different material families.
+  raw_text: If row count < 50, log critical warning but proceed.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T13:26:39Z'
-- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  updated_at: '2026-07-15T13:03:08Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
   attempts: 1
-  canonical: dataset contains approximately 50 to 100 rows
-  claim_id: c_c2d8efc4
-  context: 'Data Scarcity: The dataset is limited to ~50-100 rows, primarily derived
-    from a few literature sources.'
+  canonical: Pipeline continues if HuggingFace is unavailable
+  claim_id: c_181ce2d0
+  context: '- **Error Handling**: If HuggingFace is unreachable or returns empty,
+    log a CRITICAL warning but **DO NOT** fail.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_continues_if_HuggingFace_is_unavailable
+  kind: entity_fact
+  raw_text: If HuggingFace is unreachable or returns empty, log a CRITICAL warning
+    but DO NOT fail.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:34Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: 'Energy density calculation: Ev = P / (v * h * t)'
+  claim_id: c_dbff1dc8
+  context: "- Calculate volumetric energy density: `E_v = P / (v * h * t)`.\n - Add\
+    \ `E_v` to the dataset."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Energy_density_calculation:_Ev_=_P_/_(v_*_h_*_t)
+  kind: entity_fact
+  raw_text: 'Calculate volumetric energy density: `E_v = P / (v * h * t)`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:04:13Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Predictors dropped if Energy Density VIF exceeds 5
+  claim_id: c_b53674d3
+  context: "- Calculate VIF for all fixed-effect predictors (Power, Speed, Hatch,\
+    \ Thickness, Energy Density).\n - **Logic**: IF Energy Density VIF > 5 THEN:\n\
+    \ - Drop the individual constituent predictors (Power, Speed, Hatch, Thickness)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The dataset is limited to ~50-100 rows, primarily derived from a few literature
-    sources.
+  raw_text: 'If Energy Density VIF > 5 THEN: Drop the individual constituent predictors
+    (Power, Speed, Hatch, Thickness).'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-15T13:26:58Z'
+  updated_at: '2026-07-15T13:04:13Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: Model convergence failure flagged
+  claim_id: c_9c436f77
+  context: "- Ensure model uses CPU-only execution.\n - Extract standardized coefficients,\
+    \ 95% CIs, and p-values.\n - **Convergence Check**: If the model fails to converge,\
+    \ log an ERROR, set a `convergence_failed` flag in the output artifact, and DO\
+    \ NOT proceed with coefficient interpretation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_convergence_failure_flagged
+  kind: entity_fact
+  raw_text: If model fails to converge, log an ERROR, set a `convergence_failed` flag
+    in the output artifact, and DO NOT proceed with coefficient interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:04:37Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: "Warning logged if partial R\xB2 is less than 0.50"
+  claim_id: c_4082777e
+  context: "- Compute partial R\xB2.\n - If partial R\xB2 < 0.50, log warning (do\
+    \ not abort)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_partial_R%C2%B2_is_less_than_0.50
+  kind: magnitude
+  raw_text: "If partial R\xB2 < 0.50, log warning (do not abort)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:04:54Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/specs/001-predicting-the-ductility-of-additively-m/tasks.md
+  attempts: 1
+  canonical: "Result logged if R\xB2 is less than 0.60"
+  claim_id: c_b41125cd
+  context: "- Evaluate on held-out test set (or LOAFO aggregated metrics).\n - Record\
+    \ R\xB2, MAE, RMSE.\n - If R\xB2 < 0.60, log result but do not abort."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Result_logged_if_R%C2%B2_is_less_than_0.60
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.60, log result but do not abort."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:11Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: dataset contains 84 records after cleaning
+  claim_id: c_22b97393
+  context: 'The dataset was constructed by parsing supplementary tables from four
+    key literature sources... Total Records: N = 84 (after cleaning).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Records: N = 84 (after cleaning).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:37:37Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: linear mixed-effects model partial R-squared is 0.42
+  claim_id: c_d823d10c
+  context: 'Fixed Effect Coefficient: The coefficient for Ev was negative... Partial
+    R^2: 0.42. This indicates that process parameters explain roughly 42% of the variance...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Partial R^2: 0.42.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:38:43Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: XGBoost model root mean squared error is 3.1 percent
+  claim_id: c_5ebb2ea3
+  context: 'Metrics (LOAFO Aggregated): R^2: 0.68, MAE: 2.4%, RMSE: 3.1%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE: 3.1%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:38:43Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: HuggingFace additive-manufacturing-superalloy collection query returned
+    no usable records
+  claim_id: c_16b9eac3
+  context: 'Secondary Source: The HuggingFace query returned no usable records; the
+    pipeline proceeded with literature data only...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_additive-manufacturing-superalloy_collection_que
+  kind: entity_fact
+  raw_text: The HuggingFace query returned no usable records
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:39:02Z'
