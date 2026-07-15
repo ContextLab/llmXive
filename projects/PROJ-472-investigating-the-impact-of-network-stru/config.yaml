@@ -1,0 +1,44 @@
+# Configuration for Network Structure and Neural Avalanche Dynamics Pipeline
+# T029 Validation: This file is required by main.py --config argument
+
+project:
+  name: "PROJ-472-investigating-the-impact-of-network-stru"
+  version: "1.0.0"
+  seed: 42
+
+paths:
+  data_root: "data"
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "data/results"
+  figures: "figures"
+  logs: "logs"
+
+simulation:
+  # Wilson-Cowan Parameters (from T004)
+  connection_strength: 1.5
+  time_constant: 10.0
+  external_input: 0.5
+  noise_scale: 0.1
+  
+  # EEG Simulation
+  sampling_rate: 250  # Hz
+  duration: 60  # seconds
+  n_channels: 64
+
+analysis:
+  # Avalanche Detection
+  threshold_percentile: 95
+  min_avalanche_size: 1
+  
+  # Power Law Fitting
+  fit_min_size: 3
+  
+  # Statistics
+  n_permutations: 1000
+  alpha: 0.05
+  vif_threshold: 5.0
+
+qc:
+  min_snr_db: 5.0
+  min_subjects_for_analysis: 10

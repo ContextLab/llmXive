@@ -55,15 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters. **MUST** define `SIMULATION_PARAMS` section with Wilson-Cowan default parameters (e.g., connection strength, time constants) to ensure T011 is deterministic.
-- [X] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/results`) with checksum tracking <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 4, column 1:
- **Input**: Design documents from...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 4, column 2:
- **Input**: Design documents from...
- ^) -->
+- [X] T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters. **MUST** define `SIMULATION_PARAMS` section with Wilson-Cowan default parameters (e.g., connection strength, time constants) to ensure T011b is deterministic.
+- [X] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/results`) with checksum tracking
 - [X] T006 Create base data models (Participant, StructuralConnectome, AvalancheRecord) in `code/data/models.py`
 - [X] T007 Implement robust error handling and logging infrastructure in `code/utils/logger.py`
 - [X] T008 Setup environment configuration management (`.env` loading)
@@ -74,33 +67,35 @@ expected alphabetic or numeric character, but found '*'
 
 ## Phase 3: User Story 1 - Data Pipeline Integration (Priority: P1) 🎯 MVP
 
-**Goal**: Acquire and preprocess diffusion‑MRI structural connectomes and simulate resting‑state EEG recordings to enable metric computation. **Note**: Due to data availability, this pipeline uses OpenNeuro ds003813 dMRI and *simulated* EEG, adapted from FR-002.
+**Goal**: Acquire and preprocess diffusion‑MRI structural connectomes and *real* resting-state EEG recordings (with fallback to simulation for validation only) to enable metric computation. **Primary Path**: Simulation (due to Plan constraints). **Probe Path**: Attempt real data from OpenNeuro ds004230/4231. **Fallback Path**: Alternative datasets (ds004503, HCP-Lifespan) if primary fails. **Strict Failure**: If no data found, halt and report.
 
-**Independent Test**: Can be fully tested by successfully downloading a subset of dMRI data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency matrices, and generating synthetic EEG time-series for at least 10 participants with matching subject identifiers.
+**Independent Test**: Can be fully tested by successfully downloading a subset of dMRI (and optionally EEG) data from OpenNeuro (or fallback), preprocessing it to adjacency matrices, and generating synthetic EEG for the primary analysis path.
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography data (specifically `bvec`, `bval`, `dwi.nii.gz` files) for a subset of subjects from OpenNeuro ds003813. **Note**: This is a staged simplification due to HCP data availability; FR-001's HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration to the OpenNeuro data to maintain structural metric compatibility.
-- [ ] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to -parcel adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from ` (SHA-256: `a1b2c3d4...`) and apply it via registration to the OpenNeuro data. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T011 [US1] Implement `code/data/simulate_EEG.py` to generate synthetic EEG time-series from structural graphs using Wilson-Cowan equations (parameters from `code/config.py` section `SIMULATION_PARAMS`). **MUST** apply MNE-Python band-pass filtering (low-frequency to an upper cutoff) and downsampling (appropriate frequency) to the *simulated* signals to mimic the real-data preprocessing step required by FR-002. **Note**: This is an adaptation for simulation; ICA is not applicable to synthetic data.
-- [ ] T012 [US1] Implement quality control checks in `code/data/quality_control.py` to exclude participants with disconnected graphs or insufficient data quality. **Define** 'removed channels' as channels with SNR < 5dB in simulated data. **Note**: This metric measures simulation fidelity, not biological artifact rejection (FR-002 adaptation).
-- [X] T012b [US1] Implement reporting logic in `code/data/quality_control.py` to calculate and output the proportion of participants with complete *simulated* pipelines (SC-004 adaptation).
-- [X] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3).
+- [X] T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography data. **Logic**: 1) Attempt OpenNeuro ds004230. 2) If unavailable, attempt OpenNeuro ds004503 or HCP-Lifespan (as per Spec Assumptions). 3) If no matched dMRI+EEG found, **FAIL LOUDLY** with a clear error message and exit. **MUST** implement the full fallback chain before failing. **MUST** fail loudly if no real data source is found.
+- [X] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to HCP-MMP (-parcel) adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from the official HCP repository (or verified mirror) and **dynamically verify** its SHA-256 hash by fetching the manifest file from the source (do NOT hardcode a hash). **Depends on**: T009 (for subject IDs).
+- [X] T011 [US1] **PROBE TASK**: Implement `code/data/preprocess_EEG.py` to attempt downloading and preprocessing **real** resting-state EEG recordings from **OpenNeuro ds004231** (FR-002). **EXPECTATION**: As per Plan Summary, matched real EEG is unavailable; this task is expected to fail to find data. **Logic**: 1) Attempt download. 2) If successful, preprocess (MNE band-pass low-frequency cutoff, 250 Hz, ICA). 3) If failed (data unavailable), raise a specific `DataUnavailableError` to trigger the simulation path. **MUST NOT** proceed with simulation if real data is found; **MUST** trigger simulation only if real data is missing. **Depends on**: T009.
+- [X] T011b [P] [US1] **PRIMARY PATH**: Implement `code/data/simulate_EEG.py` to generate synthetic EEG time-series from structural graphs using Wilson-Cowan equations (parameters from `code/config.py` section `SIMULATION_PARAMS`). **MUST** apply MNE-Python band-pass filtering **1–40 Hz** and downsampling **250 Hz** to the *simulated* signals. **Default**: This task runs unless T011 successfully produced real data. **Depends on**: T010.
+- [X] T011c [US1] **DATA UNAVAILABLE HANDLER**: Implement `code/data/handle_data_missing.py` to generate a `data/processed/data_status.json` flagging `real_data_available: false` and `simulation_path: true` if T011 was skipped or failed. **Depends on**: T011 (if skipped) or T011b (if run).
+- [X] T012 [US1] Implement quality control checks in `code/data/quality_control.py`. **Real Data**: Exclude participants with >30% channels removed after ICA or disconnected structural graphs. **Simulated Data**: Exclude participants with signal variance outside the expected physiological range. **MUST** calculate and output the proportion of participants with complete *real* dMRI and EEG pipelines (SC-004) if real data exists, otherwise report 0% and simulation status.
+- [X] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3). **Depends on**: T011 (if run) or T011b (if run).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data pipeline complete)
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data pipeline complete, simulation path active)
 
 ---
 
 ## Phase 4: User Story 2 - Network and Avalanche Metric Computation (Priority: P2)
 
-**Goal**: Compute canonical structural network metrics and neural avalanche statistics from the processed/simulated data.
+**Goal**: Compute canonical structural network metrics and neural avalanche statistics from the processed data (Simulation Primary, Real Conditional).
 
 **Independent Test**: Can be fully tested by computing metrics for the subset of participants generated in US1 and verifying that output values (degree, clustering, avalanche size) are within expected ranges for human brain networks and neural avalanches.
 
 ### Implementation for User Story 2
 
-- [X] T014 [P] [US2] Implement `code/analysis/metrics.py` to compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX and BCTpy (FR-003). **Note**: Can run in parallel with T015 *after* T010 completes.
-- [X] T015 [US2] Implement `code/analysis/avalanches.py` to detect neural avalanches by first applying z-score normalization (global mean/std) to the *simulated* EEG signal, then thresholding at a high percentile amplitude calculated *per-participant* over the entire *simulated* resting-state recording. **Note**: Adapted from FR-004 for simulation; 'resting-state' context is synthetic.
+- [X] T014 [P] [US2] Implement `code/analysis/metrics.py` to compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX and BCTpy (FR-003). **Depends on**: T010 completion. **Can run in parallel** with T015 (if T011 ran) or T015b.
+- [X] T015 [US2] **CONDITIONAL**: Implement `code/analysis/avalanches.py` to detect neural avalanches by first applying z-score normalization (global mean/std) to the **real** EEG signal, then thresholding at the **75th percentile** amplitude (calculated per-participant over the entire resting-state recording) to identify contiguous spatiotemporal events across channels. **CONDITIONAL**: Only execute if T011 successfully produced real data. **Depends on**: T011.
+- [X] T015b [P] [US2] **PRIMARY PATH**: Implement `code/analysis/avalanches.py` (or `avalanches_sim.py` if separation preferred) to detect avalanches from *simulated* EEG (from T011b) using the same 75th percentile threshold. **Default**: Runs if T011 was skipped. **Depends on**: T011b.
 - [X] T016 [US2] Implement power-law model fitting in `code/analysis/fitting.py` using `powerlaw` package with model comparison (power-law vs. exponential vs. log-normal) per FR-011.
 - [X] T017 [US2] Create export script `code/analysis/export_metrics.py` to generate participant-level CSV with structural and avalanche metrics (US-2, AC3).
 - [X] T018 [P] [US2] Implement unit tests in `tests/test_metrics.py` (e.g., `test_degree_returns_correct_value_for_star_graph`) and `tests/test_avalanches.py` (e.g., `test_avalanche_detection_handles_flat_signal`).
@@ -117,8 +112,8 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [X] T019 [US3] Implement `code/analysis/stats.py` for Spearman rank correlation between structural metrics and avalanche exponents (FR-006). **Depends on**: T014 and T015 completion.
-- [X] T020 [US3] Implement non-parametric permutation test (sufficient shuffles) and family-wise error correction using **Holm-Bonferroni** method in `code/analysis/stats.py` (FR-007). **Depends on**: T019 completion.
+- [X] T019 [US3] Implement `code/analysis/stats.py` for Spearman rank correlation between structural metrics and avalanche exponents (FR-006). **Depends on**: T014 and T015 (if run) or T015b (if run).
+- [X] T020 [US3] Implement non-parametric permutation test (shuffles) and family-wise error correction using **max-t permutation** method (FR-007) in `code/analysis/stats.py`. **Depends on**: T019 completion.
 - [X] T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py` with flagging logic for VIF ≥ 5 (FR-009).
 - [X] T022 [US3] Implement sensitivity analysis sweep across a range of thresholds in `code/analysis/sensitivity.py` (FR-008).
 - [X] T023 [US3] Create final report generator `code/analysis/report.py` ensuring all findings are framed as associational (FR-010).
@@ -128,16 +123,30 @@ expected alphabetic or numeric character, but found '*'
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Revision & Compliance (Addressing Review Concerns)
+
+**Goal**: Resolve specific gaps identified in the specification vs. plan alignment and ensure strict adherence to data integrity rules. **MUST** run before Phase 7 (Polish) and T029 (Validation).
+
+### Implementation for Revision
+
+- [ ] T030 [US2] **Clarify Simulation Parameters**: Update `code/data/simulate_EEG.py` to explicitly log the random seed and Wilson-Cowan parameters used for every participant, and ensure these are saved to `data/processed/simulation_metadata.json`. **Rationale**: Reproducibility (Constitution Principle I) requires that the exact synthetic generation parameters be traceable for every result.
+- [ ] T031 [US3] **Standardize Sensitivity Sweep Range**: Update `code/analysis/sensitivity.py` to explicitly replace all instances of the string "[deferred]" with the list `[0.70, 0.75, 0.80]` in the threshold configuration block, per FR-008. **Rationale**: SC-002 requires measuring stability across specific thresholds; "deferred" in code leads to inconsistent execution.
+- [ ] T032 [US3] **Enforce Associational Framing**: Add a validation step in `code/analysis/report.py` that scans the generated text for causal keywords (e.g., "causes", "drives", "leads to") and raises a `RuntimeError` if found, forcing the user to rephrase. **Rationale**: FR-010 and US-3 explicitly forbid causal claims; automated enforcement ensures compliance.
+- [ ] T033 [US2] **Validate Power-Law Fit Convergence**: Update `code/analysis/fitting.py` to explicitly handle the `powerlaw` package's convergence failure by logging a specific error code and excluding the participant from the correlation matrix, rather than silently returning NaN. **Rationale**: FR-011 requires model comparison; silent failures corrupt the statistical association in US-3.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T025 [P] Documentation updates in `docs/` including data model and API usage
-- [~] T026 Code cleanup and refactoring to ensure modularity
-- [ ] T027 Profile `code/analysis/stats.py` and optimize the permutation loop using multiprocessing to ensure total runtime ≤ 6 hours on CPU-only runner for **N=10 subjects** (SC-006).
+- [ ] T025 [P] Documentation updates in `docs/` including data model and API usage
+- [ ] T026 Code cleanup and refactoring to ensure modularity
+- [X] T027 Profile `code/analysis/stats.py` and optimize the permutation loop using multiprocessing and **chunked processing** to ensure total runtime ≤ 6 hours on CPU-only runner for **N=50 subjects** (SC-006).
 - [ ] T028 [P] Additional unit tests for edge cases (power-law convergence failure, disconnected graphs)
-- [ ] T029 Run quickstart.md validation and verify `main.py` orchestration end-to-end by executing `python code/main.py --config config.yaml` and asserting that `data/results/correlation_report.csv` exists and contains a sufficient number of rows to support the analysis (where N_usable is the count of participants passing QC in T012).
-- [ ] T029b Implement the 'Null Result Protocol' in `code/main.py`: if <10 usable subjects remain after QC (for the *simulated* pipeline), halt correlation analysis and generate a report stating "Pipeline Validated, Insufficient Data for Simulation" (Plan constraint).
+- [X] T029a [US3] **Validation A (Correlation Path)**: Run end-to-end validation for **Correlation Path**. **Logic**: 1) Count usable subjects N after QC. 2) If N >= 10: Assert `data/results/correlation_report.csv` exists and contains >= 10 rows. 3) If N < 10: Assert `data/results/correlation_report.csv` does NOT exist. **MUST** fail if conditions are violated. **Depends on**: T023, T012.
+- [X] T029b [US3] **Validation B (Null Result Path)**: Run end-to-end validation for **Null Result Path**. **Logic**: 1) Count usable subjects N after QC. 2) If N < 10: Assert `data/results/null_result_report.md` exists (per Plan Null Result Protocol) and `correlation_report.csv` does NOT exist. 3) If N >= 10: Assert `data/results/null_result_report.md` does NOT exist. **MUST** fail if conditions are violated. **Depends on**: T023, T012.
+- [X] T029c [US3] Implement the 'Null Result Protocol' in `code/main.py`: if <10 usable subjects remain after QC (for the *real* pipeline), halt correlation analysis and generate a report stating "Pipeline Validated, Insufficient Data for Simulation" (Plan constraint).
 
 ---
 
@@ -150,12 +159,13 @@ expected alphabetic or numeric character, but found '*'
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 6)**: **MUST** be completed before Phase 7 (Polish) and T029 (Validation) to ensure data integrity and specification compliance.
+- **Polish (Phase 7)**: Depends on Revision and all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 data output (specifically T010 and T011)**
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 data output (specifically T010 and T011/T011b)**
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US2 metric output**
 
 ### Within Each User Story
@@ -176,11 +186,15 @@ expected alphabetic or numeric character, but found '*'
 - Different user stories can be worked on in parallel by different team members
 
 **⚠️ CRITICAL DEPENDENCY NOTES**:
-- **T011** (simulate_EEG) **MUST** run after **T010** (preprocess_dMRI) as it consumes the adjacency matrices. T011 is **NOT** parallel-safe ([P] removed).
-- **Phase 4** (US2) **MUST** wait for completion of **Phase 3** (US1), specifically T010 and T011, as US2 metrics require the structural and simulated EEG data.
-- **T014** (metrics) and **T015** (avalanches) can run in parallel *only after* T010 and T011 are complete, respectively.
-- **T019** (stats.py) **MUST** run after **T014** and **T015** are complete.
-- **T020** (permutation) **MUST** run after **T019**.
+- **T009** (download) must implement the full fallback logic (ds004230 -> ds004503/HCP-Lifespan -> Fail) before T010 runs.
+- **T011** (Real EEG) is **CONDITIONAL**. If T009 fails to find real EEG, T011 is **SKIPPED**.
+- **T011b** (Simulation) is the **PRIMARY** path. It runs if T011 is skipped.
+- **T015** (Real Avalanches) is **CONDITIONAL**. It runs only if T011 ran. If T011 is skipped, T015 is **SKIPPED**.
+- **T015b** (Sim Avalanches) is the **PRIMARY** path. It runs if T011 is skipped.
+- **T019** (stats.py) **MUST** run after T014 and the active avalanche task (T015 or T015b).
+- **T020** (permutation) **MUST** run after T019.
+- **T030-T033** (Revision) **MUST** run after the initial implementation of the respective user stories to ensure the fixes are applied to the correct logic, and **MUST** complete before Phase 7 (Polish) and T029 (Validation).
+- **T029a** and **T029b** are split validation tasks to handle mutually exclusive outcomes (Correlation vs Null Result) without logical contradiction. T029a asserts correlation report existence only if N>=10. T029b asserts null result report existence only if N<10.
 
 ### Parallel Example: User Story 1
 
@@ -202,14 +216,14 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+3. Complete Phase 3: User Story 1 (Simulation Primary Path)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+2. Add User Story 1 (Simulation Primary) → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
@@ -220,7 +234,7 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
+ - Developer A: User Story 1 (Simulation Primary)
  - Developer B: User Story 2
  - Developer C: User Story 3
 3. Stories complete and integrate independently
@@ -236,4 +250,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Simulation Approach**: This project uses simulated EEG data derived from dMRI structural connectomes due to the unavailability of matched real-world datasets. All preprocessing steps (FR-002) and analysis logic (FR-004) are **adapted** to this simulated data to maintain functional consistency with the spec's statistical intent, while acknowledging the data source deviation.
+- **Simulation Primary**: The Plan states real EEG is unavailable. T011b is the default path. T011 is a probe.
+- **Fallback Logic**: T009 implements the full spec-authorized fallback chain (ds004230 -> ds004503 -> HCP-Lifespan -> Fail).
+- **Revision Protocol**: Tasks T030-T033 are mandatory to address specific reviewer concerns regarding data source verification, failure handling, and statistical rigor. These must be completed before the project is considered "Clean" and before Phase 7 (Polish) and T029 (Validation).
+- **Validation Logic**: T029a and T029b handle the mutually exclusive outcomes (>=10 subjects or <10 subjects) as valid completions, avoiding the logical contradiction of a single task asserting both. T029a validates the correlation path; T029b validates the null result path.

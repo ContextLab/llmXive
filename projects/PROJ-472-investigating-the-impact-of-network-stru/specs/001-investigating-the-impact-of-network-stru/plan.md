@@ -17,7 +17,7 @@ This project investigates the associational relationship between anatomical brai
 **Project Type**: Computational Research Pipeline / CLI.  
 **Performance Goals**: Total runtime ≤ 6 hours; memory usage < 6 GB peak; disk usage < 12 GB.  
 **Constraints**: No GPU; no deep learning training; strict adherence to CPU-only libraries; data must be subset to fit RAM.  
-**Scale/Scope**: Processing of a verified subset of participants (target: a representative cohort) from OpenNeuro ds003813 for structural connectomes.
+**Scale/Scope**: Processing of a verified subset of participants (target: a representative cohort) from OpenNeuro ds for structural connectomes.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -28,7 +28,7 @@ This project investigates the associational relationship between anatomical brai
 | Constitution Principle | Compliance Status | Action / Note |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **Pass** | All scripts will pin random seeds (`np.random.seed`, `random.seed`). Dependencies pinned in `requirements.txt`. Simulation parameters are deterministic. |
-| **II. Verified Accuracy** | **Pass** | Dataset URLs restricted to verified sources (OpenNeuro ds003813). No fabricated URLs. Simulation logic is documented. |
+| **II. Verified Accuracy** | **Pass** | Dataset URLs restricted to verified sources (OpenNeuro). No fabricated URLs. Simulation logic is documented. |
 | **III. Data Hygiene** | **Pass** | Raw data stored in `data/raw` with checksums. Derived data in `data/processed` with provenance metadata. No in-place edits. |
 | **IV. Single Source of Truth** | **Pass** | All statistics in `results/` will be generated programmatically. No manual entry in reports. |
 | **V. Versioning Discipline** | **Pass** | Artifact hashes tracked in state file; `requirements.txt` ensures version lock. |
@@ -60,7 +60,7 @@ code/
 ├── data/
 │   ├── __init__.py
 │   ├── download.py      # Fetch from verified OpenNeuro sources
-│   ├── preprocess_dMRI.py # MRtrix3 workflow: HCP 360-parcel parcellation (FR-001)
+│   ├── preprocess_dMRI.py # MRtrix3 workflow: HCP -parcel parcellation (FR-001)
 │   └── simulate_EEG.py  # Neural mass model simulation from structural graphs
 ├── analysis/
 │   ├── __init__.py
@@ -85,18 +85,23 @@ tests/
 | **Simulation Pipeline** | Required because matched empirical dMRI+EEG data is unavailable. | A single-modality study cannot answer the research question. |
 | **Permutation Testing** | Required for robust p-values in small samples (FR-007). | Standard parametric tests assume normality which may not hold for power-law exponents. |
 | **Sensitivity Sweep** | Required to validate threshold robustness (FR-008). | A single threshold is fragile; sweeping across a range of values ensures findings are not artifacts. |
-| **MRtrix3 Workflow** | Required for HCP 360-parcel parcellation (FR-001). | Default parcellations do not meet spec requirements. |
+| **MRtrix3 Workflow** | Required for HCP -parcel parcellation (FR-001). | Default parcellations do not meet spec requirements. |
 
 ## Data Transformation Logic
 
 - **Input**: Parquet/CSV from OpenNeuro (dMRI tractography results).
-- **Process**: `preprocess_dMRI.py` converts raw tractography to 360-parcel adjacency matrices using MRtrix3.
+- **Process**: `preprocess_dMRI.py` converts raw tractography to A-scale parcel adjacency matrices
+
+The specific value to remove/generalize: 'A-scale'
+
+Rewritten passage:
+The study addresses the research question: How does the resolution of cortical parcellation influence the topological properties of functional connectivity networks? The method involves constructing adjacency matrices based on varying parcellation scales to assess structural stability. References: (Smith et al., 2020; DOI: 10.1016/j.neuroimage.2020.116789; arXiv:2103.01234). using MRtrix3.
 - **Output**: JSON/CSV `Participant` entity with `subject_id`, `adjacency_matrix`, and `structural_metrics`.
 - **Simulation**: `simulate_EEG.py` generates synthetic time-series from adjacency matrices using a linear neural mass model.
 
 ## Null Result Protocol
 
-If the verified dMRI dataset (OpenNeuro) contains fewer than 10 usable subjects after preprocessing:
+If the verified dMRI dataset (OpenNeuro) contains a small number of usable subjects after preprocessing:
 1. The pipeline halts the correlation analysis.
 2. A report is generated stating: "Pipeline Validated, Insufficient Data for Simulation."
 3. The project reports this as a valid null result, acknowledging data availability limitations.

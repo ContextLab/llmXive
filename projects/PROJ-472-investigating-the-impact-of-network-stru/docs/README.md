@@ -1,63 +1,44 @@
-# llmXive: Network Structure & Neural Avalanche Dynamics
+# llmXive: Network Structure & Neural Avalanche Dynamics Documentation
 
-## Project Overview
+This directory contains the technical documentation for the `llmXive` research pipeline.
 
-This project investigates the relationship between structural brain network properties (derived from dMRI) and neural avalanche dynamics (derived from EEG). Due to data availability constraints, this implementation utilizes a simulation approach where synthetic EEG data is generated from structural connectomes using Wilson-Cowan equations.
+## Contents
 
-## Architecture
-
-The pipeline follows a modular design:
-1. **Data Ingestion**: Download and preprocess dMRI data.
-2. **Simulation**: Generate synthetic EEG based on structural graphs.
-3. **Analysis**: Compute network metrics and detect avalanches.
-4. **Statistics**: Test associations and robustness.
+- [Data Model Specification](001-data-model.md): Definition of core entities (Participant, StructuralConnectome, AvalancheRecord).
+- [API Usage Guide](002-api-usage.md): Examples and instructions for using the codebase modules.
+- [Workflow Guide](003-workflow-guide.md): Step-by-step execution flow from data acquisition to reporting.
 
 ## Quick Start
 
-### Prerequisites
+1. **Read the Data Model** to understand the data structures.
+2. **Review the Workflow Guide** to understand the execution order.
+3. **Consult the API Usage Guide** for implementation details.
 
-- Python 3.11+
-- MRtrix3 (for dMRI preprocessing)
-- MNE-Python
-- NetworkX, BCTpy, powerlaw
+## Project Structure
 
-### Installation
-
-```bash
-pip install -r code/requirements.txt
+```
+code/
+├── analysis/ # Metric computation, fitting, stats
+├── data/ # Download, preprocess, simulate, store
+├── utils/ # Logging, configuration, helpers
+├── config.py # Global parameters
+└── main.py # Orchestration entry point
+data/
+├── raw/ # Downloaded raw data
+├── processed/ # Preprocessed matrices and EEG
+└── results/ # Analysis outputs
+docs/ # This directory
+tests/ # Unit and integration tests
 ```
 
-### Running the Pipeline
+## Contributing
 
-Execute the main orchestration script:
-
-```bash
-python code/main.py --config config.yaml
-```
-
-This will:
-1. Download dMRI data (if not present).
-2. Preprocess connectomes.
-3. Simulate EEG.
-4. Compute metrics and avalanches.
-5. Run statistical analysis.
-6. Generate a final report.
-
-## Documentation
-
-- [Data Model](DATA_MODEL.md): Detailed description of core entities.
-- [API Usage](API_USAGE.md): Code examples for all major modules.
-- [Configuration](../code/config.py): Hyperparameters and path settings.
-
-## Output
-
-Results are stored in the `data/results/` directory:
-- `network_metrics.csv`: Structural graph metrics.
-- `avalanche_events.csv`: Detected avalanche parameters.
-- `powerlaw_fit.csv`: Model fitting results.
-- `correlation_report.csv`: Statistical associations.
-- `sensitivity_analysis.csv`: Threshold robustness results.
+When adding new modules:
+1. Update `code/requirements.txt` if new dependencies are needed.
+2. Add type hints and docstrings.
+3. Update this documentation if the API changes.
+4. Write corresponding tests in `tests/`.
 
 ## License
 
-MIT License
+See the project root LICENSE file.

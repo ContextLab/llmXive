@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T05:12:49.881211Z'
-current_stage: in_progress
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-472-investigating-the-impact-of-network-stru
-last_run_id: eca467ff-0d5e-4986-8fb7-c174332a8688
+last_run_id: 75c70c23-e1c2-4ffe-a662-c4a5e6dd8686
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru
 title: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
-updated_at: '2026-07-01T19:08:39.263892Z'
+updated_at: '2026-07-15T19:32:54.909365Z'

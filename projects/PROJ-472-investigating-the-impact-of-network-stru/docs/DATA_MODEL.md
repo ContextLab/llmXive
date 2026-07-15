@@ -1,111 +1,160 @@
 # Data Model Specification
 
-This document describes the core data structures used in the llmXive pipeline for investigating the impact of network structure on neural avalanche dynamics.
+This document defines the core data entities used throughout the Network Structure & Neural Avalanche Dynamics research pipeline.
 
 ## Overview
 
-The project utilizes three primary data entities:
-1. `Participant`: Represents a subject in the study, linking structural and functional data.
-2. `StructuralConnectome`: Represents the structural connectivity matrix derived from dMRI.
-3. `AvalancheRecord`: Represents a detected neural avalanche event from EEG data.
+The pipeline processes structural connectomes and simulated EEG data to compute network metrics and avalanche statistics. The data model ensures consistency across the download, preprocessing, simulation, analysis, and reporting stages.
 
-## Entity Definitions
+## Core Entities
 
 ### Participant
 
-The `Participant` class encapsulates metadata and file paths for a single study subject.
+Represents a single subject in the study.
 
 **Location**: `code/data/models.py`
 
-**Attributes**:
-- `subject_id` (str): Unique identifier for the participant (e.g., "sub-001").
-- `age` (Optional[int]): Age of the participant in years.
-- `sex` (Optional[str]): Biological sex of the participant.
-- `raw_dwi_path` (Optional[Path]): Path to the raw diffusion MRI data (`.nii.gz`).
-- `connectome_path` (Optional[Path]): Path to the processed adjacency matrix (`.csv` or `.npy`).
-- `eeg_path` (Optional[Path]): Path to the simulated or recorded EEG time-series (`.fif` or `.csv`).
-- `qc_status` (Optional[Dict]): Quality control metrics (SNR, connectivity status).
+```python
+@dataclass
+class Participant:
+ subject_id: str
+ qc_passed: bool = False
+ metadata: Dict[str, Any] = field(default_factory=dict)
+```
 
-**Usage Example**:
+**Fields**:
+- `subject_id` (str): Unique identifier (e.g., "sub-001", "sub-002")
+- `qc_passed` (bool): Whether the participant passed quality control checks
+- `metadata` (Dict): Additional subject information (age, sex, etc.)
+
+**Usage**:
 ```python
 from data.models import Participant
 
-p = Participant(subject_id="sub-001", age=25, sex="M")
-p.qc_status = {"snr": 12.5, "is_connected": True}
+participant = Participant(subject_id="sub-001", metadata={"age": 25})
 ```
+
+---
 
 ### StructuralConnectome
 
-The `StructuralConnectome` class represents the weighted adjacency matrix of the brain network.
+Represents the structural brain network derived from diffusion MRI tractography.
 
 **Location**: `code/data/models.py`
 
-**Attributes**:
-- `subject_id` (str): Link to the `Participant`.
-- `matrix` (np.ndarray): 2D numpy array representing the connectivity weights (N x N).
-- `parcel_names` (List[str]): List of region names corresponding to matrix indices.
-- `parcellation_scheme` (str): Name of the atlas used (e.g., "HCP-MMP1.0").
-- `threshold` (Optional[float]): The threshold applied to the matrix (if any).
+```python
+@dataclass
+class StructuralConnectome:
+ subject_id: str
+ adjacency_matrix: np.ndarray
+ node_labels: List[str]
+ source_file: Optional[str] = None
+```
 
-**Methods**:
-- `to_networkx()`: Converts the matrix to a `networkx.Graph` object.
-- `get_degree_centrality()`: Returns a 1D array of degree centralities.
+**Fields**:
+- `subject_id` (str): Link to the participant
+- `adjacency_matrix` (np.ndarray): N x N weighted adjacency matrix
+- `node_labels` (List[str]): Names of brain regions (e.g., HCP-MMP1.0 parcels)
+- `source_file` (str, optional): Path to the original tractography file
 
-**Usage Example**:
+**Usage**:
 ```python
 from data.models import StructuralConnectome
 import numpy as np
 
-matrix = np.array([[0, 0.5], [0.5, 0]])
-conn = StructuralConnectome(
- subject_id="sub-001",
- matrix=matrix,
- parcel_names=["Frontal", "Parietal"],
- parcellation_scheme="HCP-MMP1.0"
-)
-G = conn.to_networkx()
+matrix = np.random.rand(100, 100)
+labels = [f"Region_{i}" for i in range(100)]
+connectome = StructuralConnectome(subject_id="sub-001", adjacency_matrix=matrix, node_labels=labels)
 ```
+
+**Storage**: Saved as `.npy` files in `data/processed/connectomes/`
+
+---
 
 ### AvalancheRecord
 
-The `AvalancheRecord` class stores details about a single detected neural avalanche.
+Represents a detected neural avalanche event from the simulated EEG time-series.
 
 **Location**: `code/data/models.py`
 
-**Attributes**:
-- `subject_id` (str): Link to the `Participant`.
-- `start_time` (float): Start time of the avalanche in seconds.
-- `end_time` (float): End time of the avalanche in seconds.
-- `size` (int): Total number of active time bins or events in the avalanche.
-- `duration` (float): Duration of the avalanche in seconds.
-- `amplitude` (float): Peak amplitude of the avalanche.
-- `channels_involved` (List[int]): Indices of channels that participated.
+```python
+@dataclass
+class AvalancheRecord:
+ subject_id: str
+ start_time: float
+ end_time: float
+ size: float
+ duration: int
+ power_law_fit: Optional[Dict[str, float]] = None
+```
 
-**Usage Example**:
+**Fields**:
+- `subject_id` (str): Link to the participant
+- `start_time` (float): Start timestamp of the avalanche
+- `end_time` (float): End timestamp of the avalanche
+- `size` (float): Total activity (sum of amplitudes during the event)
+- `duration` (int): Duration in time steps
+- `power_law_fit` (Dict, optional): Fitted power-law parameters (exponent, xmin)
+
+**Usage**:
 ```python
 from data.models import AvalancheRecord
 
 record = AvalancheRecord(
  subject_id="sub-001",
- start_time=10.5,
- end_time=11.2,
- size=15,
- duration=0.7,
- amplitude=2.3,
- channels_involved=[0, 1, 4]
+ start_time=0.5,
+ end_time=1.2,
+ size=15.4,
+ duration=70
 )
 ```
 
+**Storage**: Aggregated into CSVs in `data/results/avalanche_metrics.csv`
+
+---
+
 ## Data Flow
 
-1. **Ingestion**: Raw dMRI data is loaded into `Participant` objects via `code/data/download.py`.
-2. **Processing**: `preprocess_dMRI.py` generates `StructuralConnectome` objects.
-3. **Simulation**: `simulate_EEG.py` generates time-series data associated with `Participant`.
-4. **Analysis**: `code/analysis/avalanches.py` processes EEG signals to produce `AvalancheRecord` lists.
-5. **Storage**: All artifacts are serialized to `data/processed/` and indexed in the central store.
+1. **Download**: Raw dMRI data (`bvec`, `bval`, `dwi.nii.gz`) fetched from OpenNeuro.
+2. **Preprocessing**: Tractography (`.tck`) converted to `StructuralConnectome` (adjacency matrix).
+3. **Simulation**: `StructuralConnectome` used to generate simulated EEG time-series.
+4. **QC**: `Participant` marked as `qc_passed` based on graph connectivity and SNR.
+5. **Analysis**: Simulated EEG processed to extract `AvalancheRecord` events.
+6. **Metrics**: Network metrics computed from `StructuralConnectome`.
+7. **Export**: All metrics aggregated into participant-level CSVs.
 
 ## File Formats
 
-- **Connectomes**: Saved as CSV (dense matrix) with headers as parcel names.
-- **EEG**: Saved as `.fif` (MNE-Python format) or CSV (time x channels).
-- **Avalanches**: Aggregated results stored in `data/results/avalanches.csv`.
+### Connectome Storage
+- **Format**: NumPy `.npy`
+- **Path**: `data/processed/connectomes/{subject_id}_connectome.npy`
+- **Structure**: 2D array (N_nodes x N_nodes)
+
+### EEG Time-Series
+- **Format**: CSV
+- **Path**: `data/processed/eeg/{subject_id}_eeg.csv`
+- **Columns**: `time`, `channel_0`, `channel_1`,...
+
+### Avalanche Records
+- **Format**: CSV
+- **Path**: `data/results/avalanche_events.csv`
+- **Columns**: `subject_id`, `start_time`, `end_time`, `size`, `duration`, `exponent`
+
+## Validation Rules
+
+- **Connectome**: Must be symmetric (undirected graph) and non-negative weights.
+- **EEG**: Must have consistent time steps across all channels.
+- **Avalanche**: `start_time` < `end_time`, `size` > 0, `duration` > 0.
+- **Participant**: `subject_id` must be unique and match across all data files.
+
+## Integration Points
+
+| Stage | Input Entity | Output Entity |
+|-------|--------------|---------------|
+| Download | - | Raw dMRI files |
+| Preprocess | Raw dMRI | `StructuralConnectome` |
+| Simulate | `StructuralConnectome` | Simulated EEG |
+| QC | `StructuralConnectome`, EEG | `Participant` (with `qc_passed`) |
+| Avalanches | Simulated EEG | `AvalancheRecord` |
+| Metrics | `StructuralConnectome` | Network metrics (CSV) |
+| Export | All | `correlation_report.csv` |
