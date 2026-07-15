@@ -1,0 +1,9 @@
+type: object
+properties:
+  Tg:
+    type: number
+  composition:
+    type: string
+required:
+- Tg
+- composition

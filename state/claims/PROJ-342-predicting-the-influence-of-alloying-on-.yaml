@@ -1,0 +1,619 @@
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 2
+  canonical: Fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_48cf89a0
+  context: "Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) \U0001F3AF\
+    \ MVP"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:41:44Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_64ea4da5
+  context: 'Task T012 [US1] Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:43:02Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fallback Zenodo DOI 10.5281/zenodo.11023456
+  claim_id: c_543e4318
+  context: 'Task T012 [US1] Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:43:05Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: mendeleev version 0.31.0
+  claim_id: c_9f48eaca
+  context: Task T002 Initialize Python 3.10 project with pinned dependencies (pandas,
+    scikit-learn, numpy, mendeleev==0.31.0, pyyaml, jsonschema)
+  evidence:
+    asserted: '3.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.10 project with pinned dependencies (pandas, scikit-learn,
+    numpy, mendeleev==0.31.0, pyyaml, jsonschema)
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T11:43:05Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: limit hyperparameter optimization grid search to 10 combinations
+  claim_id: c_6f7ed158
+  context: Implementation for User Story 2, task T023
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement grid search in code/train.py for hyperparameter optimization\
+    \ (\u226410 combos)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:45:49Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction with alpha less than or equal
+    to 0.05
+  claim_id: c_c2db1548
+  context: Implementation for User Story 3, task T034
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_with_alpha_less_than
+  kind: magnitude
+  raw_text: "Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on\
+    \ correlations (\u03B1 \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:46:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: flag Variance Inflation Factor greater than 5 for diagnostic review
+  claim_id: c_ea3fc1cb
+  context: Implementation for User Story 3, task T035
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factor_greater_than_5_for_diagnostic
+  kind: magnitude
+  raw_text: If VIF > 5, flag for diagnostic review (do NOT drop)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:46:34Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: calculate 95 percent confidence interval for feature importance via bootstrapping
+  claim_id: c_26282d5b
+  context: Implementation for User Story 3, task T037
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analyze.py for bootstrapping with a sufficient number of
+    resamples to calculate 95% CI for feature importance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:46:34Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 2
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_1448e2ca
+  context: "Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) \U0001F3AF\
+    \ MVP"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:50:48Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: compute descriptors using mendeleev version 0.31.0
+  claim_id: c_d34f896a
+  context: 'Phase 4: User Story 2 - Model Training, Feature Engineering, and Sensitivity
+    Analysis (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/descriptors.py` to compute radius mismatch, electronegativity
+    difference, VEC using `mendeleev==0.31.0`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:50:48Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_5a337ae2
+  context: 'Phase 5: User Story 3 - Result Interpretation, Reporting, and Statistical
+    Validation (Priority: P3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on\
+    \ correlations (\u03B1 \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:50:48Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_a822ecd8
+  context: "Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) \U0001F3AF\
+    \ MVP - Implementation for User Story 1"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:51:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.11023456 as fallback
+  claim_id: c_0381269d
+  context: "Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) \U0001F3AF\
+    \ MVP - Implementation for User Story 1"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:51:45Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_ed030c53
+  context: 'Implementation for User Story 1: T012 [US1] Implement `code/ingest.py`
+    to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: compute descriptors using mendeleev version 0.31.0
+  claim_id: c_8c98b76e
+  context: 'Implementation for User Story 2: T020 [P] [US2] Implement `code/descriptors.py`
+    to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0`
+    (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/descriptors.py` to compute radius mismatch, electronegativity
+    difference, VEC using `mendeleev==0.31.0`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: grid search for hyperparameter optimization with 10 or fewer combos
+  claim_id: c_3fd234c2
+  context: "Implementation for User Story 2: T023 [US2] Implement grid search in `code/train.py`\
+    \ for hyperparameter optimization (\u226410 combos) (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement grid search in `code/train.py` for hyperparameter optimization\
+    \ (\u226410 combos)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction on correlations with alpha 0.05
+  claim_id: c_413352e5
+  context: "Implementation for User Story 3: T034 [US3] Implement `code/analyze.py`\
+    \ for Benjamini-Hochberg FDR correction on correlations (\u03B1 \u2264 0.05) (FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on\
+    \ correlations (\u03B1 \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers diagnostic review flag
+  claim_id: c_30200db0
+  context: 'Implementation for User Story 3: T035 [US3] Implement `code/analyze.py`
+    for VIF calculation. If VIF > 5, flag for diagnostic review (do NOT drop).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, flag for diagnostic review
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: calculate 95% confidence interval for feature importance via bootstrapping
+  claim_id: c_ca3e3815
+  context: 'Implementation for User Story 3: T037 [US3] Implement `code/analyze.py`
+    for bootstrapping with a sufficient number of resamples to calculate 95% CI for
+    feature importance (SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bootstrapping with a sufficient number of resamples to calculate 95% CI
+    for feature importance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:54:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: validate report against artifact.schema.yaml
+  claim_id: c_6beb7a78
+  context: 'Implementation for User Story 3: T042 [US3] Validate report against `artifact.schema.yaml`
+    (Single Source of Truth)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_report_against_artifact.schema.yaml
+  kind: entity_fact
+  raw_text: validate report against `artifact.schema.yaml` (Single Source of Truth)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:55:00Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_89881b80
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation. Implementation
+    task T012.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:56:07Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.11023456 as fallback
+  claim_id: c_29dc6d27
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation. Implementation
+    task T012.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:56:11Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: use mendeleev version 0.31.0 for descriptor calculation
+  claim_id: c_c0c4bba8
+  context: 'Phase 4: User Story 2 - Model Training, Feature Engineering, and Sensitivity
+    Analysis. Implementation task T020.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:56:11Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_ec9e32e7
+  context: "Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) \U0001F3AF\
+    \ MVP. Implementation for User Story 1. T012 [US1] Implement code/ingest.py to\
+    \ fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T11:57:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 3
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_c5c3bee5
+  context: Implementation for User Story 1, task T012
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:00:39Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.11023456 as fallback
+  claim_id: c_fccf30f8
+  context: Implementation for User Story 1, task T012
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:00:42Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 2
+  canonical: use mendeleev version 0.31.0 for descriptor calculation
+  claim_id: c_041051d8
+  context: Implementation for User Story 2, task T020
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:00:42Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_834b343b
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) MVP
+    Implementation for User Story 1'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:02:32Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Fetch Zenodo DOI 10.5281/zenodo.11023456 as fallback
+  claim_id: c_924daff6
+  context: 'Phase 3: User Story 1 - Data Ingestion and Validation (Priority: P1) MVP
+    Implementation for User Story 1'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:02:35Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_1dcbf963
+  context: Phase 3, User Story 1 Implementation, Task T012
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:04:09Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.11023456 as fallback
+  claim_id: c_f95edc6d
+  context: Phase 3, User Story 1 Implementation, Task T012
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:04:13Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.10043838 with fallback 10.5281/zenodo.11023456
+  claim_id: c_26690221
+  context: 'Implementation for User Story 1: T012 [US1] Implement code/ingest.py to
+    fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:08:41Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: fetch Zenodo DOI 10.5281/zenodo.11023456
+  claim_id: c_07abe0e4
+  context: 'Implementation for User Story 1: T012 [US1] Implement code/ingest.py to
+    fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement code/ingest.py to fetch Zenodo DOI 10.5281/zenodo.10043838
+    (fallback: 10.5281/zenodo.11023456)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:08:44Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: compute descriptors using mendeleev version 0.31.0
+  claim_id: c_11a72ffc
+  context: 'Implementation for User Story 2: T020 [P] [US2] Implement code/descriptors.py
+    to compute radius mismatch, electronegativity difference, VEC using mendeleev==0.31.0
+    (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T12:08:44Z'

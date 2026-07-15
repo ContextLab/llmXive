@@ -1,0 +1,6 @@
+output_dir: data/processed
+seed: 42
+max_runtime_hours: 6
+max_ram_gb: 7
+primary_doi: 10.5281/zenodo.10043838
+fallback_doi: 10.5281/zenodo.11023456
