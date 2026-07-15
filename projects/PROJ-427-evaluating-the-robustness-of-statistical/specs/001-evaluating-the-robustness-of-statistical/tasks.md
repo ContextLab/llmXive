@@ -43,18 +43,18 @@ description: "Task list template for feature implementation"
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining valid tabular dataset structures
 - [ ] T005a [P] Create `contracts/injection.schema.yaml` defining error types (replacement, misclassification, MCAR) and a field `error_rates: list[float]` to be loaded from a configuration file. **MUST explicitly state that the schema validates the structure of a list of floats, not specific values.**
 - [ ] T005b [P] [TDD] [FR-002] [Constitution-VI] Write a unit test in `tests/unit/test_schema_validation.py` that loads `contracts/injection.schema.yaml` and a sample `config/error_rates.yaml`, asserting that `error_rates` is a non-empty list of floats. **This test must be written BEFORE implementation tasks T020‑T022 to ensure schema consistency, validating the structure of deferred values without asserting specific rates.**
-- [~] T006 [P] Create `contracts/result.schema.yaml` defining output metrics (p-value, CI bounds, effect size, Type I flag)
-- [~] T007 [P] Create `code/download.py` skeleton (empty file with imports and main function stub)
-- [~] T008 [P] Create `code/inject.py` skeleton (empty file with imports and main function stub)
-- [~] T009 [P] Create `code/analyze.py` skeleton (empty file with imports and main function stub)
-- [~] T010 [P] Create `code/simulate.py` skeleton (empty file with imports and main function stub)
-- [~] T011 [P] Create `code/visualize.py` skeleton (empty file with imports and main function stub)
-- [~] T012 [P] Create `code/main.py` skeleton (CLI entry point stub)
-- [~] T013a [P] Implement `code/simulate.py` to generate **synthetic datasets** (FR‑006) with known population parameters (mean, variance). Pin global random seeds (via T046) and write all outputs (CSV files, metadata JSON with `ground_truth_type: 'population_parameters'`) to `data/corrupted/synthetic_grid/`.
-- [~] T013b [P] Implement `code/simulate.py` to generate **null‑hypothesis datasets** (FR‑007) via label permutation or equal-mean simulation. Pin global random seeds and write outputs (CSV files, metadata JSON with `ground_truth_type: 'permutation'`) to `data/corrupted/null_hypothesis/`.
+- [ ] T006 [P] Create `contracts/result.schema.yaml` defining output metrics (p-value, CI bounds, effect size, Type I flag)
+- [X] T007 [P] Create `code/download.py` skeleton (empty file with imports and main function stub)
+- [X] T008 [P] Create `code/inject.py` skeleton (empty file with imports and main function stub)
+- [X] T009 [P] Create `code/analyze.py` skeleton (empty file with imports and main function stub)
+- [X] T010 [P] Create `code/simulate.py` skeleton (empty file with imports and main function stub)
+- [X] T011 [P] Create `code/visualize.py` skeleton (empty file with imports and main function stub)
+- [X] T012 [P] Create `code/main.py` skeleton (CLI entry point stub)
+- [X] T013a [P] Implement `code/simulate.py` to generate **synthetic datasets** (FR‑006) with known population parameters (mean, variance). Pin global random seeds (via T046) and write all outputs (CSV files, metadata JSON with `ground_truth_type: 'population_parameters'`) to `data/corrupted/synthetic_grid/`.
+- [X] T013b [P] Implement `code/simulate.py` to generate **null‑hypothesis datasets** (FR‑007) via label permutation or equal-mean simulation. Pin global random seeds and write outputs (CSV files, metadata JSON with `ground_truth_type: 'permutation'`) to `data/corrupted/null_hypothesis/`.
 - [~] T014 Implement validation logic in `code/simulate.py` that checks synthetic and null‑hypothesis outputs against `contracts/result.schema.yaml`, records SHA‑256 checksums, and logs status in `state/simulation_artifacts.yaml`. **Depends: T013a, T013b**.
-- [~] T046 [P] Add `code/random_seed.py` that sets deterministic seeds for `random`, `numpy`, and any other libraries used. All scripts must import and call `set_seed()` at start. Include a unit test `tests/unit/test_random_seed.py` confirming that repeated runs with the same seed produce identical injected‑error counts.
-- [~] T047 [P] Implement a citation‑verification step using the Reference‑Validator Agent. After any artifact that contains citations is written, run verification and store results in `state/citation_log.yaml`. Fail the task if any citation is `unreachable` or `mismatch`.
+- [X] T046 [P] Add `code/random_seed.py` that sets deterministic seeds for `random`, `numpy`, and any other libraries used. All scripts must import and call `set_seed()` at start. Include a unit test `tests/unit/test_random_seed.py` confirming that repeated runs with the same seed produce identical injected‑error counts.
+- [ ] T047 [P] Implement a citation‑verification step using the Reference‑Validator Agent. After any artifact that contains citations is written, run verification and store results in `state/citation_log.yaml`. Fail the task if any citation is `unreachable` or `mismatch`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,7 +70,7 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T015 [P] [US1] Unit test for `code/inject.py` random value replacement logic in `tests/unit/test_injection.py`. **Function name**: `test_replacement_preserves_distribution`. **Assertion**: `assert injected_count == int(total_rows * rate)` and `assert original_mean == unmodified_subset_mean`.
+- [X] T015 [P] [US1] Unit test for `code/inject.py` random value replacement logic in `tests/unit/test_injection.py`. **Function name**: `test_replacement_preserves_distribution`. **Assertion**: `assert injected_count == int(total_rows * rate)` and `assert original_mean == unmodified_subset_mean`.
 - [ ] T016 [P] [US1] Unit test for `code/inject.py` category misclassification logic in `tests/unit/test_injection.py`. **Function name**: `test_misclassification_shifts_frequencies`. **Assertion**: `assert abs(new_freq - expected_shifted_freq) < tolerance`.
 - [ ] T017 [P] [US1] Unit test for `code/inject.py` MCAR missingness logic in `tests/unit/test_injection.py`. **Function name**: `test_mcar_introduces_nans`. **Assertion**: `assert nan_count == int(total_cells * rate)`.
 

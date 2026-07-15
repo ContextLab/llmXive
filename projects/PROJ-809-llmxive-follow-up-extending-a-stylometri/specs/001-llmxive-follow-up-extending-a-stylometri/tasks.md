@@ -77,10 +77,10 @@
 ### Implementation for User Story 1
 
 - [~] T011 [US1] Implement `code/data_ingestion.py` to download dataset 'arxiv' (split: train) filtered by categories [cs.CL, physics.gen-ph, q-bio.QM] and save to `data/raw/arxiv_subset.parquet`
-- [~] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to extract 20 distinct lead authors with ≥10 abstracts each (FR-001, FR-009)
-- [~] T013 [US1] Implement author disambiguation and collision logging in `code/data_ingestion.py`: log warning if name appears >50 times (FR-009)
-- [~] T013a [US1] Implement collision flagging: write `data/processed/collision_report.json` and update `state/PROJ-809-llmxive-followup.yaml` with manual_review flag for names appearing >50 times; raise fatal error if critical collision threshold is exceeded (FR-009)
-- [~] T014 [US1] Implement preprocessing in `code/data_ingestion.py`: lowercase, remove punctuation, tokenization to character sequences (FR-002)
+- [X] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to extract 20 distinct lead authors with ≥10 abstracts each (FR-001, FR-009)
+- [X] T013 [US1] Implement author disambiguation and collision logging in `code/data_ingestion.py`: log warning if name appears >50 times (FR-009)
+- [ ] T013a [US1] Implement collision flagging: write `data/processed/collision_report.json` and update `state/PROJ-809-llmxive-followup.yaml` with manual_review flag for names appearing >50 times; raise fatal error if critical collision threshold is exceeded (FR-009)
+- [X] T014 [US1] Implement preprocessing in `code/data_ingestion.py`: lowercase, remove punctuation, tokenization to character sequences (FR-002)
 - [ ] T015 [US1] Implement stratified random sampling to select representative cohort if >20 authors qualify; raise fatal error with clear message if filtered dataset yields < 20 authors (FR-001, Edge Cases)
 - [ ] T016 [US1] Write checksums of raw download and processed artifacts to `state/PROJ-809-llmxive-followup.yaml` (Constitution III & V)
 - [ ] T017 [US1] Filter abstracts < 6 characters (max n-gram order) to ensure validity for all n=4,5,6 models; log count of excluded abstracts (FR-002, Edge Cases)

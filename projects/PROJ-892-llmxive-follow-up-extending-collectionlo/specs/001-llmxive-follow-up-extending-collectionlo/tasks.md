@@ -81,11 +81,11 @@
 - [~] T010 [US1] Implement `code/data_loader.py` function to load FP16 CollectionLoRA adapter (`data/models/adapter_fp16.safetensors`) and base model into CPU memory. **Extends T007**: Utilizes the download logic from T007 to fetch the adapter if missing, then loads it into CPU memory (FR-001) <!-- ATOMIZE: requested -->
 - [~] T011 [US1] Implement `code/generator.py` function to generate images using the fixed prompt list from `config.yaml` with FP16 adapter (FR-003, FR-009) <!-- ATOMIZE: requested -->
 - [~] T011b [US1] Implement `code/generator.py` function to generate a single "known reference" image using a fixed seed (from `config.yaml`) and save it to `data/references/baseline_ref.png`. This image serves as the ground truth for LPIPS self-consistency checks in T013 (US-1, FR-005) <!-- FAILED: unspecified -->
-- [~] T011c [US1] Implement `code/generator.py` function to generate and save a set of "FP16 ReferenceImages" for *all* effect prompts in `data/references/fp16_refs/`. These are required for CESR calculation in US2 (FR-011, US-2). **Dependencies: T011**
-- [~] T012 [US1] Implement `code/metrics.py` function to extract CLIP image embeddings and compute cosine similarity with prompt text embeddings (FR-004)
+- [X] T011c [US1] Implement `code/generator.py` function to generate and save a set of "FP16 ReferenceImages" for *all* effect prompts in `data/references/fp16_refs/`. These are required for CESR calculation in US2 (FR-011, US-2). **Dependencies: T011**
+- [X] T012 [US1] Implement `code/metrics.py` function to extract CLIP image embeddings and compute cosine similarity with prompt text embeddings (FR-004)
 - [~] T013 [US1] Implement `code/metrics.py` function to compute LPIPS distance between generated FP16 images and the reference image `data/references/baseline_ref.png` (produced by T011b) to verify pipeline functionality (US-1, FR-005). **Dependencies: T011b**
 - [~] T014 [US1] Implement `code/main.py` logic to run FP16 generation, compute metrics, and save initial `data/results.csv` and `data/generated/` images
-- [~] T015 [US1] Add logging for baseline generation steps and verify SHA-256 hashes of generated images in `state/artifacts.yaml`
+- [X] T015 [US1] Add logging for baseline generation steps and verify SHA-256 hashes of generated images in `state/artifacts.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,11 +100,11 @@
 ### Implementation for User Story 2
 
 - [~] T016 [P] [US2] Implement `code/data_loader.py` function to apply zero-shot post-training quantization (FP16 -> INT8/INT4) using `torch.ao.quantization` on CPU. **Output**: Save quantized adapters to `data/quantized/adapter_int8.safetensors` and `data/quantized/adapter_int4.safetensors` (FR-002)
-- [~] T017 [US2] Implement `code/generator.py` function to generate images for INT8 and INT4 adapters using the same prompt list (FR-003)
-- [~] T018 [US2] Implement `code/metrics.py` function to compute Cross-Effect Similarity Ratio (CESR) by comparing quantized output embeddings against the FP16 ReferenceImages (from `data/references/fp16_refs/` produced by T011c) for *other* effect prompts (excluding the target prompt) to detect concept bleeding (FR-011). **Dependencies: T011c**
-- [~] T019 [US2] Implement `code/metrics.py` function to compute LPIPS distance between quantized outputs and FP16 baseline outputs (FR-005). **Dependencies: T011**
+- [X] T017 [US2] Implement `code/generator.py` function to generate images for INT8 and INT4 adapters using the same prompt list (FR-003)
+- [X] T018 [US2] Implement `code/metrics.py` function to compute Cross-Effect Similarity Ratio (CESR) by comparing quantized output embeddings against the FP16 ReferenceImages (from `data/references/fp16_refs/` produced by T011c) for *other* effect prompts (excluding the target prompt) to detect concept bleeding (FR-011). **Dependencies: T011c**
+- [X] T019 [US2] Implement `code/metrics.py` function to compute LPIPS distance between quantized outputs and FP16 baseline outputs (FR-005). **Dependencies: T011**
 - [~] T020 [US2] Implement `code/main.py` logic to run quantized generations, handle `MemoryError` per level (using logic from T008), compute deltas, and append to `data/results.csv`
-- [~] T021 [US2] Implement logic to load per-effect LoRA subspace rank from `data/subspace_ranks.json` (produced by T009) and prepare data for correlation analysis. **Input**: `data/subspace_ranks.json` (FR-010)
+- [ ] T021 [US2] Implement logic to load per-effect LoRA subspace rank from `data/subspace_ranks.json` (produced by T009) and prepare data for correlation analysis. **Input**: `data/subspace_ranks.json` (FR-010)
 - [~] T022 [US2] Add logging for quantization steps and verify SHA-256 hashes of quantized weights and generated images
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -120,9 +120,9 @@
 ### Implementation for User Story 3
 
 - [~] T023 [P] [US3] Implement `code/statistical_analysis.py` to load `data/results.csv` and structure data for Bayesian Hierarchical Model (images nested within prompts). **Dependencies: Phase 3, Phase 4**
-- [~] T024 [US3] Implement `code/statistical_analysis.py` to define and run the Bayesian Hierarchical Model using `pymc`/`bambi` to test quantization effects (FR-006, FR-012)
+- [X] T024 [US3] Implement `code/statistical_analysis.py` to define and run the Bayesian Hierarchical Model using `pymc`/`bambi` to test quantization effects (FR-006, FR-012)
 - [~] T025 [US3] Implement `code/statistical_analysis.py` to compute correlation between per-effect LoRA subspace rank (from `data/subspace_ranks.json` via T021) and mean concept bleeding magnitude, explicitly testing significance via the Bayesian posterior distribution and reporting 95% credible intervals (FR-007)
-- [~] T026 [US3] Implement `code/statistical_analysis.py` to perform posterior width analysis and explicitly flag results as "Underpowered" if credible interval width > 0.2 (FR-014)
+- [X] T026 [US3] Implement `code/statistical_analysis.py` to perform posterior width analysis and explicitly flag results as "Underpowered" if credible interval width > 0.2 (FR-014)
 - [~] T027 [US3] Implement `code/main.py` logic to execute the analysis script and save `data/analysis_results.json` with posterior means, credible intervals, and correlation stats
 - [~] T028 [US3] Implement logic to generate a summary report or console output of the statistical findings
 
@@ -134,7 +134,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [~] T029 [P] Write unit tests for `code/metrics.py` functions (`cosine_similarity`, `lpips_distance`, `cesr_score`) in `tests/test_metrics.py`
+- [X] T029 [P] Write unit tests for `code/metrics.py` functions (`cosine_similarity`, `lpips_distance`, `cesr_score`) in `tests/test_metrics.py`
 - [ ] T030 [P] Write unit tests for `code/data_loader.py` (quantization loading) in `tests/test_quantization.py`
 - [ ] T031 Run end-to-end validation on `ubuntu-latest` runner to verify total job duration ≤ 6 hours (SC-005)
 - [ ] T032 Update `docs/quickstart.md` with instructions for running the pipeline on CPU-only runners

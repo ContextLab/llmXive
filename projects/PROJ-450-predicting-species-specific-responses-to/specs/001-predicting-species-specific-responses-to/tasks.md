@@ -82,10 +82,10 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `src/code/fetch_gbif.R` to query GBIF for `PRESERVED_SPECIMEN` using species list from `data/species_list.csv` (or CLI arg), parse dates, filter by ≥50 year span, and save raw CSV to `data/raw/`
-- [~] T014 [US1] Implement `src/code/extract_climate.R` to extract mean annual temp (°C) and precip (mm) from WorldClim v2 layers (loaded via T007) for 1970-2000 and 1991-2020, handling NAs
+- [X] T014 [US1] Implement `src/code/extract_climate.R` to extract mean annual temp (°C) and precip (mm) from WorldClim v2 layers (loaded via T007) for 1970-2000 and 1991-2020, handling NAs
 - [~] T015a [US1] Implement `src/code/compute_centroids.R` to calculate arithmetic mean of climate variables per species/period and output `data/processed/centroids.csv` (aggregated means)
 - [~] T015b [US1] Implement `src/code/compute_centroids.R` to also output `data/processed/points_with_climate.csv` (raw occurrence points with climate values) as an intermediate artifact specifically for FR-005 global z-scoring
-- [~] T017 [US1] Enhance logging in `src/code/fetch_gbif.R` and `compute_centroids.R` to record record counts, filtering decisions, and species warnings (FR-010) <!-- FAILED: unspecified -->
+- [X] T017 [US1] Enhance logging in `src/code/fetch_gbif.R` and `compute_centroids.R` to record record counts, filtering decisions, and species warnings (FR-010) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,19 +99,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for Euclidean distance calculation in standardized climate space in `tests/unit/test_shifts.R`
-- [~] T019 [P] [US2] Unit test for regional warming calculation (independent grid) in `tests/unit/test_regional_warming.R`
-- [~] T020 [P] [US2] Integration test: Verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R` <!-- ATOMIZE: requested -->
+- [X] T018 [P] [US2] Unit test for Euclidean distance calculation in standardized climate space in `tests/unit/test_shifts.R`
+- [X] T019 [P] [US2] Unit test for regional warming calculation (independent grid) in `tests/unit/test_regional_warming.R`
+- [ ] T020 [P] [US2] Integration test: Verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv`) and calculate Euclidean distance (ΔN) between periods (FR-005) <!-- ATOMIZE: requested -->
-- [~] T022 [US2] Implement `src/code/compute_regional_warming.R` to calculate ΔT from WorldClim rasters by computing the zonal mean over the species' occurrence envelope (bounding box from min/max lat/lon of species points) using an *independent regional climate grid* to avoid circularity (FR-006)
+- [ ] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv`) and calculate Euclidean distance (ΔN) between periods (FR-005) <!-- ATOMIZE: requested -->
+- [X] T022 [US2] Implement `src/code/compute_regional_warming.R` to calculate ΔT from WorldClim rasters by computing the zonal mean over the species' occurrence envelope (bounding box from min/max lat/lon of species points) using an *independent regional climate grid* to avoid circularity (FR-006)
 - [~] T023a [US2] Implement `src/code/analyze_shifts.R` to perform regression of ΔN vs ΔT: If `data/phylogeny.tre` exists and is valid, run PGLS (primary method); else run WLS (fallback per Plan). Output slope, 95% CI, R², p-value, and per-region summaries (FR-007, FR-011, Plan Statistical Rigor)
-- [~] T023c [US2] Implement `src/code/analyze_shifts.R` output formatting for regression results (slope, CI, R², p-value) and per-region summaries (FR-011)
-- [~] T023d [US2] Implement `src/code/analyze_shifts.R` logic to assign species to latitudinal bands (10° intervals) and run regression loop per region, outputting summary table of coefficients with 95% CI (FR-011)
-- [~] T025 [US2] Implement `src/code/power_analysis.R` to conduct a priori power analysis for n≥30 species using alpha=0.05, power=0.8, effect_size read from `config.yaml` (default set to a moderate magnitude). Calculate required n to achieve Margin of Error (MoE) ≤ 0.15 for slope estimate, report MoE, and save to `results/power_analysis_report.csv` (FR-012, SC-007) <!-- FAILED: unspecified -->
-- [~] T026 [US2] Implement `src/code/plotting.R` to generate scatter plot (ΔN vs ΔT) colored by taxonomic group, ensuring resolution ≥1200x800px (FR-008)
+- [X] T023c [US2] Implement `src/code/analyze_shifts.R` output formatting for regression results (slope, CI, R², p-value) and per-region summaries (FR-011)
+- [X] T023d [US2] Implement `src/code/analyze_shifts.R` logic to assign species to latitudinal bands (10° intervals) and run regression loop per region, outputting summary table of coefficients with 95% CI (FR-011)
+- [ ] T025 [US2] Implement `src/code/power_analysis.R` to conduct a priori power analysis for n≥30 species using alpha=0.05, power=0.8, effect_size read from `config.yaml` (default set to a moderate magnitude). Calculate required n to achieve Margin of Error (MoE) ≤ 0.15 for slope estimate, report MoE, and save to `results/power_analysis_report.csv` (FR-012, SC-007) <!-- FAILED: unspecified -->
+- [X] T026 [US2] Implement `src/code/plotting.R` to generate scatter plot (ΔN vs ΔT) colored by taxonomic group, ensuring resolution ≥1200x800px (FR-008)
 - [~] T027 [US2] Add logging to `analyze_shifts.R` and `plotting.R` to record regression steps, per-region results, and plot generation details (FR-010)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,16 +126,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for subsampling logic (random [deferred] selection) in `tests/unit/test_sensitivity.R`
-- [~] T029 [P] [US3] Unit test for SD calculation and flagging logic (≥0.2 threshold) in `tests/unit/test_sensitivity.R`
-- [~] T030 [P] [US3] Integration test: Verify full sensitivity run produces mean/SD and flags high-variability species in `tests/integration/test_us3_sensitivity.R`
+- [X] T028 [P] [US3] Unit test for subsampling logic (random [deferred] selection) in `tests/unit/test_sensitivity.R`
+- [X] T029 [P] [US3] Unit test for SD calculation and flagging logic (≥0.2 threshold) in `tests/unit/test_sensitivity.R`
+- [X] T030 [P] [US3] Integration test: Verify full sensitivity run produces mean/SD and flags high-variability species in `tests/integration/test_us3_sensitivity.R`
 
 ### Implementation for User Story 3
 
-- [~] T031 [US3] Implement `src/code/sensitivity.R` to perform a set of random subsamples of [deferred] of records per species using `set.seed(42)` for reproducibility (FR-009) <!-- FAILED: unspecified -->
-- [~] T032 [US3] Implement `src/code/sensitivity.R` to recompute niche shift magnitude for each replicate and calculate mean/SD of shifts
-- [~] T033 [US3] Add logic in `src/code/sensitivity.R` to flag species with SD ≥ 0.2 climate-space units and skip species with <80 records (FR-009)
-- [~] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010)
+- [X] T031 [US3] Implement `src/code/sensitivity.R` to perform a set of random subsamples of [deferred] of records per species using `set.seed(42)` for reproducibility (FR-009) <!-- FAILED: unspecified -->
+- [X] T032 [US3] Implement `src/code/sensitivity.R` to recompute niche shift magnitude for each replicate and calculate mean/SD of shifts
+- [X] T033 [US3] Add logic in `src/code/sensitivity.R` to flag species with SD ≥ 0.2 climate-space units and skip species with <80 records (FR-009)
+- [ ] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010)
 
 **Checkpoint**: All user stories should now be independently functional
 

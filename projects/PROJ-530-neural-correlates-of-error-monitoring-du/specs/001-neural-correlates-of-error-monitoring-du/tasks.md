@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T006 [P] Create `code/__init__.py` and base configuration loader
-- [~] T007 [P] Implement random seed pinning utility in `code/utils.py` (global seed for numpy, python random, torch if used)
-- [~] T008 Create `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml` for artifact tracking
-- [~] T009 Setup logging infrastructure to `data/preprocessing.yaml` and console
+- [X] T007 [P] Implement random seed pinning utility in `code/utils.py` (global seed for numpy, python random, torch if used)
+- [X] T008 Create `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml` for artifact tracking
+- [ ] T009 Setup logging infrastructure to `data/preprocessing.yaml` and console
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,22 +74,22 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available.
-- [~] T011 [US1] Implement `code/preprocess.py` (FR-002): Apply bandpass and line-frequency notch filters to raw EEG data.
+- [ ] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available.
+- [X] T011 [US1] Implement `code/preprocess.py` (FR-002): Apply bandpass and line-frequency notch filters to raw EEG data.
 - [~] T012 [US1] Implement `code/preprocess.py` (FR-002): Run ICA to remove ocular/muscular artifacts; log components removed to `data/preprocessing.yaml`.
-- [~] T013 [US1] Implement `code/preprocess.py` (FR-003): Calculate directional error magnitude (angular deviation in degrees) for each error event using heading vs. optimal path vectors.
-- [~] T014 [US1] Implement `code/preprocess.py` (FR-004): Extract MFN epochs (-200ms to 800ms), baseline-correct (-200ms to 0ms), and compute **MEAN Amplitude** (average of samples in 200-400ms window) at FCz, Cz, Fz as the PRIMARY metric per plan.md. Compute Peak (most negative) amplitude as a secondary metric only.
-- [~] T015 [US1] Implement `code/analysis.py` (FR-005): Fit Linear Mixed-Effects Model (MFN ~ error_magnitude + (1|participant)) using `statsmodels`.
-- [~] T016 [US1] Implement `code/analysis.py` (FR-005): Add GAM fallback logic (test linearity; if non-linearity rejected, fit GAM using `pygam` and compare via AIC).
-- [~] T017 [US1] Implement `code/viz.py`: Generate scatter plot (MFN amplitude vs. error magnitude) with regression line overlay.
+- [X] T013 [US1] Implement `code/preprocess.py` (FR-003): Calculate directional error magnitude (angular deviation in degrees) for each error event using heading vs. optimal path vectors.
+- [X] T014 [US1] Implement `code/preprocess.py` (FR-004): Extract MFN epochs (-200ms to 800ms), baseline-correct (-200ms to 0ms), and compute **MEAN Amplitude** (average of samples in 200-400ms window) at FCz, Cz, Fz as the PRIMARY metric per plan.md. Compute Peak (most negative) amplitude as a secondary metric only.
+- [X] T015 [US1] Implement `code/analysis.py` (FR-005): Fit Linear Mixed-Effects Model (MFN ~ error_magnitude + (1|participant)) using `statsmodels`.
+- [X] T016 [US1] Implement `code/analysis.py` (FR-005): Add GAM fallback logic (test linearity; if non-linearity rejected, fit GAM using `pygam` and compare via AIC).
+- [X] T017 [US1] Implement `code/viz.py`: Generate scatter plot (MFN amplitude vs. error magnitude) with regression line overlay.
 - [~] T018 [US1] Implement `code/analysis.py`: Save model summary to `results/models/`. **Ensure** `results/diagnostics/feasibility_report.json` is generated with runtime/memory metrics *after* model fitting completes. If `runtime_seconds > 21600` or `peak_memory_mb > 7168`, raise a `FeasibilityError` and halt, satisfying SC-005 measurement requirements.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation tasks are complete**
 
-- [~] T019 [P] [US1] Unit test `tests/test_preprocess.py::test_angular_deviation_handles_zero_vectors`: Verify that `calculate_angular_deviation` logs a warning and returns `None` when input vectors are zero-length.
-- [~] T020 [P] [US1] Unit test `tests/test_preprocess.py::test_mfn_extraction_mean_vs_peak`: Verify that `extract_mfn_features` returns a `mean_amplitude` value that is the average of the window and a `peak_amplitude` value that is the minimum, ensuring both are calculated correctly.
+- [X] T019 [P] [US1] Unit test `tests/test_preprocess.py::test_angular_deviation_handles_zero_vectors`: Verify that `calculate_angular_deviation` logs a warning and returns `None` when input vectors are zero-length.
+- [X] T020 [P] [US1] Unit test `tests/test_preprocess.py::test_mfn_extraction_mean_vs_peak`: Verify that `extract_mfn_features` returns a `mean_amplitude` value that is the average of the window and a `peak_amplitude` value that is the minimum, ensuring both are calculated correctly.
 - [~] T021 [P] [US1] Integration test `tests/test_integration.py::test_full_preprocessing_pipeline_subset`: Run the full preprocessing pipeline on a synthetic subset (N=5) and verify that `data/processed/` contains epoch files and `data/preprocessing.yaml` is populated with filter/ICA parameters.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,14 +104,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/analysis.py` (FR-006): Create sensitivity sweep function iterating over thresholds across a range of values.
-- [~] T023 [US2] Implement `code/analysis.py` (FR-006): For each threshold, filter error events, refit the primary model, and record correlation coefficient and p-value.
-- [~] T024 [US2] Implement `code/viz.py`: Generate sensitivity analysis summary table and plot (threshold vs. significance/correlation).
+- [X] T022 [US2] Implement `code/analysis.py` (FR-006): Create sensitivity sweep function iterating over thresholds across a range of values.
+- [X] T023 [US2] Implement `code/analysis.py` (FR-006): For each threshold, filter error events, refit the primary model, and record correlation coefficient and p-value.
+- [X] T024 [US2] Implement `code/viz.py`: Generate sensitivity analysis summary table and plot (threshold vs. significance/correlation).
 - [~] T025 [US2] Implement `code/analysis.py`: Write sensitivity results to `results/diagnostics/sensitivity_summary.csv` **unconditionally**. **CRITICAL**: Do NOT raise an error or halt the pipeline if the correlation is not significant across the majority of thresholds. The analysis must complete and output the data regardless of the statistical outcome to satisfy SC-002 measurement requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US2] Unit test `tests/test_analysis.py::test_threshold_filtering_logic`: Verify that filtering events with `threshold=10` correctly excludes events with `error_magnitude < 10`.
+- [X] T026 [P] [US2] Unit test `tests/test_analysis.py::test_threshold_filtering_logic`: Verify that filtering events with `threshold=10` correctly excludes events with `error_magnitude < 10`.
 - [~] T027 [P] [US2] Integration test `tests/test_integration.py::test_sensitivity_sweep_output_format`: Run the sensitivity sweep on a subset and verify that `results/diagnostics/sensitivity_summary.csv` contains exactly 4 rows (one per threshold) with valid columns for `threshold`, `correlation`, and `p_value`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,7 +126,7 @@
 
 ### Implementation for User Story 3
 
-- [~] T028 [US3] Implement `code/analysis.py` (FR-007): Calculate Variance Inflation Factors (VIF) for all behavioral predictors; flag if VIF ≥ 5.
+- [X] T028 [US3] Implement `code/analysis.py` (FR-007): Calculate Variance Inflation Factors (VIF) for all behavioral predictors; flag if VIF ≥ 5.
 - [ ] T029 [US3] Implement `code/analysis.py` (FR-008): Apply Bonferroni correction to p-values across tested electrodes (FCz, Cz, Fz).
 - [ ] T030 [US3] Implement `code/analysis.py`: Generate diagnostic report in `results/diagnostics/validation_report.md` including VIF values, corrected p-values, and the exact phrase "associational" in the Conclusion section.
 - [ ] T031 [US3] Implement `code/analysis.py`: Ensure the final report explicitly states the family-wise error rate control method used.

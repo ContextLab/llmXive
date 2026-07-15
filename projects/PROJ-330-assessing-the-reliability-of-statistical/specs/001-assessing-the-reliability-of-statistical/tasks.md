@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement `code/src/versioning.py` to compute SHA256 hashes of artifacts and update `state.yaml`
 - [X] T006 [P] Create `code/scripts/setup_env.sh` to initialize R `renv` and Python `venv`
 - [ ] T007 Create `code/src/data_loader.py` with functions to fetch datasets from verified URLs (GEO, TCGA, ENCODE) via a manifest file and verify checksums
-- [~] T008 Create `code/src/preprocessing.py` to filter zero-count genes and handle missing batch metadata (default to random stratification)
+- [X] T008 Create `code/src/preprocessing.py` to filter zero-count genes and handle missing batch metadata (default to random stratification)
 - [~] T009 [P] Setup environment configuration management for R script paths and memory limits <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 9, column 3:
  - **R Script Paths**: `R_SCRIPT_DI...
@@ -83,18 +83,18 @@ expected alphabetic or numeric character, but found '*'
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] [TDD] Write `test_stratification_handles_missing_batch` in `code/tests/test_preprocessing.py` asserting random fallback on missing metadata
-- [~] T011 [P] [US1] [TDD] Write `test_pearson_correlation_all_genes_returns_valid_r` in `code/tests/test_metrics.py`
+- [X] T010 [P] [US1] [TDD] Write `test_stratification_handles_missing_batch` in `code/tests/test_preprocessing.py` asserting random fallback on missing metadata
+- [X] T011 [P] [US1] [TDD] Write `test_pearson_correlation_all_genes_returns_valid_r` in `code/tests/test_metrics.py`
 
 ### Implementation for User Story 1
 
 - [~] T016a [US1] **Spec Correction**: Update `spec.md` FR-006 to explicitly authorize calculating stability on "ALL genes" (overriding "significant genes") to avoid Winner's Curse, citing plan.md Spec Correction #1
-- [~] T016 [US1] Implement `code/src/metrics.py` to calculate Pearson correlation of log2FC between full set and subsets for ALL genes (AUTHORIZED by T016a; see Spec Correction #1)
-- [~] T012 [P] [US1] Configure `code/src/data_loader.py` usage in `main.py` to fetch a specific RNA-seq count matrix (e.g., from GEO) with ≥20 samples
-- [~] T013 [P] [US1] Configure `code/src/preprocessing.py` usage in `main.py` to partition data into 5 stratified subsets (or random if no batch metadata)
-- [~] T014 [US1] Create `code/scripts/run_r_script.R` to perform Differential Expression (DESeq2/edgeR) on the full dataset
-- [~] T015 [US1] Implement Python orchestration in `code/main.py` to loop subset calls to `code/scripts/run_r_script.R` (T014)
-- [~] T017 [US1] Add error handling in `code/src/main.py` to skip datasets with <20 samples and log warnings
+- [X] T016 [US1] Implement `code/src/metrics.py` to calculate Pearson correlation of log2FC between full set and subsets for ALL genes (AUTHORIZED by T016a; see Spec Correction #1)
+- [X] T012 [P] [US1] Configure `code/src/data_loader.py` usage in `main.py` to fetch a specific RNA-seq count matrix (e.g., from GEO) with ≥20 samples
+- [X] T013 [P] [US1] Configure `code/src/preprocessing.py` usage in `main.py` to partition data into 5 stratified subsets (or random if no batch metadata)
+- [X] T014 [US1] Create `code/scripts/run_r_script.R` to perform Differential Expression (DESeq2/edgeR) on the full dataset
+- [X] T015 [US1] Implement Python orchestration in `code/main.py` to loop subset calls to `code/scripts/run_r_script.R` (T014)
+- [X] T017 [US1] Add error handling in `code/src/main.py` to skip datasets with <20 samples and log warnings
 - [~] T018 [US1] Implement logic to handle "Insufficient total genes" (replacing 'significant genes' check per T016) gracefully if <5 genes found across all categories
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,14 +109,14 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Write `test_stratified_shuffle_preserves_batch_counts` in `code/tests/test_permutation.py`
-- [~] T020 [P] [US2] Write `test_ks_statistic_uniform_distribution_passes` and `test_bland_altman_plot_generation` in `code/tests/test_metrics.py`
+- [X] T019 [P] [US2] Write `test_stratified_shuffle_preserves_batch_counts` in `code/tests/test_permutation.py`
+- [X] T020 [P] [US2] Write `test_ks_statistic_uniform_distribution_passes` and `test_bland_altman_plot_generation` in `code/tests/test_metrics.py`
 
 ### Implementation for User Story 2
 
 - [~] T021a [US2] **Spec Correction**: Update `spec.md` FR-004 to explicitly authorize the "Fixed-Dispersion Wald Perturbation" approximation (skipping full DE re-run) to meet 6h runtime constraints, citing plan.md Spec Correction #3
-- [~] T021 [P] [US2] Implement `code/src/de_analysis.py` (single-run wrapper) that calls `code/scripts/run_r_script.R` to extract and **save fixed-dispersion parameters** to a state file artifact (AUTHORIZED by T021a)
-- [~] T022 [US2] Implement `code/src/permutation.py` to shuffle sample labels within batch groups and recompute Wald statistics using fixed dispersions from T021 artifact (AUTHORIZED by T021a)
+- [X] T021 [P] [US2] Implement `code/src/de_analysis.py` (single-run wrapper) that calls `code/scripts/run_r_script.R` to extract and **save fixed-dispersion parameters** to a state file artifact (AUTHORIZED by T021a)
+- [ ] T022 [US2] Implement `code/src/permutation.py` to shuffle sample labels within batch groups and recompute Wald statistics using fixed dispersions from T021 artifact (AUTHORIZED by T021a)
 - [ ] T023 [US2] Implement `code/src/permutation.py` dynamic iteration logic: estimate time per iter, cap at 6h, fallback to min 100 iterations with "low-confidence" flag
 - [ ] T024b [US2] Implement `code/src/metrics.py` to compare parametric vs. empirical p-values: **KS test to verify p-value > 0.05** (correcting spec SC-002) and generate Bland-Altman plot
 - [ ] T024c [US2] Update `plan.md`/`spec.md` with Spec Correction #2 (KS threshold: D < 0.05 -> p-value > 0.05)

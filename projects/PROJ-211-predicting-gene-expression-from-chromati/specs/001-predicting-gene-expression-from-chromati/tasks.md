@@ -86,7 +86,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 with dimensions ≤10,000 peaks × 5 cell lines, ≥10,000 genes for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 with dimensions ≤10,000 peaks × 5 cell lines, ≥10,000 genes for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
 - [~] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
@@ -116,8 +116,8 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [~] T019 [P] [US2] Contract test for model output schema in `tests/contract/test_model_schema.py`
-- [~] T020 [P] [US2] Integration test for training and cross-validation loop in `tests/integration/test_training_loop.py`
+- [X] T019 [P] [US2] Contract test for model output schema in `tests/contract/test_model_schema.py`
+- [X] T020 [P] [US2] Integration test for training and cross-validation loop in `tests/integration/test_training_loop.py`
 
 ### Implementation for User Story 2
 
@@ -147,8 +147,8 @@
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [~] T028 [P] [US3] Contract test for interpretation output schema in `tests/contract/test_interpretation_schema.py`
-- [~] T029 [P] [US3] Integration test for feature importance and TSS mapping in `tests/integration/test_interpretation.py`
+- [X] T028 [P] [US3] Contract test for interpretation output schema in `tests/contract/test_interpretation_schema.py`
+- [X] T029 [P] [US3] Integration test for feature importance and TSS mapping in `tests/integration/test_interpretation.py`
 
 ### Implementation for User Story 3
 

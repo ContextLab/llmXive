@@ -56,15 +56,15 @@
 ### Implementation for User Story 1
 
 - [~] T010 [P] [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API (URL: `) using `maxResults` pagination and `year` filters to handle large ranges efficiently, saving to `data/raw/occurrence_1970_2000.csv`
-- [~] T010b [P] [US1] Extend T010 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_1970_2000.csv` (Constitution Principle VI)
+- [ ] T010b [P] [US1] Extend T010 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_1970_2000.csv` (Constitution Principle VI)
 - [~] T011 [P] [US1] Implement `code/download.py` to fetch recent occurrence data (2005-2020) for evaluation, saving to `data/raw/occurrence_2005_2020.csv` (distinct file from T010)
-- [~] T011b [P] [US1] Extend T011 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_2005_2020.csv` (Constitution Principle VI)
+- [ ] T011b [P] [US1] Extend T011 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_2005_2020.csv` (Constitution Principle VI)
 - [~] T010c [US1] Implement `code/download.py` to derive "target-group effort data" as all-observer density from the historical GBIF dataset (T010) to serve as a bias proxy, saving to `data/raw/effort_data.csv` (Note: This is an internal derivation, not an external download)
-- [~] T012 [US1] Implement `code/bias_correction.py` to generate `bias_layer.tif` from `data/raw/effort_data.csv` using Kernel Density Estimation (KDE) with 10km bandwidth, saving to `data/processed/bias_layer.tif`
+- [ ] T012 [US1] Implement `code/bias_correction.py` to generate `bias_layer.tif` from `data/raw/effort_data.csv` using Kernel Density Estimation (KDE) with 10km bandwidth, saving to `data/processed/bias_layer.tif`
 - [~] T013 [US1] Implement `code/preprocess.py` to filter records by breeding season, remove duplicates, spatially thin points to a minimum distance threshold (FR-002), and write `logs/preprocess_counts.yaml` with species, before_count, after_count, timestamp (Constitution Principle VI)
-- [~] T016b [US1] Implement validation in `code/preprocess.py` to flag species with <10 records *after historical thinning* as 'INSUFFICIENT_TRAINING_DATA' to prevent model failure (distinct from FR-006's test-period threshold)
-- [~] T014 [US1] Implement `code/preprocess.py` to extract climate variables from rasters at occurrence coordinates, handling missing data via nearest neighbor imputation (processes only valid species flagged by T016b)
-- [~] T017 [US1] Create `data/processed/occurrence_clean.csv` and verify all records have non-null climate variables; log summary to `logs/validation_summary.txt` and exit with code 1 if any nulls remain
+- [ ] T016b [US1] Implement validation in `code/preprocess.py` to flag species with <10 records *after historical thinning* as 'INSUFFICIENT_TRAINING_DATA' to prevent model failure (distinct from FR-006's test-period threshold)
+- [ ] T014 [US1] Implement `code/preprocess.py` to extract climate variables from rasters at occurrence coordinates, handling missing data via nearest neighbor imputation (processes only valid species flagged by T016b)
+- [ ] T017 [US1] Create `data/processed/occurrence_clean.csv` and verify all records have non-null climate variables; log summary to `logs/validation_summary.txt` and exit with code 1 if any nulls remain
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -78,10 +78,10 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [P] [US2] Implement `code/baseline.py` to create a null prevalence model for baseline expectation (SC-001), outputting `metrics/baseline_performance.csv`
-- [~] T019 [US2] Implement `code/bias_null.py` to create a bias-only null model using the bias layer from T012, outputting `metrics/bias_null_metrics.csv` <!-- FAILED: unspecified -->
-- [~] T020 [US2] Implement `code/power_analysis.py` to calculate minimum sample size for statistical power (post-thinning) using default parameters (power=0.8, {{claim:c_3e18cc50}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value), effect_size=0.5), outputting `metrics/power_analysis_report.json`
-- [~] T021 [US2] Implement `code/train.py` to train Random Forest (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU
+- [ ] T018 [P] [US2] Implement `code/baseline.py` to create a null prevalence model for baseline expectation (SC-001), outputting `metrics/baseline_performance.csv`
+- [ ] T019 [US2] Implement `code/bias_null.py` to create a bias-only null model using the bias layer from T012, outputting `metrics/bias_null_metrics.csv` <!-- FAILED: unspecified -->
+- [X] T020 [US2] Implement `code/power_analysis.py` to calculate minimum sample size for statistical power (post-thinning) using default parameters (power=0.8, {{claim:c_3e18cc50}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value), effect_size=0.5), outputting `metrics/power_analysis_report.json`
+- [X] T021 [US2] Implement `code/train.py` to train Random Forest (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU
 - [ ] T022 [US2] Implement `code/train.py` to train Bioclim algorithm (custom percentile envelope)
 - [ ] T023 [US2] Implement `code/train.py` to train Regularized Logistic Regression (Presence-Background) using `sklearn.linear_model.LogisticRegression` with L2 regularization (FR-003)
 - [ ] T024 [US2] Implement spatial block cross-validation logic in `code/train.py` using `code/utils/spatial_blocks.py` (FR-007)

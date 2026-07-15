@@ -58,7 +58,7 @@
 - [ ] T006 [P] Setup reproducible logging infrastructure in `code/utils/logging.py` (FR-010)
 - [ ] T007 Create base data model classes for AlloyRecord, EnvironmentRecord, CorrosionMeasurement
 - [ ] T008 Setup environment configuration management for random seeds and file paths
-- [~] T009 Define schema validation utility in `code/utils/validation.py` to enforce non-null constraints (Dependency: T004)
+- [X] T009 Define schema validation utility in `code/utils/validation.py` to enforce non-null constraints (Dependency: T004)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,17 +74,17 @@
 
 > **NOTE**: Write these tests FIRST. Run them to ensure they FAIL before implementation. These are NOT parallel with implementation. They must be written and run to fail before T012-T017 can be implemented.
 
-- [~] T010 [US1] Write unit test for schema validation logic in `tests/unit/test_data_validation.py`. **Constraint**: Must fail before T012-T017 implementation.
-- [~] T011 [US1] Write integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`. **Constraint**: Must fail before T012-T017 implementation.
+- [X] T010 [US1] Write unit test for schema validation logic in `tests/unit/test_data_validation.py`. **Constraint**: Must fail before T012-T017 implementation.
+- [X] T011 [US1] Write integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`. **Constraint**: Must fail before T012-T017 implementation.
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data/download_nist.py` to fetch from NIST-IR-8200. **Pre-fetch**: Check verified-datasets registry/config for URL. **Halt**: If URL is missing, raise `DataInsufficientError` immediately and halt (Plan Data Acquisition Strategy). **Fetch**: Implement retry logic (exponential backoff, limited retries) and halt on /404 (FR-001, FR-002)
-- [~] T013 [P] [US1] Implement `code/data/preprocess.py` to encode weight fractions, filter missing pH/temp, and exclude outliers (FR-003, FR-013)
+- [X] T012 [P] [US1] Implement `code/data/download_nist.py` to fetch from NIST-IR-8200. **Pre-fetch**: Check verified-datasets registry/config for URL. **Halt**: If URL is missing, raise `DataInsufficientError` immediately and halt (Plan Data Acquisition Strategy). **Fetch**: Implement retry logic (exponential backoff, limited retries) and halt on /404 (FR-001, FR-002)
+- [X] T013 [P] [US1] Implement `code/data/preprocess.py` to encode weight fractions, filter missing pH/temp, and exclude outliers (FR-003, FR-013)
 - [~] T014 [US1] Implement schema validation step in `code/data/preprocess.py` to enforce non-nulls and count records. **Halt Condition**: If <500 records, write exact record count to `data/logs/pipeline.log` AND `data/logs/diagnostics/count_report.txt`, then raise `DataInsufficientError` (FR-014, Plan Data Acquisition Strategy). **Note**: This task enforces Spec FR-014's `DataInsufficientError` requirement.
-- [~] T015 [US1] Implement `code/data/split.py` with **GroupKFold (k=5)** logic to ensure statistical power while preventing alloy leakage. **Pre-check**: Verify dataset contains ≥10 specific alloy designations; if not, raise `DataInsufficientError`. **Output**: Generate train/test indices for multiple folds ensuring no alloy overlap between folds (FR-004, FR-012, Plan Complexity Tracking). **Note**: This task implements the Plan's GroupKFold (k=5) strategy which supersedes the Spec's single-split LOSO requirement to ensure sufficient test set size for statistical power.
-- [~] T016 [US1] Add diagnostic logging for excluded records (missing pH, extreme pH) to `data/logs/pipeline.log`
-- [~] T017 [US1] Verify split integrity: ensure strict GroupKFold constraint is met (zero overlap of specific_alloy_designation_id between folds). **Deliverable**: Write `data/logs/split_validation.json` containing fold statistics and overlap verification (SC-004).
+- [X] T015 [US1] Implement `code/data/split.py` with **GroupKFold (k=5)** logic to ensure statistical power while preventing alloy leakage. **Pre-check**: Verify dataset contains ≥10 specific alloy designations; if not, raise `DataInsufficientError`. **Output**: Generate train/test indices for multiple folds ensuring no alloy overlap between folds (FR-004, FR-012, Plan Complexity Tracking). **Note**: This task implements the Plan's GroupKFold (k=5) strategy which supersedes the Spec's single-split LOSO requirement to ensure sufficient test set size for statistical power.
+- [ ] T016 [US1] Add diagnostic logging for excluded records (missing pH, extreme pH) to `data/logs/pipeline.log`
+- [ ] T017 [US1] Verify split integrity: ensure strict GroupKFold constraint is met (zero overlap of specific_alloy_designation_id between folds). **Deliverable**: Write `data/logs/split_validation.json` containing fold statistics and overlap verification (SC-004).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,7 +98,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for model training timing (must complete <30 mins) in `tests/unit/test_model_timing.py`
+- [ ] T018 [P] [US2] Unit test for model training timing (must complete <30 mins) in `tests/unit/test_model_timing.py`
 - [ ] T019 [P] [US2] Integration test for end-to-end training and evaluation in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2

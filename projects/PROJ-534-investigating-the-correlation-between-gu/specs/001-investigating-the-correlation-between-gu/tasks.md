@@ -59,7 +59,7 @@
 - [ ] T004 Create `contracts/analysis_output.schema.yaml` defining AnalysisResult entity
 - [ ] T005 [P] Implement `src/utils/config.py` with fixed random seeds and path configurations
 - [~] T006 [P] Setup `pytest` configuration and test directory structure
-- [~] T007 Implement data validation utilities in `src/utils/validation.py` to enforce schema contracts
+- [X] T007 Implement data validation utilities in `src/utils/validation.py` to enforce schema contracts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,16 +75,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Unit test for age filtering logic in `tests/unit/test_filtering.py`
-- [~] T009 [P] [US1] Unit test for null-value exclusion in `tests/unit/test_filtering.py`
+- [X] T008 [P] [US1] Unit test for age filtering logic in `tests/unit/test_filtering.py`
+- [X] T009 [P] [US1] Unit test for null-value exclusion in `tests/unit/test_filtering.py`
 - [~] T010 [P] [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `src/data/synthetic_gen.py` to generate independent (Null Hypothesis) 16S and cognitive data with fixed seeds, explicitly referencing Plan Amendment Task 0.1
-- [~] T012 [US1] Implement `src/data/ingestion.py` to load synthetic data and merge on participant ID
-- [~] T013 [US1] Implement `src/data/filtering.py` to filter for age >= 65, non-null Shannon/Cognitive scores, and required covariates (age, sex, BMI, fiber, antibiotics)
-- [~] T014 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case)
+- [ ] T011 [US1] Implement `src/data/synthetic_gen.py` to generate independent (Null Hypothesis) 16S and cognitive data with fixed seeds, explicitly referencing Plan Amendment Task 0.1
+- [ ] T012 [US1] Implement `src/data/ingestion.py` to load synthetic data and merge on participant ID
+- [ ] T013 [US1] Implement `src/data/filtering.py` to filter for age >= 65, non-null Shannon/Cognitive scores, and required covariates (age, sex, BMI, fiber, antibiotics)
+- [ ] T014 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case)
 - [~] T015 [US1] Add logic in `src/data/filtering.py` to handle missing covariates via listwise deletion (default) or mean imputation, with the choice explicitly logged to `logs/filtering.log`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

@@ -40,10 +40,10 @@
 - [ ] T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities
 - [ ] T005b Create `contracts/metadata.schema.yaml` defining the schema for `PerovskiteEntry` instrumentation metadata (TGA model, uncertainty)
 - [ ] T006 Implement `code/utils/data_fetcher.py` with retry logic: multiple retries with exponential backoff (increasing intervals) for API unavailability
-- [~] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
+- [X] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
 - [~] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
-- [~] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
-- [~] T009b Implement `code/utils/validator.py` to perform 'title-token-overlap' validation (≥ 0.7 threshold) against primary source citations before processing data
+- [X] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
+- [X] T009b Implement `code/utils/validator.py` to perform 'title-token-overlap' validation (≥ 0.7 threshold) against primary source citations before processing data
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,17 +57,17 @@
 
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
-- [~] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_data_ingestion.py`
-- [~] T011 [P] [US1] Integration test for API retry logic and error handling in `tests/integration/test_api_retries.py`
+- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_data_ingestion.py`
+- [X] T011 [P] [US1] Integration test for API retry logic and error handling in `tests/integration/test_api_retries.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data_ingestion.py` to fetch data from NREL/Materials Project (validating via T009b), filtering for entries with `T_d` (TGA onset), and write output to `data/raw/nrel_perovskites.csv`
-- [~] T013a [US1] Implement parsing logic to extract TGA model and precision (±5°C to ±10°C) from source metadata into a structured object and write to `data/raw/metadata.json`
-- [~] T013b [US1] Write parsed instrumentation metadata to `data/raw/metadata.json` adhering to `contracts/metadata.schema.yaml`
-- [~] T013c [US1] Implement logic to flag entries using the default ±10°C uncertainty bound in `data/raw/uncertainty_flags.json` and ensure this flag is propagated for weighting
+- [ ] T012 [US1] Implement `code/data_ingestion.py` to fetch data from NREL/Materials Project (validating via T009b), filtering for entries with `T_d` (TGA onset), and write output to `data/raw/nrel_perovskites.csv`
+- [ ] T013a [US1] Implement parsing logic to extract TGA model and precision (±5°C to ±10°C) from source metadata into a structured object and write to `data/raw/metadata.json`
+- [ ] T013b [US1] Write parsed instrumentation metadata to `data/raw/metadata.json` adhering to `contracts/metadata.schema.yaml`
+- [ ] T013c [US1] Implement logic to flag entries using the default ±10°C uncertainty bound in `data/raw/uncertainty_flags.json` and ensure this flag is propagated for weighting
 - [~] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, **first** ionization energy), and variance metrics; write output to `data/processed/descriptors.csv`
-- [~] T014b [US1] Implement verification logic to confirm 'first ionization energy' column is present in `data/processed/descriptors.csv` matching FR-002 requirements
+- [ ] T014b [US1] Implement verification logic to confirm 'first ionization energy' column is present in `data/processed/descriptors.csv` matching FR-002 requirements
 - [~] T015 [US1] Implement logic to exclude entries with ≥2 missing descriptor values and log exclusion counts
 - [~] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
 - [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors.csv` including the `T_d_uncertainty` column and update `state/...yaml` with hash

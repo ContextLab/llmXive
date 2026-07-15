@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement deterministic data fetching utilities with checksum validation in `code/utils/data_fetchers.py`
-- [~] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
-- [~] T007 Create base data models/entities (Sample, Taxon) in `code/utils/data_models.py`
-- [~] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
+- [ ] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
+- [X] T007 Create base data models/entities (Sample, Taxon) in `code/utils/data_models.py`
+- [ ] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
 - [~] T009 Setup environment configuration management for dataset paths and random seeds <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
@@ -80,15 +80,15 @@
 
 > **NOTE**: These are "Write Test Code" tasks. They must be executed AFTER implementation tasks.
 
-- [~] T010 Write contract test code for merged dataframe schema in `tests/contract/test_data_merge.py`
-- [~] T011 Write integration test code for age filtering and missing value imputation in `tests/integration/test_preprocessing.py`
+- [X] T010 Write contract test code for merged dataframe schema in `tests/contract/test_data_merge.py`
+- [X] T011 Write integration test code for age filtering and missing value imputation in `tests/integration/test_preprocessing.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement AGP 16S taxonomic data fetcher from official Qiita/EBI source in `code/01_data_ingestion.py`
-- [~] T013 [US1] Implement HRS cognitive metadata fetcher from official HRS portal in `code/01_data_ingestion.py` <!-- FAILED: unspecified -->
-- [~] T014 [US1] Implement participant ID merge logic with overlap logging (≥500 samples required) in `code/01_data_ingestion.py`
-- [~] T015 [US1] Implement age ≥ 60 filter and covariate (BMI, education) imputation logic in `code/02_preprocessing.py`
+- [X] T012 [US1] Implement AGP 16S taxonomic data fetcher from official Qiita/EBI source in `code/01_data_ingestion.py`
+- [X] T013 [US1] Implement HRS cognitive metadata fetcher from official HRS portal in `code/01_data_ingestion.py` <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement participant ID merge logic with overlap logging (≥500 samples required) in `code/01_data_ingestion.py`
+- [X] T015 [US1] Implement age ≥ 60 filter and covariate (BMI, education) imputation logic in `code/02_preprocessing.py`
 - [ ] T016 [US1] Implement Rarefaction to uniform depth (minimum read depth of retained samples) and collapse to genus-level relative abundances in `code/02_preprocessing.py` (Per Spec FR-002)
 - [ ] T017 [US1] Add validation to ensure no null values remain in the final analysis dataset
 - [ ] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise

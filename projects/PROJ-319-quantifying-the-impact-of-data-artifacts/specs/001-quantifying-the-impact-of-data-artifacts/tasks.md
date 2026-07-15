@@ -58,11 +58,11 @@
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scikit-image, astropy, scipy, statsmodels, pandas, matplotlib, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 [P] Create `code/config.py` with pinned random seeds, default paths, and **concrete** artifact parameters: noise levels ranging from low to moderate, saturation range from a baseline to 0.5 in 0.05 increments (derived from spec assumptions on typical instrumental variations) (FR-002, FR-003, SC-003)
-- [~] T005 [P] Implement `code/io/loader.py` to validate FITS headers (WCS, exposure, filter), abort on missing metadata, and **log the specific missing fields** for traceability (FR-008, FR-009)
+- [X] T005 [P] Implement `code/io/loader.py` to validate FITS headers (WCS, exposure, filter), abort on missing metadata, and **log the specific missing fields** for traceability (FR-008, FR-009)
 - [~] T006 [P] Create `code/synthetic/generator.py` to generate synthetic planetary nebulae with known ground-truth ellipticity and asymmetry (no GPU, CPU-only) **and save these exact ground-truth values to a JSON metadata file** (e.g., `data/synthetic/gt_metadata.json`) to serve as the Single Source of Truth (Constitution Principle IV)
-- [~] T007 [P] Implement `code/io/writer.py` to save generated images and logs with checksums for reproducibility (FR-008)
+- [X] T007 [P] Implement `code/io/writer.py` to save generated images and logs with checksums for reproducibility (FR-008)
 - [~] T008 [P] Setup `tests/unit/` structure and `pytest` configuration
-- [~] T009 [P] **CRITICAL**: Acquire, vet, checksum, and process a small set of real HST images (MAST) for manual validation as required by Constitution Principle VII; store in `data/validation/` and create `data/validation/validation_manifest.json` (Plan: Constitution Check Principle VII)
+- [ ] T009 [P] **CRITICAL**: Acquire, vet, checksum, and process a small set of real HST images (MAST) for manual validation as required by Constitution Principle VII; store in `data/validation/` and create `data/validation/validation_manifest.json` (Plan: Constitution Check Principle VII)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,14 +80,14 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Contract test for `code/io/loader.py` in `tests/unit/test_loader.py`: **Function `test_loader_raises_on_missing_wcs`** asserting that `loader.load()` raises `ValueError` when WCS metadata is missing (FR-009)
-- [~] T011 [P] [US1] Unit test for noise injection logic in `tests/unit/test_artifacts.py`: **Function `test_noise_injection_sigma`** asserting that injected noise matches target sigma within tolerance (FR-002)
-- [~] T012 [P] [US1] Unit test for ellipticity calculation in `tests/unit/test_ellipticity.py`: **Function `test_ellipticity_calculation`** asserting that second-order moments yield correct ellipticity for a known synthetic shape (FR-004) <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Contract test for `code/io/loader.py` in `tests/unit/test_loader.py`: **Function `test_loader_raises_on_missing_wcs`** asserting that `loader.load()` raises `ValueError` when WCS metadata is missing (FR-009)
+- [X] T011 [P] [US1] Unit test for noise injection logic in `tests/unit/test_artifacts.py`: **Function `test_noise_injection_sigma`** asserting that injected noise matches target sigma within tolerance (FR-002)
+- [X] T012 [P] [US1] Unit test for ellipticity calculation in `tests/unit/test_ellipticity.py`: **Function `test_ellipticity_calculation`** asserting that second-order moments yield correct ellipticity for a known synthetic shape (FR-004) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/metrics/ellipticity.py` using second-order moments (FR-004)
-- [~] T014 [US1] Implement `code/synthetic/artifacts.py` noise injection function: **iterate** over sigma levels [0.01, 0.05, 0.10] * median signal, save results to `data/processed/noise_sweep_{sigma}.fits` (FR-002) <!-- FAILED: unspecified -->
+- [X] T013 [P] [US1] Implement `code/metrics/ellipticity.py` using second-order moments (FR-004)
+- [X] T014 [US1] Implement `code/synthetic/artifacts.py` noise injection function: **iterate** over sigma levels [0.01, 0.05, 0.10] * median signal, save results to `data/processed/noise_sweep_{sigma}.fits` (FR-002) <!-- FAILED: unspecified -->
 - [~] T016 [US1] Implement statistical test logic: **Two-sample t-test** with Bonferroni correction; output p-values to `logs/stats_results.csv` (FR-005)
 - [ ] T015 [US1] Create `code/main.py` pipeline step to: load clean image -> inject noise -> measure ellipticity -> **load ground truth from `data/synthetic/gt_metadata.json`** -> compute bias -> log results (FR-001, FR-008)
 - [ ] T017 [US1] Add logging for noise parameters, seeds, and bias results to `logs/research.log`

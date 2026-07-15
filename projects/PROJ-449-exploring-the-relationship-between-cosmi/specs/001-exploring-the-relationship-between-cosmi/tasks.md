@@ -58,8 +58,8 @@
 - [X] T004 Create `code/utils/config.py` to manage dataset URLs (AMS-02, NOAA) and run parameters
 - [X] T005 [P] Implement `code/utils/logging.py` for structured logging of data gaps and fetch errors
 - [X] T006 [P] Setup `code/data/__init__.py` and data directory structure (`data/raw/`, `data/processed/`, `data/checksums.txt`)
-- [~] T007 Create base data entities in `code/data/models.py` (CosmicRayFlux, SolarActivityIndex, CompositionRatio). **CRITICAL**: The `CosmicRayFlux` entity MUST explicitly include a `rigidity` attribute (float) to support Constitution Principle VI (Rigidity-Dependent Flux Calibration) and FR-001. The model must enforce that every flux measurement is tied to a specific rigidity bin.
-- [~] T008 Implement checksum verification script `code/utils/verify_checksums.py`
+- [X] T007 Create base data entities in `code/data/models.py` (CosmicRayFlux, SolarActivityIndex, CompositionRatio). **CRITICAL**: The `CosmicRayFlux` entity MUST explicitly include a `rigidity` attribute (float) to support Constitution Principle VI (Rigidity-Dependent Flux Calibration) and FR-001. The model must enforce that every flux measurement is tied to a specific rigidity bin.
+- [X] T008 Implement checksum verification script `code/utils/verify_checksums.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,15 +75,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for date alignment logic in `tests/test_data_alignment.py`
-- [~] T010 [P] [US1] Unit test for missing data flagging (gaps > 30 days) in `tests/test_data_alignment.py`
+- [X] T009 [P] [US1] Unit test for date alignment logic in `tests/test_data_alignment.py`
+- [X] T010 [P] [US1] Unit test for missing data flagging (gaps > 30 days) in `tests/test_data_alignment.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement `code/data/fetch_ams02.py` to download daily averaged, rigidity-binned differential fluxes for protons, helium, and CNO/Fe from the public AMS-02 repository (2011-2024). **Constraint**: Use `requests` with explicit error handling for 404/503. If the public API returns HTML or requires login, implement a fallback to the verified GitHub mirror of AMS-02 public data (e.g., `) or `ucimlrepo` if available, logging the fallback per Assumptions.
-- [~] T012 [P] [US1] Implement `code/data/fetch_noaa.py` to download daily sunspot numbers from NOAA/SWPC (e.g., ` or verified CSV mirror).
-- [~] T013 [US1] Implement `code/data/align_data.py` to merge flux and solar data, handling time zones and date formats; must flag gaps > 30 days as "Data Gap" and exclude from correlation later.
-- [~] T014 [US1] Implement `code/data/preprocess.py` to calculate composition ratios: explicitly calculate **He/p** and **Fe/p** (and CNO/p if available). For any row where the denominator flux (proton) is zero or missing, log the event as "Below Detection Limit" and exclude it from the ratio calculation, as required by FR-003. Ensure the output artifact explicitly lists the calculated ratios for both He/p and Fe/p species.
+- [X] T011 [P] [US1] Implement `code/data/fetch_ams02.py` to download daily averaged, rigidity-binned differential fluxes for protons, helium, and CNO/Fe from the public AMS-02 repository (2011-2024). **Constraint**: Use `requests` with explicit error handling for 404/503. If the public API returns HTML or requires login, implement a fallback to the verified GitHub mirror of AMS-02 public data (e.g., `) or `ucimlrepo` if available, logging the fallback per Assumptions.
+- [X] T012 [P] [US1] Implement `code/data/fetch_noaa.py` to download daily sunspot numbers from NOAA/SWPC (e.g., ` or verified CSV mirror).
+- [X] T013 [US1] Implement `code/data/align_data.py` to merge flux and solar data, handling time zones and date formats; must flag gaps > 30 days as "Data Gap" and exclude from correlation later.
+- [X] T014 [US1] Implement `code/data/preprocess.py` to calculate composition ratios: explicitly calculate **He/p** and **Fe/p** (and CNO/p if available). For any row where the denominator flux (proton) is zero or missing, log the event as "Below Detection Limit" and exclude it from the ratio calculation, as required by FR-003. Ensure the output artifact explicitly lists the calculated ratios for both He/p and Fe/p species.
 - [~] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline and output `data/processed/unified_timeseries.csv`
 - [~] T016 [US1] Add validation to ensure the unified dataset contains sufficient data coverage. **Logic**: If coverage is < 100% for the 2011-2024 period, do NOT fail. Instead, identify the most populated rigidity bin available for each species, log the fallback action per the spec's Assumptions, and proceed with analysis using that bin. If coverage is < 50% for all bins, log a critical error and exit.
 
@@ -99,12 +99,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Unit test for lag calculation logic in `tests/test_correlation.py`
-- [~] T018 [P] [US2] Unit test for rigidity-bin specific analysis in `tests/test_correlation.py`
+- [X] T017 [P] [US2] Unit test for lag calculation logic in `tests/test_correlation.py`
+- [X] T018 [P] [US2] Unit test for rigidity-bin specific analysis in `tests/test_correlation.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `code/analysis/correlation.py` function `calculate_lagged_correlations` supporting Pearson and Spearman methods with a lag window spanning a symmetric range of months (±12).
+- [X] T019 [P] [US2] Implement `code/analysis/correlation.py` function `calculate_lagged_correlations` supporting Pearson and Spearman methods with a lag window spanning a symmetric range of months (±12).
 - [ ] T020 [US2] Implement `code/analysis/correlation.py` to iterate over **all rigidity bins** and perform two distinct correlation sets in a single loop: 1) **Composition Ratios**: Calculate Pearson/Spearman correlations for He/p and Fe/p against sunspot numbers. 2) **Control Analysis**: Calculate correlations for **absolute, rigidity-normalized fluxes** against sunspot numbers. For both sets, compute p-values. After the loop, derive the modulation amplitude trend against rigidity for the absolute flux results and save all results (coefficients, p-values, trends) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`.
 - [ ] T021 [US2] **REMOVED**: Merged into T020. The control analysis is now part of the main iteration to ensure consistent per-bin processing and explicit rigidity-dependence validation as required by FR-008.
 - [ ] T022 [US2] Implement `code/analysis/visualization.py` to generate time-lag plots and correlation heatmaps. **Dependency**: This task MUST consume the merged results from `data/processed/correlation_results.csv` (output of T020) to ensure both ratio and absolute flux plots are generated correctly.

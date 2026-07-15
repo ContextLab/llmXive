@@ -60,7 +60,7 @@
 
 - [X] T004 Implement `code/utils/logging.py` for standardized logging across the pipeline
 - [X] T005 Implement `code/utils/config.py` to load paths, BioProject IDs, random seeds, and the `MAX_ISOLATES` limit (default a large sample size, CI limit 1000)
-- [~] T006 Implement `code/utils/hash_artifacts.py` to compute SHA256 hashes for `data/` and `code/` and update `state/` JSON (Constitution Principle V)
+- [X] T006 Implement `code/utils/hash_artifacts.py` to compute SHA256 hashes for `data/` and `code/` and update `state/` JSON (Constitution Principle V)
 - [~] T007 Create `data/raw/` and `data/processed/` directory structure with `.gitkeep`
 - [~] T008 Create `tests/contract/` directory and stub schema validation helpers
 
@@ -76,11 +76,11 @@
 
 ### Blocking Prerequisites for US2 & US3
 
-- [~] T019 [US1] Implement `code/02_process/generate_phylogeny.py` to infer a phylogenetic tree (Newick format) from the SNP data (output of T016) using `dendropy` for use in downstream validation (REQUIRED for US2/US3)
+- [X] T019 [US1] Implement `code/02_process/generate_phylogeny.py` to infer a phylogenetic tree (Newick format) from the SNP data (output of T016) using `dendropy` for use in downstream validation (REQUIRED for US2/US3)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T009 [P] [US1] Contract test for feature matrix schema in `tests/contract/test_feature_matrix_schema.py`
+- [X] T009 [P] [US1] Contract test for feature matrix schema in `tests/contract/test_feature_matrix_schema.py`
 - [~] T010 [P] [US1] Unit test for isolate filtering logic in `tests/unit/test_ingest.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 3, column 1:
  1. **Basic filtering** - Verifie...
@@ -92,12 +92,12 @@ could not find expected ':'
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/01_ingest/download_ncbi.py` to fetch FASTA sequences for specified BioProjects (e.g., PRJNA[Accession Number]) using NCBI E-utilities, enforcing the `MAX_ISOLATES` limit (A large-scale dataset for specification, with a subset reserved for continuous integration.)
-- [~] T012 [US1] Implement `code/01_ingest/ingest_metadata.py` to parse susceptibility metadata, handle missing values, and log exclusion counts (Edge Case: missing metadata)
-- [~] T013 [US1] Implement `code/01_ingest/download_card.py` to fetch resistance gene reference data
-- [~] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested -->
-- [~] T015 [US1] Implement `code/02_process/run_ariba.sh` wrapper to identify resistance genes
-- [~] T016 [US1] Implement `code/02_process/build_feature_matrix.py` to aggregate SNPs, resistance gene presence, and **extract copy number variations (CNVs)** into a single CSV (Binary gene columns, Numeric SNP counts, Numeric CNV counts)
+- [X] T011 [US1] Implement `code/01_ingest/download_ncbi.py` to fetch FASTA sequences for specified BioProjects (e.g., PRJNA[Accession Number]) using NCBI E-utilities, enforcing the `MAX_ISOLATES` limit (A large-scale dataset for specification, with a subset reserved for continuous integration.)
+- [X] T012 [US1] Implement `code/01_ingest/ingest_metadata.py` to parse susceptibility metadata, handle missing values, and log exclusion counts (Edge Case: missing metadata)
+- [X] T013 [US1] Implement `code/01_ingest/download_card.py` to fetch resistance gene reference data
+- [ ] T014 [US1] Implement `code/02_process/run_snippy.sh` wrapper to align sequences and call SNPs (CPU-limited, multiple threads) <!-- ATOMIZE: requested -->
+- [X] T015 [US1] Implement `code/02_process/run_ariba.sh` wrapper to identify resistance genes
+- [X] T016 [US1] Implement `code/02_process/build_feature_matrix.py` to aggregate SNPs, resistance gene presence, and **extract copy number variations (CNVs)** into a single CSV (Binary gene columns, Numeric SNP counts, Numeric CNV counts)
 - [~] T017 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: antibiotic classes with <50 isolates (exclude and log warning)
 - [~] T018 [US1] Implement logic in `build_feature_matrix.py` to handle Edge Case: ALL classes have <50 isolates -> Abort execution with Error E004 and log message
 - [~] T020 [US1] Add validation in `build_feature_matrix.py` to ensure no missing values in `resistance_phenotype` and row count matches isolate count
@@ -114,14 +114,14 @@ could not find expected ':'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
+- [X] T021 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
 - [~] T022 [P] [US2] Integration test for mechanism-blind filtering in `tests/integration/test_mechanism_blind.py`
 
 ### Implementation for User Story 2
 
-- [~] T023a [US2] Implement `code/03_model/mechanism_blind_filter.py` to exclude known resistance genes for the target antibiotic class from the feature set (FR-008) using **CARD database categories** to map target class to genes
-- [~] T023b [US2] Implement `code/03_model/split_data.py` to perform the **initial stratified split** of data into training, validation, and test sets as required by FR-003
-- [~] T023c [US2] Implement `code/03_model/train_models.py` to train separate Logistic Regression (L1-regularized) and Random Forest models per antibiotic class (FR-009) using **Phylogenetically-Blocked CV** (split by clade ID from T019 tree) and consuming input from T023a (mechanism-blind filtered features)
+- [X] T023a [US2] Implement `code/03_model/mechanism_blind_filter.py` to exclude known resistance genes for the target antibiotic class from the feature set (FR-008) using **CARD database categories** to map target class to genes
+- [X] T023b [US2] Implement `code/03_model/split_data.py` to perform the **initial stratified split** of data into training, validation, and test sets as required by FR-003
+- [X] T023c [US2] Implement `code/03_model/train_models.py` to train separate Logistic Regression (L1-regularized) and Random Forest models per antibiotic class (FR-009) using **Phylogenetically-Blocked CV** (split by clade ID from T019 tree) and consuming input from T023a (mechanism-blind filtered features)
 - [ ] T024 [US2] Implement stratified cross-validation within `train_models.py` ensuring no data leakage (Strictly use Phylogenetically-Blocked CV logic as per plan)
 - [ ] T025 [US2] Implement `code/03_model/evaluate.py` to calculate AUC-ROC, precision-recall curves, and confusion matrices on the held-out test set
 - [ ] T026 [US2] Implement logic in `evaluate.py` to rank and export top genomic features (excluding target gene) to a summary table

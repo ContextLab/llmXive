@@ -93,19 +93,19 @@
 - [ ] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
 - [ ] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
 - [ ] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
-- [~] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
-- [~] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
-- [~] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
+- [X] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
+- [X] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
+- [X] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
+- [X] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
 
 ### Edge Case Tests for User Story 1
 
-- [~] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
+- [X] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,14 +119,14 @@
 
 ### Logging Infrastructure (US2)
 
-- [~] T030 [P] [US2] Add logging for analysis operations at `code/analysis/logging.py` - establishes logging before implementation
+- [X] T030 [P] [US2] Add logging for analysis operations at `code/analysis/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 2
 
-- [~] T021a [US2] Write function to perform two-way ANOVA at `code/analysis/anova.py` (FR-003, FR-011) - tool usage × experience level
-- [~] T021b [US2] Write function to calculate interaction term at `code/analysis/anova.py` (FR-003) - tool usage × experience level interaction
-- [~] T021c [US2] Write function to extract p-values and F-statistics at `code/analysis/anova.py` (FR-003)
-- [~] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
+- [X] T021a [US2] Write function to perform two-way ANOVA at `code/analysis/anova.py` (FR-003, FR-011) - tool usage × experience level
+- [X] T021b [US2] Write function to calculate interaction term at `code/analysis/anova.py` (FR-003) - tool usage × experience level interaction
+- [X] T021c [US2] Write function to extract p-values and F-statistics at `code/analysis/anova.py` (FR-003)
+- [X] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
 - [ ] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
 - [ ] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
 - [ ] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata

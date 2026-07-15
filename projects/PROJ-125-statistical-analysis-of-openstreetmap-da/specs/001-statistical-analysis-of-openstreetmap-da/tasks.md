@@ -74,19 +74,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
-- [~] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
-- [~] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
+- [X] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
+- [X] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement OSM vector download via Overpass API in `code/ingest.py` (FR-001)
+- [X] T012 [US1] Implement OSM vector download via Overpass API in `code/ingest.py` (FR-001)
  - Download buildings, land-use, trees, roads for specified city boundaries.
  - Handle rate limits with exponential backoff and local caching.
-- [~] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002)
+- [X] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002)
  - Fetch MODIS/Landsat data for a recent multi-year period.
  - Compute daytime land-surface temperature composites.
  - Implement cloud masking and multi-date composite generation if cloud cover > 20%.
-- [~] T014 [US1] Implement raster alignment and resampling in `code/ingest.py` (FR-003)
+- [X] T014 [US1] Implement raster alignment and resampling in `code/ingest.py` (FR-003)
  - Reproject all layers to a common CRS.
  - Resample to a standardized coarse resolution (bilinear for continuous, nearest for categorical).
  - Validate upsampling error < 0.1; exit with code 1 if exceeded.
@@ -95,7 +95,7 @@
  - Ensure all output rasters share identical dimensions, origin, and CRS.
  - Generate `data/metadata.json` with fetch timestamps and checksums.
 - [~] T015a [US1] Write `data-model.md` documenting reprojection and resampling methods (SC-007)
-- [~] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
+- [X] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,19 +109,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
-- [~] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
+- [X] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
+- [X] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
+- [X] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
  - Calculate Pearson/Spearman correlations between covariates and temperature.
  - Output to `data/results/correlation_matrix.csv`.
-- [~] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
+- [X] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
  - Compute Moran's I for the temperature raster.
  - Compute variograms for the target variable.
  - Output statistics to `data/results/spatial_stats.json`.
-- [~] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
+- [ ] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
  - Attempt to ingest socioeconomic proxies (WorldPop/OSM height) as described in Plan Phase 2.
  - If ingestion fails or data is missing, flag as a limitation in the report.
  - Include summary of strength and direction of linear relationships.
@@ -139,9 +139,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Unit test for spatial block generation in `tests/unit/test_modeling.py`
-- [~] T024 [P] [US3] Unit test for spatial cross-validation logic in `tests/unit/test_modeling.py`
-- [~] T025 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
+- [X] T023 [P] [US3] Unit test for spatial block generation in `tests/unit/test_modeling.py`
+- [X] T024 [P] [US3] Unit test for spatial cross-validation logic in `tests/unit/test_modeling.py`
+- [X] T025 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
 
 ### Implementation for User Story 3
 
@@ -184,7 +184,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T036a [P] Update README.md with CLI usage examples and installation instructions
-- [~] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
+- [X] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
 - [~] T037a Run `ruff` and `black` to fix linting and formatting issues across `code/` <!-- FAILED: unspecified -->
 - [~] T037b Remove unused imports and dead code identified by linters in `code/`
 - [ ] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`

@@ -58,8 +58,8 @@
 - [ ] T002 Create `.flake8` and `pyproject.toml` with black configuration for linting and formatting
 - [X] T003 Implement `code/utils.py` with RDKit parsing helpers, logging setup, and CPU-only device configuration
 - [ ] T004 [P] Create data directory structure (`data/raw/`, `data/processed/`) and create empty `data/checksums.txt`
-- [~] T005 Implement `code/hash_artifacts.py` to compute content hashes for artifacts and update `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml` (keys: `artifact_hashes`, `updated_at`) (Constitution V)
-- [~] T006 Define Pydantic models `Molecule` (fields: `smi`, `lambda_max`, `scaffold_id`) and `Scaffold` in `code/models.py`
+- [X] T005 Implement `code/hash_artifacts.py` to compute content hashes for artifacts and update `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml` (keys: `artifact_hashes`, `updated_at`) (Constitution V)
+- [X] T006 Define Pydantic models `Molecule` (fields: `smi`, `lambda_max`, `scaffold_id`) and `Scaffold` in `code/models.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,18 +75,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T007 [P] [US1] Contract test for data ingestion output schema in `tests/test_ingest.py`: Assert output columns are exactly `["smi", "lambda_max", "scaffold_id"]` with types `str`, `float`, `str`
+- [X] T007 [P] [US1] Contract test for data ingestion output schema in `tests/test_ingest.py`: Assert output columns are exactly `["smi", "lambda_max", "scaffold_id"]` with types `str`, `float`, `str`
 
 ### Implementation for User Story 1
 
-- [~] T008 [US1] Implement `code/ingest.py`:
+- [ ] T008 [US1] Implement `code/ingest.py`:
  1. Fetch UV-Vis data from `datasets.load_dataset("zjunlp/UV-Vis-ML")`.
  2. **Verify** the dataset contains the `lambda_max_exp` column.
  3. **If missing**, fallback to fetching from PubChem/SDBS using specific URLs defined in `plan.md` (e.g., `).
  4. Parse SMILES, validate with RDKit, retain median λmax for duplicates.
  5. Implement chunked loading to ensure <7GB RAM usage.
  6. Save to `data/raw/processed.csv`.
-- [~] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate to check for `lambda_max_exp` column and flag computed-only datasets (reduces SC-001 validity)
+- [X] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate to check for `lambda_max_exp` column and flag computed-only datasets (reduces SC-001 validity)
 - [ ] T010 [US1] Implement `code/split.py`: Generate Bemis-Murcko scaffolds and split data into train/val/test (majority/minority/minority) ensuring no scaffold appears in multiple splits (FR-002)
 - [ ] T011 [US1] Add logging for data ingestion, conflict resolution, and split statistics in `code/ingest.py` and `code/split.py`
 

@@ -60,16 +60,16 @@
 - [ ] T004 Setup `code/utils/config.py` for random seeds, paths, species/stress constants, and **Reference-Validator threshold** (default 0.7, configurable).
 - [ ] T005 [P] Implement data schema validation using Pydantic or simple dict checks for `data/raw/` and `data/processed/`.
 - [~] T006 [P] Setup logging infrastructure to capture warnings (e.g., dropped rows, missing data) to `logs/pipeline.log`.
-- [~] T007 Create base data loading utilities in `code/utils/data_utils.py` (CSV/Parquet I/O).
-- [~] T008 Implement checksum verification utility in `code/utils/checksums.py` for SHA-256 validation of raw downloads.
-- [~] T023 [P] Create `docs/deviation_log.md` documenting the decision logic for LOOCV vs 5-fold CV (based on sample size n < 50). **This document must exist before T019 runs.** (Constitution Principle VI).
+- [X] T007 Create base data loading utilities in `code/utils/data_utils.py` (CSV/Parquet I/O).
+- [X] T008 Implement checksum verification utility in `code/utils/checksums.py` for SHA-256 validation of raw downloads.
+- [X] T023 [P] Create `docs/deviation_log.md` documenting the decision logic for LOOCV vs 5-fold CV (based on sample size n < 50). **This document must exist before T019 runs.** (Constitution Principle VI).
 
 ### Phase 2.5: Data Verification & Feasibility Gate (Critical)
 
 **Purpose**: Ensure all data sources are real, reachable, and that no fabrication occurs. This phase runs AFTER Foundation but BEFORE User Story 1.
 
-- [~] T035 [P] [US1] Implement `code/data_ingestion/verify_sources.py` to validate that all citations in `research.md` are verified against primary sources. **Input: `research.md`. Logic: Fetch primary source metadata, verify title-token overlap ≥ threshold (from config.py), verify semantic relevance. Fail if any citation fails validation.** (Constitution Principle II).
-- [~] T036 [P] [US1] Implement `code/data_ingestion/sanity_check.py` to verify that the merged dataset contains **real** measured values (no `random.*` generated numbers, no constant columns with fake IDs). **Fail if any synthetic placeholder data is detected.**
+- [X] T035 [P] [US1] Implement `code/data_ingestion/verify_sources.py` to validate that all citations in `research.md` are verified against primary sources. **Input: `research.md`. Logic: Fetch primary source metadata, verify title-token overlap ≥ threshold (from config.py), verify semantic relevance. Fail if any citation fails validation.** (Constitution Principle II).
+- [X] T036 [P] [US1] Implement `code/data_ingestion/sanity_check.py` to verify that the merged dataset contains **real** measured values (no `random.*` generated numbers, no constant columns with fake IDs). **Fail if any synthetic placeholder data is detected.**
 - [ ] T037 [P] [US1] Implement `code/data_ingestion/sample_check.py` to ensure at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat. **If n < 5 for all species, trigger the "Data Unavailable" halt path and exit cleanly.**
 
 **Checkpoint**: Data is verified real and sufficient. Proceed to User Story 1 only if T035-T037 pass.

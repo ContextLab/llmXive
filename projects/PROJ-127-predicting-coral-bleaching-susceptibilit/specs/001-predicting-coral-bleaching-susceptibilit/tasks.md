@@ -59,9 +59,9 @@
 - [X] T006 Create `code/ingest.py` skeleton for data download and merging logic (Requires: T004)
 - [ ] T007 Create `code/features.py` skeleton for VIF and lagged feature logic (Requires: T004)
 - [ ] T008 Create `code/train.py` skeleton for XGBoost training logic (Requires: T004)
-- [~] T009 Create `code/evaluate.py` skeleton for importance and statistical tests (Requires: T004)
-- [~] T010 Create `code/map.py` skeleton for GeoTIFF and threshold analysis (Requires: T004)
-- [~] T011 Create `code/main.py` pipeline orchestrator (Requires: T004)
+- [X] T009 Create `code/evaluate.py` skeleton for importance and statistical tests (Requires: T004)
+- [X] T010 Create `code/map.py` skeleton for GeoTIFF and threshold analysis (Requires: T004)
+- [X] T011 Create `code/main.py` pipeline orchestrator (Requires: T004)
 - [~] T012 Setup `tests/unit/` and `tests/integration/` directory structure
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,14 +76,14 @@
 
 ### Implementation for User Story 1
 
-- [~] T020 [US1] Implement `tests/unit/test_ingest.py`: Verify row counts, column presence, and null handling in the unified dataset. (TDD: Write before implementation)
-- [~] T021 [US1] Implement `tests/unit/test_features.py`: Verify lagged feature calculations and VIF filtering logic. (TDD: Write before implementation)
+- [X] T020 [US1] Implement `tests/unit/test_ingest.py`: Verify row counts, column presence, and null handling in the unified dataset. (TDD: Write before implementation)
+- [X] T021 [US1] Implement `tests/unit/test_features.py`: Verify lagged feature calculations and VIF filtering logic. (TDD: Write before implementation)
 
-- [~] T013 [US1] Implement `code/ingest.py`: Download NOAA SST/DHW rasters, UNEP reef geometries, Coral Trait Database traits, and ReefBase bleaching events from URLs specified in `config.NOAA_URL`, `config.CORAL_TRAIT_URL`, etc. **Requires**: T012A (Data Gap Check must pass). (Requires: T012A)
+- [X] T013 [US1] Implement `code/ingest.py`: Download NOAA SST/DHW rasters, UNEP reef geometries, Coral Trait Database traits, and ReefBase bleaching events from URLs specified in `config.NOAA_URL`, `config.CORAL_TRAIT_URL`, etc. **Requires**: T012A (Data Gap Check must pass). (Requires: T012A)
 - [~] T014 [US1] Implement `code/ingest.py`: Merge data into a unified `data/processed/reef_species_unified.csv` with 5-km grid resolution. (Requires: T013) <!-- ATOMIZE: requested -->
-- [~] T015 [US1] Implement `code/ingest.py`: Handle missing values by imputing with nearest valid temporal neighbor or excluding rows if gaps exceed thresholds. (Requires: T014)
-- [~] T016 [US1] Implement `code/ingest.py`: Flag rows where species trait data is missing (exclude or mark as "unknown" per edge case). (Requires: T015)
-- [~] T017 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T016)
+- [X] T015 [US1] Implement `code/ingest.py`: Handle missing values by imputing with nearest valid temporal neighbor or excluding rows if gaps exceed thresholds. (Requires: T014)
+- [X] T016 [US1] Implement `code/ingest.py`: Flag rows where species trait data is missing (exclude or mark as "unknown" per edge case). (Requires: T015)
+- [X] T017 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T016)
 - [~] T018 [US1] Implement `code/features.py`: Perform Definitional Circularity Check (verify if DHW is derived from SST). **Action**: If derived, drop DHW or use residuals; otherwise, proceed. **Artifact**: Log the decision and flag in `data/processed/features.csv`. (Requires: T017)
 - [~] T019 [US1] Implement `code/features.py`: Calculate Variance Inflation Factor (VIF) for all predictors; drop features with VIF > 5. **Output**: Save filtered feature list to `data/processed/filtered_features.csv`. (Requires: T018)
 
@@ -99,7 +99,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/train.py`: Split data spatially (Train: Western Pacific, Test: Eastern Pacific). **Requires**: T019 (VIF filtering must be complete to ensure training on uncorrelated features). (Requires: T019)
+- [X] T022 [US2] Implement `code/train.py`: Split data spatially (Train: Western Pacific, Test: Eastern Pacific). **Requires**: T019 (VIF filtering must be complete to ensure training on uncorrelated features). (Requires: T019)
 - [ ] T023 [US2] Implement `code/train.py`: Train XGBoost model with 5-fold cross-validation for hyperparameter tuning (max_depth, learning_rate, n_estimators). **Requires**: T022 (Spatial Split) and T019 (VIF Filtering). (Requires: T022, T019)
 - [ ] T024 [US2] Implement `code/train.py`: Handle edge case where test set has zero positive events. **Action**: If zero positives, skip ROC-AUC calculation, write a warning to stdout, and set `ROC_AUC` to `null` in `results.json`. (Requires: T023)
 - [ ] T025 [US2] Implement `code/evaluate.py`: Compute ROC-AUC score on the held-out geographic test set (SC-001). If real data missing, skip and warn. (Requires: T023)

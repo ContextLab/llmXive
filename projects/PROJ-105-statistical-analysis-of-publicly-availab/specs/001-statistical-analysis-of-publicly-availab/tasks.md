@@ -61,7 +61,7 @@
 - [ ] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
 - [ ] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
 - [ ] T009 Setup environment configuration management in `code/config.py`: Define `BTS_URL` and `TARGET_YEAR` variables with defaults and validation logic. <!-- FAILED: unspecified -->
-- [~] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
+- [X] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,18 +77,18 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Unit test for memory estimation logic in `tests/unit/test_preprocessing.py`
-- [~] T011 [P] [US1] Unit test for anomaly flagging logic (1440+ min) in `tests/unit/test_preprocessing.py`
-- [~] T012 [P] [US1] Integration test for full download-to-clean pipeline in `tests/integration/test_pipeline.py`
+- [X] T010 [P] [US1] Unit test for memory estimation logic in `tests/unit/test_preprocessing.py`
+- [X] T011 [P] [US1] Unit test for anomaly flagging logic (1440+ min) in `tests/unit/test_preprocessing.py`
+- [X] T012 [P] [US1] Integration test for full download-to-clean pipeline in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/data_loader.py`: Download BTS CSV for specified year with retry/backoff; fail if full year unavailable.
-- [~] T014 [P] [US1] Implement `code/preprocessing.py`: Load CSV, filter commercial US flights, compute `total_delay = ArrDelay + DepDelay`, treat missing as 0.
-- [~] T015 [US1] Implement `code/preprocessing.py`: Remove negative delays; flag `is_data_error` (>10,000 min) and `is_anomaly` (>1,440 min); exclude errors from primary set.
-- [~] T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate (`valid/total`); save `summary_report.json` with the rate. **If rate < 95%, raise `SystemExit` with code 1 and message "Retention Rate Failure: < 95%" (Per Plan Phase 0 Step 8 "Hard Check"), halting the entire pipeline execution preventing US2/US3 from starting.** <!-- FAILED: unspecified -->
-- [~] T017 [US1] Implement `code/preprocessing.py`: Create zero-excluded subset for sensitivity analysis; flag zero-inflation.
-- [~] T018 [US1] Implement `code/main.py` (Stage 1): Orchestrate download, cleaning, and save `cleaned_delays.csv` + `summary_report.json`.
+- [X] T013 [P] [US1] Implement `code/data_loader.py`: Download BTS CSV for specified year with retry/backoff; fail if full year unavailable.
+- [X] T014 [P] [US1] Implement `code/preprocessing.py`: Load CSV, filter commercial US flights, compute `total_delay = ArrDelay + DepDelay`, treat missing as 0.
+- [X] T015 [US1] Implement `code/preprocessing.py`: Remove negative delays; flag `is_data_error` (>10,000 min) and `is_anomaly` (>1,440 min); exclude errors from primary set.
+- [X] T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate (`valid/total`); save `summary_report.json` with the rate. **If rate < 95%, raise `SystemExit` with code 1 and message "Retention Rate Failure: < 95%" (Per Plan Phase 0 Step 8 "Hard Check"), halting the entire pipeline execution preventing US2/US3 from starting.** <!-- FAILED: unspecified -->
+- [X] T017 [US1] Implement `code/preprocessing.py`: Create zero-excluded subset for sensitivity analysis; flag zero-inflation.
+- [X] T018 [US1] Implement `code/main.py` (Stage 1): Orchestrate download, cleaning, and save `cleaned_delays.csv` + `summary_report.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,18 +102,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for MLE convergence handling (non-convergence catch) in `tests/unit/test_models.py`
-- [~] T021 [P] [US2] Unit test for Vuong test implementation in `tests/unit/test_models.py`
-- [~] T022 [P] [US2] Integration test for model fitting and metrics generation in `tests/integration/test_pipeline.py`
+- [X] T020 [P] [US2] Unit test for MLE convergence handling (non-convergence catch) in `tests/unit/test_models.py`
+- [X] T021 [P] [US2] Unit test for Vuong test implementation in `tests/unit/test_models.py`
+- [X] T022 [P] [US2] Integration test for model fitting and metrics generation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [P] [US2] Implement `code/models.py`: MLE fitting for Exponential, Gamma, Log-Normal, Weibull on **full cleaned data** (excluding data errors).
-- [~] T026 [US2] Implement `code/models.py`: Estimate `x_min` via KS minimization over a grid; save `x_min` to `data/results/x_min_estimate.json`.
-- [~] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026.
-- [~] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the **tail subset** (delay >= x_min) to enable tail-metric comparison.
-- [~] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
-- [~] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
+- [X] T023 [P] [US2] Implement `code/models.py`: MLE fitting for Exponential, Gamma, Log-Normal, Weibull on **full cleaned data** (excluding data errors).
+- [X] T026 [US2] Implement `code/models.py`: Estimate `x_min` via KS minimization over a grid; save `x_min` to `data/results/x_min_estimate.json`.
+- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026.
+- [X] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the **tail subset** (delay >= x_min) to enable tail-metric comparison.
+- [X] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
+- [X] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
 - [~] T028 [US2] Implement `code/models.py`: Compare sum distribution (`total_delay`) vs. components (`ArrDelay`, `DepDelay`) via KS test and histograms; save results to `data/results/component_comparison.json`.
 - [ ] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
 

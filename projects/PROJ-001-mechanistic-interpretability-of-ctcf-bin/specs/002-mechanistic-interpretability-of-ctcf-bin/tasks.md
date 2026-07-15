@@ -98,12 +98,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data/ingest.py` to download BAM/bigwig files for verified cell types using `data/manifest.json`.
-- [~] T013 [US1] Implement `code/data/extract_features.py` to extract 1000bp windows (±500bp) centered on CTCF peaks and non-peaks, converting sequences to one-hot encoding and chromatin signals to normalized floats.
+- [X] T012 [P] [US1] Implement `code/data/ingest.py` to download BAM/bigwig files for verified cell types using `data/manifest.json`.
+- [X] T013 [US1] Implement `code/data/extract_features.py` to extract 1000bp windows (±500bp) centered on CTCF peaks and non-peaks, converting sequences to one-hot encoding and chromatin signals to normalized floats.
  - **Dependency**: Requires output of T012.
-- [~] T014 [US1] Implement `code/data/preprocess.py` to **exclude** cell types with missing ATAC-seq data (per spec Edge Cases: "exclude that cell type... or impute"; we choose exclusion to ensure data integrity).
+- [X] T014 [US1] Implement `code/data/preprocess.py` to **exclude** cell types with missing ATAC-seq data (per spec Edge Cases: "exclude that cell type... or impute"; we choose exclusion to ensure data integrity).
  - **Constraint**: If exclusion results in <5 cell types, the script MUST trigger a re-search (loop back to T003) or generate `docs/scope_revision_trigger.md`.
-- [~] T015 [US1] Implement `code/data/save_dataset.py` to save the unified dataset as `data/processed/unified_ctcf_dataset.parquet`.
+- [ ] T015 [US1] Implement `code/data/save_dataset.py` to save the unified dataset as `data/processed/unified_ctcf_dataset.parquet`.
 - [~] T016 [US1] Add validation to ensure every row contains fixed-length sequence and matched chromatin values; raise error if nulls remain.
 - [~] T017 [US1] Add logging for data ingestion steps, including cell type counts and exclusion reasons.
 
@@ -120,17 +120,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for model architecture `tests/unit/test_model_architecture.py` (verify input shapes and parameter count).
-- [~] T019 [P] [US2] Integration test for training loop `tests/integration/test_training_loop.py` (verify convergence and AUC calculation).
+- [X] T018 [P] [US2] Unit test for model architecture `tests/unit/test_model_architecture.py` (verify input shapes and parameter count).
+- [ ] T019 [P] [US2] Integration test for training loop `tests/integration/test_training_loop.py` (verify convergence and AUC calculation).
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/models/predictor.py` with a lightweight CNN/Transformer architecture optimized for CPU execution (no CUDA dependencies).
+- [X] T020 [P] [US2] Implement `code/models/predictor.py` with a lightweight CNN/Transformer architecture optimized for CPU execution (no CUDA dependencies).
 - [~] T021 [US2] Implement `code/models/train.py` to train the model on `data/processed/unified_ctcf_dataset.parquet`, splitting into train/validation sets with a standard majority/minority ratio.
  - **Dependency**: Requires output of T020.
-- [~] T022 [US2] Implement `code/models/evaluate.py` to compute AUC-ROC on the validation set; log warning if < 0.85 but continue.
-- [~] T023 [US2] Implement fallback logic in `code/models/train.py` to reduce sequence window size or switch to simpler CNN if training exceeds a predefined time threshold.
-- [~] T024 [US2] Save trained model weights to `data/models/best_ctcf_predictor.pth`.
+- [X] T022 [US2] Implement `code/models/evaluate.py` to compute AUC-ROC on the validation set; log warning if < 0.85 but continue.
+- [X] T023 [US2] Implement fallback logic in `code/models/train.py` to reduce sequence window size or switch to simpler CNN if training exceeds a predefined time threshold.
+- [ ] T024 [US2] Save trained model weights to `data/models/best_ctcf_predictor.pth`.
 - [~] T025 [US2] Implement synthetic sequence test: apply model to a sequence with strong CTCF motif but low ATAC-seq; verify output probability ≤ 0.2.
  - **Dependency**: Requires output of T024.
 
@@ -147,13 +147,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for SAE training `tests/unit/test_sae_training.py` (verify sparsity constraints).
-- [~] T027 [P] [US3] Unit test for integrated gradients `tests/unit/test_integrated_gradients.py` (verify attribution map shape).
+- [X] T026 [P] [US3] Unit test for SAE training `tests/unit/test_sae_training.py` (verify sparsity constraints).
+- [X] T027 [P] [US3] Unit test for integrated gradients `tests/unit/test_integrated_gradients.py` (verify attribution map shape).
 
 ### Implementation for User Story 3
 
-- [~] T028 [P] [US3] Implement `code/interpret/sae.py` to train a Sparse Autoencoder on hidden layer activations from `code/models/predictor.py`.
-- [~] T029 [US3] Implement `code/data/fetch_validation_data.py` to retrieve an independent held-out ChIP-seq dataset (e.g., GEO GSE accession) for validation.
+- [X] T028 [P] [US3] Implement `code/interpret/sae.py` to train a Sparse Autoencoder on hidden layer activations from `code/models/predictor.py`.
+- [X] T029 [US3] Implement `code/data/fetch_validation_data.py` to retrieve an independent held-out ChIP-seq dataset (e.g., GEO GSE accession) for validation.
  - **Dependency**: Requires T028 to identify features to validate.
 - [ ] T030 [US3] Implement `code/interpret/validate_features.py` to correlate latent feature weights with JASPAR CTCF PWM scores (target r ≥ 0.7) AND validate against the independent dataset from T029.
  - **Dependency**: Requires output of T028 and T029.

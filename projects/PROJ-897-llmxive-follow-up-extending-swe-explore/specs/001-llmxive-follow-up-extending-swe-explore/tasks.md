@@ -86,8 +86,8 @@
 - [ ] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
 - [ ] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
 - [~] T014b [US1] Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic ambiguous issues by mutating variable names, removing comments, and applying **structural obfuscations (control flow reordering, API signature changes)** per FR-009. **Fallback Logic**: If the pool of solvable tasks is insufficient, proceed with N < 50, log a warning, and save the actual count in `data/curated/synthetic_issues_meta.json`. Ensure synthetic issues are syntactically valid (AST parseable). Save `ground_truth_lines` from original code for synthetic issues (FR-008). **Versioning**: Record original code hash and mutation parameters in metadata.
-- [~] T014c [US1] Implement `code/data/curate.py` Part C: Validation logic to skip invalid mutations and log warnings.
-- [~] T015a [US1] Implement `code/config.py` update to define `VALIDATION_SAMPLE_SIZE` (default N=20) and `HARD_INSTANCE_PERCENTILE` (default) to resolve "[deferred]" values before execution.
+- [X] T014c [US1] Implement `code/data/curate.py` Part C: Validation logic to skip invalid mutations and log warnings.
+- [X] T015a [US1] Implement `code/config.py` update to define `VALIDATION_SAMPLE_SIZE` (default N=20) and `HARD_INSTANCE_PERCENTILE` (default) to resolve "[deferred]" values before execution.
 - [~] T015 [US1] Implement `code/data/validate_hard.py` to generate `data/curated/validation_report.md` with manual inspection guide for the **`VALIDATION_SAMPLE_SIZE`** subset defined in `config.py`. **Logic**: Read `VALIDATION_SAMPLE_SIZE` from config. **Output format**: Markdown table with columns [IssueID, CoverageScore, MutationType, ValidityStatus, Notes].
 - [~] T016 [US1] Integrate `hash_artifacts.py` to hash `data/curated/` files after generation
 
@@ -103,22 +103,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for agent log schema in `tests/contract/test_agent_log_schema.py`
-- [~] T019 [P] [US2] Integration test for agent loop termination (-turn limit, loop detection) in `tests/integration/test_agent_loop.py`
+- [X] T018 [P] [US2] Contract test for agent log schema in `tests/contract/test_agent_log_schema.py`
+- [X] T019 [P] [US2] Integration test for agent loop termination (-turn limit, loop detection) in `tests/integration/test_agent_loop.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/agent/static_analysis.py` wrapper for `pylint`/`ast` to detect "missing import", "undefined variable", parse errors
-- [~] T021 [P] [US2] Implement `code/agent/prompts.py` with templates for query reformulation based on static analysis signals
+- [X] T020 [P] [US2] Implement `code/agent/static_analysis.py` wrapper for `pylint`/`ast` to detect "missing import", "undefined variable", parse errors
+- [X] T021 [P] [US2] Implement `code/agent/prompts.py` with templates for query reformulation based on static analysis signals
 - [~] T022 [US2] Implement `code/agent/base.py` for Static Multi-Query Baseline. **Requirement**: Run **3 parallel queries** per issue (matching iterative budget). Must operate on the same curated subset as T023 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score` to enable 1:1 pairing with iterative results for the Wilcoxon signed-rank test.
-- [~] T023 [US2] Implement `code/agent/iterative.py`:
+- [ ] T023 [US2] Implement `code/agent/iterative.py`:
  - Enforce 3-turn limit (FR-003)
  - Turn logic: Query -> Retrieve -> Static Analysis -> Reformulate (if error)
  - Detect repeated queries to break loops early
  - Log `query_history`, `static_analysis_signals`, `turn_reasons`
  - **Requirement**: Must operate on the same curated subset as T022 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log the `issue_id` to enable 1:1 pairing with baseline results.
 - [~] T024 [US2] Implement `code/main.py` orchestration to run Baseline and Iterative agent on curated dataset. Output: `data/results/paired_metrics.json` containing merged results for T031, ensuring strict pairing by `issue_id`.
-- [~] T025 [US2] Implement turn-limit sweep logic: Reuse T023/T024 logic to execute **N=20 issues** (random sample from `data/curated/hard_subset.jsonl`) with **4 turns** per SC-006. Record results in `data/results/sweep_results.json` for stability comparison.
+- [ ] T025 [US2] Implement turn-limit sweep logic: Reuse T023/T024 logic to execute **N=20 issues** (random sample from `data/curated/hard_subset.jsonl`) with **4 turns** per SC-006. Record results in `data/results/sweep_results.json` for stability comparison.
 - [~] T026 [US2] Integrate `hash_artifacts.py` to hash `data/results/agent_logs/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -133,19 +133,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T027 [P] [US3] Contract test for result schema in `tests/contract/test_result_schema.py`
-- [~] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
+- [X] T027 [P] [US3] Contract test for result schema in `tests/contract/test_result_schema.py`
+- [X] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [~] T029 [P] [US3] Implement `code/metrics/coverage.py` to calculate % of `ground_truth_lines` retrieved
-- [~] T030 [P] [US3] Implement `code/metrics/ranking.py` to calculate position of first relevant line (handle censored data with penalty N+1)
-- [~] T031a [US3] Implement `code/analysis/stats.py` Part A: Calculate coverage metrics and apply **Wilcoxon signed-rank test** for paired coverage data.
-- [~] T031b [US3] Implement `code/analysis/stats.py` Part B: Calculate ranking metrics. **Primary Method**: Apply **Wilcoxon signed-rank test** with tie-handling (continuity correction) per FR-006. **Fallback**: If ties/censoring exceed a substantial proportion, apply **exact permutation test** or **Survival Analysis (Cox)** for censored data.
+- [X] T029 [P] [US3] Implement `code/metrics/coverage.py` to calculate % of `ground_truth_lines` retrieved
+- [X] T030 [P] [US3] Implement `code/metrics/ranking.py` to calculate position of first relevant line (handle censored data with penalty N+1)
+- [X] T031a [US3] Implement `code/analysis/stats.py` Part A: Calculate coverage metrics and apply **Wilcoxon signed-rank test** for paired coverage data.
+- [X] T031b [US3] Implement `code/analysis/stats.py` Part B: Calculate ranking metrics. **Primary Method**: Apply **Wilcoxon signed-rank test** with tie-handling (continuity correction) per FR-006. **Fallback**: If ties/censoring exceed a substantial proportion, apply **exact permutation test** or **Survival Analysis (Cox)** for censored data.
 - [~] T031c [US3] Implement `code/analysis/stats.py` Part C: Apply **Bonferroni correction** to the family of tests (coverage + ranking) per SC-004. Frame all results as **"associational differences"** per FR-007. Output `data/results/final_metrics.json`.
-- [~] T032 [US3] Implement `code/analysis/plots.py` for visualization of coverage and survival curves
+- [X] T032 [US3] Implement `code/analysis/plots.py` for visualization of coverage and survival curves
 - [~] T033 [US3] Integrate `hash_artifacts.py` to hash final `data/results/final_metrics.json`
-- [~] T034a [US3] Implement `code/analysis/report_generator.py` template for generating the final paper draft.
+- [X] T034a [US3] Implement `code/analysis/report_generator.py` template for generating the final paper draft.
 - [~] T034 [US3] Generate `paper/draft.md` using `code/analysis/report_generator.py` (T034a). **Mandatory**: Populate sections: Abstract, Methods, Results (with p-values from `data/results/final_metrics.json`), and Discussion. **Constraint**: All findings MUST be framed as **associational differences**; explicitly avoid causal claims per FR-007. The report generator must enforce this linguistic constraint on all result descriptions.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -160,7 +160,7 @@
 - [~] T036 Code cleanup and refactoring
 - [~] T037 Performance optimization (memory management for CPU model)
 - [~] T038 [P] Additional unit tests in `tests/unit/`
-- [~] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
+- [X] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
 - [~] T040 Run `quickstart.md` validation
 
 ---

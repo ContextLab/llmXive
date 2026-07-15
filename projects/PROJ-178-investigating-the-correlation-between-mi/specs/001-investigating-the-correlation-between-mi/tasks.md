@@ -100,7 +100,7 @@
 - [ ] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
 - [ ] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs
 - [~] T019 [US1] Implement exclusion logic for samples with missing age or failed haplogroup assignment
-- [~] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
+- [ ] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -114,16 +114,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Contract test for statistical output schema in `code/tests/test_model.py`
-- [~] T022 [P] [US2] Integration test for Rank-OLS implementation in `code/tests/test_model.py`
+- [X] T021 [P] [US2] Contract test for statistical output schema in `code/tests/test_model.py`
+- [X] T022 [P] [US2] Integration test for Rank-OLS implementation in `code/tests/test_model.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [P] [US2] Implement unadjusted Spearman correlation calculation in `code/analysis/model.py`
+- [X] T023 [P] [US2] Implement unadjusted Spearman correlation calculation in `code/analysis/model.py`
 - [~] T024 [US2] Implement Rank-OLS regression: Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/model_results.csv`
-- [~] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
+- [X] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
 - [~] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`
-- [~] T028 [US2] Generate summary statistics (coefficient, p-value, adjusted p-value) for `code/data/processed/analysis_results.csv`
+- [ ] T028 [US2] Generate summary statistics (coefficient, p-value, adjusted p-value) for `code/data/processed/analysis_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,17 +137,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Contract test for sensitivity output schema in `code/tests/test_sensitivity.py`
-- [~] T031 [P] [US3] Integration test for subgroup analysis in `code/tests/test_sensitivity.py`
+- [X] T030 [P] [US3] Contract test for sensitivity output schema in `code/tests/test_sensitivity.py`
+- [X] T031 [P] [US3] Integration test for subgroup analysis in `code/tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [~] T032 [P] [US3] Implement threshold sweep for heteroplasmy burden recalculation across a range of low-level thresholds. in `code/analysis/sensitivity.py`
-- [~] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`
-- [~] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
-- [~] T036 [US3] Implement measurement error simulation (binned age intervals) to estimate attenuation bias in `code/analysis/sensitivity.py`
-- [~] T037 [US3] Generate comparative plots for threshold and subgroup results in `code/analysis/visualize.py`
-- [~] T038 [US3] Write comprehensive sensitivity report to `code/data/processed/sensitivity_analysis.csv`
+- [X] T032 [P] [US3] Implement threshold sweep for heteroplasmy burden recalculation across a range of low-level thresholds. in `code/analysis/sensitivity.py`
+- [X] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`
+- [X] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
+- [X] T036 [US3] Implement measurement error simulation (binned age intervals) to estimate attenuation bias in `code/analysis/sensitivity.py`
+- [X] T037 [US3] Generate comparative plots for threshold and subgroup results in `code/analysis/visualize.py`
+- [X] T038 [US3] Write comprehensive sensitivity report to `code/data/processed/sensitivity_analysis.csv`
 
 **Checkpoint**: All user stories should now be independently functional
 

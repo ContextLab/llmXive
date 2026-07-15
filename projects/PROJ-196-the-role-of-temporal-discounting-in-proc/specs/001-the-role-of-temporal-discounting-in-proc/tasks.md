@@ -58,8 +58,8 @@
 - [ ] T004 Setup `data/raw/` and `data/processed/` directory structure
 - [ ] T005 [P] Implement `requirements.txt` with pinned versions for reproducibility
 - [ ] T006 [P] Configure `pytest` framework and directory structure
-- [~] T007 Create `code/__init__.py` and base configuration loader
-- [~] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I.
+- [X] T007 Create `code/__init__.py` and base configuration loader
+- [X] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I.
 - [~] T009 [P] Implement data checksum verification utility in `code/utils/checksum.py` AND integrate it to write/update the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` for every raw/processed artifact, ensuring Single Source of Truth traceability per Constitution Principle III and V.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,9 +76,9 @@
 
 > **NOTE**: Tests are written first (TDD) but listed here to reflect dependency on code structure created by T013-T018.
 
-- [~] T010 [P] [US1] Unit test for DGP parameter generation in `tests/test_ingestion.py`
-- [~] T011 [P] [US1] Unit test for hyperbolic model fitting edge cases (failure cases) in `tests/test_modeling.py`
-- [~] T012 [P] [US1] Integration test for full data harmonization pipeline in `tests/test_integration.py`
+- [X] T010 [P] [US1] Unit test for DGP parameter generation in `tests/test_ingestion.py`
+- [X] T011 [P] [US1] Unit test for hyperbolic model fitting edge cases (failure cases) in `tests/test_modeling.py`
+- [X] T012 [P] [US1] Integration test for full data harmonization pipeline in `tests/test_integration.py`
 
 ### Implementation for User Story 1
 

@@ -77,15 +77,15 @@
 - [ ] T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation data missing or N < 30, generate `data_insufficiency_report.md` and exit. **Dependency**: T012 (Fetch data).
 - [X] T014 [US1] Implement `code/descriptors.py`: Calculate TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener Index, Zagreb Index using RDKit. **Dependency**: T012 (Fetch data).
 - [ ] T015 [US1] Implement error handling in `code/descriptors.py`: Flag/exclude molecules with non-standard valence, log SMILES to `data/errors.log`. **Dependency**: T014 (Descriptors).
-- [~] T016 [US1] Merge structural and degradation data in `code/ingest.py`, filter for valid SMILES and non-null degradation values. **Dependency**: T012 (Fetch), T014 (Descriptors).
+- [X] T016 [US1] Merge structural and degradation data in `code/ingest.py`, filter for valid SMILES and non-null degradation values. **Dependency**: T012 (Fetch), T014 (Descriptors).
 - [~] T017 [US1] Save merged dataset to `data/processed/merged_drugs.csv` and generate checksums in `data/checksums.txt`. **Dependency**: T016 (Merge).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation, ensure they PASS**
 
-- [~] T010 [US1] Unit test for RDKit descriptor calculation in `tests/test_descriptors.py`. Function: `test_tpsa_wiener_zagreb_aspirin`. **Assertion**: `{{claim:c_5b0172db}}` and `CalcWienerIndex` wrapper output matches reference value within 1e-4. **Dependency**: T014.
-- [~] T011 [US1] Integration test for data ingestion gate in `tests/test_pipeline.py`. Function: `test_insufficient_data_gate`. **Assertion**: Mock dataset with N=29; verify `data_insufficiency_report.md` is generated, contains "N < 30" message, and `assert exit_code == 0`. **Dependency**: T013.
+- [X] T010 [US1] Unit test for RDKit descriptor calculation in `tests/test_descriptors.py`. Function: `test_tpsa_wiener_zagreb_aspirin`. **Assertion**: `{{claim:c_5b0172db}}` and `CalcWienerIndex` wrapper output matches reference value within 1e-4. **Dependency**: T014.
+- [X] T011 [US1] Integration test for data ingestion gate in `tests/test_pipeline.py`. Function: `test_insufficient_data_gate`. **Assertion**: Mock dataset with N=29; verify `data_insufficiency_report.md` is generated, contains "N < 30" message, and `assert exit_code == 0`. **Dependency**: T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,24 +99,24 @@
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/standardize.py`: Convert rate constants (k) to half-lives (t1/2) and standardize time units to hours. **Dependency**: T017 (Merged dataset).
-- [~] T020b [US2] Implement `code/standardize.py`: Implement Arrhenius normalization logic (t1/2_std = t1/2_meas * exp(Ea/R * (1/T_meas - 1/T_std))). Check for Ea availability; if Ea is missing, flag record as 'unnormalized'. **Dependency**: T020 (Unit Conversion).
-- [~] T021a [US2] Implement `code/standardize.py`: Data Coverage Check. Calculate the percentage of records in the FULL dataset (pre-stratification) that have pH and temperature data. Log the decision (include/exclude covariates) based on the ≥50% threshold. **Dependency**: T020 (Unit Conversion).
-- [~] T021 [US2] Implement `code/standardize.py`: Stratification logic. Filter for "Standard" conditions (25°C, pH 7.4) OR records normalized by T020b to create the `standard_subset` for primary regression. Exclude 'Unnormalized' records (missing Ea) from the `standard_subset` but retain them in a separate `descriptive_table`. **Dependency**: T020b (Normalization), T021a (Coverage Check).
-- [~] T022 [US2] Implement `code/analysis.py`: Compute Pearson and Spearman correlation matrices on the `standard_subset`; identify pairs with |r| ≥ 0.5 and p < 0.05. **Dependency**: T021 (Stratified data).
+- [X] T020 [US2] Implement `code/standardize.py`: Convert rate constants (k) to half-lives (t1/2) and standardize time units to hours. **Dependency**: T017 (Merged dataset).
+- [X] T020b [US2] Implement `code/standardize.py`: Implement Arrhenius normalization logic (t1/2_std = t1/2_meas * exp(Ea/R * (1/T_meas - 1/T_std))). Check for Ea availability; if Ea is missing, flag record as 'unnormalized'. **Dependency**: T020 (Unit Conversion).
+- [X] T021a [US2] Implement `code/standardize.py`: Data Coverage Check. Calculate the percentage of records in the FULL dataset (pre-stratification) that have pH and temperature data. Log the decision (include/exclude covariates) based on the ≥50% threshold. **Dependency**: T020 (Unit Conversion).
+- [X] T021 [US2] Implement `code/standardize.py`: Stratification logic. Filter for "Standard" conditions (25°C, pH 7.4) OR records normalized by T020b to create the `standard_subset` for primary regression. Exclude 'Unnormalized' records (missing Ea) from the `standard_subset` but retain them in a separate `descriptive_table`. **Dependency**: T020b (Normalization), T021a (Coverage Check).
+- [X] T022 [US2] Implement `code/analysis.py`: Compute Pearson and Spearman correlation matrices on the `standard_subset`; identify pairs with |r| ≥ 0.5 and p < 0.05. **Dependency**: T021 (Stratified data).
 - [~] T022a [US2] Implement sensitivity analysis in `code/analysis.py`: Sweep correlation thresholds over a range of moderate to high values and save the count of significant correlations for each threshold to `data/processed/sensitivity_analysis.json`. **Dependency**: T021 (Stratified data).
-- [~] T023 [US2] Implement Multiple Linear Regression (MLR) in `code/analysis.py` **operating strictly on the `standard_subset`** defined in T021. **Dependency**: T021 (Stratified data).
-- [~] T023b [US2] Implement conditional covariate modeling in `code/analysis.py`: Use the decision logged in T021a to determine if pH/temp should be included as covariates. If T021a logged "include", add covariates; if "exclude", use baseline model. **Model must run only on `standard_subset`**. **Dependency**: T021a (Coverage Check), T023 (MLR).
-- [~] T024 [US2] Implement LASSO regression with k-fold cross-validation in `code/analysis.py` **operating strictly on the `standard_subset`** to identify parsimonious features. **Dependency**: T023 (MLR) and T021.
-- [~] T025 [US2] Implement residual diagnostics in `code/analysis.py`: Perform Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests on model residuals. **Dependency**: T023, T024.
-- [~] T025a [US2] Verify Correlation Significance (SC-002/SC-003) in `code/analysis.py`: Assert that output p-values meet thresholds (p < 0.05). Log PASS/FAIL status to `analysis_results.json` under key `correlation_significance_pass`. **Dependency**: T022.
-- [~] T025b [US2] Verify Residual Diagnostics (SC-004) in `code/analysis.py`: Assert that Shapiro-Wilk p > 0.05 and Breusch-Pagan p > 0.05. Log PASS/FAIL status to `analysis_results.json` under key `residual_diagnostics_pass`. **Dependency**: T025.
-- [~] T026 [US2] Save analysis results (coefficients, p-values, R², sensitivity analysis) to `data/processed/analysis_results.json` and verify the file contains the R² key and passes JSON schema validation. **Dependency**: T025a, T025b, T022a.
+- [X] T023 [US2] Implement Multiple Linear Regression (MLR) in `code/analysis.py` **operating strictly on the `standard_subset`** defined in T021. **Dependency**: T021 (Stratified data).
+- [X] T023b [US2] Implement conditional covariate modeling in `code/analysis.py`: Use the decision logged in T021a to determine if pH/temp should be included as covariates. If T021a logged "include", add covariates; if "exclude", use baseline model. **Model must run only on `standard_subset`**. **Dependency**: T021a (Coverage Check), T023 (MLR).
+- [X] T024 [US2] Implement LASSO regression with k-fold cross-validation in `code/analysis.py` **operating strictly on the `standard_subset`** to identify parsimonious features. **Dependency**: T023 (MLR) and T021.
+- [X] T025 [US2] Implement residual diagnostics in `code/analysis.py`: Perform Shapiro-Wilk (normality) and Breusch-Pagan (homoscedasticity) tests on model residuals. **Dependency**: T023, T024.
+- [X] T025a [US2] Verify Correlation Significance (SC-002/SC-003) in `code/analysis.py`: Assert that output p-values meet thresholds (p < 0.05). Log PASS/FAIL status to `analysis_results.json` under key `correlation_significance_pass`. **Dependency**: T022.
+- [X] T025b [US2] Verify Residual Diagnostics (SC-004) in `code/analysis.py`: Assert that Shapiro-Wilk p > 0.05 and Breusch-Pagan p > 0.05. Log PASS/FAIL status to `analysis_results.json` under key `residual_diagnostics_pass`. **Dependency**: T025.
+- [ ] T026 [US2] Save analysis results (coefficients, p-values, R², sensitivity analysis) to `data/processed/analysis_results.json` and verify the file contains the R² key and passes JSON schema validation. **Dependency**: T025a, T025b, T022a.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [US2] Unit test for unit conversion logic in `tests/test_standardize.py`. Function: `test_k_to_half_life_conversion`. **Assertion**: `t1_2 = ln(2)/0.01` equals `69.31` hours within 0.01. **Dependency**: T020.
-- [~] T019 [US2] Unit test for regression diagnostics in `tests/test_analysis.py`. Function: `test_shapiro_wilk_breusch_pagan`. **Assertion**: Known normal residual set returns p > 0.05 for Shapiro-Wilk; known heteroscedastic set returns p < 0.05 for Breusch-Pagan. **Dependency**: T025.
+- [X] T018 [US2] Unit test for unit conversion logic in `tests/test_standardize.py`. Function: `test_k_to_half_life_conversion`. **Assertion**: `t1_2 = ln(2)/0.01` equals `69.31` hours within 0.01. **Dependency**: T020.
+- [X] T019 [US2] Unit test for regression diagnostics in `tests/test_analysis.py`. Function: `test_shapiro_wilk_breusch_pagan`. **Assertion**: Known normal residual set returns p > 0.05 for Shapiro-Wilk; known heteroscedastic set returns p < 0.05 for Breusch-Pagan. **Dependency**: T025.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

@@ -76,9 +76,9 @@
 
 **⚠️ ABORT CRITERIA**: If no verified plant omics datasets with ≥95% pairing (or sufficient condition-level fallback), project halts with E-DATASET
 
-- [~] T011 [P] [US1] Search GEO for Arabidopsis herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
+- [X] T011 [P] [US1] Search GEO for Arabidopsis herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
 
-- [~] T012 [P] [US1] Search GEO for Solanum herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
+- [X] T012 [P] [US1] Search GEO for Solanum herbivore-stress series with explicit treatment annotations (`projects/PROJ-503-predicting-plant-defense-compound-produc/code/data_download.py`)
 
 - [~] T013 [P] [US1] Search Metabolomics Workbench for defense metabolite experiments (terpenoids, alkaloids, phenylpropanoids)
 

@@ -59,15 +59,15 @@
 - [ ] T013 [US1] Implement `code/02_preprocess.py` to load cognitive data, handle missing values via MICE (per FR-002), compute z-scores, and save processed parquet
 - [ ] T014 [US1] Implement `code/02_preprocess.py` logic to attempt individual-level merge of microbiome and cognitive data; if failed, invoke `code/07_gap_report.py` (T017)
 - [~] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
-- [~] T016 [US1] Add validation to ensure output parquet files match `contracts/dataset.schema.yaml`
-- [~] T017 [US1] Implement `code/07_gap_report.py` to execute the **Data Gap Report** path (FR-008 as redefined in plan.md): **DO NOT perform statistical synthesis**; instead, generate a structured "Data Gap Report" artifact documenting the inability to link individual-level data, logging the specific reason, and marking SC-001/SC-004 as "Not Measurable". This is the terminal step of Phase 3.
+- [ ] T016 [US1] Add validation to ensure output parquet files match `contracts/dataset.schema.yaml`
+- [X] T017 [US1] Implement `code/07_gap_report.py` to execute the **Data Gap Report** path (FR-008 as redefined in plan.md): **DO NOT perform statistical synthesis**; instead, generate a structured "Data Gap Report" artifact documenting the inability to link individual-level data, logging the specific reason, and marking SC-001/SC-004 as "Not Measurable". This is the terminal step of Phase 3.
 
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to verify specific logic.
 > Note: These tasks depend on the existence of implementation code (T011-T017) to run, even if they fail.
 
-- [~] T008a [US1] Unit test for data filtering logic in `tests/unit/test_filtering.py` (specifically `test_remove_low_read_samples` and `test_remove_rare_taxa`)
+- [X] T008a [US1] Unit test for data filtering logic in `tests/unit/test_filtering.py` (specifically `test_remove_low_read_samples` and `test_remove_rare_taxa`)
 - [~] T009a [US1] Unit test for MICE imputation in `tests/unit/test_imputation.py` (specifically `test_mice_missing_values` and `test_zscore_normalization`)
 - [~] T010a [US1] Integration test for data merge logic in `tests/integration/test_merge.py` (specifically `test_linkage_failure_detection` and `test_gap_report_trigger`)
 
@@ -85,14 +85,14 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [~] T018 [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`
-- [~] T019 [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_fdr.py`
+- [X] T018 [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`
+- [X] T019 [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_fdr.py`
 - [~] T020 [US2] Unit test for LASSO/Elastic Net regression in `tests/unit/test_regression.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
-- [~] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
+- [X] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
+- [X] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
 - [~] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
 - [~] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
 - [~] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
@@ -111,8 +111,8 @@
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [~] T027 [US3] Unit test for age stratification logic in `tests/unit/test_stratification.py`
-- [~] T028 [US3] Unit test for normalization comparison (DESeq2 vs rarefaction) in `tests/unit/test_normalization.py`
+- [X] T027 [US3] Unit test for age stratification logic in `tests/unit/test_stratification.py`
+- [X] T028 [US3] Unit test for normalization comparison (DESeq2 vs rarefaction) in `tests/unit/test_normalization.py`
 
 ### Implementation for User Story 3
 
@@ -132,7 +132,7 @@
 
 - [~] T034 [P] Documentation updates in `README.md` explaining the FR-008 fallback behavior (Data Gap Report)
 - [~] T035 Code cleanup and refactoring for CPU efficiency (memory chunking if needed) <!-- SKIPPED: non-mapping output -->
-- [~] T036 [P] Performance optimization: Implement memory chunking in `code/03_correlation.py` to ensure pipeline runs within 6 hours on N=10,000 samples (SC-003) for both full analysis and data gap paths
+- [X] T036 [P] Performance optimization: Implement memory chunking in `code/03_correlation.py` to ensure pipeline runs within 6 hours on N=10,000 samples (SC-003) for both full analysis and data gap paths
 - [~] T037 [P] Additional unit tests for edge cases (zero significant taxa, rate-limiting) in `tests/unit/`
 - [~] T038 Security hardening: Sanitize all external URLs and file paths
 - [~] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility

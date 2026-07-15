@@ -59,7 +59,7 @@
 - [ ] T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`: `daily_aggregates.schema.yaml` and `model_results.schema.yaml`
 - [ ] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
 - [ ] T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...` (specific DOI string from config), verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
-- [~] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
+- [ ] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,18 +75,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for `daily_aggregates.csv` schema in `tests/contract/test_daily_aggregates.py`
-- [~] T010 [P] [US1] Unit test for aggregation logic (handling missing ratings, zero steps) in `tests/unit/test_preprocess_aggregation.py`
+- [X] T009 [P] [US1] Contract test for `daily_aggregates.csv` schema in `tests/contract/test_daily_aggregates.py`
+- [X] T010 [P] [US1] Unit test for aggregation logic (handling missing ratings, zero steps) in `tests/unit/test_preprocess_aggregation.py`
 
 ### Implementation for User Story 1
 
 - [~] T011 [US1] Implement `code/preprocess.py` to load `data/raw/bronze.parquet` and parse raw step logs into daily totals
-- [~] T012 [US1] [Depends: T007] Implement `code/preprocess.py` logic to derive `sleep_duration` and `baseline_affect` from raw data if missing, using `config.MISSINGNESS_THRESHOLD` to decide between derivation and proceeding without them (per spec Assumptions); ensure derived columns are written to the output CSV
-- [~] T013 [US1] [Depends: T011] Implement `code/preprocess.py` logic to align EMA mood timestamps and exclude records with missing critical values
-- [~] T014 [US1] [Depends: T011] Implement `code/preprocess.py` logic to compute daily aggregates: `mean_mood` and `mood_std` (excluding days with < 2 valid ratings)
-- [~] T015a [US1] [Depends: T011] Implement `code/preprocess.py` logic to handle days with zero steps: record `total_steps` as 0 (not null) to preserve the day for analysis
-- [~] T015b [US1] [Depends: T014] Implement `code/preprocess.py` logic to handle days with exactly 0 mood variability: apply log-transformation with a small epsilon offset to stabilize variance and handle zero values to the value *before* writing to `daily_aggregates.csv` to ensure the CSV contains the transformed outcome variable
-- [~] T016 [US1] Write final output to `data/processed/daily_aggregates.csv` and validate against `daily_aggregates.schema.yaml`
+- [X] T012 [US1] [Depends: T007] Implement `code/preprocess.py` logic to derive `sleep_duration` and `baseline_affect` from raw data if missing, using `config.MISSINGNESS_THRESHOLD` to decide between derivation and proceeding without them (per spec Assumptions); ensure derived columns are written to the output CSV
+- [X] T013 [US1] [Depends: T011] Implement `code/preprocess.py` logic to align EMA mood timestamps and exclude records with missing critical values
+- [X] T014 [US1] [Depends: T011] Implement `code/preprocess.py` logic to compute daily aggregates: `mean_mood` and `mood_std` (excluding days with < 2 valid ratings)
+- [X] T015a [US1] [Depends: T011] Implement `code/preprocess.py` logic to handle days with zero steps: record `total_steps` as 0 (not null) to preserve the day for analysis
+- [X] T015b [US1] [Depends: T014] Implement `code/preprocess.py` logic to handle days with exactly 0 mood variability: apply log-transformation with a small epsilon offset to stabilize variance and handle zero values to the value *before* writing to `daily_aggregates.csv` to ensure the CSV contains the transformed outcome variable
+- [ ] T016 [US1] Write final output to `data/processed/daily_aggregates.csv` and validate against `daily_aggregates.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,18 +100,18 @@
 
 ### Tests for User Story 2
 
-- [~] T017 [P] [US2] Contract test for `model_results.json` schema in `tests/contract/test_model_results.py`
-- [~] T018 [P] [US2] Unit test for model convergence and coefficient extraction in `tests/unit/test_analysis_modeling.py`
+- [X] T017 [P] [US2] Contract test for `model_results.json` schema in `tests/contract/test_model_results.py`
+- [X] T018 [P] [US2] Unit test for model convergence and coefficient extraction in `tests/unit/test_analysis_modeling.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/analysis.py` to fit LMM with `log(mood_std + 0.01)` (read directly from the pre-transformed column in `daily_aggregates.csv`) as outcome and `total_steps` as predictor (random intercepts for participant)
-- [~] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report with equal prominence to the variability model (no 'secondary' classification)
-- [~] T021 [US2] Implement `code/analysis.py` to include covariates (sleep duration, day-of-week, baseline_affect) from `daily_aggregates.csv` in both models
-- [~] T022 [US2] Implement `code/analysis.py` to extract fixed-effect coefficients, standard errors, p-values, and 95% CIs for `total_steps` and covariates
-- [~] T023 [US2] Implement `code/analysis.py` to perform model diagnostics (Shapiro-Wilk, Breusch-Pagan) and generate residual plots (specifically 'residuals vs. fitted')
-- [~] T024 [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
-- [~] T025 [US2] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`
+- [X] T019 [US2] Implement `code/analysis.py` to fit LMM with `log(mood_std + 0.01)` (read directly from the pre-transformed column in `daily_aggregates.csv`) as outcome and `total_steps` as predictor (random intercepts for participant)
+- [X] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report with equal prominence to the variability model (no 'secondary' classification)
+- [X] T021 [US2] Implement `code/analysis.py` to include covariates (sleep duration, day-of-week, baseline_affect) from `daily_aggregates.csv` in both models
+- [X] T022 [US2] Implement `code/analysis.py` to extract fixed-effect coefficients, standard errors, p-values, and 95% CIs for `total_steps` and covariates
+- [X] T023 [US2] Implement `code/analysis.py` to perform model diagnostics (Shapiro-Wilk, Breusch-Pagan) and generate residual plots (specifically 'residuals vs. fitted')
+- [X] T024 [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
+- [ ] T025 [US2] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,7 +125,7 @@
 
 ### Tests for User Story 3
 
-- [~] T026 [P] [US3] Unit test for LOPO loop logic and coefficient aggregation in `tests/unit/test_analysis_validation.py`
+- [X] T026 [P] [US3] Unit test for LOPO loop logic and coefficient aggregation in `tests/unit/test_analysis_validation.py`
 - [ ] T027 [P] [US3] Unit test for sensitivity analysis logic (weekdays filter, metric swap) in `tests/unit/test_analysis_sensitivity.py`
 
 ### Implementation for User Story 3

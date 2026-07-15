@@ -75,19 +75,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for bandpass filter design (1-40Hz) in `tests/unit/test_preprocessing.py`
-- [~] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
-- [~] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
+- [X] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
+- [X] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds/ds004137 from OpenNeuro with CPU-only streaming
-- [~] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
-- [~] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components <!-- ATOMIZE: requested -->
-- [~] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
+- [X] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds/ds004137 from OpenNeuro with CPU-only streaming
+- [X] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
+- [X] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components <!-- ATOMIZE: requested -->
+- [X] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
 - [ ] T016A-1 [US1] Implement `download_microstate_template()` in `code/microstate.py` to download the pre-defined literature template (Lehmann et al.) from a canonical source (e.g., HuggingFace) to `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array.
 - [ ] T016A [US1] [P] Implement `load_microstate_template()` in `code/microstate.py` to load the pre-defined literature template from `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array. **Dependency**: T016A-1.
 - [ ] T016B [US1] Implement `apply_microstate_template()` in `code/microstate.py` to apply the loaded template to preprocessed EEG data to assign canonical class labels. **Constraint**: No K-means clustering on current data; use template matching only. **Note**: This is a CPU-tractable alternative to K-means clustering on the full dataset to satisfy FR-003's segmentation intent within hardware constraints. **Verification**: Ensure GEV ≥75% is reported in output metadata. **Dependency**: T016A.
-- [~] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
+- [X] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
 - [~] T018 [US1] Save preprocessed data and microstate labels to `data/processed/` with metadata flags. **Note**: Includes `analysis_type: associational` flag.
 - [ ] T018-1 [US1] Implement `add_associational_flag()` in `code/microstate.py` to explicitly add the `analysis_type: associational` metadata flag to all microstate feature files generated in T018. **Dependency**: T018.
 

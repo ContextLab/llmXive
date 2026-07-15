@@ -111,9 +111,9 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T021 [US2] Implement `code/train.py` to train Random Forest Regressor (`n_estimators=200`, `max_depth=20`) on the training split.
 - [ ] T022 [US2] Implement `code/train.py` to train Gradient Boosting Regressor (`n_estimators=100`) on the training split.
 - [ ] T023 [US2] Implement `code/evaluate.py` to calculate R², MAE, and RMSE for both models on the validation split.
-- [~] T024 [US2] Implement `code/evaluate.py` to calculate Total Variation Distance (TVD) between training and validation crystal system distributions; flag if TVD > 0.05.
+- [X] T024 [US2] Implement `code/evaluate.py` to calculate Total Variation Distance (TVD) between training and validation crystal system distributions; flag if TVD > 0.05.
 - [~] T025 [US2] Implement `code/evaluate.py` to detect overfitting by calculating `overfitting_ratio = train_r2 / val_r2` (handle division by zero). **Output**: Append `overfitting_ratio` to `data/evaluation/model_metrics.json`.
-- [~] T026 [US2] Save model artifacts to `data/evaluation/trained_models.pkl` and metrics to `data/evaluation/model_metrics.json` (Single Source of Truth).
+- [ ] T026 [US2] Save model artifacts to `data/evaluation/trained_models.pkl` and metrics to `data/evaluation/model_metrics.json` (Single Source of Truth).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,7 +127,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T032 [P] [US3] Unit test for feature importance correlation calculation in `tests/unit/test_importance_validation.py`.
+- [X] T032 [P] [US3] Unit test for feature importance correlation calculation in `tests/unit/test_importance_validation.py`.
 - [ ] T033 [P] [US3] Integration test for PDP generation in `tests/integration/test_pdp_generation.py`.
 
 ### Implementation for User Story 3

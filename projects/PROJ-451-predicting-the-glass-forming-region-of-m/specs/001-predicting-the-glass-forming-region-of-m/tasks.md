@@ -78,10 +78,10 @@
 - [~] T012 [P] [US1] Create `features/descriptors.py` to compute a set of atomic descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch (δ), Mixing Enthalpy (ΔHmix), Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor. Ensure all formulas are implemented and documented.
 - [~] T013 [US1] Implement data ingestion script `code/main.py` (or `scripts/ingest.py`) to fetch from Zenodo DOI and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties), merging records. **Constraint**: If the primary DOI source is unavailable, MUST fallback to the synthetic generator (T013b) to ensure reproducibility per plan.md.
 - [~] T013b [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors when canonical DOI is unavailable (supports reproducibility per plan.md Constitution Check).
-- [~] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
+- [X] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
 - [~] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
 - [~] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
-- [~] T016 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata
+- [ ] T016 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata
 - [~] T017 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -96,7 +96,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Write unit test for model training loop in `tests/unit/test_training.py` (verify stratified split logic). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [X] T019 [P] [US2] Write unit test for model training loop in `tests/unit/test_training.py` (verify stratified split logic). **Note**: This is a TDD 'write test' task; expect initial failure.
 - [ ] T020 [US2] Create `models/train.py` with stratified k-fold cross-validation logic (stratify by alloy system, derived by extracting primary base element via regex).
 - [ ] T021 [P] [US2] Implement Random Forest classifier training with hyperparameter optimization (grid search or randomized search) within `models/train.py`
 - [ ] T022 [P] [US2] Implement XGBoost classifier training with hyperparameter optimization within `models/train.py`

@@ -58,11 +58,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T005 Create data schema definitions in `specs/001-structure-property-relationships/contracts/dataset.schema.yaml`
-- [~] T006 Create output schema definitions in `specs/001-structure-property-relationships/contracts/output.schema.yaml`
-- [~] T007 Implement base logging infrastructure in `code/utils/logger.py`
-- [~] T008 Implement deterministic random seed pinning in `code/utils/seeds.py`
-- [~] T009 Implement checksum utility for raw data in `code/utils/checksum.py`
+- [ ] T005 Create data schema definitions in `specs/001-structure-property-relationships/contracts/dataset.schema.yaml`
+- [ ] T006 Create output schema definitions in `specs/001-structure-property-relationships/contracts/output.schema.yaml`
+- [ ] T007 Implement base logging infrastructure in `code/utils/logger.py`
+- [X] T008 Implement deterministic random seed pinning in `code/utils/seeds.py`
+- [X] T009 Implement checksum utility for raw data in `code/utils/checksum.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,10 +78,10 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Contract test for data schema validation in `tests/test_contract.py`
-- [~] T011 [P] [US1] Unit test for unit conversion logic (C->K, Pa->GPa) in `tests/test_ingest.py`
-- [~] T012 [P] [US1] Unit test for weight-fraction sum check (tolerance ±0.02) in `tests/test_ingest.py`
-- [~] T013 [P] [US1] Unit test for RDKit SMILES parsing and invalid row exclusion in `tests/test_ingest.py`
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/test_contract.py`
+- [X] T011 [P] [US1] Unit test for unit conversion logic (C->K, Pa->GPa) in `tests/test_ingest.py`
+- [X] T012 [P] [US1] Unit test for weight-fraction sum check (tolerance ±0.02) in `tests/test_ingest.py`
+- [X] T013 [P] [US1] Unit test for RDKit SMILES parsing and invalid row exclusion in `tests/test_ingest.py`
 
 ### Implementation for User Story 1
 

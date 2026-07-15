@@ -63,14 +63,14 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
-- [~] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
-- [~] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
-- [~] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
-- [~] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages <!-- ATOMIZE: requested -->
+- [X] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
+- [ ] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
+- [ ] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
+- [X] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
+- [ ] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages <!-- ATOMIZE: requested -->
 - [~] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count. <!-- FAILED: unspecified -->
-- [~] T017a [US1] Implement calculation of the proportion of dependencies with missing release metadata and write the result to `data/processed/metrics.json` to satisfy SC-002.
-- [~] T018 [US1] Implement data export to `data/processed/dependencies_raw.csv` with checksum generation (must contain calculated `age_in_days` from T017 and depend on T017a completion)
+- [ ] T017a [US1] Implement calculation of the proportion of dependencies with missing release metadata and write the result to `data/processed/metrics.json` to satisfy SC-002.
+- [ ] T018 [US1] Implement data export to `data/processed/dependencies_raw.csv` with checksum generation (must contain calculated `age_in_days` from T017 and depend on T017a completion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,15 +84,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
-- [~] T020 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
+- [X] T019 [P] [US2] Write unit test for Spearman correlation calculation bounds in `tests/unit/test_stats.py`
+- [X] T020 [P] [US2] Write integration test for end-to-end analysis pipeline on a small synthetic dataset in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement statistical analysis module in `src/analysis/correlation.py` to calculate Spearman rho and p-value (FR-006). **DEPENDENCY**: Must run after T018 to access `dependencies_raw.csv`.
+- [ ] T021 [US2] Implement statistical analysis module in `src/analysis/correlation.py` to calculate Spearman rho and p-value (FR-006). **DEPENDENCY**: Must run after T018 to access `dependencies_raw.csv`.
 - [~] T021a [US2] Document statistical power assumptions (target ≥ 0.8) and sample size justification in `data/processed/power_analysis_notes.md` to satisfy SC-006, treating it as a documented assumption rather than a verification gate.
 - [~] T024 [US2] Create the analysis runner script in `src/cli/run_analysis.py` that loads `dependencies_raw.csv`, runs correlation, and saves results to `data/processed/results_correlation.json`
-- [~] T023 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008)
+- [X] T023 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008)
 - [~] T025 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -107,17 +107,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
-- [~] T027 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
+- [X] T026 [P] [US3] Write unit test for category assignment logic (keyword matching vs. topology fallback) in `tests/unit/test_categorization.py`
+- [X] T027 [P] [US3] Write integration test for stratified analysis filtering (N < 30 exclusion) in `tests/integration/test_stratification.py`
 
 ### Implementation for User Story 3
 
-- [~] T028 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: MUST implement a generic fallback using dependency graph topology when keywords are missing or noisy (FR-007). **DEPENDENCY**: Requires graph structure from T015.
-- [~] T029 [US3] Implement stratified correlation logic in `src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30)
-- [~] T029a [US3] Implement variance calculation and comparative measurement of correlation coefficients across categories against overall dataset, appending results to `data/processed/results_correlation.json` to satisfy SC-003.
-- [~] T032 [US3] Implement sensitivity analysis for "unmaintained" threshold (90, 180, 365 days) applied ONLY to visualization and secondary metrics (binary threshold), NOT to the primary continuous correlation. Write robustness results to `data/processed/sensitivity_analysis.json`.
-- [~] T030 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
-- [~] T031 [US3] Create the reporting script in `src/cli/generate_report.py` that aggregates US-2, US-3, and sensitivity analysis results into a final summary report generated at `docs/report.md`
+- [ ] T028 [US3] Implement category classifier in `src/analysis/categorizer.py` using package metadata keywords. **MANDATORY FALLBACK**: MUST implement a generic fallback using dependency graph topology when keywords are missing or noisy (FR-007). **DEPENDENCY**: Requires graph structure from T015.
+- [ ] T029 [US3] Implement stratified correlation logic in `src/analysis/stratified_stats.py` to compute per-category coefficients (excluding groups with N < 30)
+- [ ] T029a [US3] Implement variance calculation and comparative measurement of correlation coefficients across categories against overall dataset, appending results to `data/processed/results_correlation.json` to satisfy SC-003.
+- [ ] T032 [US3] Implement sensitivity analysis for "unmaintained" threshold (90, 180, 365 days) applied ONLY to visualization and secondary metrics (binary threshold), NOT to the primary continuous correlation. Write robustness results to `data/processed/sensitivity_analysis.json`.
+- [X] T030 [US3] Implement histogram generator for unmaintained dependency percentages by category in `src/analysis/visualizer.py` (FR-008)
+- [ ] T031 [US3] Create the reporting script in `src/cli/generate_report.py` that aggregates US-2, US-3, and sensitivity analysis results into a final summary report generated at `docs/report.md`
 
 **Checkpoint**: All user stories should now be independently functional
 

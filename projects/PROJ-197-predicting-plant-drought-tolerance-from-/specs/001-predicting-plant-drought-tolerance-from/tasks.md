@@ -58,7 +58,7 @@
 - [ ] T004 Implement `code/utils/logging.py` to create `DataPipelineLog` with methods for recording source URLs, download status, imputation details, merge statistics, and **excluded species** (FR-007)
 - [ ] T005 [P] Create `code/utils/stats.py` implementing DeLong's test for paired AUCs and standard statistical utilities
 - [X] T006 [P] Setup `code/config.py` to manage species lists, random seeds (), and synthetic data parameters
-- [~] T007 Create base data entities: `SpeciesRecord` (fields: `species_id`, `traits_dict`, `genomic_markers`, `label`) and `ModelResult` (fields: `model_name`, `metrics`, `hyperparameters`, `feature_importance`) in `code/models/entities.py`
+- [X] T007 Create base data entities: `SpeciesRecord` (fields: `species_id`, `traits_dict`, `genomic_markers`, `label`) and `ModelResult` (fields: `model_name`, `metrics`, `hyperparameters`, `feature_importance`) in `code/models/entities.py`
 - [~] T016 [P] [Foundational] Implement `code/data/generate.py` to generate a **synthetic phylogenetic distance matrix** for the species list. **Logic**: Create N x N symmetric matrix (N=species count), zero diagonal, off-diagonal values uniformly distributed between a lower bound and an upper bound. Save to `data/processed/synthetic_phylo_matrix.npy`. (FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,18 +73,18 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/data/download.py` to fetch TRY database CSVs with exponential backoff and checksum verification. (FR-001)
+- [X] T011 [US1] Implement `code/data/download.py` to fetch TRY database CSVs with exponential backoff and checksum verification. (FR-001)
 - [~] T012 [US1] Implement `code/data/generate.py` to generate **synthetic genomic features** and **synthetic drought labels**. **Logic**: Use `random_state=42`. **Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`, `WRKY33`, `MYB96`. **Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`. Output to `data/processed/synthetic_genomics.csv`. (FR-001, Plan Validation Mode)
-- [~] T013 [US1] Implement `code/data/ingest.py` to merge TRY traits (from T011) and synthetic genomic data (from T012) by species ID. **Explicitly detect species present in TRY but missing in genomic data, flag them with "no_genomic_data" or exclude them, and log the count.** (FR-002)
-- [~] T014a [US1] Implement `code/data/ingest.py` to apply **standard MICE** imputation for missing continuous traits using `sklearn.impute.IterativeImputer` (`max_iter=10`, `random_state=42`). (FR-002)
-- [~] T014b [US1] Implement logic in `code/data/ingest.py` to drop columns if imputation fails after max iterations. (FR-002)
-- [~] T014c [US1] Implement logging in `code/data/ingest.py` to record imputation counts, dropped columns, and exclusion events. (FR-007)
-- [~] T015 [US1] Implement `code/data/split.py` to perform stratified train-test split by drought label, with fallback to leave-one-out if N is small. (FR-003)
+- [X] T013 [US1] Implement `code/data/ingest.py` to merge TRY traits (from T011) and synthetic genomic data (from T012) by species ID. **Explicitly detect species present in TRY but missing in genomic data, flag them with "no_genomic_data" or exclude them, and log the count.** (FR-002)
+- [X] T014a [US1] Implement `code/data/ingest.py` to apply **standard MICE** imputation for missing continuous traits using `sklearn.impute.IterativeImputer` (`max_iter=10`, `random_state=42`). (FR-002)
+- [X] T014b [US1] Implement logic in `code/data/ingest.py` to drop columns if imputation fails after max iterations. (FR-002)
+- [X] T014c [US1] Implement logging in `code/data/ingest.py` to record imputation counts, dropped columns, and exclusion events. (FR-007)
+- [X] T015 [US1] Implement `code/data/split.py` to perform stratified train-test split by drought label, with fallback to leave-one-out if N is small. (FR-003)
 
 ### Tests for User Story 1
 
-- [~] T008 [P] [US1] Unit test for TRY download retry logic with 404 simulation in `tests/unit/test_download.py`
-- [~] T009 [P] [US1] Unit test for synthetic genomic data generation consistency (seed 42) in `tests/unit/test_synthetic.py`
+- [X] T008 [P] [US1] Unit test for TRY download retry logic with 404 simulation in `tests/unit/test_download.py`
+- [X] T009 [P] [US1] Unit test for synthetic genomic data generation consistency (seed 42) in `tests/unit/test_synthetic.py`
 - [ ] T010 [P] [US1] Integration test for full merge pipeline (TRY + Synthetic) producing valid DataFrame in `tests/integration/test_ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. A clean `data/processed/merged_dataset.csv` should exist.

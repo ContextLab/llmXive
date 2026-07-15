@@ -41,9 +41,9 @@
 - [ ] T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric thresholds (ROR>2.0, PRR>1.5, IC>0). **Include an embedded dictionary `KNOWN_BACKGROUND_RATES` mapping SOC codes to published incidence rates (source: CDC literature) for use in T024b.**
 - [ ] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (`VAX_TYPE`, `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`)
 - [ ] T006 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p)
-- [~] T007 Implement `src/data/validate.py` to check raw data against `dataset.schema.yaml` and exit with `E_SCHEMA_MISSING` if failed
-- [~] T008 Implement `src/utils/plots.py` with helpers for generating matplotlib figures (weekly counts, signal tables)
-- [~] T009 Create `src/main.py` as the pipeline orchestrator that enforces phase order and memory checks
+- [ ] T007 Implement `src/data/validate.py` to check raw data against `dataset.schema.yaml` and exit with `E_SCHEMA_MISSING` if failed
+- [ ] T008 Implement `src/utils/plots.py` with helpers for generating matplotlib figures (weekly counts, signal tables)
+- [ ] T009 Create `src/main.py` as the pipeline orchestrator that enforces phase order and memory checks
 - [~] T039 [US1] Integrate memory check logic into `src/main.py` to halt if RAM usage > 5 GB during data cleaning and enable chunked processing. **Must be completed before T014.**
 - [~] T040 [US2] Integrate memory check logic into `src/main.py` to halt if RAM usage > 7 GB during disproportionality analysis. **Must be completed before T024.**
 
@@ -59,14 +59,14 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for `src/data/download.py` verifying checksum logic in `tests/unit/test_download.py`
+- [X] T010 [P] [US1] Unit test for `src/data/download.py` verifying checksum logic in `tests/unit/test_download.py`
 - [~] T011 [P] [US1] Unit test for `src/data/validate.py` ensuring `E_SCHEMA_MISSING` is raised on missing columns in `tests/unit/test_validate.py`
-- [~] T012 [P] [US1] Integration test for data pipeline producing valid cleaned CSV in `tests/integration/test_pipeline.py`
+- [X] T012 [P] [US1] Integration test for data pipeline producing valid cleaned CSV in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `src/data/download.py` to fetch VAERS 2020-2023 CSVs from ` or verified mirror, saving to `data/raw/`
-- [~] T014 [US1] Implement `src/data/clean.py` to:
+- [X] T013 [P] [US1] Implement `src/data/download.py` to fetch VAERS 2020-2023 CSVs from ` or verified mirror, saving to `data/raw/`
+- [ ] T014 [US1] Implement `src/data/clean.py` to:
  - Filter records where `VAX_TYPE` contains "COVID-19"
  - Filter records where `VAX_TYPE` does NOT contain "COVID-19" to define the primary "Non-COVID" baseline group (all other vaccines).
  - Create a subset of the "Non-COVID" group where `VAX_TYPE` does NOT contain "Influenza" to define the "Non-COVID, Non-Flu" sensitivity group.
@@ -74,12 +74,12 @@
  - Map MedDRA codes to System Organ Classes (SOC) using an embedded mapping table
  - **Implement memory optimization (chunked reading) and RAM monitoring to process data if size > 5 GB, ensuring RAM usage stays < 7 GB.**
  - **Output artifacts: `data/processed/cleaned_vaers.parquet` and `data/processed/cleaned_vaers.csv`**
-- [~] T016 [US1] Implement `src/data/clean.py` logic to separate data into:
+- [ ] T016 [US1] Implement `src/data/clean.py` logic to separate data into:
  - `COVID-19` group
  - `Non-COVID` baseline group (Primary: all other vaccines)
  - `Non-COVID, Non-Flu` sensitivity group (Subset of Non-COVID)
  - `Flu-only` group for sensitivity analysis
-- [~] T018 [US1] Add logging in `src/data/clean.py` to report row counts per group and memory usage stats
+- [ ] T018 [US1] Add logging in `src/data/clean.py` to report row counts per group and memory usage stats
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,13 +94,13 @@
 ### Tests for User Story 2
 
 - [~] T019 [P] [US2] Unit test for `src/analysis/disproportionality.py` verifying ROR/PRR/IC calculation logic with continuity correction in `tests/unit/test_disproportionality.py`
-- [~] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
-- [~] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
+- [X] T020 [P] [US2] Unit test for Benjamini-Hochberg correction ensuring monotonic p-values in `tests/unit/test_bh_correction.py`
+- [X] T021 [P] [US2] Integration test for signal detection producing `output/signals.csv` in `tests/integration/test_signal_detection.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [P] [US2] Implement `src/analysis/disproportionality.py` to generate 2x2 contingency tables for each SOC (Event/No Event vs. COVID-19/Non-COVID)
-- [~] T023 [P] [US2] Implement continuity correction (add 0.5) in `src/analysis/disproportionality.py` for zero-count cells to prevent division by zero
+- [ ] T022 [P] [US2] Implement `src/analysis/disproportionality.py` to generate 2x2 contingency tables for each SOC (Event/No Event vs. COVID-19/Non-COVID)
+- [ ] T023 [P] [US2] Implement continuity correction (add 0.5) in `src/analysis/disproportionality.py` for zero-count cells to prevent division by zero
 - [ ] T024 [US2] Implement calculation of ROR, PRR, and IC with 95% confidence intervals in `src/analysis/disproportionality.py` for SOCs with ≥5 total reports
 - [ ] T024b [US2] Implement "Background Rate Unknown" flagging mechanism in `src/analysis/disproportionality.py`. **Implementation detail: Lookup SOC code against the `KNOWN_BACKGROUND_RATES` dictionary in `src/utils/config.py`. If not found, flag as 'Background Rate Unknown'.**
 - [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `src/analysis/disproportionality.py` to adjust p-values across all SOC tests

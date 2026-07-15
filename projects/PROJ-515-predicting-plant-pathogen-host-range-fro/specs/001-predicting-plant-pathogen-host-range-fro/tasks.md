@@ -113,9 +113,9 @@
 - [ ] T020 [US1] Implement permutation testing within the nested CV loop in `src/models/evaluate.py` (FR-006).
  - **Logic**: Shuffle labels within the inner training folds only, re-run T014, and compare AUPRC distribution.
 - [ ] T015 [US1] Implement k-fold cross-validation evaluation in `src/models/evaluate.py` reporting AUPRC, precision, and calibrated probabilities (FR-005, SC-001)
-- [~] T016 [US1] Implement SHAP value generation in `src/models/interpret.py` and save `data/reports/feature_importance.csv` (FR-007)
+- [ ] T016 [US1] Implement SHAP value generation in `src/models/interpret.py` and save `data/reports/feature_importance.csv` (FR-007)
 - [~] T017 [US1] Create `run_pipeline.sh` CLI entry point in `src/cli/`. **Args**: `--data-dir` (path to data directory), `--mode` (primary|sensitivity), `--seed` (integer for reproducibility). **Outputs**: `model.pkl`, `feature_importance.csv`, `significant_features.tsv`, `prediction.csv`, `pipeline.log`. **Logic**: Orchestrates download, feature extraction (inline), preprocessing, training, evaluation, and reporting based on the selected mode.
-- [~] T018 [US1] Add error handling for "Missing Genome" and "Zero-Feature Pathogen" edge cases in `src/data/preprocess.py`
+- [ ] T018 [US1] Add error handling for "Missing Genome" and "Zero-Feature Pathogen" edge cases in `src/data/preprocess.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -129,9 +129,9 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement Benjamini-Hochberg FDR correction logic in `src/models/evaluate.py` to adjust p-values (FR-006)
-- [~] T022 [US2] Generate `data/reports/significant_features.tsv` with columns: `feature_name`, `cohen_d`, `adj_p_value`, `significant_flag` using tab delimiter (US-2 Acceptance)
-- [~] T024 [US2] Implement Bias-Awareness Report generation in `src/models/interpret.py` (FR-018). **Logic**: Calculate interaction count per pathogen; flag if top 10 pathogens account for >80% of interactions. Output `data/reports/bias_awareness.json`
+- [ ] T021 [US2] Implement Benjamini-Hochberg FDR correction logic in `src/models/evaluate.py` to adjust p-values (FR-006)
+- [ ] T022 [US2] Generate `data/reports/significant_features.tsv` with columns: `feature_name`, `cohen_d`, `adj_p_value`, `significant_flag` using tab delimiter (US-2 Acceptance)
+- [ ] T024 [US2] Implement Bias-Awareness Report generation in `src/models/interpret.py` (FR-018). **Logic**: Calculate interaction count per pathogen; flag if top 10 pathogens account for >80% of interactions. Output `data/reports/bias_awareness.json`
 - [~] T023 [US2] Integrate full dataset processing into `run_pipeline.sh` ensuring the CI limit is respected (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -146,7 +146,7 @@
 
 ### Implementation for User Story 3
 
-- [~] T025 [P] [US3] Implement feature extraction for a *single* novel genome in `src/data/feature_extractor.py` (offline mode). <!-- ATOMIZE: requested -->
+- [ ] T025 [P] [US3] Implement feature extraction for a *single* novel genome in `src/data/feature_extractor.py` (offline mode). <!-- ATOMIZE: requested -->
  - **Constraint**: MUST **import and reuse** the exact logic, parameters, and tool versions from `src/features/extract_genomic_features.py` (T009B) to ensure feature space consistency with the trained model.
  - **Input**: `--genome novel.fa`
  - **Tool Invocation**: Call EffectorP 3.0 and antiSMASH 7.0 with standard CLI arguments (via Docker); parse outputs to extract counts.
@@ -166,15 +166,15 @@
 
 **Goal**: Address FR-016 (Sensitivity to missing data) and generate final reports.
 
-- [~] T030 [P] Implement "Sensitivity Dataset" generation in `src/data/preprocess.py`.
+- [ ] T030 [P] Implement "Sensitivity Dataset" generation in `src/data/preprocess.py`.
  - **Logic**: Treat missing interaction records as negative (0) to create a dense label vector.
  - **Output**: `data/processed/sensitivity_interactions.csv`.
-- [~] T031 [P] Train a secondary "Sensitivity Model" using the dataset from T030 in `src/models/train.py` (reusing T014 logic). <!-- ATOMIZE: requested -->
+- [ ] T031 [P] Train a secondary "Sensitivity Model" using the dataset from T030 in `src/models/train.py` (reusing T014 logic). <!-- ATOMIZE: requested -->
  - **Output**: `data/models/sensitivity_model.pkl`.
 - [~] T032 [P] Compare metrics in `src/models/evaluate.py`.
  - **Logic**: Calculate AUPRC for the Sensitivity Model and compare against the Primary Model AUPRC.
  - **Output**: `data/reports/sensitivity_analysis.json` containing `primary_auprc`, `sensitivity_auprc`, `delta`, `flag`, and `methodology`. (FR-016)
-- [~] T033 [P] Generate `data/reports/data_quality_report.json` quantifying missing % per pathogen (FR-013)
+- [ ] T033 [P] Generate `data/reports/data_quality_report.json` quantifying missing % per pathogen (FR-013)
 - [~] T035 [P] Finalize `pipeline.log` ensuring INFO entries exist for all major steps (SC-005)
 
 ---

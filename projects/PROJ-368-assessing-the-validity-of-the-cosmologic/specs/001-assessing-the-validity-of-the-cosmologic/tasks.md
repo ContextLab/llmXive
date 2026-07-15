@@ -58,10 +58,10 @@
 - [ ] T004 Create project directories: `mkdir -p code tests data/raw data/processed data/simulations data/reports docs`
 - [ ] T005 Create `pyproject.toml` in root with a compatible Python version and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`
 - [ ] T006 [P] Configure linting (flake/black) and formatting tools in `pyproject.toml`
-- [~] T007 Create `code/config.py` defining paths, random seeds, Nside constants, and simulation counts.
+- [X] T007 Create `code/config.py` defining paths, random seeds, Nside constants, and simulation counts.
 - [~] T008 [P] Initialize git repository and add `.gitignore` for `data/`, `__pycache__/`, `*.pyc`
-- [~] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level
-- [~] T010 Create `tests/test_config.py` to validate configuration constants and paths
+- [X] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level
+- [X] T010 Create `tests/test_config.py` to validate configuration constants and paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,9 +77,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for checksum validation in `tests/test_data_loader.py`
-- [~] T012 [P] [US1] Unit test for mask application and pixel exclusion in `tests/test_data_loader.py`
-- [~] T013 [P] [US1] Unit test for Nside downgrade memory usage and NaN checks in `tests/test_data_loader.py` <!-- ATOMIZE: requested -->
+- [X] T011 [P] [US1] Unit test for checksum validation in `tests/test_data_loader.py`
+- [X] T012 [P] [US1] Unit test for mask application and pixel exclusion in `tests/test_data_loader.py`
+- [X] T013 [P] [US1] Unit test for Nside downgrade memory usage and NaN checks in `tests/test_data_loader.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 

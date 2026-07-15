@@ -38,7 +38,7 @@
 - [ ] T005 [P] Implement `code/main.py` orchestration entry point with hard timeout enforcement (signal/alarm or `signal` module) and runner verification (check `ubuntu-latest`, no GPU, CPU count)
 - [ ] T006 [P] Create `code/__init__.py` and `tests/__init__.py`
 - [~] T007 Setup `state/projects/PROJ-386...yaml` schema for artifact hashing and checksums
-- [~] T008 Implement `code/data/__init__.py` and `code/modeling/__init__.py`
+- [X] T008 Implement `code/data/__init__.py` and `code/modeling/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,14 +53,14 @@
 ### Tests for User Story 1
 
 - [~] T009 [P] [US1] Contract test for schema pre-check logic in `tests/contract/test_ingestion_schema.py` (verify skip logic for missing fields)
-- [~] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_filtering.py` (verify rows with missing temp/grain_size are excluded)
-- [~] T011 [P] [US1] Integration test for "Data Missing" halt scenario in `tests/integration/test_data_halt.py` (verify Exit Code 1 when all sources fail)
+- [X] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_filtering.py` (verify rows with missing temp/grain_size are excluded)
+- [X] T011 [P] [US1] Integration test for "Data Missing" halt scenario in `tests/integration/test_data_halt.py` (verify Exit Code 1 when all sources fail)
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data/ingestion.py` schema pre-check function (check OpenML, NOMAD, Citrination for 'rolling temperature', 'composition', 'grain size' fields; **aggregate list of missing variables across all skipped sources** to support error logging)
-- [~] T013 [US1] Implement `code/data/ingestion.py` download and parsing logic (fetch real data from verified URLs; handle CSV/JSON formats)
-- [~] T014 [US1] Implement `code/data/ingestion.py` filtering and validation logic (exclude rows with null critical variables; report final dataset size)
+- [X] T012 [P] [US1] Implement `code/data/ingestion.py` schema pre-check function (check OpenML, NOMAD, Citrination for 'rolling temperature', 'composition', 'grain size' fields; **aggregate list of missing variables across all skipped sources** to support error logging)
+- [X] T013 [US1] Implement `code/data/ingestion.py` download and parsing logic (fetch real data from verified URLs; handle CSV/JSON formats)
+- [X] T014 [US1] Implement `code/data/ingestion.py` filtering and validation logic (exclude rows with null critical variables; report final dataset size)
 - [ ] T015 [US1] Implement `code/data/ingestion.py` "Critical Variables Missing" halt logic (**Raise SystemExit(1) after logging to stderr** with message: "Critical variables missing from all sources: [list of missing variables]")
 - [ ] T016 [P] [US1] Create `data/raw/` storage logic with SHA-256 checksum generation in `code/data/ingestion.py`
 

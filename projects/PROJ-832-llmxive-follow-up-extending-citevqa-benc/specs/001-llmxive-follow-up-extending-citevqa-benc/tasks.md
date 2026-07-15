@@ -60,11 +60,11 @@
 - [X] T004 Implement `code/config.py` for paths, seeds, and hyperparameters
 - [X] T005a [Research] Identify and verify a real, reachable URL for the CiteVQA dataset (e.g., HuggingFace `datasets.load_dataset("citevqa")` or raw GitHub CSVs). Document the verified URL in `data/verified_sources.json`. If no verified URL is found, document the block and halt.
 - [~] T005b [Research] Read the CiteVQA paper and extract the scalar SAA mean value. Document this value in `data/baseline_saa_raw.json` with source citation. <!-- FAILED: unspecified -->
-- [~] T006 [Depends T005a] Fetch the verified CiteVQA dataset using the URL from `data/verified_sources.json`. Parse PDFs with `pdfplumber` to extract text chunks and bounding boxes. Save to `data/raw/` and `data/processed/`.
+- [X] T006 [Depends T005a] Fetch the verified CiteVQA dataset using the URL from `data/verified_sources.json`. Parse PDFs with `pdfplumber` to extract text chunks and bounding boxes. Save to `data/raw/` and `data/processed/`.
 - [~] T007 [Depends T005b] Implement `code/baseline_ref.py` to load the immutable CiteVQA baseline SAA scalar from `data/baseline_saa.json` (populated from T005b output). Define the JSON schema: `{"baseline_saa": <value>, "source": "paper_ref"}`.
-- [~] T008 Implement `code/metrics.py` with core functions: `calculate_iou`, `semantic_similarity` (L2 normalized), `compute_saa` (Answer Correctness: Exact Match OR Semantic Similarity >= 0.85), `compute_vla`.
+- [X] T008 Implement `code/metrics.py` with core functions: `calculate_iou`, `semantic_similarity` (L2 normalized), `compute_saa` (Answer Correctness: Exact Match OR Semantic Similarity >= 0.85), `compute_vla`.
 - [~] T009 Setup environment configuration management for CPU-only execution constraints
-- [~] T010 [P] Create unit tests for `metrics.py` (mocked IoU and similarity calculations) in `tests/unit/test_metrics.py`
+- [X] T010 [P] Create unit tests for `metrics.py` (mocked IoU and similarity calculations) in `tests/unit/test_metrics.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,18 +79,18 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T011 [P] [US1] Integration test for text-only pipeline on a single sample query in `tests/integration/test_text_pipeline.py`
-- [~] T012 [P] [US1] Contract test verifying output format (answer string + chunk ID) in `tests/contract/test_output_schema.py`
+- [X] T012 [P] [US1] Contract test verifying output format (answer string + chunk ID) in `tests/contract/test_output_schema.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/retriever.py`: Encode text chunks with `all-MiniLM-L6-v2` and retrieve top-k for a query
+- [X] T013 [P] [US1] Implement `code/retriever.py`: Encode text chunks with `all-MiniLM-L6-v2` and retrieve top-k for a query
 - [~] T014 [US1] Implement `code/reasoning.py`: Load `Phi-3-mini` (CPU-tractable, 4-bit quantized) and generate answer + predicted chunk ID from retrieved text on the held-out test set. Run `memory_profiler` and save output to `data/logs/memory_profile.log`. Ensure memory usage < 7GB.
-- [~] T015 [US1] Create `code/main.py` orchestration script to run the full text-only evaluation loop on the held-out test set
-- [~] T016 [US1] Implement error handling for missing chunk IDs (log error, assign IoU=0.0) in `code/reasoning.py`
+- [X] T015 [US1] Create `code/main.py` orchestration script to run the full text-only evaluation loop on the held-out test set
+- [X] T016 [US1] Implement error handling for missing chunk IDs (log error, assign IoU=0.0) in `code/reasoning.py`
 - [~] T017 [US1] Add logging for runtime and memory usage per query to verify that the system operates within the defined time and memory constraints.
 - [~] T018a [US1] Run pilot evaluation on [deferred] of the held-out test set to measure per-query runtime.
-- [~] T018b [US1] Extrapolate total runtime based on pilot results and record in `data/results/runtime_estimate.json`. Verify it fits within the 6-hour limit (SC-004).
-- [~] T019 [US1] Save intermediate results (answers, predicted IDs) to `data/results/text_pipeline_results.json`
+- [X] T018b [US1] Extrapolate total runtime based on pilot results and record in `data/results/runtime_estimate.json`. Verify it fits within the 6-hour limit (SC-004).
+- [ ] T019 [US1] Save intermediate results (answers, predicted IDs) to `data/results/text_pipeline_results.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,17 +104,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Contract test for SAA calculation logic in `tests/contract/test_saa_metric.py`
-- [~] T021 [P] [US2] Integration test for the full SAA evaluation loop in `tests/integration/test_saa_evaluation.py`
+- [X] T020 [P] [US2] Contract test for SAA calculation logic in `tests/contract/test_saa_metric.py`
+- [X] T021 [P] [US2] Integration test for the full SAA evaluation loop in `tests/integration/test_saa_evaluation.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Extend `code/main.py` to compute SAA (Answer Correctness: Exact Match OR Semantic Similarity >= 0.85 AND Spatial Correctness: IoU > 0.5) for the text-only results. <!-- FAILED: unspecified -->
+- [X] T022 [US2] Extend `code/main.py` to compute SAA (Answer Correctness: Exact Match OR Semantic Similarity >= 0.85 AND Spatial Correctness: IoU > 0.5) for the text-only results. <!-- FAILED: unspecified -->
 - [~] T023 [US2] Implement supplementary statistical analysis: Bootstrap CI (Confidence Interval) to compare the mean SAA against the fixed baseline.
-- [~] T023a [US2] Implement mandatory statistical analysis: one-sample t-test comparing mean SAA against the baseline scalar (from FR-007/SC-002) with p < 0.05 threshold. Save results to `data/results/statistical_test.json`.
-- [~] T024 [US2] Generate distribution plot of IoU scores and SAA failure modes (Attribution Hallucination) in `data/results/saa_analysis.png`
-- [~] T024b [US2] Calculate and report the 'Attribution Hallucination' failure rate metric (count of hallucinations / total correct answers) as required by SC-003. Save to `data/results/hallucination_rate.json`.
-- [~] T025 [US2] Save final SAA metrics and statistical test results to `data/results/saa_summary.json`
+- [X] T023a [US2] Implement mandatory statistical analysis: one-sample t-test comparing mean SAA against the baseline scalar (from FR-007/SC-002) with p < 0.05 threshold. Save results to `data/results/statistical_test.json`.
+- [X] T024 [US2] Generate distribution plot of IoU scores and SAA failure modes (Attribution Hallucination) in `data/results/saa_analysis.png`
+- [X] T024b [US2] Calculate and report the 'Attribution Hallucination' failure rate metric (count of hallucinations / total correct answers) as required by SC-003. Save to `data/results/hallucination_rate.json`.
+- [ ] T025 [US2] Save final SAA metrics and statistical test results to `data/results/saa_summary.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,15 +128,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Contract test for visual-only input/output schema in `tests/contract/test_visual_input.py`
-- [~] T027 [P] [US3] Integration test for visual localization pipeline in `tests/integration/test_visual_control.py`
+- [X] T026 [P] [US3] Contract test for visual-only input/output schema in `tests/contract/test_visual_input.py`
+- [X] T027 [P] [US3] Integration test for visual localization pipeline in `tests/integration/test_visual_control.py`
 
 ### Implementation for User Story 3
 
-- [~] T028 [P] [US3] Implement `code/visual_control.py`: Load `microsoft/phi-3-vision-128k-instruct` (4-bit quantized). Run `python scripts/profile_vision_memory.py` to verify memory usage < 7GB. If memory exceeds limit, flag research blocker.
+- [X] T028 [P] [US3] Implement `code/visual_control.py`: Load `microsoft/phi-3-vision-128k-instruct` (4-bit quantized). Run `python scripts/profile_vision_memory.py` to verify memory usage < 7GB. If memory exceeds limit, flag research blocker.
 - [~] T029 [US3] Implement logic to predict bounding box/chunk ID from visual input only (no text context). Compute **Visual Localization Accuracy (VLA)** and **Strict Attributed Accuracy (SAA)** for the visual-only pipeline.
 - [~] T030 [US3] Compute VLA and SAA for Visual-Only pipeline and compare against Text-Only SAA results. Clarify relationship between VLA and SAA in the report.
-- [~] T031 [US3] Generate comparative report highlighting the performance delta between Text-Only and Visual-Only modalities in `data/results/modality_comparison.md`
+- [ ] T031 [US3] Generate comparative report highlighting the performance delta between Text-Only and Visual-Only modalities in `data/results/modality_comparison.md`
 
 **Checkpoint**: All user stories should now be independently functional
 

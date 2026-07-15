@@ -82,7 +82,7 @@
 - [ ] T017 [US1] Implement logic to exclude subjects with <10 valid trials/condition (reason: "insufficient trials") or >50% artifact removal (reason: "excessive artifact removal"); log to `data/exclusions.csv` with columns: `subject_id`, `reason`
 - [ ] T018 [US1] Implement memory monitoring to ensure peak RSS ≤ 6.5 GB during sequential subject processing
 - [ ] T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total pipeline execution time; immediately log a timeout violation to `logs/processing.log` and `data/metrics/runtime_log.json` if total runtime exceeds several hours, then halt.
-- [~] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, and `status` (success/timeout) to verify SC-002.
+- [ ] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, and `status` (success/timeout) to verify SC-002.
 - [~] T019 [US1] Save clean epochs to `data/processed/` per subject (requires T004 for hashing)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -98,10 +98,10 @@
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement electrode mapping in `code/synchrony.py`: F3/F4, FC3/FC4 → DLPFC; P3/P4, CP3/CP4 → Parietal
+- [X] T022 [US2] Implement electrode mapping in `code/synchrony.py`: F3/F4, FC3/FC4 → DLPFC; P3/P4, CP3/CP4 → Parietal
 - [~] T023 [US2] Implement frequency band filtering for theta (–7 Hz) and gamma (–45 Hz)
-- [~] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (a sufficiently long baseline period prior to stimulus onset)
-- [~] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); requires T004 for hashing <!-- FAILED: unspecified -->
+- [X] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (a sufficiently long baseline period prior to stimulus onset)
+- [ ] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); requires T004 for hashing <!-- FAILED: unspecified -->
 - [~] T026 [US2] Ensure computation completes in ≤ 30 minutes per subject on CPU
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -117,15 +117,15 @@
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement `code/analysis.py` to compute switching costs (RT_switch - RT_stay) per subject
-- [~] T031 [US3] Implement `code/analysis.py` primary correlation: Pearson/Spearman between mean synchrony and switching costs <!-- ATOMIZE: requested -->
-- [~] T032 [US3] Implement `code/analysis.py` permutation testing with a sufficient number of iterations to ensure robust statistical inference (shuffling subject vectors) as mandated by FR-005; log iteration count.
+- [X] T030 [US3] Implement `code/analysis.py` to compute switching costs (RT_switch - RT_stay) per subject
+- [X] T031 [US3] Implement `code/analysis.py` primary correlation: Pearson/Spearman between mean synchrony and switching costs <!-- ATOMIZE: requested -->
+- [X] T032 [US3] Implement `code/analysis.py` permutation testing with a sufficient number of iterations to ensure robust statistical inference (shuffling subject vectors) as mandated by FR-005; log iteration count.
 - [~] T033 [US3] Implement multiple-comparison correction (Bonferroni) for theta and gamma bands
 - [~] T034 [US3] Implement `code/analysis.py` sensitivity analysis: repeat correlation for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05) against primary result; save `data/metrics/sensitivity_report.json` (requires T004)
-- [~] T035 [US3] Implement `code/analysis.py` secondary trial-level analysis: Linear Mixed-Effects model (`RT ~ Synchrony + (1|Subject)`) using `statsmodels`; handle missing trial-level synchrony by excluding rows
-- [~] T036 [US3] Generate `data/trial_level/per_trial_synchrony.csv` with columns: `subject_id`, `trial_id`, `condition`, `synchrony`, `rt`; exclude rows with missing synchrony; requires T004
-- [~] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
-- [~] T038 [US3] Implement programmatic assertion in `code/analysis.py` to verify output JSON and `results_summary.md` contain "associational" framing as mandated by FR-008
+- [X] T035 [US3] Implement `code/analysis.py` secondary trial-level analysis: Linear Mixed-Effects model (`RT ~ Synchrony + (1|Subject)`) using `statsmodels`; handle missing trial-level synchrony by excluding rows
+- [ ] T036 [US3] Generate `data/trial_level/per_trial_synchrony.csv` with columns: `subject_id`, `trial_id`, `condition`, `synchrony`, `rt`; exclude rows with missing synchrony; requires T004
+- [ ] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
+- [X] T038 [US3] Implement programmatic assertion in `code/analysis.py` to verify output JSON and `results_summary.md` contain "associational" framing as mandated by FR-008
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,9 +135,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T040 [P] Implement `code/main.py` pipeline orchestrator to run phases sequentially
+- [X] T040 [P] Implement `code/main.py` pipeline orchestrator to run phases sequentially
 - [~] T041 [P] Add documentation updates in `projects/PROJ-498-investigating-the-relationship-between-n/README.md`
-- [~] T042 [P] Run `code/update_state_hashes.py` to update state file with new artifact hashes
+- [X] T042 [P] Run `code/update_state_hashes.py` to update state file with new artifact hashes
 - [~] T043 [P] Verify `quickstart.md` validation <!-- FAILED: unspecified -->
 - [~] T044 [P] Code cleanup and refactoring for CPU efficiency
 

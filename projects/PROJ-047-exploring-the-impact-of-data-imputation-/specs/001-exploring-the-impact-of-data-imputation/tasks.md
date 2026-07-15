@@ -55,13 +55,13 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
-- [~] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
-- [~] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
-- [~] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to flag runs where VIF > 10 (Edge Case: near-perfect collinearity).
+- [X] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
+- [X] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
+- [X] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
+- [X] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to flag runs where VIF > 10 (Edge Case: near-perfect collinearity).
 - [~] T014 [US1] [Requires: T010, T011] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and the **generated complete Y (before masking)**. Define `run_id` as a SHA-256 hash of the string `f"{seed}_{beta}"`. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "status": "reported" }`. **CRITICAL**: DO NOT filter, discard, or flag runs as invalid based on correlation thresholds. Report the metric for ALL runs regardless of value. The main loop (T029a) must process ALL runs; no skipping based on correlation.
-- [~] T015 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
-- [~] T016 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
+- [X] T015 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
+- [X] T016 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (synthetic data generation with MNAR)
 
@@ -75,16 +75,16 @@
 
 ### Implementation for User Story 2
 
-- [~] T017 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mean_imputation(data)`
-- [~] T018 [P] [US2] Implement `code/analysis/imputation.py` function `apply_knn_imputation(data, k=5)` using `sklearn.impute.KNNImputer` (CPU only, FR-003)
-- [~] T019 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mice_imputation(data)` using `sklearn.impute.IterativeImputer` with `BayesianRidge` or `RandomForestRegressor` (CPU only, FR-003).
-- [~] T020 [P] [US2] **Implement Standard Error & CI Combination Logic**: Create `code/analysis/se_combination.py` with two functions: `apply_rubins_rules(estimates_list)` for MICE and `apply_bootstrap_ci(ate_estimates, n_boot=1000)` for Mean/KNN. This task must output robust standard errors and confidence intervals. **Resampling Strategy**: For `apply_bootstrap_ci`, resample the ATE estimates (not the raw data) with replacement. This task defines the standard utility for robust SEs used by all methods.
-- [~] T021 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_ipw(data, treatment_col, outcome_col)` using `statsmodels` (FR-004). **Call T020** for SE/CI calculation.
-- [~] T022 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_psm(data, treatment_col, outcome_col)` using nearest neighbor matching (FR-004). **Call T020** for SE/CI calculation.
-- [~] T023 [US2] Create `code/analysis/pipeline.py` function `run_imputation_and_estimation(data)` to orchestrate: Input incomplete data → Apply 3 imputations → Apply multiple estimators to each → Return matrix of ATE estimates. **This function must be the single entry point for US2 logic.**
+- [X] T017 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mean_imputation(data)`
+- [X] T018 [P] [US2] Implement `code/analysis/imputation.py` function `apply_knn_imputation(data, k=5)` using `sklearn.impute.KNNImputer` (CPU only, FR-003)
+- [X] T019 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mice_imputation(data)` using `sklearn.impute.IterativeImputer` with `BayesianRidge` or `RandomForestRegressor` (CPU only, FR-003).
+- [X] T020 [P] [US2] **Implement Standard Error & CI Combination Logic**: Create `code/analysis/se_combination.py` with two functions: `apply_rubins_rules(estimates_list)` for MICE and `apply_bootstrap_ci(ate_estimates, n_boot=1000)` for Mean/KNN. This task must output robust standard errors and confidence intervals. **Resampling Strategy**: For `apply_bootstrap_ci`, resample the ATE estimates (not the raw data) with replacement. This task defines the standard utility for robust SEs used by all methods.
+- [X] T021 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_ipw(data, treatment_col, outcome_col)` using `statsmodels` (FR-004). **Call T020** for SE/CI calculation.
+- [X] T022 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_psm(data, treatment_col, outcome_col)` using nearest neighbor matching (FR-004). **Call T020** for SE/CI calculation.
+- [X] T023 [US2] Create `code/analysis/pipeline.py` function `run_imputation_and_estimation(data)` to orchestrate: Input incomplete data → Apply 3 imputations → Apply multiple estimators to each → Return matrix of ATE estimates. **This function must be the single entry point for US2 logic.**
 - [~] T024 [US2] Add error handling in `pipeline.py` to detect and flag non-convergent imputation runs or infinite estimates (Edge Case: extreme missingness)
-- [~] T025 [US2] Create `tests/test_imputation.py` to verify imputation methods produce complete dataframes without NaNs
-- [~] T026 [US2] Create `tests/test_causal_estimation.py` to verify IPW and PSM return valid floats and standard errors
+- [X] T025 [US2] Create `tests/test_imputation.py` to verify imputation methods produce complete dataframes without NaNs
+- [X] T026 [US2] Create `tests/test_causal_estimation.py` to verify IPW and PSM return valid floats and standard errors
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data generation + imputation + estimation)
 
@@ -98,7 +98,7 @@
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
+- [X] T027 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
 - [ ] T028 [P] [US3] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: **Per FR-006, implement the specific decision tree:** 1) Run Shapiro-Wilk test on bias distribution. 2) If $p < 0.05$ (non-normal) → Use **Friedman Test**. 3) If $p \ge 0.05$ (normal) → Use **Repeated-Measures ANOVA**. 4) **Conditionally**: If skewness > 1 OR < -1 (calculated via `scipy.stats.skew`) → Compute **Bootstrap CIs** (A sufficient number of iterations) for the difference in medians between the best and worst performing methods as a robust alternative to the primary test. **Output**: Write the test result (p-value, test type used, conclusion, bootstrap_ci_diff if applicable) to `data/results/statistical_test_results.json`.
 - [ ] T029a [US3] [Requires: T023] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate a sufficient number of times. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T010` (Gen), `T011` (Inject). **Import and call the verification function defined in T014** to log metrics, but DO NOT skip any runs based on the verification result.
 - [ ] T029b [US3] [Requires: T029a] **Data Generation & Ground Truth Storage**: For each run, call `regenerate_ground_truth(seed, beta)` and store `tau_true`, `alpha`, `beta` in the run data.

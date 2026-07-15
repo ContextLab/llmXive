@@ -80,21 +80,21 @@
 
 - [X] T010 [P] [US1] Unit test for synthetic MFQ generator in `code/tests/test_ingest_mfq.py` (defines interface for simulation)
 - [X] T011 [P] [US1] Unit test for salience mapping logic in `code/tests/test_schema.py` (defines interface for preprocess)
-- [~] T012 [US1] Unit test for psychometric norm validation in `code/tests/test_ingest_stories.py` (defines interface for norms)
+- [X] T012 [US1] Unit test for psychometric norm validation in `code/tests/test_ingest_stories.py` (defines interface for norms)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/simulation_mfq.py` to generate synthetic MFQ data based on Gervais et al. (2011) multivariate normal distributions [UNRESOLVED-CLAIM: c_ad8cb909 — status=not_enough_info]
-- [~] T014 [US1] Implement `code/data/simulation_stories.py` to generate **Validation-Only** simulated Moral Stories and VR interaction logs (response times, gaze, judgment) with a known `ground_truth_effect` to proxy FR-006 requirements
-- [~] T015 [US1] Implement `code/data/ingest.py` to load and merge synthetic MFQ and Moral Stories datasets, handling ID mismatches
-- [~] T016 [US1] Implement `code/data/preprocess.py` to map text stories to VR scenes, assigning `salience_level` (low/high) via blend-shape parameters <!-- FAILED: unspecified -->
-- [~] T017 [US1] Add validation logic to existing `code/utils/norms.py` to compare synthetic MFQ distribution against published norms (must be within 1 SD) <!-- FAILED: unspecified -->
-- [~] T018 [US1] Implement `code/utils/hashing.py` integration to checksum derived CSVs and update `state/...yaml`
+- [X] T013 [US1] Implement `code/data/simulation_mfq.py` to generate synthetic MFQ data based on Gervais et al. (2011) multivariate normal distributions [UNRESOLVED-CLAIM: c_ad8cb909 — status=not_enough_info]
+- [X] T014 [US1] Implement `code/data/simulation_stories.py` to generate **Validation-Only** simulated Moral Stories and VR interaction logs (response times, gaze, judgment) with a known `ground_truth_effect` to proxy FR-006 requirements
+- [X] T015 [US1] Implement `code/data/ingest.py` to load and merge synthetic MFQ and Moral Stories datasets, handling ID mismatches
+- [ ] T016 [US1] Implement `code/data/preprocess.py` to map text stories to VR scenes, assigning `salience_level` (low/high) via blend-shape parameters <!-- FAILED: unspecified -->
+- [ ] T017 [US1] Add validation logic to existing `code/utils/norms.py` to compare synthetic MFQ distribution against published norms (must be within 1 SD) <!-- FAILED: unspecified -->
+- [X] T018 [US1] Implement `code/utils/hashing.py` integration to checksum derived CSVs and update `state/...yaml`
 
 ### Architecture for Future Real Data (US4 Stub)
 
-- [~] T019a [US4-Stub] Define `code/data/ingest_real.py` architecture: Specify OSF API endpoint, HuggingFace dataset ID, auth method, and data schema for **actual** VR logs (FR-006 compliance) without executing fetch
-- [~] T019b [US4-Stub] Implement `code/data/ingest_real.py` fallback: Default execution to load from `data/simulated/` (T014 output) to satisfy Plan's simulation scope while preserving FR-006 architecture
+- [X] T019a [US4-Stub] Define `code/data/ingest_real.py` architecture: Specify OSF API endpoint, HuggingFace dataset ID, auth method, and data schema for **actual** VR logs (FR-006 compliance) without executing fetch
+- [X] T019b [US4-Stub] Implement `code/data/ingest_real.py` fallback: Default execution to load from `data/simulated/` (T014 output) to satisfy Plan's simulation scope while preserving FR-006 architecture
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,17 +108,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for model convergence check in `code/tests/test_model_convergence.py`
-- [~] T021 [US2] Unit test for parameter recovery validation in `code/tests/test_model_recovery.py`
+- [X] T020 [P] [US2] Unit test for model convergence check in `code/tests/test_model_convergence.py`
+- [X] T021 [US2] Unit test for parameter recovery validation in `code/tests/test_model_recovery.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/models/bayesian.py` defining the PyMC3 model structure: Gaussian likelihood, Normal priors, foundation scores as covariates, salience as fixed-effect predictor <!-- FAILED: unspecified -->
-- [~] T023 [US2] Implement `code/models/bayesian.py` logic to handle convergence failures (log failure, fallback to MLE, flag as inconclusive)
-- [~] T026 [US2] Implement `code/analysis/validation.py` to verify **Parameter Recovery**: check if `ground_truth_effect` is within the 95% credible interval of the posterior (Primary Validation Metric)
-- [~] T024 [US2] Implement `code/analysis/model_comparison.py` to calculate AIC and WAIC for the salience-augmented model vs. baseline (no salience)
-- [~] T025 [US2] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC) and visualize fit against observed data
-- [~] T027 [US2] Implement `code/analysis/model_comparison.py` to explicitly check and report metrics: Detect `RUN_MODE` from `config.py`; if 'simulation', log "Validation Metric: Parameter Recovery [PASS/FAIL]" and calculate ΔAIC as "Scientific Metric: Deferred"; if 'real', flag 'strong evidence' (ΔAIC > 10) as required by SC-002
+- [X] T022 [US2] Implement `code/models/bayesian.py` defining the PyMC3 model structure: Gaussian likelihood, Normal priors, foundation scores as covariates, salience as fixed-effect predictor <!-- FAILED: unspecified -->
+- [X] T023 [US2] Implement `code/models/bayesian.py` logic to handle convergence failures (log failure, fallback to MLE, flag as inconclusive)
+- [X] T026 [US2] Implement `code/analysis/validation.py` to verify **Parameter Recovery**: check if `ground_truth_effect` is within the 95% credible interval of the posterior (Primary Validation Metric)
+- [X] T024 [US2] Implement `code/analysis/model_comparison.py` to calculate AIC and WAIC for the salience-augmented model vs. baseline (no salience)
+- [X] T025 [US2] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC) and visualize fit against observed data
+- [X] T027 [US2] Implement `code/analysis/model_comparison.py` to explicitly check and report metrics: Detect `RUN_MODE` from `config.py`; if 'simulation', log "Validation Metric: Parameter Recovery [PASS/FAIL]" and calculate ΔAIC as "Scientific Metric: Deferred"; if 'real', flag 'strong evidence' (ΔAIC > 10) as required by SC-002
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,16 +132,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for Bonferroni correction logic in `code/tests/test_model.py`
-- [~] T029 [P] [US3] Unit test for sensitivity analysis thresholds in `code/tests/test_model.py`
+- [X] T028 [P] [US3] Unit test for Bonferroni correction logic in `code/tests/test_model.py`
+- [X] T029 [P] [US3] Unit test for sensitivity analysis thresholds in `code/tests/test_model.py`
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement `code/models/regression.py` for hierarchical mixed-effects regression testing the salience × foundation interaction
-- [~] T031 [US3] Implement `code/analysis/validation.py` to apply Bonferroni correction to interaction term p-values
-- [~] T032 [US3] Implement `code/analysis/validation.py` to conduct sensitivity analysis sweeping decision thresholds over the specific set **{2, 10, 20}** and report model selection stability matrix
-- [~] T033 [US3] Implement `code/reports/generate_report.py` to generate the final report summarizing findings (Pipeline Validation: PASSED/FAILED)
-- [~] T034 [US3] Ensure `code/reports/generate_report.py` explicitly states "Pipeline Validation Only" while including a clear statement of findings regarding the hypothesis (as per US-3), deferring final scientific claims to Phase 4 by noting "Evidence strength (ΔAIC) calculated but claim deferred per Plan."
+- [X] T030 [US3] Implement `code/models/regression.py` for hierarchical mixed-effects regression testing the salience × foundation interaction
+- [X] T031 [US3] Implement `code/analysis/validation.py` to apply Bonferroni correction to interaction term p-values
+- [X] T032 [US3] Implement `code/analysis/validation.py` to conduct sensitivity analysis sweeping decision thresholds over the specific set **{2, 10, 20}** and report model selection stability matrix
+- [X] T033 [US3] Implement `code/reports/generate_report.py` to generate the final report summarizing findings (Pipeline Validation: PASSED/FAILED)
+- [X] T034 [US3] Ensure `code/reports/generate_report.py` explicitly states "Pipeline Validation Only" while including a clear statement of findings regarding the hypothesis (as per US-3), deferring final scientific claims to Phase 4 by noting "Evidence strength (ΔAIC) calculated but claim deferred per Plan."
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,7 +154,7 @@
 - [~] T035 [P] Documentation updates: Add installation instructions, update usage examples, and add data schema reference in `README.md` and `docs/`
 - [~] T036 Code cleanup and refactoring
 - [~] T037 Performance optimization for CPU-only execution (ensure full pipeline < 6h) <!-- ATOMIZE: requested -->
-- [~] T038 [P] Implement `code/data/unity_verification.py` to verify the simulation's fidelity to the actual Unity environment by validating blend-shape parameters against a reference configuration file (addressing spec assumptions without requiring Unity runtime)
+- [X] T038 [P] Implement `code/data/unity_verification.py` to verify the simulation's fidelity to the actual Unity environment by validating blend-shape parameters against a reference configuration file (addressing spec assumptions without requiring Unity runtime)
 - [~] T039 [P] Additional unit tests for edge cases (missing data, convergence failure)
 - [~] T040 [P] Run `quickstart.md` validation and verify all artifacts are checksummed
 

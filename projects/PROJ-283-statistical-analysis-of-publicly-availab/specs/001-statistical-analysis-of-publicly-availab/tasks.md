@@ -65,12 +65,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `src/data/parse.py` to read PGN files, extract ECO codes, and calculate `avg_move_time` per player.
-- [~] T014 [US1] Implement `src/data/parse.py` logic to calculate `material_imbalance_move5` (board state at move 5). This implements the Plan.md Complexity Tracking override of Spec FR-002 (Move 10). The schema in T006 and downstream tasks reference this Move 5 value.
-- [~] T015 [US1] Implement `src/data/process.py` to calculate `elo_expected_prob` using `P = 1 / (1 + 10^((R2-R1)/400))` with probability capping for numerical stability (e.g., clamp to [0.01, 0.99]).
-- [~] T016 [US1] Implement `src/data/process.py` to compute `outcome_deviation` as `(actual_result - expected_probability)`.
-- [~] T017 [US1] Implement error handling in `src/data/process.py` to skip malformed games, log errors, and ensure final dataset inclusion rate meets SC-001 (≥95% of valid PGNs). Remove any ±1% target constraint as it conflicts with the exclusion rule and T009 HALT logic.
-- [~] T018 [US1] Integrate schema validation in `src/main.py` to run `validate_contracts.py` on the generated dataset before saving to `data/processed/games.parquet`. <!-- FAILED: unspecified -->
+- [X] T013 [P] [US1] Implement `src/data/parse.py` to read PGN files, extract ECO codes, and calculate `avg_move_time` per player.
+- [X] T014 [US1] Implement `src/data/parse.py` logic to calculate `material_imbalance_move5` (board state at move 5). This implements the Plan.md Complexity Tracking override of Spec FR-002 (Move 10). The schema in T006 and downstream tasks reference this Move 5 value.
+- [X] T015 [US1] Implement `src/data/process.py` to calculate `elo_expected_prob` using `P = 1 / (1 + 10^((R2-R1)/400))` with probability capping for numerical stability (e.g., clamp to [0.01, 0.99]).
+- [X] T016 [US1] Implement `src/data/process.py` to compute `outcome_deviation` as `(actual_result - expected_probability)`.
+- [X] T017 [US1] Implement error handling in `src/data/process.py` to skip malformed games, log errors, and ensure final dataset inclusion rate meets SC-001 (≥95% of valid PGNs). Remove any ±1% target constraint as it conflicts with the exclusion rule and T009 HALT logic.
+- [ ] T018 [US1] Integrate schema validation in `src/main.py` to run `validate_contracts.py` on the generated dataset before saving to `data/processed/games.parquet`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,18 +84,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for FDR correction logic (Benjamini-Hochberg) in `tests/unit/test_calculations.py`.
-- [~] T020 [P] [US2] Unit test for ECO code collapsing logic (mapping specific codes to families) in `tests/unit/test_parsers.py`.
+- [X] T019 [P] [US2] Unit test for FDR correction logic (Benjamini-Hochberg) in `tests/unit/test_calculations.py`.
+- [X] T020 [P] [US2] Unit test for ECO code collapsing logic (mapping specific codes to families) in `tests/unit/test_parsers.py`.
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
-- [~] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
-- [~] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
-- [~] T024 [US2] Implement `src/models/metrics.py` to calculate p-values (Wald Z-tests) and F-statistics for all predictors.
-- [~] T025 [US2] Implement `src/models/metrics.py` to apply Benjamini-Hochberg FDR correction to p-values (FR-009).
-- [~] T026 [US2] Implement `src/reports/sensitivity.py` to perform threshold sweep analysis over a range of small thresholds and report Jaccard index of significant predictors (FR-010).
-- [~] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested -->
+- [ ] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
+- [ ] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
+- [ ] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
+- [X] T024 [US2] Implement `src/models/metrics.py` to calculate p-values (Wald Z-tests) and F-statistics for all predictors.
+- [X] T025 [US2] Implement `src/models/metrics.py` to apply Benjamini-Hochberg FDR correction to p-values (FR-009).
+- [X] T026 [US2] Implement `src/reports/sensitivity.py` to perform threshold sweep analysis over a range of small thresholds and report Jaccard index of significant predictors (FR-010).
+- [ ] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -109,15 +109,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Integration test for end-to-end pipeline (download -> parse -> model -> validate) on a small sample in `tests/integration/test_pipeline.py`.
+- [X] T028 [P] [US3] Integration test for end-to-end pipeline (download -> parse -> model -> validate) on a small sample in `tests/integration/test_pipeline.py`.
 
 ### Implementation for User Story 3
 
-- [~] T029 [P] [US3] Implement `src/models/validate.py` to perform k-fold cross-validation on both Gaussian GLM and Ridge models (FR-006).
-- [~] T030 [US3] Implement `src/models/validate.py` to calculate R² and MSE variance across folds; specifically calculate standard deviation of R². If `std_dev_r2 >= 0.05`, raise a `RuntimeError` with message "SC-003 Threshold Exceeded: Model instability detected". This enforces SC-003 as a hard pass/fail gate.
-- [~] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots and feature importance rankings.
-- [~] T032 [US3] Implement `src/reports/generate_plots.py` to create predicted vs. actual deviation scatterplots.
-- [~] T033 [US3] Save all plots to `data/results/` and generate a final `DiagnosticReport` summary in `data/results/diagnostics.json`.
+- [X] T029 [P] [US3] Implement `src/models/validate.py` to perform k-fold cross-validation on both Gaussian GLM and Ridge models (FR-006).
+- [X] T030 [US3] Implement `src/models/validate.py` to calculate R² and MSE variance across folds; specifically calculate standard deviation of R². If `std_dev_r2 >= 0.05`, raise a `RuntimeError` with message "SC-003 Threshold Exceeded: Model instability detected". This enforces SC-003 as a hard pass/fail gate.
+- [ ] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots and feature importance rankings.
+- [ ] T032 [US3] Implement `src/reports/generate_plots.py` to create predicted vs. actual deviation scatterplots.
+- [ ] T033 [US3] Save all plots to `data/results/` and generate a final `DiagnosticReport` summary in `data/results/diagnostics.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 

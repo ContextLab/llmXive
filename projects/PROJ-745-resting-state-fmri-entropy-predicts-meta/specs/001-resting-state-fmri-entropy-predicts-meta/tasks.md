@@ -58,14 +58,14 @@
 
 - [ ] T005 [P] Implement data ingestion metadata fetcher in `code/download.py` (HCP metadata validation)
 - [ ] T006 [P] Implement NIfTI download logic in `code/download.py` (fetch raw fMRI data to `data/raw/`)
-- [~] T007 [P] Implement behavioral data download logic in `code/download.py` (fetch CSV/Parquet to `data/raw/`)
-- [~] T008 [P] Implement motion scrubbing skeleton in `code/preprocess.py` (FD calculation logic)
-- [~] T009 [P] Implement nuisance regression skeleton in `code/preprocess.py` (motion, CSF, WM regression)
-- [~] T010 [P] Implement band-pass filtering skeleton in `code/preprocess.py` <!-- ATOMIZE: requested -->
+- [X] T007 [P] Implement behavioral data download logic in `code/download.py` (fetch CSV/Parquet to `data/raw/`)
+- [X] T008 [P] Implement motion scrubbing skeleton in `code/preprocess.py` (FD calculation logic)
+- [X] T009 [P] Implement nuisance regression skeleton in `code/preprocess.py` (motion, CSF, WM regression)
+- [X] T010 [P] Implement band-pass filtering skeleton in `code/preprocess.py` <!-- ATOMIZE: requested -->
 - [~] T011 [P] Define data schema in `code/models.py` (Pydantic schemas or CSV headers for Subject, TimeSeries, EntropyMetric, MetacognitiveEfficiency)
-- [~] T012 [P] Configure error handling and logging infrastructure in `code/utils/logging.py` <!-- SKIPPED: non-mapping output -->
+- [ ] T012 [P] Configure error handling and logging infrastructure in `code/utils/logging.py` <!-- SKIPPED: non-mapping output -->
 - [~] T013 [P] Configure environment configuration management (`.env` for HCP credentials, random seeds)
-- [~] T014 [P] Implement automated state file update logic in `code/utils/state_manager.py` to update `updated_at` timestamp upon artifact changes (Constitution Principle V)
+- [X] T014 [P] Implement automated state file update logic in `code/utils/state_manager.py` to update `updated_at` timestamp upon artifact changes (Constitution Principle V)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,14 +82,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T015 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`
-- [~] T016 [P] [US1] Integration test for preprocessing output schema in `tests/integration/test_preprocess.py`
+- [X] T016 [P] [US1] Integration test for preprocessing output schema in `tests/integration/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [~] T017 [US1] Implement HCP data fetcher in `code/download.py` (handles raw NIfTI and behavioral CSVs)
-- [~] T018 [US1] Implement motion scrubbing (FD > 0.5mm flagging) in `code/preprocess.py`: MUST flag and continue processing high-motion subjects per US-1 Acceptance Scenario 2
-- [~] T019 [US1] Implement nuisance regression (motion, CSF, WM) and band-pass filtering in `code/preprocess.py` <!-- ATOMIZE: requested -->
-- [~] T020 [US1] Implement Schaefer 400-region parcellation logic in `code/preprocess.py`
+- [X] T017 [US1] Implement HCP data fetcher in `code/download.py` (handles raw NIfTI and behavioral CSVs)
+- [X] T018 [US1] Implement motion scrubbing (FD > 0.5mm flagging) in `code/preprocess.py`: MUST flag and continue processing high-motion subjects per US-1 Acceptance Scenario 2
+- [X] T019 [US1] Implement nuisance regression (motion, CSF, WM) and band-pass filtering in `code/preprocess.py` <!-- ATOMIZE: requested -->
+- [X] T020 [US1] Implement Schaefer 400-region parcellation logic in `code/preprocess.py`
 - [ ] T021 [US1] Add validation: check for zero-variance time series and exclude subjects in `code/preprocess.py`
 - [ ] T022 [US1] Add logging for subject exclusion reasons (corrupted data, high motion, missing behavior)
 

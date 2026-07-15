@@ -59,8 +59,8 @@
 
 - [X] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seeds, and batch size constants (LLM batch ≤ 10)
 - [ ] T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`
-- [~] T006a [P] Setup logging configuration in `code/config.py` to define log format, file handlers, and levels for metrics (FR-008)
-- [~] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops (FR-008)
+- [X] T006a [P] Setup logging configuration in `code/config.py` to define log format, file handlers, and levels for metrics (FR-008)
+- [X] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops (FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,12 +74,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T007 [US1] Implement `code/data_pipeline.py` to sample 800 functions from `codeparrot/github-code` using HuggingFace `datasets` (FR-001)
-- [~] T008 [US1] Implement structural metric calculation in `code/data_pipeline.py` using `radon` for LOC and Cyclomatic Complexity (FR-002)
-- [~] T009 [US1] Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names for deterministic baseline (FR-003)
-- [~] T010 [US1] Implement error handling in `code/data_pipeline.py` to catch `radon` parsing errors, log the file, and exclude from final count (Edge Case)
+- [X] T007 [US1] Implement `code/data_pipeline.py` to sample 800 functions from `codeparrot/github-code` using HuggingFace `datasets` (FR-001)
+- [X] T008 [US1] Implement structural metric calculation in `code/data_pipeline.py` using `radon` for LOC and Cyclomatic Complexity (FR-002)
+- [X] T009 [US1] Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names for deterministic baseline (FR-003)
+- [X] T010 [US1] Implement error handling in `code/data_pipeline.py` to catch `radon` parsing errors, log the file, and exclude from final count (Edge Case)
 - [~] T011 [US1] Implement CSV serialization in `code/data_pipeline.py` to write `data/static_baseline.csv` with normalized smell codes (FR-001)
-- [~] T012 [US1] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
+- [ ] T012 [US1] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,12 +96,12 @@
 ### Implementation for User Story 2
 
 - [~] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
-- [~] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
-- [~] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` to request a JSON list of smell categories (FR-004)
-- [~] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
-- [~] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
-- [~] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
-- [~] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
+- [X] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
+- [X] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` to request a JSON list of smell categories (FR-004)
+- [X] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
+- [X] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
+- [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
+- [ ] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
 - [~] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -120,8 +120,8 @@
 
 - [~] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
 - [~] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
-- [~] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
-- [~] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
+- [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
+- [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
 - [ ] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, flags high-VIF predictors in output, and implements exclusion as the only fallback path (FR-007, FR-010)
 - [ ] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds (50, 100, 150) and calculating false-positive/negative rates (FR-009)
 - [ ] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)

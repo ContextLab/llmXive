@@ -47,7 +47,7 @@
 - [~] T007a Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`)
 - [~] T007b Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity (W, L, realization_index)
 - [~] T008 Implement error handling and logging infrastructure in `code/` to capture numerical residuals and convergence flags for *every* eigenvalue problem (Constitution Principle VI; exceeds Spec's minimal 'warning' requirement for reproducibility)
-- [~] T009 Implement `code/main.py` orchestration skeleton using `joblib` for parallel disorder realization execution (FR-011), specifically targeting a sufficient number of realizations (multiple widths × 100 samples)
+- [X] T009 Implement `code/main.py` orchestration skeleton using `joblib` for parallel disorder realization execution (FR-011), specifically targeting a sufficient number of realizations (multiple widths × 100 samples)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,18 +63,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`
-- [~] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`
+- [ ] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`
+- [X] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/analyze_pr.py` to compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002)
+- [X] T012 [P] [US1] Implement `code/analyze_pr.py` to compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002)
 - [~] T013 [US1] Implement finite-size scaling by fitting PR(L) saturation across a range of system sizes L to extract ξ. This implements the corrected methodology defined in Plan.md, section Complexity Tracking (dual-method validation requires finite-size scaling saturation, not simple proportionality), which supersedes the simplified proportionality in FR-003. Output a `dict` with keys `xi`, `uncertainty`, and `fit_params` (FR-003, Plan correction)
-- [~] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **Depends on T013 output**
+- [X] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **Depends on T013 output**
 - [~] T015 [US1] Aggregate results from T014 for *all* disorder widths, then apply Bonferroni correction for FWER across the full family of tests (FR-010, SC-005). Note: The Plan's 'pairwise' summary refers to result interpretation, but the correction scope must be global to satisfy SC-005. **Depends on T014 output**
 - [~] T015b [US1] Perform a priori power analysis to verify 100 realizations provide ≥80% power to detect slope deviation from -2 at α=0.05 (SC-003). Log results to `data/metadata/power_analysis.json`.
-- [~] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
-- [~] T017 [US1] Add logging for residual norms and convergence flags for every eigenvalue problem to `data/metadata/residuals.json` (Constitution Principle VI)
+- [X] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
+- [ ] T017 [US1] Add logging for residual norms and convergence flags for every eigenvalue problem to `data/metadata/residuals.json` (Constitution Principle VI)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -88,7 +88,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
+- [X] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
 - [ ] T019 [P] [US2] Integration test for TM convergence and method agreement in `tests/integration/test_tm_validation.py`
 
 ### Implementation for User Story 2

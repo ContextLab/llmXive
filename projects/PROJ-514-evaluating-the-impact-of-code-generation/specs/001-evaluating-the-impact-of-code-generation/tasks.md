@@ -96,25 +96,25 @@
 > **NOTE**: These contract tests define the interface for the implementation. They must be written FIRST to define the expected behavior, even if they fail to import unimplemented modules.
 
 - [ ] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
-- [~] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
+- [X] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`: <!-- FAILED: unspecified -->
+- [ ] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`: <!-- FAILED: unspecified -->
  - Logic to query 50 public GitHub repos (≥100 stars, ≥5 years history).
  - Extract 3 "fresh" functions per repo (total 150) per plan.md "Balanced Blocked Design".
  - Use `git log --diff-filter=A` to find commits introducing functions.
  - Save files to `data/raw/human_samples/` with metadata JSON sidecars.
-- [~] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
+- [X] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
  - Logic to derive 50 tasks from the same Issue/PR descriptions used for human samples.
  - Query HuggingFace Inference API (or similar) with a reasonable timeout and exponential backoff (limited retries).
  - Generate 3 samples per task (total 150) per plan.md "Balanced Blocked Design".
  - Save files to `data/raw/llm_samples/` with metadata JSON sidecars.
-- [~] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
+- [X] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
  - Verify ≥95% of 150 samples (≥143 human, ≥143 LLM) are syntactically valid Python/Java.
  - Log failures and exclusion rates.
  - Generate `data/intermediate/validation_report.json` listing excluded samples and reasons.
-- [~] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
+- [X] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
  - Generate `data/raw/manifest.csv` linking sample IDs to Source Type, Repo ID, Issue ID, Commit SHA, and File Path.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -130,24 +130,24 @@
 ### Tests for User Story 2 (MANDATORY - Interface Definition)
 
 - [~] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py` (Defines interface for T020)
-- [~] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021/T023)
+- [X] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021/T023)
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
+- [ ] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
  - Subprocess wrapper to execute PMD CLI with specific rulesets for the 4 target smells.
  - Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file.
  - Handle syntax errors gracefully (log and exclude).
-- [~] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
+- [ ] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
  - Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
  - Map smells to `SmellMetric` entities.
-- [~] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
+- [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
  - Run analysis on a known "clean" reference set.
  - Calculate false-positive rate; if >5%, flag the tool configuration as invalid in logs.
  - **Dependency**: Must run after T022 completes to ensure results are parsed.
  - Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
-- [~] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
+- [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
  - **Dependency**: Must run after T022 and T023 (validity check) complete.
 
@@ -163,17 +163,17 @@
 
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
-- [~] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
-- [~] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
+- [X] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
+- [ ] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
+- [X] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
  - Implement Blocked Permutation Test (stratified by repository) per plan.md.
  - Handle zero-inflation and non-normality.
  - Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate ≤ 0.05).
  - Calculate effect sizes (Cohen's d or equivalent for permutation tests).
-- [~] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
+- [ ] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
  - Sweep "Long Method" threshold values ∈ {100, 150, 200} lines.
  - Compare results against continuous metrics (cyclomatic complexity) to verify stability.
  - **Dependency**: Must run after T027 completes.

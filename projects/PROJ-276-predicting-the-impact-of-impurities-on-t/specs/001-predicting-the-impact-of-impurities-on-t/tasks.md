@@ -65,9 +65,9 @@
 
 - [ ] T004 [P] Implement `src/utils/constants.py` with atomic weights, unit conversion factors (Kelvin, GPa), and VIF threshold constants (established benchmarks)
 - [ ] T005 [P] Implement `src/utils/logging.py` with standardized loggers for ingestion, modeling, and visualization
-- [~] T006 Implement `src/utils/data_provenance.py` with function `generate_provenance_header(source: str, timestamp: str, version: str) -> dict`. Verify the function returns a dictionary containing exactly these keys: `source`, `timestamp`, `version`. Create `tests/unit/test_provenance.py` to verify these keys are present.
-- [~] T007 [P] Setup `tests/unit/test_constants.py` and `tests/unit/test_logging.py` to verify utility modules
-- [~] T008 Configure environment variable handling for API keys (Materials Project) in `src/utils/config.py`
+- [ ] T006 Implement `src/utils/data_provenance.py` with function `generate_provenance_header(source: str, timestamp: str, version: str) -> dict`. Verify the function returns a dictionary containing exactly these keys: `source`, `timestamp`, `version`. Create `tests/unit/test_provenance.py` to verify these keys are present.
+- [ ] T007 [P] Setup `tests/unit/test_constants.py` and `tests/unit/test_logging.py` to verify utility modules
+- [ ] T008 Configure environment variable handling for API keys (Materials Project) in `src/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,9 +83,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (verify columns: Tc, impurities_atomic_pct, temp_K, pressure_GPa)
+- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (verify columns: Tc, impurities_atomic_pct, temp_K, pressure_GPa)
 - [~] T010 [P] [US1] Unit test for unit conversion logic in `tests/unit/test_preprocessing.py` (weight% to atomic% edge cases)
-- [~] T011 [P] [US1] Unit test for data filtering in `tests/unit/test_ingestion.py` (verify rows with missing Tc/impurities are dropped)
+- [X] T011 [P] [US1] Unit test for data filtering in `tests/unit/test_ingestion.py` (verify rows with missing Tc/impurities are dropped)
 
 ### Implementation for User Story 1
 

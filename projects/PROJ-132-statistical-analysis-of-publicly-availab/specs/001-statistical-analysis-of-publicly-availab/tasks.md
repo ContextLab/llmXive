@@ -63,12 +63,12 @@
  4. Archive real files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
  5. Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
 - [ ] T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes` match expected types (TDD: Write before implementation)
-- [~] T007 [P] Implement `src/data/impute.py` for spatial interpolation of missing climate data.
+- [X] T007 [P] Implement `src/data/impute.py` for spatial interpolation of missing climate data.
  - **Input**: Read from `data/raw/climate.parquet` (DataFrame with columns: lat, lon, temp, week, precip).
  - **Logic**: Use `scipy.interpolate.griddata` with a 1° radius neighbor search in **degrees** (lat/lon).
  - **Output**: Write imputed data to `data/interim/climate_imputed.parquet` and update metadata with flagged cells.
-- [~] T008 [P] Setup `src/models/utils.py` with statistical helpers (Benjamini-Hochberg FDR, bootstrapping logic, early stopping for permutations)
-- [~] T009 Create base data entities: `MigrationRecord`, `PhenologyMetric`, `ClimateVariable` classes in `src/models/entities.py`
+- [ ] T008 [P] Setup `src/models/utils.py` with statistical helpers (Benjamini-Hochberg FDR, bootstrapping logic, early stopping for permutations)
+- [X] T009 Create base data entities: `MigrationRecord`, `PhenologyMetric`, `ClimateVariable` classes in `src/models/entities.py`
 - [~] T010 [P] Configure logging infrastructure to record "insufficient data" events and model convergence failures.
  - **Artifact**: Create `logs/pipeline.log`.
  - **Policy**: Max 5 files, 10MB each, rotate on size.
@@ -89,21 +89,21 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T013 [P] [US1] Add `tests/integration/test_data_pipeline.py` with function `test_data_ingestion_flow` verifying end-to-end flow (TDD: write before T014)
+- [X] T013 [P] [US1] Add `tests/integration/test_data_pipeline.py` with function `test_data_ingestion_flow` verifying end-to-end flow (TDD: write before T014)
 
 ### Implementation for User Story 1
 
 - [~] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
-- [~] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
-- [~] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
+- [ ] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
+- [ ] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
 - [~] T018 [US1] Add logic to mark grid cells as "insufficient data" when observation density is too low, excluding them from downstream modeling (Depends on **completion** of T007 - file creation, not just module import)
-- [~] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
-- [~] T019b [P] [US1] Implement **Tail-Preserving Stratified Sampling** (FR-002-S) in `src/data/preprocess.py`:
+- [ ] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
+- [ ] T019b [P] [US1] Implement **Tail-Preserving Stratified Sampling** (FR-002-S) in `src/data/preprocess.py`:
  1. Quantile-bin `first_arrival` into deciles.
  2. Oversample cells in the lowest decile by a moderate factor.
  3. Assign inverse-probability weights (`weight = 0.5` for oversampled, `1.0` otherwise).
  4. Output weights to `data/interim/sampling_weights.parquet`.
-- [~] T020 [S] [US1] Integrate `src/data/impute.py` (from T007) to fill missing climate values via spatial interpolation and flag imputed cells in metadata (Note: **Sequential** - depends on T007 completion, NOT parallel-safe)
+- [X] T020 [S] [US1] Integrate `src/data/impute.py` (from T007) to fill missing climate values via spatial interpolation and flag imputed cells in metadata (Note: **Sequential** - depends on T007 completion, NOT parallel-safe)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,17 +117,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Add `tests/contract/test_output_schemas.py` with function `test_gamm_output_schema` verifying coefficient and p-value columns
-- [~] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
+- [X] T021 [P] [US2] Add `tests/contract/test_output_schemas.py` with function `test_gamm_output_schema` verifying coefficient and p-value columns
+- [X] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
 
 ### Implementation for User Story 2
 
-- [~] T023 [P] [US2] Implement `src/models/gamm_fit.py` to fit a **Unified Spatial Model**.
+- [X] T023 [P] [US2] Implement `src/models/gamm_fit.py` to fit a **Unified Spatial Model**.
  - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(effort) + (1 + temp | species) + GP_spatial(lon, lat; kernel=Matérn(nu=1.5))`.
  - **Requirement**: The Gaussian Process (GP) **MUST ALWAYS be applied** (per Plan Phase 3).
  - **Diagnostic**: Compute Moran's I on residuals and log it, but do NOT use it to conditionally skip the GP. The implementation must follow the Plan's "Unified Spatial Model" regardless of the Spec's conditional wording.
-- [~] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
-- [~] T025 [US2] Implement permutation test in `src/models/utils.py` with `n_shuffles=10000`.
+- [X] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
+- [ ] T025 [US2] Implement permutation test in `src/models/utils.py` with `n_shuffles=10000`.
  - **Logic**: Run 100 shuffles, check interim p < 0.001, set `early_stop_flag=True`, but **CONTINUE** to full [deferred] shuffles. The flag is for reporting only; the full [deferred] shuffles MUST complete.
  - **Optimization**: Use `joblib` parallelization to ensure full shuffles complete within the 5.5h CI budget.
  - **Output**: Write to `data/processed/permutation_results.json` with schema: `{ "species": str, "coefficient": str, "p_value": float, "n_shuffles": int, "early_stop_flag": bool, "final_p_value": float }`.

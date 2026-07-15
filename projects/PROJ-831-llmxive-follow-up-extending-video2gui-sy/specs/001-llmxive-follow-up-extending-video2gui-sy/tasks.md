@@ -39,11 +39,11 @@
 
 - [ ] T005 Create `code/config.py` with deterministic random seeds, paths, and hardware constraints (CPU-only, 7GB RAM limit, **50-step hard limit** as per FR-006)
 - [ ] T006 Define and implement `benchmark_task.schema.yaml` for FR-001 (JSON Schema for synthetic tasks)
-- [~] T007 Define and implement `trajectory_log.schema.yaml` for FR-003 (JSON Schema for agent logs)
-- [~] T008 Define and implement `simulator_state.schema.yaml` for FR-001/US-1 (JSON Schema for simulation states)
-- [~] T009 Implement `code/verify_citations.py` to validate "GUI Error Taxonomy" sources and dataset URLs (FR-008)
-- [~] T010 Implement `tests/contract/test_schemas.py` to enforce schema validation on all generated data
-- [~] T011 Implement `code/agents/base_agent.py` with abstract methods for inference and step limits
+- [ ] T007 Define and implement `trajectory_log.schema.yaml` for FR-003 (JSON Schema for agent logs)
+- [ ] T008 Define and implement `simulator_state.schema.yaml` for FR-001/US-1 (JSON Schema for simulation states)
+- [X] T009 Implement `code/verify_citations.py` to validate "GUI Error Taxonomy" sources and dataset URLs (FR-008)
+- [X] T010 Implement `tests/contract/test_schemas.py` to enforce schema validation on all generated data
+- [X] T011 Implement `code/agents/base_agent.py` with abstract methods for inference and step limits
 - [ ] T019.5 [P] [US1] Generate "standard linear trajectories" dataset (positive control) required for Baseline and Linear Proxy agent training; output to `data/benchmarks/linear_trajectories.json` (FR-001)
 - [ ] T019.6 [P] [US1] Generate "error-recovery training data" dataset required for Hybrid agent training; output to `data/benchmarks/error_recovery_trajectories.json` (FR-001)
 
@@ -66,12 +66,12 @@
 
 - [~] T014.4 [US1] Download and stage the "GUI Error Taxonomy v1.0 " file from the verified source (T009) to `data/config/gui_error_taxonomy.yaml` (PREREQ for T014.5) <!-- FAILED: unspecified -->
 - [~] T014.5 [US1] Implement `code/generators/taxonomy_loader.py` to parse `data/config/gui_error_taxonomy.yaml` into rule objects (FR-008) <!-- ATOMIZE: requested -->
-- [~] T014.5.2 [US1] [P] Unit test: Implement `tests/unit/test_taxonomy_loader.py` to verify parsing of specific error rules from the staged taxonomy file <!-- FAILED: unspecified -->
+- [ ] T014.5.2 [US1] [P] Unit test: Implement `tests/unit/test_taxonomy_loader.py` to verify parsing of specific error rules from the staged taxonomy file <!-- FAILED: unspecified -->
 - [~] T014.5.1 [US1] Implement `code/generators/taxonomy_validator.py` to **implement validation logic that maps generated tasks to taxonomy rules** and produce `data/results/taxonomy_validation_report.json` proving external validity (FR-008); verify mapping logic in tests. <!-- ATOMIZE: requested -->
-- [~] T014 [US1] Implement `code/generators/benchmark_generator.py` to generate 500 tasks using the rule-based simulator, applying `task.type` field to mark "linear" vs "non-linear" (FR-001, FR-008)
+- [X] T014 [US1] Implement `code/generators/benchmark_generator.py` to generate 500 tasks using the rule-based simulator, applying `task.type` field to mark "linear" vs "non-linear" (FR-001, FR-008)
 - [ ] T014.6.1 [US1] Implement `code/generators/data_separator.py` to implement the hold-out set logic: consume `data/benchmarks/linear_trajectories.json` (T019.5) and `data/benchmarks/error_recovery_trajectories.json` (T019.6), ensure benchmark error patterns are disjoint from Hybrid training data, and output `data/benchmarks/holdout_set.json` (FR-001)
 - [ ] T014.6.2 [US1] **Implement disjoint error pattern logic** in `code/generators/data_separator.py` to explicitly **exclude error patterns found in the Hybrid training set** from the benchmark generation, satisfying the disjoint constraint in FR-001.
-- [~] T015 [US1] Implement `code/evaluation/simulator.py` (headless browser/HTML/JS) to render task states and inject errors (FR-001)
+- [ ] T015 [US1] Implement `code/evaluation/simulator.py` (headless browser/HTML/JS) to render task states and inject errors (FR-001)
 - [ ] T017 [US1] Implement checksum generation for the benchmark dataset to ensure reproducibility (Constitution Principle I)
 
 **Checkpoint**: Benchmark generated and validated; US1 is functional.

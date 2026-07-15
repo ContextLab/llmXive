@@ -59,9 +59,9 @@
 - [ ] T004 Create `Dockerfile` with Python 3.11, CPU-only PyTorch 2.2, scikit-learn 1.5, RDKit; enforce no GPU flags
 - [ ] T005 [P] Implement `code/ingest.py` for manifest validation and data fetching (including supplementary material extraction) referencing `contracts/PaperManifest.json` for schema validation. Extraction logic must rely on defined patterns in the manifest or standard supplementary file naming conventions (e.g., `*_supp.csv`, `*_data.parquet`).
 - [~] T006 [P] Setup `contracts/` directory and generate JSON Schemas for `PaperManifest`, `ReproResult`, `StatSummary`
-- [~] T007 Create `code/metrics.py` with functions for MAE, R², Spearman ρ, and the Deviation Index (S) calculation (FR-009) using the exact formula: `S = 1 – (|ΔMAE|/(|MAE_ref|+ε) + |ΔR2|/(|R2_ref|+ε) + |Δρ|/(|ρ_ref|+ε))/3` where ε = 1e-6. (See spec.md Requirements FR-009)
-- [~] T008 Configure environment logging in `code/main.py` to capture Python version, library versions, OS, and Docker hash (FR-012)
-- [~] T009 Implement `data/manifest.yaml` loader and validator to ensure DOI, repo URL, dataset name, and reported metrics are present (FR-001)
+- [X] T007 Create `code/metrics.py` with functions for MAE, R², Spearman ρ, and the Deviation Index (S) calculation (FR-009) using the exact formula: `S = 1 – (|ΔMAE|/(|MAE_ref|+ε) + |ΔR2|/(|R2_ref|+ε) + |Δρ|/(|ρ_ref|+ε))/3` where ε = 1e-6. (See spec.md Requirements FR-009)
+- [X] T008 Configure environment logging in `code/main.py` to capture Python version, library versions, OS, and Docker hash (FR-012)
+- [X] T009 Implement `data/manifest.yaml` loader and validator to ensure DOI, repo URL, dataset name, and reported metrics are present (FR-001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,8 +78,8 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation.
 > **Dependency**: These tests require T007 (metrics.py) to be implemented first.
 
-- [~] T010 [P] [US1] Unit test for Deviation Index calculation in `tests/unit/test_metrics.py` (Depends on T007)
-- [~] T011 [P] [US1] Unit test for metric calculation (MAE, R², Spearman) in `tests/unit/test_metrics.py` (Depends on T007)
+- [X] T010 [P] [US1] Unit test for Deviation Index calculation in `tests/unit/test_metrics.py` (Depends on T007)
+- [X] T011 [P] [US1] Unit test for metric calculation (MAE, R², Spearman) in `tests/unit/test_metrics.py` (Depends on T007)
 - [ ] T012 [P] [US1] Integration test for data ingestion and validation in `tests/integration/test_ingest.py`
 
 ### Implementation for User Story 1

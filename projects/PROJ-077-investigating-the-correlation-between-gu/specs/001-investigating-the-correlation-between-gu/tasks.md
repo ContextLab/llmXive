@@ -91,7 +91,7 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 1
 
-- [~] T011 [User Story 1] Implement `code/data_ingestion.py` to load raw microbiome and cognitive data from `data/raw/` and merge by participant ID column `participant_id` (FR-001).
+- [X] T011 [User Story 1] Implement `code/data_ingestion.py` to load raw microbiome and cognitive data from `data/raw/` and merge by participant ID column `participant_id` (FR-001).
 
 - [~] T012 [User Story 1] Implement filtering logic to exclude participants with null alpha diversity, fluid intelligence, or DQS (User Story 1, FR-001). **Dependency**: Must verify T014b (DQS availability check) is passed.
 
@@ -101,7 +101,7 @@ expected alphabetic or numeric character, but found '*'
 
 - [~] T014b [User Story 1] Implement DQS failure handling: If DQS is required (per FR-008) but raw dietary data is missing, raise a fatal error and halt the pipeline. This ensures the 'MUST' in FR-008 is respected by failing explicitly rather than silently skipping.
 
-- [~] T015 [User Story 1] Save cleaned dataset to `data/processed/cleaned_data.csv` with a header containing column definitions.
+- [ ] T015 [User Story 1] Save cleaned dataset to `data/processed/cleaned_data.csv` with a header containing column definitions.
 
 - [~] T016 [User Story 1] Add error handling for missing files and empty datasets (edge case: zero participants).
 
@@ -113,9 +113,9 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Formally document deviations from the Spec that are methodologically required by the Plan.
 
-- [~] T045 [Spec Override] Create `docs/spec_override_FR003.md` documenting the rejection of FR-003 (CLR on Alpha Diversity) as mathematically invalid. Define the corrected requirement: "System MUST compute Shannon Index on **raw** counts."
-- [~] T046 [Spec Override] Create `docs/spec_override_SC001.md` documenting the rejection of SC-001 (CLR-transformed alpha diversity) as the measurement target. Define the corrected target: "System MUST measure correlation of **Raw Shannon Index**."
-- [~] T047 [Spec Override] Create `docs/spec_override_FR007.md` documenting the rejection of FR-007 (Median for Sex) as invalid for categorical data. Define the corrected requirement: "System MUST impute Sex using **Mode**."
+- [X] T045 [Spec Override] Create `docs/spec_override_FR003.md` documenting the rejection of FR-003 (CLR on Alpha Diversity) as mathematically invalid. Define the corrected requirement: "System MUST compute Shannon Index on **raw** counts."
+- [X] T046 [Spec Override] Create `docs/spec_override_SC001.md` documenting the rejection of SC-001 (CLR-transformed alpha diversity) as the measurement target. Define the corrected target: "System MUST measure correlation of **Raw Shannon Index**."
+- [X] T047 [Spec Override] Create `docs/spec_override_FR007.md` documenting the rejection of FR-007 (Median for Sex) as invalid for categorical data. Define the corrected requirement: "System MUST impute Sex using **Mode**."
 
 ---
 
@@ -127,25 +127,25 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [User Story 2] Write failing test stub `test_shannon_calculation_known_values` in `tests/unit/test_diversity.py`. Input: 3-row wide taxa matrix with columns `['SpeciesA', 'SpeciesB', 'SpeciesC']` and values `[[10, 0, 0], [5, 5, 0], [0, 0, 10]]`. Expect output `shannon_index` values `[0.0, 1.0, 0.0]` (or calculated known values).
+- [X] T017 [P] [User Story 2] Write failing test stub `test_shannon_calculation_known_values` in `tests/unit/test_diversity.py`. Input: 3-row wide taxa matrix with columns `['SpeciesA', 'SpeciesB', 'SpeciesC']` and values `[[10, 0, 0], [5, 5, 0], [0, 0, 10]]`. Expect output `shannon_index` values `[0.0, 1.0, 0.0]` (or calculated known values).
 
-- [~] T018 [P] [User Story 2] Write failing test stub `test_clr_transform_sum_logs_zero` in `tests/unit/test_transformation.py`. Input: Taxa matrix with columns `['TaxaA', 'TaxaB', 'TaxaC']` and values `[[10, 10, 10], [20, 20, 20]]`. Expect sum of log-transformed columns to be 0 (within tolerance 1e-6).
+- [X] T018 [P] [User Story 2] Write failing test stub `test_clr_transform_sum_logs_zero` in `tests/unit/test_transformation.py`. Input: Taxa matrix with columns `['TaxaA', 'TaxaB', 'TaxaC']` and values `[[10, 10, 10], [20, 20, 20]]`. Expect sum of log-transformed columns to be 0 (within tolerance 1e-6).
 
-- [~] T019 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`. Generate 20 synthetic rows using `np.random.seed(42)` with a known correlation of 0.8. Expect `p-value < 0.05`.
+- [X] T019 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`. Generate 20 synthetic rows using `np.random.seed(42)` with a known correlation of 0.8. Expect `p-value < 0.05`.
 
 ### Implementation for User Story 2
 
-- [~] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Reference**: This implements the logic defined in Spec Override Task T045 (replacing FR-003). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002).
+- [X] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Reference**: This implements the logic defined in Spec Override Task T045 (replacing FR-003). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002).
 
-- [~] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction).
+- [X] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction).
 
-- [~] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Reference**: This implements the logic defined in Spec Override Task T046 (replacing SC-001). Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected).
+- [X] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Reference**: This implements the logic defined in Spec Override Task T046 (replacing SC-001). Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected).
 
-- [~] T023 [User Story 2] Implement multivariate linear regression in `code/analysis.py` using `statsmodels` with predictors: `shannon_index`, Age, Sex, BMI, DQS (FR-004). **Dependency**: Requires DQS to be present (verified by T014b).
+- [X] T023 [User Story 2] Implement multivariate linear regression in `code/analysis.py` using `statsmodels` with predictors: `shannon_index`, Age, Sex, BMI, DQS (FR-004). **Dependency**: Requires DQS to be present (verified by T014b).
 
-- [~] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking).
+- [X] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking).
 
-- [~] T025b [User Story 2] Implement Residual Normality Validation (e.g., Shapiro-Wilk test) for the Secondary Path (Lasso/OLS) regression results. Save validation report to `data/processed/regression_diagnostics.json` (Plan: Constitution Check).
+- [ ] T025b [User Story 2] Implement Residual Normality Validation (e.g., Shapiro-Wilk test) for the Secondary Path (Lasso/OLS) regression results. Save validation report to `data/processed/regression_diagnostics.json` (Plan: Constitution Check).
 
 - [~] T025 [User Story 2] Implement edge case handling: detect zero variance in fluid intelligence and skip correlation with a warning (Edge Case).
 

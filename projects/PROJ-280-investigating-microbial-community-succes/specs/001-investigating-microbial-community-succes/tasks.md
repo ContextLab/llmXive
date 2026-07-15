@@ -58,9 +58,9 @@
 
 - [ ] T004 [P] Create `data/config/dataset_ids.json` schema validator and sample config file per `contracts/dataset-config.schema.yaml`.
 - [ ] T005 [P] Implement `code/utils.py` with shared helpers: VIF calculation, Benjamini-Hochberg FDR correction, checksum generation, and power analysis stub.
-- [~] T006 [P] Setup logging infrastructure in `code/utils.py` to handle "CRITICAL DATA GAP", "UNDERPOWERED", and "UNDER-DETERMINED" flags.
-- [~] T007 [P] Create base data models for `Sample` and `Taxon` in `code/data_models.py` (matching `contracts/feature-table.schema.yaml`). <!-- FAILED: unspecified -->
-- [~] T008 [P] Implement state tracking mechanism in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml` to track artifact hashes.
+- [X] T006 [P] Setup logging infrastructure in `code/utils.py` to handle "CRITICAL DATA GAP", "UNDERPOWERED", and "UNDER-DETERMINED" flags.
+- [ ] T007 [P] Create base data models for `Sample` and `Taxon` in `code/data_models.py` (matching `contracts/feature-table.schema.yaml`). <!-- FAILED: unspecified -->
+- [ ] T008 [P] Implement state tracking mechanism in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml` to track artifact hashes.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,16 +76,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_config.py`.
-- [~] T010 [P] [US1] Integration test for data retrieval and filtering logic in `tests/integration/test_data_retrieval.py`.
+- [X] T009 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_config.py`.
+- [X] T010 [P] [US1] Integration test for data retrieval and filtering logic in `tests/integration/test_data_retrieval.py`.
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/01_retrieve_data.py` to load `data/config/dataset_ids.json`, validate against verified sources (NCBI SRA/Zenodo), and download pre-processed 16S tables/metadata to `data/raw/`. Include "Data Gap" protocol to halt if no verified dataset found.
-- [~] T012 [US1] Implement `code/02_preprocess.py` to filter `data/raw/` samples for constructed wetlands with N/P removal metrics, logging excluded sample counts.
-- [~] T013 [US1] Implement subsampling logic in `code/02_preprocess.py` to exclude samples with <1,000 reads (conservative minimum) and log the count. This threshold ensures sufficient data remains for the sensitivity analysis in T014. Do not apply the final "medium" depth threshold here; only apply the hard minimum exclusion.
+- [X] T011 [US1] Implement `code/01_retrieve_data.py` to load `data/config/dataset_ids.json`, validate against verified sources (NCBI SRA/Zenodo), and download pre-processed 16S tables/metadata to `data/raw/`. Include "Data Gap" protocol to halt if no verified dataset found.
+- [X] T012 [US1] Implement `code/02_preprocess.py` to filter `data/raw/` samples for constructed wetlands with N/P removal metrics, logging excluded sample counts.
+- [X] T013 [US1] Implement subsampling logic in `code/02_preprocess.py` to exclude samples with <1,000 reads (conservative minimum) and log the count. This threshold ensures sufficient data remains for the sensitivity analysis in T014. Do not apply the final "medium" depth threshold here; only apply the hard minimum exclusion.
 - [~] T014 [US1] Implement FR-015 Sensitivity Analysis in `code/02_preprocess.py`: perform subsampling depth sweep (low, medium, high) by re-subsampling from the filtered data produced in T013. Generate intermediate artifacts (`data/processed/low_depth_results.json`, `data/processed/medium_depth_results.json`, `data/processed/high_depth_results.json`) containing the subsampled feature tables. Aggregate results into `data/processed/sensitivity_sweep_results.json`. This final artifact MUST be a 'robustness verification report' containing a `spearman_rank_correlation` metric (float) comparing alpha diversity rankings across depths. The report must explicitly state if the correlation is > 0.9 (pass) or ≤ 0.9 (fail).
-- [~] T015a [US1] Add validation and error handling for missing metadata fields (N/P rates) in `code/02_preprocess.py`.
+- [X] T015a [US1] Add validation and error handling for missing metadata fields (N/P rates) in `code/02_preprocess.py`.
 - [ ] T015b [US1] Log the specific exclusion count of samples lacking N/P metadata to `data/processed/exclusion_log.json` as required by Edge Cases to ensure transparency.
 - [ ] T016 [US1] Implement checksum recording for `data/processed/` files (including `low_depth_results.json`, `medium_depth_results.json`, `high_depth_results.json`, `sensitivity_sweep_results.json`, and `exclusion_log.json`) in `state/projects/PROJ-280-investigating-microbial-community-succes.yaml`.
 

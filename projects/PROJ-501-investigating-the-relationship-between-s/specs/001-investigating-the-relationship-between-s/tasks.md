@@ -49,7 +49,7 @@
 - [ ] T004 [P] Create `requirements.txt` with pinned versions: `requests`, `pandas`, `numpy`, `scipy`, `astropy`, `matplotlib`, `pyyaml`, `astroquery`, `pytest`, `pingouin`
 - [ ] T005 [P] Create virtual environment and install dependencies from `requirements.txt`
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining the input/output schema specifically for `data/processed/merged_filtered.csv` (star_id, flare_count, radius, mass, semi_major_axis, density, age)
-- [~] T007 [P] Create `contracts/results.schema.yaml` defining the output schema for correlation results (ρ_partial, p-value, sensitivity data structure)
+- [ ] T007 [P] Create `contracts/results.schema.yaml` defining the output schema for correlation results (ρ_partial, p-value, sensitivity data structure)
 - [~] T008 [P] Configure linting (flake8/pylint) and formatting (black) tools
 
 ---
@@ -60,9 +60,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T009 Create `code/config.py` defining physical constants (G, solar units), API base URLs, retry parameters (configurable maximum, backoff 1s), and default thresholds (efficiency η=0.15, K_tide=1.0, f_XUV=0.1, M_ATM_INITIAL_BASELINE=0.01)
-- [~] T010 [P] Create `code/utils.py` with retry logic (exponential backoff), checksumming functions, and structured logging for API provenance (writing to `data/logs/api_log.jsonl`)
-- [~] T010a [P] Define `DEFAULT_M_DWARF_AGE` in `code/config.py` as a representative median age for M-dwarfs based on literature. and add a comment citing the source, ensuring compliance with SC-006
+- [X] T009 Create `code/config.py` defining physical constants (G, solar units), API base URLs, retry parameters (configurable maximum, backoff 1s), and default thresholds (efficiency η=0.15, K_tide=1.0, f_XUV=0.1, M_ATM_INITIAL_BASELINE=0.01)
+- [X] T010 [P] Create `code/utils.py` with retry logic (exponential backoff), checksumming functions, and structured logging for API provenance (writing to `data/logs/api_log.jsonl`)
+- [X] T010a [P] Define `DEFAULT_M_DWARF_AGE` in `code/config.py` as a representative median age for M-dwarfs based on literature. and add a comment citing the source, ensuring compliance with SC-006
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,22 +78,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for API retry logic in `tests/test_utils.py` (mock rate limit responses)
-- [~] T012 [P] [US1] Unit test for data filtering logic in `tests/test_data_ingestion.py` (mock API responses with known M-dwarfs and non-M-dwarfs)
+- [X] T011 [P] [US1] Unit test for API retry logic in `tests/test_utils.py` (mock rate limit responses)
+- [X] T012 [P] [US1] Unit test for data filtering logic in `tests/test_data_ingestion.py` (mock API responses with known M-dwarfs and non-M-dwarfs)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data_ingestion.py` function `fetch_flare_catalog`: Fetch flare events from MAST TESS Stellar Flare Catalog using `astroquery` or `requests` (FR-001)
-- [~] T014 [US1] Implement `code/data_ingestion.py` function `fetch_exoplanet_params`: Fetch exoplanet parameters from NASA Exoplanet Archive (FR-001)
-- [~] T015 [US1] Implement `code/data_ingestion.py` function `merge_datasets`: Join flare counts with planet parameters by `host_star_id`
-- [~] T015a [US1] Implement `code/data_ingestion.py` function `validate_rotation_period`: Explicitly check for the presence of the `Rotation Period` column in the exoplanet dataset; if missing, log a warning and flag records for fallback handling in the physics phase (FR-003 dependency)
-- [~] T016 [US1] Implement `code/data_ingestion.py` function `filter_and_impute`:
+- [X] T013 [US1] Implement `code/data_ingestion.py` function `fetch_flare_catalog`: Fetch flare events from MAST TESS Stellar Flare Catalog using `astroquery` or `requests` (FR-001)
+- [X] T014 [US1] Implement `code/data_ingestion.py` function `fetch_exoplanet_params`: Fetch exoplanet parameters from NASA Exoplanet Archive (FR-001)
+- [X] T015 [US1] Implement `code/data_ingestion.py` function `merge_datasets`: Join flare counts with planet parameters by `host_star_id`
+- [X] T015a [US1] Implement `code/data_ingestion.py` function `validate_rotation_period`: Explicitly check for the presence of the `Rotation Period` column in the exoplanet dataset; if missing, log a warning and flag records for fallback handling in the physics phase (FR-003 dependency)
+- [X] T016 [US1] Implement `code/data_ingestion.py` function `filter_and_impute`:
  - Exclude non-M-dwarf hosts
  - Exclude systems with <10 flare events
  - Exclude records with missing mass, radius, or semi-major axis (FR-002, SC-006)
  - Assign `config.DEFAULT_M_DWARF_AGE` (a representative age for M dwarfs) if `system_age` is missing and log a warning (SC-006)
-- [~] T017 [US1] Save the final filtered dataset to `data/processed/merged_filtered.csv` with checksum generation
-- [~] T018 [US1] Add comprehensive logging of API queries and filtering decisions to `data/logs/api_log.jsonl` (FR-008, VI)
+- [ ] T017 [US1] Save the final filtered dataset to `data/processed/merged_filtered.csv` with checksum generation
+- [X] T018 [US1] Add comprehensive logging of API queries and filtering decisions to `data/logs/api_log.jsonl` (FR-008, VI)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,16 +107,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for `code/physics.py` flux calculation using synthetic inputs (FR-003)
-- [~] T020 [P] [US2] Unit test for `code/physics.py` mass loss calculation against the energy-limited formula (FR-004)
+- [X] T019 [P] [US2] Unit test for `code/physics.py` flux calculation using synthetic inputs (FR-003)
+- [X] T020 [P] [US2] Unit test for `code/physics.py` mass loss calculation against the energy-limited formula (FR-004)
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/physics.py` function `calculate_quiescent_xuv`:
+- [X] T021 [US2] Implement `code/physics.py` function `calculate_quiescent_xuv`:
  - PRIMARY: Calculate $L_X$ using the Wright et al. (2018) relation $L_X/L_{bol} = 10^{-3.5} (P_{rot}/10 \text{ days})^{-2.7}$ (or specific coefficients from the paper) if `Rotation Period` is available.
  - FALLBACK: If `Rotation Period` is missing, use the fixed proxy $L_X = 10^{-4} L_{bol}$ and log a warning.
  - Output must be in erg/s (FR-003).
-- [~] T022 [US2] Implement `code/physics.py` function `calculate_cumulative_flux`: Compute $F_{XUV} = F_{quiescent} + \sum (E_{flare} \times f_{XUV} / (4 \pi a^2))$, where $f_{XUV}$ is a fixed conversion factor. (FR-003)
+- [X] T022 [US2] Implement `code/physics.py` function `calculate_cumulative_flux`: Compute $F_{XUV} = F_{quiescent} + \sum (E_{flare} \times f_{XUV} / (4 \pi a^2))$, where $f_{XUV}$ is a fixed conversion factor. (FR-003)
 - [ ] T023 [US2] Implement `code/physics.py` function `calculate_retention_fraction`:
  - Calculate instantaneous mass loss rate $\dot{M}$ using energy-limited model $\dot{M} = \frac{\epsilon \pi R_p^3 F_{XUV}}{G M_p K_{tide}}$ (FR-004).
  - Integrate $\dot{M}$ over system age (scalar) using the trapezoidal rule (or simple multiplication if rate is assumed constant over age).

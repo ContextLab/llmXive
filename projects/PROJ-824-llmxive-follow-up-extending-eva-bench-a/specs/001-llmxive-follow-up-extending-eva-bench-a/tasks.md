@@ -58,11 +58,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `specs/`
-- [~] T005 [P] Implement `code/config.py` for path configuration, random seeds, and hyperparameters (200ms-2000ms bounds)
+- [X] T005 [P] Implement `code/config.py` for path configuration, random seeds, and hyperparameters (200ms-2000ms bounds)
 - [~] T006 [P] Setup logging infrastructure with file handlers and warning filters for edge cases
-- [~] T007 [P] Implement `code/synthetic/tts_engine.py` (FR-011) as a fallback for missing EVA-Bench audio using Coqui TTS with known characteristics; simultaneously document 'known characteristics' (model version, prosody settings, seed) in `docs/tts_characteristics.md` to satisfy FR-011 reproducibility constraints; Output: `code/synthetic/tts_engine.py` and `docs/tts_characteristics.md`
-- [~] T008 Create `data/checksums.json` schema and initialization script; schema must be `{"files": [{"path": "string", "sha256": "string"}]}`; script must initialize empty `{"files": []}`; Output: `data/checksums.json`
-- [~] T009 Implement `code/main.py` orchestration skeleton with argument parsing for perturbation types [UNRESOLVED-CLAIM: c_6888dec5 — status=not_enough_info]
+- [X] T007 [P] Implement `code/synthetic/tts_engine.py` (FR-011) as a fallback for missing EVA-Bench audio using Coqui TTS with known characteristics; simultaneously document 'known characteristics' (model version, prosody settings, seed) in `docs/tts_characteristics.md` to satisfy FR-011 reproducibility constraints; Output: `code/synthetic/tts_engine.py` and `docs/tts_characteristics.md`
+- [X] T008 Create `data/checksums.json` schema and initialization script; schema must be `{"files": [{"path": "string", "sha256": "string"}]}`; script must initialize empty `{"files": []}`; Output: `data/checksums.json`
+- [X] T009 Implement `code/main.py` orchestration skeleton with argument parsing for perturbation types [UNRESOLVED-CLAIM: c_6888dec5 — status=not_enough_info]
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,17 +76,17 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Define unit test for `LatencyInjector` gap insertion logic in `tests/unit/test_latency.py` (Write code that asserts failure if class missing)
-- [~] T011 [P] [US1] Define unit test for chunked processing memory limits in `tests/unit/test_latency.py`
-- [~] T012 [P] [US1] Define integration test for 800ms fixed delay scenario in `tests/integration/test_latency_pipeline.py`
-- [~] T013 [P] [US1] Define integration test for ±50ms jitter variability in `tests/integration/test_latency_pipeline.py`
+- [X] T010 [P] [US1] Define unit test for `LatencyInjector` gap insertion logic in `tests/unit/test_latency.py` (Write code that asserts failure if class missing)
+- [X] T011 [P] [US1] Define unit test for chunked processing memory limits in `tests/unit/test_latency.py`
+- [X] T012 [P] [US1] Define integration test for 800ms fixed delay scenario in `tests/integration/test_latency_pipeline.py`
+- [X] T013 [P] [US1] Define integration test for ±50ms jitter variability in `tests/integration/test_latency_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/injectors/latency.py`: `LatencyInjector` class with `librosa.stream` for chunked I/O
+- [X] T014 [US1] Implement `code/injectors/latency.py`: `LatencyInjector` class with `librosa.stream` for chunked I/O
 - [~] T015 [US1] Implement turn-boundary detection logic in `code/injectors/latency.py`; Input: `data/processed/turn_boundaries.csv`; Algorithm: If gap overlaps audio > 10ms, shift boundary to nearest silence > 50ms [UNRESOLVED-CLAIM: c_c51f6117 — status=not_enough_info]; Output: Updated turn boundaries <!-- FAILED: unspecified -->
-- [~] T016 [US1] Implement duration validation and truncation logic in `code/injectors/latency.py`; MUST enforce a strict maximum duration limit as defined in Spec Edge Cases.; truncate audio if exceeded, log warning, and record score as `null`; Output: Updated audio files and logs
-- [~] T017 [US1] Create `code/injectors/__init__.py` exports
+- [X] T016 [US1] Implement duration validation and truncation logic in `code/injectors/latency.py`; MUST enforce a strict maximum duration limit as defined in Spec Edge Cases.; truncate audio if exceeded, log warning, and record score as `null`; Output: Updated audio files and logs
+- [X] T017 [US1] Create `code/injectors/__init__.py` exports
 - [ ] T018 [US1] Add deterministic jitter generation using seeded `numpy.random`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

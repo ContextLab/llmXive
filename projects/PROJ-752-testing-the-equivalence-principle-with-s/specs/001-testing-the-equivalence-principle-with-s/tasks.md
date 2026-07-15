@@ -77,19 +77,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
-- [~] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
-- [~] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py`
+- [X] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
+- [X] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
+- [X] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
+- [ ] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
 - [ ] T014.1 [US1] Implement `data/ingestion.py` function `fetch_all_satellites(satellite_ids: list[str]) -> pd.DataFrame` to orchestrate the loop over all relevant satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) and aggregate results into a single DataFrame.
-- [~] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
-- [~] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
-- [~] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
+- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
+- [ ] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
+- [ ] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
 - [~] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
-- [~] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
+- [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,18 +103,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`
-- [~] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py` (TDD-first: depends on interface definition in T024)
-- [~] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py` (TDD-first: depends on interface definition in T024)
+- [X] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`
+- [X] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py` (TDD-first: depends on interface definition in T024)
+- [X] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py` (TDD-first: depends on interface definition in T024)
 
 ### Implementation for User Story 2
 
-- [~] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
-- [~] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
+- [ ] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
+- [ ] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
 - [~] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
 - [~] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
 - [~] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
-- [~] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
+- [ ] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,9 +128,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
-- [~] T030 [P] [US3] Unit test for Bonferroni/Holm-Bonferroni correction logic in `tests/test_validation.py`
-- [~] T031 [P] [US3] Integration test: Verify sensitivity sweep across 3 geopotential models in `tests/test_sensitivity.py`
+- [X] T029 [P] [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
+- [X] T030 [P] [US3] Unit test for Bonferroni/Holm-Bonferroni correction logic in `tests/test_validation.py`
+- [X] T031 [P] [US3] Integration test: Verify sensitivity sweep across 3 geopotential models in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 

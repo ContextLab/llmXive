@@ -76,10 +76,10 @@
 ### Implementation for User Story 1
 
 - [ ] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply 1-40Hz band-pass, 50/60Hz notch, reject channels >3SD variance, and implement participant exclusion logic (drop if >30% channels rejected) (FR-002). **Must run after T007 completes**.
-- [~] T010b [US1] Implement ICA cleaning in `code/02_preprocess_eeg.py` to remove ocular/muscle artifacts (Constitution Principle VI). **Must run after T010 completes and before T012 starts**.
-- [~] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with **[deferred] overlap (2s)** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Must run after T010b completes**.
+- [X] T010b [US1] Implement ICA cleaning in `code/02_preprocess_eeg.py` to remove ocular/muscle artifacts (Constitution Principle VI). **Must run after T010 completes and before T012 starts**.
+- [X] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with **[deferred] overlap (2s)** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Must run after T010b completes**.
 - [~] T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004). **Must run after T010b completes**.
-- [~] T015 [US1] Implement relative power calculation (band/total) for all bands to control for total power confound (FR-010). Consume `data/processed/features_raw.csv` (from T012/T013 merge) and produce `data/processed/features.csv`. **Must run after T012 and T013 complete**.
+- [ ] T015 [US1] Implement relative power calculation (band/total) for all bands to control for total power confound (FR-010). Consume `data/processed/features_raw.csv` (from T012/T013 merge) and produce `data/processed/features.csv`. **Must run after T012 and T013 complete**.
 - [~] T016 [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range). **Must run after T015 completes**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

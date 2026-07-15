@@ -105,8 +105,8 @@
  - Save `models/best_model.json`.
  - Log R², RMSE, MAPE on held-out test set to `artifacts/reports/training_metrics.json`.
 - [ ] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
-- [~] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value calculation, and missing value handling.
-- [~] T015 [US1] Add integration test in `tests/integration/test_pipeline.py` to verify end-to-end execution (T009 -> T010 -> T011 -> T016 -> T012) within 6 hours and <7 GB RAM.
+- [X] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value calculation, and missing value handling.
+- [X] T015 [US1] Add integration test in `tests/integration/test_pipeline.py` to verify end-to-end execution (T009 -> T010 -> T011 -> T016 -> T012) within 6 hours and <7 GB RAM.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,15 +120,15 @@
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement `code/validate.py` to:
+- [X] T017 [US2] Implement `code/validate.py` to:
  - Perform k=5 cross-validation on the trained model.
  - Report average R², RMSE, MAPE and **calculate standard deviation of R²** (must be <= 0.05).
  - Execute regression bias test (y_true ~ y_pred) to calculate intercept, slope, and p-values.
  - Apply Bonferroni correction (α_adj = 0.017) for multiple hypothesis tests.
  - Generate `artifacts/reports/validation_report.json`.
-- [~] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013).
-- [~] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction.
-- [~] T020 [US2] Add integration test in `tests/integration/test_validation.py` to verify report generation and metric thresholds.
+- [X] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013).
+- [X] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction.
+- [X] T020 [US2] Add integration test in `tests/integration/test_validation.py` to verify report generation and metric thresholds.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,7 +142,7 @@
 
 ### Implementation for User Story 3
 
-- [~] T021 [P] [US3] Implement `code/interpret.py` to:
+- [X] T021 [P] [US3] Implement `code/interpret.py` to:
  - Generate SHAP summary plot and ranked feature-importance list.
  - Perform sensitivity analysis sweeping R² threshold across a range of moderate-to-high values.
  - **Define Pass**: Model R² > threshold.
@@ -151,9 +151,9 @@
  - **Generate** `threshold-variation-table.csv` artifact showing Pass Rate vs. Threshold.
  - **Include** a one-line justification for the R² ≥ 0.7 threshold referencing the configuration file or documentation source that cites community-standard model performance benchmarks for materials property prediction.
  - Save plots to `artifacts/figures/` and reports to `artifacts/reports/`.
-- [~] T022 [US3] Add logic to `code/interpret.py` to reference a configuration file or documentation for the R² ≥ 0.7 threshold justification.
-- [~] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction.
-- [~] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
+- [X] T022 [US3] Add logic to `code/interpret.py` to reference a configuration file or documentation for the R² ≥ 0.7 threshold justification.
+- [X] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction.
+- [X] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,8 +165,8 @@
 
 - [~] T025a [P] Documentation updates: Write API usage and data schema sections in `README.md` and `docs/`.
 - [~] T025b [P] Documentation updates: Write Installation and Environment setup sections in `README.md`.
-- [~] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
-- [~] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
+- [X] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
+- [X] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
 - [~] T027 Performance optimization: ensure all heavy loops use vectorized numpy/pandas operations to stay within 6h runtime.
 - [~] T028 [P] Run `quickstart.md` validation.
 - [~] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.

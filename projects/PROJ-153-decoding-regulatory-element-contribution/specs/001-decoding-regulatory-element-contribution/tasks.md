@@ -58,13 +58,13 @@
 
 - [ ] T005 Implement `code/01_download_data.sh` to fetch raw FASTQ from GEO/SRA using `manifest.yaml` and verify MD5 checksums (FR-001)
 - [ ] T006 Implement `code/02_preprocess_chipseq.sh` for adapter trimming (`fastp`) and alignment (`bowtie2`, ≤2 threads, MAPQ ≥ 30) (FR-002)
-- [~] T007 [P] Implement `code/03_call_peaks.sh` to run MACS with FDR sweep (0.01, 0.05, 0.10) and output peak counts per threshold; **do not** calculate top-20 CRE overlap here (FR-003)
-- [~] T008 Implement `code/04_merge_annotate.sh` to merge peaks across TFs/conditions and annotate promoter (≤500bp) vs distal (>500bp), storing result in `CRE_merged.bed` (FR-004)
-- [~] T042 [P] Implement `code/04b_load_hic.sh` to download and process the Hi-C contact matrix (e.g., `.cool` format) from the Yeast 3D Genome Atlas (GSE12345) and output a query-ready matrix for FR-014 validation (FR-014) <!-- FAILED: unspecified -->
-- [~] T009a Implement `code/06a_define_null_regions.sh` to define distal null regions (>10kb from genes) and output `null_regions.bed`
-- [~] T009b Implement `code/06b_compute_null_signal.sh` to compute signal in null regions using `null_regions.bed` and output `null_region_signal.bed`
-- [~] T019 [P] Add error handling in `code/01_download_data.sh` to abort if required ChIP-seq runs are missing (Edge Case) and to handle eQTL column validation (FR-011): fatal error if entire stress column missing, warning if individual genes missing
-- [~] T010 [P] Create unit tests for data validation logic in `tests/unit/test_manifest_validation.py`
+- [X] T007 [P] Implement `code/03_call_peaks.sh` to run MACS with FDR sweep (0.01, 0.05, 0.10) and output peak counts per threshold; **do not** calculate top-20 CRE overlap here (FR-003)
+- [X] T008 Implement `code/04_merge_annotate.sh` to merge peaks across TFs/conditions and annotate promoter (≤500bp) vs distal (>500bp), storing result in `CRE_merged.bed` (FR-004)
+- [ ] T042 [P] Implement `code/04b_load_hic.sh` to download and process the Hi-C contact matrix (e.g., `.cool` format) from the Yeast 3D Genome Atlas (GSE12345) and output a query-ready matrix for FR-014 validation (FR-014) <!-- FAILED: unspecified -->
+- [X] T009a Implement `code/06a_define_null_regions.sh` to define distal null regions (>10kb from genes) and output `null_regions.bed`
+- [X] T009b Implement `code/06b_compute_null_signal.sh` to compute signal in null regions using `null_regions.bed` and output `null_region_signal.bed`
+- [X] T019 [P] Add error handling in `code/01_download_data.sh` to abort if required ChIP-seq runs are missing (Edge Case) and to handle eQTL column validation (FR-011): fatal error if entire stress column missing, warning if individual genes missing
+- [X] T010 [P] Create unit tests for data validation logic in `tests/unit/test_manifest_validation.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,7 +78,7 @@
 
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
-- [~] T011 [P] [US1] Contract test for output schema in `tests/contract/test_cre_schema.py`
+- [X] T011 [P] [US1] Contract test for output schema in `tests/contract/test_cre_schema.py`
 - [ ] T012 [P] [US1] Integration test for pipeline end-to-end on mock data in `tests/integration/test_pipeline_us1.py`
 
 ### Implementation for User Story 1

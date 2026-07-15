@@ -80,15 +80,15 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST (TDD Red), ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test: Add function `test_schema_validation()` in `code/tests/test_ingestion.py` that asserts the ingestion script raises a `ValueError` if `data/consent/` is missing (for real data) or if required columns are absent in the dataset. **Context**: This is a TDD Red task; the script does not exist yet.
-- [~] T011 [P] [US1] Integration test: Add function `test_weekly_aggregation()` in `code/tests/test_aggregation.py` that asserts the aggregation script correctly generates `week_number` and `weekly_adherence_flag` columns from raw daily logs. **Context**: This is a TDD Red task; the script does not exist yet.
+- [X] T010 [P] [US1] Contract test: Add function `test_schema_validation()` in `code/tests/test_ingestion.py` that asserts the ingestion script raises a `ValueError` if `data/consent/` is missing (for real data) or if required columns are absent in the dataset. **Context**: This is a TDD Red task; the script does not exist yet.
+- [X] T011 [P] [US1] Integration test: Add function `test_weekly_aggregation()` in `code/tests/test_aggregation.py` that asserts the aggregation script correctly generates `week_number` and `weekly_adherence_flag` columns from raw daily logs. **Context**: This is a TDD Red task; the script does not exist yet.
 
 ### Implementation for User Story 1
 
-- [~] T012b [P] [US1] Implement `calculate_cronbach_alpha()` function in `code/data/validation.py`: Calculate Cronbach's α for personality scales using `pingouin`. Handle missing items by excluding them from the calculation and logging the exclusion count (FR-011). **Dependency**: Requires data from T013b.
+- [X] T012b [P] [US1] Implement `calculate_cronbach_alpha()` function in `code/data/validation.py`: Calculate Cronbach's α for personality scales using `pingouin`. Handle missing items by excluding them from the calculation and logging the exclusion count (FR-011). **Dependency**: Requires data from T013b.
 - [~] T013b [US1] Implement `code/data/ingestion.py`: If `data/raw/habitica_data.csv` exists, load it and validate `gamified_app_usage` tags (FR-001a). Otherwise, execute `code/data/synthetic_generator.py` (T013a) with seed=42. Validate `gamified_app_usage` tags per FR-001a. Ensure non-gamified group size ≥ 30 (FR-008) by checking the output of T013a. If total valid records < 100 or non-gamified group < 30, log "Data Insufficiency" or "Group Imbalance" and halt.
-- [~] T014 [US1] Implement `code/data/aggregation.py`: Aggregate daily logs into `week_number` (sequential integers ≥ 1) and `weekly_adherence_flag` (binary 1/0) per user (FR-001b).
-- [~] T017 [US1] Generate merged CSV in `data/processed/merged_data.csv` with all required columns (User_ID, Gamified, Adherence, Personality Scores). **Verification**: Assert file exists and contains expected columns.
+- [X] T014 [US1] Implement `code/data/aggregation.py`: Aggregate daily logs into `week_number` (sequential integers ≥ 1) and `weekly_adherence_flag` (binary 1/0) per user (FR-001b).
+- [ ] T017 [US1] Generate merged CSV in `data/processed/merged_data.csv` with all required columns (User_ID, Gamified, Adherence, Personality Scores). **Verification**: Assert file exists and contains expected columns.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,18 +102,18 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set.
-- [~] T019 [P] [US2] Integration test: Add function `test_survival_event_count()` in `code/tests/test_survival.py` that asserts the survival analysis halts and outputs descriptive stats if dropout events < 10 per group.
+- [X] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set.
+- [X] T019 [P] [US2] Integration test: Add function `test_survival_event_count()` in `code/tests/test_survival.py` that asserts the survival analysis halts and outputs descriptive stats if dropout events < 10 per group.
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement VIF calculation in `code/analysis/modeling.py`: **First**, check if the `need_for_achievement` column exists in the dataset. If it does, calculate VIF for Conscientiousness and Need for Achievement. If VIF > 5, **drop "Need for Achievement"** (keeping Conscientiousness as primary moderator per Edge Cases) and log the removal. If the column does not exist, log the omission and proceed with Conscientiousness only (FR-002).
-- [~] T021b [US2] Implement fallback model logic in `code/analysis/modeling.py`: If both traits are removed or the interaction term is undefined, re-run the model with only Conscientiousness as a fixed effect. **Output**: Log the structural change to `logs/model_fallback.log`. <!-- FAILED: unspecified -->
-- [~] T020 [US2] Implement `code/analysis/modeling.py`: Fit mixed-effects logistic regression (fixed effects: Gamification, Conscientiousness, Interaction; random intercepts: User) (FR-002). **Dependency**: Must run after T021 completes.
+- [X] T021 [US2] Implement VIF calculation in `code/analysis/modeling.py`: **First**, check if the `need_for_achievement` column exists in the dataset. If it does, calculate VIF for Conscientiousness and Need for Achievement. If VIF > 5, **drop "Need for Achievement"** (keeping Conscientiousness as primary moderator per Edge Cases) and log the removal. If the column does not exist, log the omission and proceed with Conscientiousness only (FR-002).
+- [X] T021b [US2] Implement fallback model logic in `code/analysis/modeling.py`: If both traits are removed or the interaction term is undefined, re-run the model with only Conscientiousness as a fixed effect. **Output**: Log the structural change to `logs/model_fallback.log`. <!-- FAILED: unspecified -->
+- [X] T020 [US2] Implement `code/analysis/modeling.py`: Fit mixed-effects logistic regression (fixed effects: Gamification, Conscientiousness, Interaction; random intercepts: User) (FR-002). **Dependency**: Must run after T021 completes.
 - [~] T022 [US2] Implement Benjamini-Hochberg (FDR) correction for multiple comparison tests. **Scope**: Apply correction strictly to the set of interaction terms and secondary personality traits (e.g., Need for Achievement interaction). Main effects (Gamification, Conscientiousness) are reported uncorrected unless they are part of the multiple comparison set defined in FR-007 (FR-007).
-- [~] T023 [US2] Implement Leave-One-User-Out (LOUO) cross-validation in `code/analysis/modeling.py`; report average AUC and variance (US-2 Scenario 3).
-- [~] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
-- [~] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
+- [X] T023 [US2] Implement Leave-One-User-Out (LOUO) cross-validation in `code/analysis/modeling.py`; report average AUC and variance (US-2 Scenario 3).
+- [X] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
+- [X] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,14 +127,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates [deferred] samples and reports a coefficient variance (regardless of value).
-- [~] T028 [P] [US3] Integration test: Add function `test_report_generation()` in `code/tests/test_report.py` that asserts the generated report contains Kaplan-Meier curves, sensitivity analysis tables, and the associational disclaimer.
+- [X] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates [deferred] samples and reports a coefficient variance (regardless of value).
+- [X] T028 [P] [US3] Integration test: Add function `test_report_generation()` in `code/tests/test_report.py` that asserts the generated report contains Kaplan-Meier curves, sensitivity analysis tables, and the associational disclaimer.
 
 ### Implementation for User Story 3
 
-- [~] T029 [P] [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate 95% CI for gamification effect size. **Output**: Report the coefficient variance across samples and the 95% CI. **Note**: Do not fail if variance > 0.01; report the value as part of the exploratory findings (FR-004, SC-004).
-- [~] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds and **calculate/report the stability of the effect size (coefficient variance)** across thresholds (FR-005, SC-005).
-- [~] T030 [US3] Implement `code/reports/generate_report.py`: Generate HTML/PDF report containing usage trajectory plots, Kaplan-Meier survival curves, and sensitivity analysis tables. **Inject a header disclaimer programmatically**: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
+- [X] T029 [P] [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate 95% CI for gamification effect size. **Output**: Report the coefficient variance across samples and the 95% CI. **Note**: Do not fail if variance > 0.01; report the value as part of the exploratory findings (FR-004, SC-004).
+- [X] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds and **calculate/report the stability of the effect size (coefficient variance)** across thresholds (FR-005, SC-005).
+- [X] T030 [US3] Implement `code/reports/generate_report.py`: Generate HTML/PDF report containing usage trajectory plots, Kaplan-Meier survival curves, and sensitivity analysis tables. **Inject a header disclaimer programmatically**: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
 - [~] T032 [US3] Generate final report artifact `data/reports/final_analysis.html` by executing `code/reports/generate_report.py`. **Verification**: Assert file exists and contains required sections.
 - [~] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
 

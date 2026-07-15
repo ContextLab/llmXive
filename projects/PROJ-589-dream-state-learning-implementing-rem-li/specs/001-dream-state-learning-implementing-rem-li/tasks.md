@@ -60,8 +60,8 @@
 - [X] T005b [P] Implement `code/utils/exceptions.py` defining the custom exception class `DataIntegrityError` for data checksum failures
 - [ ] T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via `datasets` library with SHA-256 checksum verification; MUST abort execution and raise `DataIntegrityError` if checksum mismatch occurs
 - [ ] T007 Create `code/models/__init__.py` and initialize DistilBERT/TinyLlama model loader (CPU-optimized, default precision)
-- [~] T008 Implement `code/utils/logger.py` for structured logging to `data/logs/` and stdout
-- [~] T009 Setup `tests/contract/` schema validation for `training_config.schema.yaml` and `evaluation_result.schema.yaml`
+- [X] T008 Implement `code/utils/logger.py` for structured logging to `data/logs/` and stdout
+- [ ] T009 Setup `tests/contract/` schema validation for `training_config.schema.yaml` and `evaluation_result.schema.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for warm-up logic (no dream phase in the initial steps) in `tests/unit/test_trainer.py`
-- [~] T011 [P] [US1] Unit test for entropy calculation and low-entropy retry logic in `tests/unit/test_trainer.py`
-- [~] T012 [P] [US1] Integration test for a multi-step wake/dream cycle on a tiny dataset in `tests/integration/test_training_loop.py`
+- [X] T010 [P] [US1] Unit test for warm-up logic (no dream phase in the initial steps) in `tests/unit/test_trainer.py`
+- [X] T011 [P] [US1] Unit test for entropy calculation and low-entropy retry logic in `tests/unit/test_trainer.py`
+- [X] T012 [P] [US1] Integration test for a multi-step wake/dream cycle on a tiny dataset in `tests/integration/test_training_loop.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/augment.py` for DAE masking logic (random token masking consistent with BERT, A moderate mask rate)
-- [~] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard CE on real data)
-- [~] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs, reconstruct original tokens (DAE loss), enforce 4: ratio via a `DreamScheduler` class (step counter modulo check)
-- [~] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before an initial stabilization period.
-- [~] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits, calculated as sum(-p*log2(p))), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
+- [X] T013 [US1] Implement `code/data/augment.py` for DAE masking logic (random token masking consistent with BERT, A moderate mask rate)
+- [X] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard CE on real data)
+- [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs, reconstruct original tokens (DAE loss), enforce 4: ratio via a `DreamScheduler` class (step counter modulo check)
+- [X] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before an initial stabilization period.
+- [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits, calculated as sum(-p*log2(p))), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
 - [~] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
 - [~] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status
 
@@ -103,8 +103,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for statistical significance calculation (Wilcoxon signed-rank test) in `tests/unit/test_metrics.py`
-- [~] T021 [P] [US2] Integration test comparing two dummy models in `tests/integration/test_evaluation.py`
+- [X] T020 [P] [US2] Unit test for statistical significance calculation (Wilcoxon signed-rank test) in `tests/unit/test_metrics.py`
+- [X] T021 [P] [US2] Integration test comparing two dummy models in `tests/integration/test_evaluation.py`
 
 ### Implementation for User Story 2
 

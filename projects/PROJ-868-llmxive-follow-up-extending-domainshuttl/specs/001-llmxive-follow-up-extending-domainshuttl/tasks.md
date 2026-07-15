@@ -58,8 +58,8 @@
 - [ ] T004 [P] Setup base configuration management in `src/config/settings.py` (paths, seeds, hyperparameters)
 - [ ] T004b [P] Define and validate the 'fidelity_threshold' configuration key in `src/config/settings.py` with a documented default fallback mechanism; raise `ValueError` if missing or invalid
 - [ ] T005 [P] Implement data I/O utilities in `src/utils/io.py` (checksumming, path handling, JSON/CSV serialization)
-- [~] T006 [P] Create base entity schemas in `specs/001-gene-regulation/contracts/` (`subject.schema.yaml`, `compressed_vector.schema.yaml`, `fidelity_result.schema.yaml`)
-- [~] T007 Setup logging infrastructure in `src/utils/logging.py` with structured output for pipeline stages
+- [ ] T006 [P] Create base entity schemas in `specs/001-gene-regulation/contracts/` (`subject.schema.yaml`, `compressed_vector.schema.yaml`, `fidelity_result.schema.yaml`)
+- [X] T007 Setup logging infrastructure in `src/utils/logging.py` with structured output for pipeline stages
 - [~] T008 Implement error handling wrapper for data loading and model inference to enforce "FAIL LOUDLY" policy (no synthetic fallbacks)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,8 +74,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement WebVid-10M data loader in `src/data/loaders.py` to fetch exactly 100 diverse subjects via `datasets.load_dataset` using stratified random sampling by the 'category' column (uniform distribution across top 10 categories) with seed=42, with no synthetic fallback <!-- FAILED: unspecified -->
-- [~] T010 [US1] Implement visual complexity scoring in `src/data/complexity.py` using Sobel edge density: calculate mean magnitude of Sobel gradient (kernel size) across 5 equidistant frames per subject, with L2 normalization, to calculate a score for each subject's reference image
+- [ ] T009 [US1] Implement WebVid-10M data loader in `src/data/loaders.py` to fetch exactly 100 diverse subjects via `datasets.load_dataset` using stratified random sampling by the 'category' column (uniform distribution across top 10 categories) with seed=42, with no synthetic fallback <!-- FAILED: unspecified -->
+- [X] T010 [US1] Implement visual complexity scoring in `src/data/complexity.py` using Sobel edge density: calculate mean magnitude of Sobel gradient (kernel size) across 5 equidistant frames per subject, with L2 normalization, to calculate a score for each subject's reference image
 - [ ] T011 [US1] Implement DomainShuttle encoder wrapper in `src/data/embeddings.py` to load frozen weights and extract high-dimensional embeddings for all 100 subjects
 - [ ] T012 [US1] Create pipeline script in `src/cli.py` to orchestrate: Load -> Complexity -> Embed -> Save (outputs to `data/processed/embeddings/` and `data/processed/complexity_scores.csv`)
 - [ ] T013 [US1] Add validation logic to ensure a sufficient number of unique IDs are processed and saved, logging any failures to `data/processed/failed_subjects.log`

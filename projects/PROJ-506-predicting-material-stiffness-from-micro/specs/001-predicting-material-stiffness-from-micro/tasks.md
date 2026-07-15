@@ -83,8 +83,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T009 Implement core FFT-based homogenization solver in `code/utils/fft_homogenization.py` (CPU-optimized, no CUDA). Note: Constitution Principle VI has been amended to permit this method (T002).
-- [~] T010 [P] Implement utility metrics functions (`MAE`, `MSE`, `R2`) in `code/utils/metrics.py`
-- [~] T011 Setup k-fold cross-validation utilities in `code/training/kfold_utils.py`
+- [X] T010 [P] Implement utility metrics functions (`MAE`, `MSE`, `R2`) in `code/utils/metrics.py`
+- [X] T011 Setup k-fold cross-validation utilities in `code/training/kfold_utils.py`
 - [ ] T012 Create data schema validation contracts in `specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml`. File format: YAML. Required fields: `image_path: string`, `stiffness_tensor: float[]`, `inclusion_density: float`, `seed: integer`.
 - [ ] T013 Create model output schema contracts in `specs/001-predict-stiffness-cnn/contracts/model-output.schema.yaml`. File format: YAML. Required fields: `model_version: string`, `prediction: float[]`, `error: float`, `density_bin: string`.
 

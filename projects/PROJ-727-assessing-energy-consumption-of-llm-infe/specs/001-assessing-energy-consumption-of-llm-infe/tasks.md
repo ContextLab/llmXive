@@ -77,9 +77,9 @@
 
 - [ ] T013 [US1] Implement `code/inference.py`: Load models sequentially (GPT2 -> CodeBERT -> StarCoder-1B) with explicit unload logic to free RAM; run `codecarbon` context; generate completions (temp=0.0); write results to `data/processed/energy_results_raw.csv` with schema: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`, `pass_fail_status` (FR-002, FR-003, FR-009). T013 is the exclusive producer of this raw file.
 - [ ] T014 [US1] Implement `code/evaluation.py`: Evaluate generated completions against HumanEval test suite, record `pass_fail_status` (0/1), handle timeouts/OOMs gracefully (FR-004)
-- [~] T015 [US1] Implement logic in `code/inference.py` to handle edge cases: record `null` energy if calibration fails, record `null` tokens if 0 tokens generated (FR-009)
+- [X] T015 [US1] Implement logic in `code/inference.py` to handle edge cases: record `null` energy if calibration fails, record `null` tokens if 0 tokens generated (FR-009)
 - [~] T016 [US1] Implement data aggregation in `code/main.py` to read `energy_results_raw.csv`, filter out rows where `energy_kwh` is `null` or `tokens_generated` is 0 (FR-011), and write the clean dataset to `data/processed/energy_results_aggregated.csv` with columns: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`, `pass_fail_status`.
-- [~] T017 [US1] Add logging for energy metrics and model unload events in `code/inference.py`
+- [X] T017 [US1] Add logging for energy metrics and model unload events in `code/inference.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (raw data generated)
 
@@ -93,12 +93,12 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement Repeated-Measures ANOVA with `problem_id` as blocking factor in `code/analysis.py` using data from `energy_results_aggregated.csv` (FR-005)
-- [~] T022 [US2] Implement post-hoc Tukey HSD test in `code/analysis.py` (FR-005)
-- [~] T023 [US2] Implement descriptive linear regression (Parameter Count vs. Energy/Token) in `code/analysis.py`, explicitly framing as observational (FR-005, FR-008)
+- [X] T021 [US2] Implement Repeated-Measures ANOVA with `problem_id` as blocking factor in `code/analysis.py` using data from `energy_results_aggregated.csv` (FR-005)
+- [X] T022 [US2] Implement post-hoc Tukey HSD test in `code/analysis.py` (FR-005)
+- [X] T023 [US2] Implement descriptive linear regression (Parameter Count vs. Energy/Token) in `code/analysis.py`, explicitly framing as observational (FR-005, FR-008)
 - [~] T024a [US2] Implement sensitivity analysis: create a perturbed dataset copy with ±10% energy value perturbation, re-run ANOVA on this perturbed dataset, and calculate the delta p-values (FR-012).
-- [~] T024b [US2] Write the sensitivity comparison results (original p-value vs. perturbed p-value, delta, robustness flag) to `data/processed/sensitivity_delta.csv` (FR-012).
-- [~] T025 [US2] Write `data/processed/stats_report.csv` containing ANOVA table, Tukey results, regression coefficients, and sensitivity findings with defined column headers (FR-005, FR-012)
+- [ ] T024b [US2] Write the sensitivity comparison results (original p-value vs. perturbed p-value, delta, robustness flag) to `data/processed/sensitivity_delta.csv` (FR-012).
+- [ ] T025 [US2] Write `data/processed/stats_report.csv` containing ANOVA table, Tukey results, regression coefficients, and sensitivity findings with defined column headers (FR-005, FR-012)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (raw data + stats)
 
@@ -116,7 +116,7 @@
 - [~] T028 [US3] Generate Bar Plot: Y=Energy per Token (Joules), X=Model ID, include error bars if applicable (FR-006, US-3-1)
 - [~] T029 [US3] Generate Scatter Plot: Y=Energy per Correct Solution, X=Pass@1 Accuracy, distinct markers per model (FR-006, US-3-2)
 - [~] T030 [US3] Ensure all plots include title, axis labels with units, and legend; save as `data/processed/` (e.g., `energy_bar.png`, `tradeoff_scatter.png`) (FR-006, US-3-3)
-- [~] T030b [US3] Calculate and record the slope of the curve connecting the models on the scatter plot in `data/processed/scatter_slope.txt` to satisfy SC-004 (FR-006, SC-004)
+- [ ] T030b [US3] Calculate and record the slope of the curve connecting the models on the scatter plot in `data/processed/scatter_slope.txt` to satisfy SC-004 (FR-006, SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,7 +127,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T031 [P] Documentation updates: Update `quickstart.md` with run instructions and expected artifacts
-- [~] T032 Code cleanup and refactoring of `code/main.py` orchestrator
+- [X] T032 Code cleanup and refactoring of `code/main.py` orchestrator
 - [~] T033 Verify `run.sh` completes full pipeline (Inference + Stats + Plots) within 6 hours on free-tier runner
 - [~] T034 [P] Final validation: Run `run.sh` on clean GitHub Actions runner to ensure all artifacts are generated and non-null where required <!-- ATOMIZE: requested -->
 

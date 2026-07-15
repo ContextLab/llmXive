@@ -82,9 +82,9 @@
 - [ ] T011 [P] [US1] Unit test for SART scoring logic against OSF reference (v+) in `tests/unit/test_sart_scoring.py` (runs against data from T017)
 - [ ] T012 [P] [US1] Unit test for Ospan scoring logic against OSF reference (v+) in `tests/unit/test_ospan_scoring.py` (runs against data from T017)
 - [ ] T013 [P] [US1] Unit test for PSS-10 and PANAS scoring in `tests/unit/test_questionnaire_scoring.py` (runs against data from T017)
-- [~] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_baseline_schema.py`
-- [~] T018 [US1] Implement instrument logic validation script to run synthetic data through scorers and check ranges in `code/validation/validate_instruments.py`
-- [~] T019 [US1] Create baseline data collection pipeline script in `code/pipeline/collect_baseline.py` <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_baseline_schema.py`
+- [X] T018 [US1] Implement instrument logic validation script to run synthetic data through scorers and check ranges in `code/validation/validate_instruments.py`
+- [ ] T019 [US1] Create baseline data collection pipeline script in `code/pipeline/collect_baseline.py` <!-- FAILED: unspecified -->
 - [ ] T019.1 [US1] Implement pre-study pilot check (n=5) with real participants in `code/pipeline/run_pilot.py`; MUST recruit 5 human subjects, run them through the web interface (T014.1), collect real data, and validate task functionality against expected psychometric ranges (FR-009); this task is distinct from synthetic validation and is the required empirical step.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [~] T021 [P] [US2] Contract test for compliance log schema in `tests/contract/test_compliance_schema.py`
-- [~] T022 [P] [US2] Unit test for plausibility validation (0 ≤ minutes ≤ 1440) in `tests/unit/test_compliance_validation.py`
-- [~] T023 [P] [US2] Unit test for compliance rule logic (≤30 min social media, no news) in `tests/unit/test_compliance_rules.py`
+- [X] T021 [P] [US2] Contract test for compliance log schema in `tests/contract/test_compliance_schema.py`
+- [X] T022 [P] [US2] Unit test for plausibility validation (0 ≤ minutes ≤ 1440) in `tests/unit/test_compliance_validation.py`
+- [X] T023 [P] [US2] Unit test for compliance rule logic (≤30 min social media, no news) in `tests/unit/test_compliance_rules.py`
 
 ### Implementation for User Story 2
 
-- [~] T024 [US2] Implement daily log parser in `code/compliance/parse_logs.py`
-- [~] T025 [US2] Implement plausibility validation logic (FR-010) in `code/validation/compliance_plausibility.py`
-- [~] T026 [US2] Implement compliance rule engine (≤30 min, no news, notifications off) in `code/compliance/rules_engine.py`
-- [~] T027 [US2] Create compliance aggregation script to calculate daily/weekly scores in `code/pipeline/aggregate_compliance.py`
+- [X] T024 [US2] Implement daily log parser in `code/compliance/parse_logs.py`
+- [X] T025 [US2] Implement plausibility validation logic (FR-010) in `code/validation/compliance_plausibility.py`
+- [X] T026 [US2] Implement compliance rule engine (≤30 min, no news, notifications off) in `code/compliance/rules_engine.py`
+- [X] T027 [US2] Create compliance aggregation script to calculate daily/weekly scores in `code/pipeline/aggregate_compliance.py`
 - [~] T028 [US2] Implement logic to flag non-compliant days but retain data for analysis (US-2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,19 +123,19 @@
 
 ### Implementation for User Story 3
 
-- [~] T034 [US3] Implement data merger to join baseline and post-intervention records in `code/pipeline/merge_data.py`
-- [~] T035 [US3] Implement change score calculator (post - baseline) in `code/analysis/change_scores.py` (FR-005)
-- [~] T036 [US3] Implement primary bootstrapped CI calculation (10,000 resamples) in `code/analysis/bootstrap_ci.py` (FR-006)
-- [~] T037.1 [US3] Implement convergence failure detection logic in `code/analysis/convergence_detector.py`; MUST detect specific failure modes (empty resamples, singular matrix, max iteration exceedance) to trigger Wilcoxon fallback (FR-006); MUST explicitly return a flag indicating 'convergence_failed' to trigger T037.
-- [~] T037 [US3] Implement fallback Wilcoxon signed-rank test logic in `code/analysis/wilcoxon_fallback.py`; MUST trigger ONLY if T037.1 detects convergence failure (FR-006).
-- [~] T038 [US3] Implement Holm-Bonferroni step-down correction in `code/analysis/holm_bonferroni.py` (FR-008)
-- [~] T039 [US3] Implement Cohen's d with 95% CI calculation in `code/analysis/effect_sizes.py` (FR-007)
+- [X] T034 [US3] Implement data merger to join baseline and post-intervention records in `code/pipeline/merge_data.py`
+- [X] T035 [US3] Implement change score calculator (post - baseline) in `code/analysis/change_scores.py` (FR-005)
+- [X] T036 [US3] Implement primary bootstrapped CI calculation (10,000 resamples) in `code/analysis/bootstrap_ci.py` (FR-006)
+- [ ] T037.1 [US3] Implement convergence failure detection logic in `code/analysis/convergence_detector.py`; MUST detect specific failure modes (empty resamples, singular matrix, max iteration exceedance) to trigger Wilcoxon fallback (FR-006); MUST explicitly return a flag indicating 'convergence_failed' to trigger T037.
+- [X] T037 [US3] Implement fallback Wilcoxon signed-rank test logic in `code/analysis/wilcoxon_fallback.py`; MUST trigger ONLY if T037.1 detects convergence failure (FR-006).
+- [X] T038 [US3] Implement Holm-Bonferroni step-down correction in `code/analysis/holm_bonferroni.py` (FR-008)
+- [X] T039 [US3] Implement Cohen's d with 95% CI calculation in `code/analysis/effect_sizes.py` (FR-007)
 - [~] T020 [US3] Implement Monte Carlo power simulation (1,000 iterations) to estimate power for detecting d=0.5 with Holm-Bonferroni correction in `code/analysis/power_simulation.py`; MUST use synthetic data from T017 and apply Holm-Bonferroni correction to alpha in every iteration to account for reduced alpha; MUST write output to `results/power_analysis.json` (FR-006, US-1).
-- [~] T040 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
-- [~] T029 [US3] Generate sensitivity analysis report in `results/sensitivity_analysis_report.md`; MUST explicitly document self-report limitations or compare against objective data if available (FR-011)
-- [~] T041 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
+- [ ] T040 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
+- [ ] T029 [US3] Generate sensitivity analysis report in `results/sensitivity_analysis_report.md`; MUST explicitly document self-report limitations or compare against objective data if available (FR-011)
+- [X] T041 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
 - [~] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
-- [~] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
+- [ ] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 

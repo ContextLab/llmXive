@@ -40,7 +40,7 @@
 - [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases
 - [X] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
 - [ ] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
-- [~] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
+- [X] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,10 +58,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
+- [X] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
 - [~] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
 - [~] T015 [US1] Add logic to validate output CSV columns and physical ranges (HOMO < LUMO, charge sum)
-- [~] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
+- [ ] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
 - [~] T017 [US1] Add logging for DFTB+ invocation, timing, and resource usage
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -76,7 +76,7 @@
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Contract test for `code/train_models.py` in `tests/test_models.py` (verifies RF training)
+- [X] T018 [P] [US2] Contract test for `code/train_models.py` in `tests/test_models.py` (verifies RF training)
 - [ ] T019 [P] [US2] Integration test for comparative evaluation in `tests/test_evaluation.py`
 
 ### Implementation for User Story 2

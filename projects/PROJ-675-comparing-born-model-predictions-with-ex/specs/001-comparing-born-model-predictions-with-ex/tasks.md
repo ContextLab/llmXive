@@ -45,7 +45,7 @@
 - [ ] T007c [P] Create ResidualAnalysis Pydantic model in code/data_models.py with fields: residual, ion_size_class, solvent_class, statistical_significance, p_value, confidence_interval
 - [ ] T004 [P] Setup data schema contracts in contracts/ as JSON Schema files (IonSolventPair.json, BornPrediction.json, ResidualAnalysis.json); validate via jsonschema library; verify schema matches Pydantic models (T007a-c must complete first)
 - [ ] T005 [P] Implement physical constants module in code/physical_constants.py (fundamental physical constants and units) with NIST/CRC citations to appropriate precision
-- [~] T005c [P] Create data/parameters.csv with physical parameters (e, ε0, ionic radii, dielectric constants) including source citations AND temperature conditions per Constitution Principle VI
+- [X] T005c [P] Create data/parameters.csv with physical parameters (e, ε0, ionic radii, dielectric constants) including source citations AND temperature conditions per Constitution Principle VI
 - [ ] T006 [P] Setup environment configuration management in code/config.py with fields: data_path, code_path, random_seed, log_level in YAML format; verify via config loading test
 - [ ] T008 Configure error handling and logging infrastructure in code/utils/logging.py with JSON log format (timestamp, level, module, message) and error handling patterns (try/except with logging); verify via log output test
 - [ ] T050 [P] Implement Reference-Validator Agent in code/validators/reference_validator.py to validate external citations and enforce title-token-overlap threshold ≥0.7 per Constitution Principle II; verify via test run on sample citations

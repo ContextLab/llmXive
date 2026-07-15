@@ -49,7 +49,7 @@
 - [X] T002a [P] Create `requirements.txt` with pinned versions for pandas, scikit-learn, shap, pyyaml, requests, numpy, matplotlib, statsmodels in `projects/PROJ-277-predicting-oxidation-resistance/code/requirements.txt`
 - [ ] T002b [P] Create `pyproject.toml` or `setup.cfg` for project metadata in `projects/PROJ-277-predicting-oxidation-resistance/`
 - [ ] T003a [P] Configure flake8 and black settings in `projects/PROJ-277-predicting-oxidation-resistance/pyproject.toml`
-- [~] T003b [P] Create pre-commit hook configuration for linting in `projects/PROJ-277-predicting-oxidation-resistance/.pre-commit-config.yaml`
+- [ ] T003b [P] Create pre-commit hook configuration for linting in `projects/PROJ-277-predicting-oxidation-resistance/.pre-commit-config.yaml`
 
 ---
 
@@ -59,12 +59,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 [P] Create base data models (`AlloySample`, `PredictionResult`, `GapAnalysisReport`) in `projects/PROJ-277-predicting-oxidation-resistance/code/models/__init__.py`. **Schema**: `AlloySample` (elemental_composition: dict, thermodynamic_descriptors: dict, microstructural_features: optional dict, observed_weight_gain: float); `PredictionResult` (predicted_weight_gain: float, confidence_interval: tuple, model_type: string, feature_contributions: dict); `GapAnalysisReport` (composition_only_rmse: float, augmented_rmse: float, error_reduction_pct: float, sensitive_samples: list of IDs).
-- [~] T005 [P] Implement configuration management with `--mode` flag (ci/local) and mode-specific constants in `projects/PROJ-277-predicting-oxidation-resistance/code/config.py`
-- [~] T006 [P] Setup logging infrastructure and error codes (including `EXIT_CODE_DATA_VALIDATION_FAILURE`) in `projects/PROJ-277-predicting-oxidation-resistance/code/utils/logger.py`
-- [~] T007 [P] Create CLI entry point `main.py` with argument parsing in `projects/PROJ-277-predicting-oxidation-resistance/code/main.py`
+- [X] T004 [P] Create base data models (`AlloySample`, `PredictionResult`, `GapAnalysisReport`) in `projects/PROJ-277-predicting-oxidation-resistance/code/models/__init__.py`. **Schema**: `AlloySample` (elemental_composition: dict, thermodynamic_descriptors: dict, microstructural_features: optional dict, observed_weight_gain: float); `PredictionResult` (predicted_weight_gain: float, confidence_interval: tuple, model_type: string, feature_contributions: dict); `GapAnalysisReport` (composition_only_rmse: float, augmented_rmse: float, error_reduction_pct: float, sensitive_samples: list of IDs).
+- [X] T005 [P] Implement configuration management with `--mode` flag (ci/local) and mode-specific constants in `projects/PROJ-277-predicting-oxidation-resistance/code/config.py`
+- [X] T006 [P] Setup logging infrastructure and error codes (including `EXIT_CODE_DATA_VALIDATION_FAILURE`) in `projects/PROJ-277-predicting-oxidation-resistance/code/utils/logger.py`
+- [ ] T007 [P] Create CLI entry point `main.py` with argument parsing in `projects/PROJ-277-predicting-oxidation-resistance/code/main.py`
 - [~] T008 [P] Setup directory structure for `data/raw` and `data/processed` in `projects/PROJ-277-predicting-oxidation-resistance/`
-- [~] T017 [P] **CRITICAL**: Implement dataset downsampling logic in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Logic**: If `--mode=ci` and rows > 500, downsample to 500. If `--mode=local` and rows > 1000, downsample to 1000. **Ordering**: This logic MUST execute BEFORE any data processing (T013) or model training (T015) to prevent leakage.
+- [X] T017 [P] **CRITICAL**: Implement dataset downsampling logic in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Logic**: If `--mode=ci` and rows > 500, downsample to 500. If `--mode=local` and rows > 1000, downsample to 1000. **Ordering**: This logic MUST execute BEFORE any data processing (T013) or model training (T015) to prevent leakage.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,15 +80,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for data fetcher validation (schema, checksums) in `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fetcher.py`
-- [~] T041 [P] [US1] Contract test for Synthetic Data Fallback trigger (generation logic, gap report creation) in `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fallback.py`
-- [~] T010 [P] [US1] Integration test for full prediction pipeline on synthetic data AND verification of fallback trigger in `projects/PROJ-277-predicting-oxidation-resistance/tests/integration/test_prediction_pipeline.py`
+- [X] T009 [P] [US1] Contract test for data fetcher validation (schema, checksums) in `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fetcher.py`
+- [X] T041 [P] [US1] Contract test for Synthetic Data Fallback trigger (generation logic, gap report creation) in `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_fallback.py`
+- [X] T010 [P] [US1] Integration test for full prediction pipeline on synthetic data AND verification of fallback trigger in `projects/PROJ-277-predicting-oxidation-resistance/tests/integration/test_prediction_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `fetcher.py` to download data from NIST/Zenodo URLs with checksum validation in `projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py`
-- [~] T012 [US1] Implement `SyntheticDataGenerator` fallback logic for pipeline validation only in `projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py`. **Requirement**: MUST generate and log a formal `logs/data_gap_report.txt` if real data is unavailable.
-- [~] T013 [US1] Implement `processor.py` to calculate thermodynamic descriptors (oxide formation enthalpies) and periodic table features (atomic radius, electronegativity, valence electron count) using CPU-efficient lookup tables in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Dependency**: Requires data from T011/T012 and T017.
+- [X] T011 [US1] Implement `fetcher.py` to download data from NIST/Zenodo URLs with checksum validation in `projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py`
+- [X] T012 [US1] Implement `SyntheticDataGenerator` fallback logic for pipeline validation only in `projects/PROJ-277-predicting-oxidation-resistance/code/data/fetcher.py`. **Requirement**: MUST generate and log a formal `logs/data_gap_report.txt` if real data is unavailable.
+- [X] T013 [US1] Implement `processor.py` to calculate thermodynamic descriptors (oxide formation enthalpies) and periodic table features (atomic radius, electronegativity, valence electron count) using CPU-efficient lookup tables in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Dependency**: Requires data from T011/T012 and T017.
 - [ ] T040 [US1] Implement data validation logic in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Logic**: Halt execution immediately with `EXIT_CODE_DATA_VALIDATION_FAILURE` if *any* required predictor (Ni, Cr, Al, weight gain) is missing. If an unknown element is present: if > 0.5 wt%, flag and exclude; if ≤ 0.5 wt%, impute using periodic table average and attach high uncertainty flag (±20%).
 - [ ] T044 [US1] Implement imputation logic for unknown elements ≤ 0.5 wt% in `projects/PROJ-277-predicting-oxidation-resistance/code/data/processor.py`. **Logic**: Impute value using periodic table average and attach high uncertainty flag (±20%) to the prediction. This task complements T040.
 - [ ] T015 [US1] Implement `trainer.py` with 5x2 Nested Cross-Validation (k=5) for Random Forest, Gradient Boosting, and Gaussian Process models to prevent data leakage in `projects/PROJ-277-predicting-oxidation-resistance/code/models/trainer.py`

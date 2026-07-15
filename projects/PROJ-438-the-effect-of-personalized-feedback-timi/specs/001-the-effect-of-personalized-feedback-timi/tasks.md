@@ -85,11 +85,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from https://analyse.kmi.open.ac.uk/open_dataset and save to `data/raw/` (FR-001)
-- [~] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to filter courses by "assessment" and "forum" events and extract `is_complete` (FR-002)
+- [X] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from https://analyse.kmi.open.ac.uk/open_dataset and save to `data/raw/` (FR-001)
+- [X] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to filter courses by "assessment" and "forum" events and extract `is_complete` (FR-002)
 - [~] T018 [US1] Implement logic to exclude learners with no recorded forum interactions (cannot compute interval) and log the exclusion count (Edge Case)
 - [~] T019 [US1] Implement logic to exclude courses with <50 learners and log the exclusion count (Assumptions)
-- [~] T020 [US1] Generate `data/processed/learners_raw.csv` containing ≥10,000 records with required fields (SC-004)
+- [ ] T020 [US1] Generate `data/processed/learners_raw.csv` containing ≥10,000 records with required fields (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,14 +104,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
-- [~] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
+- [X] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py` to calculate time delta between submission and response in hours (FR-003)
+- [X] T023 [US2] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py` to calculate time delta between submission and response in hours (FR-003)
 - [~] T024 [US2] Implement median calculation per learner to determine their representative feedback interval; **Skip exclusion logic (handled in US1)** (Edge Case)
 - [~] T025 [US2] Implement binning logic to assign "Immediate" (<2h), "Delayed" (2h–48h), or "Variable" (>48h) groups (FR-004)
-- [~] T026 [US2] Generate `data/processed/learners_binned.csv` with interval and group columns (US-2)
+- [ ] T026 [US2] Generate `data/processed/learners_binned.csv` with interval and group columns (US-2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,23 +125,23 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T027 [P] [US3] Unit test for model fitting on synthetic data with known coefficients in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_ols.py`
-- [~] T028 [P] [US3] Unit test for Tukey HSD adjustment logic in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_posthoc.py`
+- [X] T027 [P] [US3] Unit test for model fitting on synthetic data with known coefficients in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_ols.py`
+- [X] T028 [P] [US3] Unit test for Tukey HSD adjustment logic in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_posthoc.py`
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/models.py` to fit Cluster-Robust OLS (clustering by course ID) with feedback group as fixed effect (Plan: Technical Context, Complexity Tracking; FR-005)
+- [X] T029 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/models.py` to fit Cluster-Robust OLS (clustering by course ID) with feedback group as fixed effect (Plan: Technical Context, Complexity Tracking; FR-005)
 - [~] T030 [US3] Implement extraction of Cohen's d effect sizes and p-values for pairwise comparisons (FR-005)
 - [~] T031 [US3] Implement Tukey HSD post-hoc pairwise comparisons to control family-wise error rate (FR-006, SC-002)
-- [~] T032 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/sensitivity.py` to sweep 2h and 48h boundaries by ±0.01h, ±0.05h, ±0.1h and output intermediate data for stability calculation (FR-007)
+- [X] T032 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/sensitivity.py` to sweep 2h and 48h boundaries by ±0.01h, ±0.05h, ±0.1h and output intermediate data for stability calculation (FR-007)
 - [~] T033 [US3] Calculate and report "significance stability" (proportion of shifts where p < 0.05) using output from T032 (FR-007, SC-003)
 - [~] T034 [US3] Calculate and report "significance flip rate" (proportion of shifts where the *conclusion* changes) as required by SC-003 (SC-003)
-- [~] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
-- [~] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
+- [ ] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
+- [ ] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
 - [~] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
 - [~] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
 - [~] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
-- [~] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
+- [ ] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 

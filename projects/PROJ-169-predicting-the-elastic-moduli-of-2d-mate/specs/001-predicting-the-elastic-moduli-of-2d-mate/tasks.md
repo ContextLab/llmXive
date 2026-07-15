@@ -56,12 +56,12 @@
 ### Implementation for User Story 1
 
 - [X] T009 [US1] Implement unified dataset loader in `code/ingest/download.py` that abstracts Materials Project/AFLOW into a single canonical source per run (satisfying Constitution Principle I) and explicitly documents data is from *existing* DFT (not generated here)
-- [~] T010 [US1] Implement CIF parser in `code/ingest/parse_cif.py` (convert to `MaterialGraph` using `pymatgen`, extract node/edge features)
-- [~] T011 [US1] Implement 2D filter and tensor validator in `code/ingest/filter.py` (exclude entries with missing 6-component tensors or non-2D layers)
-- [~] T012 [US1] Implement bias check for excluded entries in `code/ingest/bias_check.py` (log reasons for exclusion, flag small families)
+- [ ] T010 [US1] Implement CIF parser in `code/ingest/parse_cif.py` (convert to `MaterialGraph` using `pymatgen`, extract node/edge features)
+- [X] T011 [US1] Implement 2D filter and tensor validator in `code/ingest/filter.py` (exclude entries with missing 6-component tensors or non-2D layers)
+- [X] T012 [US1] Implement bias check for excluded entries in `code/ingest/bias_check.py` (log reasons for exclusion, flag small families)
 - [~] T013 [US1] Create data pipeline orchestration script in `code/ingest/pipeline.py` (download -> parse -> filter -> save to `data/processed/graphs_v1.parquet`)
-- [~] T014 [US1] Add unit tests for CIF parsing logic in `tests/unit/test_parse_cif.py` (verify disconnected graph handling)
-- [~] T015 [US1] Add unit tests for tensor validation in `tests/unit/test_filter.py` (verify 6-component requirement)
+- [X] T014 [US1] Add unit tests for CIF parsing logic in `tests/unit/test_parse_cif.py` (verify disconnected graph handling)
+- [X] T015 [US1] Add unit tests for tensor validation in `tests/unit/test_filter.py` (verify 6-component requirement)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -75,14 +75,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T016 [P] [US2] Define lightweight GNN architecture in `code/model/gnn.py` (2-3 layers, hidden dim ≤64, CPU-only `torch_geometric`)
-- [~] T017 [US2] Implement stratified splitting logic in `code/model/splitter.py` (split by chemical prototype/space group to ensure family separation)
-- [~] T018 [US2] Implement training loop with early stopping in `code/model/train.py` (patience=3, CPU execution, logging to `data/results/training_logs.json`, explicit warning that model is a *surrogate* for DFT)
-- [~] T019 [US2] Implement evaluation and metrics calculation in `code/model/eval.py` (MAPE, RMSE, R² for Young's, Shear, Poisson)
-- [~] T020 [US2] Implement a k-fold cross-validation runner in `code/model/cv_runner.py`
-- [~] T020a [US2] Implement intra-family baseline metric generation in `code/model/baseline_metrics.py` (compute MAPE/RMSE on random splits within families to establish baseline for SC-002)
+- [X] T016 [P] [US2] Define lightweight GNN architecture in `code/model/gnn.py` (2-3 layers, hidden dim ≤64, CPU-only `torch_geometric`)
+- [X] T017 [US2] Implement stratified splitting logic in `code/model/splitter.py` (split by chemical prototype/space group to ensure family separation)
+- [ ] T018 [US2] Implement training loop with early stopping in `code/model/train.py` (patience=3, CPU execution, logging to `data/results/training_logs.json`, explicit warning that model is a *surrogate* for DFT)
+- [ ] T019 [US2] Implement evaluation and metrics calculation in `code/model/eval.py` (MAPE, RMSE, R² for Young's, Shear, Poisson)
+- [X] T020 [US2] Implement a k-fold cross-validation runner in `code/model/cv_runner.py`
+- [ ] T020a [US2] Implement intra-family baseline metric generation in `code/model/baseline_metrics.py` (compute MAPE/RMSE on random splits within families to establish baseline for SC-002)
 - [~] T021 [US2] Implement inter-family generalization test in `code/model/generalization_test.py` (measure MAPE drop on unseen families vs intra-family baseline; output `data/results/generalization_metrics.json`)
-- [~] T022 [US2] Add integration test for full training pipeline on sample data in `tests/integration/test_pipeline.py`
+- [X] T022 [US2] Add integration test for full training pipeline on sample data in `tests/integration/test_pipeline.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -96,8 +96,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T025 [US3] Implement composition-only baseline model in `code/analysis/ablation.py` (feed-forward network on Magpie descriptors, no topology)
-- [~] T023 [US3] Implement SHAP interaction value calculation in `code/analysis/importance.py` (using `shap` library on GNN inputs, must run after T018/T025)
+- [ ] T025 [US3] Implement composition-only baseline model in `code/analysis/ablation.py` (feed-forward network on Magpie descriptors, no topology)
+- [X] T023 [US3] Implement SHAP interaction value calculation in `code/analysis/importance.py` (using `shap` library on GNN inputs, must run after T018/T025)
 - [ ] T024 [US3] Implement permutation importance calculation in `code/analysis/importance.py` (rank top 5 structural descriptors, must run after T018/T025)
 - [ ] T026 [US3] Implement ablation study runner in `code/analysis/ablation.py` (compare full GNN vs. composition-only, report MAPE delta)
 - [ ] T027 [US3] Generate final analysis report in `code/analysis/report_generator.py` (must synthesize SHAP and permutation into a **single unified ranked list**; output `data/results/feature_importance_report.md` with ablation deltas; frame findings as correlations)

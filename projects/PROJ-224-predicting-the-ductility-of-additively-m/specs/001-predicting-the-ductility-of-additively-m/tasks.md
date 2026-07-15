@@ -133,17 +133,17 @@
  - **Verification**: Re-calculate VIF on the reduced set to confirm max VIF ≤ 5.
  - Log the final set of predictors used.
  - Output the filtered dataset.
-- [~] T024 [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
+- [X] T024 [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
  - Fit model with fixed effects (selected predictors from T023) and random intercept for `alloy_family`.
  - Ensure model uses CPU-only execution.
  - Extract standardized coefficients, 95% CIs, and p-values.
  - **Random Effects**: Extract and store the random intercept estimates for each alloy family.
  - **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
-- [~] T025 [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
+- [X] T025 [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
  - Compute partial R².
  - If partial R² < 0.50, log warning (do not abort).
  - **Likelihood-Ratio Test**: Construct a null intercept-only model and perform a likelihood-ratio test against the full model at α=0.05. Record the test statistic and p-value.
-- [~] T026 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
+- [X] T026 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
  - Repeat LME fit for α ∈ {0.05, 0.10} and other representative significance levels..
  - Report variation in coefficients and partial R².
 - [~] T027 [US2] Save `MixedEffectsResult` artifact (JSON/CSV) with all metrics, convergence status, and random effect estimates.
@@ -160,26 +160,26 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for train/val/test split logic in `code/tests/test_models.py`
-- [~] T029 [P] [US3] Integration test for model training time budget in `code/tests/test_models.py`
+- [X] T028 [P] [US3] Unit test for train/val/test split logic in `code/tests/test_models.py`
+- [X] T029 [P] [US3] Integration test for model training time budget in `code/tests/test_models.py`
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement data splitting in `code/data/preprocessing.py`:
+- [X] T030 [US3] Implement data splitting in `code/data/preprocessing.py`:
  - **Logic**:
  - If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the stratification strategy within a 5-fold cross-validation loop. In each fold, the left-out alloy family serves as the "held-out test set" for that iteration.
  - If N ≥ 100: Use standard stratified train/val/test split by `alloy_family`.
  - Ensure the test set (left-out fold or held-out split) is used only for final evaluation.
  - Output split data artifacts.
-- [~] T031 [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
+- [X] T031 [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
  - Train with `tree_method="hist"` (CPU-optimized).
  - Perform 5-fold **stratified** CV for hyperparameter tuning (max_depth, learning_rate, n_estimators) within a fixed time budget.
  - Save best model to `artifacts/xgboost_model.pkl`.
-- [~] T032 [US3] Implement model evaluation in `code/models/xgboost_model.py`:
+- [X] T032 [US3] Implement model evaluation in `code/models/xgboost_model.py`:
  - Evaluate on held-out test set (or LOAFO aggregated metrics).
  - Record R², MAE, RMSE.
  - If R² < 0.60, log result but do not abort.
-- [~] T033 [US3] Implement feature importance in `code/models/xgboost_model.py`:
+- [X] T033 [US3] Implement feature importance in `code/models/xgboost_model.py`:
  - Compute permutation feature importance.
  - Load `MixedEffectsResult` artifact from T027.
  - **Comparison**: Compare the top 3 features from XGBoost with the top 3 coefficients from the LME model.
@@ -194,7 +194,7 @@
 
 **Purpose**: Final reporting and validation
 
-- [~] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
+- [X] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
  - Include table of standardized coefficients (US2).
  - Include partial dependence plots for top 3 parameters (US3).
  - Include predictive model metrics (R², MAE, RMSE).

@@ -96,10 +96,10 @@
 ### Implementation for User Story 2
 
 - [~] T019 [US2] Implement ILR transformation in `code/data_cleaning.py` using the `compositional` package for Cu, Mg, Si, Zn, Mn atomic fractions (DEPENDS ON T012/T013 completion; operates on `data/processed/filtered_alloys.csv` produced by T016)
-- [~] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
-- [~] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
-- [~] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
-- [~] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
+- [X] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
+- [X] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
+- [X] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
+- [X] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
 - [~] T024 [US2] Implement model serialization in `code/modeling.py` (save trained model to `models/rf_model.pkl`)
 - [~] T025 [US2] Implement results logging in `code/modeling.py` (save ModelMetrics to `docs/outputs/model_metrics.json`)
 
@@ -115,11 +115,11 @@
 
 ### Implementation for User Story 3
 
-- [~] T026 [P] [US3] Implement feature importance extraction from Random Forest in `code/analysis.py`
-- [~] T027a [US3] Implement baseline Permutation Importance on ILR features in `code/analysis.py` (as mandated by plan.md Methodology Step 2)
-- [~] T027b [US3] Implement Perturbation-Based Sensitivity Analysis in `code/analysis.py` to map ILR-importance back to original elemental importance scores. DO NOT back-transform ILR splits (mathematically invalid per plan.md). Instead, perturb raw composition by adding independent Gaussian noise with standard deviation = 1% of the atomic fraction value to each element, re-transform to ILR, predict, and measure loss change to derive importance. <!-- FAILED: unspecified -->
-- [~] T028 [US3] Implement VIF calculation in `code/analysis.py` for raw predictors (Cu, Mg, Si, Zn, Mn). Compute VIF and log values where VIF > 5 as expected diagnostic confirmation of collinearity in raw space (per plan.md Methodology Step 4). Do NOT halt pipeline.
-- [~] T029 [US3] Implement result ranking and comparison logic in `code/analysis.py` (identify top elements, compare magnitudes)
+- [X] T026 [P] [US3] Implement feature importance extraction from Random Forest in `code/analysis.py`
+- [X] T027a [US3] Implement baseline Permutation Importance on ILR features in `code/analysis.py` (as mandated by plan.md Methodology Step 2)
+- [X] T027b [US3] Implement Perturbation-Based Sensitivity Analysis in `code/analysis.py` to map ILR-importance back to original elemental importance scores. DO NOT back-transform ILR splits (mathematically invalid per plan.md). Instead, perturb raw composition by adding independent Gaussian noise with standard deviation = 1% of the atomic fraction value to each element, re-transform to ILR, predict, and measure loss change to derive importance. <!-- FAILED: unspecified -->
+- [X] T028 [US3] Implement VIF calculation in `code/analysis.py` for raw predictors (Cu, Mg, Si, Zn, Mn). Compute VIF and log values where VIF > 5 as expected diagnostic confirmation of collinearity in raw space (per plan.md Methodology Step 4). Do NOT halt pipeline.
+- [X] T029 [US3] Implement result ranking and comparison logic in `code/analysis.py` (identify top elements, compare magnitudes)
 - [~] T030 [US3] Implement final report generation in `code/main.py` (aggregate metrics, VIF, importance, and framing into `docs/outputs/final_report.md`); PROGRAMMATICALLY inject the exact phrase "associational, not causal" into every result statement in the generated reports by modifying the Markdown template before rendering; VERIFY that this phrase exists in all result sections via regex check before finalizing the report (per spec.md SC-005 and FR-008); if verification fails, raise an error to prevent report generation
 
 **Checkpoint**: All user stories should now be independently functional
@@ -130,19 +130,19 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031a [P] Update `docs/quickstart.md` with new CLI flags for extraction and modeling steps
-- [~] T031b [P] Update `docs/data-model.md` with new schema fields for measurement provenance
-- [~] T031c [P] Update `docs/README.md` with updated execution steps and dependencies
+- [X] T031a [P] Update `docs/quickstart.md` with new CLI flags for extraction and modeling steps
+- [X] T031b [P] Update `docs/data-model.md` with new schema fields for measurement provenance
+- [X] T031c [P] Update `docs/README.md` with updated execution steps and dependencies
 - [~] T032a [P] Remove unused imports in `code/` modules
 - [~] T032b [P] Enforce black formatting on all `code/` Python files
-- [~] T032c [P] Simplify nested loops in `code/data_cleaning.py` to maximum depth of 3
-- [~] T033a [P] Optimize data extraction runtime in `code/data_extraction.py` to target < 30s per source
-- [~] T033b [P] Optimize modeling runtime in `code/modeling.py` to target < 10min for full pipeline
+- [X] T032c [P] Simplify nested loops in `code/data_cleaning.py` to maximum depth of 3
+- [X] T033a [P] Optimize data extraction runtime in `code/data_extraction.py` to target < 30s per source
+- [X] T033b [P] Optimize modeling runtime in `code/modeling.py` to target < 10min for full pipeline
 - [~] T033c [P] Reduce memory usage in `code/` to target < 4GB peak
-- [~] T034 [P] Unit tests for data cleaning logic in `tests/unit/test_data_cleaning.py`
-- [~] T035 [P] Unit tests for modeling logic in `tests/unit/test_modeling.py`
-- [~] T036 [P] Contract tests for data schemas in `tests/contract/test_schemas.py`
-- [~] T037 [P] Unit tests for analysis logic in `tests/unit/test_analysis.py`
+- [X] T034 [P] Unit tests for data cleaning logic in `tests/unit/test_data_cleaning.py`
+- [X] T035 [P] Unit tests for modeling logic in `tests/unit/test_modeling.py`
+- [X] T036 [P] Contract tests for data schemas in `tests/contract/test_schemas.py`
+- [X] T037 [P] Unit tests for analysis logic in `tests/unit/test_analysis.py`
 - [~] T045 [P] Run quickstart.md validation
 
 ---

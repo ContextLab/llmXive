@@ -62,10 +62,10 @@
 
 Examples of foundational tasks (adjust based on plan.md):
 
-- [~] T004 [P] Implement `code/utils.py` with checksum (SHA-256) helpers, logging setup, and versioning logic
-- [~] T005 [P] Setup `code/reference_validator.py` to validate citations and enforce title overlap ≥ 0.7
-- [~] T006 [P] Create base configuration management in `code/config.py` (env vars, paths)
-- [~] T007 [P] Setup `contracts/` directory and generate `dataset.schema.yaml` and `output.schema.yaml` based on plan.md entities
+- [X] T004 [P] Implement `code/utils.py` with checksum (SHA-256) helpers, logging setup, and versioning logic
+- [X] T005 [P] Setup `code/reference_validator.py` to validate citations and enforce title overlap ≥ 0.7
+- [X] T006 [P] Create base configuration management in `code/config.py` (env vars, paths)
+- [ ] T007 [P] Setup `contracts/` directory and generate `dataset.schema.yaml` and `output.schema.yaml` based on plan.md entities
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,16 +81,16 @@ Examples of foundational tasks (adjust based on plan.md):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Contract test for schema validation in `tests/contract/test_dataset_schema.py`
-- [~] T009 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py`
+- [X] T008 [P] [US1] Contract test for schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T009 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement `code/ingestion.py` to fetch data from OpenML/HuggingFace or load local files with checksum verification
-- [~] T011 [P] [US1] Implement data validation logic in `code/ingestion.py`: filter `age >= 65`, exclude missing `stimulus_type`, log `ERR_MISSING_AGE_FIELD`
-- [~] T012 [US1] **COMBINED EXCLUSION LOGIC**: Implement logic to handle missing age (check `birth_year` fallback), missing cognitive scores, and invalid records. Exclude records and write a **single consolidated** `data/processed/exclusion_log.json` containing counts for `ERR_MISSING_AGE_FIELD`, `ERR_MISSING_BIRTH_YEAR`, `ERR_MISSING_SCORE`.
+- [X] T010 [P] [US1] Implement `code/ingestion.py` to fetch data from OpenML/HuggingFace or load local files with checksum verification
+- [X] T011 [P] [US1] Implement data validation logic in `code/ingestion.py`: filter `age >= 65`, exclude missing `stimulus_type`, log `ERR_MISSING_AGE_FIELD`
+- [ ] T012 [US1] **COMBINED EXCLUSION LOGIC**: Implement logic to handle missing age (check `birth_year` fallback), missing cognitive scores, and invalid records. Exclude records and write a **single consolidated** `data/processed/exclusion_log.json` containing counts for `ERR_MISSING_AGE_FIELD`, `ERR_MISSING_BIRTH_YEAR`, `ERR_MISSING_SCORE`.
 - [~] T013b [US1] **NEW**: Validate presence of 'MMSE' column in raw dataset; if missing, set `has_mmse=False` flag in config and log warning `ERR_MMSE_MISSING`. If present, set `has_mmse=True`.
-- [~] T014a [US1] Create `data/processed/cleaned_dataset.csv` with columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on T012 (exclusions) and T013b (MMSE flag for downstream filtering logic).**
+- [ ] T014a [US1] Create `data/processed/cleaned_dataset.csv` with columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on T012 (exclusions) and T013b (MMSE flag for downstream filtering logic).**
 - [~] T014b [US1] **NEW**: Calculate and log the percentage of valid records (age ≥ 65, non-null metrics) vs total raw input records in `data/processed/validity_metrics.json` to satisfy SC-001.
 - [~] T015 [US1] **REVISED**: Implement stimulus file integrity check: Fetch canonical checksum from the dataset's `metadata.json` or fallback to GitHub release asset checksum; compare against local file SHA-256; log mismatch as `ERR_STIMULUS_CORRUPT`.
 
@@ -106,16 +106,16 @@ Examples of foundational tasks (adjust based on plan.md):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_analysis_output.py`
-- [~] T017 [P] [US2] Integration test for statistical pipeline with synthetic data in `tests/integration/test_analysis.py`
+- [X] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_analysis_output.py`
+- [X] T017 [P] [US2] Integration test for statistical pipeline with synthetic data in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [~] T018 [P] [US2] Implement `code/analysis.py` statistical functions: **Welch's independent samples t-test (NOT paired)**. **NOTE: This overrides spec FR-002 per Plan.md Critical Design Note. Kickback required for spec amendment.**
+- [X] T018 [P] [US2] Implement `code/analysis.py` statistical functions: **Welch's independent samples t-test (NOT paired)**. **NOTE: This overrides spec FR-002 per Plan.md Critical Design Note. Kickback required for spec amendment.**
 - [~] T019 [US2] Implement multiple-comparison correction (Bonferroni) for `perseverative_errors` and `categories_completed`
 - [~] T020 [US2] Calculate and report Cohen's d with 95% confidence intervals for all primary comparisons
 - [~] T021 [US2] Calculate statistical power and Minimum Detectable Effect Size (MDES) for the observed effect; **Append power and MDES values to `data/results/statistical_report.json`**
-- [~] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
+- [ ] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
 - [~] T023 [US2] Add error handling for cases where variance is zero or sample size is too small
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

@@ -59,11 +59,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/config.py` adhering to JSON Schema contract defined in `contracts/config_schema.json` for paths, seeds, and API keys (no hardcoded secrets)
-- [~] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
+- [ ] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
 - [~] T006 [P] Setup `tests/contract/` framework using `pytest-jsonschema` to validate `config.py` against `contracts/config_schema.json` and output artifacts against `data-model.md`
-- [~] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
+- [ ] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
 - [~] T008 Implement data directory structure with checksumming scripts for `data/raw/` and `data/processed/`
-- [~] T009a Implement Google Earth Engine Service Account authentication setup in `src/data/ingestion.py` using a pre-seeded Service Account JSON key via environment variable `GOOGLE_EARTH_ENGINE_CREDENTIALS` (not interactive auth) to enable API access for CI reproducibility (Constitution Principle I)
+- [X] T009a Implement Google Earth Engine Service Account authentication setup in `src/data/ingestion.py` using a pre-seeded Service Account JSON key via environment variable `GOOGLE_EARTH_ENGINE_CREDENTIALS` (not interactive auth) to enable API access for CI reproducibility (Constitution Principle I)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,14 +77,14 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T037a [P] [US1] Contract test for `src/data/ingestion.py` output schema in `tests/contract/test_dataset_schema.py`
-- [~] T010 [P] [US1] Integration test for data alignment logic in `tests/integration/test_pipeline.py`
+- [X] T037a [P] [US1] Contract test for `src/data/ingestion.py` output schema in `tests/contract/test_dataset_schema.py`
+- [X] T010 [P] [US1] Integration test for data alignment logic in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage for spring (March-May) 2020 and select 10-15 study sites deterministically based on >80% coverage [UNRESOLVED-CLAIM: c_90eee386 — status=not_enough_info] from candidate sites list defined in config.py (FR-001) <!-- FAILED: unspecified -->
-- [~] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
-- [~] T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station lookup and align with satellite timestamps (FR-002)
+- [X] T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage for spring (March-May) 2020 and select 10-15 study sites deterministically based on >80% coverage [UNRESOLVED-CLAIM: c_90eee386 — status=not_enough_info] from candidate sites list defined in config.py (FR-001) <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
+- [X] T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station lookup and align with satellite timestamps (FR-002)
 - [ ] T013 [US1] Implement `src/data/ingestion.py` to fetch ground-truth phenology observations from Nature's Notebook API using radius search to map observations to the selected sites defined in T011a (FR-003)
 - [ ] T020 [US1] Implement `src/data/preprocessing.py` to create Lagged Feature Windows (e.g., Jan-Mar data to predict April event) to prevent data leakage (Plan: Feature Independence)
 - [ ] T021 [US1] Implement `src/data/preprocessing.py` to exclude `gdd_cumulative` from raw inputs to avoid multicollinearity with temperature (Plan: Feature Independence)

@@ -94,25 +94,25 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T016 [P] [US1] Unit test for ASTM D4541 filter logic in `tests/unit/test_ingestion.py`
-- [~] T017 [P] [US1] Unit test for duplicate resolution (most recent date vs sample count) in `tests/unit/test_ingestion.py`
-- [~] T018 [P] [US1] Integration test for full ingestion pipeline on small mock dataset in `tests/integration/test_pipeline.py`
+- [X] T016 [P] [US1] Unit test for ASTM D4541 filter logic in `tests/unit/test_ingestion.py`
+- [X] T017 [P] [US1] Unit test for duplicate resolution (most recent date vs sample count) in `tests/unit/test_ingestion.py`
+- [X] T018 [P] [US1] Integration test for full ingestion pipeline on small mock dataset in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T019 [P] [US1] Implement `code/ingestion.py` to fetch data from Materials Project API with rate-limit handling (FR-001)
-- [~] T020 [P] [US1] Implement `code/ingestion.py` to fetch data from NIST Surface Metrology Repository with error handling for 404/schema changes (FR-001)
-- [~] T021 [P] [US1] Implement `code/ingestion.py` to fetch data from open-access literature sources (FR-001)
-- [~] T022 [US1] Implement `code/ingestion.py` logic to filter records strictly to ASTM D4541 pull-off test results (FR-009)
-- [~] T023 [US1] Implement `code/ingestion.py` logic to **STRICTLY REJECT** any coating-substrate pair that cannot be linked by a **unique, verified identifier**; **do not use heuristic mapping** (Plan Phase 1.3, Constitution Principle VII). **Note: This contradicts Spec FR-007 which mandates heuristic mapping; Spec FR-007 is flagged for external update.** Log count of rejected records.
-- [~] T024 [US1] Implement `code/ingestion.py` logic to exclude records with missing target variables and log counts (US-1, SC-005)
-- [~] T025 [US1] Implement `code/ingestion.py` logic to resolve duplicates (most recent date or highest sample count) (US-1)
-- [~] T026 [US1] Implement `code/ingestion.py` logic to sample dataset to ≤ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)
-- [~] T027 [US1] Implement `code/ingestion.py` logic to exclude records with missing surface roughness data (impute median or exclude) (US-1)
-- [~] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER alignment (T023) and filtering (T022, T024, T027). **HALT** if success rate < 95% OR exclusion ratio ≥ 10% (Plan Phase 1.4/1.5, SC-001, SC-005).
-- [~] T029 [US1] Implement `code/preprocessing.py` to encode compositional data (one-hot, atomic radius variance, crosslinker density proxy) (FR-002)
-- [~] T030 [US1] Implement `code/preprocessing.py` to standardize surface metrics (RMS, skewness, kurtosis) (FR-002)
-- [~] T031 [US1] Implement `code/main.py` orchestration to save unified `coating_adhesion_dataset.csv` to `data/processed/` **only if T028 passes**
+- [X] T019 [P] [US1] Implement `code/ingestion.py` to fetch data from Materials Project API with rate-limit handling (FR-001)
+- [X] T020 [P] [US1] Implement `code/ingestion.py` to fetch data from NIST Surface Metrology Repository with error handling for 404/schema changes (FR-001)
+- [X] T021 [P] [US1] Implement `code/ingestion.py` to fetch data from open-access literature sources (FR-001)
+- [X] T022 [US1] Implement `code/ingestion.py` logic to filter records strictly to ASTM D4541 pull-off test results (FR-009)
+- [X] T023 [US1] Implement `code/ingestion.py` logic to **STRICTLY REJECT** any coating-substrate pair that cannot be linked by a **unique, verified identifier**; **do not use heuristic mapping** (Plan Phase 1.3, Constitution Principle VII). **Note: This contradicts Spec FR-007 which mandates heuristic mapping; Spec FR-007 is flagged for external update.** Log count of rejected records.
+- [X] T024 [US1] Implement `code/ingestion.py` logic to exclude records with missing target variables and log counts (US-1, SC-005)
+- [X] T025 [US1] Implement `code/ingestion.py` logic to resolve duplicates (most recent date or highest sample count) (US-1)
+- [X] T026 [US1] Implement `code/ingestion.py` logic to sample dataset to ≤ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)
+- [X] T027 [US1] Implement `code/ingestion.py` logic to exclude records with missing surface roughness data (impute median or exclude) (US-1)
+- [X] T028 [US1] **Validation Gate**: Implement `code/main.py` logic to **calculate processing success rate and exclusion ratio** AFTER alignment (T023) and filtering (T022, T024, T027). **HALT** if success rate < 95% OR exclusion ratio ≥ 10% (Plan Phase 1.4/1.5, SC-001, SC-005).
+- [X] T029 [US1] Implement `code/preprocessing.py` to encode compositional data (one-hot, atomic radius variance, crosslinker density proxy) (FR-002)
+- [X] T030 [US1] Implement `code/preprocessing.py` to standardize surface metrics (RMS, skewness, kurtosis) (FR-002)
+- [X] T031 [US1] Implement `code/main.py` orchestration to save unified `coating_adhesion_dataset.csv` to `data/processed/` **only if T028 passes**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -126,19 +126,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T032 [P] [US2] Unit test for nested cross-validation loop (no data leakage) in `tests/unit/test_modeling.py`
-- [~] T033 [P] [US2] Unit test for SHAP value calculation and ranking stability in `tests/unit/test_modeling.py`
+- [X] T032 [P] [US2] Unit test for nested cross-validation loop (no data leakage) in `tests/unit/test_modeling.py`
+- [X] T033 [P] [US2] Unit test for SHAP value calculation and ranking stability in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [~] T034 [US2] Implement `code/modeling.py` to train Gradient Boosting Regressor with nested k-fold CV (FR-003)
-- [~] T035 [US2] Implement `code/modeling.py` to train Random Forest Regressor with nested k-fold CV (FR-003)
-- [~] T036 [US2] Implement `code/modeling.py` to compute SHAP values for top features (FR-004)
-- [~] T037 [US2] Implement `code/modeling.py` to compute permutation importance for top features (FR-004)
-- [~] T038 [US2] Implement `code/modeling.py` to rank top features distinguishing compositional vs. surface categories (FR-004)
-- [~] T039 [US2] Implement `code/modeling.py` to calculate Spearman correlation between SHAP and permutation rankings (SC-003)
-- [~] T040 [US2] Implement `code/main.py` to output JSON report with mean R², RMSE, MAE for both models (US-2)
-- [~] T041 [US2] Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy (multiple definitions) and explicitly output a report of the **variance in model performance** across the three definitions (FR-008)
+- [X] T034 [US2] Implement `code/modeling.py` to train Gradient Boosting Regressor with nested k-fold CV (FR-003)
+- [X] T035 [US2] Implement `code/modeling.py` to train Random Forest Regressor with nested k-fold CV (FR-003)
+- [X] T036 [US2] Implement `code/modeling.py` to compute SHAP values for top features (FR-004)
+- [X] T037 [US2] Implement `code/modeling.py` to compute permutation importance for top features (FR-004)
+- [X] T038 [US2] Implement `code/modeling.py` to rank top features distinguishing compositional vs. surface categories (FR-004)
+- [X] T039 [US2] Implement `code/modeling.py` to calculate Spearman correlation between SHAP and permutation rankings (SC-003)
+- [X] T040 [US2] Implement `code/main.py` to output JSON report with mean R², RMSE, MAE for both models (US-2)
+- [X] T041 [US2] Implement `code/modeling.py` sensitivity analysis for 'crosslinker density' proxy (multiple definitions) and explicitly output a report of the **variance in model performance** across the three definitions (FR-008)
 - [~] T042 [US2] **Construct Validity Check**: Re-verify derived proxies (from T015) against the **defined thresholds** (|r| > 0.3, R² > 0.05) before final model training; exclude any invalid proxies (Plan Phase 1.8)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -153,17 +153,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T043 [P] [US3] Unit test for Nadeau & Bengio corrected t-test implementation in `tests/unit/test_evaluation.py` <!-- SKIPPED: non-mapping output -->
-- [~] T044 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_evaluation.py`
+- [X] T043 [P] [US3] Unit test for Nadeau & Bengio corrected t-test implementation in `tests/unit/test_evaluation.py` <!-- SKIPPED: non-mapping output -->
+- [X] T044 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_evaluation.py`
 
 ### Implementation for User Story 3
 
-- [~] T045 [US3] Implement `code/evaluation.py` to train composition-only baseline model (US-3)
-- [~] T046 [US3] Implement `code/evaluation.py` to train surface-only baseline model (US-3)
-- [~] T047 [US3] Implement `code/evaluation.py` to execute Nadeau & Bengio corrected t-test comparing full vs. baselines (FR-005)
-- [~] T048 [US3] Implement `code/evaluation.py` to apply Bonferroni correction to p-values (FR-005)
-- [~] T049 [US3] Implement `code/evaluation.py` to flag "Informative Null" if full model does not outperform baselines (US-3)
-- [~] T050 [US3] Implement `code/main.py` to output final statistical comparison report (US-3)
+- [X] T045 [US3] Implement `code/evaluation.py` to train composition-only baseline model (US-3)
+- [X] T046 [US3] Implement `code/evaluation.py` to train surface-only baseline model (US-3)
+- [X] T047 [US3] Implement `code/evaluation.py` to execute Nadeau & Bengio corrected t-test comparing full vs. baselines (FR-005)
+- [X] T048 [US3] Implement `code/evaluation.py` to apply Bonferroni correction to p-values (FR-005)
+- [X] T049 [US3] Implement `code/evaluation.py` to flag "Informative Null" if full model does not outperform baselines (US-3)
+- [X] T050 [US3] Implement `code/main.py` to output final statistical comparison report (US-3)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -174,7 +174,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T051 [P] Performance optimization: Ensure full pipeline runtime < 4 hours (SC-004) by profiling and optimizing SHAP/CV (Plan Phase 4)
-- [~] T052 [P] Refactor: Remove duplicate logging calls and clean up `code/utils.py` (Addressing executability-4c0ea998)
+- [X] T052 [P] Refactor: Remove duplicate logging calls and clean up `code/utils.py` (Addressing executability-4c0ea998)
 - [~] T053 [P] Documentation updates in `docs/` (including `quickstart.md` and `data-model.md`)
 - [~] T054 [P] Run full pipeline integration test on CI <!-- ATOMIZE: requested -->
 - [~] T055 [P] Security hardening (sanitize API inputs) <!-- ATOMIZE: requested -->

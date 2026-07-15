@@ -79,20 +79,20 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T009 [US1] Write unit test `tests/unit/test_entropy_calc.py` that imports `code/analysis/metrics.py` and asserts the entropy calculation function returns a float.
-- [~] T010 [US1] Write integration test `tests/integration/test_data_generation.py` that invokes the generator script and expects a `SystemExit` due to missing implementation (ensuring fail‑first).
+- [X] T009 [US1] Write unit test `tests/unit/test_entropy_calc.py` that imports `code/analysis/metrics.py` and asserts the entropy calculation function returns a float.
+- [X] T010 [US1] Write integration test `tests/integration/test_data_generation.py` that invokes the generator script and expects a `SystemExit` due to missing implementation (ensuring fail‑first).
 
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement propositional logic problem generator function `generate_propositional_problem()` in `code/generators/logic_generator.py`.
 - [ ] T011‑B [US1] Implement arithmetic problem generator function `generate_arithmetic_problem()` in the same module.
 - [ ] T012 [US1] Add entropy parameterization in `logic_generator.py` to produce High‑Entropy, Low‑Entropy, and Target‑Specific subsets, each receiving [deferred] samples (total N ≥ 3,000) with appropriate metadata flags. <!-- ATOMIZE: requested -->
-- [~] T013 [US1] Implement generation of a distinct Generalization Set (`data/raw/test_set.csv`) with N_test ≥ 500, ensuring each sample’s `structure_hash` (SHA256 of premises + operators) is **not** present in any training subset; also stratify by entropy level.
+- [ ] T013 [US1] Implement generation of a distinct Generalization Set (`data/raw/test_set.csv`) with N_test ≥ 500, ensuring each sample’s `structure_hash` (SHA256 of premises + operators) is **not** present in any training subset; also stratify by entropy level.
 - [~] T014 [US1] Add contradiction detection: before writing a problem, verify solvability (e.g., using a simple SAT check); discard unsolvable problems.
-- [~] T015 [US1] Implement function `compute_entropy_statistics()` in `code/analysis/metrics.py` that calculates per‑sample entropy scores and performs a two‑sample t‑test (high vs low); log mean, std, and p‑value.
+- [X] T015 [US1] Implement function `compute_entropy_statistics()` in `code/analysis/metrics.py` that calculates per‑sample entropy scores and performs a two‑sample t‑test (high vs low); log mean, std, and p‑value.
 - [ ] T015-ENFORCE [US1] Add validation in `metrics.py` that raises `SystemExit(1)` if the t‑test p‑value ≥ 0.05, logging the failure; this enforces the controlled‑entropy requirement without presuming success.
-- [~] T016 [US1] Save generated CSVs to `data/raw/high_entropy.csv`, `data/raw/low_entropy.csv`, `data/raw/target_specific.csv`, and `data/raw/test_set.csv` with columns for all fields defined in `SyntheticProblem`, including `entropy_level` and `structure_hash`.
-- [~] T017 [US1] Generate SHA256 checksums for each CSV and record them in `code/utils/data_hygiene.py`; log checksum values to the logger.
+- [ ] T016 [US1] Save generated CSVs to `data/raw/high_entropy.csv`, `data/raw/low_entropy.csv`, `data/raw/target_specific.csv`, and `data/raw/test_set.csv` with columns for all fields defined in `SyntheticProblem`, including `entropy_level` and `structure_hash`.
+- [X] T017 [US1] Generate SHA256 checksums for each CSV and record them in `code/utils/data_hygiene.py`; log checksum values to the logger.
 - [~] T044 [US1] Add explicit hash‑based distinctness verification in the generator (used by T013) to guarantee that logical structures (premises/operators) of the Generalization Set differ from any training sample, satisfying FR‑008.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,23 +107,23 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [US2] Write unit test `tests/unit/test_loss_function.py` that checks KL‑divergence implementation returns a non‑negative scalar.
-- [~] T019 [US2] Write integration test `tests/integration/test_distillation_cpu.py` that launches a dummy training loop on a tiny dataset and asserts no CUDA devices are detected.
+- [X] T018 [US2] Write unit test `tests/unit/test_loss_function.py` that checks KL‑divergence implementation returns a non‑negative scalar.
+- [ ] T019 [US2] Write integration test `tests/integration/test_distillation_cpu.py` that launches a dummy training loop on a tiny dataset and asserts no CUDA devices are detected.
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Create `code/models/teacher.py` with a lightweight mock LLM class `Teacher` that generates 10‑step CoT traces for a given `SyntheticProblem`. Ensure no GPU‑specific flags are used.
+- [X] T020 [US2] Create `code/models/teacher.py` with a lightweight mock LLM class `Teacher` that generates 10‑step CoT traces for a given `SyntheticProblem`. Ensure no GPU‑specific flags are used.
 - [ ] T020‑AUDIT [US2] Add CI script `ci/check_forbidden_libs.sh` that parses `requirements.txt` and fails if `bitsandbytes`, `accelerate`, or any CUDA‑related packages are present.
-- [~] T021 [US2] Create `code/models/student.py` defining a DistilBERT‑base‑uncased‑like transformer (< 100 M parameters) suitable for CPU inference.
-- [~] T022 [US2] Implement `compute_trace_entropy(problem: SyntheticProblem, trace: List[str]) -> float` in `code/analysis/metrics.py` that measures Shannon entropy of token‑level probabilities from the teacher trace.
+- [X] T021 [US2] Create `code/models/student.py` defining a DistilBERT‑base‑uncased‑like transformer (< 100 M parameters) suitable for CPU inference.
+- [X] T022 [US2] Implement `compute_trace_entropy(problem: SyntheticProblem, trace: List[str]) -> float` in `code/analysis/metrics.py` that measures Shannon entropy of token‑level probabilities from the teacher trace.
 - [ ] T022‑INT [US2] Modify `code/training/distill_loop.py` to call `filter_trace_consistency()` which discards any training example where `abs(trace_entropy - problem_entropy_score) > threshold`; log the number of discarded samples.
 - T045 [US2] Add a pilot run script `code/training/pilot_resource_check.py` that trains the student on a 100‑sample subset, records peak RAM via `ResourceMonitor`, and asserts runtime < 0.5 h; fail fast if limits are exceeded, providing empirical CPU‑tractability verification.
-- [~] T023 [US2] Implement the main distillation loop in `code/training/distill_loop.py` using KL‑divergence loss, no mixed‑precision, early stopping when loss ≤ 0.1, and logging of `convergence_epoch`.
+- [X] T023 [US2] Implement the main distillation loop in `code/training/distill_loop.py` using KL‑divergence loss, no mixed‑precision, early stopping when loss ≤ 0.1, and logging of `convergence_epoch`.
 - [~] T024 [US2] Add early‑stopping logic to the training loop; record the epoch at which the loss threshold is first met.
 - [~] T025 [US2] Integrate `ResourceMonitor` hooks into the training script to enforce the 7 GB RAM ceiling and 6 h wall‑clock limit, exiting with a specific error code on breach.
 - [~] T026 [US2] Execute three independent distillation runs (High, Low, Target) by invoking `distill_loop.py` with the appropriate dataset path; store each run’s log as a `DistillationRun` JSON in `data/processed/`.
 - [~] T027 [US2] Ensure non‑convergent runs are logged with `"status": "failed_non_converge"` and assign `convergence_epoch` = `max_epochs + 1` for downstream statistical handling.
-- [~] T042 [US2] After all three runs, generate a validation report `data/processed/trace_consistency_report.json` summarizing total samples, number filtered per entropy subset, and overall pass/fail status for FR‑009.
+- [ ] T042 [US2] After all three runs, generate a validation report `data/processed/trace_consistency_report.json` summarizing total samples, number filtered per entropy subset, and overall pass/fail status for FR‑009.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,13 +137,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [US3] Write unit test `tests/unit/test_statistical_analysis.py` that feeds synthetic accuracy data into `stats.anova_test` and checks that the returned object contains `f_statistic` and `p_value`.
+- [X] T028 [US3] Write unit test `tests/unit/test_statistical_analysis.py` that feeds synthetic accuracy data into `stats.anova_test` and checks that the returned object contains `f_statistic` and `p_value`.
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
+- [ ] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
 - [ ] T029‑VERIFY [US3] Add an assertion in `evaluation.py` that raises `ValueError` if any loaded sample has `set_type != "test_generalization"`; this guarantees exclusive use of the Generalization Set.
-- [~] T030 [US3] Add function `anova_test(accuracies: Dict[str, List[float]]) -> Dict` in `code/analysis/stats.py` that computes the ANOVA F‑statistic and raw p‑value across the three models.
+- [X] T030 [US3] Add function `anova_test(accuracies: Dict[str, List[float]]) -> Dict` in `code/analysis/stats.py` that computes the ANOVA F‑statistic and raw p‑value across the three models.
 - [ ] T031 [US3] Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]]) -> Dict` that performs pairwise t‑tests between model groups.
 - [ ] T032 [US3] Implement Bonferroni correction in `stats.py` that adjusts all p‑values (ANOVA and pairwise) and returns corrected values.
 - [ ] T033 [US3] Create `StatisticalResult` records (using the schema from contracts) for each test and write them to `data/processed/statistical_results.json`.

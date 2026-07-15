@@ -58,10 +58,10 @@
 - [ ] T004 Implement `code/utils/io.py` for SHA256 checksumming, file I/O, and state updates (Principle V)
 - [ ] T005 [P] Implement `code/utils/logger.py` for error handling, logging, and 300s timeout enforcement for 1.5ns runs
 - [ ] T006 [P] Create `code/simulation/config.py` defining parameter sets (ffSB, CHARMM36m; 0.5ns, 1.0ns, 1.5ns; 300K) and random seeds
-- [~] T007 Create `code/analysis/load_data.py` to fetch PDBbind v2020 "refined" subset (≤2.0Å, ≤200 residues) from ` or a verified script <!-- ATOMIZE: requested -->
-- [~] T007a [P] Implement subsampling logic in `code/analysis/load_data.py` to select a representative subset of high-quality complexes from the fetched dataset. and save to `data/raw/subsampled_complexes.json`
-- [~] T008 Implement `code/simulation/setup.py` for system preparation: solvation (TIP3P), ion neutralization, and topology generation for a single PDB complex
-- [~] T009 [P] Implement `code/analysis/stats.py` skeleton with Linear Mixed-Effects Model (LMM) structure (Complex as random intercept; ForceField, Duration as fixed effects) and variance decomposition utilities
+- [ ] T007 Create `code/analysis/load_data.py` to fetch PDBbind v2020 "refined" subset (≤2.0Å, ≤200 residues) from ` or a verified script <!-- ATOMIZE: requested -->
+- [ ] T007a [P] Implement subsampling logic in `code/analysis/load_data.py` to select a representative subset of high-quality complexes from the fetched dataset. and save to `data/raw/subsampled_complexes.json`
+- [ ] T008 Implement `code/simulation/setup.py` for system preparation: solvation (TIP3P), ion neutralization, and topology generation for a single PDB complex
+- [X] T009 [P] Implement `code/analysis/stats.py` skeleton with Linear Mixed-Effects Model (LMM) structure (Complex as random intercept; ForceField, Duration as fixed effects) and variance decomposition utilities
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,11 +78,11 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. T011 depends on T012 execution but is written per TDD principles.
 
 - [~] T010 [P] [US1] Unit test for `code/simulation/setup.py` solvation logic in `tests/unit/test_setup.py`
-- [~] T011 [US1] Integration test for full simulation pipeline (setup + run) on 1 complex in `tests/integration/test_simulation_run.py` (Depends on T012 execution; written per TDD principles) <!-- ATOMIZE: requested -->
+- [ ] T011 [US1] Integration test for full simulation pipeline (setup + run) on 1 complex in `tests/integration/test_simulation_run.py` (Depends on T012 execution; written per TDD principles) <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/simulation/run.py` using OpenMM for CPU-only MD execution with explicit solvent and a hard timeout for 1.5ns runs.
+- [X] T012 [US1] Implement `code/simulation/run.py` using OpenMM for CPU-only MD execution with explicit solvent and a hard timeout for 1.5ns runs.
 - [ ] T013 [US1] Implement batch orchestration logic in `code/main.py` to iterate over the subsampled list of complexes (from T007a) and parameter combinations (FF × 3 Dur × 1 Temp)
 - [ ] T014 [US1] Add error handling in `code/main.py` to log failed runs (complex/params) and proceed to the next entry without halting
 - [ ] T015 [US1] Implement `code/utils/io.py` logic to write trajectory files (`.nc` or `.xtc`) to `data/processed/` and record checksums in `state/`

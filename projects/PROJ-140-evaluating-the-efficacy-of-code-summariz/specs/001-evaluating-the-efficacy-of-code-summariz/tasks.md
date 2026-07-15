@@ -80,22 +80,22 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/utils/latency_calibrator.py` to verify timestamp precision ≤100ms (FR-003)
+- [X] T012 [US1] Implement `code/utils/latency_calibrator.py` to verify timestamp precision ≤100ms (FR-003)
 - [~] T012a [US1] Integrate `code/utils/latency_calibrator.py` into the application startup flow (e.g., in `backend/src/main.py` or `frontend/src/App.jsx`) to ensure the test runs at startup as mandated by FR-003
-- [~] T013 [US1] Implement `code/data_prep/download_defects4j.py` to fetch DefectsJ and extract 60 stratified buggy methods (FR-001)
-- [~] T014 [US1] Implement `code/data_prep/generate_summaries.py` with:
+- [X] T013 [US1] Implement `code/data_prep/download_defects4j.py` to fetch DefectsJ and extract 60 stratified buggy methods (FR-001)
+- [X] T014 [US1] Implement `code/data_prep/generate_summaries.py` with:
  - Deterministic "LLM-Sim" generator (CPU-tractable, no GPU) mimicking LLM structure as a **staged implementation**; the real `codellama/CodeLlama-7b-hf` integration is deferred for GPU environments to satisfy CI constraints without violating FR-002's intent.
  - Rule-based `srcML` comment extractor fallback
  - Logic to handle LLM generation failure/timeout (FR-002)
  - **Deterministic Algorithm**: Use template "Method: <name>\nParams: <args>\nReturns: <type>\nComment: <first_comment_line>". **Edge Case Handling**: If no comments exist, use "No comment available"; if no parameters, use "No parameters".
  - Output: `data/summaries/llm_sim_summaries.csv` and `data/summaries/rule_summaries.csv`
  - **Depends on T013** (Note: [P] tag removed as it depends on T013)
-- [~] T014a [US1] Implement `code/data_prep/generate_summaries_real_llm.py` for Real LLM generation path (HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization) for non-CI environments. **Requires GPU/CUDA**. If generation fails (timeout, empty output), fall back to rule-based summary (FR-002).
+- [X] T014a [US1] Implement `code/data_prep/generate_summaries_real_llm.py` for Real LLM generation path (HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization) for non-CI environments. **Requires GPU/CUDA**. If generation fails (timeout, empty output), fall back to rule-based summary (FR-002).
 - [~] T015 [US1] Implement `code/utils/interaction_logger.py` to record CSV logs (participant_id, task_id, condition, timestamp_ms, selected_line, ground_truth_line) to `data/interaction_logs/raw_logs.csv` (FR-003)
 - [~] T016 [US1] Implement data anonymization script `code/utils/anonymize_logs.py` to generate `data/interaction_logs/anonymized_logs.csv` (VI) - creates new file, does not overwrite raw logs
-- [~] T017 [US1] Implement dropout handling logic in `code/utils/interaction_logger.py` to flag partial data (Edge Case)
+- [X] T017 [US1] Implement dropout handling logic in `code/utils/interaction_logger.py` to flag partial data (Edge Case)
 - [~] T019 [US1] Implement secure storage logic for raw consent forms in non-public `data/consent/` directory with `.gitignore` exclusion and access control (Constitution Principle VI). **Implementation**: Set file permissions to `chmod 600` for all files in `data/consent/` and add explicit `.gitignore` rule.
-- [~] T020 [US1] Implement Latin-square design assignment logic in `code/utils/assignment_generator.py` to generate balanced task conditions for a cohort of participants (US-1, Assumptions)
+- [X] T020 [US1] Implement Latin-square design assignment logic in `code/utils/assignment_generator.py` to generate balanced task conditions for a cohort of participants (US-1, Assumptions)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,15 +109,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for McNemar's test implementation in `code/tests/test_statistics.py`
-- [~] T022 [P] [US2] Unit test for LME model and bootstrapping in `code/tests/test_bootstrap_utils.py`
+- [X] T021 [P] [US2] Unit test for McNemar's test implementation in `code/tests/test_statistics.py`
+- [X] T022 [P] [US2] Unit test for LME model and bootstrapping in `code/tests/test_bootstrap_utils.py`
 
 ### Implementation for User Story 2
 
-- [~] T025 [US2] Define sensitivity analysis range in `code/analysis/config.py` to specify the "standard cutoffs" for the sweep. **Mandatory values**: `[0.01, 0.05, 0.10]`. **Note**: This task must be completed before T024 to ensure config exists.
-- [~] T023 [US2] Implement `code/analysis/bootstrap_utils.py` for bootstrapping (A substantial number of resamples, fixed seed) to compute confidence intervals (FR-005)
-- [~] T023a [US2] Implement `code/analysis/correction_utils.py` for multiple-comparison correction logic (Holm-Bonferroni) (FR-006)
-- [~] T024a [US2] Implement `code/analysis/run_statistics.py` to:
+- [X] T025 [US2] Define sensitivity analysis range in `code/analysis/config.py` to specify the "standard cutoffs" for the sweep. **Mandatory values**: `[0.01, 0.05, 0.10]`. **Note**: This task must be completed before T024 to ensure config exists.
+- [X] T023 [US2] Implement `code/analysis/bootstrap_utils.py` for bootstrapping (A substantial number of resamples, fixed seed) to compute confidence intervals (FR-005)
+- [X] T023a [US2] Implement `code/analysis/correction_utils.py` for multiple-comparison correction logic (Holm-Bonferroni) (FR-006)
+- [X] T024a [US2] Implement `code/analysis/run_statistics.py` to:
  - Load `data/interaction_logs/anonymized_logs.csv` and summary data
  - Compute **Top-K accuracy** (e.g., Top-5) and speed (time-to-decision) metrics (Complexity Tracking)
  - Run McNemar's tests for accuracy (baseline vs LLM, baseline vs Rule) (FR-004)
@@ -125,7 +125,7 @@
  - Output `data/analysis_results/results.csv` with all metrics
  - Output `data/analysis_results/sensitivity_analysis.csv` with threshold sweep results
  - Output `data/analysis_results/outlier_flags.json` with outlier detection flags
-- [~] T024b [US2] Implement `code/analysis/run_statistics.py` (continued) to:
+- [X] T024b [US2] Implement `code/analysis/run_statistics.py` (continued) to:
  - **Import and invoke bootstrapping functions from `code/analysis/bootstrap_utils.py`**
  - Compute Odds Ratios and Cohen's d with bootstrapped CIs (FR-005)
  - **Import and invoke correction function from `code/analysis/correction_utils.py`**
@@ -145,19 +145,19 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T027 [P] [US3] Integration test for CI resource constraints in `.github/workflows/test_reproducibility.yml`
-- [~] T028 [P] [US3] Test for numerical tolerance (5%) between original and rerun results in `code/tests/test_reproducibility.py`
+- [X] T028 [P] [US3] Test for numerical tolerance (5%) between original and rerun results in `code/tests/test_reproducibility.py`
 
 ### Implementation for User Story 3
 
 - [~] T030a [US3] Implement `code/utils/generate_baseline_results.py` to run the analysis script once, capture the output, and commit `data/analysis_results/baseline_results.json` as the ground truth for the 5% tolerance check.
-- [~] T030 [US3] Implement `.github/workflows/test_reproducibility.yml` to:
+- [ ] T030 [US3] Implement `.github/workflows/test_reproducibility.yml` to:
  - Install dependencies
  - Run `code/analysis/run_statistics.py`
  - Assert runtime ≤6h and memory ≤7GB
  - Verify numerical tolerance against `data/analysis_results/baseline_results.json` (generated by T030a) (SC-004, SC-005)
  - **Note**: T030 depends on T030a completion.
 - [~] T029 [US3] Create `README.md` documenting how to rerun analysis on GitHub Actions free-tier (≤6h, ≤7GB RAM, NO GPU) (FR-007) - **Depends on T030**
-- [~] T031 [US3] Generate final reproducibility package bundle `data/reproducibility_package_v1.0.tar.gz` containing scripts, `data/analysis_results/results.csv`, `data/interaction_logs/anonymized_logs.csv`, `README.md` for OSF publication (FR-007). **Exclusion**: Explicitly exclude `data/consent/` from the bundle to satisfy Constitution Principle VI.
+- [ ] T031 [US3] Generate final reproducibility package bundle `data/reproducibility_package_v1.0.tar.gz` containing scripts, `data/analysis_results/results.csv`, `data/interaction_logs/anonymized_logs.csv`, `README.md` for OSF publication (FR-007). **Exclusion**: Explicitly exclude `data/consent/` from the bundle to satisfy Constitution Principle VI.
 - [~] T032 [US3] Update `state/projects/PROJ-140.../artifact_hashes.yaml` with final hashes of all artifacts (V)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -170,10 +170,10 @@
 
 - [~] T033 [P] Update `README.md` with installation steps and dependencies
 - [~] T034 [P] Update `README.md` with analysis execution steps and expected outputs
-- [~] T035 [P] Add API documentation to `docs/api.md`
-- [~] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
-- [~] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
-- [~] T038 Performance optimization: Reduce memory usage to <6GB in `code/analysis/run_statistics.py`
+- [X] T035 [P] Add API documentation to `docs/api.md`
+- [X] T036 Code cleanup: Refactor `code/utils/logging_utils.py` to remove unused imports
+- [X] T037 Code cleanup: Refactor `code/utils/models.py` to simplify data structures
+- [X] T038 Performance optimization: Reduce memory usage to <6GB in `code/analysis/run_statistics.py`
 - [ ] T039 Performance optimization: Reduce runtime to <5h in `code/analysis/run_statistics.py`
 - [ ] T040 [P] Add unit tests for edge cases in `code/tests/test_statistics.py`
 - [ ] T041 [P] Add unit tests for data integrity in `code/tests/test_data_integrity.py`

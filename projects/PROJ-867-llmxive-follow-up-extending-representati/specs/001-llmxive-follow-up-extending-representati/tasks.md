@@ -58,12 +58,12 @@
 
 - [ ] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
 - [ ] T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace (`facebook/publaynet`) with SHA-256 checksum verification
-- [~] T006a [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations (confirming presence of structural boxes and text content) as required by Plan Phase 0 Step 1, before processing begins
-- [~] T007 [P] Create `docs/contracts/rf_token_sequence.yaml` schema definition
-- [~] T008 [P] Create `docs/contracts/structured_text_output.yaml` schema definition
-- [~] T009 [P] Create `docs/contracts/evaluation_metrics.yaml` schema definition
-- [~] T010 [P] Implement `code/utils/stats.py` with placeholders for McNemar's test and Wilcoxon signed-rank test using `scipy.stats`
-- [~] T011 [P] Implement `code/utils/validators.py` for JSON/Markdown syntax parsing and AST edit distance calculation
+- [X] T006a [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations (confirming presence of structural boxes and text content) as required by Plan Phase 0 Step 1, before processing begins
+- [X] T007 [P] Create `docs/contracts/rf_token_sequence.yaml` schema definition
+- [X] T008 [P] Create `docs/contracts/structured_text_output.yaml` schema definition
+- [X] T009 [P] Create `docs/contracts/evaluation_metrics.yaml` schema definition
+- [X] T010 [P] Implement `code/utils/stats.py` with placeholders for McNemar's test and Wilcoxon signed-rank test using `scipy.stats`
+- [X] T011 [P] Implement `code/utils/validators.py` for JSON/Markdown syntax parsing and AST edit distance calculation
 - [ ] T012 [P] Implement `code/data/preprocessing.py` logic for general image loading, resizing to 224x224, and basic normalization (shared across all US)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

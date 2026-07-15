@@ -94,22 +94,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
-- [~] T011 [US1] Unit test for exposure score calculation (0 listens = 0.0) in `tests/unit/test_ingestion.py`
-- [~] T012 [US1] Unit test for fallback "global exposure" trigger when >50% missing birth years in `tests/unit/test_ingestion.py` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
+- [X] T011 [US1] Unit test for exposure score calculation (0 listens = 0.0) in `tests/unit/test_ingestion.py`
+- [X] T012 [US1] Unit test for fallback "global exposure" trigger when >50% missing birth years in `tests/unit/test_ingestion.py` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs
-- [~] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence)
-- [~] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run before any frequency filtering.
-- [~] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **ORDERING**: This runs AFTER the fallback check (T023).
-- [~] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
-- [~] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and extracting residuals. Formula: `residuals = observed - predicted`.
-- [~] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
+- [X] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs
+- [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence)
+- [X] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run before any frequency filtering.
+- [X] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **ORDERING**: This runs AFTER the fallback check (T023).
+- [X] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
+- [X] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and extracting residuals. Formula: `residuals = observed - predicted`.
+- [ ] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,20 +123,20 @@
 
 ### Tests for User Story 2
 
-- [~] T019 [US2] Unit test for text normalization (lowercase, remove punctuation) in `tests/unit/test_matching.py`
-- [~] T020 [US2] Unit test for fuzzy matching logic (Levenshtein distance ≤ 4) in `tests/unit/test_matching.py`
-- [~] T021 [US2] Unit test for aggregation logic (mean vividness/valence per User-Track) in `tests/unit/test_matching.py`
+- [X] T019 [US2] Unit test for text normalization (lowercase, remove punctuation) in `tests/unit/test_matching.py`
+- [X] T020 [US2] Unit test for fuzzy matching logic (Levenshtein distance ≤ 4) in `tests/unit/test_matching.py`
+- [X] T021 [US2] Unit test for aggregation logic (mean vividness/valence per User-Track) in `tests/unit/test_matching.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/cue_matching.py` function `normalize_cues` to normalize AMT cues and load MSD track titles into a searchable index
-- [~] T023 [US2] Implement `code/cue_matching.py` function `match_cues` to perform fuzzy matching with Levenshtein distance ≤ 4 and log unmatched cues
-- [~] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to resolve ambiguous matches (same title/artist) and log collisions
-- [~] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data` to join matched cues with exposure data (Track-level exposure joined to User-Track pairs)
-- [~] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track` to aggregate data to **User-Track Pair** level (mean vividness, mean valence) as per plan.md update
-- [~] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with high exposure but no memory cues
-- [~] T036 [US2] [P] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ 80%); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. This task MUST run before any modeling tasks.
-- [~] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
+- [X] T022 [US2] Implement `code/cue_matching.py` function `normalize_cues` to normalize AMT cues and load MSD track titles into a searchable index
+- [X] T023 [US2] Implement `code/cue_matching.py` function `match_cues` to perform fuzzy matching with Levenshtein distance ≤ 4 and log unmatched cues
+- [X] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to resolve ambiguous matches (same title/artist) and log collisions
+- [X] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data` to join matched cues with exposure data (Track-level exposure joined to User-Track pairs)
+- [X] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track` to aggregate data to **User-Track Pair** level (mean vividness, mean valence) as per plan.md update
+- [X] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with high exposure but no memory cues
+- [X] T036 [US2] [P] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ 80%); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. This task MUST run before any modeling tasks.
+- [ ] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -150,19 +150,19 @@
 
 ### Tests for User Story 3
 
-- [~] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
-- [~] T031 [US3] Unit test for sensitivity analysis loop (thresholds, 4, 6) in `tests/unit/test_modeling.py`
-- [~] T032 [US3] Unit test for permutation test logic (block-permutation) in `tests/unit/test_modeling.py`
+- [X] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
+- [X] T031 [US3] Unit test for sensitivity analysis loop (thresholds, 4, 6) in `tests/unit/test_modeling.py`
+- [X] T032 [US3] Unit test for permutation test logic (block-permutation) in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3
 
-- [~] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
-- [~] T034 [US3] Implement `code/modeling.py` function `fit_valence_model` to fit the same model for `mean_valence`
-- [~] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
-- [~] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds 2 and 6.
-- [~] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. Shuffle the `residualized_exposure_score` values among tracks while preserving the User-Track grouping structure (i.e., keep the mean_vividness and user_id intact for each pair, shuffle the exposure score assigned to the pair). Run a sufficient number of iterations to establish a null distribution. Compare observed statistic to null distribution.
-- [~] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
-- [~] T039 [US3] Generate `data/final/sensitivity_analysis.csv` and `data/final/permutation_results.csv`
+- [X] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
+- [X] T034 [US3] Implement `code/modeling.py` function `fit_valence_model` to fit the same model for `mean_valence`
+- [X] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
+- [X] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds 2 and 6.
+- [X] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. Shuffle the `residualized_exposure_score` values among tracks while preserving the User-Track grouping structure (i.e., keep the mean_vividness and user_id intact for each pair, shuffle the exposure score assigned to the pair). Run a sufficient number of iterations to establish a null distribution. Compare observed statistic to null distribution.
+- [ ] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
+- [ ] T039 [US3] Generate `data/final/sensitivity_analysis.csv` and `data/final/permutation_results.csv`
 - [~] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -174,9 +174,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T041 [P] Documentation updates in `README.md` and `code/` docstrings
-- [~] T042 Code cleanup and refactoring of `code/main.py` orchestration script
+- [X] T042 Code cleanup and refactoring of `code/main.py` orchestration script
 - [~] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
-- [~] T044 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data
+- [X] T044 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data
 - [~] T045 Security hardening: ensure no PII leaks in logs or output files
 - [ ] T046 Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours
 

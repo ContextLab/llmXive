@@ -76,8 +76,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
-- [~] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
+- [X] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
+- [X] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
 
 ### Implementation for User Story 1
 

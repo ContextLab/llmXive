@@ -84,10 +84,10 @@
 ### Implementation for User Story 1
 
 - [X] T011a [P] [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
-- [~] T011b [P] [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`
-- [~] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR)
-- [~] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv`
-- [~] T013 [US1] Implement `validate_sample_size` in `code/download.py` to count unique planets. If count < 30 or > 45, log `logging.warning` but proceed (do not raise error) to satisfy FR-001 "download ALL". If count is absent or null, raise `RuntimeError`.
+- [X] T011b [P] [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`
+- [X] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR)
+- [ ] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv`
+- [X] T013 [US1] Implement `validate_sample_size` in `code/download.py` to count unique planets. If count < 30 or > 45, log `logging.warning` but proceed (do not raise error) to satisfy FR-001 "download ALL". If count is absent or null, raise `RuntimeError`.
 - [~] T014 [US1] Add logging for download progress and API response handling
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,18 +102,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Contract test for retrieval output schema in `tests/contract/test_retrieval_schema.py`
+- [X] T016 [P] [US2] Contract test for retrieval output schema in `tests/contract/test_retrieval_schema.py`
 - [~] T017 [P] [US2] Integration test for retrieval on sample spectrum in `tests/integration/test_retrieval.py`
 
 ### Implementation for User Story 2
 
-- [~] T018a [P] [US2] Configure `petitRADTRANS` for CPU-optimized mode (single-threaded, memory limit GB) in `code/retrieval.py`
-- [~] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file
+- [X] T018a [P] [US2] Configure `petitRADTRANS` for CPU-optimized mode (single-threaded, memory limit GB) in `code/retrieval.py`
+- [X] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file
 - [~] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag
 - [~] T019 [US2] Implement logic to detect low S/N spectra using SNR/Resolution metadata and derive upper limits (censored values) instead of false precision
-- [~] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`
+- [ ] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`
 - [~] T021 [US2] Add error handling for non-convergent retrievals: log failure, attempt upper limit derivation, proceed without halting
-- [~] T022 [US2] Implement `test_upper_limit_flags_reflect_noise` in `code/validation.py` to verify upper limit flags reflect physical noise floors. **Depends on T019**.
+- [X] T022 [US2] Implement `test_upper_limit_flags_reflect_noise` in `code/validation.py` to verify upper limit flags reflect physical noise floors. **Depends on T019**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,19 +127,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py`
-- [~] T024 [P] [US3] Integration test for correlation and regression on mock data in `tests/integration/test_analysis.py`
+- [X] T023 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py`
+- [X] T024 [P] [US3] Integration test for correlation and regression on mock data in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [~] T025a [P] [US3] Import `scikit-survival` in `code/analysis.py` and verify import availability
-- [~] T025b [US3] Implement `compute_censored_kendall_tau` in `code/analysis.py` using `scikit-survival`'s `kendall_tau` function for censored data (Hot Jupiters vs Super-Earths). **Note**: This supersedes the "Akritas-Theil-Sen" mention in plan.md Complexity Tracking; plan.md must be updated to reflect Kendall's tau as the primary estimator for FR-003.
+- [X] T025a [P] [US3] Import `scikit-survival` in `code/analysis.py` and verify import availability
+- [X] T025b [US3] Implement `compute_censored_kendall_tau` in `code/analysis.py` using `scikit-survival`'s `kendall_tau` function for censored data (Hot Jupiters vs Super-Earths). **Note**: This supersedes the "Akritas-Theil-Sen" mention in plan.md Complexity Tracking; plan.md must be updated to reflect Kendall's tau as the primary estimator for FR-003.
 - [~] T025c [US3] Implement a bootstrap resampling loop to estimate confidence intervals
 - [~] T026 [US3] Compute and report the % CI width of the water mixing ratio distribution as a measure of robustness per SC-003
 - [~] T027 [US3] Implement Tobit regression model (using `lifelines` or `statsmodels`) with water abundance as dependent variable and temperature, mass, metallicity as predictors. **Depends on T020**.
 - [~] T028 [US3] Implement fallback to Tobit regression with L2 (Ridge) regularization if VIF > 5 to handle collinearity while maintaining censored-data validity. **Note**: Do NOT use L1 (Lasso) or Elastic Net; only L2 is authorized by plan.md.
 - [~] T029 [US3] Implement diagnostic plot generation (water abundance vs. temperature with error bars/limits, residuals, correlation matrix) to `results/plots/`
-- [~] T030 [US3] Output final statistics: Kendall's tau, p-values, CI width, model fit statistics to `data/processed/analysis_results.json`
+- [ ] T030 [US3] Output final statistics: Kendall's tau, p-values, CI width, model fit statistics to `data/processed/analysis_results.json`
 - [~] T031 [US3] Implement `calculate_statistical_power` in `code/analysis.py` using the **actual** sample size (N) from `metadata.csv` and observed effect size (or conservative estimate) to verify power ≥ 0.8 per SC-004. Generate `results/quality_report.md` with resolved vs. upper limits count and power verification.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -152,8 +152,8 @@
 
 ### Implementation for Review Responses
 
-- [~] T032 [US3] **Review Response**: Implement `compute_correlation_uncertainty` in `code/analysis.py` to calculate standard error of the slope and CI width per FR-003/SC-003.
-- [~] T033 [US3] **Review Response**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T032 [US3] **Review Response**: Implement `compute_correlation_uncertainty` in `code/analysis.py` to calculate standard error of the slope and CI width per FR-003/SC-003.
+- [X] T033 [US3] **Review Response**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 1:
  **Task**: T033 - Implement `qual...
  ^
@@ -161,10 +161,10 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 3, column 2:
  **Task**: T033 - Implement `quali...
  ^) -->
-- [~] T034 [US1] **Review Response**: Enhance `code/download.py` to log and store spectral resolution (R) and SNR for every spectrum per FR-001.
+- [X] T034 [US1] **Review Response**: Enhance `code/download.py` to log and store spectral resolution (R) and SNR for every spectrum per FR-001.
 - [~] T035 [US3] **Review Response**: Implement `calculate_detection_limit` in `code/analysis.py` taking SNR and Resolution as inputs, outputting to `data/processed/detection_limits.csv` per FR-002.
 - [~] T036 [US3] **Review Response**: Generate "Instrumental Noise vs. Signal" plot in `results/plots/` visualizing SNR distribution and threshold per SC-003.
-- [~] T037 [US3] **Review Response**: Implement `run_loo_correlation_check` in `code/analysis.py` to calculate `max_correlation_drift` metric per SC-004.
+- [X] T037 [US3] **Review Response**: Implement `run_loo_correlation_check` in `code/analysis.py` to calculate `max_correlation_drift` metric per SC-004.
 
 **Checkpoint**: All review responses implemented and verified
 

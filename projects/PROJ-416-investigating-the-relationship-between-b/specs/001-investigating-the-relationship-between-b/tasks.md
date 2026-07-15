@@ -87,7 +87,7 @@
 - [ ] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro (or halt if no verified source ID is provided)
 - [X] T012a [US1] Implement `code/data/download.py` to explicitly check for a verified OpenNeuro ID; if missing, halt execution with a fatal error and log "Missing verified dataset source" to align with Plan Summary "STATUS: BLOCKED" and FR-011
 - [ ] T013 [US1] Implement `code/data/validate.py` to check for paired pre/post fMRI and clinical scores; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009)
-- [~] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized, subset N=10 for CI feasibility)
+- [X] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized, subset N=10 for CI feasibility)
 - [~] T015 [US1] Implement quality control in `code/data/preprocess.py` to calculate Mean Framewise Displacement (FD) and exclude subjects >3mm/3° translation/rotation; ensure FD is saved as a mandatory covariate column in `data/metrics/network_metrics.csv` ONLY for subjects who PASSED the motion threshold (i.e., were not excluded) (FR-015b merged)
 - [~] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
 - [~] T017 [US1] Implement `code/data/save_metadata.py` to store subject list, exclusion reasons, and motion metrics in `data/metrics/subject_info.json`
@@ -104,17 +104,17 @@
 
 ### Test Implementation for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for `code/analysis/network.py` to ensure modularity Q is non-negative and efficiency values are finite
-- [~] T019 [P] [US2] Integration test for `code/analysis/network.py` to verify output CSV contains all three metrics per subject
+- [X] T018 [P] [US2] Unit test for `code/analysis/network.py` to ensure modularity Q is non-negative and efficiency values are finite
+- [X] T019 [P] [US2] Integration test for `code/analysis/network.py` to verify output CSV contains all three metrics per subject
 
 ### Code Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions)
-- [~] T021 [US2] Implement functional connectivity matrix calculation (Pearson correlation) in `code/analysis/network.py`
+- [X] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions)
+- [X] T021 [US2] Implement functional connectivity matrix calculation (Pearson correlation) in `code/analysis/network.py`
 - [~] T022 [US2] Implement network metric calculation (Modularity Q, Global Efficiency, Local Efficiency) using `networkx` or `brainconn`
-- [~] T023 [US2] Add NaN/Infinity handling in `code/analysis/network.py` to exclude invalid metrics and log events
-- [~] T024 [US2] Save connectivity matrices and metrics to `data/metrics/network_metrics.csv` and `data/metrics/matrices/`
-- [~] T025 [US2] Implement `code/analysis/validate_metrics.py` to enforce bounds (Q≥0, Eff≥0) and halt on systematic failures
+- [X] T023 [US2] Add NaN/Infinity handling in `code/analysis/network.py` to exclude invalid metrics and log events
+- [ ] T024 [US2] Save connectivity matrices and metrics to `data/metrics/network_metrics.csv` and `data/metrics/matrices/`
+- [X] T025 [US2] Implement `code/analysis/validate_metrics.py` to enforce bounds (Q≥0, Eff≥0) and halt on systematic failures
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,19 +128,19 @@
 
 ### Test Implementation for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for `code/analysis/stats.py` to verify FDR correction logic and VIF calculation
-- [~] T027 [P] [US3] Unit test for `code/analysis/plots.py` to ensure scatter plots and residuals are generated without error
+- [X] T026 [P] [US3] Unit test for `code/analysis/stats.py` to verify FDR correction logic and VIF calculation
+- [X] T027 [P] [US3] Unit test for `code/analysis/plots.py` to ensure scatter plots and residuals are generated without error
 
 ### Code Implementation for User Story 3
 
-- [~] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels` <!-- ATOMIZE: requested -->
-- [~] T029 [US3] Implement VIF calculation in `code/analysis/stats.py`; if VIF > 5, apply separate univariate models with FDR correction (Per Plan Methodological Clarification #2: Ridge regression is rejected as methodologically unsound for hypothesis testing). Do NOT implement Ridge regression fallback.
-- [~] T029b [US3] Implement logic in `code/analysis/stats.py` to document the methodological divergence from Spec FR-005/FR-012 in the final report, explicitly stating that Univariate models with FDR were chosen over Ridge regression per Plan guidance.
-- [~] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis
-- [~] T031 [US3] Implement power analysis in `code/analysis/stats.py` (G*Power logic) to: HALT if N < 5; FLAG limitation if 5 <= N < 10; calculate and save the 'minimum N required' value to the report (SC-004)
-- [~] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds {2mm, 3mm} and p-values {uncorrected, 0.05, 0.1}, ensuring 'uncorrected' is treated as a distinct sweep point (FR-010)
-- [~] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
-- [~] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; frame findings as ASSOCIATIONAL if neither condition is met (SC-005); include all metrics, coefficients, and the minimum N value
+- [X] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels` <!-- ATOMIZE: requested -->
+- [X] T029 [US3] Implement VIF calculation in `code/analysis/stats.py`; if VIF > 5, apply separate univariate models with FDR correction (Per Plan Methodological Clarification #2: Ridge regression is rejected as methodologically unsound for hypothesis testing). Do NOT implement Ridge regression fallback.
+- [X] T029b [US3] Implement logic in `code/analysis/stats.py` to document the methodological divergence from Spec FR-005/FR-012 in the final report, explicitly stating that Univariate models with FDR were chosen over Ridge regression per Plan guidance.
+- [X] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis
+- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` (G*Power logic) to: HALT if N < 5; FLAG limitation if 5 <= N < 10; calculate and save the 'minimum N required' value to the report (SC-004)
+- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds {2mm, 3mm} and p-values {uncorrected, 0.05, 0.1}, ensuring 'uncorrected' is treated as a distinct sweep point (FR-010)
+- [X] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
+- [ ] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; frame findings as ASSOCIATIONAL if neither condition is met (SC-005); include all metrics, coefficients, and the minimum N value
 - [ ] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv`
 
 **Checkpoint**: All user stories should now be independently functional

@@ -30,8 +30,8 @@
 - [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified -->
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas==2.1.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `tree-sitter==0.20.0`, `tree-sitter-java==0.20.0`, `pytest==7.4.0`. (Note: `defects4j` CLI and PMD are installed separately in T002c).
 - [X] T002b [P] Configure `code/pyproject.toml` with project metadata, entry points for scripts, and dependency groups.
-- [~] T002c [P] Create `code/setup_cli.sh` script to install and configure the `defects4j` CLI tool and PMD (Java static analysis tool) via `apt` or `wget`, verifying availability via `defects4j --version` and `pmd --version`.
-- [~] T002d [P] Configure linting (flake8) and formatting (black) tools in `code/pyproject.toml` or separate config files.
+- [X] T002c [P] Create `code/setup_cli.sh` script to install and configure the `defects4j` CLI tool and PMD (Java static analysis tool) via `apt` or `wget`, verifying availability via `defects4j --version` and `pmd --version`.
+- [X] T002d [P] Configure linting (flake8) and formatting (black) tools in `code/pyproject.toml` or separate config files.
 
 ---
 
@@ -41,12 +41,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T003 [P] Implement `code/src/config.py` to define environment variables for Defects4J path, fixed random seeds, and memory limits.
-- [~] T004 [P] Implement `code/src/ingest.py` logic to download Defects4J v2.0+ subset via CLI wrapper, validating size < 7GB, and including dynamic subset validation logic to iteratively select projects until the RAM limit is reached.
-- [~] T005 [P] Define metric extraction interface in `code/src/metrics.py`: Specify function signatures for calculating Cyclomatic Complexity (via PMD CLI), Halstead Volume (via custom JavaParser-based script), and LOC. The interface must support both tools.
+- [X] T003 [P] Implement `code/src/config.py` to define environment variables for Defects4J path, fixed random seeds, and memory limits.
+- [X] T004 [P] Implement `code/src/ingest.py` logic to download Defects4J v2.0+ subset via CLI wrapper, validating size < 7GB, and including dynamic subset validation logic to iteratively select projects until the RAM limit is reached.
+- [X] T005 [P] Define metric extraction interface in `code/src/metrics.py`: Specify function signatures for calculating Cyclomatic Complexity (via PMD CLI), Halstead Volume (via custom JavaParser-based script), and LOC. The interface must support both tools.
 - [~] T006 [P] Define labeling interface in `code/src/labeling.py`: Specify function signatures for mapping Defects4J bug-introduction commits to file-level binary labels.
-- [~] T007 [P] Create `code/data/processed/features.csv` schema validator and checksum generator (`code/data/checksums.json`).
-- [~] T008 [P] Create skeleton `code/run_pipeline.sh` orchestration script to enforce execution order (Ingest -> Metrics -> Labeling -> Analysis), noting that Analysis scripts are not yet implemented.
+- [X] T007 [P] Create `code/data/processed/features.csv` schema validator and checksum generator (`code/data/checksums.json`).
+- [X] T008 [P] Create skeleton `code/run_pipeline.sh` orchestration script to enforce execution order (Ingest -> Metrics -> Labeling -> Analysis), noting that Analysis scripts are not yet implemented.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,8 +60,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/src/ingest.py` logic to clone a representative sample of projects, filter for `.java` files, and enforce a bounded RAM limit via dynamic subset validation.
-- [~] T014 [US1] Implement `code/src/metrics.py` logic to traverse AST and compute LOC for every Java file.
+- [X] T013 [P] [US1] Implement `code/src/ingest.py` logic to clone a representative sample of projects, filter for `.java` files, and enforce a bounded RAM limit via dynamic subset validation.
+- [X] T014 [US1] Implement `code/src/metrics.py` logic to traverse AST and compute LOC for every Java file.
 - [~] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file.
 - [ ] T014c [US1] Implement Python wrapper script for the custom JavaParser-based script to calculate Halstead Volume for every Java file.
 - [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag.

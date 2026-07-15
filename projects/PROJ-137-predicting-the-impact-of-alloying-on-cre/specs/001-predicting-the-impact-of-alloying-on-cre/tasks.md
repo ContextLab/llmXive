@@ -39,11 +39,11 @@
 - [ ] T004 [P] Create `config/settings.yaml` with random seeds, paths, and API key placeholders
 - [ ] T005 [P] Create `config/synthetic_params.yaml` with Arrhenius/Power-law parameters and statistical targets
 - [ ] T006a [P] Create `docs/data-model.md` defining `AlloySample`, `ThermodynamicDescriptor`, `ModelPerformance` entities with detailed schema descriptions, explicitly referencing `contracts/dataset.schema.yaml` for alignment
-- [~] T006b Create `contracts/dataset.schema.yaml` validating the processed CSV schema (alloy_id, composition_str, temperature, stress, rupture_time, mixing_enthalpy, radius_mismatch)
-- [~] T007 [P] Create `contracts/output.schema.yaml` for model reports
-- [~] T008 [P] Implement `src/utils/logger.py` for structured logging
-- [~] T009 [P] Implement `src/utils/hash.py` for artifact hashing and state updates (Constitution Principle V)
-- [~] T010 [P] Implement `src/utils/validators.py` for schema validation and physics consistency checks
+- [ ] T006b Create `contracts/dataset.schema.yaml` validating the processed CSV schema (alloy_id, composition_str, temperature, stress, rupture_time, mixing_enthalpy, radius_mismatch)
+- [ ] T007 [P] Create `contracts/output.schema.yaml` for model reports
+- [X] T008 [P] Implement `src/utils/logger.py` for structured logging
+- [X] T009 [P] Implement `src/utils/hash.py` for artifact hashing and state updates (Constitution Principle V)
+- [X] T010 [P] Implement `src/utils/validators.py` for schema validation and physics consistency checks
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -61,18 +61,18 @@
 
 ### Tests for User Story 1
 
-- [~] T011 [P] [US1] Contract test for schema validation in `tests/contract/test_schema.py`
-- [~] T012 [P] [US1] Unit test for composition string parsing and normalization in `tests/unit/test_parsing.py`
-- [~] T013 [P] [US1] Unit test for thermodynamic calculation in `tests/unit/test_thermo.py`
-- [~] T014 [P] [US1] Integration test for synthetic data generation and physics consistency check in `tests/contract/test_physics.py`
+- [X] T011 [P] [US1] Contract test for schema validation in `tests/contract/test_schema.py`
+- [X] T012 [P] [US1] Unit test for composition string parsing and normalization in `tests/unit/test_parsing.py`
+- [X] T013 [P] [US1] Unit test for thermodynamic calculation in `tests/unit/test_thermo.py`
+- [X] T014 [P] [US1] Integration test for synthetic data generation and physics consistency check in `tests/contract/test_physics.py`
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `src/data/download.py`: NIMS fetch with exponential backoff, duplicate handling (averaging rupture times), and missing value filtering.
-- [~] T016 [US1] Implement `src/data/generate.py`: Synthetic data generation using Arrhenius/Power-law laws, signal injection, and statistical target validation (KS distance, mean/SD). **Mandatory**: If statistical targets (KS distance > 0.05 or mean/SD mismatch > 10%) are not met, the system MUST raise an error and halt execution immediately, preventing the pipeline from proceeding to modeling.
-- [~] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
-- [~] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
-- [~] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
+- [ ] T015 [US1] Implement `src/data/download.py`: NIMS fetch with exponential backoff, duplicate handling (averaging rupture times), and missing value filtering.
+- [X] T016 [US1] Implement `src/data/generate.py`: Synthetic data generation using Arrhenius/Power-law laws, signal injection, and statistical target validation (KS distance, mean/SD). **Mandatory**: If statistical targets (KS distance > 0.05 or mean/SD mismatch > 10%) are not met, the system MUST raise an error and halt execution immediately, preventing the pipeline from proceeding to modeling.
+- [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
+- [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
+- [X] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
 - [~] T020 REMOVED (Merged into T019)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -90,18 +90,18 @@
 
 ### Tests for User Story 2
 
-- [~] T021 [P] [US2] Unit test for Nested CV split generation (stratification logic) in `tests/unit/test_cv_splits.py`
-- [~] T022 [P] [US2] Integration test for model training and intersection verification in `tests/integration/test_pipeline.py`
+- [X] T021 [P] [US2] Unit test for Nested CV split generation (stratification logic) in `tests/unit/test_cv_splits.py`
+- [X] T022 [P] [US2] Integration test for model training and intersection verification in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement `src/models/train.py`:
+- [X] T023 [US2] Implement `src/models/train.py`:
  - Load processed data.
  - Ensure both models train on the exact same intersection of valid rows.
  - Implement Nested CV: Outer loop (k-fold stratified by temp range OR Repeated m-fold), Inner loop (GridSearch).
  - Train Thermodynamic GBR (features: atomic fractions + mixing enthalpy + radius mismatch).
  - Train Composition-Only GBR (features: atomic fractions only).
-- [~] T024 [US2] Implement `src/models/evaluate.py`:
+- [X] T024 [US2] Implement `src/models/evaluate.py`:
  - Calculate R² and RMSE for both models.
  - **Mandatory**: Implement **Permutation Test** (10,000 permutations) on the difference in CV scores for 20 ≤ N < 100, as per research.md and plan.md (Section 3.3). This test is robust to the dependency structure of Nested CV and deterministic feature expansion.
  - **Mandatory**: Implement **Bootstrap 95% Confidence Interval** for N < 20.

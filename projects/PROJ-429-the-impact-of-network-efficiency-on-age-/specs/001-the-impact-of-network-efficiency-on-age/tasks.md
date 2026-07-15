@@ -43,9 +43,9 @@
 - [ ] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Dep**: T005.
 - [ ] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (bandpass -40Hz, ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`), including logic to reject epochs with >50% artifacts and flag SNR < 10dB. **Dep**: T004.
 - [ ] T006_run [P] **Execute** `code/data/preprocess.py` to generate `data/processed/` epochs and flags. **Dep**: T006, T005_run.
-- [~] T007 [P] Implement `code/network/connectivity.py` for coherence calculation (Welch method on fixed-duration epochs).
+- [X] T007 [P] Implement `code/network/connectivity.py` for coherence calculation (Welch method on fixed-duration epochs).
 - [ ] T007_run [P] **Execute** `code/network/connectivity.py` to generate `data/processed/connectivity_matrices/`. **Dep**: T007, T006_run.
-- [~] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity. **CRITICAL**: Global/Local Efficiency MUST be calculated as the reciprocal of characteristic_path_length to satisfy FR-003. **Dep**: T007_run.
+- [X] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity. **CRITICAL**: Global/Local Efficiency MUST be calculated as the reciprocal of characteristic_path_length to satisfy FR-003. **Dep**: T007_run.
 - [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Dep**: T008, T007_run.
 - [ ] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple-comparison correction.
 - [ ] T010 [P] Implement `code/state/version_map.py` to manage SHA-256 hashes and `updated_at` timestamps (Constitution Principle V).

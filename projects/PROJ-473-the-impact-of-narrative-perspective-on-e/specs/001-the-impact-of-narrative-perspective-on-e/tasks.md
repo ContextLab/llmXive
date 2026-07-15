@@ -39,8 +39,8 @@
 - [X] T004 Implement `code/config.py` for paths, seeds (`np.random.seed(42)`), and hyperparameters
 - [X] T005 [P] Implement `code/utils.py` function `scan_for_pii(text)` to detect PII; this logic is intended to be invoked by the CI Repository-Hygiene Agent as a blocking gate (Constitution Principle III)
 - [ ] T006 [P] Implement `code/utils.py` function `compute_artifact_hash(file_path)` for versioning; this logic is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V)
-- [~] T007 [P] Implement `code/data_loader.py` to fetch real external datasets (OSF, Moral Foundations Twitter, Project Gutenberg) via verified URLs
-- [~] T008 Create base data models (`StoryDocument`, `ReaderResponse`) in `code/models.py`
+- [X] T007 [P] Implement `code/data_loader.py` to fetch real external datasets (OSF, Moral Foundations Twitter, Project Gutenberg) via verified URLs
+- [X] T008 Create base data models (`StoryDocument`, `ReaderResponse`) in `code/models.py`
 - [~] T009 Setup CI environment configuration for GitHub Actions (CPU-only, 7GB RAM limit)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -56,14 +56,14 @@
 ### Tests for User Story 1
 
 - [~] T010 [US1] Validation test: Process a manually annotated gold-standard subset of **50 stories** and verify that the computed "first-person density" scores correlate ≥ 0.8 with human annotations, satisfying SC-001. <!-- ATOMIZE: requested -->
-- [~] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
-- [~] T012 [P] [US1] Integration test for full pipeline on a sample of 10 stories in `tests/integration/test_extraction_flow.py`
+- [X] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
+- [X] T012 [P] [US1] Integration test for full pipeline on a sample of 10 stories in `tests/integration/test_extraction_flow.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/extraction.py` function `calculate_pronoun_density(text)` using spaCy (FR-001)
-- [~] T014 [US1] Implement `code/extraction.py` function `calculate_narrator_distance_score(text)` (FR-001)
-- [~] T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)` handling edge cases (<50 words, mixed language)
+- [X] T013 [P] [US1] Implement `code/extraction.py` function `calculate_pronoun_density(text)` using spaCy (FR-001)
+- [X] T014 [US1] Implement `code/extraction.py` function `calculate_narrator_distance_score(text)` (FR-001)
+- [X] T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)` handling edge cases (<50 words, mixed language)
 - [~] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`
 - [~] T017 [US1] Add validation logic to flag "neutral/omniscient" texts where `pronoun_density_1st` is 0.0
 - [ ] T018 [US1] Add logging for extraction quality warnings (e.g., "data_quality_insufficient")

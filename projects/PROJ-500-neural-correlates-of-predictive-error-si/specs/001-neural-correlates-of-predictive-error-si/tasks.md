@@ -79,7 +79,7 @@
 - [ ] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
 - [ ] T009 [P] Create base data schemas in `contracts/` (aligned_data.schema.yaml, model_output.schema.yaml)
 - [~] T010 [P] Setup environment variable validation and error handling infrastructure
-- [~] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
+- [ ] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,16 +95,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [~] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data.
+- [X] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
+- [X] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data.
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
+- [X] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
 - [~] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
-- [~] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
-- [~] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
-- [~] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
+- [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
+- [ ] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
+- [ ] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,15 +118,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
-- [~] T020 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> -trial target block) is correctly applied.
+- [X] T019 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
+- [ ] T020 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> -trial target block) is correctly applied.
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
-- [~] T022 [US2] Implement **Pipeline Branching Logic** in `src/data/align.py`: Detect missing behavioral logs; set `analysis_mode` to "Stimulus-Driven" (using P=0.8 probability) or "Error-Signal" in `data/validation_report.json` (FR-011, FR-012)
-- [~] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005) <!-- FAILED: unspecified -->
-- [~] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction)
+- [ ] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
+- [ ] T022 [US2] Implement **Pipeline Branching Logic** in `src/data/align.py`: Detect missing behavioral logs; set `analysis_mode` to "Stimulus-Driven" (using P=0.8 probability) or "Error-Signal" in `data/validation_report.json` (FR-011, FR-012)
+- [ ] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005) <!-- FAILED: unspecified -->
+- [ ] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction)
 - [ ] T025 [US2] Implement exclusion logic for blocks with <10 valid trials and NaN handling for excessive artifact rejection
 - [ ] T026 [US2] Finalize and Write Aligned Dataset: Merge `data/interim_lagged_mmns.csv` with behavioral blocks and `analysis_mode` flag; generate final `data/aligned_data.csv` (FR-011, FR-012)
 

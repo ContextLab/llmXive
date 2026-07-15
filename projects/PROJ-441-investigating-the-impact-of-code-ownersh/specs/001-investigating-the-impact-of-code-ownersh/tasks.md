@@ -59,8 +59,8 @@
 - [ ] T005 [P] Implement `code/utils/logger.py` with structured logging and file rotation
 - [ ] T006 Create `code/__init__.py` and package init files for all sub-packages
 - [~] T007 Setup data directory structure and `.gitkeep` files for `data/raw`, `data/processed`, `data/results`
-- [~] T008 Implement `code/main.py` entry point with argument parsing for pipeline stages
-- [~] T009 [P] [US3] Implement progressive sample reduction logic in `code/main.py` that dynamically reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened, ensuring the Plan's fallback strategy is available before T041 triggers. This logic must be callable by T041.
+- [X] T008 Implement `code/main.py` entry point with argument parsing for pipeline stages
+- [X] T009 [P] [US3] Implement progressive sample reduction logic in `code/main.py` that dynamically reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened, ensuring the Plan's fallback strategy is available before T041 triggers. This logic must be callable by T041.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,14 +74,14 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Contract test for ownership metrics schema in `tests/contract/test_ownership_metrics.py`
-- [~] T011 [P] [US1] Integration test for git history extraction in `tests/integration/test_git_extraction.py`
+- [X] T010 [P] [US1] Contract test for ownership metrics schema in `tests/contract/test_ownership_metrics.py`
+- [X] T011 [P] [US1] Integration test for git history extraction in `tests/integration/test_git_extraction.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/extractors/git_metrics.py` to calculate the **LOC-weighted Gini coefficient** of commit distribution (using `git blame` to attribute lines to authors) and unique developer count, strictly adhering to the Plan's Complexity Tracking decision (deviating from Spec FR-001's simpler commit-count proxy to ensure accuracy). This task produces the artifact required by T028.
-- [~] T013 [US1] Implement temporal alignment logic in `code/extractors/git_metrics.py` to explicitly **checkout the specific commit SHA before running git log/blame** to ensure metrics reflect the state at that point in time, as required by Plan Phase 1.
-- [~] T014 [US1] Implement edge case handling in `code/extractors/git_metrics.py` for missing history or non-Python/Java repos (set metrics to null, log warning)
+- [X] T012 [P] [US1] Implement `code/extractors/git_metrics.py` to calculate the **LOC-weighted Gini coefficient** of commit distribution (using `git blame` to attribute lines to authors) and unique developer count, strictly adhering to the Plan's Complexity Tracking decision (deviating from Spec FR-001's simpler commit-count proxy to ensure accuracy). This task produces the artifact required by T028.
+- [X] T013 [US1] Implement temporal alignment logic in `code/extractors/git_metrics.py` to explicitly **checkout the specific commit SHA before running git log/blame** to ensure metrics reflect the state at that point in time, as required by Plan Phase 1.
+- [X] T014 [US1] Implement edge case handling in `code/extractors/git_metrics.py` for missing history or non-Python/Java repos (set metrics to null, log warning)
 - [ ] T015 [US1] Create data loader in `code/extractors/__init__.py` to fetch repository URLs and CodeXGLUE sample metadata
 - [ ] T016 [US1] Implement output serialization in `code/extractors/git_metrics.py` to save `OwnershipMetrics` JSON (containing `gini_coefficient` based on LOC-weighted distribution) to `data/processed/ownership_metrics.json`
 - [ ] T040 [US1] Create a `code/analysis/deviation_rationale.md` document explaining the Spec/Plan conflict resolution (why LOC-weighted Gini and LMM were chosen over Spec defaults) to ensure auditability

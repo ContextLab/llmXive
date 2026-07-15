@@ -53,7 +53,7 @@
 - [~] T001i [P] Create directory `data/filtered`
 - [~] T001j [P] Create directory `data/scores`
 - [~] T001k [P] Create directory `outputs`
-- [~] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
 - [~] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -65,10 +65,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [~] T004 Setup data directory structure: `data/raw/`, `data/filtered/`, `data/scores/`, `outputs/`
-- [~] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
-- [~] T006 [P] Create `src/data-models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`, `p_value_logic`, `p_value_fidelity`, `beta_logic`, `beta_fidelity`)
-- [~] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation
-- [~] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
+- [ ] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
+- [ ] T006 [P] Create `src/data-models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`, `p_value_logic`, `p_value_fidelity`, `beta_logic`, `beta_fidelity`)
+- [ ] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation
+- [ ] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,13 +84,13 @@
 
 - [ ] T009a-1 [P] [US1] Write `tests/unit/test_download.py::test_url_validity`: Assert that the download URL returns HTTP 200 and content type is valid.
 - [ ] T009a-2 [P] [US1] Write `tests/unit/test_download.py::test_checksum_verification`: Assert that the downloaded file SHA256 matches the expected checksum.
-- [~] T010 [P] [US1] Write `tests/unit/test_filter.py::test_category_filter_logic`: Assert that filtering by ["World Knowledge Reasoning", "Visual Reasoning"] returns only matching records. <!-- ATOMIZE: requested -->
-- [~] T010b [P] [US1] Write `tests/unit/test_filter.py::test_empty_result_handling`: Assert that if no matches are found, the script exits with a clear error message. <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Write `tests/unit/test_filter.py::test_category_filter_logic`: Assert that filtering by ["World Knowledge Reasoning", "Visual Reasoning"] returns only matching records. <!-- ATOMIZE: requested -->
+- [X] T010b [P] [US1] Write `tests/unit/test_filter.py::test_empty_result_handling`: Assert that if no matches are found, the script exits with a clear error message. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo, handling errors and saving to `data/raw/`
-- [~] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`
+- [ ] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo, handling errors and saving to `data/raw/`
+- [ ] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`
 - [~] T013 [US1] Add error handling for missing files or malformed JSON in download/filter scripts
 - [~] T014 [US1] Integrate download and filter into `src/cli/main.py` (Stage: `download-filter`)
 
@@ -108,14 +108,14 @@
 
 - [ ] T015a-1 [P] [US2] Write `tests/unit/test_scoring.py::test_ssim_calculation`: Assert SSIM calculation on dummy images returns value in [0, 1].
 - [ ] T015a-2 [P] [US2] Write `tests/unit/test_scoring.py::test_lpips_calculation`: Assert LPIPS calculation on dummy images returns value in [0, 1].
-- [~] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt.
-- [~] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is in [-1, 1].
+- [X] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt.
+- [X] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is in [-1, 1].
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF` (4-bit, CPU-only) using `llama-cpp-python` with initial batch size 8
-- [~] T018 [US2] Implement `src/services/scoring.py` Logic Score logic: Embed instruction & VLM description via `all-MiniLM-L-v2`, compute cosine similarity
-- [~] T019 [US2] Implement `src/services/scoring.py` Fidelity Score logic: Compute SSIM and LPIPS, calculate a weighted combination of SSIM and (1-LPIPS)
+- [ ] T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF` (4-bit, CPU-only) using `llama-cpp-python` with initial batch size 8
+- [ ] T018 [US2] Implement `src/services/scoring.py` Logic Score logic: Embed instruction & VLM description via `all-MiniLM-L-v2`, compute cosine similarity
+- [ ] T019 [US2] Implement `src/services/scoring.py` Fidelity Score logic: Compute SSIM and LPIPS, calculate a weighted combination of SSIM and (1-LPIPS)
 - [ ] T020 [US2] Implement batch processing loop in `src/services/scoring.py` with **pre-flight memory estimation** and **dynamic batch-size adjustment**. Formula: `RAM_est = model_size_gb * 1.2 + batch_size * image_size_mb` where `image_size_mb` is the memory of a single resized 512x512 RGB float32 tensor. Reduce batch size if `RAM_est > 6.5GB` (7GB limit minus 0.5GB safety buffer) to guarantee 7GB limit is never exceeded; skip failures with logs.
 - [ ] T021 [US2] Integrate scoring into `src/cli/main.py` (Stage: `score`) and write results to `data/scores/`
 

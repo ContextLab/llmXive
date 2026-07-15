@@ -41,9 +41,9 @@
 - [ ] T005 Implement Phase 0 "Golden Set" validation in `code/load_data.py`: check for `data/processed/golden_set.csv` with `expert_load_score` OR concurrent self-reports; exit with specific error if missing
 - [ ] T006a [P] Fetch or Verify External Golden Set: Ensure `data/processed/golden_set.csv` exists with ≥50 expert-labeled interactions. If missing, the task is blocked until external data is manually fetched. DO NOT generate synthetic labels or templates. **Depends on T004, T005**
 - [~] T006b Implement `code/create_golden_set.py` to actively CREATE the Golden Set if external data is missing: generate a synthetic expert-labeled dataset based on a defined rubric (randomized expert scores mapped to interaction features) to satisfy the 'create' clause of FR-001. Output to `data/processed/golden_set.csv`.
-- [~] T006c Document Constitutional Conflict: Update `docs/README.md` and `docs/research.md` to explicitly state the deviation from Constitution Principle VI (NASA-TLX validation) and the reliance on the 'Golden Set' path, flagging this for human review before research acceptance.
-- [~] T007 Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
-- [~] T008 Setup environment configuration management and logging infrastructure in `code/utils.py`
+- [X] T006c Document Constitutional Conflict: Update `docs/README.md` and `docs/research.md` to explicitly state the deviation from Constitution Principle VI (NASA-TLX validation) and the reliance on the 'Golden Set' path, flagging this for human review before research acceptance.
+- [X] T007 Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
+- [X] T008 Setup environment configuration management and logging infrastructure in `code/utils.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,12 +59,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
-- [~] T010 [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
+- [X] T009 [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
+- [X] T010 [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session
+- [X] T011 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session
 - [ ] T012 [US1] Implement Gradient Boosting Regressor (`LightGBM` with `tree_method='hist'`, `device='cpu'`) in `code/train_load_model.py`
 - [ ] T013 [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5
 - [ ] T014 [US1] Implement model training loop with fixed seed, validation against `data/processed/golden_set.csv` (Pearson r ≥ 0.6 target)

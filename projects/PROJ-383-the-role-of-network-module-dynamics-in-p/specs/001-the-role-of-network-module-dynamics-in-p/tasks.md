@@ -85,7 +85,7 @@
 - [ ] T011 [P] [US1] Implement `code/ingestion/download_hcp.py` to fetch rs-fMRI and n-back data for 100 subjects from OpenNeuro **ds001734**
 - [X] T012a [US1] Implement subject exclusion logic in `code/ingestion/preprocess.py`: exclude subjects with mean FD > 0.2mm [UNRESOLVED-CLAIM: c_ec7a957b — status=not_enough_info]
 - [~] T012b [US1] Implement motion scrubbing and regression in `code/ingestion/preprocess.py`: Regress out rigid-body motion parameters, their temporal derivatives, and mean FD using OLS; scrub time points with FD > 0.2mm [UNRESOLVED-CLAIM: c_8c909c97 — status=not_enough_info]; **output scrubbed time series to `data/processed/scrubbed_timeseries.parquet`**
-- [~] T013 [US1] Implement data consolidation logic to merge cleaned time series and behavioral scores into `data/processed/consolidated_data.parquet`
+- [ ] T013 [US1] Implement data consolidation logic to merge cleaned time series and behavioral scores into `data/processed/consolidated_data.parquet`
 - [~] T014 [US1] Add logging for subject exclusions due to missing behavioral scores or excessive motion
 - [~] T015 [US1] Integrate `psutil` peak RSS checks into the ingestion pipeline to verify ≤7GB constraint (FR-010)
 
@@ -106,11 +106,11 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [P] [US2] Implement `code/analysis/dynamic_connectivity.py` to compute time-varying functional connectivity matrices using sliding windows (primary duration, step size)
-- [~] T019 [US2] Implement **Multilayer Modularity Optimization (MMO)** using `leidenalg` (resolution sufficient for the analysis, 100 iterations [UNRESOLVED-CLAIM: c_c9494970 — status=not_enough_info]) on **`data/processed/scrubbed_timeseries.parquet`** to identify network modules; calculate flexibility metric as probability of node switching (FR-003, FR-004) <!-- ATOMIZE: requested -->
+- [X] T018 [P] [US2] Implement `code/analysis/dynamic_connectivity.py` to compute time-varying functional connectivity matrices using sliding windows (primary duration, step size)
+- [ ] T019 [US2] Implement **Multilayer Modularity Optimization (MMO)** using `leidenalg` (resolution sufficient for the analysis, 100 iterations [UNRESOLVED-CLAIM: c_c9494970 — status=not_enough_info]) on **`data/processed/scrubbed_timeseries.parquet`** to identify network modules; calculate flexibility metric as probability of node switching (FR-003, FR-004) <!-- ATOMIZE: requested -->
 - [~] T020 [US2] Handle edge cases: skip subjects if window size leaves insufficient time points; flag errors instead of crashing
-- [~] T021 [US2] Output flexibility scores to `data/processed/flexibility_scores.parquet`
-- [~] T022 [US2] Implement sensitivity analysis runner: repeat process for a range of window lengths, **calculate max absolute difference between p-values, assert < 0.05 [UNRESOLVED-CLAIM: c_bcdca9b7 — status=not_enough_info]**, and write results to `data/results/sensitivity_analysis.json` (FR-009)
+- [ ] T021 [US2] Output flexibility scores to `data/processed/flexibility_scores.parquet`
+- [ ] T022 [US2] Implement sensitivity analysis runner: repeat process for a range of window lengths, **calculate max absolute difference between p-values, assert < 0.05 [UNRESOLVED-CLAIM: c_bcdca9b7 — status=not_enough_info]**, and write results to `data/results/sensitivity_analysis.json` (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,12 +129,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T025 [P] [US3] Implement `code/analysis/statistics.py` for partial Spearman correlation controlling for mean FD (FR-005)
+- [X] T025 [P] [US3] Implement `code/analysis/statistics.py` for partial Spearman correlation controlling for mean FD (FR-005)
 - [~] T026 [US3] Implement non-parametric permutation test with standard p-value correction for discrete sampling (FR-006)
 - [~] T027 [US3] Implement sensitivity analysis logic to compare p-values across window lengths (30s, 60s, 90s) [UNRESOLVED-CLAIM: c_4ef0f77c — status=not_enough_info] and verify stability (max diff < 0.05 [UNRESOLVED-CLAIM: c_425405c9 — status=not_enough_info]) (FR-009)
 - [~] T028 [US3] Implement `code/results/generate_report.py` to generate final statistics, **including sensitivity analysis results from `data/results/sensitivity_analysis.json`**, ensuring all findings are framed as "**associational**" (exact string) and confirming motion control was applied (FR-007, FR-009)
-- [~] T029 [US3] Generate visualizations: histogram of null distribution and sensitivity analysis plot using `matplotlib`, saving to `data/results/plots/null_dist.png` and `data/results/plots/sensitivity_plot.png`
-- [~] T030 [US3] Save final results to `data/results/statistical_report.json` and `data/results/plots/`
+- [ ] T029 [US3] Generate visualizations: histogram of null distribution and sensitivity analysis plot using `matplotlib`, saving to `data/results/plots/null_dist.png` and `data/results/plots/sensitivity_plot.png`
+- [ ] T030 [US3] Save final results to `data/results/statistical_report.json` and `data/results/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -64,7 +64,7 @@
 - [X] T007 Create base model classes for `MetaAnalysis` and `Subsample` in `code/models.py`
 - [ ] T008 Configure error handling for zero-variance studies (SE=0), negative variance estimates, and boundary clamping in `code/utils/exceptions.py`
 - [X] T009 [P] Setup environment configuration management for `DATA_SOURCE` (real vs simulation) in `code/config.py`
-- [~] T009a [P] Define `nominal_coverage_target` and `stability_threshold` constants. in `code/config.py` to satisfy FR-007, SC-003, and enable executable threshold detection (T033/T034).
+- [X] T009a [P] Define `nominal_coverage_target` and `stability_threshold` constants. in `code/config.py` to satisfy FR-007, SC-003, and enable executable threshold detection (T033/T034).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,15 +80,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data schema validation in `tests/unit/test_schemas.py`
-- [~] T011 [P] [US1] Integration test for subsampling logic (k=3, k=5, k=10) in `tests/integration/test_subsampling.py` <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/unit/test_schemas.py`
+- [X] T011 [P] [US1] Integration test for subsampling logic (k=3, k=5, k=10) in `tests/integration/test_subsampling.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
 **Prerequisites**: T006 (Chunked Processing) and T008 (Zero-Variance/Negative Variance Handling) must be implemented first to support data acquisition.
 
-- [~] T012 [US1] Implement `code/download.py` to fetch a substantial corpus of meta-analyses from Cochrane/Campbell. **Mandatory**: Use specific search parameters: `searchString="meta-analysis effect size"` for Cochrane Library API and `query="meta-analysis"` for Campbell Collaboration RSS. **Output**: Raw data files in `data/raw/`. If fetch fails (e.g., 404, rate limit) or returns no data, raise `DataAcquisitionError` to trigger fallback. <!-- SKIPPED: non-mapping output -->
-- [~] T012a [US1] Validate the downloaded corpus count against SC-001 (>=50 real-world meta-analyses). **Logic**: If count < 50, log a **CRITICAL** warning: "Primary data requirement (FR-001) not met. Switching to Simulation Mode." Trigger the simulation fallback path (T019). If count >= 50, log success and proceed to T016. **Output**: Update `data/output/success_rate_report.json` with `mode: "real"` or `mode: "simulation"` and `count`.
+- [X] T012 [US1] Implement `code/download.py` to fetch a substantial corpus of meta-analyses from Cochrane/Campbell. **Mandatory**: Use specific search parameters: `searchString="meta-analysis effect size"` for Cochrane Library API and `query="meta-analysis"` for Campbell Collaboration RSS. **Output**: Raw data files in `data/raw/`. If fetch fails (e.g., 404, rate limit) or returns no data, raise `DataAcquisitionError` to trigger fallback. <!-- SKIPPED: non-mapping output -->
+- [ ] T012a [US1] Validate the downloaded corpus count against SC-001 (>=50 real-world meta-analyses). **Logic**: If count < 50, log a **CRITICAL** warning: "Primary data requirement (FR-001) not met. Switching to Simulation Mode." Trigger the simulation fallback path (T019). If count >= 50, log success and proceed to T016. **Output**: Update `data/output/success_rate_report.json` with `mode: "real"` or `mode: "simulation"` and `count`.
 - [~] T019 [US1] Implement parameter generation and synthetic data generation in `code/download.py` as a fallback triggered ONLY if T012/T012a confirm failure. **Parameters**: Use values from Ioannidis et al. (2008): `tau^2 = 0.04`, `mean_effect = 0.3`, `bias = 0.1`, `study_count_range = [3, 50]`. **Output**: Write parameters to `data/raw/simulation_params.json` and synthetic data files to `data/raw/`.
 - [~] T016 [US1] Implement `code/subsample.py` to generate up to 100 bootstrap subsamples for each `k` (3 to N), logging seeds and handling `k < 3` edge cases. **Must utilize** T006 (chunking) and T008 (zero-variance) logic. **Logging Requirement**: Log every subsample iteration (ID, k, seed, estimator type) to `data/processed/subsample_data.parquet` within this task.
 - [~] T017 [US1] Create validation script `code/validate_data.py` to verify downloaded/generated data integrity, checksums, and **aggregate the success rate** of meta-analyses processed against the ≥50 target (SC-001), writing a summary to `data/output/success_rate_report.json`. **Output**: JSON report containing `total_target`, `actual_processed`, `success_rate`, `mode`.
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for REML vs DL estimator switching logic at k=10 in `tests/unit/test_models.py`
-- [~] T022 [P] [US2] Integration test for coverage rate calculation in `tests/integration/test_metrics.py`
+- [X] T021 [P] [US2] Unit test for REML vs DL estimator switching logic at k=10 in `tests/unit/test_models.py`
+- [X] T022 [P] [US2] Integration test for coverage rate calculation in `tests/integration/test_metrics.py`
 
 ### Implementation for User Story 2
 

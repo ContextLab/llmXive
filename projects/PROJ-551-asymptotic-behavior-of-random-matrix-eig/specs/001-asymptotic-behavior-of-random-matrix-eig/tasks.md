@@ -58,8 +58,8 @@
 - [X] T004 Setup configuration management for seeds, tolerances, and paths in `code/utils/config.py`
 - [ ] T005 [P] Implement data hygiene utilities (checksums) in `code/utils/checksum.py` per Constitution III
 - [X] T006 [P] Create base data models/entities in `code/data_models.py` (SimulationRun, PerturbationConfig)
-- [~] T007 [P] Setup iterative solver wrapper with `tol=1e-10` in `code/analysis/eigen_solver.py` using `scipy.sparse.linalg.eigsh` and `LinearOperator`; validate results STRICTLY against the theoretical semicircle edge (±2.0) to ensure outliers are not artifacts, avoiding validation against the predicted BBP threshold.
-- [~] T008 [P] Implement outlier detection logic (bulk edge vs. BBP prediction) in `code/analysis/outlier_detect.py`
+- [X] T007 [P] Setup iterative solver wrapper with `tol=1e-10` in `code/analysis/eigen_solver.py` using `scipy.sparse.linalg.eigsh` and `LinearOperator`; validate results STRICTLY against the theoretical semicircle edge (±2.0) to ensure outliers are not artifacts, avoiding validation against the predicted BBP threshold.
+- [X] T008 [P] Implement outlier detection logic (bulk edge vs. BBP prediction) in `code/analysis/outlier_detect.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,16 +73,16 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Unit test for Wigner matrix generation (mean/variance check) in `tests/unit/test_wigner.py`
-- [~] T011 [P] [US1] Unit test for perturbation construction (rank/sparsity verification) in `tests/unit/test_perturbation.py`
+- [X] T010 [P] [US1] Unit test for Wigner matrix generation (mean/variance check) in `tests/unit/test_wigner.py`
+- [X] T011 [P] [US1] Unit test for perturbation construction (rank/sparsity verification) in `tests/unit/test_perturbation.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement Wigner matrix generator (dense, scaled $1/\sqrt{N}$) in `code/generators/wigner.py`
-- [~] T013 [P] [US1] Implement perturbation matrix constructor (diagonal, block-sparse, random sparse) in `code/generators/perturbation.py`; verify rank preservation during sparsity masking per FR-002 and FR-009
-- [~] T014 [US1] Implement core simulation loop: generate $W_N$, add $P_N$, compute top 10 eigenvalues in `code/main.py` (single run mode)
+- [X] T012 [P] [US1] Implement Wigner matrix generator (dense, scaled $1/\sqrt{N}$) in `code/generators/wigner.py`
+- [X] T013 [P] [US1] Implement perturbation matrix constructor (diagonal, block-sparse, random sparse) in `code/generators/perturbation.py`; verify rank preservation during sparsity masking per FR-002 and FR-009
+- [X] T014 [US1] Implement core simulation loop: generate $W_N$, add $P_N$, compute top 10 eigenvalues in `code/main.py` (single run mode)
 - [~] T015 [US1] Add logic to record results (eigenvalues, perturbation params) to `data/processed/` with metadata
-- [~] T017 [US1] Add structured logging for simulation run parameters; write structured JSON logs to `data/logs/simulation_run.log` including the exact random seed state, parameter values, and timestamp to satisfy Constitution Principle I (Reproducibility).
+- [ ] T017 [US1] Add structured logging for simulation run parameters; write structured JSON logs to `data/logs/simulation_run.log` including the exact random seed state, parameter values, and timestamp to satisfy Constitution Principle I (Reproducibility).
 - [ ] T019 [US1] Generate and checksum raw matrix instances and intermediate states in `data/raw/` before aggregation to satisfy Constitution Principle III (Data Hygiene) and ensure traceability.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

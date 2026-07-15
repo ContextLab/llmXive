@@ -58,18 +58,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Implement `code/config.py` for hyperparams, random seeds, and path constants
-- [~] T005 Implement `code/utils/logger.py` for structured logging and `code/utils/exceptions.py` for custom error handling
-- [~] T006 Implement `code/data_loader.py` with:
+- [X] T004 Implement `code/config.py` for hyperparams, random seeds, and path constants
+- [X] T005 Implement `code/utils/logger.py` for structured logging and `code/utils/exceptions.py` for custom error handling
+- [X] T006 Implement `code/data_loader.py` with:
  - Verified URL fetchers for M4 (` fallback logic or specific M4 repo URL) and UCI Electricity (`)
  - **Hard-fail mechanism**: Raise `ValueError` immediately if checksums do not match or URLs are unreachable (per FR-007)
  - **Split Logic**: Implement 80/20 split ([deferred] training, [deferred] testing) as per Constitution Principle VII and Spec FR-001. Explicitly override the plan's previous mention of "72/8/20" split; the 80/20 split is the single source of truth.
  - Streaming/chunked loading logic to handle UCI multivariate data within 7GB RAM
  - Standardization (zero mean, unit variance)
-- [~] T007 Create `code/models/__init__.py` and base model interface definitions
-- [~] T008 Implement `code/metrics/__init__.py` and base metric interface definitions
+- [X] T007 Create `code/models/__init__.py` and base model interface definitions
+- [X] T008 Implement `code/metrics/__init__.py` and base metric interface definitions
 - [~] T009 Setup `data/raw/` and `data/processed/` directory structures with checksum verification logic
-- [~] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20) and streaming behavior on a small mock dataset
+- [X] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20) and streaming behavior on a small mock dataset
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,20 +85,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for `data_loader` output schema in `tests/contract/test_data_schema.py`
-- [~] T012 [P] [US1] Integration test for end-to-end ARIMA coverage calculation in `tests/integration/test_coverage_arima.py`
+- [X] T011 [P] [US1] Contract test for `data_loader` output schema in `tests/contract/test_data_schema.py`
+- [X] T012 [P] [US1] Integration test for end-to-end ARIMA coverage calculation in `tests/integration/test_coverage_arima.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/models/arima_model.py`: Statsmodels wrapper, conditional variance interval generation using `conf_int` with `method='conditional'` (or equivalent explicit parameter) to ensure compliance with FR-003, error handling for non-convergence (log/skip series)
-- [~] T014 [P] [US1] Implement `code/models/prophet_model.py`: Prophet wrapper, `uncertainty_samples` + residual simulation for intervals, error handling
-- [~] T015 [P] [US1] Implement `code/models/lstm_model.py`:
+- [X] T013 [P] [US1] Implement `code/models/arima_model.py`: Statsmodels wrapper, conditional variance interval generation using `conf_int` with `method='conditional'` (or equivalent explicit parameter) to ensure compliance with FR-003, error handling for non-convergence (log/skip series)
+- [X] T014 [P] [US1] Implement `code/models/prophet_model.py`: Prophet wrapper, `uncertainty_samples` + residual simulation for intervals, error handling
+- [X] T015 [P] [US1] Implement `code/models/lstm_model.py`:
  - Single hidden layer (32 units), max 50 epochs, early stopping (patience=5)
  - CPU-only training (no CUDA, no `load_in_8bit`)
  - **Fallback**: If intervals are invalid (NaN/Inf) or residuals are non-Gaussian (detected via variance check), switch to Empirical CDF (quantile-based) intervals as per Spec fallback logic.
  - **Stability Check**: Detect NaN/Inf; retry with reduced learning rate (Initial: 0.01, Reduction: 0.1x, Max attempts: a limited number) as per Spec Edge Cases
-- [~] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set
-- [~] T017 [US1] Implement `code/evaluation/runner.py` (partial): Implement single series loop for data loading, model fitting, and coverage calculation
+- [X] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set
+- [X] T017 [US1] Implement `code/evaluation/runner.py` (partial): Implement single series loop for data loading, model fitting, and coverage calculation
 - [~] T018 [US1] Implement `code/evaluation/runner.py` (complete): Extend loop to process all series in M4/UCI (streaming for UCI), aggregate results to `results/coverage.csv`
 - [~] T019 [US1] Add error handling in `runner.py` to catch and log specific series failures (e.g., constant variance) without crashing the pipeline
 
@@ -114,8 +114,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Contract test for metric output schema in `tests/contract/test_metrics_schema.py`
-- [~] T021 [P] [US2] Integration test for PIT uniformity test in `tests/integration/test_pit_ljung_box_test.py`
+- [X] T020 [P] [US2] Contract test for metric output schema in `tests/contract/test_metrics_schema.py`
+- [X] T021 [P] [US2] Integration test for PIT uniformity test in `tests/integration/test_pit_ljung_box_test.py`
 
 ### Implementation for User Story 2
 

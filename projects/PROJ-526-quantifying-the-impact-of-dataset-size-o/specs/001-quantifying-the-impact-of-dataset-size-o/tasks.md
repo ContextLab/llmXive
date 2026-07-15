@@ -58,10 +58,10 @@
 - [ ] T002 Initialize Python 3.10 project with dependencies (`pymatgen`, `matminer`, `scikit-learn`, `pandas`, `numpy`, `requests`, `huggingface_hub`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [ ] T004 Create `data/` directory structure (`raw/`, `processed/`) and `state/` for checksums
-- [~] T005 [P] Implement data integrity utilities: `sha256` checksumming and logging in `code/utils/integrity.py`
-- [~] T006 [P] Setup environment configuration management for API keys and paths in `code/config.py`
-- [~] T007 Create base data models (MaterialEntry, LearningCurve, ScalingResult) in `code/models.py`
-- [~] T008 Configure deterministic seed setting for `numpy` and `random` in `code/utils/seed.py`
+- [X] T005 [P] Implement data integrity utilities: `sha256` checksumming and logging in `code/utils/integrity.py`
+- [X] T006 [P] Setup environment configuration management for API keys and paths in `code/config.py`
+- [X] T007 Create base data models (MaterialEntry, LearningCurve, ScalingResult) in `code/models.py`
+- [X] T008 Configure deterministic seed setting for `numpy` and `random` in `code/utils/seed.py`
 - [~] T035 [P] **Amendment Task**: Create a formal amendment record in `state/amendments.md` documenting the deviation from Constitution Principle VII (reduced subsets/seeds) and the data availability constraint (properties -> N=2-3). This amendment is a prerequisite for T019, T020, T027.
 - [~] T036 [P] **Amendment Task**: Update `spec.md` (and `state/amendments.md`) to formally modify Success Criterion SC-001 baseline to reflect the actual N (2-3) instead of 15, and update the statistical protocol to mandate Permutation Test for N<5. This amendment is a prerequisite for T027.
 
@@ -79,15 +79,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
-- [~] T010 [P] [US1] Unit test for Magpie vector generation (no structural features) in `tests/unit/test_descriptors.py`
+- [X] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [X] T010 [P] [US1] Unit test for Magpie vector generation (no structural features) in `tests/unit/test_descriptors.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/download_data.py` to fetch materials data from HuggingFace (Materials Project/AFLOW) with exponential backoff for rate limits
-- [~] T012 [US1] Implement `code/generate_descriptors.py` to compute Magpie composition-only descriptors for all entries
-- [~] T013 [US1] Implement data consolidation logic to merge properties into a single `data/processed/materials_master.parquet` file (with CSV fallback if memory permits)
-- [~] T014 [US1] Implement chunked loading in `code/download_data.py` using batch processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB during full dataset load
+- [X] T011 [US1] Implement `code/download_data.py` to fetch materials data from HuggingFace (Materials Project/AFLOW) with exponential backoff for rate limits
+- [X] T012 [US1] Implement `code/generate_descriptors.py` to compute Magpie composition-only descriptors for all entries
+- [ ] T013 [US1] Implement data consolidation logic to merge properties into a single `data/processed/materials_master.parquet` file (with CSV fallback if memory permits)
+- [X] T014 [US1] Implement chunked loading in `code/download_data.py` using batch processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB during full dataset load
 - [ ] T015 [US1] Add logging for download progress and descriptor generation stats
 - [ ] T016 [US1] Implement validation logic to count distinct properties. **IF count < 15, raise a critical `ValueError` and halt the pipeline immediately.** Log the "15-N" gap and update `state/properties_status.json` ONLY if the count is sufficient. This task enforces the hard constraint of FR-001; execution must not proceed to US2/US3 if this check fails.
 

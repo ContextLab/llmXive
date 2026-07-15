@@ -61,7 +61,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T006 [P] Setup environment configuration management (e.g., `.Renviron` or `renv`)
 - [ ] T007 Create base data validation utilities to check for required stimulus columns (`stimulus_id`, `content_domain`, `headline`)
 - [~] T008 Configure error handling and logging infrastructure for R scripts
-- [~] T009 Setup CI workflow file (`.github/workflows/analyze.yml`) targeting GitHub Actions free tier (limited CPU, limited RAM)
+- [ ] T009 Setup CI workflow file (`.github/workflows/analyze.yml`) targeting GitHub Actions free tier (limited CPU, limited RAM)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,17 +78,17 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Contract test for synthetic data schema in `tests/test_data_generation.R` (validates `severity_rating` 1-7 range and `framing_condition` assignment) <!-- FAILED: unspecified -->
-- [~] T011 [P] [US1] Integration test for mixed-effects model output format in `tests/test_statistics.R`
+- [X] T011 [P] [US1] Integration test for mixed-effects model output format in `tests/test_statistics.R`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/01_data_prep.R`: Fetch MPSD-v2 stimulus data from the SPECIFIC OSF URL (validated) and verify checksums. Validate that all required stimulus columns (`stimulus_id`, `content_domain`, `headline`) are present. **DEPENDS ON**: T004, T009. <!-- ATOMIZE: requested -->
-- [~] T013 [US1] Implement `code/01_data_prep.R`: Generate synthetic dataset (N=300) by sampling 10 unique stimuli. For each stimulus, generate 15 "harm" and 15 "fact" responses (Total N=300, between-subjects design). Use parametric generation: `severity_rating` ~ Normal(mean=base + delta*condition, SD=1.5), `sharing_intention` ~ Bernoulli(logit). **DEPENDS ON**: T012. <!-- FAILED: unspecified -->
-- [~] T013b [US1] Implement `code/01_data_prep.R`: Implement sensitivity analysis loop. Iterate over a range of delta values (e.g., from a minimal baseline to a substantial upper bound in incremental steps) to generate multiple synthetic datasets. **Deliverable**: `data/processed/sensitivity_datasets/`. **DEPENDS ON**: T013. <!-- FAILED: unspecified -->
+- [X] T012 [P] [US1] Implement `code/01_data_prep.R`: Fetch MPSD-v2 stimulus data from the SPECIFIC OSF URL (validated) and verify checksums. Validate that all required stimulus columns (`stimulus_id`, `content_domain`, `headline`) are present. **DEPENDS ON**: T004, T009. <!-- ATOMIZE: requested -->
+- [X] T013 [US1] Implement `code/01_data_prep.R`: Generate synthetic dataset (N=300) by sampling 10 unique stimuli. For each stimulus, generate 15 "harm" and 15 "fact" responses (Total N=300, between-subjects design). Use parametric generation: `severity_rating` ~ Normal(mean=base + delta*condition, SD=1.5), `sharing_intention` ~ Bernoulli(logit). **DEPENDS ON**: T012. <!-- FAILED: unspecified -->
+- [X] T013b [US1] Implement `code/01_data_prep.R`: Implement sensitivity analysis loop. Iterate over a range of delta values (e.g., from a minimal baseline to a substantial upper bound in incremental steps) to generate multiple synthetic datasets. **Deliverable**: `data/processed/sensitivity_datasets/`. **DEPENDS ON**: T013. <!-- FAILED: unspecified -->
 - [~] T013c [US1] Implement `code/01_data_prep.R`: Aggregate sensitivity loop results to generate a "Power vs. Delta" mapping table and visualization. **Deliverable**: `results/processed/sensitivity_curve_data.csv`, `results/plots/sensitivity_analysis.png`. **DEPENDS ON**: T013b.
-- [~] T014 [US1] Implement `code/03_analysis.R`: Fit mixed-effects linear model (`lmer`) with formula `severity_rating ~ framing_condition + (1|stimulus_id)` using `lme4`. Handle singular fits gracefully. Extract coefficient, SE, and p-value. **DEPENDS ON**: T013. <!-- FAILED: unspecified -->
-- [~] T015 [US1] Implement `code/03_analysis.R`: Calculate Cohen's d effect size for the difference in mean severity ratings between framing conditions. **DEPENDS ON**: T014. <!-- FAILED: unspecified -->
-- [~] T016 [US1] Implement `code/03_analysis.R`: Apply Bonferroni correction to the p-value for the primary framing effect hypothesis. The correction factor MUST be dynamically calculated as (1 + number of interaction tests performed in US2). **DEPENDS ON**: T014.
+- [X] T014 [US1] Implement `code/03_analysis.R`: Fit mixed-effects linear model (`lmer`) with formula `severity_rating ~ framing_condition + (1|stimulus_id)` using `lme4`. Handle singular fits gracefully. Extract coefficient, SE, and p-value. **DEPENDS ON**: T013. <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `code/03_analysis.R`: Calculate Cohen's d effect size for the difference in mean severity ratings between framing conditions. **DEPENDS ON**: T014. <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement `code/03_analysis.R`: Apply Bonferroni correction to the p-value for the primary framing effect hypothesis. The correction factor MUST be dynamically calculated as (1 + number of interaction tests performed in US2). **DEPENDS ON**: T014.
 - [~] T017 [US1] Implement `code/04_export.R`: Generate bar plot with confidence intervals for severity ratings by framing condition. **Deliverable**: `results/plots/us1_severity_barplot.png`. **DEPENDS ON**: T015.
 - [~] T018 [US1] Implement `code/04_export.R`: Save primary analysis results (coefficient, p-value, effect size) to an intermediate file `results/intermediate/us1_results.json`. **DEPENDS ON**: T016, T017. **DO NOT APPEND TO ROOT**.
 
@@ -104,13 +104,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for logistic regression output in `tests/test_statistics.R` (validates odds ratio and p-value presence)
+- [X] T019 [P] [US2] Contract test for logistic regression output in `tests/test_statistics.R` (validates odds ratio and p-value presence)
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/03_analysis.R`: Fit logistic regression model (`glm`) predicting `sharing_intention` from `framing_condition` and `content_domain`. **DEPENDS ON**: T013.
-- [~] T021 [US2] Implement `code/03_analysis.R`: Calculate odds ratios and p-values for the `framing_condition` coefficient. **DEPENDS ON**: T020.
-- [~] T022 [US2] Implement `code/03_analysis.R`: Test and report the interaction coefficient between `framing_condition` and `content_domain`. **DEPENDS ON**: T020.
+- [X] T020 [P] [US2] Implement `code/03_analysis.R`: Fit logistic regression model (`glm`) predicting `sharing_intention` from `framing_condition` and `content_domain`. **DEPENDS ON**: T013.
+- [X] T021 [US2] Implement `code/03_analysis.R`: Calculate odds ratios and p-values for the `framing_condition` coefficient. **DEPENDS ON**: T020.
+- [X] T022 [US2] Implement `code/03_analysis.R`: Test and report the interaction coefficient between `framing_condition` and `content_domain`. **DEPENDS ON**: T020.
 - [~] T023 [US2] Implement `code/04_export.R`: Save logistic regression results (odds ratios, p-values) to an intermediate file `results/intermediate/us2_results.json`. **DEPENDS ON**: T021, T022. **DO NOT APPEND TO ROOT**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -125,7 +125,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Unit test for power calculation logic in `tests/test_statistics.R` (verifies power >= 0.80 for d=0.3, N=300)
+- [X] T024 [P] [US3] Unit test for power calculation logic in `tests/test_statistics.R` (verifies power >= 0.80 for d=0.3, N=300)
 
 ### Implementation for User Story 3
 

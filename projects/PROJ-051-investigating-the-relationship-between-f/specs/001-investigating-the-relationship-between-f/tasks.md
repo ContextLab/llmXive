@@ -39,8 +39,8 @@
 - [ ] T004 Implement `config.py` to manage Re_λ values (representing a range of low to high turbulence intensities), vorticity thresholds, and memory limits (max constrained RSS)
 - [ ] T005 [P] Implement `utils/logging.py` for reproducible logging with random seeds and step timing
 - [ ] T006 [P] Setup `contracts/` directory with `analysis_output.schema.yaml` defining output fields for D_f, ε, and correlation results
-- [~] T007 Create `data/download.py` with JHTDB fetcher logic and Phase-Shifted DNS fallback mechanism; explicitly ensure fallback logic calls `validation/null_model.py` (fallback applies ONLY when JHTDB is unavailable and for algorithm validation only, never for primary hypothesis testing)
-- [~] T008 Create `data/preprocess.py` implementing streaming/chunked processing for 512³ grids to enforce memory constraints
+- [ ] T007 Create `data/download.py` with JHTDB fetcher logic and Phase-Shifted DNS fallback mechanism; explicitly ensure fallback logic calls `validation/null_model.py` (fallback applies ONLY when JHTDB is unavailable and for algorithm validation only, never for primary hypothesis testing)
+- [ ] T008 Create `data/preprocess.py` implementing streaming/chunked processing for 512³ grids to enforce memory constraints
 - [~] T009 Implement `main.py` CLI entry point with pipeline orchestration and contract validation step
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -55,8 +55,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Contract test for box-counting output schema in `tests/contract/test_schemas.py`
-- [~] T011 [P] [US1] Unit test for Menger sponge ground truth in `tests/unit/test_fractal.py`
+- [X] T010 [P] [US1] Contract test for box-counting output schema in `tests/contract/test_schemas.py`
+- [X] T011 [P] [US1] Unit test for Menger sponge ground truth in `tests/unit/test_fractal.py`
 
 ### Implementation for User Story 1
 

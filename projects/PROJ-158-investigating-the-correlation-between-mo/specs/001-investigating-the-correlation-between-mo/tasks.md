@@ -60,8 +60,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 [P] Implement `code/utils/config.py`: Define `SEED`, `DEVICE` (force 'cpu'), and path constants.
 - [X] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
 - [X] T006 [P] Implement `code/utils/data_loader.py`: Define `load_csv(path: str) -> pd.DataFrame` and `save_csv(df: pd.DataFrame, path: str) -> None`.
-- [~] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
-- [~] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
+- [ ] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
+- [X] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +75,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement `code/data/download.py` (Download Only):
+- [X] T009 [US1] Implement `code/data/download.py` (Download Only):
  1. Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127) to `data/raw/dssc_dataset.csv`.
  2. Implement retry logic with exponential backoff on failure.
  3. On failure after retries, fail gracefully with a clear error message indicating the source URL and expected format.
  4. Do NOT perform checksum verification in this task; ensure file is written to disk.
  5. This task must complete successfully before T010 can run.
-- [~] T010 [US1] Implement `code/data/download.py` (Verification):
+- [X] T010 [US1] Implement `code/data/download.py` (Verification):
  1. Read the file `data/raw/dssc_dataset.csv` (produced by T009) to confirm existence.
  2. Verify the file checksum against a **static, hardcoded expected checksum value** (to be provided by the researcher in `code/utils/config.py`). **Do NOT fetch from Zenodo API**.
  3. If the checksum is missing or mismatched, log to `data/processed/review_queue.json` and proceed to allow downstream processing (do not halt).
@@ -89,9 +89,9 @@ Examples of foundational tasks (adjust based on your project):
  5. If deviant, append entry to `data/processed/review_queue.json` with format `{"smiles": <s>, "value": <v>, "unit": <u>, "status": "flagged_for_review"}`.
  6. **Do NOT raise an error or halt the pipeline** for PCE anomalies; simply log them to the review queue and proceed.
  *(Depends on T009)*
-- [~] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
+- [X] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
  *(Depends on T010)*
-- [~] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
+- [X] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
  *(Depends on T011)*
 - [ ] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
  *(Depends on T012)*

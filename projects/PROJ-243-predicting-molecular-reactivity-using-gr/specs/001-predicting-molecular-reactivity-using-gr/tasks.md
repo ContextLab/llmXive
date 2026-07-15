@@ -58,10 +58,10 @@
 
 - [ ] T004 [P] Implement `code/utils/loaders.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
 - [ ] T005 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
-- [~] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY)**. **CRITICAL**: Both statistical tests must be implemented to satisfy T025/T025c consumers.
-- [~] T007 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
+- [X] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY)**. **CRITICAL**: Both statistical tests must be implemented to satisfy T025/T025c consumers.
+- [X] T007 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
 - [~] T008 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
-- [~] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source to `data/raw/reference_substructures_raw.csv` (distinct output file).
+- [ ] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source to `data/raw/reference_substructures_raw.csv` (distinct output file).
 - [ ] T009b [P] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest.
 - [ ] T009c [P] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
 - [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source to `data/raw/kinetic_dataset_raw.csv` (distinct output file).

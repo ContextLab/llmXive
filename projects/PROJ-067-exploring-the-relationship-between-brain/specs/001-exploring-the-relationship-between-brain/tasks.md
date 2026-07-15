@@ -82,10 +82,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] **Metadata Validation (Phase 0 Gate)**: Implement `code/data/validate_metadata.py` to fetch ds000228 metadata, verify existence of "dream recall frequency" field, and **HALT** execution if missing (FR-001, Plan Phase 0).
+- [X] T014 [US1] **Metadata Validation (Phase 0 Gate)**: Implement `code/data/validate_metadata.py` to fetch ds000228 metadata, verify existence of "dream recall frequency" field, and **HALT** execution if missing (FR-001, Plan Phase 0).
 - [~] T015 [US1] **Subject Filtering & N=50 Enforcement**: Implement `code/data/filter_subjects.py` to load validated metadata, filter for subjects with "dream recall frequency", **sort by subject ID ascending, select the first valid subjects, and truncate the list to a fixed number of entries**, then generate `data/raw/valid_subjects.json`. **If fewer than 50 valid subjects are found, raise a FatalError with message "Insufficient subjects for N=50 target"**. The output file MUST contain exactly 50 entries before T016 executes (FR-001, US1 Acceptance Scenario 2).
 - [~] T016 [US1] Implement `code/data/download.py` to fetch ds000228 NIfTI files for subjects listed in `data/raw/valid_subjects.json` (T015 output) (FR-001).
-- [~] T017 [US1] Implement `code/data/preprocess.py` to run ICA-AROMA denoising and spatial normalization to **MNI152NLin2009cAsym** template. **Use specific ICA-AROMA flags: --afni, --no-reports**. Ensure the pipeline accepts preprocessed NIfTI inputs and outputs normalized, denoised files (FR-002).
+- [X] T017 [US1] Implement `code/data/preprocess.py` to run ICA-AROMA denoising and spatial normalization to **MNI152NLin2009cAsym** template. **Use specific ICA-AROMA flags: --afni, --no-reports**. Ensure the pipeline accepts preprocessed NIfTI inputs and outputs normalized, denoised files (FR-002).
 - [~] T018 [US1] Integrate `memory_monitor.py` into `preprocess.py` to abort if RSS >7GB (FR-002, SC-004).
 - [~] T019 [US1] Implement Framewise Displacement (FD) calculation in `preprocess.py` and exclude subjects with FD >0.5mm (Edge Case).
 - [~] T020 [US1] Add logging for excluded subjects (missing metadata or high motion) and total processing count.
@@ -103,19 +103,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T022 [P] [US2] Contract test for metrics CSV schema in `tests/contract/test_metrics_schema.py`
-- [~] T023 [P] [US2] Unit test for sliding window correlation matrix generation in `tests/unit/test_metrics.py`
-- [~] T024 [P] [US2] Unit test for Louvain clustering state transition calculation in `tests/unit/test_metrics.py`
+- [X] T022 [P] [US2] Contract test for metrics CSV schema in `tests/contract/test_metrics_schema.py`
+- [X] T023 [P] [US2] Unit test for sliding window correlation matrix generation in `tests/unit/test_metrics.py`
+- [X] T024 [P] [US2] Unit test for Louvain clustering state transition calculation in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
 - [~] T026 [US2] **Atlas Label Verification & Mapping**: Implement `code/analysis/verify_atlas_labels.py` to check if Schaefer-100 contains "Hippocampal-Memory" label. If missing, generate `data/atlas/network_label_map.csv` with columns `region_id`, `network_name`, `source_label`, `mapped_label`. **Mapping Logic**: Map any region where `source_label` contains 'Hippocampal' or 'Memory' to `mapped_label`='Hippocampal-Memory'. This task MUST complete before T025.
-- [~] T025 [US2] Implement `code/analysis/metrics.py` to load Schaefer-100 atlas (verified by T026) and parcellate preprocessed NIfTI files. **If `network_label_map.csv` exists (from T026), use it to dynamically map regions to the required network ROIs (DMN, Salience, Hippocampal-Memory)**. (Plan Deviation, T005b).
+- [X] T025 [US2] Implement `code/analysis/metrics.py` to load Schaefer-100 atlas (verified by T026) and parcellate preprocessed NIfTI files. **If `network_label_map.csv` exists (from T026), use it to dynamically map regions to the required network ROIs (DMN, Salience, Hippocampal-Memory)**. (Plan Deviation, T005b).
 - [~] T027 [US2] Implement sliding window correlation (a fixed-duration window, a defined time step) in `metrics.py` (FR-003).
 - [~] T028 [US2] Implement Louvain clustering on time-varying connectivity matrices to generate discrete community partitions (FR-003).
 - [~] T029 [US2] Calculate Flexibility (state transitions per unit time) for DMN, Salience, and **mapped** Hippocampal-Memory networks using `network_label_map.csv` (FR-004, T026).
 - [~] T030 [US2] Calculate Stability (Mean Dwell Time) for the same networks (FR-004).
-- [~] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
+- [ ] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
 - [~] T032 [US2] Add logic to exclude subjects from analysis if metadata is missing at this stage with a warning (US2 Acceptance Scenario 4).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,19 +130,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T033 [P] [US3] Contract test for final results JSON schema in `tests/contract/test_results_schema.py`
-- [~] T034 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_stats.py`
-- [~] T035 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`
-- [~] T036 [P] [US3] Unit test for permutation test loop and p-value derivation in `tests/unit/test_stats.py`
+- [X] T033 [P] [US3] Contract test for final results JSON schema in `tests/contract/test_results_schema.py`
+- [X] T034 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_stats.py`
+- [X] T035 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`
+- [X] T036 [P] [US3] Unit test for permutation test loop and p-value derivation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [~] T037 [US3] Implement `code/analysis/stats.py` to load metrics and dream recall frequency values (FR-005).
+- [X] T037 [US3] Implement `code/analysis/stats.py` to load metrics and dream recall frequency values (FR-005).
 - [~] T038 [US3] Perform Spearman correlation analysis between metrics and dream recall frequency (FR-005).
 - [~] T039 [US3] Apply False Discovery Rate (FDR) correction to all correlation p-values (FR-006, SC-002).
 - [~] T040 [US3] Implement permutation test with **exactly 1000 iterations** to generate null distribution (FR-007, SC-003).
 - [~] T041 [US3] Calculate and report post-hoc power analysis (detectable effect size) for N=50 (FR-009, SC-001).
-- [~] T042 [US3] Generate `results/stats.json` containing rho, uncorrected p, FDR-corrected p, and permutation p-value (FR-008).
+- [ ] T042 [US3] Generate `results/stats.json` containing rho, uncorrected p, FDR-corrected p, and permutation p-value (FR-008).
 - [~] T043 [US3] Generate correlation scatter plot and null distribution histogram in `results/plots/` (US3 Acceptance Scenario 3).
 - [~] T044 [US3] Ensure null results (p > 0.05) are fully reported with plots and coefficients, not suppressed (Edge Case).
 
@@ -154,9 +154,9 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [~] T045 [P] Update `code/main.py` to orchestrate the full pipeline (Download → Preprocess → Metrics → Stats) **with built-in wall-clock timing instrumentation for each phase** (SC-005).
-- [~] T049 [P] **Runtime Verification**: Implement a check in `main.py` that **raises a RuntimeError if total runtime > 4 hours** and logs results to `results/runtime_log.json`, asserting total <= 4 hours (SC-005, T045).
-- [~] T050 [P] **CI Pipeline Enforcement**: Update `.github/workflows/ci.yml` (or equivalent CI config) to treat the `RuntimeError` raised by T049 as a **build failure**. This ensures the 4-hour target is enforced by the build system, not just logged.
+- [X] T045 [P] Update `code/main.py` to orchestrate the full pipeline (Download → Preprocess → Metrics → Stats) **with built-in wall-clock timing instrumentation for each phase** (SC-005).
+- [ ] T049 [P] **Runtime Verification**: Implement a check in `main.py` that **raises a RuntimeError if total runtime > 4 hours** and logs results to `results/runtime_log.json`, asserting total <= 4 hours (SC-005, T045).
+- [ ] T050 [P] **CI Pipeline Enforcement**: Update `.github/workflows/ci.yml` (or equivalent CI config) to treat the `RuntimeError` raised by T049 as a **build failure**. This ensures the 4-hour target is enforced by the build system, not just logged.
 - [~] T046 [P] Run `pytest` on all contract and unit tests to ensure full pipeline validity.
 - [~] T047 [P] Validate `results/stats.json` against `contracts/results_schema.yaml`.
 - [~] T048 [P] Update `README.md` or `quickstart.md` with execution instructions for the 4-hour CI limit.

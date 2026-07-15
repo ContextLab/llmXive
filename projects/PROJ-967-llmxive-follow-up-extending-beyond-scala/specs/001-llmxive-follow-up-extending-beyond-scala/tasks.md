@@ -58,13 +58,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure (`data/raw`, `data/processed`) and `.gitignore` for large files
-- [~] T005 [P] Create `code/ingest.py` skeleton with argument parsing and logging setup
-- [~] T006 [P] Create `code/features.py` skeleton with statistical helper functions
-- [~] T007 [P] Create `code/train.py` skeleton with scikit-learn model configuration
-- [~] T008 [P] Create `code/evaluate.py` skeleton for metrics calculation
-- [~] T009 Setup `tests/` directory structure and `pytest.ini`
+- [X] T005 [P] Create `code/ingest.py` skeleton with argument parsing and logging setup
+- [X] T006 [P] Create `code/features.py` skeleton with statistical helper functions
+- [X] T007 [P] Create `code/train.py` skeleton with scikit-learn model configuration
+- [X] T008 [P] Create `code/evaluate.py` skeleton for metrics calculation
+- [X] T009 Setup `tests/` directory structure and `pytest.ini`
 - [~] T037 [P] [US1] Implement Z-Reward dataset download script in `code/ingest.py`: Use `requests` or `huggingface_hub` to fetch the dataset from the official Z-Reward repository URL; verify file integrity via checksum; save to `data/raw/zreward_dataset.csv`
-- [~] T038 [P] [US1] Implement data validation script in `code/ingest.py`: Verify the presence of all rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) and human annotation columns; raise error if schema mismatch detected
+- [X] T038 [P] [US1] Implement data validation script in `code/ingest.py`: Verify the presence of all rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) and human annotation columns; raise error if schema mismatch detected
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,16 +80,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for data loading and schema validation in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_ingest.py`
-- [~] T011 [P] [US1] Integration test for missing data handling and exclusion logic in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_ingest.py`
+- [X] T010 [P] [US1] Unit test for data loading and schema validation in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_ingest.py`
+- [X] T011 [P] [US1] Integration test for missing data handling and exclusion logic in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement Z-Reward dataset ingestion in `code/ingest.py` (load prompts, images, teacher logits, student scores, human annotations)
-- [~] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID
-- [~] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py` based on prompt metadata (independent of scores)
-- [~] T015 [US1] Implement chunked loading or sampling logic in `code/ingest.py` to ensure RAM usage stays < 7GB on free-tier runners
-- [~] T016 [US1] Add summary output in `code/ingest.py`: print sample counts, missing data flags, dimension coverage stats (fidelity loss calculation moved to T024)
+- [X] T012 [US1] Implement Z-Reward dataset ingestion in `code/ingest.py` (load prompts, images, teacher logits, student scores, human annotations)
+- [X] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID
+- [X] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py` based on prompt metadata (independent of scores)
+- [X] T015 [US1] Implement chunked loading or sampling logic in `code/ingest.py` to ensure RAM usage stays < 7GB on free-tier runners
+- [X] T016 [US1] Add summary output in `code/ingest.py`: print sample counts, missing data flags, dimension coverage stats (fidelity loss calculation moved to T024)
 - [~] T039 [P] [US1] Implement synthetic data generator for **testing only** in `tests/test_features.py`: Generate small, fake numpy arrays to test feature calculation logic (variance, eigenvalue) without requiring the full dataset; **MUST strictly adhere to the schema defined in `contracts/dataset.schema.yaml`** (4 rubric dimensions, human annotation format) to ensure test validity
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,16 +104,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for variance, entropy, skewness, kurtosis calculations in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
-- [~] T019 [P] [US2] Unit test for zero-variance edge case handling in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
+- [X] T018 [P] [US2] Unit test for variance, entropy, skewness, kurtosis calculations in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
+- [X] T019 [P] [US2] Unit test for zero-variance edge case handling in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement variance and range calculation for 4 dimensions in `code/features.py`
-- [~] T021 [US2] Implement entropy, skewness, and kurtosis calculation for teacher distributions in `code/features.py`
-- [~] T022 [US2] Implement dominant eigenvalue calculation in `code/features.py`: Compute the **global** covariance matrix across all samples for the 4 dimensions and extract its dominant eigenvalue to derive the global entanglement score (per-sample covariance is mathematically undefined)
-- [~] T023 [US2] Implement zero-variance handling in `code/features.py`: set entropy to 0 and variance to 0 without crashing
-- [~] T024 [US2] Implement "dimensional fidelity loss" calculation in `code/features.py`: Compute MAE between student scalar output and human-annotated score for the primary dimension (selected via metadata); flag and exclude samples with missing human annotations for the target dimension
+- [X] T020 [US2] Implement variance and range calculation for 4 dimensions in `code/features.py`
+- [X] T021 [US2] Implement entropy, skewness, and kurtosis calculation for teacher distributions in `code/features.py`
+- [X] T022 [US2] Implement dominant eigenvalue calculation in `code/features.py`: Compute the **global** covariance matrix across all samples for the 4 dimensions and extract its dominant eigenvalue to derive the global entanglement score (per-sample covariance is mathematically undefined)
+- [X] T023 [US2] Implement zero-variance handling in `code/features.py`: set entropy to 0 and variance to 0 without crashing
+- [X] T024 [US2] Implement "dimensional fidelity loss" calculation in `code/features.py`: Compute MAE between student scalar output and human-annotated score for the primary dimension (selected via metadata); flag and exclude samples with missing human annotations for the target dimension
 - [~] T025 [US2] Integrate feature engineering with ingestion pipeline: read aligned data from `code/ingest.py`, compute per-sample stats and global eigenvalue, and write processed features (including fidelity loss) to `data/processed/features.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,16 +128,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T025 [P] [US3] Unit test for Random Forest training and 5-fold CV execution in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_train.py` <!-- FAILED: unspecified -->
-- [~] T026 [P] [US3] Integration test for permutation test p-value calculation in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_evaluate.py`
+- [X] T025 [P] [US3] Unit test for Random Forest training and 5-fold CV execution in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_train.py` <!-- FAILED: unspecified -->
+- [X] T026 [P] [US3] Integration test for permutation test p-value calculation in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_evaluate.py`
 
 ### Implementation for User Story 3
 
 - [~] T027 [US3] Implement Random Forest training script in `code/train.py` using `scikit-learn` with `n_jobs=2` (CPU-only) and `random_state` fixed; read features from `data/processed/features.json` and target (fidelity loss) from the processed dataset
-- [~] T028 [US3] Implement 5-fold cross-validation logic in `code/train.py` with stratified splitting
-- [~] T029 [US3] Implement evaluation script in `code/evaluate.py`: calculate mean R², std dev, MAE, and permutation test p-value
+- [X] T028 [US3] Implement 5-fold cross-validation logic in `code/train.py` with stratified splitting
+- [X] T029 [US3] Implement evaluation script in `code/evaluate.py`: calculate mean R², std dev, MAE, and permutation test p-value
 - [~] T030 [US3] Implement permutation test in `code/evaluate.py`: Compare model MAE against a null baseline (predicting mean loss) using a **permutation test** (non-parametric) to verify statistically significant improvement (SC-002); output R², MAE, and permutation p-value to `results/results.json`
-- [~] T031 [US3] Integrate training and evaluation: read features from `data/processed/features.json`, train model, and write final metrics to `results/results.json`
+- [ ] T031 [US3] Integrate training and evaluation: read features from `data/processed/features.json`, train model, and write final metrics to `results/results.json`
 
 **Checkpoint**: All user stories should now be independently functional
 

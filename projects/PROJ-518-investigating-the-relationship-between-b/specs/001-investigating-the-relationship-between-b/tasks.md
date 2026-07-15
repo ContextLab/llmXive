@@ -51,12 +51,12 @@
 ### Implementation
 
 - [ ] T012 [P] [US1] Implement `code/data/loader.py` function `fetch_hcp_data(subject_id: str)` that downloads raw fMRI and behavioral JSON **after** validation succeeds.
-- [~] T013 [P] [US1] Implement `code/data/preprocess.py` function `preprocess_fmri(input_path: str, output_path: str)` performing motion correction, spatial normalization, and **band‑pass filtering within a low-frequency range** using Nilearn.
-- [~] T014 [US1] Implement `code/analysis/connectivity.py` function `compute_sliding_window_connectivity(fmri_data: np.ndarray, window_size: int, step: int)` reading `WINDOW_SIZES` and `STEP` from `config.py`.
+- [X] T013 [P] [US1] Implement `code/data/preprocess.py` function `preprocess_fmri(input_path: str, output_path: str)` performing motion correction, spatial normalization, and **band‑pass filtering within a low-frequency range** using Nilearn.
+- [X] T014 [US1] Implement `code/analysis/connectivity.py` function `compute_sliding_window_connectivity(fmri_data: np.ndarray, window_size: int, step: int)` reading `WINDOW_SIZES` and `STEP` from `config.py`.
 - [ ] T014.1 [US1] Implement `code/analysis/connectivity.py` function `compute_static_connectivity_strength(fmri_data: np.ndarray) -> float` that calculates the mean of absolute pairwise correlations **from the full‑window static matrix** per participant.
-- [~] T015 [US1] Implement `code/analysis/dynamics.py` function `detect_communities(connectivity_matrix: np.ndarray, gamma: float = 1.0) -> List[int]` using Louvain with **γ = 1.0**.
-- [~] T016 [US1] Implement `code/analysis/dynamics.py` function `calculate_flexibility(community_labels: List[List[int]]) -> float` that counts ROI community changes **and averages across ROIs** to produce the whole‑brain metric.
-- [~] T051 [US1] Implement `code/analysis/statistics.py` function `fit_regression(flexibility: np.ndarray, creativity: np.ndarray, covariates: dict) -> RegressionResult` using `statsmodels` OLS to fit the full model `creativity ~ network_flexibility + age + sex + education + static_connectivity_strength`.
+- [X] T015 [US1] Implement `code/analysis/dynamics.py` function `detect_communities(connectivity_matrix: np.ndarray, gamma: float = 1.0) -> List[int]` using Louvain with **γ = 1.0**.
+- [X] T016 [US1] Implement `code/analysis/dynamics.py` function `calculate_flexibility(community_labels: List[List[int]]) -> float` that counts ROI community changes **and averages across ROIs** to produce the whole‑brain metric.
+- [X] T051 [US1] Implement `code/analysis/statistics.py` function `fit_regression(flexibility: np.ndarray, creativity: np.ndarray, covariates: dict) -> RegressionResult` using `statsmodels` OLS to fit the full model `creativity ~ network_flexibility + age + sex + education + static_connectivity_strength`.
 - [~] T017 [US1] Within `fit_regression`, compute and **report Pearson correlation coefficient** between flexibility and creativity.
 - [ ] T017.1 [US1] Implement baseline model `creativity ~ static_connectivity_strength + covariates`, compute ΔR², and **format ΔR² to an appropriate level of precision** via `format_delta_r2(delta_r2: float) -> str`.
 - [~] T018 [US1] Add `validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]` in `loader.py` to skip missing scans (log warning) and missing behavioral scores (exclude + log) **after** validation.
@@ -67,7 +67,7 @@
 
 ### Tests
 
-- [~] T021 [P] [US2] Contract test `tests/contract/test_plots.py::test_plot_functions_exist`.
+- [X] T021 [P] [US2] Contract test `tests/contract/test_plots.py::test_plot_functions_exist`.
 
 ### Implementation
 
@@ -87,7 +87,7 @@
 - [~] T027 [P] [US3] Implement `run_permutation_test(flexibility, creativity, n_permutations=10000) -> float` that shuffles **creativity scores only** (preserving the flexibility vector) and returns an empirical two‑tailed p‑value.
 - [~] T045 [US3] Implement `apply_fwe_correction(p_values: List[float], method='max-t') -> List[float]` using the **max‑T permutation method**.
 - [~] T046 [US3] Implement `run_sensitivity_analysis(flexibility, creativity, window_lengths=[20,30,40]) -> pd.DataFrame` that returns a table with columns `window_length`, `correlation`, `p_value`.
-- [~] T030 [US3] Save permutation results to `data/interim/permutation_results.csv` and sensitivity summary to `data/interim/sensitivity_summary.csv` with explicit column headers.
+- [ ] T030 [US3] Save permutation results to `data/interim/permutation_results.csv` and sensitivity summary to `data/interim/sensitivity_summary.csv` with explicit column headers.
 - [~] T031 [US3] Verify the sensitivity DataFrame includes `correlation` and `p_value` for each window length (SC‑005).
 - [~] T060 [US3] Profile and optimise `run_permutation_test` (vectorised NumPy) to complete **≤ 6 hours** on 2 CPU cores and < 7 GB RAM.
 

@@ -58,8 +58,8 @@
 - [ ] T004 Implement data schema validators in `tests/contract/test_schemas.py` matching `contracts/dataset.schema.yaml`
 - [ ] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
 - [ ] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
-- [~] T007 Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
-- [~] T008 Create logging infrastructure in `code/utils.py` to track pipeline stages
+- [X] T007 Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
+- [X] T008 Create logging infrastructure in `code/utils.py` to track pipeline stages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,15 +73,15 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Contract test for parsed galaxy schema in `tests/contract/test_dataset_schema.py`
-- [~] T011 [P] [US1] Unit test for inclination filter logic in `tests/unit/test_preprocess.py`
+- [X] T010 [P] [US1] Contract test for parsed galaxy schema in `tests/contract/test_dataset_schema.py`
+- [X] T011 [P] [US1] Unit test for inclination filter logic in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism in `code/download.py` (FR-001)
-- [~] T016 [US1] Implement validation in `code/download.py` to ensure no synthetic/fake data is used; verify real URLs (SPARC) immediately after download before any processing (FR-001, Data Hygiene)
-- [~] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty (FR-002)
-- [~] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points (FR-003)
+- [X] T012 [US1] Implement SPARC downloader with a configurable retry logic mechanism in `code/download.py` (FR-001)
+- [X] T016 [US1] Implement validation in `code/download.py` to ensure no synthetic/fake data is used; verify real URLs (SPARC) immediately after download before any processing (FR-001, Data Hygiene)
+- [X] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty (FR-002)
+- [X] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points (FR-003)
 - [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and `data/metadata.yaml` with download timestamp/version
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

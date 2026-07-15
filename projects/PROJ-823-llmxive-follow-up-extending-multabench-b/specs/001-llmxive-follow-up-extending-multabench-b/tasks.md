@@ -80,19 +80,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T011 [P] [US1] Unit test for batch processing logic in `tests/test_embeddings.py::test_batch_processing_memory`
-- [~] T012 [P] [US1] Unit test for gradient disabling in `tests/test_embeddings.py::test_no_grad_context`
+- [X] T012 [P] [US1] Unit test for gradient disabling in `tests/test_embeddings.py::test_no_grad_context`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/embeddings/generator.py` with CLIP ViT-B/32 and Sentence-BERT loaders (CPU-only, default precision)
-- [~] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size)
-- [~] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, and embedding vectors. Ensure deterministic re-computation for all datasets to satisfy FR-001.
+- [X] T013 [US1] Implement `code/embeddings/generator.py` with CLIP ViT-B/32 and Sentence-BERT loaders (CPU-only, default precision)
+- [X] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size)
+- [X] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, and embedding vectors. Ensure deterministic re-computation for all datasets to satisfy FR-001.
 - [~] T016 [US1] Add logic to handle datasets with zero variance or missing image/text fields gracefully (skip or impute constant)
 - [~] T017 [US1] Implement output serialization to `data/processed/embeddings_{run_id}.parquet` with `run_id` and metadata
 - [~] T018 [US1] Add validation to ensure no gradient tracking is enabled during inference
-- [~] T019 [P] [US1] Sensitivity analysis script `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using additional seeds (total seeds including primary). Note: While generation is parallel, aggregation (T019b) depends on completion.
-- [~] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 5-seed Parquet files from T019 into a single intermediate file.
-- [~] T019c [US1] Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of embeddings and metrics from merged files and write to `data/artifacts/frozen_baseline_aggregated_{run_id}.json`.
+- [X] T019 [P] [US1] Sensitivity analysis script `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using additional seeds (total seeds including primary). Note: While generation is parallel, aggregation (T019b) depends on completion.
+- [X] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 5-seed Parquet files from T019 into a single intermediate file.
+- [X] T019c [US1] Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of embeddings and metrics from merged files and write to `data/artifacts/frozen_baseline_aggregated_{run_id}.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,15 +106,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
-- [~] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
+- [X] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
+- [X] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
-- [~] T023 [US2] Implement `code/models/trainer.py` with training loop that freezes backbone weights and trains only projection layer
+- [X] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
+- [X] T023 [US2] Implement `code/models/trainer.py` with training loop that freezes backbone weights and trains only projection layer
 - [~] T024 [US2] Implement `code/analysis/metadata_stats.py` to compute cardinality, missingness, sparsity, and variance for tabular features for **ALL available datasets**. Output must be a single summary CSV: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. This task must complete before T025.
-- [~] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
+- [ ] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
 - [~] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by skipping or imputing constants
 - [~] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
 - [~] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
@@ -131,8 +131,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Unit test for correlation calculation in `tests/test_analysis.py::test_correlation_calculation`
-- [~] T030 [P] [US3] Unit test for FDR correction implementation in `tests/test_analysis.py::test_benjamini_hochberg`
+- [X] T029 [P] [US3] Unit test for correlation calculation in `tests/test_analysis.py::test_correlation_calculation`
+- [X] T030 [P] [US3] Unit test for FDR correction implementation in `tests/test_analysis.py::test_benjamini_hochberg`
 
 ### Implementation for User Story 3
 
@@ -143,7 +143,7 @@
 - [~] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons across metadata features AND for the one-sample t-test results. Input: p-values from T033 (correlation) and T035 (t-test). Output: JSON with adjusted p-values.
 - [~] T035 [US3] Perform one-sample t-test (or Wilcoxon if normality fails) comparing CPU-Conditioned performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**.
 - [~] T036 [US3] Generate `data/artifacts/correlation_report_{run_id}.json` with coefficients, p-values, and significance flags
-- [~] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline
+- [X] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline
 - [~] T038 [US3] Add "Data Availability Gap" reporting for datasets missing GPU-Tuned baselines to the final report
 
 **Checkpoint**: All user stories should now be independently functional
@@ -154,7 +154,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/...yaml`
+- [X] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/...yaml`
 - [~] T040 Code cleanup and refactoring for memory efficiency <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 2, column 1:
  **Key Changes in `code/utils/mem...

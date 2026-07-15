@@ -61,7 +61,7 @@
 - [X] T006 [P] Implement `code/utils.py` for logging, exclusion handling, and basic plotting utilities
 - [ ] T007 Create base data structures: `Subject` (NIfTI path, phenotypic data), `Parcel` (index, mask), `EntropyFeature`
 - [~] T008 Configure environment configuration management for CPU-only execution (no CUDA flags)
-- [~] T009 Setup `code/preprocessing.py` skeleton for motion scrubbing and time-series standardization
+- [X] T009 Setup `code/preprocessing.py` skeleton for motion scrubbing and time-series standardization
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,17 +78,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Unit test for motion scrubbing logic in `tests/unit/test_preprocessing.py` (verify FD > 0.2mm removal)
-- [~] T011 [P] [US1] Unit test for entropy calculation in `tests/unit/test_entropy.py` (verify m=2, r=0.2*SD on synthetic data)
+- [X] T011 [P] [US1] Unit test for entropy calculation in `tests/unit/test_entropy.py` (verify m=2, r=0.2*SD on synthetic data)
 - [~] T012 [P] [US1] Integration test for full US1 pipeline on 2 subjects in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [~] T013 [P] [US1] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD), scrub volumes > 0.2mm, log exclusions to `data/raw/exclusions.log`. <!-- ATOMIZE: requested -->
-- [~] T014 [US1] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011).
-- [~] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
-- [~] T016 [US1] Implement `code/entropy_engine.py`: Handle zero-variance parcels by imputing with cohort median (FR-009).
+- [X] T014 [US1] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011).
+- [ ] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
+- [ ] T016 [US1] Implement `code/entropy_engine.py`: Handle zero-variance parcels by imputing with cohort median (FR-009).
 - [~] T018a [US1] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `exclusions.log`, to generate `data/processed/subject_entropy_features.csv`.
-- [~] T018b [US1] Verify output file `data/processed/subject_entropy_features.csv` exists with shape (N, 201) and no NaN values.
+- [ ] T018b [US1] Verify output file `data/processed/subject_entropy_features.csv` exists with shape (N, 201) and no NaN values.
 - [~] T019 [US1] Add validation: Ensure no NaN values in final CSV; verify biologically plausible range.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for 5-fold stratified CV split in `tests/unit/test_modeling.py`
+- [X] T020 [P] [US2] Unit test for 5-fold stratified CV split in `tests/unit/test_modeling.py`
 - [ ] T021 [P] [US2] Integration test for model training on small feature matrix in `tests/integration/test_us2_modeling.py`
 
 ### Implementation for User Story 2

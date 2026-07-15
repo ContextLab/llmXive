@@ -38,8 +38,8 @@
 - [ ] T004 Define data contracts in `contracts/dataset.schema.yaml` (Base Function), `contracts/style_variant.schema.yaml` (8-way factorial), `contracts/task_result.schema.yaml`, `contracts/statistical_result.schema.yaml`, and `contracts/analysis_output.schema.yaml`
 - [ ] T005 Implement `code/validation/verify_accuracy.py` to enforce Constitution Principle II (verify citations, check data URLs, validate schemas) before any inference
 - [ ] T006 [P] Implement `code/transform/seed_manager.py` to log `transform_seed` AND the SHA256 hash of the identifier mapping dictionary for every variant generation to ensure reproducibility (Constitution Principle VI)
-- [~] T007 Create `code/main.py` entry point with CLI argument parsing for pipeline stages (transform, evaluate, analyze)
-- [~] T008 Implement `code/transform/validator.py` to parse generated Python variants and ensure syntax correctness (FR-002) before LLM submission
+- [ ] T007 Create `code/main.py` entry point with CLI argument parsing for pipeline stages (transform, evaluate, analyze)
+- [X] T008 Implement `code/transform/validator.py` to parse generated Python variants and ensure syntax correctness (FR-002) before LLM submission
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
 
@@ -56,20 +56,20 @@
 - [~] T009 [P] [US1] Unit test for `code/transform/generator.py` verifying 8-way factorial output on a mock function in `tests/unit/test_transform_generator.py`
 - [~] T010 [P] [US1] Unit test for `code/transform/generator.py` verifying "strip comments" removes `#` lines and docstrings but preserves logic in `tests/unit/test_transform_comments.py`
 - [~] T011 [P] [US1] Unit test for `code/transform/generator.py` verifying "generic naming" replaces identifiers with `var1`, `func2` without syntax errors in `tests/unit/test_transform_naming.py`
-- [~] T012 [P] [US1] Integration test: Run full pipeline on 10 sample functions and assert 80 output files exist with valid syntax in `tests/integration/test_us1_full_pipeline.py`
+- [X] T012 [P] [US1] Integration test: Run full pipeline on 10 sample functions and assert 80 output files exist with valid syntax in `tests/integration/test_us1_full_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013a [US1] Implement `code/transform/formatters/black_formatter.py` to apply Black formatting to Python code
-- [~] T013b [US1] Implement `code/transform/formatters/minified_formatter.py` to apply minified formatting (remove whitespace, compact code)
-- [~] T014a [US1] Implement `code/transform/renamer/ast_renamer.py` to parse code via AST and replace identifiers with deterministic generic tokens (e.g., `var1`, `func2`)
-- [~] T015a [US1] Implement `code/transform/stripper/comment_stripper.py` to remove comments and docstrings from input code while preserving the original docstring for ground truth
-- [~] T016a [US1] Implement `code/transform/generator.py` to orchestrate the 2x2x2 factorial design by calling formatters, renamer, and stripper
-- [~] T016b [US1] Implement `code/transform/generator.py` to tag each variant with boolean flags: `is_generic_naming`, `is_stripped_comments`, `is_minified`, and specifically `is_semantic_opacity` (true if generic AND stripped)
-- [~] T016c [US1] Implement `code/transform/generator.py` to save variants to `data/derived/` with metadata JSON files containing the flags and seeds
-- [~] T012a [US1] Implement `code/transform/metrics.py` class to aggregate validation results from T008
-- [~] T012b [US1] Implement aggregation logic in `code/transform/metrics.py` to calculate the proportion of successfully generated and syntactically valid style variants
-- [~] T012c [US1] Implement recording logic in `code/transform/metrics.py` to save the metric to `results/transformation_success_rate.json` (SC-001)
+- [X] T013a [US1] Implement `code/transform/formatters/black_formatter.py` to apply Black formatting to Python code
+- [X] T013b [US1] Implement `code/transform/formatters/minified_formatter.py` to apply minified formatting (remove whitespace, compact code)
+- [X] T014a [US1] Implement `code/transform/renamer/ast_renamer.py` to parse code via AST and replace identifiers with deterministic generic tokens (e.g., `var1`, `func2`)
+- [X] T015a [US1] Implement `code/transform/stripper/comment_stripper.py` to remove comments and docstrings from input code while preserving the original docstring for ground truth
+- [X] T016a [US1] Implement `code/transform/generator.py` to orchestrate the 2x2x2 factorial design by calling formatters, renamer, and stripper
+- [X] T016b [US1] Implement `code/transform/generator.py` to tag each variant with boolean flags: `is_generic_naming`, `is_stripped_comments`, `is_minified`, and specifically `is_semantic_opacity` (true if generic AND stripped)
+- [X] T016c [US1] Implement `code/transform/generator.py` to save variants to `data/derived/` with metadata JSON files containing the flags and seeds
+- [X] T012a [US1] Implement `code/transform/metrics.py` class to aggregate validation results from T008
+- [X] T012b [US1] Implement aggregation logic in `code/transform/metrics.py` to calculate the proportion of successfully generated and syntactically valid style variants
+- [X] T012c [US1] Implement recording logic in `code/transform/metrics.py` to save the metric to `results/transformation_success_rate.json` (SC-001)
 
 **Checkpoint**: User Story 1 fully functional; 8 variants generated per function with syntax validation and explicit metadata flags.
 
@@ -84,10 +84,10 @@
 ### Implementation for User Story 2
 
 - [~] T022 [US2] Implement `code/mutation/generator.py` to load clean variants from `data/derived/variants.json` (generated by US1), clone them, **inject bugs using `code/mutation/mutator.py`** (AST operators: `variable_swap`, `operator_flip`), and save to `data/derived/mutated.json`. Output: List of JSON objects with keys `mutation_type`, `modified_code`, `original_id`.
-- [~] T022b [US2] Implement `code/evaluate/dataset_balancer.py` to define the ground truth logic: `is_buggy = True` if the sample contains a `mutation_type` from T022, `is_buggy = False` otherwise.
+- [X] T022b [US2] Implement `code/evaluate/dataset_balancer.py` to define the ground truth logic: `is_buggy = True` if the sample contains a `mutation_type` from T022, `is_buggy = False` otherwise.
 - [~] T022a [US2] Implement `code/evaluate/dataset_balancer.py` to load `data/derived/baseline.json` (clean) and `data/derived/mutated.json` (from T022), filter variants, and construct a balanced dataset (50/50 clean/mutated) saved to `data/derived/balanced_dataset.csv`. Depends on T022 and T022b.
-- [~] T022c [US2] Implement `code/evaluate/config/token_threshold.yaml` to define the config structure for token threshold `T` with `T: null` (placeholder to be updated by empirical findings) (FR-007).
-- [~] T024 [US2] Implement `code/evaluate/metrics.py` to calculate Exact Match, CodeBLEU, Precision, Recall, F1, ROUGE-L, and BLEU.
+- [X] T022c [US2] Implement `code/evaluate/config/token_threshold.yaml` to define the config structure for token threshold `T` with `T: null` (placeholder to be updated by empirical findings) (FR-007).
+- [X] T024 [US2] Implement `code/evaluate/metrics.py` to calculate Exact Match, CodeBLEU, Precision, Recall, F1, ROUGE-L, and BLEU.
 - [ ] T027 [US2] Implement `code/evaluate/metrics.py` to count tokens per variant and store the calculated `token_count` in the `TaskResult` object before saving to CSV (FR-007).
 - [ ] T022d [US2] Implement `code/evaluate/metrics.py` to include logic that flags a result as "potentially confounded" if the token count change delta exceeds the threshold `T` defined in T022c. Depends on T027.
 - [ ] T023a [US2] Implement `code/evaluate/loader.py` to load CodeGen-2B on CPU with memory-efficient settings

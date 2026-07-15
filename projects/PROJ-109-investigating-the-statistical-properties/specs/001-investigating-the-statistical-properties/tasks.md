@@ -86,12 +86,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium catalogs via API; check API status; trigger synthetic fallback ONLY on failure (FR-001)
-- [~] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles and log filtered count (FR-002)
-- [~] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k, compression=snappy)
+- [X] T012 Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium catalogs via API; check API status; trigger synthetic fallback ONLY on failure (FR-001)
+- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles and log filtered count (FR-002)
+- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k, compression=snappy)
 - [~] T015 [US1] Add validation against `code/contracts/halo.schema.yaml` after filtering in `code/data/preprocess.py`
-- [~] T016 [US1] Add logging for data gap detection in `code/data/download.py` (message: 'DATA_GAP: Real data unavailable, switching to synthetic'; trigger: HTTP 403/Timeout)
-- [~] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase 1, Complexity Tracking; process on synthetic/filtered particle stream after filtering; document how the 5 Mpc radius calculation remains statistically valid on a subsample (FR-003)
+- [X] T016 [US1] Add logging for data gap detection in `code/data/download.py` (message: 'DATA_GAP: Real data unavailable, switching to synthetic'; trigger: HTTP 403/Timeout)
+- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase 1, Complexity Tracking; process on synthetic/filtered particle stream after filtering; document how the 5 Mpc radius calculation remains statistically valid on a subsample (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,10 +105,10 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test `test_inertia_tensor_shape` in `tests/unit/test_metrics.py`
-- [~] T019 [P] [US2] Unit test `test_spin_parameter_subsample` in `tests/unit/test_spin.py`
-- [~] T020 [P] [US2] Unit test `test_nfw_convergence` in `tests/unit/test_concentration.py`
-- [~] T021 [P] [US2] Integration test `test_full_metric_pipeline` in `tests/integration/test_metrics.py`
+- [X] T018 [P] [US2] Unit test `test_inertia_tensor_shape` in `tests/unit/test_metrics.py`
+- [X] T019 [P] [US2] Unit test `test_spin_parameter_subsample` in `tests/unit/test_spin.py`
+- [X] T020 [P] [US2] Unit test `test_nfw_convergence` in `tests/unit/test_concentration.py`
+- [X] T021 [P] [US2] Integration test `test_full_metric_pipeline` in `tests/integration/test_metrics.py`
 
 ### Implementation for User Story 2
 

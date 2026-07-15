@@ -41,9 +41,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Populate `code/__init__.py` with global constants (ALPHA=0.05, VIF_THRESHOLD=5.0, MIN_SAMPLE_SIZE=30)
-- [~] T006 Implement `code/utils/data_hygiene.py` for checksumming raw/derived data and validating file existence
-- [~] T007 Implement `code/utils/osf_client.py` with exponential backoff for API rate limiting and resume capability
-- [~] T008 Setup `pytest` configuration in `tests/conftest.py` with fixtures for sample OSF IDs and mock data
+- [X] T006 Implement `code/utils/data_hygiene.py` for checksumming raw/derived data and validating file existence
+- [X] T007 Implement `code/utils/osf_client.py` with exponential backoff for API rate limiting and resume capability
+- [X] T008 Setup `pytest` configuration in `tests/conftest.py` with fixtures for sample OSF IDs and mock data
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,14 +58,14 @@
 
 ### Tests for User Story 1
 
-- [~] T009 [P] [US1] Unit test for `code/extraction.py` parsing logic with mock OSF JSON in `tests/unit/test_extraction.py`
+- [X] T009 [P] [US1] Unit test for `code/extraction.py` parsing logic with mock OSF JSON in `tests/unit/test_extraction.py`
 - [~] T010 [P] [US1] Integration test for OSF API connection and backoff logic in `tests/integration/test_osf_client.py`
-- [~] T011 [US1] Contract test: Verify output schema of `data/derived/study_records_raw.json` against `specs/contracts/study_record.schema.yaml`
+- [ ] T011 [US1] Contract test: Verify output schema of `data/derived/study_records_raw.json` against `specs/contracts/study_record.schema.yaml`
 
 ### Implementation for User Story 1 (Extraction)
 
-- [~] T012 [US1] Implement `code/extraction.py`: OSF API fetcher with retry logic (FR-001)
-- [~] T013 [US1] Implement NLP/Regex hybrid parser in `code/extraction.py` to extract `planned_power`, `target_n`, `effect_size_assumption` (FR-001)
+- [X] T012 [US1] Implement `code/extraction.py`: OSF API fetcher with retry logic (FR-001)
+- [X] T013 [US1] Implement NLP/Regex hybrid parser in `code/extraction.py` to extract `planned_power`, `target_n`, `effect_size_assumption` (FR-001)
 - [~] T014 [US1] Implement logic to handle missing data (flag `missing_planned_data`) and prioritize "Primary Pre-registration" (FR-001)
 - [ ] T015 [US1] Implement data validation: ensure `target_n > 0` and flag invalid records (Edge Case)
 - [ ] T016 [US1] Write extracted planned records to `data/derived/study_records_raw.json` with source citations (`page_number:paragraph_id`)

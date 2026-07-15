@@ -59,7 +59,7 @@
 - [ ] T005 [P] Implement `code/data/__init__.py` and base data utilities
 - [ ] T006 [P] Setup rate limiting infrastructure (Token Bucket algorithm) in `code/data/rate_limiter.py`
 - [ ] T007 Create base data models/entities in `code/data/models.py`. Define: `PullRequest(repo_id: str, pr_number: int, author: str, code_lines_changed: int, origin_label: str)`, `ReviewMetrics(median_time: float, mean_time: float, std_dev: float, sample_size: int)`. (FR-001)
-- [~] T008 Configure logging infrastructure to output to `data/run_logs.txt` and console
+- [ ] T008 Configure logging infrastructure to output to `data/run_logs.txt` and console
 - [~] T009 Setup environment configuration management for GitHub API tokens
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,7 +78,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for Token Bucket rate limiter in `tests/unit/test_rate_limit.py`. **Requirement**: Must explicitly test exponential backoff logic with specific parameters (initial 1s, max 60s) as per FR-007. (FR-007)
+- [X] T010 [P] [US1] Unit test for Token Bucket rate limiter in `tests/unit/test_rate_limit.py`. **Requirement**: Must explicitly test exponential backoff logic with specific parameters (initial 1s, max 60s) as per FR-007. (FR-007)
 - [~] T011 [P] [US1] Unit test for classification heuristic logic in `tests/unit/test_classify.py`
 - [~] T012 [P] [US1] Integration test for API fetch with mock response in `tests/integration/test_fetch_prs.py`
 
@@ -87,9 +87,9 @@
 - [~] T013 [US1] Implement `code/data/fetch_prs.py`: Query GitHub API for PRs with ≥1000 stars, filter by keywords "copilot", "llm", "generated". **Input**: Read repo list from `data/config/repo_list.txt`. **Constraint**: Strictly fetch raw data; do NOT apply sampling or exclusion logic here. **Output**: Save raw JSON to `data/raw/prs_raw.json` with schema `[repo, pr_number, title, body, created_at, merged_at, author, lines_changed]`. (FR-001, FR-007)
 - [~] T014 [US1] Implement stratified sampling and >50% exclusion logic in `code/data/fetch_prs.py`. **Algorithm**: Stratify by repo star count bins: 1k-10k, 10k-100k, >100k. **Exclusion**: Exclude any repository where >50% of PRs contain LLM keywords. **Output**: Save filtered dataset to `data/processed/sampled_prs.csv`. (FR-009)
 - [~] T015 [US1] Implement `code/data/classify.py`: Apply keyword-based "Disclosing" label. **Constraint**: Per Plan Override, heuristics (formatting, comments) are ONLY for validation/covariates, NOT primary labeling. **Output**: Add `origin_label` (Disclosing/Non-Disclosing) and heuristic scores to `data/processed/sampled_prs.csv`. (FR-002, Plan Override)
-- [~] T016 [US1] Implement manual validation subset logic: Load `data/manual_labels.csv` (format: `pr_number, manual_label`). Calculate Cohen's Kappa against the `origin_label` to validate the **disclosure signal**. **Constraint**: If Kappa < 0.6, halt execution and flag dataset in `data/validation_log.csv`. **Output**: Log results to `data/validation_log.csv`. (FR-002, SC-002)
-- [~] T017 [US1] Implement sensitivity analysis sweep across a range of classification thresholds and report error rates. **Context**: Apply thresholds to validation/covariate heuristics, not the primary binary label. **Output**: Append sensitivity metrics to `data/validation_log.csv`. (FR-008)
-- [~] T018 [US1] Implement false positive estimation using external baseline corpus. **Input**: Download `data/baseline_corpus/codeparrot_sample.csv` from `https://huggingface.co/datasets/codeparrot/codeparrot-small`. **Output**: Calculate and save false positive rate to `data/baseline_corpus/estimated_fp_rate.json`. (FR-010)
+- [ ] T016 [US1] Implement manual validation subset logic: Load `data/manual_labels.csv` (format: `pr_number, manual_label`). Calculate Cohen's Kappa against the `origin_label` to validate the **disclosure signal**. **Constraint**: If Kappa < 0.6, halt execution and flag dataset in `data/validation_log.csv`. **Output**: Log results to `data/validation_log.csv`. (FR-002, SC-002)
+- [ ] T017 [US1] Implement sensitivity analysis sweep across a range of classification thresholds and report error rates. **Context**: Apply thresholds to validation/covariate heuristics, not the primary binary label. **Output**: Append sensitivity metrics to `data/validation_log.csv`. (FR-008)
+- [ ] T018 [US1] Implement false positive estimation using external baseline corpus. **Input**: Download `data/baseline_corpus/codeparrot_sample.csv` from `https://huggingface.co/datasets/codeparrot/codeparrot-small`. **Output**: Calculate and save false positive rate to `data/baseline_corpus/estimated_fp_rate.json`. (FR-010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

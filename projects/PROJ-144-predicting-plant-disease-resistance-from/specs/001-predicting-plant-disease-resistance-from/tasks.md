@@ -62,8 +62,8 @@ found character '`' that cannot start any token
  ```bash
  ^) -->
 - [ ] T006 [P] Create `contracts/metadata.schema.yaml` defining `MetaboliteProfile` and `ResistanceLabel` schemas
-- [~] T007 [P] Create `contracts/output.schema.yaml` defining `metrics.json` and `shap_analysis.json` structures
-- [~] T008 [P] Setup `tests/unit/` structure and `pytest.ini` configuration
+- [ ] T007 [P] Create `contracts/output.schema.yaml` defining `metrics.json` and `shap_analysis.json` structures
+- [X] T008 [P] Setup `tests/unit/` structure and `pytest.ini` configuration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,16 +79,16 @@ found character '`' that cannot start any token
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for `code/data/download.py` verifying Metabolomics Workbench HTTP fetch and file storage in `tests/unit/test_download.py` <!-- FAILED: unspecified -->
-- [~] T010 [P] [US1] Unit test for `code/data/validate_temporal.py` verifying timestamp checks in `tests/unit/test_temporal.py`
-- [~] T011 [P] [US1] Integration test for full preprocessing pipeline (download → validate → preprocess → harmonize) in `tests/integration/test_full_pipeline.py`
+- [X] T009 [P] [US1] Unit test for `code/data/download.py` verifying Metabolomics Workbench HTTP fetch and file storage in `tests/unit/test_download.py` <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Unit test for `code/data/validate_temporal.py` verifying timestamp checks in `tests/unit/test_temporal.py`
+- [X] T011 [P] [US1] Integration test for full preprocessing pipeline (download → validate → preprocess → harmonize) in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data/download.py` to fetch raw intensity and phenotype files from Metabolomics Workbench (FR-001) using specific Study IDs from `research.md`; **Depends on Phase 0 output (research.md); if Study IDs are missing, fetch all public plant disease studies as a fallback.**
-- [~] T013 [US1] Implement `code/data/validate_temporal.py` to verify `sample_time < challenge_time` for all samples (FR-014), failing if violated
-- [~] T014 [US1] Implement `code/data/harmonize_labels.py` to encode resistance as binary/ordinal and apply z-scoring or stratification (FR-003, FR-013)
-- [~] T015 [US1] Implement `code/data/preprocess.py` to:
+- [X] T012 [US1] Implement `code/data/download.py` to fetch raw intensity and phenotype files from Metabolomics Workbench (FR-001) using specific Study IDs from `research.md`; **Depends on Phase 0 output (research.md); if Study IDs are missing, fetch all public plant disease studies as a fallback.**
+- [X] T013 [US1] Implement `code/data/validate_temporal.py` to verify `sample_time < challenge_time` for all samples (FR-014), failing if violated
+- [X] T014 [US1] Implement `code/data/harmonize_labels.py` to encode resistance as binary/ordinal and apply z-scoring or stratification (FR-003, FR-013)
+- [X] T015 [US1] Implement `code/data/preprocess.py` to:
  - Log-transform intensities and discard features missing >30% (FR-002)
  - Align metabolites via InChIKey across studies
  - Perform covariate residualization for biological confounders

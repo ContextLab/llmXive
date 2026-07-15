@@ -60,7 +60,7 @@
 - [X] T006 [P] Create `code/models/bug.py` defining Bug entity (id, file_path, test_suite, reference_text)
 - [ ] T006b [P] **SPEC AMENDMENT**: Update `spec.md` to replace FR-006 (BLEU/ROUGE) with FR-006-REV (Internal Coherence), update US-2 Acceptance Scenario 3 to output `coherence_score`, and update SC-007 to define expected range for cosine similarity (0-1). This task creates the formal requirement alignment needed for T029.
 - [X] T007 [P] Create `code/models/patch.py` defining Patch entity (id, bug_id, diff_content, rationale_text)
-- [~] T008 [P] Create `code/models/correctness.py` defining CorrectnessLabel entity (bug_id, pass_fail, unsafe_flag)
+- [X] T008 [P] Create `code/models/correctness.py` defining CorrectnessLabel entity (bug_id, pass_fail, unsafe_flag)
 - [ ] T009 [P] Create `code/models/explainability.py` defining ExplainabilityScore entity (bug_id, attention_score, saliency_score, coherence_score)
 - [ ] T010 [P] Create `code/models/statistical.py` defining StatisticalResult entity (correlation_coeff, auc_roc, p_value)
 - [ ] T011 [P] Create YAML schemas for validation in `specs/001-evaluating-the-explainability-of-llm-bas/contracts/` (dataset, patch, correctness, explainability, statistical)

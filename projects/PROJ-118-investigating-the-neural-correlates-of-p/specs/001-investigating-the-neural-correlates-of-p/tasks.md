@@ -74,20 +74,20 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download.py` to fetch a designated dataset from OpenNeuro. using `wget` or `curl` (via subprocess) to satisfy FR-001, with retry logic (3 attempts, 10s exponential backoff) and checksum verification against OpenNeuro manifest hashes before writing to `data/raw`. **Note**: Raw data in `data/raw` remains unaltered (full density) per Constitution VI.
-- [~] T015 [US1] Implement channel montage selection in `code/preprocess.py` to define the standard channel montage list (Fz, FCz, Cz, Pz, etc.) required by FR-001b for T016.
-- [~] T016 [US1] Implement subsampling in `code/preprocess.py` to reduce raw data to the selected montage. to fit memory constraints, preserving original raw data in `data/raw`.
-- [~] T017 [US1] Implement filtering in `code/preprocess.py` to apply a bandpass filter (lower cutoff frequency) and re-reference to common average.
-- [~] T019 [US1] Implement ICA component detection in `code/preprocess.py` to identify components correlating >0.8 with frontal channels or showing frontal topography (run on continuous or early epoched data).
-- [~] T020 [US1] Implement ICA component removal in `code/preprocess.py` to remove detected blink components and log the count of removed components.
+- [X] T012 [US1] Implement `code/download.py` to fetch a designated dataset from OpenNeuro. using `wget` or `curl` (via subprocess) to satisfy FR-001, with retry logic (3 attempts, 10s exponential backoff) and checksum verification against OpenNeuro manifest hashes before writing to `data/raw`. **Note**: Raw data in `data/raw` remains unaltered (full density) per Constitution VI.
+- [X] T015 [US1] Implement channel montage selection in `code/preprocess.py` to define the standard channel montage list (Fz, FCz, Cz, Pz, etc.) required by FR-001b for T016.
+- [X] T016 [US1] Implement subsampling in `code/preprocess.py` to reduce raw data to the selected montage. to fit memory constraints, preserving original raw data in `data/raw`.
+- [X] T017 [US1] Implement filtering in `code/preprocess.py` to apply a bandpass filter (lower cutoff frequency) and re-reference to common average.
+- [X] T019 [US1] Implement ICA component detection in `code/preprocess.py` to identify components correlating >0.8 with frontal channels or showing frontal topography (run on continuous or early epoched data).
+- [X] T020 [US1] Implement ICA component removal in `code/preprocess.py` to remove detected blink components and log the count of removed components.
 - [~] T018 [US1] Implement epoching in `code/preprocess.py` to create epochs covering a pre-stimulus baseline to a post-stimulus window for "standard" and "deviant" conditions (after ICA cleaning), outputting to `data/processed/epo_raw.fif`.
-- [~] T021 [US1] Implement logic to calculate rejection rates from ICA logs, exclude participants with >50% rejected trials (per SC-001) from subsequent statistical analysis, and log their IDs to `data/processed/rejected_participants.log`.
+- [ ] T021 [US1] Implement logic to calculate rejection rates from ICA logs, exclude participants with >50% rejected trials (per SC-001) from subsequent statistical analysis, and log their IDs to `data/processed/rejected_participants.log`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation**
 
-- [~] T010 [P] [US1] Unit test `test_download_retry_on_failure` in `tests/unit/test_download.py`: assert that `download.py` retries 3 times on failure and raises error on 4th.
+- [X] T010 [P] [US1] Unit test `test_download_retry_on_failure` in `tests/unit/test_download.py`: assert that `download.py` retries 3 times on failure and raises error on 4th.
 - [~] T011 [P] [US1] Integration test `test_preprocess_pipeline_sub_01` in `tests/integration/test_preprocess.py`: run pipeline on `sub-01`, assert `data/processed/epo_raw.fif` exists and contains >0 epochs.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,8 +103,8 @@
 ### Implementation for User Story 2
 
 - [~] T022 [US2] Implement `code/extract.py` to load `data/processed/epo_raw.fif` and compute average ERPs for "standard" and "deviant" conditions separately for each participant.
-- [~] T025 [US2] Implement difference wave computation in `code/extract.py` to calculate Deviant ERP - Standard ERP for each participant. **Must precede peak search.**
-- [~] T023 [US2] Implement peak search logic in `code/extract.py` to find the most negative voltage in the **150–250 ms** window at Fz and FCz electrodes on the **difference wave** (per FR-004).
+- [X] T025 [US2] Implement difference wave computation in `code/extract.py` to calculate Deviant ERP - Standard ERP for each participant. **Must precede peak search.**
+- [X] T023 [US2] Implement peak search logic in `code/extract.py` to find the most negative voltage in the **150–250 ms** window at Fz and FCz electrodes on the **difference wave** (per FR-004).
 - [ ] T024 [US2] Implement secondary window fallback in `code/extract.py` to search **100–300 ms** if no peak ≥ 2.0 µV is found in the primary window (per SC-005), flagging `peak_detected=false` if still not found.
 - [ ] T026 [US2] Implement SNR calculation in `code/extract.py` for each detected peak and difference wave.
 - [ ] T027 [US2] Implement `results/metrics.csv` generation in `code/extract.py` with columns: `participant_id`, `standard_amplitude`, `standard_latency`, `deviant_amplitude`, `deviant_latency`, `peak_detected` (boolean), `snr`. **Includes logic to retain participants with `peak_detected=false` for prevalence analysis but flag them for exclusion from mean t-test calculations.**

@@ -66,9 +66,9 @@
 - [X] T037 [P] Implement `code/dependency_injector.py` (FR-003): **Feature-space clustering proxy** logic to generate spatial proxies for datasets lacking explicit coordinates. Output a proxy generation report to `data/manifests/spatial_proxy_report.json`.
 - [ ] T041 [P] Implement `code/dependency_injector.py` (FR-003): **Validation logic** for the feature-space clustering proxy. Ensure the proxy is validated as per FR-003 requirements. Output a validation report to `data/manifests/spatial_proxy_validation.json`.
 - [ ] T035 [P] Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset validation logic** to verify $N \ge 50$. If $N < 50$, skip the dataset and log a violation to `results/validation_report.json`. **If all fetched datasets fail this check, raise a `CriticalValidationError`** to prevent pipeline deadlock. **Note**: This task applies to ALL user stories.
-- [~] T007 [P] **Library Definition**: Create `code/metrics.py` (FR-005, SC-001). **Define** functions `calculate_type1_error`, `calculate_power`, `clopper_pearson_ci`, and `train_logistic_model`. **Do NOT run the simulation here**. Ensure all functions are designed to accept aggregated p-values and return metrics with **Clopper-Pearson confidence intervals**.
+- [X] T007 [P] **Library Definition**: Create `code/metrics.py` (FR-005, SC-001). **Define** functions `calculate_type1_error`, `calculate_power`, `clopper_pearson_ci`, and `train_logistic_model`. **Do NOT run the simulation here**. Ensure all functions are designed to accept aggregated p-values and return metrics with **Clopper-Pearson confidence intervals**.
 - [ ] T016-logistic [P] **Library Definition**: Extend `code/metrics.py` (Constitution Principle VII): **Define** the logic to train and save logistic regression models relating **error rate to dependency strength** to `results/logistic_models.pkl`. **Verification**: Ensure model convergence and AUC > 0.5 logic is defined. **Execution** of this training will occur in Phase 3 after data generation.
-- [~] T008 [P] **Library Definition**: Implement `code/visualizer.py` (FR-006). **Define** plot generation logic for error rate curves and power comparisons. **Do NOT generate plots here**.
+- [X] T008 [P] **Library Definition**: Implement `code/visualizer.py` (FR-006). **Define** plot generation logic for error rate curves and power comparisons. **Do NOT generate plots here**.
 - [~] T009 Setup `tests/unit/` with mock data fixtures for dependency injection logic validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -85,8 +85,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for AR(1) injection logic in `tests/unit/test_dependency_injector.py` (verify autocorrelation matches target $r$)
-- [~] T011 [P] [US1] Unit test for Null Hypothesis construction in `tests/unit/test_simulation_runner.py` (verify p-values are uniform under $r=0$). **Note**: Create failing stub first.
+- [X] T010 [P] [US1] Unit test for AR(1) injection logic in `tests/unit/test_dependency_injector.py` (verify autocorrelation matches target $r$)
+- [X] T011 [P] [US1] Unit test for Null Hypothesis construction in `tests/unit/test_simulation_runner.py` (verify p-values are uniform under $r=0$). **Note**: Create failing stub first.
 
 ### Implementation for User Story 1
 
@@ -108,16 +108,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Integration test for multi-test pipeline in `tests/integration/test_cross_test_comparison.py`
-- [~] T018 [P] [US2] Contract test for output CSV schema in `tests/contract/test_result_schema.py`
+- [X] T017 [P] [US2] Integration test for multi-test pipeline in `tests/integration/test_cross_test_comparison.py`
+- [X] T018 [P] [US2] Contract test for output CSV schema in `tests/contract/test_result_schema.py`
 
 ### Implementation for User Story 2
 
 - [~] T019 [US2] (Removed: Covered by T006c)
-- [~] T020a [US2] Extend `code/simulation_runner.py` to include **Chi-squared test logic** and block bootstrap for hierarchical structures.
-- [~] T020b [US2] Extend `code/metrics.py` to implement **Chi-squared error rate calculation and reporting** as required by FR-005.
-- [~] T021 [US2] Implement aggregation logic in `code/main.py` to group results by test type and dependency structure
-- [~] T022 [US2] Update `code/visualizer.py` to generate comparative line plots (x=dependency strength, y=error rate, hue=test type) per AC-1
+- [X] T020a [US2] Extend `code/simulation_runner.py` to include **Chi-squared test logic** and block bootstrap for hierarchical structures.
+- [X] T020b [US2] Extend `code/metrics.py` to implement **Chi-squared error rate calculation and reporting** as required by FR-005.
+- [X] T021 [US2] Implement aggregation logic in `code/main.py` to group results by test type and dependency structure
+- [X] T022 [US2] Update `code/visualizer.py` to generate comparative line plots (x=dependency strength, y=error rate, hue=test type) per AC-1
 - [~] T023 [US2] Implement threshold detection logic to report specific $r$ where error rate exceeds $\alpha=0.10$ per AC-2
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

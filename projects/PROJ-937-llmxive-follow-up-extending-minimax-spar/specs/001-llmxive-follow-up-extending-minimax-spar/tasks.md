@@ -39,9 +39,9 @@
 - [X] T004 Implement `code/utils/config.py` for seed pinning, threshold configs, and CPU device enforcement
 - [ ] T005 [P] Implement `code/utils/logger.py` for structured logging and memory/CPU usage tracking
 - [ ] T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL)
-- [~] T037 [P] [US1] Implement `code/data/loader.py` verification logic: Add a checksum validation step after downloading RULER data to `data/raw/` to ensure file integrity before processing. (Moved from Phase 7 to ensure data integrity before consumption)
-- [~] T007 Implement `code/data/preprocess.py` for streaming chunking logic with dynamic fallback: 1) Attempt to reduce context window to a constrained length; 2) If memory still exceeds available capacity, Reduce batch size to a minimal value.; 3) Only exit with code 1 if both modes fail.
-- [~] T008 [P] Implement `code/heuristics/__init__.py` and base abstract class `HeuristicSelector`
+- [X] T037 [P] [US1] Implement `code/data/loader.py` verification logic: Add a checksum validation step after downloading RULER data to `data/raw/` to ensure file integrity before processing. (Moved from Phase 7 to ensure data integrity before consumption)
+- [ ] T007 Implement `code/data/preprocess.py` for streaming chunking logic with dynamic fallback: 1) Attempt to reduce context window to a constrained length; 2) If memory still exceeds available capacity, Reduce batch size to a minimal value.; 3) Only exit with code 1 if both modes fail.
+- [X] T008 [P] Implement `code/heuristics/__init__.py` and base abstract class `HeuristicSelector`
 - [~] T009 [P] [US1] Setup `tests/unit/test_heuristics.py` and `tests/unit/test_metrics.py` with failing placeholders: Implement `test_entropy_returns_float`, `test_gradient_returns_float`, `test_recency_returns_float` in `test_heuristics.py` and `test_exact_match_returns_float`, `test_f1_returns_float` in `test_metrics.py` with `assert False` to ensure they fail initially.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

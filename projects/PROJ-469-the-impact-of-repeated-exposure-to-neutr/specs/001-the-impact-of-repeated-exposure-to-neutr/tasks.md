@@ -61,9 +61,9 @@
 - [X] T006 Implement `code/preprocessing.py` skeleton: Define function signatures `load_data`, `impute_mice`, `derive_variables` and raise `NotImplementedError` in placeholders
 - [ ] T007 Create `contracts/dataset.schema.yaml` defining columns `IAT_D_score`, `political_ideology`, `news_exposure_freq` and validation logic
 - [ ] T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console)
-- [~] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
+- [ ] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
 - [~] T017a [P] **A Priori Power Analysis**: Create `code/power.py` to calculate the minimum sample size required to detect the interaction effect with power ≥ 0.80 at α = 0.05 using literature-based effect sizes. Output `results/power_design.csv` with `required_n` and `met_target` status. This task MUST complete before US1.
-- [~] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified -->
+- [ ] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,18 +79,18 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Contract test for data loading: Implement `test_load_raises_valueerror_on_missing_columns` in `tests/unit/test_data_loader.py`
-- [~] T011 [P] [US1] Unit test for MICE imputation logic (missingness < 50% check) in `tests/unit/test_preprocessing.py`
-- [~] T012 [P] [US1] Unit test for regression model fitting and interaction term extraction in `tests/unit/test_models.py`
+- [X] T010 [P] [US1] Contract test for data loading: Implement `test_load_raises_valueerror_on_missing_columns` in `tests/unit/test_data_loader.py`
+- [X] T011 [P] [US1] Unit test for MICE imputation logic (missingness < 50% check) in `tests/unit/test_preprocessing.py`
+- [X] T012 [P] [US1] Unit test for regression model fitting and interaction term extraction in `tests/unit/test_models.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data_loader.py` to map raw columns to `IAT_D_score`, `political_ideology`, `news_exposure_freq` using codebook; raise `ValueError` on failure
+- [X] T013 [US1] Implement `code/data_loader.py` to map raw columns to `IAT_D_score`, `political_ideology`, `news_exposure_freq` using codebook; raise `ValueError` on failure
 - [~] T014 [US1] Implement `code/preprocessing.py` MICE imputation (5 imputations) with missingness rate check (>50% halts); implement logging of warning message if missingness > 50%; output imputed data to `data/processed/imputed_data.csv`
-- [~] T015 [US1] Implement `code/models.py` to fit primary linear regression: `IAT_D ~ news_exposure_z * political_ideology` (continuous)
-- [~] T016 [US1] Implement derived variable creation in `code/preprocessing.py`: `news_exposure_z` (z-scored) and `ideology_binary` (median split for later use)
-- [~] T017b [US1] **Retrospective Power Analysis**: Calculate `observed_power` using fitted model effect size; output to `results/power_analysis.csv` with columns: `observed_power`, `required_n`, `effect_size`, `met_target`. (Distinct from T017a).
-- [~] T018 [US1] Integrate pipeline in `code/main.py` (Load -> Impute -> Model) and save initial results <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [X] T015 [US1] Implement `code/models.py` to fit primary linear regression: `IAT_D ~ news_exposure_z * political_ideology` (continuous)
+- [X] T016 [US1] Implement derived variable creation in `code/preprocessing.py`: `news_exposure_z` (z-scored) and `ideology_binary` (median split for later use)
+- [ ] T017b [US1] **Retrospective Power Analysis**: Calculate `observed_power` using fitted model effect size; output to `results/power_analysis.csv` with columns: `observed_power`, `required_n`, `effect_size`, `met_target`. (Distinct from T017a).
+- [X] T018 [US1] Integrate pipeline in `code/main.py` (Load -> Impute -> Model) and save initial results <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 9, column 1:
  Additionally, the supporting fil...
  ^
@@ -111,17 +111,17 @@ could not find expected ':'
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [~] T019 [P] [US2] Unit test for bootstrap resampling loop (1000 iterations) and Monte Carlo SE calculation in `tests/unit/test_robustness.py`
-- [~] T020 [P] [US2] Unit test for alpha sweep logic (0.01, 0.05, 0.10) in `tests/unit/test_robustness.py`
+- [X] T019 [P] [US2] Unit test for bootstrap resampling loop (1000 iterations) and Monte Carlo SE calculation in `tests/unit/test_robustness.py`
+- [X] T020 [P] [US2] Unit test for alpha sweep logic (0.01, 0.05, 0.10) in `tests/unit/test_robustness.py`
 
 ### Implementation for User Story 2
 
-- [~] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Must complete before T021-T023.**
-- [~] T021 [US2] Implement `code/robustness.py` bootstrap procedure (1000 resamples); calculate Monte Carlo SE and confidence interval for interaction term; ensure resamples complete without partial state logic
+- [ ] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Must complete before T021-T023.**
+- [X] T021 [US2] Implement `code/robustness.py` bootstrap procedure (1000 resamples); calculate Monte Carlo SE and confidence interval for interaction term; ensure resamples complete without partial state logic
 - [~] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
-- [~] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
-- [~] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
-- [~] T026 [US2] Save robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) to `results/robustness_metrics.csv`
+- [X] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
+- [X] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
+- [ ] T026 [US2] Save robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) to `results/robustness_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,7 +135,7 @@ could not find expected ':'
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [~] T027 [P] [US3] Integration test for report generation (file existence and size check) in `tests/integration/test_reporting.py`
+- [X] T027 [P] [US3] Integration test for report generation (file existence and size check) in `tests/integration/test_reporting.py`
 
 ### Implementation for User Story 3
 

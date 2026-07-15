@@ -64,13 +64,13 @@
 
 ### Implementation for User Story 1
 
-- [~] T014a [P] [US1] Implement `src/gatekeeper/classifiers.py`: Load frozen DistilBERT intent classifier (CPU-only, default precision) and implement inference wrapper. **Acceptance Criteria**: Verify the model runs on CPU-only runner (no CUDA, memory < 2GB) and logs resource usage. **This verification must pass before T016 can proceed.**
-- [~] T016 [US1] [DEPENDS ON T014a] Implement `src/gatekeeper/pipeline.py` logic: Filter memory access using Classifier + Rules (AND logic) before LLM step, referencing `contracts/dataset.schema.yaml` for data structure.
-- [~] T017 [US1] Implement `src/gatekeeper/pipeline.py` logic: "Retrieval-only" and "Long-Context" baseline execution paths using `templates/prompts.yaml`; output `data/processed/baseline_results.json`. **Acceptance Criteria**: Verify that prompt templates and retrieval parameters are IDENTICAL to the Gatekeeper run.
-- [~] T018 [US1] Implement `src/gatekeeper/metrics.py` function: Calculate Access Control score (unauthorized exposure rate) against ground truth
-- [~] T019 [US1] Implement `src/cli/run_evaluation.py` logic: Execute US1 pipeline with `--domain medical,office` using existing CLI skeleton
+- [ ] T014a [P] [US1] Implement `src/gatekeeper/classifiers.py`: Load frozen DistilBERT intent classifier (CPU-only, default precision) and implement inference wrapper. **Acceptance Criteria**: Verify the model runs on CPU-only runner (no CUDA, memory < 2GB) and logs resource usage. **This verification must pass before T016 can proceed.**
+- [ ] T016 [US1] [DEPENDS ON T014a] Implement `src/gatekeeper/pipeline.py` logic: Filter memory access using Classifier + Rules (AND logic) before LLM step, referencing `contracts/dataset.schema.yaml` for data structure.
+- [ ] T017 [US1] Implement `src/gatekeeper/pipeline.py` logic: "Retrieval-only" and "Long-Context" baseline execution paths using `templates/prompts.yaml`; output `data/processed/baseline_results.json`. **Acceptance Criteria**: Verify that prompt templates and retrieval parameters are IDENTICAL to the Gatekeeper run.
+- [ ] T018 [US1] Implement `src/gatekeeper/metrics.py` function: Calculate Access Control score (unauthorized exposure rate) against ground truth
+- [ ] T019 [US1] Implement `src/cli/run_evaluation.py` logic: Execute US1 pipeline with `--domain medical,office` using existing CLI skeleton
 - [~] T020 [US1] Add error handling: Log "validation error" for ambiguous `leak-target` and exclude from calculation; handle model load retry logic
-- [~] T029 [US1/US2] Implement unified sampling logic for failure cases: Select 50 cases (stratified by domain, seed=42) from the combined pool of Access Control and Utility failures. Output to `data/samples/failure_cases.json`. **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
+- [ ] T029 [US1/US2] Implement unified sampling logic for failure cases: Select 50 cases (stratified by domain, seed=42) from the combined pool of Access Control and Utility failures. Output to `data/samples/failure_cases.json`. **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,14 +89,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T023 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Utility (task success rate against human-annotated ground truth)
+- [ ] T023 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Utility (task success rate against human-annotated ground truth)
 - [~] T024 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Forgetting (deletion compliance rate for deletion request episodes)
-- [~] T025 [US2] Implement `src/gatekeeper/metrics.py` function: Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates
-- [~] T026a [US2] Define LMM formula in `src/utils/stats.py`: `score ~ method + (1|Domain)` and implement model fitting logic
-- [~] T026b [US2] [DEPENDS ON T026a] Implement fallback logic in `src/utils/stats.py`: If LMM fails (singular matrix) or data is flat, run paired t-test or Wilcoxon signed-rank test per Constitution Principle VI
-- [~] T026c [US2] [DEPENDS ON T026a] Implement domain-stratified analysis in `src/utils/stats.py`: Run separate tests per domain and aggregate results if LMM is not feasible
-- [~] T027 [US2] Implement `src/cli/run_evaluation.py` logic: Execute US2 pipeline on `--domain education,household` using existing CLI skeleton
-- [~] T028 [US2] [DEPENDS ON T026a, T026b, T026c] Implement `src/cli/run_evaluation.py` logic: Generate paired comparison table (Gatekeeper vs Baseline) for Utility and Forgetting.
+- [ ] T025 [US2] Implement `src/gatekeeper/metrics.py` function: Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates
+- [ ] T026a [US2] Define LMM formula in `src/utils/stats.py`: `score ~ method + (1|Domain)` and implement model fitting logic
+- [ ] T026b [US2] [DEPENDS ON T026a] Implement fallback logic in `src/utils/stats.py`: If LMM fails (singular matrix) or data is flat, run paired t-test or Wilcoxon signed-rank test per Constitution Principle VI
+- [ ] T026c [US2] [DEPENDS ON T026a] Implement domain-stratified analysis in `src/utils/stats.py`: Run separate tests per domain and aggregate results if LMM is not feasible
+- [ ] T027 [US2] Implement `src/cli/run_evaluation.py` logic: Execute US2 pipeline on `--domain education,household` using existing CLI skeleton
+- [ ] T028 [US2] [DEPENDS ON T026a, T026b, T026c] Implement `src/cli/run_evaluation.py` logic: Generate paired comparison table (Gatekeeper vs Baseline) for Utility and Forgetting.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,10 +116,10 @@
 ### Implementation for User Story 3
 
 - [~] T032 [P] [US3] Integrate `src/utils/profiling.py` into `src/gatekeeper/pipeline.py` to log start/end times and peak memory for each episode
-- [~] T033 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Baseline (Long-Context) with profiling enabled
-- [~] T034 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Gatekeeper with profiling enabled
-- [~] T035 [US3] Implement `src/cli/run_evaluation.py` logic: Aggregate profiling data and calculate percentage reduction in latency/RAM for Gatekeeper vs Baseline
-- [~] T036 [US3] Create final report generator: Output `data/results/final_benchmark_report.md` containing sections: Access Control, Utility, Forgetting, Cost; include tables with headers: Method, Score, StdDev, **Test Statistic**, **Degrees of Freedom**, **Method Used (LMM/Fallback)**, P-Value, Latency (ms), RAM (MB)
+- [ ] T033 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Baseline (Long-Context) with profiling enabled
+- [ ] T034 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Gatekeeper with profiling enabled
+- [ ] T035 [US3] Implement `src/cli/run_evaluation.py` logic: Aggregate profiling data and calculate percentage reduction in latency/RAM for Gatekeeper vs Baseline
+- [ ] T036 [US3] Create final report generator: Output `data/results/final_benchmark_report.md` containing sections: Access Control, Utility, Forgetting, Cost; include tables with headers: Method, Score, StdDev, **Test Statistic**, **Degrees of Freedom**, **Method Used (LMM/Fallback)**, P-Value, Latency (ms), RAM (MB)
 
 **Checkpoint**: All user stories should now be independently functional
 

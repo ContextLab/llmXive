@@ -58,8 +58,8 @@
 - [X] T004 Setup `code/src/__init__.py` and global random seed configuration (`random.seed(42)`)
 - [ ] T005 [P] Implement data directory structure: `data/raw/`, `data/processed/`, `data/results/`, `state/` (ensure atomic creation using `mkdir -p`)
 - [X] T006 Create base schema validation utilities in `code/src/validators.py` using PyYAML to validate against `contracts/*.schema.yaml`
-- [~] T007 [P] Implement checkpoint/restart mechanism in `code/src/checkpoint.py` including logic to ENFORCE 100 Monte Carlo replicates as per Constitution Principle VI; if the runner limit is exceeded, the system MUST fail the run and log a critical error (NO fallback to 50 replicates)
-- [~] T008 Configure logging infrastructure in `code/src/logger.py` with file and console handlers
+- [ ] T007 [P] Implement checkpoint/restart mechanism in `code/src/checkpoint.py` including logic to ENFORCE 100 Monte Carlo replicates as per Constitution Principle VI; if the runner limit is exceeded, the system MUST fail the run and log a critical error (NO fallback to 50 replicates)
+- [X] T008 Configure logging infrastructure in `code/src/logger.py` with file and console handlers
 - [~] T011 [US1] Download 5 public datasets from the UCI Machine Learning Repository to `data/raw/uci_*.csv`, identify univariate continuous variables, and output 5 clean CSV files with baseline variance values to `data/processed/uci_clean_*.csv` (Per Spec FR-001 and US-1 Acceptance 1; depends on T006 for schema validation)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,13 +76,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for `Dataset` and `ContaminationProfile` schemas in `code/tests/test_contracts.py`
-- [~] T010 [P] [US1] Unit test for synthetic data generation (Normal, LogNormal) in `code/tests/test_data_generator.py`
+- [X] T009 [P] [US1] Contract test for `Dataset` and `ContaminationProfile` schemas in `code/tests/test_contracts.py`
+- [X] T010 [P] [US1] Unit test for synthetic data generation (Normal, LogNormal) in `code/tests/test_data_generator.py`
 
 ### Implementation for User Story 1
 
 - [~] T011b [US1] Generate synthetic clean distributions (Normal, LogNormal, Exponential, Beta, Gamma) with known variance parameters (generated randomly within defined ranges), saving data to `data/raw/synthetic_clean_*.csv` and ground truth parameters to `state/synthetic_params.json`
-- [~] T012 [P] [US1] Implement synthetic data generation logic (Normal, LogNormal, Exponential, Beta, Gamma) with known variance in `code/src/data_generator.py` (Output: `data/raw/synthetic_clean_*.csv`, `state/synthetic_params.json`)
+- [X] T012 [P] [US1] Implement synthetic data generation logic (Normal, LogNormal, Exponential, Beta, Gamma) with known variance in `code/src/data_generator.py` (Output: `data/raw/synthetic_clean_*.csv`, `state/synthetic_params.json`)
 - [ ] T013 [US1] Implement outlier injection logic (Cauchy/extreme scaling) at varying contamination rates, saving contaminated data to `data/processed/contaminated_*.csv` and injection profile to `data/processed/injection_profile.json`
 - [ ] T014 [US1] Implement baseline variance calculation using the synthetic clean data (from T012) and save results to `data/results/baseline_metrics.json`
 - [ ] T015 [US1] Add logging for dataset downloads, injection rates, and variance calculations in `code/src/data_generator.py`

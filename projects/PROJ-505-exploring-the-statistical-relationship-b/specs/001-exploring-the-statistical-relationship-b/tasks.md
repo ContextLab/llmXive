@@ -55,10 +55,10 @@
 - [~] T010 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`.
 - [~] T011 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`.
 - [~] T012 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`.
-- [~] T013 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/__init__.py`.
-- [~] T014 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/__init__.py`.
-- [~] T015 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/__init__.py`.
-- [~] T016 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py`.
+- [X] T013 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/__init__.py`.
+- [X] T014 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/__init__.py`.
+- [X] T015 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/__init__.py`.
+- [X] T016 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py`.
 
 ---
 
@@ -70,10 +70,10 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [~] T017 Initialize Python project with `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, scipy, pytest, ruff, black).
-- [~] T018 [P] Implement `code/utils/io.py` for checksumming and parquet loading.
-- [~] T019 Create base configuration for random seeds and file paths in `code/config.py`.
-- [~] T020 Setup error handling and logging infrastructure in `code/utils/logging.py`.
+- [X] T017 Initialize Python project with `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, scipy, pytest, ruff, black).
+- [X] T018 [P] Implement `code/utils/io.py` for checksumming and parquet loading.
+- [X] T019 Create base configuration for random seeds and file paths in `code/config.py`.
+- [X] T020 Setup error handling and logging infrastructure in `code/utils/logging.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,9 +87,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.**
-- [~] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [~] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
+- [ ] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.**
+- [ ] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
+- [ ] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
 - [ ] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
 - [ ] T025 [US1] Add validation logic to ensure temporal offset ≤ 30 minutes and monotonically increasing timestamps (integrated into T024).
 

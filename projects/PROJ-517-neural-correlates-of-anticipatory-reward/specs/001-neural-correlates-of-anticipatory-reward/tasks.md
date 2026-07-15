@@ -49,7 +49,7 @@
 - [ ] T002a [P] Create `code/__init__.py` and `tests/__init__.py`
 - [ ] T002b [P] Create `projects/PROJ-517-neural-correlates-of-anticipatory-reward/requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest
 - [ ] T002c [P] Initialize virtualenv in project root: Run `python -m venv.venv`, `source.venv/bin/activate`, and `pip install -r requirements.txt` (Ensure Python 3.10+) <!-- FAILED: unspecified -->
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -59,10 +59,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T006 [P] Create `contracts/dataset.schema.yaml` defining trial_id, neuron_id, spike_timestamps, reward_magnitude, cue_timestamps, spike_sorting_metadata
+- [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining trial_id, neuron_id, spike_timestamps, reward_magnitude, cue_timestamps, spike_sorting_metadata
 - [~] T005 Implement synthetic data generator in `code/synthetic_generator.py` adhering to `contracts/dataset.schema.yaml` for CI validation (Depends on T006; Output: `data/raw/synthetic_test.csv` with seed=42)
-- [~] T007 Create `contracts/output.schema.yaml` defining expected report structure and plot metadata
-- [~] T008 Setup `code/__init__.py` and basic logging configuration in `code/logging_config.py`
+- [ ] T007 Create `contracts/output.schema.yaml` defining expected report structure and plot metadata
+- [X] T008 Setup `code/__init__.py` and basic logging configuration in `code/logging_config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,20 +78,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Implement contract test `tests/contract/test_ingestion_schema.py::test_schema_validates_trial_id`: Assert that input CSV with valid `trial_id` passes schema validation; assert invalid `trial_id` format raises `ValidationError`
+- [X] T009 [P] [US1] Implement contract test `tests/contract/test_ingestion_schema.py::test_schema_validates_trial_id`: Assert that input CSV with valid `trial_id` passes schema validation; assert invalid `trial_id` format raises `ValidationError`
 - [~] T010 [P] [US1] Implement integration test `tests/integration/test_ingestion_pipeline.py::test_data_alignment`: Load `data/raw/synthetic_test.csv`, run `code/ingestion.py`, assert output DataFrame contains columns `['trial_id', 'neuron_id', 'spike_count', 'reward_magnitude']` and `spike_count.sum() == expected_total`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/ingestion.py` to load CSV/Neurodata files from `data/raw/` or synthetic generator
-- [~] T012 [US1] Implement spike count calculation in `code/ingestion.py`: count spikes in [-500ms, 0ms] window relative to reward (FR-002)
-- [~] T013a [US1] Implement validation logic in `code/ingestion.py`: Count trials per reward magnitude level
-- [~] T013b [US1] Implement validation logic in `code/ingestion.py`: Check for >= 30 trials per reward magnitude level (FR-007); halt if any level < 30
-- [~] T013c [US1] Implement validation logic in `code/ingestion.py`: Handle zero-reward trials (keep as valid) and silent neurons (filter out with log warning)
-- [~] T013d [US1] Implement validation logic in `code/ingestion.py`: Check cue-reward delay; if ANY trial has delay < 500ms, FLAG the specific trials and HALT execution ONLY if the number of valid trials drops below 30 per level or if >50% of trials are confounded (FR-009)
+- [X] T011 [US1] Implement `code/ingestion.py` to load CSV/Neurodata files from `data/raw/` or synthetic generator
+- [X] T012 [US1] Implement spike count calculation in `code/ingestion.py`: count spikes in [-500ms, 0ms] window relative to reward (FR-002)
+- [X] T013a [US1] Implement validation logic in `code/ingestion.py`: Count trials per reward magnitude level
+- [X] T013b [US1] Implement validation logic in `code/ingestion.py`: Check for >= 30 trials per reward magnitude level (FR-007); halt if any level < 30
+- [X] T013c [US1] Implement validation logic in `code/ingestion.py`: Handle zero-reward trials (keep as valid) and silent neurons (filter out with log warning)
+- [X] T013d [US1] Implement validation logic in `code/ingestion.py`: Check cue-reward delay; if ANY trial has delay < 500ms, FLAG the specific trials and HALT execution ONLY if the number of valid trials drops below 30 per level or if >50% of trials are confounded (FR-009)
 - [~] T013e [US1] Implement validation logic in `code/ingestion.py`: Validate upstream spike sorting metadata (SNR/Isolation Distance) and GENERATE `data/processed/spike_sorting_validation_report.md` documenting rejection criteria (SNR > 3, Isolation Distance > 20) (Constitution Principle VI)
 - [~] T013f [US1] Implement validation logic in `code/ingestion.py`: Generate `data/processed/validation_report.json` containing data loss metrics (`ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`) and validation status flags (SC-004)
-- [~] T014 [US1] Implement `code/ingestion.py` output: unified Pandas DataFrame with `trial_id`, `neuron_id`, `spike_count`, `reward_magnitude`, `timestamp_relative_to_reward`
+- [X] T014 [US1] Implement `code/ingestion.py` output: unified Pandas DataFrame with `trial_id`, `neuron_id`, `spike_count`, `reward_magnitude`, `timestamp_relative_to_reward`
 - [~] T015 [US1] Implement error handling for missing/malformed metadata files (US-1 Acceptance Scenario 2)
 - [~] T016 [US1] Add logging for data loss metrics: `ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped` (SC-004)
 
@@ -115,22 +115,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Implement unit test `tests/unit/test_modeling_selection.py::test_glm_selection`: Input data with dispersion=1.5; assert `statsmodels` NegativeBinomial model is returned; Input dispersion=0.9; assert `Poisson` model is returned
-- [~] T018 [P] [US2] Implement unit test `tests/unit/test_modeling_permutation.py::test_permutation_null`: Input data with seed=42 and no correlation; assert `p_value > 0.05` after 1000 iterations; The null distribution mean is centered near zero.
+- [X] T017 [P] [US2] Implement unit test `tests/unit/test_modeling_selection.py::test_glm_selection`: Input data with dispersion=1.5; assert `statsmodels` NegativeBinomial model is returned; Input dispersion=0.9; assert `Poisson` model is returned
+- [ ] T018 [P] [US2] Implement unit test `tests/unit/test_modeling_permutation.py::test_permutation_null`: Input data with seed=42 and no correlation; assert `p_value > 0.05` after 1000 iterations; The null distribution mean is centered near zero.
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/modeling.py` dispersion check (FR-010) to calculate dispersion parameter
-- [~] T020 [US2] Implement `code/modeling.py` model selection: Negative Binomial (dispersion > 1.1) or Poisson (dispersion <= 1.1) (FR-003)
-- [~] T021 [US2] Implement `code/modeling.py` GLM fitting: `firing_rate` ~ `reward_magnitude`
-- [~] T022 [US2] Implement `code/modeling.py` Power Analysis: Calculate MDES (SC-002) using **final validated sample size** and **observed variance from the filtered dataset** (from T022a); Parameters: power=0.80, alpha=0.05, effect size metric=Cohen's f2; report `mdes_80_power` (Depends on T013f, T022a)
-- [~] T023 [US2] Implement `code/modeling.py` Permutation Test: + iterations to generate null distribution and p-value (FR-004, SC-001)
-- [~] T024a [US2] Implement `code/modeling.py` Robustness Check: Fit categorical GLM treating `reward_magnitude` as a factor (Plan Complexity Tracking)
-- [~] T024b [US2] Implement `code/modeling.py` Robustness Check: Perform Likelihood Ratio Test (LRT) comparing categorical vs linear model; if p < 0.05, flag non-linearity (Plan Complexity Tracking)
-- [~] T025 [US2] Implement `code/modeling.py` Cross-Validation: k-fold CV to evaluate predictive performance (FR-008); Calculate and report R2 and MSE on held-out data; also report coefficient stability (cv_score_mean, cv_score_std)
-- [~] T026a [US2] Implement `code/modeling.py` Neuron Grouping: Detect, count, and group analyzed neurons from the input DataFrame; report `neuron_count`
-- [~] T026b [US2] Implement `code/modeling.py` Multiple Comparisons: Apply Bonferroni correction if `neuron_count` > 1 (SC-005); Depends on T026a
-- [~] T027 [US2] Implement `code/modeling.py` Reward Independence Check: Flag if reward is endogenous vs exogenous
+- [X] T019 [US2] Implement `code/modeling.py` dispersion check (FR-010) to calculate dispersion parameter
+- [X] T020 [US2] Implement `code/modeling.py` model selection: Negative Binomial (dispersion > 1.1) or Poisson (dispersion <= 1.1) (FR-003)
+- [X] T021 [US2] Implement `code/modeling.py` GLM fitting: `firing_rate` ~ `reward_magnitude`
+- [X] T022 [US2] Implement `code/modeling.py` Power Analysis: Calculate MDES (SC-002) using **final validated sample size** and **observed variance from the filtered dataset** (from T022a); Parameters: power=0.80, alpha=0.05, effect size metric=Cohen's f2; report `mdes_80_power` (Depends on T013f, T022a)
+- [X] T023 [US2] Implement `code/modeling.py` Permutation Test: + iterations to generate null distribution and p-value (FR-004, SC-001)
+- [X] T024a [US2] Implement `code/modeling.py` Robustness Check: Fit categorical GLM treating `reward_magnitude` as a factor (Plan Complexity Tracking)
+- [X] T024b [US2] Implement `code/modeling.py` Robustness Check: Perform Likelihood Ratio Test (LRT) comparing categorical vs linear model; if p < 0.05, flag non-linearity (Plan Complexity Tracking)
+- [X] T025 [US2] Implement `code/modeling.py` Cross-Validation: k-fold CV to evaluate predictive performance (FR-008); Calculate and report R2 and MSE on held-out data; also report coefficient stability (cv_score_mean, cv_score_std)
+- [X] T026a [US2] Implement `code/modeling.py` Neuron Grouping: Detect, count, and group analyzed neurons from the input DataFrame; report `neuron_count`
+- [X] T026b [US2] Implement `code/modeling.py` Multiple Comparisons: Apply Bonferroni correction if `neuron_count` > 1 (SC-005); Depends on T026a
+- [X] T027 [US2] Implement `code/modeling.py` Reward Independence Check: Flag if reward is endogenous vs exogenous
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -148,8 +148,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `code/visualization.py`: Generate scatter plot with `reward_magnitude` (x), `firing_rate` (y), regression line, and 95% CI (FR-005, SC-003)
-- [~] T030 [US3] Implement `code/reporting.py`: Generate `summary_report.txt` with coefficient, p-value, MDES, CV scores, and data loss metrics (FR-006)
+- [X] T029 [US3] Implement `code/visualization.py`: Generate scatter plot with `reward_magnitude` (x), `firing_rate` (y), regression line, and 95% CI (FR-005, SC-003)
+- [X] T030 [US3] Implement `code/reporting.py`: Generate `summary_report.txt` with coefficient, p-value, MDES, CV scores, and data loss metrics (FR-006)
 - [ ] T031 [US3] Implement `code/reporting.py`: Selection Bias Impact Analysis (compare included vs excluded trials)
 
 **Checkpoint**: All user stories should now be independently functional

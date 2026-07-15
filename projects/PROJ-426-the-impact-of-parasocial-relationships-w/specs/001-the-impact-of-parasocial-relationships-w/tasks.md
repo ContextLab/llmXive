@@ -58,11 +58,11 @@
 - [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and progress tracking
 - [ ] T006 [P] Setup environment configuration management for API keys and data paths
 - [ ] T007 Create `src/utils/data_validation.py` for schema validation and checksum recording
-- [~] T008 [P] Implement `src/utils/retry_policy.py`:
+- [ ] T008 [P] Implement `src/utils/retry_policy.py`:
  - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s)
  - Create configuration object for retry logic
  - **Output Artifact**: `src/utils/retry_policy.py`
-- [~] T009 [P] Implement `src/utils/rate_limit_handler.py`:
+- [ ] T009 [P] Implement `src/utils/rate_limit_handler.py`:
  - Implement logic to handle 429 responses from Pushshift API
  - Integrate with `retry_policy.py` for backoff
  - Verify error handling by simulating rate limit responses in unit tests

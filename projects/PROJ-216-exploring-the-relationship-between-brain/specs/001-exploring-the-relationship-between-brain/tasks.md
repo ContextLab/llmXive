@@ -61,10 +61,10 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [~] T005 [P] Implement system-level dependency check script for FSL/AFNI availability
-- [~] T006 [P] Setup logging and error handling infrastructure (`code/utils.py`)
-- [~] T007 [Dep: None] Create class `Subject` and `BehavioralScore` in `code/models.py` with attributes for ID, age, gender, file paths, score_value, source_type based on `data-model.md`; verify with `pytest tests/unit/test_models.py`
+- [ ] T006 [P] Setup logging and error handling infrastructure (`code/utils.py`)
+- [X] T007 [Dep: None] Create class `Subject` and `BehavioralScore` in `code/models.py` with attributes for ID, age, gender, file paths, score_value, source_type based on `data-model.md`; verify with `pytest tests/unit/test_models.py`
 - [~] T008 Configure environment configuration management for dataset IDs (ds000224, ds000230) and sample limits (N=10 for CI, deviation from Spec SC-001 N=50)
-- [~] T009 [P] Implement `ResourceMonitor` class in `code/utils.py` that logs RAM usage per subject to stderr and writes to `data/processed/resource_profile.json`
+- [ ] T009 [P] Implement `ResourceMonitor` class in `code/utils.py` that logs RAM usage per subject to stderr and writes to `data/processed/resource_profile.json`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,9 +74,9 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Download resting-state fMRI data from OpenNeuro ds000224 and ds000230, validate for Fluid Intelligence scores (fallback per Plan), and preprocess to generate clean BOLD time series.
 
-- [~] T010 [P] [US1] Unit test for OpenNeuro download retry logic in `tests/unit/test_download_retry.py`
-- [~] T011 [P] [US1] Unit test for behavioral data validation (Fluid Intelligence check) in `tests/unit/test_download_validation.py`
-- [~] T012 [P] [US1] Integration test for full preprocessing pipeline on 1 subject in `tests/integration/test_pipeline.py`
+- [X] T010 [P] [US1] Unit test for OpenNeuro download retry logic in `tests/unit/test_download_retry.py`
+- [X] T011 [P] [US1] Unit test for behavioral data validation (Fluid Intelligence check) in `tests/unit/test_download_validation.py`
+- [X] T012 [P] [US1] Integration test for full preprocessing pipeline on 1 subject in `tests/integration/test_pipeline.py`
 - [~] T013 [US1] Implement `download.py` to fetch ds000224 first, then ds000230; prioritize ds000224 for Fluid Intelligence; handle ds000230 absence gracefully; enforce N=10 sample limit for CI (Overrides Spec SC-001 N=50 target per Plan N=10 constraint)
 - [~] T014 [US1] Implement validation logic in `download.py` to confirm presence of Fluid Intelligence scores (fallback per Plan); Aggregate valid subjects from ds000224 and ds000230; halt with critical error ONLY if total N=0 (Overrides Spec FR-001 per Plan pivot)
 - [ ] T015 [US1] Implement preprocessing pipeline in `code/preprocess.py` using FSL/AFNI for motion correction, spatial normalization, and bandpass filtering (0.01-0.1 Hz) as a single executable script

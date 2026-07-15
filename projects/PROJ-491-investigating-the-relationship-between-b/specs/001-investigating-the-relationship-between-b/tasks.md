@@ -58,10 +58,10 @@
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 Create `code/config.py` defining paths, seeds (), and parameters (window sizes:, 30, 40 TRs)
-- [~] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
-- [~] T006 [P] Setup `code/__init__.py` and basic logging infrastructure
-- [~] T007a [P] Define and write `data/contracts/atlas_power264.json` containing Power node coordinates in MNI space
-- [~] T007b [P] Define and write `data/contracts/roi_ventral_striatum.json` containing Ventral Striatum ROI MNI coordinates
+- [X] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
+- [X] T006 [P] Setup `code/__init__.py` and basic logging infrastructure
+- [X] T007a [P] Define and write `data/contracts/atlas_power264.json` containing Power node coordinates in MNI space
+- [X] T007b [P] Define and write `data/contracts/roi_ventral_striatum.json` containing Ventral Striatum ROI MNI coordinates
 - [ ] T007c [P] Implement logic to identify and write `data/contracts/Power264_excl_vs_nodes.json` listing Power 264 nodes overlapping with VS ROI to prevent double-dipping
 - [ ] T008 [P] Implement memory-efficient streaming utilities for large NIfTI files to ensure <7GB RAM usage
 - [ ] T009 Setup environment configuration management for OpenNeuro credentials

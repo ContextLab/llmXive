@@ -58,13 +58,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T007 [P] Implement `entropy.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/entropy.py` to calculate Shannon Entropy on UTF-8 byte-level tokens (FR-008). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T007 [P] Implement `entropy.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/entropy.py` to calculate Shannon Entropy on UTF-8 byte-level tokens (FR-008). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [~] T008 [P] Implement `heuristics.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/heuristics.py` to define the technical token list and the composite density formula `0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio` (FR-008).
-- [~] T009 [P] Create `test_entropy.py` unit test in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/unit/test_entropy.py` to verify entropy calculation and clamping for zero density (Edge Case, FR-008).
-- [~] T010 [P] Create `test_heuristics.py` unit test in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/unit/test_heuristics.py` to verify technical token ratio calculation (FR-008).
+- [X] T008 [P] Implement `heuristics.py` utility in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/utils/heuristics.py` to define the technical token list and the composite density formula `0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio` (FR-008).
+- [X] T009 [P] Create `test_entropy.py` unit test in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/unit/test_entropy.py` to verify entropy calculation and clamping for zero density (Edge Case, FR-008).
+- [X] T010 [P] Create `test_heuristics.py` unit test in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/unit/test_heuristics.py` to verify technical token ratio calculation (FR-008).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,7 +78,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `generate_trajectories.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/generate_trajectories.py` to create exactly **500** trajectories (citing **FR-001**) with controlled density (low/med/high) and critical evidence injection. **Deliverable**: Output JSON to `data/raw/` with file size ≤ 100 MB, including metadata for evidence turn index and density value. **Requirements**: Include clamping logic for zero density values (Edge Case) and validation to ensure density is computed solely from input text statistics (FR-007). (US-1 Acceptance 3, FR-001, FR-007).
+- [X] T011 [US1] Implement `generate_trajectories.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/generate_trajectories.py` to create exactly **500** trajectories (citing **FR-001**) with controlled density (low/med/high) and critical evidence injection. **Deliverable**: Output JSON to `data/raw/` with file size ≤ 100 MB, including metadata for evidence turn index and density value. **Requirements**: Include clamping logic for zero density values (Edge Case) and validation to ensure density is computed solely from input text statistics (FR-007). (US-1 Acceptance 3, FR-001, FR-007).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,12 +94,12 @@
 
 - [~] T012 [US2] Implement the "Heuristic Solver" in `simulate_agent.py` using the specific logistic function `P(retrieval) = sigmoid(α * (density - threshold))` to determine success probabilistically (FR-009). **Requirement**: Explicitly define `α` (scaling) and `threshold` (critical density) as configurable constants (e.g., in a config file or function arguments) with default values to ensure reproducibility (Constitution Principle I).
 - [~] T013 [US2] Implement success logic in `simulate_agent.py`: `1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true), else 0`. **Requirement**: Explicitly instruct the implementer to **sample** from the logistic function defined in T012/FR-009 to determine the boolean `agent_heuristic_success` (FR-002, FR-009). **Verification**: Include logic to handle the edge case where critical evidence is at the very last turn ($T$) to ensure horizon $T$ retains it correctly (Edge Case, FR-002).
-- [~] T014 [US2] Implement `simulate_agent.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/simulate_agent.py` to load trajectories and apply retention horizons (1 to T) using the logic from T012/T013. **Verification**: Ensure the system correctly reports "failure" for horizon < 5 and "success" for horizon ≥ 5 given ground truth (US-2 Acceptance 1 & 2).
+- [X] T014 [US2] Implement `simulate_agent.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/simulate_agent.py` to load trajectories and apply retention horizons (1 to T) using the logic from T012/T013. **Verification**: Ensure the system correctly reports "failure" for horizon < 5 and "success" for horizon ≥ 5 given ground truth (US-2 Acceptance 1 & 2).
 - [~] T015 [US2] Implement streaming approach in `simulate_agent.py` to write simulation results to `data/processed/` immediately after each batch to manage RAM (Edge Case, FR-005)
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Contract test for simulation output schema in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/contract/test_simulation_output.py`
+- [X] T016 [P] [US2] Contract test for simulation output schema in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/contract/test_simulation_output.py`
 - [~] T017 [P] [US2] Integration test for horizon masking logic in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/integration/test_horizon_masking.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -114,16 +114,16 @@
 
 ### Implementation for User Story 3
 
-- [~] T018 [US3] Implement `analyze_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py` to load simulation logs and perform logistic regression using `statsmodels`. **Requirement**: Include **natural splines with a flexible number of degrees of freedom** for the 'horizon' variable. **Deliverable**: Expose the degrees of freedom (`df`) parameter as a CLI argument or config variable to ensure flexibility (FR-003).
+- [X] T018 [US3] Implement `analyze_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/analyze_results.py` to load simulation logs and perform logistic regression using `statsmodels`. **Requirement**: Include **natural splines with a flexible number of degrees of freedom** for the 'horizon' variable. **Deliverable**: Expose the degrees of freedom (`df`) parameter as a CLI argument or config variable to ensure flexibility (FR-003).
 - [~] T019 [US3] Implement validation in `analyze_results.py` to check the minimum sample size for statistical power and verify that the interaction term is significant at p < 0.05 (FR-003).
 - [~] T020 [US3] Extract and output regression coefficients and **p-values** for the `density * horizon` interaction term to a summary file. **Requirement**: Explicitly calculate and report the **p-value** and significance test result to measure against the null hypothesis (SC-001, FR-003). **Deliverable**: Write output to `output/regression_summary.json` (FR-006, SC-001).
-- [~] T021 [US3] Implement `visualize_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/visualize_results.py` to generate a 3D surface plot (PNG ≤ 5 MB) with axes: Masking Horizon (X), Semantic Density (Y), Success Rate (Z) (FR-004, SC-002).
+- [X] T021 [US3] Implement `visualize_results.py` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/visualize_results.py` to generate a 3D surface plot (PNG ≤ 5 MB) with axes: Masking Horizon (X), Semantic Density (Y), Success Rate (Z) (FR-004, SC-002).
 - [~] T022 [US3] Generate a summary text file stating whether the hypothesis (positive correlation between density and optimal horizon) was supported. **Requirement**: This file must be **automatically generated by `analyze_results.py`** as part of the pipeline, not manually. **Deliverable**: Write output to `output/hypothesis_summary.txt` (US-3, Acceptance 3).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Contract test for regression output schema in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/contract/test_regression_output.py`
-- [~] T024 [P] [US3] Integration test for plot generation in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/integration/test_plot_generation.py`
+- [ ] T023 [P] [US3] Contract test for regression output schema in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/contract/test_regression_output.py`
+- [X] T024 [P] [US3] Integration test for plot generation in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/tests/integration/test_plot_generation.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

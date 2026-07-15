@@ -58,10 +58,10 @@
 - [ ] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`
 - [X] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
 - [X] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
-- [~] T007 Create schema contracts in `contracts/` directory: `cleaned_study.schema.yaml` and `effect_size.schema.yaml`
-- [~] T008 Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
-- [~] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
-- [~] T010 Create `docs/analysis-plan.md` detailing missing-data handling and imputation strategies
+- [ ] T007 Create schema contracts in `contracts/` directory: `cleaned_study.schema.yaml` and `effect_size.schema.yaml`
+- [X] T008 Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
+- [X] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
+- [X] T010 Create `docs/analysis-plan.md` detailing missing-data handling and imputation strategies
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,17 +80,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
-- [~] T012 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
-- [~] T013 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
+- [X] T012 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
+- [X] T013 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting and exponential backoff for **ClinicalTrials.gov and OSF ONLY** (Constitution Principle VI override).
-- [~] T015 [P] [US1] Implement data extractor in `code/data/extractor.py` (FR-003) with regex patterns for intervention components
-- [~] T016 [US1] Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (6-12), ASD diagnosis, and social skill outcomes
-- [~] T017 [US1] Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally
-- [~] T018 [US1] Implement **abstract-only** text extraction fallback in `code/data/extractor.py` (FR-009) using `pdfplumber` for abstract reconstruction if API metadata is missing. **Full-text OCR is disabled** to preserve CPU-only/7GB RAM constraints (Plan Assumptions).
-- [~] T019 [US1] **Verify and archive output**: Ensure T014-T018 successfully generate `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`. (This is a validation step, not a generation step).
+- [X] T014 [US1] Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting and exponential backoff for **ClinicalTrials.gov and OSF ONLY** (Constitution Principle VI override).
+- [X] T015 [P] [US1] Implement data extractor in `code/data/extractor.py` (FR-003) with regex patterns for intervention components
+- [X] T016 [US1] Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (6-12), ASD diagnosis, and social skill outcomes
+- [X] T017 [US1] Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally
+- [X] T018 [US1] Implement **abstract-only** text extraction fallback in `code/data/extractor.py` (FR-009) using `pdfplumber` for abstract reconstruction if API metadata is missing. **Full-text OCR is disabled** to preserve CPU-only/7GB RAM constraints (Plan Assumptions).
+- [ ] T019 [US1] **Verify and archive output**: Ensure T014-T018 successfully generate `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`. (This is a validation step, not a generation step).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,8 +104,8 @@
 
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
-- [~] T021 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
-- [~] T022 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
+- [X] T021 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
+- [X] T022 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
 - [ ] T023 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
 
 ### Implementation for User Story 2

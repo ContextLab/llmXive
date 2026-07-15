@@ -82,12 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement propositional logic proof generator in `src/generators/logic_generator.py` using `sympy` to create valid proofs from parameterized axioms, including retry logic (with a bounded number of retries) for invalid generations
-- [~] T012 [P] [US1] Implement grid-world navigation generator in `src/generators/grid_generator.py` using `networkx` to create solvable grids with non-overlapping rule sets (e.g., "avoid red", "diagonal paths"), including retry logic (with a bounded number of retries) for invalid generations
-- [~] T013 [US1] Implement held-out test instance generator in `src/generators/test_generator.py` to create `data/test_instances.json` using distinct seeds from training data, ensuring these instances are strictly separate from the training set for FR-005 compliance and providing the required baseline measurement data
-- [~] T014 [US1] Implement data writing logic to save generated training datasets to `data/` with checksums recorded in `data/checksums.json`
-- [~] T015 [US1] Implement validation script `src/analysis/validate_dataset.py` that checks generated datasets and exits with code 1 if validity < 99% for proofs or solvability < 99% for grids
-- [~] T015b [US1] Implement and execute the validation script in `src/cli.py` as a mandatory blocking gate before any training (Phase 4) can commence, ensuring SC-005 is enforced in the pipeline flow and preventing training on invalid data
+- [ ] T011 [P] [US1] Implement propositional logic proof generator in `src/generators/logic_generator.py` using `sympy` to create valid proofs from parameterized axioms, including retry logic (with a bounded number of retries) for invalid generations
+- [ ] T012 [P] [US1] Implement grid-world navigation generator in `src/generators/grid_generator.py` using `networkx` to create solvable grids with non-overlapping rule sets (e.g., "avoid red", "diagonal paths"), including retry logic (with a bounded number of retries) for invalid generations
+- [ ] T013 [US1] Implement held-out test instance generator in `src/generators/test_generator.py` to create `data/test_instances.json` using distinct seeds from training data, ensuring these instances are strictly separate from the training set for FR-005 compliance and providing the required baseline measurement data
+- [ ] T014 [US1] Implement data writing logic to save generated training datasets to `data/` with checksums recorded in `data/checksums.json`
+- [ ] T015 [US1] Implement validation script `src/analysis/validate_dataset.py` that checks generated datasets and exits with code 1 if validity < 99% for proofs or solvability < 99% for grids
+- [X] T015b [US1] Implement and execute the validation script in `src/cli.py` as a mandatory blocking gate before any training (Phase 4) can commence, ensuring SC-005 is enforced in the pipeline flow and preventing training on invalid data
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,17 +101,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Contract test for rule-evaluation counter parity in `tests/contract/test_result_schema.py`
+- [X] T016 [P] [US2] Contract test for rule-evaluation counter parity in `tests/contract/test_result_schema.py`
 - [~] T017 [P] [US2] Unit test for bidirectional exchange logic in `tests/unit/test_agent_conditions.py`
 
 ### Implementation for User Story 2
 
-- [~] T018 [P] [US2] Implement `SequentialAgent` in `src/agents/sequential_agent.py` to train on one task domain block at a time
-- [~] T019 [P] [US2] Implement `MixedAgent` in `src/agents/mixed_agent.py` to train on mixed task domains randomly per generation
-- [~] T020 [P] [US2] Implement `CoevolvingAgent` in `src/agents/coevolving_agent.py` to manage sub-populations and execute bidirectional rule-set exchanges at every generation step
-- [~] T021 [US2] Implement selection pressure logic in `src/agents/coevolving_agent.py` to discard non-performing rule-sets and prevent population collapse
-- [~] T022 [US2] Implement `src/utils/parity_checker.py` to enforce a hard integer cap on rule evaluations *during* the generation loop (clamping/capping) to ensure exact parity before analysis, and raise `ParityError` if checksums mismatch across conditions, implementing the enforcement logic required by SC-002
-- [~] T023 [US2] Implement training loop logic in `src/cli.py` (training component only) that utilizes `parity_checker.py` to ensure exact parity of total rule evaluations across all three conditions (FR-002)
+- [ ] T018 [P] [US2] Implement `SequentialAgent` in `src/agents/sequential_agent.py` to train on one task domain block at a time
+- [ ] T019 [P] [US2] Implement `MixedAgent` in `src/agents/mixed_agent.py` to train on mixed task domains randomly per generation
+- [ ] T020 [P] [US2] Implement `CoevolvingAgent` in `src/agents/coevolving_agent.py` to manage sub-populations and execute bidirectional rule-set exchanges at every generation step
+- [ ] T021 [US2] Implement selection pressure logic in `src/agents/coevolving_agent.py` to discard non-performing rule-sets and prevent population collapse
+- [ ] T022 [US2] Implement `src/utils/parity_checker.py` to enforce a hard integer cap on rule evaluations *during* the generation loop (clamping/capping) to ensure exact parity before analysis, and raise `ParityError` if checksums mismatch across conditions, implementing the enforcement logic required by SC-002
+- [X] T023 [US2] Implement training loop logic in `src/cli.py` (training component only) that utilizes `parity_checker.py` to ensure exact parity of total rule evaluations across all three conditions (FR-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,18 +125,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Contract test for forgetting metric schema in `tests/contract/test_result_schema.py`
-- [~] T025 [P] [US3] Integration test for full statistical analysis pipeline in `tests/integration/test_full_pipeline.py`
+- [X] T024 [P] [US3] Contract test for forgetting metric schema in `tests/contract/test_result_schema.py`
+- [X] T025 [P] [US3] Integration test for full statistical analysis pipeline in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
 - [~] T026 [P] [US3] Implement evaluation logic in `src/analysis/forgetting_metrics.py` to calculate accuracy drop from initial single-task to final multi-task performance
-- [~] T027 [P] [US3] Implement statistical analysis module in `src/analysis/statistical_tests.py` using `scipy` and `statsmodels` to perform a Mixed-Design ANOVA (repeated measures) to account for within-subjects factors across sequential, mixed, and co-evolving conditions, followed by post-hoc Tukey tests to compare forgetting rates, strictly adhering to Constitution Principle VII
-- [~] T029 [US3] Implement batch runner in `src/cli.py` (orchestration component) to execute 30+ independent runs per condition with unique seeds, generating the dataset required for SC-004 statistical power and ensuring the data exists for the ANOVA
+- [ ] T027 [P] [US3] Implement statistical analysis module in `src/analysis/statistical_tests.py` using `scipy` and `statsmodels` to perform a Mixed-Design ANOVA (repeated measures) to account for within-subjects factors across sequential, mixed, and co-evolving conditions, followed by post-hoc Tukey tests to compare forgetting rates, strictly adhering to Constitution Principle VII
+- [X] T029 [US3] Implement batch runner in `src/cli.py` (orchestration component) to execute 30+ independent runs per condition with unique seeds, generating the dataset required for SC-004 statistical power and ensuring the data exists for the ANOVA
 - [~] T030 [US3] Implement data aggregation logic to collect results from the batch runner output in `data/results/`, verifying that the number of runs meets the SC-004 requirement (N ≥ 30) before proceeding to analysis
-- [~] T031 [US3] Implement retention rate calculation in `src/analysis/forgetting_metrics.py` to compute and store raw retention rates of distinct logical rules for Co-evolving vs Mixed-task conditions (SC-003)
-- [~] T032 [US3] Implement comparison logic in `src/analysis/statistical_tests.py` to compare retention rates between Co-evolving and Mixed-task conditions
-- [~] T033 [US3] Implement report generation to output forgetting rates, ANOVA results (p-values), and retention comparisons to `data/results/forgetting_analysis.json`
+- [ ] T031 [US3] Implement retention rate calculation in `src/analysis/forgetting_metrics.py` to compute and store raw retention rates of distinct logical rules for Co-evolving vs Mixed-task conditions (SC-003)
+- [ ] T032 [US3] Implement comparison logic in `src/analysis/statistical_tests.py` to compare retention rates between Co-evolving and Mixed-task conditions
+- [ ] T033 [US3] Implement report generation to output forgetting rates, ANOVA results (p-values), and retention comparisons to `data/results/forgetting_analysis.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,7 +146,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Implement full CLI logic in `src/cli.py` to orchestrate the complete pipeline: generation -> validation gate (T015b) -> training (T023) -> batch running (T029) -> analysis (T027-T033), integrating all previous components
+- [X] T034 [P] Implement full CLI logic in `src/cli.py` to orchestrate the complete pipeline: generation -> validation gate (T015b) -> training (T023) -> batch running (T029) -> analysis (T027-T033), integrating all previous components
 - [~] T035 [P] Documentation updates in `docs/` and `quickstart.md` with examples of running the 3 conditions
 - [~] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete <!-- ATOMIZE: requested -->
 - [~] T037 Performance optimization to ensure a sufficient number of runs complete within the CI time limit on a limited number of CPU cores

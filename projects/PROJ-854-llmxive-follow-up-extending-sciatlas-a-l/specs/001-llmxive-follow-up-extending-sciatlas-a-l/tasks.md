@@ -65,10 +65,10 @@ expected <block end>, but found '<scalar>'
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `src/services/ingest.py`: Fetch OpenAlex data via `pyalex` with **degree-stratified random sampling** to target subgraph size, explicitly **constructing the `networkx.Graph` object `G`** for downstream consumption (See plan.md Complexity Tracking: Degree-Stratified Sampling). *Note: Spec FR-001 references 'PubGraph', but implementation targets OpenAlex; this is a known spec drift.*
-- [~] T013 [US1] Implement `src/services/clustering.py`: Run Louvain community detection on the graph `G` to assign `primary_cluster` IDs (See FR-002).
-- [~] T014 [US1] Implement `src/models/graph_utils.py`: **Complete the implementation** of `calc_bridging(G, clusters)` to calculate `bridging_coefficient` for each node (inter-cluster edges / total degree), handling degree-0 nodes gracefully (See T006).
-- [~] T015 [US1] Add validation in `src/models/graph_utils.py::calc_bridging`: Add `try/except` block to explicitly **assign a value of 0.0** for degree-0 nodes to prevent division-by-zero and satisfy Edge Cases (See spec.md Edge Cases).
-- [~] T016 [US1] Save processed graph with clusters and coefficients to `data/processed/subgraph_with_clusters.parquet`.
+- [X] T013 [US1] Implement `src/services/clustering.py`: Run Louvain community detection on the graph `G` to assign `primary_cluster` IDs (See FR-002).
+- [X] T014 [US1] Implement `src/models/graph_utils.py`: **Complete the implementation** of `calc_bridging(G, clusters)` to calculate `bridging_coefficient` for each node (inter-cluster edges / total degree), handling degree-0 nodes gracefully (See T006).
+- [X] T015 [US1] Add validation in `src/models/graph_utils.py::calc_bridging`: Add `try/except` block to explicitly **assign a value of 0.0** for degree-0 nodes to prevent division-by-zero and satisfy Edge Cases (See spec.md Edge Cases).
+- [ ] T016 [US1] Save processed graph with clusters and coefficients to `data/processed/subgraph_with_clusters.parquet`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,16 +82,16 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Contract test for embedding output in `tests/contract/test_embedding_schema.py` with function `test_embedding_dimensions`.
-- [~] T019 [P] [US2] Integration test for novelty calculation in `tests/integration/test_novelty_calculation.py` with function `test_novelty_centroid_distance`.
+- [X] T018 [P] [US2] Contract test for embedding output in `tests/contract/test_embedding_schema.py` with function `test_embedding_dimensions`.
+- [X] T019 [P] [US2] Integration test for novelty calculation in `tests/integration/test_novelty_calculation.py` with function `test_novelty_centroid_distance`.
 
 ### Implementation for User Story 2
 
 - [~] T023 [US2] Handle edge cases: Modify `src/services/embeddings.py` to **filter out nodes with missing/empty titles for novelty calculation ONLY, but retain them in the dataset for citation analysis**, logging excluded node IDs to `data/logs/excluded_nodes.csv` (See spec.md Edge Cases).
-- [~] T020 [US2] Implement `src/services/embeddings.py`: Load `sentence-transformers/all-MiniLM-L6-v2` (CPU mode) and generate embeddings for all valid node titles in **batches** to meet 7GB RAM constraint, ensuring **no individual node latency exceeds a low-latency threshold** (See plan.md Complexity Tracking: Batched Embedding).
-- [~] T021 [US2] Implement `src/services/clustering.py`: Perform k-means clustering (k=100) on title embeddings to assign `topic_cluster` IDs (independent of Louvain) (See FR-008).
+- [ ] T020 [US2] Implement `src/services/embeddings.py`: Load `sentence-transformers/all-MiniLM-L6-v2` (CPU mode) and generate embeddings for all valid node titles in **batches** to meet 7GB RAM constraint, ensuring **no individual node latency exceeds a low-latency threshold** (See plan.md Complexity Tracking: Batched Embedding).
+- [X] T021 [US2] Implement `src/services/clustering.py`: Perform k-means clustering (k=100) on title embeddings to assign `topic_cluster` IDs (independent of Louvain) (See FR-008).
 - [~] T022 [US2] Implement novelty calculation: Compute **cosine distance** between each node's title embedding and the **centroid** of its assigned `topic_cluster` to derive the `novelty_score`, ensuring the predictor (topology) and outcome (novelty) are mathematically independent (See FR-004).
-- [~] T024 [US2] Save final dataset with citations, novelty scores, and clusters to `data/processed/final_analysis_dataset.parquet`.
+- [ ] T024 [US2] Save final dataset with citations, novelty scores, and clusters to `data/processed/final_analysis_dataset.parquet`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -105,7 +105,7 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 3
 
-- [~] T036 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_output_schema.py` with function `test_report_has_associational_label`.
+- [ ] T036 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_output_schema.py` with function `test_report_has_associational_label`.
 - [~] T037 [P] [US3] Integration test for full statistical pipeline in `tests/integration/test_statistical_pipeline.py` with function `test_binned_analysis_execution`. <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 1, column 1:
  def test_pipeline_integration_wi...
@@ -117,12 +117,12 @@ expected <block end>, but found '<scalar>'
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement `src/services/analysis.py`: Calculate Spearman rank correlation between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
-- [~] T027b [US3] Implement `src/services/analysis.py`: Perform **linear regression** between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
-- [~] T027c [US3] Implement `src/services/analysis.py`: Perform **binned non-linear analysis** (to detect inverted-U effects) as an exploratory extension (See plan.md Complexity Tracking: Binned Analysis).
+- [X] T026 [US3] Implement `src/services/analysis.py`: Calculate Spearman rank correlation between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
+- [X] T027b [US3] Implement `src/services/analysis.py`: Perform **linear regression** between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
+- [X] T027c [US3] Implement `src/services/analysis.py`: Perform **binned non-linear analysis** (to detect inverted-U effects) as an exploratory extension (See plan.md Complexity Tracking: Binned Analysis).
 - [~] T028 [US3] Apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to all p-values, **configurable via a CLI flag** to allow selection of method (See FR-006).
-- [~] T029 [US3] Generate final report in `artifacts/results/analysis_report.md` explicitly labeling results as "associational" (See FR-007).
-- [~] T030 [US3] Save statistical outputs (coefficients, p-values, plots) to `artifacts/results/statistical_metrics.json`.
+- [ ] T029 [US3] Generate final report in `artifacts/results/analysis_report.md` explicitly labeling results as "associational" (See FR-007).
+- [ ] T030 [US3] Save statistical outputs (coefficients, p-values, plots) to `artifacts/results/statistical_metrics.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -133,11 +133,11 @@ expected <block end>, but found '<scalar>'
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T031 [P] Documentation updates in `specs/001-bridging-coefficient-analysis/quickstart.md`: Update the "Prerequisites" and "Run" sections to reflect the final pipeline steps, dependencies, and exact CLI commands.
-- [~] T032 [P] Code cleanup and refactoring for memory efficiency (Ingest): Refactor `src/services/ingest.py` to use **generator expressions** for data loading to reduce peak RAM.
+- [X] T032 [P] Code cleanup and refactoring for memory efficiency (Ingest): Refactor `src/services/ingest.py` to use **generator expressions** for data loading to reduce peak RAM.
 - [~] T032b [P] Code cleanup and refactoring for memory efficiency (Embeddings): Refactor `src/services/embeddings.py` to ensure strict batch processing and memory release between batches.
-- [~] T033 [P] Verify embedding performance against SC-005: Create `tests/bench/test_embedding_speed.py` to run a benchmark on a representative sample, measure **maximum latency per node**, and assert that the max latency is ≤ 50ms. The test must fail if the threshold is exceeded, providing evidence that SC-005 is met.
-- [~] T034 [P] Additional unit tests for edge cases (isolated nodes, single-node clusters) in `tests/unit/test_graph_utils.py`: Implement functions `test_isolated_node` and `test_single_node_cluster`.
-- [~] T035 [P] Validate data source reachability: Create `tests/unit/test_data_source.py` to verify the OpenAlex API endpoint is reachable and `pyalex` can fetch a sample record before running the full pipeline.
+- [X] T033 [P] Verify embedding performance against SC-005: Create `tests/bench/test_embedding_speed.py` to run a benchmark on a representative sample, measure **maximum latency per node**, and assert that the max latency is ≤ 50ms. The test must fail if the threshold is exceeded, providing evidence that SC-005 is met.
+- [X] T034 [P] Additional unit tests for edge cases (isolated nodes, single-node clusters) in `tests/unit/test_graph_utils.py`: Implement functions `test_isolated_node` and `test_single_node_cluster`.
+- [X] T035 [P] Validate data source reachability: Create `tests/unit/test_data_source.py` to verify the OpenAlex API endpoint is reachable and `pyalex` can fetch a sample record before running the full pipeline.
 - [~] T039 [P] Add memory profiling: Integrate `memory_profiler` into `src/services/ingest.py` and `src/services/embeddings.py` to log peak RAM usage per batch, ensuring compliance with a specified data storage limit.
 - [~] T038 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility: Execute the pipeline and generate `artifacts/validation_report.md` containing the execution log, exit code, and artifact hashes.
 

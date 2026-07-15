@@ -76,14 +76,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation.**
 > **[P] Tag Note**: T010 and T011 are parallel-safe *with respect to each other* (they test different aspects). They logically depend on the existence of the code being tested, but can be written concurrently with implementation tasks if the team is split. Tests MUST be written and failing before implementation begins.
 
-- [~] T010 [P] [US1] Contract test for dataset schema validation in `tests/unit/test_ingest_schema.py`
-- [~] T011 [P] [US1] Integration test for Zenodo DOI reachability and data retention in `tests/integration/test_data_ingestion.py`
+- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/unit/test_ingest_schema.py`
+- [X] T011 [P] [US1] Integration test for Zenodo DOI reachability and data retention in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)
-- [~] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001)
-- [~] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv`
+- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)
+- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001)
+- [ ] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv`
 - [~] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
 - [ ] T016 [US1] Write data retention rate and record counts to `data/ingestion_stats.json` to satisfy SC-003 and Single Source of Truth (SC-003)
 

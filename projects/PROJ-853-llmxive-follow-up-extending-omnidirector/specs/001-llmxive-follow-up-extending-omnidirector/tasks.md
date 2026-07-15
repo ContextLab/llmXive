@@ -55,17 +55,17 @@
 ### Implementation for User Story 1
 
 - [~] T008 Implement dataset loader in `code/data/ingestion.py` to load the dataset from `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback) and extract grid-video pairs. **Input Schema**: Matches T007 output.
-- [~] T009 [US1] Implement geometric filtering logic in `code/data/ingestion.py` to classify sequences as 'retained' or 'excluded' based on FR-001 heuristics: **radial motion > 15° OR Z-axis velocity > 0.1 units/frame**. **Input**: `radial_motion_deg`, `z_velocity` columns from T008.
-- [~] T010 [US1] Implement grid frame extraction and ground-truth pairing in `code/data/preprocessing.py`. **Output**: Ensure `grid_points_2d` are extracted for each frame.
-- [~] T011 [US1] Write filtered dataset to `data/processed/filtered_sequences.csv` with checksums. **Schema**: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d`, `R_matrix`, `t_vector`, `randomized_depth`.
-- [~] T012 [US1] Implement linear interpolation for missing/occluded grid lines in `code/data/ingestion.py` to handle edge cases without crashing.
+- [X] T009 [US1] Implement geometric filtering logic in `code/data/ingestion.py` to classify sequences as 'retained' or 'excluded' based on FR-001 heuristics: **radial motion > 15° OR Z-axis velocity > 0.1 units/frame**. **Input**: `radial_motion_deg`, `z_velocity` columns from T008.
+- [X] T010 [US1] Implement grid frame extraction and ground-truth pairing in `code/data/preprocessing.py`. **Output**: Ensure `grid_points_2d` are extracted for each frame.
+- [ ] T011 [US1] Write filtered dataset to `data/processed/filtered_sequences.csv` with checksums. **Schema**: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d`, `R_matrix`, `t_vector`, `randomized_depth`.
+- [X] T012 [US1] Implement linear interpolation for missing/occluded grid lines in `code/data/ingestion.py` to handle edge cases without crashing.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests AFTER implementation tasks T008-T012 are complete
 
-- [~] T013 [P] [US1] Unit test for filtering heuristics (radial > 15°, Z-vel > 0.1) in `code/tests/unit/test_ingestion.py`.
-- [~] T014 [P] [US1] Integration test for pipeline on subset in `code/tests/integration/test_ingestion_pipeline.py`.
+- [X] T013 [P] [US1] Unit test for filtering heuristics (radial > 15°, Z-vel > 0.1) in `code/tests/unit/test_ingestion.py`.
+- [X] T014 [P] [US1] Integration test for pipeline on subset in `code/tests/integration/test_ingestion_pipeline.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -79,19 +79,19 @@
 
 ### Implementation for User Story 2
 
-- [~] T015 [P] [US2] Define `WorldGridModel` (canonical unit grid at Z=0) in `code/geometry/utils.py`.
-- [~] T016 [US2] Implement orthogonal grid line detection and intersection logic in `code/geometry/utils.py`.
+- [X] T015 [P] [US2] Define `WorldGridModel` (canonical unit grid at Z=0) in `code/geometry/utils.py`.
+- [X] T016 [US2] Implement orthogonal grid line detection and intersection logic in `code/geometry/utils.py`.
 - [~] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel).
-- [~] T018 [US2] Implement bounding box dimension reconstruction (height, width, depth) from motion vectors in `code/geometry/reconstruction.py`.
-- [~] T019 [US2] Write pose estimates and reconstructed boxes to `data/processed/poses_estimated.json`.
-- [~] T020 [US2] Implement logic to handle missing data (interpolation/skipping) and flag high-complexity sequences in `code/geometry/solver.py`.
-- [~] T021 [US2] Implement detection and logging of sequences where 'perspective distortion exceeds solvable thresholds' as defined in FR-007 in `code/geometry/solver.py`.
-- [~] T022 [US2] Enforce CPU-only implementation: Use `cv2.solvePnP` with `SOLVEPNP_ITERATIVE` and ensure no GPU flags or CUDA dependencies are used in `code/geometry/solver.py`.
+- [X] T018 [US2] Implement bounding box dimension reconstruction (height, width, depth) from motion vectors in `code/geometry/reconstruction.py`.
+- [ ] T019 [US2] Write pose estimates and reconstructed boxes to `data/processed/poses_estimated.json`.
+- [X] T020 [US2] Implement logic to handle missing data (interpolation/skipping) and flag high-complexity sequences in `code/geometry/solver.py`.
+- [X] T021 [US2] Implement detection and logging of sequences where 'perspective distortion exceeds solvable thresholds' as defined in FR-007 in `code/geometry/solver.py`.
+- [X] T022 [US2] Enforce CPU-only implementation: Use `cv2.solvePnP` with `SOLVEPNP_ITERATIVE` and ensure no GPU flags or CUDA dependencies are used in `code/geometry/solver.py`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US2] Unit test for line intersection detection in `code/tests/unit/test_solver.py`.
-- [~] T024 [P] [US2] Unit test for solvePnP scale ambiguity handling in `code/tests/unit/test_solver.py`.
+- [X] T023 [P] [US2] Unit test for line intersection detection in `code/tests/unit/test_solver.py`.
+- [X] T024 [P] [US2] Unit test for solvePnP scale ambiguity handling in `code/tests/unit/test_solver.py`.
 - [~] T025 [P] [US2] Integration test for full sequence reconstruction in `code/tests/integration/test_geometry_pipeline.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -107,7 +107,7 @@
 ### Implementation for User Story 3
 
 - [~] T026 Implement reconstruction error calculation (absolute difference) in `code/analysis/metrics.py`, consuming `data/processed/poses_estimated.json` from T019.
-- [~] T027 [US3] Implement camera motion complexity metric calculation in `code/analysis/metrics.py`.
+- [X] T027 [US3] Implement camera motion complexity metric calculation in `code/analysis/metrics.py`.
 - [ ] T028 [US3] Implement Pearson's r correlation analysis between complexity and accuracy in `code/analysis/metrics.py`.
 - [ ] T029 [US3] Implement aspect ratio validation (±5% tolerance) against known synthetic volumes in `code/analysis/validation.py`.
 - [ ] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`.

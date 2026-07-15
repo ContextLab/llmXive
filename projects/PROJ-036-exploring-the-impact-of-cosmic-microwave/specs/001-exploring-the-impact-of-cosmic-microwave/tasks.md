@@ -83,14 +83,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement data downloader in `code/01_data_download.py` (handles retries, backoff, and checksum validation using values from config/planck_checksums.yaml)
-- [~] T012b [US1] Pre-populate `config/planck_checksums.yaml` with official SHA256 hashes for Planck PR3 Commander/SMICA maps (manual step or script to fetch from verified source)
-- [~] T013b [US1] Implement chunked FITS streaming loader in `code/utils/io.py` to process full-sky map data without OOM on constrained memory resources
+- [X] T012 [US1] Implement data downloader in `code/01_data_download.py` (handles retries, backoff, and checksum validation using values from config/planck_checksums.yaml)
+- [X] T012b [US1] Pre-populate `config/planck_checksums.yaml` with official SHA256 hashes for Planck PR3 Commander/SMICA maps (manual step or script to fetch from verified source)
+- [X] T013b [US1] Implement chunked FITS streaming loader in `code/utils/io.py` to process full-sky map data without OOM on constrained memory resources
 
 The research question remains: Can full-sky map data be processed without out-of-memory errors on constrained memory resources?
 The method remains: Optimization of memory allocation and streaming algorithms for large-scale sky surveys.
 References: [DOI/arXiv/author-year]
-- [~] T013 [US1] Implement FITS header validation in `code/utils/io.py` (assert Nside ≥ 256, validate that downloaded maps contain known Cold Spot and low-quadrupole regions using coordinates from config/anomaly.yaml) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [X] T013 [US1] Implement FITS header validation in `code/utils/io.py` (assert Nside ≥ 256, validate that downloaded maps contain known Cold Spot and low-quadrupole regions using coordinates from config/anomaly.yaml) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 8, column 1:
  The implementation uses `astropy...
  ^
@@ -98,8 +98,8 @@ could not find expected ':'
  in "<unicode string>", line 8, column 243:
 ... hs and real configuration files.
  ^) -->
-- [~] T014 [US1] Implement galactic mask application (|b| > 5°) in `code/01_data_download.py`
-- [~] T014b [US1] Validate galactic mask application in `code/tests/test_data_validation.py` (function: `test_mask_application` asserts that the mask correctly removes pixels with |b| ≤ 5°)
+- [X] T014 [US1] Implement galactic mask application (|b| > 5°) in `code/01_data_download.py`
+- [X] T014b [US1] Validate galactic mask application in `code/tests/test_data_validation.py` (function: `test_mask_application` asserts that the mask correctly removes pixels with |b| ≤ 5°)
 - [~] T015 [US1] Integrate with versioning utility to hash raw data in `data/raw/`
 - [~] T016 [US1] Add error handling for network failures and corrupted files
 
@@ -115,7 +115,7 @@ could not find expected ':'
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [~] T018 [P] [US2] Contract test for power spectrum modification in `code/tests/test_power_spectrum.py` (function: `test_phase_injected_mode` asserts deviation at ℓ ≤ 30 is logged)
+- [X] T018 [P] [US2] Contract test for power spectrum modification in `code/tests/test_power_spectrum.py` (function: `test_phase_injected_mode` asserts deviation at ℓ ≤ 30 is logged)
 - [ ] T019 [P] [US2] Integration test for IC file generation in `code/tests/test_power_spectrum.py` (function: `test_ic_file_format` asserts GADGET-2/nbodykit format compliance and file size < 50 MB for ³ configuration)
 
 ### Implementation for User Story 2

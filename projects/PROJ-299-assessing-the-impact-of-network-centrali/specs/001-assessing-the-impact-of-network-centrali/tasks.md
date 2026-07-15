@@ -48,10 +48,10 @@ could not find expected ':'
 - [ ] T004 Setup environment configuration management (load ADNI credentials from `.env`, validate presence of required keys)
 - [ ] T005 [P] Implement logging infrastructure (machine-readable logs per FR-011 in `logs/pipeline.log`)
 - [ ] T006 [P] Create base data models/entities (Participant, ImagingSession, CentralityMetrics, CognitiveScore, RegressionResult) in `code/data_models.py`
-- [~] T006b [P] Create `code/config/network_rois.json` containing explicit lists of ROI indices for DMN and FPN networks as per the AAL atlas definition.
+- [X] T006b [P] Create `code/config/network_rois.json` containing explicit lists of ROI indices for DMN and FPN networks as per the AAL atlas definition.
 - [~] T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/analysis/`, `outputs/` with `.gitignore` rules for large files
 - [~] T008 Implement utility functions for CSV reading/writing and checksum validation (FR-001, Data Hygiene)
-- [~] T008b [P] Generate `docs/sync_impact_report.md` documenting the Constitution (Bonferroni) vs. Spec (FDR) conflict and the ratified decision to follow the Spec, satisfying Constitution Principle V (Versioning Discipline).
+- [X] T008b [P] Generate `docs/sync_impact_report.md` documenting the Constitution (Bonferroni) vs. Spec (FDR) conflict and the ratified decision to follow the Spec, satisfying Constitution Principle V (Versioning Discipline).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,12 +65,12 @@ could not find expected ':'
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement ADNI authentication and downloader in `code/download/adni_downloader.py` (FR-001) <!-- FAILED: unspecified -->
+- [ ] T009 [US1] Implement ADNI authentication and downloader in `code/download/adni_downloader.py` (FR-001) <!-- FAILED: unspecified -->
  - Fetch rs-fMRI NIfTI files and clinical CSVs for specified participant IDs via the **LONI IDGK portal API** using `--user`/`--pass` flags.
  - **Input**: Read participant IDs from `data/raw/participant_list.csv` or accept `--ids` CLI argument.
  - **Validation**: Explicitly check for the presence of TMT-A and WAIS-R columns in the fetched clinical CSVs; raise error if missing.
  - Handle authentication errors and missing data gracefully. **Note**: If ADNI credentials are unavailable, the pipeline MUST abort for the primary run; mock data is only for unit/integration tests.
-- [~] T010 [US1] Implement QC and preprocessing pipeline in `code/preprocess/fMRI_pipeline.py` (FR-002, FR-013)
+- [X] T010 [US1] Implement QC and preprocessing pipeline in `code/preprocess/fMRI_pipeline.py` (FR-002, FR-013)
  - **Production Path**: Use Docker container with FSL/AFNI for motion correction, slice-time correction, MNI normalization (mm resampling), and band-pass filtering (low-frequency cutoff).
  - **CI/Simulation Path**: Generate mock NIfTI files in `data/processed/` for N=5 participants that **simulate the output of the full preprocessing pipeline** (including motion correction logic) to ensure schema compatibility with downstream steps. Do NOT skip motion correction.
  - Implement Framewise Displacement (FD) calculation.

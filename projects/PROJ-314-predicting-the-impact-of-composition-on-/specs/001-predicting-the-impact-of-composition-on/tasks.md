@@ -81,28 +81,28 @@
 
 - [ ] T013 [P] [US1] Unit test for `chemparse` composition parsing in `tests/test_descriptors.py`
 - [ ] T014 [P] [US1] Unit test for imputation logic (group vs. global median) in `tests/test_ingestion.py`
-- [~] T015 [P] [US1] Integration test for full ingestion pipeline on a small sample in `tests/integration/test_ingestion.py`
+- [X] T015 [P] [US1] Integration test for full ingestion pipeline on a small sample in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T016 [US1] Implement `fetch_data()` in `code/ingestion.py`: Fetch from Materials Project/NIST or load "Curated Literature Dataset" fallback (FR-001)
-- [~] T017 [US1] Implement `validate_data_gap()` in `code/ingestion.py`:
+- [X] T016 [US1] Implement `fetch_data()` in `code/ingestion.py`: Fetch from Materials Project/NIST or load "Curated Literature Dataset" fallback (FR-001)
+- [X] T017 [US1] Implement `validate_data_gap()` in `code/ingestion.py`:
  1. Check total valid entries (N) after fetch.
  2. **HALT**: If N < 30, halt execution immediately and generate "Data Availability Report" (Plan Phase 0 Task 0.4).
  3. If N >= 30, proceed to cleaning.
-- [~] T018 [US1] Implement `clean_data()` in `code/ingestion.py`:
+- [X] T018 [US1] Implement `clean_data()` in `code/ingestion.py`:
  1. Filter for `N >= 30` by explicitly extracting sample count from fields named 'N', 'sample_size', or 'n' (FR-003).
  2. Handle range values (extract midpoint, set `is_range_flag`, calculate `range_uncertainty`).
  3. Impute missing processing params (group median -> global median).
  4. Handle non-stoichiometric phases: log warning, exclude, OR impute using nearest neighbor element fallback (Edge Case).
  5. **Output Schema**: Ensure output CSV contains columns: `composition`, `weibull_modulus`, `sample_count`, `is_range_flag`, `range_original`, `range_uncertainty`, `primary_anion_cation_group`, `mean_atomic_radius`, `electronegativity_std`, `valence_electron_concentration`, `cation_size_variance`, `sintering_temp`, `is_imputed`.
-- [~] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
+- [X] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
  1. Calculate mean atomic radius and electronegativity std.
  2. Calculate Cation Size Variance.
  3. **Explicitly Calculate Valence Electron Concentration (VEC)** as: `sum(valence electrons of all atoms) / total number of atoms in formula unit` (FR-002).
 - [~] T020 [US1] Add validation to ensure no missing values in primary predictors after imputation
 - [~] T021 [US1] Add logging for data exclusion reasons (e.g., "N < 30", "Invalid Stoichiometry", "Non-stoichiometric fallback used")
-- [~] T022 [P] [US3] Create `code/physics_mappings.py` with a dictionary mapping descriptors to physical mechanisms (e.g., "cation_size_variance" -> "Grain boundary stability") to support T040 (FR-006/US-3) (Resolves missing producer)
+- [X] T022 [P] [US3] Create `code/physics_mappings.py` with a dictionary mapping descriptors to physical mechanisms (e.g., "cation_size_variance" -> "Grain boundary stability") to support T040 (FR-006/US-3) (Resolves missing producer)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -116,14 +116,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US2] Unit test for stratified splitting logic in `tests/test_modeling.py`
-- [~] T024 [P] [US2] Unit test for baseline (global mean) predictor in `tests/test_modeling.py`
+- [X] T023 [P] [US2] Unit test for stratified splitting logic in `tests/test_modeling.py`
+- [X] T024 [P] [US2] Unit test for baseline (global mean) predictor in `tests/test_modeling.py`
 - [~] T025 [P] [US2] Integration test for 5-fold CV workflow in `tests/integration/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [~] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004)
-- [~] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit 6h runtime (FR-004)
+- [X] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004)
+- [X] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit 6h runtime (FR-004)
 - [~] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
 - [ ] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`:
  1. Perform permutation test with **1000 permutations** and **random_seed=42**.

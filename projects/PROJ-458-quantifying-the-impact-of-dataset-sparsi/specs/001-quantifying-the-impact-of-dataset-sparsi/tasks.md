@@ -69,11 +69,11 @@
 
 **Purpose**: Generate formal artifacts documenting deviations between Spec and Plan. These tasks do NOT modify spec.md directly, preserving the "Single Source of Truth" principle.
 
-- [~] T010 [Kickback] Generate `docs/kickback_log.md` entry for FR-003: Log the deviation where the Plan defines a 'Representative Stratified Sample (RSS)' baseline while the Spec uses '[deferred]' full dataset terminology.
-- [~] T011 [Kickback] Generate `docs/kickback_log.md` entry for Assumptions: Log the deviation where the Plan requires `MP_API_KEY` while the Spec assumes 'no authentication barriers'.
-- [~] T012 [Kickback] Generate `docs/kickback_log.md` entry for FR-006: Log the deviation where the Plan mandates 'Linear Mixed-Effects Modeling (LMM)' while the Spec mandates 'Repeated Measures ANOVA' due to nested data structure.
-- [~] T013 [Kickback] Generate `docs/kickback_log.md` entry for SC-001: Log the deviation where the Plan includes 'Predictive Variance' and 'Calibration Slope' metrics which are not explicitly listed in the Spec's SC-001.
-- [~] T014 [Kickback] Generate `docs/kickback_log.md` entry for FR-007: Log the deviation where the Plan specifies a 'slope variance < 10% ' threshold for sensitivity analysis, whereas the Spec's FR-007 lacks this explicit metric. Note: Implementation of this check is handled by T047.
+- [X] T010 [Kickback] Generate `docs/kickback_log.md` entry for FR-003: Log the deviation where the Plan defines a 'Representative Stratified Sample (RSS)' baseline while the Spec uses '[deferred]' full dataset terminology.
+- [X] T011 [Kickback] Generate `docs/kickback_log.md` entry for Assumptions: Log the deviation where the Plan requires `MP_API_KEY` while the Spec assumes 'no authentication barriers'.
+- [X] T012 [Kickback] Generate `docs/kickback_log.md` entry for FR-006: Log the deviation where the Plan mandates 'Linear Mixed-Effects Modeling (LMM)' while the Spec mandates 'Repeated Measures ANOVA' due to nested data structure.
+- [X] T013 [Kickback] Generate `docs/kickback_log.md` entry for SC-001: Log the deviation where the Plan includes 'Predictive Variance' and 'Calibration Slope' metrics which are not explicitly listed in the Spec's SC-001.
+- [X] T014 [Kickback] Generate `docs/kickback_log.md` entry for FR-007: Log the deviation where the Plan specifies a 'slope variance < 10% ' threshold for sensitivity analysis, whereas the Spec's FR-007 lacks this explicit metric. Note: Implementation of this check is handled by T047.
 
 **Checkpoint**: Kickback log generated; Spec deviations formally recorded for next phase.
 
@@ -89,8 +89,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T022 [P] [US1] Unit test `test_api_backoff_retries_on_rate_limit` in `tests/unit/test_data_ingestion.py`
-- [~] T023 [P] [US1] Integration test `test_full_ingestion_pipeline` in `tests/integration/test_ingestion.py`
+- [X] T022 [P] [US1] Unit test `test_api_backoff_retries_on_rate_limit` in `tests/unit/test_data_ingestion.py`
+- [X] T023 [P] [US1] Integration test `test_full_ingestion_pipeline` in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
@@ -98,7 +98,7 @@
 - [~] T025 [US1] Implement filtering logic in `code/data_ingestion.py` to retain only rows where `formation_energy` is not null and `dft_computed` is True, saving to `data/processed/filtered_pool.csv`.
 - [~] T026 [US1] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, outputting to `data/processed/descriptors_pool.csv`.
 - [~] T027 [US1] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`. Output final dataset to `data/processed/full_pool_final.csv`. <!-- FAILED: unspecified -->
-- [~] T028 [US1] Save cleaned full pool to `data/processed/full_pool_final.csv` with SHA-256 checksum generation (write to `data/processed/full_pool_final.csv.sha256`) (Constitution III)
+- [ ] T028 [US1] Save cleaned full pool to `data/processed/full_pool_final.csv` with SHA-256 checksum generation (write to `data/processed/full_pool_final.csv.sha256`) (Constitution III)
 - [~] T020 [US1] [P] Implement `code/test_split.py` to partition a subset of the `full_pool_final.csv` into a **Fixed Test Set** for model evaluation, following the research question and method outlined in prior work [Citation]. (`data/processed/test_set.csv`) using a fixed random seed. (FR-009, Plan Phase 0.5). Note: This task now correctly depends on T027.
 - [~] T021 [US1] [P] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
 
@@ -114,8 +114,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
-- [~] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
+- [X] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
+- [X] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 

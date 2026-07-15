@@ -66,14 +66,14 @@
 
 - [ ] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_api_client_retry_on_429` (already covered by T007). <!-- FAILED: unspecified -->
 - [ ] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_dataset_metadata_schema` validates `data/raw/openml_metadata_filtered.json` against `contracts/dataset_metadata.schema.yaml`.
-- [~] T012 [US1] Implement `code/01_ingest_openml.py` with function:
+- [X] T012 [US1] Implement `code/01_ingest_openml.py` with function:
  ```python
  def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
 ...
  ```
  Save raw API response to `data/raw/openml_metadata_raw.json`.
-- [~] T013 [US1] In the same script, filter raw metadata where `publication_link` **or** `task_id` is present. Save filtered list to `data/raw/openml_metadata_filtered.json`. **Verify** filter condition explicitly.
-- [~] T014 [US1] Validate filtered data for duplicate `dataset_id`s, keep entry with highest `download_count`, and generate SHA‑256 checksums written to `data/raw/checksums.txt`. **Verify** checksum file exists.
+- [ ] T013 [US1] In the same script, filter raw metadata where `publication_link` **or** `task_id` is present. Save filtered list to `data/raw/openml_metadata_filtered.json`. **Verify** filter condition explicitly.
+- [ ] T014 [US1] Validate filtered data for duplicate `dataset_id`s, keep entry with highest `download_count`, and generate SHA‑256 checksums written to `data/raw/checksums.txt`. **Verify** checksum file exists.
 - [~] T015 [US1] Log extraction statistics as JSON to `data/ingest.log`:
  ```json
  {"total_fetched": X, "filtered": Y, "type_distribution": {"binary": A, "multiclass": B}}
@@ -90,9 +90,9 @@
 
 **Independent Test**: Run `code/02_parse_publications.py` on a known OA subset and verify `data/processed/extracted_params.json` matches schema.
 
-- [~] T018 [P] [US2] Unit test `tests/unit/test_parsers.py::test_regex_patterns` checks regexes for `N=\\d+`, `Cohen's d=\\d+\\.\\d+`, `F\\(\\d+,\\d+\\)=\\d+\\.\\d+`.
+- [X] T018 [P] [US2] Unit test `tests/unit/test_parsers.py::test_regex_patterns` checks regexes for `N=\\d+`, `Cohen's d=\\d+\\.\\d+`, `F\\(\\d+,\\d+\\)=\\d+\\.\\d+`.
 - [~] T019 [P] [US2] Contract test `tests/contract/test_schemas.py::test_extracted_params_schema` validates `data/processed/extracted_params.json` against a new schema (`contracts/extracted_params.schema.yaml` – created in T005‑T006).
-- [~] T020 [US2] Implement `code/utils/parsers.py` exposing:
+- [X] T020 [US2] Implement `code/utils/parsers.py` exposing:
  - `extract_sample_size(text: str) -> int`
  - `extract_effect_size(text: str) -> Tuple[float, str, Optional[Tuple[int,int]]]`
  Return includes `metric_type` (`"Cohen's d"` or `"F"`), and for F also `degrees_of_freedom`.
@@ -103,7 +103,7 @@
 - [~] T024 [US2] Edge‑case handling: for entries where no metric can be extracted, record status `"unparseable"` in the JSON and log a warning; **do not crash**.
 - [~] T026 [US2] Save each extracted record with fields:
  `dataset_id, sample_size, effect_size, metric_type, degrees_of_freedom (optional), source_url, status`.
-- [~] T027 [US2] Generate `data/processed/extraction_stats.json` with keys `success_rate`, `failure_reasons` (counts of `"paywalled"`, `"unparseable"`, `"insufficient data"`).
+- [ ] T027 [US2] Generate `data/processed/extraction_stats.json` with keys `success_rate`, `failure_reasons` (counts of `"paywalled"`, `"unparseable"`, `"insufficient data"`).
 - [ ] T028.1 [US2] Compute sensitivity delta:
  ```
  delta = full_text_success_rate - (full_text_plus_abstract_success_rate)
@@ -122,12 +122,12 @@
 
 - [~] T029 [P] [US3] Unit test `tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes` using synthetic input `N=100, d=0.2` expects observed power ≈0.30 (±0.05) and MDES ≈0.25 (±0.05).
 - [~] T030 [P] [US3] Contract test `tests/contract/test_schemas.py::test_final_report_schema` validates `data/processed/audit_report.json` against `contracts/report.schema.yaml`.
-- [~] T031 [US3] Implement `code/03_compute_sensitivity.py`:
+- [X] T031 [US3] Implement `code/03_compute_sensitivity.py`:
  - Function `compute_observed_power(params: StatisticalParameters) -> float` using `statsmodels.stats.power.TTestIndPower`.
  - Function `compute_mdes(params: StatisticalParameters, alpha: float = 0.05, power: float = 0.8) -> float` (inverse power calculation).
  - Process all entries from `extracted_params.json`, compute both metrics, clamp observed power to ≤ 1.0, and store results.
 - [~] T032 [US3] For entries with metric_type `"F"` and provided degrees of freedom, convert to Cohen’s d using standard formula before power/MDES calculations. Clamp any power > 1.0 to 1.0 and log a warning.
-- [~] T033 [US3] Save results to `data/processed/power_audit_results.json` with schema:
+- [ ] T033 [US3] Save results to `data/processed/power_audit_results.json` with schema:
  `{dataset_id, observed_power, mdes, threshold_met (observed_power≥0.8), status}`.
 - [ ] T039.0 [US3] Calculate fraction of studies with observed power < 0.8:
  ```
@@ -136,8 +136,8 @@
  Write to `data/processed/success_metrics.json` under key `observed_power_below_threshold`.
 - [ ] T039.1 [US3] Extend `success_metrics.json` to also include MDES‑related metric:
  `mdes_above_threshold = count(mdes > 0.2) / total` (threshold chosen as illustrative). This provides a plan‑aligned success indicator.
-- [~] T036 [US3] Generate MDES distribution histogram (`mdes_histogram.png`) and summary statistics (median, IQR) saved to `data/processed/mdes_summary.json`.
-- [~] T034 [US3] Implement `code/04_generate_report.py` to aggregate `power_audit_results.json`, `extraction_stats.json`, `sensitivity_delta_report.json`, and `mdes_summary.json`. Produce histogram `power_histogram.png` (bins=20, color=steelblue) and embed in markdown.
+- [ ] T036 [US3] Generate MDES distribution histogram (`mdes_histogram.png`) and summary statistics (median, IQR) saved to `data/processed/mdes_summary.json`.
+- [X] T034 [US3] Implement `code/04_generate_report.py` to aggregate `power_audit_results.json`, `extraction_stats.json`, `sensitivity_delta_report.json`, and `mdes_summary.json`. Produce histogram `power_histogram.png` (bins=20, color=steelblue) and embed in markdown.
 - [ ] T035 [US3] Append mandatory disclaimer at the end of `audit_report.md`:
  ```
  **Disclaimer:** Observed power is a monotone function of the p‑value and should not be used for post‑hoc validation (Hoenig & Heisey).

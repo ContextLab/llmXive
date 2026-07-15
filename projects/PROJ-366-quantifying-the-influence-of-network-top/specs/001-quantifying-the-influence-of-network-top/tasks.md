@@ -65,10 +65,10 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `code/ingest/graph_builder.py` to load XYZ files and construct `AtomicGraph` objects using `ase` with 3.0 Å cutoff (FR-001) <!-- FAILED: unspecified -->
-- [~] T013 [US1] Implement `code/ingest/sample_generator.py` to fetch or generate pre-equilibrated samples (handling missing data error as per Edge Case)
-- [~] T014 [US1] Add error handling for corrupted/missing input files in `code/ingest/graph_builder.py`: log specific error code 'ERR-001' and halt execution
+- [X] T013 [US1] Implement `code/ingest/sample_generator.py` to fetch or generate pre-equilibrated samples (handling missing data error as per Edge Case)
+- [X] T014 [US1] Add error handling for corrupted/missing input files in `code/ingest/graph_builder.py`: log specific error code 'ERR-001' and halt execution
 - [~] T015 [US1] Implement graph serialization to `data/processed/graphs/` (pickle/parquet) with checksums
-- [~] T016 [US1] Generate node-degree distribution stats: output `data/processed/graphs/node_degree_stats.json` containing the calculated mode of the distribution and verify it falls within the expected range for amorphous silicon dynamically (no hard-coded target values in test logic).
+- [ ] T016 [US1] Generate node-degree distribution stats: output `data/processed/graphs/node_degree_stats.json` containing the calculated mode of the distribution and verify it falls within the expected range for amorphous silicon dynamically (no hard-coded target values in test logic).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,14 +82,14 @@
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Contract test for `ThermalSample` schema in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
-- [~] T019 [P] [US2] Unit test for metric extraction (degree, clustering, shortest-path) in `tests/unit/test_metrics.py`
-- [~] T020 [P] [US2] Integration test for Green-Kubo convergence check (relative change < 1%) in `tests/integration/test_pipeline.py`
+- [X] T018 [P] [US2] Contract test for `ThermalSample` schema in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Unit test for metric extraction (degree, clustering, shortest-path) in `tests/unit/test_metrics.py`
+- [X] T020 [P] [US2] Integration test for Green-Kubo convergence check (relative change < 1%) in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/metrics/topology_extractor.py` to compute degree, clustering coefficient, and shortest-path stats per atom (FR-002)
-- [~] T022 [US2] Implement `code/simulation/green_kubo.py` wrapper to run LAMMPS Green-Kubo simulations using SW potential on 2 CPU cores (FR-003). Note: Depends on Phase 3 outputs, parallel only to T021 within Phase 4. <!-- FAILED: unspecified -->
+- [X] T021 [P] [US2] Implement `code/metrics/topology_extractor.py` to compute degree, clustering coefficient, and shortest-path stats per atom (FR-002)
+- [ ] T022 [US2] Implement `code/simulation/green_kubo.py` wrapper to run LAMMPS Green-Kubo simulations using SW potential on 2 CPU cores (FR-003). Note: Depends on Phase 3 outputs, parallel only to T021 within Phase 4. <!-- FAILED: unspecified -->
 - [~] T023 [US2] Implement convergence detection logic (relative change in heat current autocorrelation < 1% in final segment): update `ThermalSample` metadata JSON with `converged: false` if failed
 - [~] T024 [US2] Implement outlier detection for extreme topological defects (>15% atoms with coord <3 or >6): write excluded IDs to `data/processed/graphs/excluded_samples.json` IF `config.yaml` flag `enforce_exclusion` is true; otherwise log warning. Downstream tasks (T033, T033a, T035) MUST filter against this file if it exists.
 - [~] T025 [US2] Save `ThermalSample` objects (graph + conductivity + metadata) to `data/processed/conductivities/` with checksums
@@ -109,19 +109,19 @@
 
 ### Tests for User Story 3
 
-- [~] T028 [P] [US3] Contract test for `GNNOutput` schema in `tests/contract/test_schemas.py`
-- [~] T029 [P] [US3] Unit test for Pearson correlation analysis and Bonferroni correction in `tests/unit/test_lmm_analysis.py`
-- [~] T029b [P] [US3] Unit test for LMM analysis (statsmodels) in `tests/unit/test_lmm_analysis.py`
+- [X] T028 [P] [US3] Contract test for `GNNOutput` schema in `tests/contract/test_schemas.py`
+- [X] T029 [P] [US3] Unit test for Pearson correlation analysis and Bonferroni correction in `tests/unit/test_lmm_analysis.py`
+- [X] T029b [P] [US3] Unit test for LMM analysis (statsmodels) in `tests/unit/test_lmm_analysis.py`
 
 ### Implementation for User Story 3
 
-- [~] T035 [US3] Implement Statistical Power Check: Load sample count N from `data/processed/conductivities/` (after T024 filtering). If N < 10, write `data/processed/model_outputs/power_analysis.json` with status "INSUFFICIENT_POWER" and log a WARNING. If 2 <= N < 10, proceed to T030-T034. If N < 2, exit with code 1.
-- [~] T030 [US3] Implement `code/model/gnn.py` (2-layer GNN, <1M params) to predict **Static Scattering Potential** (a topology-derived proxy) from atomic graph features, as per Plan (to avoid ill-posed heat flux mappings). Note: This proxy serves as the target for the Spec's FR-004 intent.
-- [~] T031 [US3] Implement `code/model/trainer.py` with convergence check (loss change <1e-4 for 5 epochs) and comparison against linear regression baseline (FR-004, SC-002)
+- [ ] T035 [US3] Implement Statistical Power Check: Load sample count N from `data/processed/conductivities/` (after T024 filtering). If N < 10, write `data/processed/model_outputs/power_analysis.json` with status "INSUFFICIENT_POWER" and log a WARNING. If 2 <= N < 10, proceed to T030-T034. If N < 2, exit with code 1.
+- [X] T030 [US3] Implement `code/model/gnn.py` (2-layer GNN, <1M params) to predict **Static Scattering Potential** (a topology-derived proxy) from atomic graph features, as per Plan (to avoid ill-posed heat flux mappings). Note: This proxy serves as the target for the Spec's FR-004 intent.
+- [ ] T031 [US3] Implement `code/model/trainer.py` with convergence check (loss change <1e-4 for 5 epochs) and comparison against linear regression baseline (FR-004, SC-002)
 - [~] T032 [US3] Implement feature importance extraction (SHAP or similar) from trained GNN
-- [~] T033 [US3] Implement `code/analysis/lmm_analysis.py` to perform **Linear Mixed-Effects Model (LMM)** analysis (per Plan Summary) between topological metric variance and global thermal conductivity for the N=2 proof-of-concept.
-- [~] T033a [US3] Implement **Pearson correlation analysis** (per Spec FR-005) between feature importance and global thermal conductivity as a supplementary analysis, outputting results to `data/processed/model_outputs/correlation_pearson.json`.
-- [~] T034 [US3] Implement Pearson correlation significance testing with Bonferroni correction (FR-006, SC-001) for T033a: output `data/processed/model_outputs/correlation_pearson_corrected.json` with r, p-value, and interpretation
+- [X] T033 [US3] Implement `code/analysis/lmm_analysis.py` to perform **Linear Mixed-Effects Model (LMM)** analysis (per Plan Summary) between topological metric variance and global thermal conductivity for the N=2 proof-of-concept.
+- [ ] T033a [US3] Implement **Pearson correlation analysis** (per Spec FR-005) between feature importance and global thermal conductivity as a supplementary analysis, outputting results to `data/processed/model_outputs/correlation_pearson.json`.
+- [ ] T034 [US3] Implement Pearson correlation significance testing with Bonferroni correction (FR-006, SC-001) for T033a: output `data/processed/model_outputs/correlation_pearson_corrected.json` with r, p-value, and interpretation
 - [~] T036 [US3] Save LMM coefficients (from T033), correlation results (r, p-value from T033a), and interpretation to `data/processed/model_outputs/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -134,7 +134,7 @@
 
 - [~] T037 [P] Update `README.md` with pipeline overview and execution instructions
 - [~] T038 Run full integration test on representative samples to verify end-to-end pipeline within 6-hour limit (SC-005)
-- [~] T039 Verify all checksums in `data/checksums.json` match generated artifacts
+- [ ] T039 Verify all checksums in `data/checksums.json` match generated artifacts
 - [~] T040 [P] Add documentation for `contracts/` schemas and data models
 - [~] T041 Run `quickstart.md` validation to ensure all prerequisites and steps are correct
 

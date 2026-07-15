@@ -42,8 +42,8 @@
 - [ ] T005 Create `contracts/metric_record_schema.yaml` defining JSON structure for calibration/covariate metrics (Fields: year, model_type, ece_5, ece_10, ece_20, brier, pca_shift, key_feature_shift, rho_5, rho_10, rho_20, **rho_diff_5_10, rho_diff_10_20, max_rho_diff**, p_value_wls, change_point_year). Note: Added rho_diff fields to satisfy SC-002 robustness verification.
 - [X] T006 [P] Implement `code/utils/config.py` for path and parameter configuration
 - [ ] T007 Create `code/utils/metrics.py` with stub functions: `pca_shift(train_features, test_features, n_components=0.95)`, `key_feature_shift(train_features, test_features, feature_names=...)`. **Implement PCA Shift and Key Feature Shift on raw feature vectors**. Implements Plan's PCA shift override of FR-004. Include formula reference for PCA projection and Key Feature Mean Shift. **Do NOT implement wasserstein_dist**.
-- [~] T008 Create `code/utils/shift_detection.py` with stub function: `detect_change_point_bic(metrics, alpha=0.05)`. **Implement BIC-based detection**, not fixed block-size. Implements Plan's BIC-based detection override of FR-006 (see Plan Complexity Tracking).
-- [~] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
+- [X] T008 Create `code/utils/shift_detection.py` with stub function: `detect_change_point_bic(metrics, alpha=0.05)`. **Implement BIC-based detection**, not fixed block-size. Implements Plan's BIC-based detection override of FR-006 (see Plan Complexity Tracking).
+- [X] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,19 +57,19 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/00_data_availability_gate.py`: Check for IPUMS CPS or synthetic config; halt if missing.
-- [~] T013 [US1] Implement `code/01_data_acquisition.py`: Download yearly snapshots for UCI Adult (1994-2022) and Credit Card Default (2005-2021) as primary targets per FR-001. **Strictly follow FR-001**. If unavailable, do NOT proceed to synthetic data in this task; halt and log critical error.
+- [X] T012 [US1] Implement `code/00_data_availability_gate.py`: Check for IPUMS CPS or synthetic config; halt if missing.
+- [X] T013 [US1] Implement `code/01_data_acquisition.py`: Download yearly snapshots for UCI Adult (1994-2022) and Credit Card Default (2005-2021) as primary targets per FR-001. **Strictly follow FR-001**. If unavailable, do NOT proceed to synthetic data in this task; halt and log critical error.
 - [ ] T013-Fallback [US1] **Conditional**: If `00_data_availability_gate.py` determines IPUMS/Synthetic is the only option, implement fallback logic in `code/01_data_acquisition.py` to download/generate IPUMS/Synthetic data. Log a critical scope warning and document the scope reduction in `data/processed/scope_log.md` citing FR-001 deviation and Plan authorization.
 - [ ] T013-Fallback-Log [US1] **Conditional**: If fallback data is used, implement explicit logging in `code/01_data_acquisition.py` to record the specific dataset source used (IPUMS or Synthetic) and the resulting scope implications in the research record. Verify fallback source is real (IPUMS) or properly seeded (Synthetic), not random placeholder.
 - [~] T014 [US1] Implement schema alignment logic in `code/01_data_acquisition.py`: Intersect feature columns between training and test snapshots (FR-008). Save aligned feature list to `data/processed/aligned_features.json`. Abort with error if intersection < 90% of original features.
-- [~] T015 [US1] Implement `code/02_model_training.py`: Train Logistic Regression and Random Forest on the earliest snapshot only.
-- [~] T016 [US1] Implement serialization logic in `code/02_model_training.py`: Save models to `data/models/` without further updates.
+- [X] T015 [US1] Implement `code/02_model_training.py`: Train Logistic Regression and Random Forest on the earliest snapshot only.
+- [X] T016 [US1] Implement serialization logic in `code/02_model_training.py`: Save models to `data/models/` without further updates.
 - [~] T017 [US1] Implement logic to split and save test data for all subsequent years to `data/processed/`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
-- [~] T011 [P] [US1] Integration test for data download and model serialization in `tests/integration/test_data_pipeline.py`: Verify that `data/models/` contains `logistic_regression.pkl` and `random_forest.pkl` and that `data/processed/` contains yearly splits for the test datasets (mocked for this test). Assert files are loadable and non-empty.
+- [ ] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
+- [ ] T011 [P] [US1] Integration test for data download and model serialization in `tests/integration/test_data_pipeline.py`: Verify that `data/models/` contains `logistic_regression.pkl` and `random_forest.pkl` and that `data/processed/` contains yearly splits for the test datasets (mocked for this test). Assert files are loadable and non-empty.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,10 +83,10 @@
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement `code/03_evaluation.py`: Load fixed models and iterate through yearly test splits. **This task must precede metric calculation tasks.**
-- [~] T020 [US2] Implement `code/utils/metrics.py`: Calculate ECE with 5, 10, and 20 bins (FR-010).
-- [~] T021 [US2] Implement `code/utils/metrics.py`: Calculate Brier Score.
-- [~] T022 [US2] Implement `code/utils/metrics.py`: Calculate covariate shift using **PCA-based shift** and **Key Feature Shift** on the common feature subset. **Do NOT implement raw Wasserstein distance** as it is statistically invalid for high-dimensional data per Plan Complexity Tracking. Implements Plan's architectural override of FR-004.
+- [X] T023 [US2] Implement `code/03_evaluation.py`: Load fixed models and iterate through yearly test splits. **This task must precede metric calculation tasks.**
+- [X] T020 [US2] Implement `code/utils/metrics.py`: Calculate ECE with 5, 10, and 20 bins (FR-010).
+- [X] T021 [US2] Implement `code/utils/metrics.py`: Calculate Brier Score.
+- [X] T022 [US2] Implement `code/utils/metrics.py`: Calculate covariate shift using **PCA-based shift** and **Key Feature Shift** on the common feature subset. **Do NOT implement raw Wasserstein distance** as it is statistically invalid for high-dimensional data per Plan Complexity Tracking. Implements Plan's architectural override of FR-004.
 - [~] T024 [US2] Implement `code/03_evaluation.py`: Compute and store metrics (ECE_5, ECE_10, ECE_20, Brier, PCA_Shift, Key_Feature_Shift, **rho_5, rho_10, rho_20, rho_diff_5_10, rho_diff_10_20, max_rho_diff**) for each year to `data/processed/metrics_records.json` using the schema defined in T005. Explicitly compute Spearman correlation (rho) for each binning strategy to satisfy T027's robustness check.
 - [ ] T025 [US2] Implement logic to handle missing years gracefully (log warning, skip year) as per Edge Cases.
 

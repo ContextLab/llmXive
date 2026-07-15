@@ -87,7 +87,7 @@
 - [ ] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
 - [ ] T015 Create `code/utils/config.py` for environment variables and API key handling
 - [ ] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
-- [~] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
+- [X] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -103,26 +103,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T018 [P] [US1] Unit test for `.cursorrules` detection in `tests/test_ingest.py`
-- [~] T019 [P] [US1] Unit test for commit message "Copilot" frequency calculation in `tests/test_ingest.py`
-- [~] T020 [P] [US1] Integration test for GitHub API retry logic in `tests/test_github_client.py`
+- [X] T018 [P] [US1] Unit test for `.cursorrules` detection in `tests/test_ingest.py`
+- [X] T019 [P] [US1] Unit test for commit message "Copilot" frequency calculation in `tests/test_ingest.py`
+- [X] T020 [P] [US1] Integration test for GitHub API retry logic in `tests/test_github_client.py`
 
 ### Implementation for User Story 1
 
-- [~] T021 [US1] Implement `code/ingest.py` to fetch repository list and metadata (PRs, commits, config files)
-- [~] T022 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`:
+- [X] T021 [US1] Implement `code/ingest.py` to fetch repository list and metadata (PRs, commits, config files)
+- [X] T022 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`:
  - Check for `.cursorrules` or `copilot` config files
  - Check `README.md`/`CONTRIBUTING.md` for "Copilot"/"LLM" mentions (A fixed-length context window of moderate size will be employed to evaluate performance.)
  - Check commit messages for ≥5% "Copilot"/"LLM" frequency
-- [~] T023 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-UPDATED]**:
+- [X] T023 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-UPDATED]**:
  - **Logic**: Count TOTAL push events between PR open and merge (NO exclusions).
  - **Rationale**: Per updated `spec.md` FR-002 (Task T007).
 - [~] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
 - [~] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
-- [~] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
+- [X] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
 - [~] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
-- [~] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
-- [~] T029 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
+- [ ] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
+- [ ] T029 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -136,9 +136,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US2] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
-- [~] T031 [P] [US2] Unit test for VIF calculation in `tests/test_analysis.py`
-- [~] T032 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/test_analysis.py`
+- [X] T030 [P] [US2] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
+- [X] T031 [P] [US2] Unit test for VIF calculation in `tests/test_analysis.py`
+- [X] T032 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
@@ -151,8 +151,8 @@
 - [~] T037 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
 - [~] T038 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
 - [~] T039 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over a range of low integer values. and record effect estimates
-- [~] T040 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
-- [~] T041 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
+- [ ] T040 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
+- [ ] T041 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -166,12 +166,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
-- [~] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
+- [X] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
+- [X] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
 
 ### Implementation for User Story 3
 
-- [~] T044 [US3] Implement `code/report.py` to load analysis results
+- [X] T044 [US3] Implement `code/report.py` to load analysis results
 - [~] T045 [US3] Generate Forest Plot of effect sizes with confidence intervals for all proxies
 - [~] T046 [US3] Generate Sensitivity Analysis plot/table showing effect variation across thresholds
 - [~] T047 [US3] Implement text generation for the report:
@@ -181,7 +181,7 @@
  - **Include "Theoretical Grounding" section citing Holland (Per T005/FR-009)**
  - **Include "Data Gap" section stating NASA-TLX unavailability (Per T005/FR-009)**
  - **Include exact warning string: "Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available."**
-- [~] T048 [US3] Generate `docs/output/final_report.pdf`
+- [ ] T048 [US3] Generate `docs/output/final_report.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -195,13 +195,13 @@
 
 ### Implementation for Signal Separation
 
-- [~] T049 [US2] **New Metric**: Implement `code/utils/metrics.py` function to calculate `diff_complexity_score`:
+- [X] T049 [US2] **New Metric**: Implement `code/utils/metrics.py` function to calculate `diff_complexity_score`:
  - **Formula**: `(lines_added + lines_deleted) / total_lines` if `lines_deleted > 0` else `0`.
  - **Flag Logic**: Flag "AI Noise" if `diff_complexity_score` > 0.3 AND commit message contains "fix", "hotfix", or "patch".
  - **Rationale**: Per updated `spec.md` FR-008 (Task T004).
 - [~] T050 [US2] **Control Variable**: Add `diff_complexity_score` as a control variable in the GLMM/ZINB models (T034/T035) to isolate the pure "LLM Adoption" effect.
-- [~] T051 [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI-Noise" (high diff complexity) and "Low AI-Noise" groups to compare effect sizes.
-- [~] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results.
+- [X] T051 [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI-Noise" (high diff complexity) and "Low AI-Noise" groups to compare effect sizes.
+- [X] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results.
 - [~] T053 [US3] **Data Flow Diagram**: Generate a diagram in `docs/output/` using Mermaid syntax illustrating the data flow and where "load" is inferred, explicitly marking the point where AI-generated code is conflated with human problem-solving.
  - **Nodes**: Repository, PR, Commit, Metric Calculation, GLMM, Report.
  - **Edges**: Data flow arrows, highlighting the `diff_complexity_score` calculation point.

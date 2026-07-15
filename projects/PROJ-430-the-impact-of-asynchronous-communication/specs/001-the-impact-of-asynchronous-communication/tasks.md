@@ -58,9 +58,9 @@
 - [X] T004 Setup `code/config.py` for paths, API keys, and deferred thresholds (sample_size, min_events)
 - [ ] T005 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state updates (Constitution Principle V)
 - [ ] T006 [P] Setup `data/` directory structure (`raw/`, `derived/`, `validation/`) with `.gitignore` rules
-- [~] T007 Create base data models/entities in `code/models.py` (Project, Event, ContributorPair, Metric)
-- [~] T008 Configure logging infrastructure in `code/utils/logger.py` with JSON formatting for pipeline monitoring
-- [~] T009 Setup rate-limit handling wrapper in `code/utils/github_client.py` for GitHub API interactions
+- [X] T007 Create base data models/entities in `code/models.py` (Project, Event, ContributorPair, Metric)
+- [X] T008 Configure logging infrastructure in `code/utils/logger.py` with JSON formatting for pipeline monitoring
+- [ ] T009 Setup rate-limit handling wrapper in `code/utils/github_client.py` for GitHub API interactions
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,10 +74,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001)
-- [~] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002)
-- [~] T012a [US1] Implement Contributor Pair identification and metric calculation in `code/metrics.py`: identify pairs as any two distinct authors who have exchanged at least one message (excluding self-replies and internal bot events), calculate inter-arrival times, `response_time_variance`, and `mean_delay` (FR-002)
-- [~] T014 [US1] Implement project-level filtering for insufficient data (< min_events) in `code/data_ingestion.py` (FR-001)
+- [ ] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001)
+- [ ] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002)
+- [X] T012a [US1] Implement Contributor Pair identification and metric calculation in `code/metrics.py`: identify pairs as any two distinct authors who have exchanged at least one message (excluding self-replies and internal bot events), calculate inter-arrival times, `response_time_variance`, and `mean_delay` (FR-002)
+- [ ] T014 [US1] Implement project-level filtering for insufficient data (< min_events) in `code/data_ingestion.py` (FR-001)
 - [~] T015 [US1] Aggregate pair-level variances to a project-level metric using the **weighted mean** (per plan.md Complexity Tracking) to address statistical instability (FR-010)
 - [~] T015a [US1] Persist intermediate timestamp-derived features to `data/derived/timestamp_features.parquet` to enforce Constitution Principle VI (Modality Separation) (FR-002, Const VI) 👉 **Handoff to US2**
 - [~] T016 [US1] Add error handling for API rate limits and large datasets (chunking if >100k events) to prevent OOM (FR-001)

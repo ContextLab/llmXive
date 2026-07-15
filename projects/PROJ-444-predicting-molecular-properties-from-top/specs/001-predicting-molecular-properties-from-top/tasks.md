@@ -40,9 +40,9 @@
 - [X] T005 [P] Implement `code/utils/graph_builder.py` for RDKit molecular graph construction with validity checks
 - [ ] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
 - [~] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
-- [~] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128) [UNRESOLVED-CLAIM: c_d8f70333 — status=not_enough_info], enforce min scaffolds check, and ensure random seed pinning (fixed value)
+- [ ] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128) [UNRESOLVED-CLAIM: c_d8f70333 — status=not_enough_info], enforce min scaffolds check, and ensure random seed pinning (fixed value)
 - [~] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
-- [~] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
+- [X] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,16 +57,16 @@
 ### Pre-Implementation Tests for User Story 1 (MUST FAIL BEFORE IMPLEMENTATION)
 
 - [~] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
-- [~] T011 [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
+- [X] T011 [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/02_tda_computation.py`: Graph construction and shortest-path filtration (FR-001)
-- [~] T013 [US1] Implement `code/02_tda_computation.py`: Vectorization to persistence images of appropriate resolution
+- [X] T012 [US1] Implement `code/02_tda_computation.py`: Graph construction and shortest-path filtration (FR-001)
+- [X] T013 [US1] Implement `code/02_tda_computation.py`: Vectorization to persistence images of appropriate resolution
 
 The research question, method, and references remain unchanged as per the planning document requirements. (FR-002) for the **Primary Experiment**; include zero-vector fallback for empty diagrams; implement `run_sweep(resolutions=[10, 20, 30])` function to support sensitivity analysis (FR-006)
-- [~] T015 [US1] Add error handling for invalid SMILES (log to `data/logs/invalid_smiles.log` and skip) and implement sparse matrix logic with memory threshold checks for shortest-path computation to handle extremely large molecular weights (Edge Case)
-- [~] T016 [US1] Generate `data/processed/tda_features.csv` (primary dimensions) and `data/processed/traditional_descriptors.csv`
+- [ ] T015 [US1] Add error handling for invalid SMILES (log to `data/logs/invalid_smiles.log` and skip) and implement sparse matrix logic with memory threshold checks for shortest-path computation to handle extremely large molecular weights (Edge Case)
+- [ ] T016 [US1] Generate `data/processed/tda_features.csv` (primary dimensions) and `data/processed/traditional_descriptors.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

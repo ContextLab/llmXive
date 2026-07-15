@@ -59,11 +59,11 @@
 - [X] T005 [P] Setup data hygiene utilities (checksumming, PII masking helpers) in `code/utils/hygiene.py`
 - [ ] T006 [P] Implement streaming/batch data loader utilities in `code/utils/streaming.py` to handle >14GB datasets within 7GB RAM limits
 - [ ] T007 Create base data models/entities (Participant, MicrobiomeProfile, CognitiveScore) in `code/models/`
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
+- [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
 - [~] T009 Setup environment configuration management for credentials (UK Biobank token)
 - [~] T019 [P] Implement `code/power_analysis.py` to generate synthetic dataset (beta=0.1), run power script, validate against theoretical values (SC-003), and **generate `results/power/power_report.md`** as the required evidence artifact. This task acts as a gate before statistical analysis.
-- [~] T024a [P] **Execute Reference-Validator Agent** on cognitive instrument citations (FR-009) against primary sources. Generate `results/validation/instrument_citation_report.md` to satisfy the 'Verified Accuracy' gate.
-- [~] T024b [P] Update `code/config.py` and metadata with validated citation IDs and enforce citation validity in `code/analysis.py` imports.
+- [X] T024a [P] **Execute Reference-Validator Agent** on cognitive instrument citations (FR-009) against primary sources. Generate `results/validation/instrument_citation_report.md` to satisfy the 'Verified Accuracy' gate.
+- [X] T024b [P] Update `code/config.py` and metadata with validated citation IDs and enforce citation validity in `code/analysis.py` imports.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,14 +77,14 @@
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [~] T010 [P] [US1] Unit test for ILR transformation with Bayesian zero-replacement in `tests/test_preprocess.py`
-- [~] T011 [P] [US1] Unit test for cohort filtering logic (antibiotics, missingness) in `tests/test_preprocess.py`
+- [X] T010 [P] [US1] Unit test for ILR transformation with Bayesian zero-replacement in `tests/test_preprocess.py`
+- [X] T011 [P] [US1] Unit test for cohort filtering logic (antibiotics, missingness) in `tests/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested -->
-- [~] T013 [US1] Implement `code/preprocess.py` to filter cohort: exclude recent antibiotic users and participants missing either data type (log exclusion counts)
-- [~] T014 [US1] Apply **Bayesian-multiplicative zero-replacement** to raw microbiome counts (per Plan Complexity Tracking) to avoid log(0) bias. **Output**: `data/processed/zero_replaced_counts.parquet`.
+- [ ] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested -->
+- [X] T013 [US1] Implement `code/preprocess.py` to filter cohort: exclude recent antibiotic users and participants missing either data type (log exclusion counts)
+- [ ] T014 [US1] Apply **Bayesian-multiplicative zero-replacement** to raw microbiome counts (per Plan Complexity Tracking) to avoid log(0) bias. **Output**: `data/processed/zero_replaced_counts.parquet`.
 - [ ] T015 [US1] Implement `code/preprocess.py` genus-level aggregation and **Isometric Log-Ratio (ILR)** transformation. Pipeline: Zero-replaced counts -> Centered Log-Ratio (CLR) -> ILR (orthonormal coordinates). **Output**: `data/processed/ilr_coordinates.parquet`. Satisfies Constitution Principle VI.
 - [ ] T015.5 [US1] Derive `Age_Group` categorical variable from continuous age in `code/preprocess.py` using a **configurable cutoff**. **Output**: `data/processed/cohort_with_age_groups.parquet` and `results/validation/age_group_check.json`.
 - [ ] T016 [US1] Generate `data/processed/cohort_retention_log.json` containing retention counts and rate (SC-001)

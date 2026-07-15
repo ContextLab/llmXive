@@ -88,8 +88,8 @@
 ### Implementation for User Story 1
 
 - [~] T011 [US1] Implement `code/simulation/generate_maps.py` using `camb` to create ground-truth temperature/polarization maps with Nside=512. **Note**: Ground truth parameters are defined in `code/config.py` and recorded in metadata, not derived from external Planck data.
-- [~] T012 [US1] Implement `code/simulation/utils.py` to generate gap masks with configurable fraction, spatial distribution (random, clustered), and morphology (point-source, Galactic plane). **Define gap fractions explicitly as a range of discrete thresholds (e.g., 5%, 10%, 15%, [deferred]) to evaluate model sensitivity across varying levels of data sparsity.** to ensure measurable success criteria.
-- [~] T013 [US1] Implement logic to write ground-truth parameters to `data/metadata/{realization_id}.json`. Read ground-truth values from `code/config.py` or CAMB generation log. Schema MUST include keys: `realization_id`, `H0`, `Omega_m`, `n_s`, `tau`, `seed`, `camb_version`.
+- [X] T012 [US1] Implement `code/simulation/utils.py` to generate gap masks with configurable fraction, spatial distribution (random, clustered), and morphology (point-source, Galactic plane). **Define gap fractions explicitly as a range of discrete thresholds (e.g., 5%, 10%, 15%, [deferred]) to evaluate model sensitivity across varying levels of data sparsity.** to ensure measurable success criteria.
+- [ ] T013 [US1] Implement logic to write ground-truth parameters to `data/metadata/{realization_id}.json`. Read ground-truth values from `code/config.py` or CAMB generation log. Schema MUST include keys: `realization_id`, `H0`, `Omega_m`, `n_s`, `tau`, `seed`, `camb_version`.
 - [ ] T014a1 [US1] Implement function `generate_random_mask` to create random gap masks for standard realizations.
 - [ ] T014a2 [US1] Implement function `generate_clustered_mask` to create clustered gap masks.
 - [ ] T014a3 [US1] Implement function `generate_morphology_masks` to create point-source and Galactic plane masks.
@@ -109,15 +109,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_powerspectrum_schema` must assert `PowerSpectrum` schema validates `Cℓ` values with no NaNs.
-- [~] T018 [P] [US2] Unit test in `tests/unit/test_timing.py`: Function `test_execution_time_limit` must assert that each algorithm completes in ≤30 minutes.
+- [X] T017 [P] [US2] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_powerspectrum_schema` must assert `PowerSpectrum` schema validates `Cℓ` values with no NaNs.
+- [X] T018 [P] [US2] Unit test in `tests/unit/test_timing.py`: Function `test_execution_time_limit` must assert that each algorithm completes in ≤30 minutes.
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `code/gap_filling/harmonic_interp.py` (Harmonic Interpolation) ensuring no NaNs in output.
-- [~] T020 [P] [US2] Implement `code/gap_filling/wiener_filter.py` (Wiener Filtering) ensuring no NaNs in output.
-- [~] T021 [P] [US2] Implement `code/gap_filling/iterative_synthesis.py` (Iterative Harmonic Synthesis) ensuring no NaNs in output.
-- [~] T022 [US2] Implement `code/analysis/power_spectra.py` using `healpy.anafast` to compute Cℓ for ℓ ≤ 2000.
+- [X] T019 [P] [US2] Implement `code/gap_filling/harmonic_interp.py` (Harmonic Interpolation) ensuring no NaNs in output.
+- [X] T020 [P] [US2] Implement `code/gap_filling/wiener_filter.py` (Wiener Filtering) ensuring no NaNs in output.
+- [X] T021 [P] [US2] Implement `code/gap_filling/iterative_synthesis.py` (Iterative Harmonic Synthesis) ensuring no NaNs in output.
+- [X] T022 [US2] Implement `code/analysis/power_spectra.py` using `healpy.anafast` to compute Cℓ for ℓ ≤ 2000.
 - [~] T023 [US2] Implement logic to record algorithm name, version, and execution time in `data/metadata/{realization_id}_algo_{name}.json`. Schema MUST include keys: `algo_name`, `algo_version`, `exec_time_sec`, `timestamp`.
 - [~] T024 [US2] Add convergence failure handling: log failure, record gap config, exclude from analysis (FR-008).
 
@@ -133,23 +133,23 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T025 [P] [US3] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_parameter_posterior` must assert `ParameterPosterior` schema includes `median`, `ci_68`, `ci_95`, `ground_truth`.
+- [X] T025 [P] [US3] Contract test in `tests/contract/test_analysis_schema.py`: Function `test_validate_parameter_posterior` must assert `ParameterPosterior` schema includes `median`, `ci_68`, `ci_95`, `ground_truth`.
 - [~] T026 [P] [US3] Integration test in `tests/integration/test_bias_pipeline.py`: Function `test_full_bias_pipeline` must assert that running the full pipeline produces `data/results/bias_summary.csv` with valid rows.
 
 ### Implementation for User Story 3
 
-- [~] T027a [US3] Implement `code/analysis/custom_likelihood.py` to provide a custom likelihood correction path (alternative to mode-coupling) per FR-009.
-- [~] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`.
-- [~] T028c [US3] **Prerequisite**: Implement `code/analysis/generate_grid.py` to generate a **Pre-computed CAMB Likelihood Grid**. This task MUST use the CAMB/CosmoMC pipeline (Constitution VII) to generate a grid of likelihoods for a range of parameters (H₀, Ωₘ, nₛ, τ) and save it to `data/derived/camb_grid.pkl`. This grid will serve as the fast estimator for the main analysis (satisfying Spec FR-004 runtime).
-- [~] T028a [US3] Implement `code/analysis/parameter_est.py` Step 1: Load leakage matrix from T027.
-- [~] T028b [US3] Implement `code/analysis/parameter_est.py` Step 2: Apply leakage matrix to theoretical spectrum to correct the input, then estimate parameters (H₀, Ωₘ, nₛ, τ) by querying the **Pre-computed CAMB Likelihood Grid** (from T028c). Record ground-truth vs. recovered. **Note**: CosmoMC is reserved for spot-checking ≤ 5 realizations as per FR-004. <!-- FAILED: unspecified -->
+- [X] T027a [US3] Implement `code/analysis/custom_likelihood.py` to provide a custom likelihood correction path (alternative to mode-coupling) per FR-009.
+- [ ] T027 [US3] Implement `code/analysis/mode_coupling.py` to calculate the Mode-Coupling (Leakage) Matrix from the gap mask (FR-009). Output to `data/derived/leakage_matrix_{realization_id}.npy`.
+- [X] T028c [US3] **Prerequisite**: Implement `code/analysis/generate_grid.py` to generate a **Pre-computed CAMB Likelihood Grid**. This task MUST use the CAMB/CosmoMC pipeline (Constitution VII) to generate a grid of likelihoods for a range of parameters (H₀, Ωₘ, nₛ, τ) and save it to `data/derived/camb_grid.pkl`. This grid will serve as the fast estimator for the main analysis (satisfying Spec FR-004 runtime).
+- [X] T028a [US3] Implement `code/analysis/parameter_est.py` Step 1: Load leakage matrix from T027.
+- [X] T028b [US3] Implement `code/analysis/parameter_est.py` Step 2: Apply leakage matrix to theoretical spectrum to correct the input, then estimate parameters (H₀, Ωₘ, nₛ, τ) by querying the **Pre-computed CAMB Likelihood Grid** (from T028c). Record ground-truth vs. recovered. **Note**: CosmoMC is reserved for spot-checking ≤ 5 realizations as per FR-004. <!-- FAILED: unspecified -->
 - [~] T029a [US3] Implement `code/analysis/bias_analysis.py` Step 1: Calculate `bias_magnitude` = |recovered - ground_truth|. Output to `data/results/bias_summary.csv`.
 - [~] T031 [US3] Implement comparison of observed bias trends against the **Null Model** baseline (from T014b1/T014b2, Data Ready) to ensure independence. (Depends on T029a and T014b).
 - [ ] T029b1 [US3] Define the **Linear Regression Model** with interaction terms (Fraction × Algorithm × Morphology) and quadratic terms for gap fraction (implementation of FR-005 ANOVA/linear regression).
 - [ ] T029b2 [US3] Implement Linear Regression fitting using `statsmodels.formula.api.ols` with the defined formula.
 - [ ] T029b3 [US3] Save Regression results (coefficients, p-values, R-squared) to `data/results/regression_results.csv`.
 - [~] T029c [US3] Apply Bonferroni or Benjamini-Hochberg multiple-comparison correction (FR-005) to Regression results.
-- [~] T030 [US3] Implement sensitivity analysis sweep (α ∈ {low, medium, high} and tolerance ∈ {low, medium, high}) and store results in `data/results/sensitivity_sweep.json` with fields: `alpha`, `tolerance`, `bias_variance`, `significance_change`.
+- [ ] T030 [US3] Implement sensitivity analysis sweep (α ∈ {low, medium, high} and tolerance ∈ {low, medium, high}) and store results in `data/results/sensitivity_sweep.json` with fields: `alpha`, `tolerance`, `bias_variance`, `significance_change`.
 - [~] T032 [US3] Implement final aggregation logic to ensure minimum 30 valid realizations are retained.
 
 **Checkpoint**: All user stories should now be independently functional

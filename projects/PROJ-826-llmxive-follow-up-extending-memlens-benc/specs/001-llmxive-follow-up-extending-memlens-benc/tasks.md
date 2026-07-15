@@ -58,7 +58,7 @@
 - [X] T004 Implement `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/download.py` to fetch MemLens dataset from HuggingFace and compute SHA-256 checksums
 - [ ] T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
 - [ ] T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
-- [~] T007 Configure logging infrastructure to track `detection_status` and fallback events in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/utils/logger.py`
+- [X] T007 Configure logging infrastructure to track `detection_status` and fallback events in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/utils/logger.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,16 +72,16 @@
 
 ### Implementation for User Story 1
 
-- [~] T008 [P] [US1] Implement MSR/TR filtering logic in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` (FR-001)
-- [~] T009 [P] [US1] Implement Coarse store construction (text summaries only) with sentence-transformer embeddings in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
-- [~] T010 [P] [US1] Implement Medium store construction (summaries + global CLIP embeddings) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
-- [~] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
+- [X] T008 [P] [US1] Implement MSR/TR filtering logic in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` (FR-001)
+- [X] T009 [P] [US1] Implement Coarse store construction (text summaries only) with sentence-transformer embeddings in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [X] T010 [P] [US1] Implement Medium store construction (summaries + global CLIP embeddings) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
+- [ ] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
 - [ ] T011B [US1] Implement logic to explicitly set `detection_status` for ALL samples: 'success' if YOLO detects ≥1 object, 'zero_detection' if YOLO runs but detects 0 objects, 'fallback' if YOLO fails; ensure this flag is written to the Fine store for all entries (Edge Case, Plan Complexity Tracking)
-- [~] T012 [US1] Implement LLM-based natural language captioning for detected objects (NO templates) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` <!-- ATOMIZE: requested -->
+- [X] T012 [US1] Implement LLM-based natural language captioning for detected objects (NO templates) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` <!-- ATOMIZE: requested -->
 - [~] T013 [US1] Implement Fine store construction (object captions + bounding boxes) ensuring coordinates are stored as metadata ONLY and explicitly excluded from similarity calculation (Plan Phase 2, FR-002)
 - [ ] T013B [US1] Configure top-k retrieval parameter to `k=5` in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/config.py` (Spec Assumptions: fixed for fair comparison)
-- [~] T014 [P] [US1] Implement retrieval logic using cosine similarity on text embeddings for Coarse/Medium in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (Depends: T009, T010)
-- [~] T015 [US1] Implement retrieval logic using cosine similarity on text-only object captions for Fine store (coordinates stored as metadata but excluded from similarity vector per Plan Phase 2) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (FR-003 corrected, Depends: T012, T013, T013B)
+- [X] T014 [P] [US1] Implement retrieval logic using cosine similarity on text embeddings for Coarse/Medium in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (Depends: T009, T010)
+- [X] T015 [US1] Implement retrieval logic using cosine similarity on text-only object captions for Fine store (coordinates stored as metadata but excluded from similarity vector per Plan Phase 2) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/retrieval.py` (FR-003 corrected, Depends: T012, T013, T013B)
 - [ ] T016 [US1] Implement CPU-optimized LLM inference (Phi-3-mini or Llama-3-8B 4-bit/16-bit CPU) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (FR-004, US-3)
 - [ ] T017 [US1] Implement context window management (truncation/sliding window) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` (Edge Case)
 - [ ] T018 [US1] Implement resource monitoring (RAM, CPU time) and raw latency recording per strategy in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005)

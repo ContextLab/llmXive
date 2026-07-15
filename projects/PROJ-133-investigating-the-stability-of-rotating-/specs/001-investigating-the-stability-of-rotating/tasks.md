@@ -58,9 +58,9 @@
 - [ ] T004 Setup `data/` directory structure: `raw/`, `processed/`, `aggregated/`
 - [ ] T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`
 - [X] T006 [P] Setup file-based I/O helpers for `.npy` and `.csv` in `code/utils/io_helpers.py`
-- [~] T007 [P] Create base `SimulationRun` and `StabilityMetric` dataclasses in `code/models/entities.py` (Note: StabilityMetric must use `vortex_density` per amended spec FR-004 from T021b)
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [~] T009 Setup environment configuration management for grid parameters in `code/config/grid_config.py`
+- [X] T007 [P] Create base `SimulationRun` and `StabilityMetric` dataclasses in `code/models/entities.py` (Note: StabilityMetric must use `vortex_density` per amended spec FR-004 from T021b)
+- [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
+- [X] T009 Setup environment configuration management for grid parameters in `code/config/grid_config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,13 +80,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test `tests/unit/test_gpe_solver.py::test_split_step_preserves_norm` for split-step Fourier stability
-- [~] T011 [P] [US1] Integration test `tests/integration/test_single_run.py::test_single_run_completes` for single run completion
+- [X] T010 [P] [US1] Unit test `tests/unit/test_gpe_solver.py::test_split_step_preserves_norm` for split-step Fourier stability
+- [X] T011 [P] [US1] Integration test `tests/integration/test_single_run.py::test_single_run_completes` for single run completion
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement Thomas-Fermi initial condition generator in `code/simulation/initial_conditions.py` (FR-002)
-- [~] T013 [US1] Implement split-step Fourier GPE solver with dipolar term in `code/simulation/gpe_solver.py` (FR-001) with conditional grid size: 64x64 if RUN_FULL_GRID=true (default), else 256x256. (Depends on T017b).
+- [X] T012 [P] [US1] Implement Thomas-Fermi initial condition generator in `code/simulation/initial_conditions.py` (FR-002)
+- [X] T013 [US1] Implement split-step Fourier GPE solver with dipolar term in `code/simulation/gpe_solver.py` (FR-001) with conditional grid size: 64x64 if RUN_FULL_GRID=true (default), else 256x256. (Depends on T017b).
 - [ ] T014 [US1] Implement batch runner to iterate over (Ω, ε_dd, N) grid in `code/simulation/runner.py` (US-1) ensuring N ∈ {small, intermediate, large}, Ω ∈ [lower bound, 0.9], ε_dd ∈ {, 0.5, 1.0, 1.5}.
 - [ ] T015 [US1] Add logic to handle numerical instability crashes (log failure, set retention=0) in `code/simulation/runner.py`
 - [ ] T016 [US1] Add logging for simulation steps and resource usage in `code/simulation/runner.py`

@@ -53,17 +53,17 @@
 
 ### Tests for User Story 1
 
-- [~] T008 [P] [US1] Contract test for dataset download in `tests/contract/test_ingest.py` (verify HuggingFace fetch)
-- [~] T009 [P] [US1] Unit test for timeout handling in `tests/unit/test_timeout_handler.py` (verify "Timeout/Fail" recording)
+- [X] T008 [P] [US1] Contract test for dataset download in `tests/contract/test_ingest.py` (verify HuggingFace fetch)
+- [X] T009 [P] [US1] Unit test for timeout handling in `tests/unit/test_timeout_handler.py` (verify "Timeout/Fail" recording)
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `scripts/ingest.py` to download SWE-bench and AgentBench subsets from HuggingFace. Explicitly implement distinct parsing logic for SWE-bench and AgentBench schemas, then merge the results into a unified dataset.
-- [~] T011 [US1] Implement code artifact extraction logic in `code/scripts/ingest.py` to parse `code_diff` and `original_code` for both datasets, ensuring both are processed and merged before generating the ground truth.
-- [~] T012 [US1] Implement `code/scripts/baseline_runner.py` to execute code in a full-environment baseline: use Docker containers (or equivalent sandboxing) to replicate the specific task environment for SWE-bench/AgentBench, install dependencies, and run the test suite to record `Pass`/`Fail`/`Timeout` outcomes. This must satisfy FR-003 and Constitution Principle VI.
-- [~] T013 [US1] Implement timeout logic in `code/scripts/baseline_runner.py` (with a configurable maximum duration) to record "Timeout/Fail" outcomes; explicitly forbid treating timeouts as "Unknown" or "Skipped" to maintain safety conservatism.
+- [ ] T010 [US1] Implement `scripts/ingest.py` to download SWE-bench and AgentBench subsets from HuggingFace. Explicitly implement distinct parsing logic for SWE-bench and AgentBench schemas, then merge the results into a unified dataset.
+- [X] T011 [US1] Implement code artifact extraction logic in `code/scripts/ingest.py` to parse `code_diff` and `original_code` for both datasets, ensuring both are processed and merged before generating the ground truth.
+- [X] T012 [US1] Implement `code/scripts/baseline_runner.py` to execute code in a full-environment baseline: use Docker containers (or equivalent sandboxing) to replicate the specific task environment for SWE-bench/AgentBench, install dependencies, and run the test suite to record `Pass`/`Fail`/`Timeout` outcomes. This must satisfy FR-003 and Constitution Principle VI.
+- [X] T013 [US1] Implement timeout logic in `code/scripts/baseline_runner.py` (with a configurable maximum duration) to record "Timeout/Fail" outcomes; explicitly forbid treating timeouts as "Unknown" or "Skipped" to maintain safety conservatism.
 - [~] T016 [US1] Add error handling for syntax errors: implement logic to flag tasks as "Unparseable" in the CSV generation step, retain these rows in the ground truth with a specific status flag, and ensure subsequent tasks (T015, T019, T020) explicitly skip the `tree-sitter` step for these entries.
-- [~] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T012/T013/T016), ensuring all "Unparseable" tasks are correctly flagged and included.
+- [ ] T015 [US1] Generate `data/processed/ground_truth.csv` with columns: `task_id`, `code_diff`, `dynamic_execution_outcome` (consuming results from T012/T013/T016), ensuring all "Unparseable" tasks are correctly flagged and included.
 
 **Checkpoint**: Ground truth dataset is generated and validated.
 
@@ -77,7 +77,7 @@
 
 ### Tests for User Story 2
 
-- [~] T017 [P] [US2] Unit test for `tree-sitter` parsing on valid Python code in `tests/unit/test_tree_sitter.py`
+- [X] T017 [P] [US2] Unit test for `tree-sitter` parsing on valid Python code in `tests/unit/test_tree_sitter.py`
 - [~] T018 [P] [US2] Unit test for fallback metrics (depth, cyclomatic, LOC) when semantic nodes are missing in `tests/unit/test_fallback_metrics.py`
 
 ### Implementation for User Story 2

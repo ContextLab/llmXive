@@ -83,9 +83,9 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data_generator.py` with functions to generate Normal, Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative (effect=0.5) hypotheses
-- [~] T012 [US1] Add logic in `code/data_generator.py` to handle edge cases: ensure log-normal skew is finite and prevent numerical overflow
-- [~] T013 [US1] Implement validation routine in `code/data_generator.py` that compares generated sample statistics to theoretical parameters and raises errors on mismatch
-- [~] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification, **ensuring the CSV includes ground-truth metadata columns (effect size, distribution params)**
+- [X] T012 [US1] Add logic in `code/data_generator.py` to handle edge cases: ensure log-normal skew is finite and prevent numerical overflow
+- [X] T013 [US1] Implement validation routine in `code/data_generator.py` that compares generated sample statistics to theoretical parameters and raises errors on mismatch
+- [ ] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification, **ensuring the CSV includes ground-truth metadata columns (effect size, distribution params)**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,22 +99,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T015 [P] [US2] Unit test for Type I error classification logic in `tests/unit/test_simulation.py`
-- [~] T016 [P] [US2] Unit test for Fisher's Exact switch trigger (expected cell < 5) in `tests/unit/test_simulation.py`
-- [~] T017 [P] [US2] Integration test for adaptive replication loop termination in `tests/integration/test_simulation_loop.py`
+- [X] T015 [P] [US2] Unit test for Type I error classification logic in `tests/unit/test_simulation.py`
+- [X] T016 [P] [US2] Unit test for Fisher's Exact switch trigger (expected cell < 5) in `tests/unit/test_simulation.py`
+- [X] T017 [P] [US2] Integration test for adaptive replication loop termination in `tests/integration/test_simulation_loop.py`
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement `code/simulation_engine.py` with the core Monte Carlo loop: data generation (calling US1 interface defined in T011), test execution, and result classification. **Dependency**: Requires T011 to be complete. <!-- FAILED: unspecified -->
-- [~] T019 [US2] Implement test execution logic in `code/simulation_engine.py`:
+- [X] T018 [US2] Implement `code/simulation_engine.py` with the core Monte Carlo loop: data generation (calling US1 interface defined in T011), test execution, and result classification. **Dependency**: Requires T011 to be complete. <!-- FAILED: unspecified -->
+- [X] T019 [US2] Implement test execution logic in `code/simulation_engine.py`:
  - T-test (scipy.stats.ttest_ind)
  - ANOVA (scipy.stats.f_oneway)
  - Chi-squared (scipy.stats.chi2_contingency)
  - Fisher's Exact (scipy.stats.fisher_exact) triggered when expected cell counts < 5
-- [~] T020 [US2] Implement adaptive replication logic in `code/simulation_engine.py`: start with 1000 replicates, calculate **Clopper-Pearson exact intervals** (per Plan.md/Constitution Principle VII) to monitor CI width in real-time, and implement the **adaptive control loop** that triggers additional replicates until width ≤ 0.01 or **maximum cap of [deferred] reps** reached.
+- [X] T020 [US2] Implement adaptive replication logic in `code/simulation_engine.py`: start with 1000 replicates, calculate **Clopper-Pearson exact intervals** (per Plan.md/Constitution Principle VII) to monitor CI width in real-time, and implement the **adaptive control loop** that triggers additional replicates until width ≤ 0.01 or **maximum cap of [deferred] reps** reached.
 - [~] T021 [US2] Implement Type I (reject true null) and Type II (fail to reject false null) error counting logic with fixed alpha=0.05
 - [~] T021b [US2] Implement logic in `code/simulation_engine.py` to **store raw p-values** for every replicate in a structured format (e.g., `data/processed/raw_pvalues.csv`), **applying a pseudo-count or clipping strategy to handle p=0 or p=1** before storage to ensure valid log-transformation for FR-006.
-- [~] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × 3 distributions × 3 tests, saving intermediate results to `data/processed/`
+- [X] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × 3 distributions × 3 tests, saving intermediate results to `data/processed/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,19 +128,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Unit test for CSV export format and column presence in `tests/unit/test_analyzer.py`
-- [~] T024 [P] [US3] Unit test for bootstrap CI calculation in `tests/unit/test_analyzer.py`
-- [~] T025 [P] [US3] Unit test for regression model McFadden R² calculation in `tests/unit/test_analyzer.py`
+- [X] T023 [P] [US3] Unit test for CSV export format and column presence in `tests/unit/test_analyzer.py`
+- [X] T024 [P] [US3] Unit test for bootstrap CI calculation in `tests/unit/test_analyzer.py`
+- [X] T025 [P] [US3] Unit test for regression model McFadden R² calculation in `tests/unit/test_analyzer.py`
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute 95% **Bootstrap Resampling** confidence intervals.
-- [~] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the **variance of Type I error rates across sample sizes** (not Levene's test) to verify SC-002.
-- [~] T027 [US3] Implement regression analysis in `code/analyzer.py`: fit GLM/Binomial regression to predict |p - 0.05| using log(sample size), distribution, and test type; report beta and p-values.
-- [~] T027b [US3] Implement regression analysis in `code/analyzer.py` to model the **log-transformed p-value distribution** (consuming raw p-values stored by T021b with pseudo-counts applied), reporting regression coefficients (beta) and p-values as required by FR-006. <!-- FAILED: unspecified -->
-- [~] T028 [US3] Implement `code/visualizer.py` to generate publication-ready plots (PNG/SVG): Error Rate vs. Sample Size curves with CI bands, distinguishing distributions
+- [X] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute 95% **Bootstrap Resampling** confidence intervals.
+- [X] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the **variance of Type I error rates across sample sizes** (not Levene's test) to verify SC-002.
+- [X] T027 [US3] Implement regression analysis in `code/analyzer.py`: fit GLM/Binomial regression to predict |p - 0.05| using log(sample size), distribution, and test type; report beta and p-values.
+- [X] T027b [US3] Implement regression analysis in `code/analyzer.py` to model the **log-transformed p-value distribution** (consuming raw p-values stored by T021b with pseudo-counts applied), reporting regression coefficients (beta) and p-values as required by FR-006. <!-- FAILED: unspecified -->
+- [X] T028 [US3] Implement `code/visualizer.py` to generate publication-ready plots (PNG/SVG): Error Rate vs. Sample Size curves with CI bands, distinguishing distributions
 - [~] T029 [US3] Create `code/export_results.py` to write final aggregated data to `data/processed/error_rates.csv` and save plots to `data/processed/plots/`
-- [~] T030 [US3] Create `code/main.py` as the single entry point to orchestrate the full pipeline: Setup -> US1 (Data Gen) -> US2 (Simulation) -> US3 (Analysis/Export)
+- [X] T030 [US3] Create `code/main.py` as the single entry point to orchestrate the full pipeline: Setup -> US1 (Data Gen) -> US2 (Simulation) -> US3 (Analysis/Export)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +151,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T031 [P] Documentation updates in `README.md` explaining how to run the simulation and interpret results
-- [~] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic
-- [~] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
+- [X] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic
+- [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
 - [~] T033 Performance optimization: ensure full simulation suite completes within 6 hours on CPU (2 cores)
-- [~] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
+- [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
 - [~] T035 Run `quickstart.md` validation to ensure all paths and commands work <!-- FAILED: unspecified -->
 
 ---

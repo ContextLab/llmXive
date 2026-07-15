@@ -54,14 +54,14 @@
 
 ### Implementation (executed only if Primary Mode)
 
-- [~] T013 [US1] Implement data download for the verified paired dataset identified by T011 (if any) in `code/01_ingest_preprocess.py`. <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement data download for the verified paired dataset identified by T011 (if any) in `code/01_ingest_preprocess.py`. <!-- FAILED: unspecified -->
  - **URL**: derived from manifest entry.
  - **Output**: Save to `data/raw/` with pattern `sub-{subject_id}_run-{run_id}.edf`.
  - **Constraint**: Monitor RAM/CPU; log metrics to `logs/pipeline.log`. **[FR-012][FR-013]**
 - [~] T015 [US1] **Data Alignment Check**: Verify subject overlap between EEG and tDCS within the single source (FR‑011). **Mandatory**: Run immediately after download (T013). If mismatch, set mode flag to **Data Insufficient** and terminate. **[FR-011]** *(depends on T013)*
-- [~] T014 [US1] Implement SHA‑256 checksum verification for all files in `data/raw/` and log results to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`. **Mandatory**: Use `write_checksum_to_state` helper to write successful checksums to the state file. Set files read‑only on success. **[FR-005]** *(depends on T013)*
-- [~] T016 [US1] **Dataset Representativeness Check**: Analyze dataset metadata to flag if the dataset is small (<50 subjects) or from a single population (e.g., healthy young adults). **Mandatory**: Implement the flagging logic and record this flag explicitly in the final output (e.g., `results.json` and `docs/research_results.md`) as required by FR-021. **[FR-021]** *(depends on T013)*
-- [~] T017 [US1] Implement band‑pass filtering (1–45 Hz) and common‑average referencing in `code/01_ingest_preprocess.py`. Write filtered epochs to `data/processed/`. **[FR-002][FR-006]**
+- [ ] T014 [US1] Implement SHA‑256 checksum verification for all files in `data/raw/` and log results to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`. **Mandatory**: Use `write_checksum_to_state` helper to write successful checksums to the state file. Set files read‑only on success. **[FR-005]** *(depends on T013)*
+- [ ] T016 [US1] **Dataset Representativeness Check**: Analyze dataset metadata to flag if the dataset is small (<50 subjects) or from a single population (e.g., healthy young adults). **Mandatory**: Implement the flagging logic and record this flag explicitly in the final output (e.g., `results.json` and `docs/research_results.md`) as required by FR-021. **[FR-021]** *(depends on T013)*
+- [ ] T017 [US1] Implement band‑pass filtering (1–45 Hz) and common‑average referencing in `code/01_ingest_preprocess.py`. Write filtered epochs to `data/processed/`. **[FR-002][FR-006]**
 - [ ] T018 [US1] Implement epoching (fixed‑duration windows) and automated bad‑channel detection (z‑score > 5). Output `data/processed/epochs.fif`. **[FR‑002][FR‑006]**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (only in Primary Mode).

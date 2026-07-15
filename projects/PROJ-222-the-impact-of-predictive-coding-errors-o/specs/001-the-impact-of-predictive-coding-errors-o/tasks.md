@@ -58,8 +58,8 @@
 - [X] T004 Setup `data/README.md` schema for dataset metadata and exclusion logs (fields: dataset_id, status, reason)
 - [ ] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (duration_estimate, stimulus_sequence, participant_id)
 - [ ] T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure
-- [~] T007 Setup environment configuration management for random seeds in `code/config.py`
-- [~] T008 Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [X] T007 Setup environment configuration management for random seeds in `code/config.py`
+- [ ] T008 Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 2, column 1:
  I have implemented the chunked d...
  ^
@@ -67,7 +67,7 @@ expected <block end>, but found '-'
  in "<unicode string>", line 18, column 1:
  - Uses `pandas.read_csv()` with...
  ^) -->
-- [~] T009 Document verified dataset IDs (OpenML/HF) in `data/README.md` 'Verified datasets' block. If no valid time-perception datasets are known, create a `data/README.md` section explicitly stating "Data Gap: No valid datasets found" and block further execution. (Plan: Gate 0)
+- [X] T009 Document verified dataset IDs (OpenML/HF) in `data/README.md` 'Verified datasets' block. If no valid time-perception datasets are known, create a `data/README.md` section explicitly stating "Data Gap: No valid datasets found" and block further execution. (Plan: Gate 0)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,13 +83,13 @@ expected <block end>, but found '-'
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Dep: T005)
-- [~] T011 [US1] Integration test for data download and Gate 0 validation in `tests/integration/test_download_gate0.py`
+- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Dep: T005)
+- [X] T011 [US1] Integration test for data download and Gate 0 validation in `tests/integration/test_download_gate0.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download.py` to fetch datasets from OpenML/HuggingFace using IDs from `data/README.md` (created in T009) (FR-001)
-- [~] T013 [US1] Implement Gate 0 logic in `code/download.py` to verify presence of `duration_estimate`, `stimulus_sequence`, and `participant_id`. If no valid dataset is found, halt execution and write `gate0_status.json` with status="blocked" and reason. (Plan: Gate 0, SC-001)
+- [X] T012 [US1] Implement `code/download.py` to fetch datasets from OpenML/HuggingFace using IDs from `data/README.md` (created in T009) (FR-001)
+- [X] T013 [US1] Implement Gate 0 logic in `code/download.py` to verify presence of `duration_estimate`, `stimulus_sequence`, and `participant_id`. If no valid dataset is found, halt execution and write `gate0_status.json` with status="blocked" and reason. (Plan: Gate 0, SC-001)
 - [~] T014 [US1] Implement filtering logic to exclude datasets lacking sequential stimuli or predictability manipulations (e.g., random noise, non-sequential) as per FR-002. Log exclusion reasons. (FR-002)
 - [ ] T015 [US1] Create `code/preprocess.py` with full implementation of Markov surprisal calculation logic (Shannon entropy of transition) and data loading functions. (FR-003, Assumption 1)
 - [ ] T016 [US1] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' (FR-003, Assumption 1)

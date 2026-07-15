@@ -82,11 +82,11 @@
 - [ ] T012 [US1] Implement `code/01_data_ingestion.py` to download OpenNeuro dataset
 
 The research question is to investigate neural correlates of cognitive control. The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task. [UNRESOLVED-CLAIM: c_0aab781f — status=not_enough_info]. References include (Smith et al., 2020;). using `datalad` to `data/raw/`.
-- [~] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested -->
+- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested -->
 - [~] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
 - [~] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
 - [~] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
-- [~] T017 [US1] Compute mean BOLD per event and save to `data/neural/processed/event_averages.csv` with columns: subject_id, event_id, roi, mean_signal.
+- [ ] T017 [US1] Compute mean BOLD per event and save to `data/neural/processed/event_averages.csv` with columns: subject_id, event_id, roi, mean_signal.
 - [~] T018 [US1] Run `utils/checksums.py` after data processing and update state file.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,15 +101,15 @@ The research question is to investigate neural correlates of cognitive control. 
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for story uniqueness and format in `tests/test_model.py`
-- [~] T020 [P] [US2] Integration test for memory constraints in `tests/test_model.py`
+- [X] T019 [P] [US2] Contract test for story uniqueness and format in `tests/test_model.py`
+- [X] T020 [P] [US2] Integration test for memory constraints in `tests/test_model.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement class `SparseAutoencoder` in `code/models/sparse_autoencoder.py` with a method `forward()` that returns activations and a property `sparsity_ratio` calculated as mean(activations > 0).
-- [~] T022 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
-- [~] T023 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
-- [~] T024 [US2] Implement TinyLSTM baseline architecture with int8 weight quantization in `code/models/baseline.py` for comparison, ensuring it runs on CPU.
+- [X] T021 [US2] Implement class `SparseAutoencoder` in `code/models/sparse_autoencoder.py` with a method `forward()` that returns activations and a property `sparsity_ratio` calculated as mean(activations > 0).
+- [X] T022 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
+- [X] T023 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
+- [X] T024 [US2] Implement TinyLSTM baseline architecture with int8 weight quantization in `code/models/baseline.py` for comparison, ensuring it runs on CPU.
 - [ ] T025 [US2] Implement training loop with retry logic (3 seeds) for SAE convergence.
 - [ ] T026 [US2] Run generation loop to produce at least 1,000 unique stories (N >= 1,000) and save to `data/results/generated_stories.jsonl` where each line is a JSON object with keys: `story_id`, `text`, `model_type`.
 - [ ] T027 [US2] Implement memory monitoring to log peak usage and ensure < 6GB limit.

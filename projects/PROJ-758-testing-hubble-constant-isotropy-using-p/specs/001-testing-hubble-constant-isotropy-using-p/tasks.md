@@ -58,11 +58,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T007 Implement `src/utils/constants.py` with physical constants (c, H0 reference values) and Pantheon+ metadata
-- [~] T008 [P] Setup logging infrastructure in `src/utils/logger.py` with audit trails for data filtering
-- [~] T009 [P] Implement checksum verification utility in `src/utils/data_integrity.py` for raw data validation
+- [X] T007 Implement `src/utils/constants.py` with physical constants (c, H0 reference values) and Pantheon+ metadata
+- [ ] T008 [P] Setup logging infrastructure in `src/utils/logger.py` with audit trails for data filtering
+- [ ] T009 [P] Implement checksum verification utility in `src/utils/data_integrity.py` for raw data validation
 - [~] T010 Create base data models (Pydantic) for `SupernovaRecord`, `HEALPixPixel`, and `H0Estimate` in `src/models/`
-- [~] T011 Configure environment variable management for Zenodo API keys and random seeds in `src/utils/config.py`
+- [ ] T011 Configure environment variable management for Zenodo API keys and random seeds in `src/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,8 +78,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T012 [US1] Contract test for data ingestion schema in `tests/contract/test_loader.py`: function `test_loader_schema_matches_pantheon_plus`, validating against `SupernovaRecord` Pydantic model
-- [~] T013 [US1] Integration test for HEALPix mapping accuracy in `tests/integration/test_spatial.py`: input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel indices; tolerance: inverse projection recovers original coords within 1e-6 deg [UNRESOLVED-CLAIM: c_364162d8 — status=not_enough_info]
+- [X] T012 [US1] Contract test for data ingestion schema in `tests/contract/test_loader.py`: function `test_loader_schema_matches_pantheon_plus`, validating against `SupernovaRecord` Pydantic model
+- [X] T013 [US1] Integration test for HEALPix mapping accuracy in `tests/integration/test_spatial.py`: input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel indices; tolerance: inverse projection recovers original coords within 1e-6 deg [UNRESOLVED-CLAIM: c_364162d8 — status=not_enough_info]
 
 ### Implementation for User Story 1
 

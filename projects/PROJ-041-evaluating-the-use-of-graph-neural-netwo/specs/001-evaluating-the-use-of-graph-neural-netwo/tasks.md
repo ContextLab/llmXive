@@ -52,7 +52,7 @@
 - [~] T001g [P] Create directory `data/results`
 - [~] T001h [P] Create directory `tests`
 - [~] T001i [P] Create directory `tests/integration`
-- [~] T002 Initialize Python project with `requirements.txt` (pinning `torch` CPU version, `networkx`, `scikit-learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest-memory-profiler`)
+- [X] T002 Initialize Python project with `requirements.txt` (pinning `torch` CPU version, `networkx`, `scikit-learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest-memory-profiler`)
 - [~] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
@@ -63,15 +63,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Implement `code/utils/seed.py` to manage deterministic random seeds
-- [~] T005 Implement `code/utils/memory_monitor.py` wrapper using `tracemalloc` to enforce a hard memory limit
-- [~] T006 Create `contracts/dataset.schema.yaml` and `contracts/graph.schema.yaml` defining data structures
+- [X] T004 Implement `code/utils/seed.py` to manage deterministic random seeds
+- [X] T005 Implement `code/utils/memory_monitor.py` wrapper using `tracemalloc` to enforce a hard memory limit
+- [ ] T006 Create `contracts/dataset.schema.yaml` and `contracts/graph.schema.yaml` defining data structures
 - [~] T007a [P] Download CTU dataset from canonical URL: and validate checksum
 - [~] T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and validate the checksum (Fallback).
-- [~] T007c [P] Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability; if missing, switch to BoT-IoT and log source
-- [~] T007d [P] Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`, default: 0.75) per SC-005
-- [~] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is. **Do NOT pad**.
-- [~] T009 Implement `code/data/splits.py` for Temporal Holdout validation strategy (Train on the majority of time-windowed flows, test on the remaining minority., configurable via `config.temporal_split_ratio`)
+- [X] T007c [P] Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability; if missing, switch to BoT-IoT and log source
+- [X] T007d [P] Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`, default: 0.75) per SC-005
+- [X] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is. **Do NOT pad**.
+- [X] T009 Implement `code/data/splits.py` for Temporal Holdout validation strategy (Train on the majority of time-windowed flows, test on the remaining minority., configurable via `config.temporal_split_ratio`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,7 +87,7 @@
 
 > **NOTE**: Write these test **skeletons** FIRST (T010-T012), then implement code (T013-T017), then run tests.
 
-- [~] T010 [P] [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB) [Depends on T005, T013]
+- [X] T010 [P] [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB) [Depends on T005, T013]
 - [ ] T011 [P] [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000, LCC rule) [Depends on T008, T013]
 - [ ] T012 [P] [US1] Write test skeleton for data ingestion pipeline in `tests/integration/test_ingest.py` (verifies real data fetch and schema compliance)
 

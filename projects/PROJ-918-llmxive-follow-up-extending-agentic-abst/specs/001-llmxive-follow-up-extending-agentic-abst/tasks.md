@@ -58,8 +58,8 @@
 - [ ] T004 Create `contracts/dataset.schema.yaml` enforcing exclusion of full semantic context text columns
 - [ ] T005 Create `contracts/output.schema.yaml` for model metrics and simulation logs
 - [ ] T006 [P] Setup `data/` directory structure (`raw/`, `processed/`) and checksum scripts
-- [~] T007 Implement `code/__init__.py` and basic logging configuration in `code/logging_config.py`
-- [~] T008 Setup environment configuration management (load seeds, paths from `.env` or `config.yaml`)
+- [X] T007 Implement `code/__init__.py` and basic logging configuration in `code/logging_config.py`
+- [X] T008 Setup environment configuration management (load seeds, paths from `.env` or `config.yaml`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,19 +73,19 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T009 [P] [US1] Contract test for `code/data/extract_features.py` schema validation in `tests/contract/test_schema.py`
-- [~] T010 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingest_pipeline.py`
+- [X] T009 [P] [US1] Contract test for `code/data/extract_features.py` schema validation in `tests/contract/test_schema.py`
+- [X] T010 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingest_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/data/ingest.py` to fetch and verify the REAL "Agentic Abstention" benchmark dataset as the PRIMARY source; ONLY fallback to `code/data/simulator.py` (Synthetic Agent Simulator) if the real benchmark is unavailable or fails verification (per FR-001 and Constitution Principle II). Sequence: 1) Fetch/Verify Benchmark, 2) If fail, fallback to Simulator.
-- [~] T012 [US1] Implement `code/oracle/solver.py` to create the independent bounded exhaustive search solver (limited token budget) that determines task impossibility (FR-002)
+- [X] T011 [US1] Implement `code/data/ingest.py` to fetch and verify the REAL "Agentic Abstention" benchmark dataset as the PRIMARY source; ONLY fallback to `code/data/simulator.py` (Synthetic Agent Simulator) if the real benchmark is unavailable or fails verification (per FR-001 and Constitution Principle II). Sequence: 1) Fetch/Verify Benchmark, 2) If fail, fallback to Simulator.
+- [X] T012 [US1] Implement `code/oracle/solver.py` to create the independent bounded exhaustive search solver (limited token budget) that determines task impossibility (FR-002)
 - [ ] T012.5 [US1] Execute the solver from T012 on the ingested dataset to generate the ground truth "Abstention Label" column and write the results to `data/processed/labels.parquet` (FR-002)
-- [~] T013 [US1] Implement `code/data/extract_features.py` to parse interaction trajectories and compute: search count, error frequency, token usage, turn number
-- [~] T014 [US1] Implement `code/data/extract_features.py` logic to compute "query-context embedding distance" using `sentence-transformers` (all-MiniLM-L6-v2) as a scalar proxy
-- [~] T015 [US1] Implement `code/data/extract_features.py` logic to derive "Abstention Label" by joining with the output from T012.5 (FR-002)
+- [X] T013 [US1] Implement `code/data/extract_features.py` to parse interaction trajectories and compute: search count, error frequency, token usage, turn number
+- [X] T014 [US1] Implement `code/data/extract_features.py` logic to compute "query-context embedding distance" using `sentence-transformers` (all-MiniLM-L6-v2) as a scalar proxy
+- [X] T015 [US1] Implement `code/data/extract_features.py` logic to derive "Abstention Label" by joining with the output from T012.5 (FR-002)
 - [~] T016 [US1] Implement `code/data/preprocess.py` to apply mean imputation for missing numeric variables AND implement explicit "halt execution" logic that generates a `data/validation_report.json` flagging the dataset as invalid if >5% of records are missing a critical variable (FR-007)
-- [~] T017 [US1] Verify output file `data/processed/features.parquet` contains no full semantic context strings and matches `dataset.schema.yaml`
+- [ ] T017 [US1] Verify output file `data/processed/features.parquet` contains no full semantic context strings and matches `dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

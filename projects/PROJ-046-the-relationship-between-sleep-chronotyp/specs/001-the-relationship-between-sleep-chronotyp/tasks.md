@@ -77,18 +77,18 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for chronotype thresholds in `tests/test-classify.R` (verify MEQ >= 59, <= 41, else intermediate)
-- [~] T010 [P] [US1] Unit test for missing data handling in `tests/test-classify.R` (verify NA handling and logging)
+- [X] T009 [P] [US1] Unit test for chronotype thresholds in `tests/test-classify.R` (verify MEQ >= 59, <= 41, else intermediate)
+- [X] T010 [P] [US1] Unit test for missing data handling in `tests/test-classify.R` (verify NA handling and logging)
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/01_ingest.R`:
+- [X] T011 [US1] Implement `code/01_ingest.R`:
  1. Load CSV.
  2. Verify presence of ALL required columns (`MEQ_score`, `MFQ_*`, `PSQI`, `acute_sleepiness`, `age`, `sex`). **ABORT** immediately if any column is missing (FR-001).
  3. For rows with missing `acute_sleepiness`: exclude the row, log to `logs/ingest_exclusions.log`, and track count.
  4. **Save** `data/processed/cleaned_data.csv` and a provisional count to `data/derived/ingest_exclusion_count.json`.
  5. **Do NOT check 20% threshold here**; this is a provisional step.
-- [~] T012 [US1] Implement `code/02_classify.R`:
+- [X] T012 [US1] Implement `code/02_classify.R`:
  - **Depends on**: T005 (scoring docs), T011 (cleaned data).
  - Apply thresholds: `MEQ >= 59` -> "morning", `MEQ <= 41` -> "evening", else "intermediate".
  - Flag rows with `NA` or non-numeric `MEQ_score` (exclude and log to `logs/classify_exclusions.log`).
@@ -102,12 +102,12 @@ Examples of foundational tasks (adjust based on your project):
  - **ABORT** pipeline if cumulative rate > 20% (FR-006, FR-007).
  - If OK, write final `data/derived/exclusions.log` (merged logs) and `data/derived/exclusion_counts.json` (final counts).
  - **Verify**: Ensure `data/derived/exclusions.log` exists and contains all exclusion details.
-- [~] T014 [US1] [P] Implement `code/06_benchmark_accuracy.R`: <!-- FAILED: unspecified -->
+- [ ] T014 [US1] [P] Implement `code/06_benchmark_accuracy.R`: <!-- FAILED: unspecified -->
  - **Depends on**: T012.
  - **Generate** a synthetic benchmark dataset with known labels. **Scope**: Use ONLY for classifier accuracy testing (SC-001), NOT for primary analysis.
  - Run the classifier on this synthetic data.
  - Verify ≥95% accuracy (SC-001).
-- [~] T018 [US1] [P] Implement `code/02.6_reliability.R`:
+- [X] T018 [US1] [P] Implement `code/02.6_reliability.R`:
  - **Depends on**: T012.5.
  - Calculate Cronbach's alpha for all five MFQ subscales using the classified data.
  - Save results to `data/derived/reliability_metrics.csv` with columns: `subscale`, `cronbach_alpha`, `n_items`.
@@ -130,7 +130,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/03_analysis.R`: <!-- FAILED: unspecified -->
+- [ ] T019 [US2] Implement `code/03_analysis.R`: <!-- FAILED: unspecified -->
  - **Depends on**: T012.5.
  - Run ANCOVA (`MFQ_subscale ~ chronotype + PSQI + acute_sleepiness + age + sex`) for all 5 subscales.
  - Apply Bonferroni correction (α = 0.05/5 = 0.01) to p-values **atomically** within this step (FR-003).
@@ -138,7 +138,7 @@ Examples of foundational tasks (adjust based on your project):
  - Calculate Variance Inflation Factors (VIF).
  - **If any VIF > 2**: Log warning to `logs/vif_warnings.log`, write error flag to `logs/vif_error.flag`, and **ABORT** pipeline (Spec Assumptions: VIFs must be < 2).
  - If VIF OK, save `data/derived/ancova_results.csv` and `data/derived/effect_sizes.csv`.
-- [~] T024 [US2] [P] Implement `code/07_regression_test.R`: <!-- FAILED: unspecified -->
+- [ ] T024 [US2] [P] Implement `code/07_regression_test.R`: <!-- FAILED: unspecified -->
  - **Depends on**: T019.
  - **Generate** `reference_p_values.csv` using a hardcoded R script logic (simulating a reference run) to ensure the artifact exists.
  - Compare pipeline p-values (from T019) with reference p-values.
@@ -160,15 +160,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement `code/04_report.Rmd`: Include descriptive tables, ANCOVA results, Cohen's d, G*Power summary (FR-005). **Depends on**: T019, T018, T012.5. <!-- ATOMIZE: requested -->
-- [~] T027 [US3] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
+- [X] T026 [US3] Implement `code/04_report.Rmd`: Include descriptive tables, ANCOVA results, Cohen's d, G*Power summary (FR-005). **Depends on**: T019, T018, T012.5. <!-- ATOMIZE: requested -->
+- [X] T027 [US3] Implement sensitivity analysis sweep in `code/04_report.Rmd`:
  - **Depends on**: T019, T018, T012.5.
  - **Method**: Re-run ANCOVA models for each alpha threshold (0.01, 0.0125, 0.015) to ensure accuracy within 6h runtime.
  - Generate a summary table listing significance status for every MFQ subscale contrast at each threshold.
  - **Output**: Save sensitivity table to `data/derived/sensitivity_sweep.csv` with columns: `subscale`, `alpha_threshold`, `p_value`, `significant` (boolean).
  - **Include**: Cronbach's alpha values (read from `data/derived/reliability_metrics.csv` calculated in T018) in the report.
  - **Include**: Data Exclusion Summary section (read from `data/derived/exclusions.log` generated in T012.5).
-- [~] T028 [US3] Generate `reports/chronotype_moral_analysis.html` (or PDF).
+- [ ] T028 [US3] Generate `reports/chronotype_moral_analysis.html` (or PDF).
 - [ ] T029 [US3] Implement `code/05_validate_report.R`: Parse report, verify presence of all required sections (SC-003).
 
 **Checkpoint**: All user stories should now be independently functional

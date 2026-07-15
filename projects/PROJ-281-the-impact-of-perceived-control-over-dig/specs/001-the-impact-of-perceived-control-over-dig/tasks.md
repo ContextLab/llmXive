@@ -60,17 +60,17 @@
 
 - [ ] T010 [P] [US1] Unit test for data ingestion in `tests/unit/test_data_ingestion.py` (use a fixed sample file for real-world constraints, or mock for logic only)
 - [ ] T011 [P] [US1] Unit test for anxiety scoring in `tests/unit/test_anxiety_scoring.py` (mock model output)
-- [~] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_validation.py` (runs on a sample of rows)
+- [X] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_validation.py` (runs on a sample of rows)
 
 ### Implementation for User Story 1
 
 - [~] T013 [US1] Implement `code/services/data_ingestion.py` to download dataset 'cardiffnlp/tweet_sentiment_extraction' (or verified public equivalent) from HuggingFace to `data/raw/social_media.csv` with checksum validation
 - [~] T014a [US1] [US1-AS3] Implement non-English/gibberish filtering logic in `code/services/anxiety_scoring.py` using `langdetect` library (threshold set at a high level) to produce `data/processed/preprocessed_text.csv` (integrate logic directly into pipeline)
 - [~] T015 [US1] Implement CPU-tractable anxiety model inference in `code/services/anxiety_scoring.py` (load 'cardiffnlp/twitter-roberta-base-emotion' in default float32 precision, NO 8-bit/4-bit quantization), reading from the artifact produced by T014a (`data/processed/preprocessed_text.csv`)
-- [~] T016 [US1] Implement confidence score filtering (threshold ≥ 0.6) in `code/services/anxiety_scoring.py` to exclude low-confidence predictions before saving
-- [~] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
-- [~] T018 [US1] Add error handling for empty datasets or download failures in `code/services/data_ingestion.py`
-- [~] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014a) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`
+- [X] T016 [US1] Implement confidence score filtering (threshold ≥ 0.6) in `code/services/anxiety_scoring.py` to exclude low-confidence predictions before saving
+- [ ] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
+- [X] T018 [US1] Add error handling for empty datasets or download failures in `code/services/data_ingestion.py`
+- [ ] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014a) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,17 +84,17 @@
 
 ### Tests for User Story 2
 
-- [~] T019 [P] [US2] Unit test for proxy extraction logic in `tests/unit/test_proxy_extractor.py`
-- [~] T020 [P] [US2] Integration test for proxy extraction pipeline in `tests/integration/test_proxy_validation.py`
+- [X] T019 [P] [US2] Unit test for proxy extraction logic in `tests/unit/test_proxy_extractor.py`
+- [X] T020 [P] [US2] Integration test for proxy extraction pipeline in `tests/integration/test_proxy_validation.py`
 
 ### Implementation for User Story 2
 
 - [~] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013)
 - [~] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy` (e.g., +1.0 if flag present)
-- [~] T023 [US2] Implement logic to calculate `timestamp_regularity` metric per user in `code/services/proxy_extractor.py`
+- [X] T023 [US2] Implement logic to calculate `timestamp_regularity` metric per user in `code/services/proxy_extractor.py`
 - [~] T024 [US2] Ensure `control_proxy` calculation uses ONLY metadata fields (no text content access) to satisfy Constitution Principle VI
 - [~] T025 [US2] Handle missing metadata fields by defaulting to 0.0 and logging a warning
-- [~] T026 [US2] Save extracted proxies to `data/processed/proxy_results.csv` with columns: `post_id`, `user_id`, `control_proxy`, `timestamp_regularity`
+- [ ] T026 [US2] Save extracted proxies to `data/processed/proxy_results.csv` with columns: `post_id`, `user_id`, `control_proxy`, `timestamp_regularity`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -108,19 +108,19 @@
 
 ### Tests for User Story 3
 
-- [~] T027 [P] [US3] Unit test for statistical test logic in `tests/unit/test_statistical_test.py`
-- [~] T028 [P] [US3] Unit test for visualization generation in `tests/unit/test_plot_results.py`
-- [~] T029 [P] [US3] Integration test for full analysis pipeline in `tests/integration/test_synthetic_correlation.py` (uses merged data)
+- [X] T027 [P] [US3] Unit test for statistical test logic in `tests/unit/test_statistical_test.py`
+- [X] T028 [P] [US3] Unit test for visualization generation in `tests/unit/test_plot_results.py`
+- [X] T029 [P] [US3] Integration test for full analysis pipeline in `tests/integration/test_synthetic_correlation.py` (uses merged data)
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement `code/main.py` pipeline logic to orchestrate the merge and save steps (skeleton only, calls T031/T032)
+- [X] T030 [US3] Implement `code/main.py` pipeline logic to orchestrate the merge and save steps (skeleton only, calls T031/T032)
 - [~] T031 [US3] Implement merging logic in `code/main.py` to read from `data/processed/scoring_results.csv` (T017, pre-filtered) and `data/processed/proxy_results.csv` (T026) and join on `post_id`
-- [~] T032 [US3] Implement confidence filtering confirmation (ensure data is pre-filtered) and save the final merged dataset to `data/processed/final_analysis.csv` (Note: Filtering logic is in T016; this task handles the final merge and save of the pre-filtered data)
+- [ ] T032 [US3] Implement confidence filtering confirmation (ensure data is pre-filtered) and save the final merged dataset to `data/processed/final_analysis.csv` (Note: Filtering logic is in T016; this task handles the final merge and save of the pre-filtered data)
 - [~] T033 [US3] Implement `code/analysis/statistical_test.py` to perform preliminary linear fit, perform Shapiro-Wilk test on the resulting RESIDUALS (not marginal distributions), and save residuals + normality p-value to `data/processed/normality_check.json`, reading from `data/processed/final_analysis.csv`. Note: Plan.md Phase 2 Step 5 incorrectly specifies "marginal distributions"; this task enforces the Spec requirement for residuals.
 - [~] T034 [US3] Implement logic in `code/analysis/statistical_test.py` to switch to Spearman correlation if normality violated (p < 0.05), otherwise use Pearson, and calculate correlation coefficient (r) and p-value, saving results to `data/processed/analysis_results.json` with an `is_significant` flag (true if p < 0.05)
-- [~] T035 [US3] Implement `code/viz/plot_results.py` to generate scatter plot with regression line (OLS or rank-based) and axis labels
-- [~] T036 [US3] Save final visualization as `data/processed/correlation_plot.png`
+- [X] T035 [US3] Implement `code/viz/plot_results.py` to generate scatter plot with regression line (OLS or rank-based) and axis labels
+- [ ] T036 [US3] Save final visualization as `data/processed/correlation_plot.png`
 
 **Checkpoint**: All user stories should now be independently functional
 

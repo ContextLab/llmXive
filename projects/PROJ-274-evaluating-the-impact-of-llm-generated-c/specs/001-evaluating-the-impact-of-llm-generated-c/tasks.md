@@ -68,9 +68,9 @@ expected alphabetic or numeric character, but found '*'
  **Task**: Consolidate validation...
  ^) -->
 - [X] T021a [P] Implement repository selection rubric logic (criteria: setup instructions, API ref, architecture) in `code/validation.py` (DEPENDS on T047).
-- [~] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
+- [ ] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
 - [~] T021c [P] Implement metric collection for covariate adjustment in `code/validation.py` (DEPENDS on T021b). Output: `data/raw/repo_covariates.json`. This task replaces "quantitative matching" with metric collection for ANCOVA as per Plan updates.
-- [~] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021c).
+- [X] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021c).
 
 ---
 
@@ -84,18 +84,18 @@ expected alphabetic or numeric character, but found '*'
 
 > **NOTE**: Write these tests after Schema Definition (Phase 1) but before Implementation tasks. Ensure they FAIL before implementation.
 
-- [~] T012 [P] [US1] Contract test for data logging schema in `tests/contract/test_logging_schema.py`
-- [~] T013 [P] [US1] Integration test for full mock participant session in `tests/integration/test_mock_session.py`
+- [X] T012 [P] [US1] Contract test for data logging schema in `tests/contract/test_logging_schema.py`
+- [X] T013 [P] [US1] Integration test for full mock participant session in `tests/integration/test_mock_session.py`
 
 ### Implementation for User Story 1
 
-- [~] T013a [US1] Enforce N≥15 Recruitment Gate: Halt study execution if recruited count < 15 in `code/data_collection.py`. Verification: Log exact error message "Recruitment count < 15" and exit with code 1. (Moved before T014).
-- [~] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
-- [~] T015 [US1] Implement session start/end logging with precise timestamps in `code/data_collection.py`
+- [X] T013a [US1] Enforce N≥15 Recruitment Gate: Halt study execution if recruited count < 15 in `code/data_collection.py`. Verification: Log exact error message "Recruitment count < 15" and exit with code 1. (Moved before T014).
+- [X] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
+- [X] T015 [US1] Implement session start/end logging with precise timestamps in `code/data_collection.py`
 - [~] T016 [US1] Implement clarification question logging (timestamp + content) AND calculate the derived 'Cognitive Load Proxy' composite score. Logic: Redefine "Clarification Questions" as "Help Requests" (independent of struggle) by filtering for keywords ('how', 'why', 'what', 'explain') OR moderator tags. Composite Score = (Count of Help Requests) * (Average Time per Request). Output: Both raw logs and composite score written to JSON. Verification: Ensure both raw logs and the composite score are written to the output JSON.
-- [~] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
-- [~] T018 [US1] Implement "Stop-Loss" intervention logic: flag `intervention_flag=True`, `time_capped=True`, set `final_time=MAX_TIME` (minutes), or record as failed if docs are unusable in `code/data_collection.py`. (Corrected timeout to 45m per spec Edge Case).
-- [~] T019 [US1] Implement handling for incomplete/abandoned records (exclude from time analysis, retain for dropout reporting) in `code/data_collection.py`
+- [X] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
+- [X] T018 [US1] Implement "Stop-Loss" intervention logic: flag `intervention_flag=True`, `time_capped=True`, set `final_time=MAX_TIME` (minutes), or record as failed if docs are unusable in `code/data_collection.py`. (Corrected timeout to 45m per spec Edge Case).
+- [X] T019 [US1] Implement handling for incomplete/abandoned records (exclude from time analysis, retain for dropout reporting) in `code/data_collection.py`
 - [~] T020 [US1] Create raw data export function to `data/raw/participant_logs.json` with checksum generation in `code/data_collection.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -110,8 +110,8 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
-- [~] T026 [P] [US2] Integration test for repo fetch and commit pinning in `tests/integration/test_repo_fetch.py`
+- [ ] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
+- [X] T026 [P] [US2] Integration test for repo fetch and commit pinning in `tests/integration/test_repo_fetch.py`
 
 ### Implementation for User Story 2
 

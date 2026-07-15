@@ -85,10 +85,10 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `src/data/ingest.py`: Fetch data from NIST/Materials Project URLs (real sources), remove rows with missing yield strength (FR-001)
-- [~] T012 [US1] Implement `src/data/ingest.py`: Normalize thermal parameters (temp, cooling rate) to [0.0, 1.0] and one-hot encode heat treatment types (FR-002)
-- [~] T013 [P] [US1] Implement `src/data/features.py`: Calculate elemental ratios (C/Mn, Cr/Ni) and pairwise interactions (specifically **cooling rate × holding time** and C × Cooling Rate) (FR-003)
-- [~] T014 [US1] Implement `src/data/features.py`: Orthogonalize interaction features against their constituent main effects using **non-linear orthogonalization (regressing interactions against a natural spline basis, degree=3, knots=5)**; implement helper function `orthogonalize_spline` within `src/data/features.py` (FR-010)
-- [~] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [ ] T012 [US1] Implement `src/data/ingest.py`: Normalize thermal parameters (temp, cooling rate) to [0.0, 1.0] and one-hot encode heat treatment types (FR-002)
+- [ ] T013 [P] [US1] Implement `src/data/features.py`: Calculate elemental ratios (C/Mn, Cr/Ni) and pairwise interactions (specifically **cooling rate × holding time** and C × Cooling Rate) (FR-003)
+- [ ] T014 [US1] Implement `src/data/features.py`: Orthogonalize interaction features against their constituent main effects using **non-linear orthogonalization (regressing interactions against a natural spline basis, degree=3, knots=5)**; implement helper function `orthogonalize_spline` within `src/data/features.py` (FR-010)
+- [ ] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 9, column 1:
  The code is ready to run and wil...
  ^
@@ -96,7 +96,7 @@ could not find expected ':'
  in "<unicode string>", line 9, column 230:
 ... g the "fail loudly" constraint).
  ^) -->
-- [~] T016 [US1] Implement zero-variance detection in `src/data/features.py` to exclude collinear thermal features (Edge Case)
+- [ ] T016 [US1] Implement zero-variance detection in `src/data/features.py` to exclude collinear thermal features (Edge Case)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,19 +111,19 @@ could not find expected ':'
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `contracts/output.schema.yaml`
-- [~] T018 [P] [US2] Integration test for nested permutation test in `tests/integration/test_nested_permutation.py`
+- [X] T018 [P] [US2] Integration test for nested permutation test in `tests/integration/test_nested_permutation.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `src/models/train.py`: Train GAM with splines and Regularized Linear Regression; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
-- [~] T020 [P] [US2] Implement `src/models/train.py`: Train Random Forest and XGBoost models; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (CPU-only, no CUDA) (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
-- [~] T021a [US2] Implement `src/models/evaluate.py`: Compute SHAP interaction values and rank features by mean absolute SHAP (FR-005)
-- [~] T021b [US2] Implement `src/models/evaluate.py`: **Generate and save SHAP summary plot artifacts** in `.png` format with naming convention `model_<name>_shap_summary.png` to `data/results/shap_summary_plots/` (FR-005) <!-- FAILED: unspecified -->
-- [~] T022 [US2] Implement `src/models/evaluate.py`: Perform nested permutation tests on top interaction terms (**perform feature selection on the training fold only, then test on the validation fold** to prevent leakage). **Specifically: shuffle the raw interaction term relative to the target to generate a null distribution; verify observed R² improvement exceeds the 95th percentile of this null distribution** (SC-002, FR-009)
-- [~] T023 [US2] Implement `src/models/evaluate.py`: Apply Benjamini-Hochberg FDR correction (alpha ≤ 0.05) to p-values (FR-008)
-- [~] T024 [US2] Implement `src/models/evaluate.py`: Compare R² of best model (XGBoost/RF) against GAM baseline to quantify interaction value (FR-004, US2)
-- [~] T025 [US2] Implement `src/models/evaluate.py`: Generate Partial Dependence Plots (PDPs) for top interaction terms (FR-011)
-- [~] T026 [US2] Add explicit associational framing in `src/models/evaluate.py` output (FR-007)
+- [ ] T019 [P] [US2] Implement `src/models/train.py`: Train GAM with splines and Regularized Linear Regression; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
+- [ ] T020 [P] [US2] Implement `src/models/train.py`: Train Random Forest and XGBoost models; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (CPU-only, no CUDA) (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
+- [ ] T021a [US2] Implement `src/models/evaluate.py`: Compute SHAP interaction values and rank features by mean absolute SHAP (FR-005)
+- [ ] T021b [US2] Implement `src/models/evaluate.py`: **Generate and save SHAP summary plot artifacts** in `.png` format with naming convention `model_<name>_shap_summary.png` to `data/results/shap_summary_plots/` (FR-005) <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Implement `src/models/evaluate.py`: Perform nested permutation tests on top interaction terms (**perform feature selection on the training fold only, then test on the validation fold** to prevent leakage). **Specifically: shuffle the raw interaction term relative to the target to generate a null distribution; verify observed R² improvement exceeds the 95th percentile of this null distribution** (SC-002, FR-009)
+- [ ] T023 [US2] Implement `src/models/evaluate.py`: Apply Benjamini-Hochberg FDR correction (alpha ≤ 0.05) to p-values (FR-008)
+- [ ] T024 [US2] Implement `src/models/evaluate.py`: Compare R² of best model (XGBoost/RF) against GAM baseline to quantify interaction value (FR-004, US2)
+- [ ] T025 [US2] Implement `src/models/evaluate.py`: Generate Partial Dependence Plots (PDPs) for top interaction terms (FR-011)
+- [ ] T026 [US2] Add explicit associational framing in `src/models/evaluate.py` output (FR-007)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,14 +138,14 @@ could not find expected ':'
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T027 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py` validating against `contracts/output.schema.yaml`
-- [~] T028 [P] [US3] Integration test for threshold sweep in `tests/integration/test_sensitivity_sweep.py`
+- [X] T028 [P] [US3] Integration test for threshold sweep in `tests/integration/test_sensitivity_sweep.py`
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `src/models/sensitivity.py`: Sweep thresholds over {0.01, 0.05, 0.10} and record feature selection counts (FR-006)
-- [~] T030 [US3] Implement `src/models/sensitivity.py`: Calculate **Jaccard index (primary validity metric per SC-003) and Spearman rank correlation** for A subset of top features will be identified to address the research question. The method involves feature selection analysis. References: [Citation]. across the sweep; also calculate **Kuncheva index as supplementary robustness metric** per Plan.md (FR-006, SC-003)
-- [~] T031 [US3] Implement `src/models/sensitivity.py`: Flag results as 'unstable' if Jaccard index < 0.8 (FR-006, SC-003)
-- [~] T032 [US3] Implement documentation generation in `src/models/sensitivity.py` citing community-standard basis for thresholds (e.g., IIW formula) with format **Author, Year, Title, DOI/URL**; append justification to `results/sensitivity_report.md` with headers: 'Threshold Sweep Results', 'Stability Metrics', 'Justification' (FR-006, SC-003)
+- [ ] T029 [US3] Implement `src/models/sensitivity.py`: Sweep thresholds over {0.01, 0.05, 0.10} and record feature selection counts (FR-006)
+- [ ] T030 [US3] Implement `src/models/sensitivity.py`: Calculate **Jaccard index (primary validity metric per SC-003) and Spearman rank correlation** for A subset of top features will be identified to address the research question. The method involves feature selection analysis. References: [Citation]. across the sweep; also calculate **Kuncheva index as supplementary robustness metric** per Plan.md (FR-006, SC-003)
+- [ ] T031 [US3] Implement `src/models/sensitivity.py`: Flag results as 'unstable' if Jaccard index < 0.8 (FR-006, SC-003)
+- [ ] T032 [US3] Implement documentation generation in `src/models/sensitivity.py` citing community-standard basis for thresholds (e.g., IIW formula) with format **Author, Year, Title, DOI/URL**; append justification to `results/sensitivity_report.md` with headers: 'Threshold Sweep Results', 'Stability Metrics', 'Justification' (FR-006, SC-003)
 
 **Checkpoint**: All user stories should now be independently functional
 

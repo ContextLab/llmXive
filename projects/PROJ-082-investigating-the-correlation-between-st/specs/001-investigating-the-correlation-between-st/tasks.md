@@ -75,15 +75,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for extraction logic in `tests/unit/test_extraction.py` (verify r, n parsing)
-- [~] T011 [P] [US1] Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py` (verify weighted mean within 0.001 tolerance)
-- [~] T012 [P] [US1] Unit test for narrative fallback trigger in `tests/unit/test_narrative.py` (verify N < 10 skips aggregation)
+- [X] T010 [P] [US1] Unit test for extraction logic in `tests/unit/test_extraction.py` (verify r, n parsing)
+- [X] T011 [P] [US1] Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py` (verify weighted mean within 0.001 tolerance)
+- [X] T012 [P] [US1] Unit test for narrative fallback trigger in `tests/unit/test_narrative.py` (verify N < 10 skips aggregation)
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/extraction/parser.py` to parse CSV/JSON inputs for r, n, tract AND qualitative descriptors. **Extraction Logic**: When direct (r, n) pairs are unavailable, implement specific logic to search for tract names (e.g., "arcuate", "cingulum", "uncinate") in proximity to directional verbs ("increased", "decreased", "correlated", "associated with") to extract "neural circuitry" and "preference" descriptors. **Fallback**: If no specific descriptors are found, include the study in the narrative pool with a `no_qualitative_data` flag. **Do NOT** use vague "broad regex" or "open-ended NLP"; the extraction must target specific neural circuitry terms defined in the spec.
-- [~] T014 [US1] Implement `code/analysis/meta_analysis.py` Random-Effects model using `statsmodels` (handle convergence failure by falling back to Fixed-Effects with warning); output `study_count` artifact.
-- [~] T015 [US1] Implement `code/analysis/narrative.py` to generate structured text summary if eligible study count < 10; consumes `qualitative_notes` from T013 AND `study_count` from T014. **Structure Requirements**:
+- [X] T013 [P] [US1] Implement `code/extraction/parser.py` to parse CSV/JSON inputs for r, n, tract AND qualitative descriptors. **Extraction Logic**: When direct (r, n) pairs are unavailable, implement specific logic to search for tract names (e.g., "arcuate", "cingulum", "uncinate") in proximity to directional verbs ("increased", "decreased", "correlated", "associated with") to extract "neural circuitry" and "preference" descriptors. **Fallback**: If no specific descriptors are found, include the study in the narrative pool with a `no_qualitative_data` flag. **Do NOT** use vague "broad regex" or "open-ended NLP"; the extraction must target specific neural circuitry terms defined in the spec.
+- [ ] T014 [US1] Implement `code/analysis/meta_analysis.py` Random-Effects model using `statsmodels` (handle convergence failure by falling back to Fixed-Effects with warning); output `study_count` artifact.
+- [X] T015 [US1] Implement `code/analysis/narrative.py` to generate structured text summary if eligible study count < 10; consumes `qualitative_notes` from T013 AND `study_count` from T014. **Structure Requirements**:
 ## Study Overview
 This study investigates the correlation between structural brain connectivity (dMRI metrics) and individual music preferences. The methodology employs a qualitative thematic analysis to identify emerging trends regarding neural circuitry. References include [Author] et al. ([Year]).
 
@@ -93,7 +93,7 @@ The analysis focuses on categorizing recurring themes regarding specific tracts 
 ## Limitations
 The scope is constrained by the limited number of eligible studies (N < 10), precluding quantitative meta-analysis.
 Additionally, include a JSON metadata block at the top with keys: `study_count`, `synthesis_mode`, `timestamp`. **Depends on: T013, T014**
-- [~] T016 [US1] Implement `code/main.py` entry point logic: load raw CSV, run extraction, check N count. **Gate Logic**: If N < 10, trigger narrative mode immediately. If N >= 10, proceed to quantitative analysis AND apply tract prioritization (if applicable) ONLY after the count check passes.
+- [X] T016 [US1] Implement `code/main.py` entry point logic: load raw CSV, run extraction, check N count. **Gate Logic**: If N < 10, trigger narrative mode immediately. If N >= 10, proceed to quantitative analysis AND apply tract prioritization (if applicable) ONLY after the count check passes.
 - [~] T017 [US1] Add validation and error handling for missing effect sizes (exclude study with log entry if conversion fails).
 - [~] T018 [US1] Handle zero-studies edge case: ensure `narrative.py` produces a valid "No studies found" summary if input CSV is empty.
 
@@ -109,20 +109,20 @@ Additionally, include a JSON metadata block at the top with keys: `study_count`,
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for I² calculation in `tests/unit/test_heterogeneity.py` (verify precision to **exactly two decimal places** as required by SC-002, e.g., 52.34)
-- [~] T020 [P] [US2] Unit test for Egger's regression in `tests/unit/test_bias.py` (verify p-value calculation and N < 10 skip logic; verify `egger_skipped_reason` output matches **exact string**: 'Skipped: Insufficient studies (N < 10) for Egger's regression')
+- [X] T019 [P] [US2] Unit test for I² calculation in `tests/unit/test_heterogeneity.py` (verify precision to **exactly two decimal places** as required by SC-002, e.g., 52.34)
+- [X] T020 [P] [US2] Unit test for Egger's regression in `tests/unit/test_bias.py` (verify p-value calculation and N < 10 skip logic; verify `egger_skipped_reason` output matches **exact string**: 'Skipped: Insufficient studies (N < 10) for Egger's regression')
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Input Verification**: Read `study_count` from T014 output JSON to determine skip condition. **Output Requirement**: If N >= 10, report the intercept and p-value. If N < 10, output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON. **Depends on: T014**
-- [~] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**. **Parallel Safety**: This task reads from T014 and writes to the heterogeneity section of the output JSON. **Depends on: T021** (to ensure atomic writes to the shared JSON artifact).
-- [~] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
+- [X] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Input Verification**: Read `study_count` from T014 output JSON to determine skip condition. **Output Requirement**: If N >= 10, report the intercept and p-value. If N < 10, output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON. **Depends on: T014**
+- [X] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**. **Parallel Safety**: This task reads from T014 and writes to the heterogeneity section of the output JSON. **Depends on: T021** (to ensure atomic writes to the shared JSON artifact).
+- [X] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
  1. Apply **Bonferroni correction** ONLY if N ≥ 10 AND k ≥ 2 tracts (for the independent subset).
  2. **Strict Requirement**: If N < 10, skip and trigger narrative mode.
  3. **Constraint**: Do NOT implement Robust Variance Estimation (RVE). The spec mandates Bonferroni correction only.
  4. Include a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence.
  5. **Output Requirement**: Report the **adjusted significance threshold** value in the output report. **Depends on: T014, T008**
-- [~] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
+- [X] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,13 +136,13 @@ Additionally, include a JSON metadata block at the top with keys: `study_count`,
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_plots.py` (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
+- [X] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_plots.py` (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement `code/visualization/plots.py` to generate all required plots: Forest plot (summary diamond aligns with `weighted_mean_r`), Funnel plot (standard error vs effect size, symmetry line at pooled effect), and Correlation summary plot. **Optimization**: Implement PNG compression settings (optimize=True, dpi=150) to ensure file size < 5MB.
-- [~] T028 [US3] Integrate visualization into `code/main.py` (save PNGs to `data/derived/` after analysis).
-- [~] T031 [US3] Implement file size validation logic in `code/utils/validator.py`: Add a function to verify generated PNGs are < 5MB. Integrate this check into the `main.py` pipeline post-generation. **Depends on: T027**
+- [X] T027 [P] [US3] Implement `code/visualization/plots.py` to generate all required plots: Forest plot (summary diamond aligns with `weighted_mean_r`), Funnel plot (standard error vs effect size, symmetry line at pooled effect), and Correlation summary plot. **Optimization**: Implement PNG compression settings (optimize=True, dpi=150) to ensure file size < 5MB.
+- [X] T028 [US3] Integrate visualization into `code/main.py` (save PNGs to `data/derived/` after analysis).
+- [X] T031 [US3] Implement file size validation logic in `code/utils/validator.py`: Add a function to verify generated PNGs are < 5MB. Integrate this check into the `main.py` pipeline post-generation. **Depends on: T027**
 
 **Checkpoint**: All user stories should now be independently functional
 

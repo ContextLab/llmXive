@@ -64,9 +64,9 @@
 - [ ] T005 [P] Setup `config.py` with paths for `data/raw`, `data/processed`, `data/primes`, `data/targets`, `state` and random seed pinning
 - [ ] T006 [P] Implement `code/data/integrity.py` for Principle VI (Distinct Stimulus Set Validation) ensuring primes and targets are never merged prematurely
 - [ ] T007 [P] Setup `state/projects/PROJ-345/` structure and `state.yaml` initialization script for Principle V (Versioning)
-- [~] T008 [P] Create base data classes/entities for `Trial`, `Participant`, and `Stimulus` in `code/data/models.py`
-- [~] T009 [P] Setup logging configuration in `code/main.py`
-- [~] T010 [P] Integrate PII scanning hooks in `code/main.py`
+- [X] T008 [P] Create base data classes/entities for `Trial`, `Participant`, and `Stimulus` in `code/data/models.py`
+- [X] T009 [P] Setup logging configuration in `code/main.py`
+- [X] T010 [P] Integrate PII scanning hooks in `code/main.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,14 +85,14 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/ingest.py` to download IAT data from verified OSF/HF URLs (no fake data) and extract trial-level response times
-- [~] T014 [US1] Implement metadata extraction in `code/data/ingest.py` to map trial IDs to stimulus image paths in `data/primes/` and `data/targets/` (respecting T006 separation)
-- [~] T015 [US1] Implement "Missing Image" logic in `code/data/ingest.py`:
+- [X] T013 [US1] Implement `code/data/ingest.py` to download IAT data from verified OSF/HF URLs (no fake data) and extract trial-level response times
+- [X] T014 [US1] Implement metadata extraction in `code/data/ingest.py` to map trial IDs to stimulus image paths in `data/primes/` and `data/targets/` (respecting T006 separation)
+- [X] T015 [US1] Implement "Missing Image" logic in `code/data/ingest.py`:
  - If >10% images missing: Halt and log 'Data Gap: Image files missing for >10% of trials'
  - If ≤10% missing: Log warning, exclude trials, and proceed
 - [~] T016 [US1] Implement linkage derivation fallback: If metadata is missing for a trial, attempt derivation by mapping trial ID to nearest image filename via hash. If derivation fails for >10% of trials, halt with 'Data Gap: No linkage data available'. **Verify a high proportion of trials have mapped stimulus_id (or are flagged for exclusion) to meet SC-001**.
-- [~] T017 [US1] Generate `data/processed/linked_trials.csv` with columns: `trial_id`, `response_time`, `stimulus_id`, `prime_condition`, `participant_id`
-- [~] T018 [US1] Add checksum verification for downloaded raw data to `state.yaml` and **calculate/report final 'linked metadata percentage' in logs to verify against SC-001 'vast majority' target (defined as configurable threshold, default 0.95)**.
+- [ ] T017 [US1] Generate `data/processed/linked_trials.csv` with columns: `trial_id`, `response_time`, `stimulus_id`, `prime_condition`, `participant_id`
+- [ ] T018 [US1] Add checksum verification for downloaded raw data to `state.yaml` and **calculate/report final 'linked metadata percentage' in logs to verify against SC-001 'vast majority' target (defined as configurable threshold, default 0.95)**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,29 +112,29 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_metrics.py`
-- [~] T020 [P] [US2] Integration test for LMM convergence failure handling and optimizer retry logic in `tests/integration/test_lmm_integration.py`
+- [X] T019 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_metrics.py`
+- [X] T020 [P] [US2] Integration test for LMM convergence failure handling and optimizer retry logic in `tests/integration/test_lmm_integration.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/data/preprocess.py` to derive prime valence using **CPU-optimized VAD regression models** (per FR-002 and Plan Critical Design Change #5) <!-- ATOMIZE: requested -->
-- [~] T022a [US2] Implement `code/data/preprocess.py` to load human-rated ambiguity scores from external verified sources (if available)
-- [~] T022b [US2] Implement **synthetic ambiguity derivation pipeline** in `code/data/preprocess.py` (per FR-001):
+- [X] T021 [US2] Implement `code/data/preprocess.py` to derive prime valence using **CPU-optimized VAD regression models** (per FR-002 and Plan Critical Design Change #5) <!-- ATOMIZE: requested -->
+- [X] T022a [US2] Implement `code/data/preprocess.py` to load human-rated ambiguity scores from external verified sources (if available)
+- [X] T022b [US2] Implement **synthetic ambiguity derivation pipeline** in `code/data/preprocess.py` (per FR-001):
  - **Trigger**: If human-rated ambiguity (T022a) is unavailable.
  - **Logic**: Use CPU-optimized annotation pipeline or synthetic generation method.
  - **Output**: Write derived ambiguity scores to `data/processed/stimulus_metadata.csv`.
  - **Failure**: If derivation fails, halt with 'Data Gap: Ambiguity derivation failed'.
  - **Dependency**: **T022b must complete before T022 (consumer) and T024 (Modeling) can start.**
 - [~] T023 [US2] Implement confounding check in `code/data/preprocess.py` (after T021/T022b) to verify "prime" is not confounded with trial order/block structure. **Output artifact: `data/processed/confounding_report.json` (correlation matrix, trial-order check results)**.
-- [~] T024 [US2] Implement `code/models/lmm.py` to aggregate data to `Stimulus` level (mean response time per stimulus per participant) to ensure within-stimulus variance
-- [~] T025 [US2] Implement LMM fitting in `code/models/lmm.py`: `mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id)` (NO `stimulus_id` as random effect)
-- [~] T026 [US2] Implement optimizer retry logic in `code/models/lmm.py`: On convergence failure, attempt alternative optimizers before flagging dataset as unsuitable
-- [~] T027a [US2] Implement `code/models/metrics.py` to calculate VIF; flag if VIF > 5.0 and refrain from claiming independent effects
-- [~] T027b [US2] Implement **model convergence success rate measurement** in `code/models/metrics.py`:
+- [X] T024 [US2] Implement `code/models/lmm.py` to aggregate data to `Stimulus` level (mean response time per stimulus per participant) to ensure within-stimulus variance
+- [X] T025 [US2] Implement LMM fitting in `code/models/lmm.py`: `mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id)` (NO `stimulus_id` as random effect)
+- [X] T026 [US2] Implement optimizer retry logic in `code/models/lmm.py`: On convergence failure, attempt alternative optimizers before flagging dataset as unsuitable
+- [X] T027a [US2] Implement `code/models/metrics.py` to calculate VIF; flag if VIF > 5.0 and refrain from claiming independent effects
+- [X] T027b [US2] Implement **model convergence success rate measurement** in `code/models/metrics.py`:
  - **Action**: Measure, log, and report the percentage of models converging within 3 optimizer attempts.
  - **Output artifact**: `state/model_convergence_metrics.json` (contains `convergence_rate`, `total_attempts`, `configurable_threshold`).
  - **Verify**: Against SC-002 design target (configurable threshold, default 0.80).
-- [~] T028 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/models/metrics.py` for multiple hypothesis tests
+- [X] T028 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/models/metrics.py` for multiple hypothesis tests
 - [~] T029 [US2] Ensure all model outputs frame findings as "associational" (not causal) per FR-003
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -149,16 +149,16 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Unit test for Cohen's d and partial eta-squared calculation with bootstrapping in `tests/unit/test_metrics.py`
-- [~] T031 [P] [US3] Integration test for PDF report generation and artifact completeness in `tests/integration/test_report_generation.py`
+- [X] T030 [P] [US3] Unit test for Cohen's d and partial eta-squared calculation with bootstrapping in `tests/unit/test_metrics.py`
+- [X] T031 [P] [US3] Integration test for PDF report generation and artifact completeness in `tests/integration/test_report_generation.py`
 
 ### Implementation for User Story 3
 
-- [~] T032 [US3] Implement `code/models/metrics.py` to compute effect sizes (Cohen's d, partial eta-squared) with confidence intervals via bootstrapping
-- [~] T033 [US3] Implement `code/viz/plots.py` to generate interaction plots showing response time differences across prime valence conditions
-- [~] T034 [US3] Implement `code/viz/plots.py` to generate coefficient tables with p-values and confidence intervals
+- [X] T032 [US3] Implement `code/models/metrics.py` to compute effect sizes (Cohen's d, partial eta-squared) with confidence intervals via bootstrapping
+- [X] T033 [US3] Implement `code/viz/plots.py` to generate interaction plots showing response time differences across prime valence conditions
+- [X] T034 [US3] Implement `code/viz/plots.py` to generate coefficient tables with p-values and confidence intervals
 - [~] T035 [US3] Implement `code/models/metrics.py` for alpha sensitivity analysis: **Sweep significance thresholds (, standard levels, 0.10)** and **generate output artifact `data/processed/sensitivity_analysis.csv` (columns: alpha, significance_rate)** per FR-006
-- [~] T036 [US3] Implement `code/reports/generate_report.py` to compile plots, tables, and sensitivity summaries into a single PDF
+- [X] T036 [US3] Implement `code/reports/generate_report.py` to compile plots, tables, and sensitivity summaries into a single PDF
 - [~] T037 [US3] Ensure report explicitly cites the "observational nature" and "derived prime valence" limitations
 
 **Checkpoint**: All user stories should now be independently functional

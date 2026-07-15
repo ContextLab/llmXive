@@ -59,8 +59,8 @@
 - [ ] T006 Implement seed management in `src/utils/seeds.py` (pinning all random seeds for reproducibility)
 - [ ] T007 Create `src/utils/data_fetch.py` for handling API retries and raw data download logic
 - [ ] T008 Implement `src/utils/validators.py` for data integrity checks (sum=1.0, sample count thresholds)
-- [~] T009 Setup logging infrastructure in `src/utils/logging_config.py`
-- [~] T010 Create `src/models/hea_sample.py` defining the HEA Sample entity structure
+- [ ] T009 Setup logging infrastructure in `src/utils/logging_config.py`
+- [ ] T010 Create `src/models/hea_sample.py` defining the HEA Sample entity structure
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,27 +76,27 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for normalization logic in `tests/unit/test_normalization.py`
-- [~] T012 [P] [US1] Unit test for ILR transformation in `tests/unit/test_coda.py`
-- [~] T013 [P] [US1] Integration test for data fetch in `tests/integration/test_data_fetch.py`
+- [X] T011 [P] [US1] Unit test for normalization logic in `tests/unit/test_normalization.py`
+- [X] T012 [P] [US1] Unit test for ILR transformation in `tests/unit/test_coda.py`
+- [X] T013 [P] [US1] Integration test for data fetch in `tests/integration/test_data_fetch.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement OQMD data fetcher in `src/data/fetch_oqmd.py` (using verified URL from `data/source_metadata.yaml`); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage.
-- [~] T015 [US1] Implement Materials Project fetcher in `src/data/fetch_mp.py` (with API key check); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage.
-- [~] T016 [US1] Implement filtering logic: retain samples with ≥5 principal elements and valid Bulk Modulus in `src/data/filter.py`
+- [ ] T014 [US1] Implement OQMD data fetcher in `src/data/fetch_oqmd.py` (using verified URL from `data/source_metadata.yaml`); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage.
+- [ ] T015 [US1] Implement Materials Project fetcher in `src/data/fetch_mp.py` (with API key check); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage.
+- [ ] T016 [US1] Implement filtering logic: retain samples with ≥5 principal elements and valid Bulk Modulus in `src/data/filter.py`
 - [ ] T016.5 [US1] Implement **Reduced Power Analysis** logic in `src/data/power_analysis.py`: if API sample count < 500, DO NOT halt. Instead, generate an 'Underpowered Study Report' that quantifies the power deficit and confidence interval widening. Log the merge (if literature fallback is used) and proceed with available data, explicitly flagging the reduced power in all downstream outputs.
-- [~] T017 [US1] Implement normalization step: enforce sum(composition)=1.0 and log adjustments in `src/data/normalize.py`
-- [~] T018 [US1] Implement descriptor calculation in `src/features/descriptors.py`. **Explicitly compute the following Miedema-derived features to form the `$MIEDEMA_FEATURES$` set**:
+- [ ] T017 [US1] Implement normalization step: enforce sum(composition)=1.0 and log adjustments in `src/data/normalize.py`
+- [ ] T018 [US1] Implement descriptor calculation in `src/features/descriptors.py`. **Explicitly compute the following Miedema-derived features to form the `$MIEDEMA_FEATURES$` set**:
  1. `mixing_enthalpy_miedema` (Mixing Enthalpy via Miedema's model)
  2. `atomic_radius_variance_miedema` (Atomic Radius Variance weighted by Miedema parameters)
  3. `electronegativity_variance_miedema` (Electronegativity Variance via Miedema scale)
  Also compute standard descriptors (entropy, VEC, etc.) and apply ILR transformation.
-- [~] T019 [US1] Implement target calculation: Compute the **residual** `Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema` as the primary model target; compute absolute Bulk Modulus as a diagnostic column only (referencing T018) in `src/features/targets.py`.
+- [ ] T019 [US1] Implement target calculation: Compute the **residual** `Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema` as the primary model target; compute absolute Bulk Modulus as a diagnostic column only (referencing T018) in `src/features/targets.py`.
 - [ ] T019.1 [US1] Implement **Conditional Feature Exclusion** logic in `src/features/exclusion.py`: **Explicitly exclude the columns** `mixing_enthalpy_miedema`, `atomic_radius_variance_miedema`, and `electronegativity_variance_miedema` from the predictor set ONLY when the target variable is a Residual Modulus (FR-002, FR-008). **Include a pre-training verification step (assertion)** that halts execution if any of these three columns are present in the predictor matrix when the target is Residual.
-- [~] T020 [US1] Create main pipeline script `src/pipeline/ingest.py` to orchestrate fetch → filter → normalize → feature eng → save CSV. **Include dynamic generation of `data/source_metadata.yaml`** to record API versions, query parameters, and timestamps of the specific run (FR-009, US-1 Scenario 5).
-- [~] T021 [US1] Implement **Underpowered Study Report** generation in `src/report/power_report.py`: explicitly log the specific deficit message: "Retrieved X samples; threshold not met. Proceeding with Reduced Power Analysis" and generate the report quantifying the power deficit (replacing the old hard halt logic).
-- [~] T022 [US1] Output `data/processed/hea_features.csv` and **`data/source_metadata.yaml`** (YAML format, not JSON) to record provenance (FR-009).
+- [ ] T020 [US1] Create main pipeline script `src/pipeline/ingest.py` to orchestrate fetch → filter → normalize → feature eng → save CSV. **Include dynamic generation of `data/source_metadata.yaml`** to record API versions, query parameters, and timestamps of the specific run (FR-009, US-1 Scenario 5).
+- [ ] T021 [US1] Implement **Underpowered Study Report** generation in `src/report/power_report.py`: explicitly log the specific deficit message: "Retrieved X samples; threshold not met. Proceeding with Reduced Power Analysis" and generate the report quantifying the power deficit (replacing the old hard halt logic).
+- [ ] T022 [US1] Output `data/processed/hea_features.csv` and **`data/source_metadata.yaml`** (YAML format, not JSON) to record provenance (FR-009).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,8 +110,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US2] Unit test for grouped bootstrap logic in `tests/unit/test_bootstrap.py`
-- [~] T024 [P] [US2] Unit test for FDR correction in `tests/unit/test_fdr.py`
+- [X] T023 [P] [US2] Unit test for grouped bootstrap logic in `tests/unit/test_bootstrap.py`
+- [X] T024 [P] [US2] Unit test for FDR correction in `tests/unit/test_fdr.py`
 
 ### Implementation for User Story 2
 

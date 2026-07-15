@@ -46,8 +46,8 @@
 - [X] T004 [P] Implement `code/checksum_raw_data.py` to generate SHA-256 hashes for `data/raw/` and write to a local log file (NOT the shared state YAML) (Constitution Principle III)
 - [ ] T005 [P] Implement `code/hash_artifacts.py` to generate content hashes for `artifacts/` and update `state/...yaml` (Constitution Principle V)
 - [X] T006 Create `code/config.py` to load material properties (mass, inertia, roughness proxy) and frequency bins from `data/config.yaml`
-- [~] T007 Implement `code/main.py` orchestration script with argument parsing for pipeline stages
-- [~] T008 Setup `tests/conftest.py` with fixtures for synthetic data generation and random seed pinning
+- [X] T007 Implement `code/main.py` orchestration script with argument parsing for pipeline stages
+- [X] T008 Setup `tests/conftest.py` with fixtures for synthetic data generation and random seed pinning
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,16 +64,16 @@
 ### Tests for User Story 1
 
 - [~] T009 [P] [US1] Unit test for energy formulas in `tests/test_energy.py` (verify $E_{trans} = 0.5mv^2$, etc. with known inputs)
-- [~] T010 [P] [US1] Integration test for missing frame interpolation in `tests/test_ingestion.py` (verify linear interpolation logic)
-- [~] T011 [P] [US1] Integration test for material-specific mass application in `tests/test_ingestion.py` (verify steel vs. polymer constants)
+- [X] T010 [P] [US1] Integration test for missing frame interpolation in `tests/test_ingestion.py` (verify linear interpolation logic)
+- [X] T011 [P] [US1] Integration test for material-specific mass application in `tests/test_ingestion.py` (verify steel vs. polymer constants)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingestion.py` function to load and sync particle tracking CSVs with driving signal logs (FR-001)
-- [~] T013 [US1] Implement `code/ingestion.py` function to handle missing frames via linear interpolation or flagging (Edge Case: missing frames)
-- [~] T014 [US1] Implement `code/ingestion.py` function to compute $v$ and $\omega$ via finite differences from positions/orientations
+- [X] T012 [US1] Implement `code/ingestion.py` function to load and sync particle tracking CSVs with driving signal logs (FR-001)
+- [X] T013 [US1] Implement `code/ingestion.py` function to handle missing frames via linear interpolation or flagging (Edge Case: missing frames)
+- [X] T014 [US1] Implement `code/ingestion.py` function to compute $v$ and $\omega$ via finite differences from positions/orientations
 - [~] T016 [US1] Implement logic to handle datasets lacking z-axis data: add a 'pot_incomplete' boolean column to the output dataframe and write a specific warning log entry (Edge Case: missing z-axis)
-- [~] T015 [US1] Implement `code/ingestion.py` function to calculate $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$ using independent physics formulas (e.g., $E_{vib}$ derived from high-frequency acceleration variance or specific vibrational mode analysis, NOT as a residual) using config constants (FR-002)
+- [X] T015 [US1] Implement `code/ingestion.py` function to calculate $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$ using independent physics formulas (e.g., $E_{vib}$ derived from high-frequency acceleration variance or specific vibrational mode analysis, NOT as a residual) using config constants (FR-002)
 - [~] T017 [US1] Output computed `energy_samples.csv` to `data/derived/` with columns: particle_id, timestamp, $E_{trans}$, $E_{rot}$, $E_{pot}$, $E_{vib}$, pot_incomplete <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -90,8 +90,8 @@
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Unit test for KS test logic in `tests/test_stats.py` (verify p-value calculation against known distribution)
-- [~] T019 [P] [US2] Unit test for Chi-squared test logic in `tests/test_stats.py` (verify statistic and rejection boolean)
+- [X] T018 [P] [US2] Unit test for KS test logic in `tests/test_stats.py` (verify p-value calculation against known distribution)
+- [X] T019 [P] [US2] Unit test for Chi-squared test logic in `tests/test_stats.py` (verify statistic and rejection boolean)
 - [ ] T020 [P] [US2] Integration test for multi-frequency aggregation in `tests/test_stats.py` (verify summary table generation)
 
 ### Implementation for User Story 2

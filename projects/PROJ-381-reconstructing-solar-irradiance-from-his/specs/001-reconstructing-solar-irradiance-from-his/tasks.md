@@ -59,8 +59,8 @@
 
 - [X] T004 Implement `code/config.py` with paths, random seeds, and constants (FR-002 gap logic, FR-009 thresholds)
 - [ ] T005 [P] Create `contracts/dataset_schema.schema.yaml` defining `SunspotRecord` and `TSIRecord` entities
-- [~] T006 [P] Create `contracts/output_schema.schema.yaml` defining reconstruction and validation report schemas
-- [~] T007 Implement `code/data/__init__.py` and base logging infrastructure
+- [ ] T006 [P] Create `contracts/output_schema.schema.yaml` defining reconstruction and validation report schemas
+- [X] T007 Implement `code/data/__init__.py` and base logging infrastructure
 - [~] T008 Configure environment variable management for data paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,26 +77,26 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Running tests can be parallel, but writing them is sequential.
 
-- [~] T010 [P] [US1] Unit test for data ingestion in `tests/test_ingestion.py` (verify SILSO/SORCE URL reachability)
-- [~] T011 [P] [US1] Unit test for gap filling logic in `tests/test_preprocessing.py` (verify ≥1yr gaps use GSN=0 proxy, not TSI units)
-- [~] T012 [P] [US1] Integration test for LOCO CV in `tests/test_model_training.py` (verify cycle holdout logic)
+- [X] T010 [P] [US1] Unit test for data ingestion in `tests/test_ingestion.py` (verify SILSO/SORCE URL reachability)
+- [X] T011 [P] [US1] Unit test for gap filling logic in `tests/test_preprocessing.py` (verify ≥1yr gaps use GSN=0 proxy, not TSI units)
+- [X] T012 [P] [US1] Integration test for LOCO CV in `tests/test_model_training.py` (verify cycle holdout logic)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/ingestion.py` to fetch GSN (SILSO) and TSI (SORCE/TIM) from verified URLs to `data/raw/`
-- [~] T014 [US1] Implement `code/data/preprocessing.py`:
+- [X] T013 [US1] Implement `code/data/ingestion.py` to fetch GSN (SILSO) and TSI (SORCE/TIM) from verified URLs to `data/raw/`
+- [X] T014 [US1] Implement `code/data/preprocessing.py`:
  - Part 1: Linear interpolation for gaps < 1 year in GSN data.
  - Part 2: Apply **GSN=0 proxy** (not TSI units) for gaps ≥ 1 year, per FR-002.
  - Detect cycle boundaries using SILSO method.
  - Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
-- [~] T015 [US1] Implement `code/models/train.py`:
+- [X] T015 [US1] Implement `code/models/train.py`:
  - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003 and Constitution Principle VI.
  - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
  - Save best model artifact to `code/models/artifacts/best_model.joblib`.
  - Generate `data/processed/cv_report.json` containing per-cycle RMSE, R², and model selection rationale.
-- [~] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
+- [X] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,17 +106,17 @@
 
 **Purpose**: Train the Cycle-Agnostic fallback model, derive cycle-specific offsets for sensitivity analysis, and validate robustness. This phase is a **blocking prerequisite** for Phase 4 (US2).
 
-- [~] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py`:
+- [X] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py`:
  - Train a **single Cycle-Agnostic fallback model** (GSN-only, no Cycle ID features) on the full satellite-era dataset (2003–present).
  - **Derive per-cycle baseline offsets**: Calculate the mean residual of each satellite-era cycle against this single global fallback model.
  - Save the fallback model to `code/models/artifacts/fallback_model.joblib`.
  - Save the per-cycle baseline offsets to `data/processed/cycle_specific_coefficients.json`.
-- [~] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
+- [ ] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
  - Load `data/processed/cycle_specific_coefficients.json` (per-cycle baseline offsets from T019).
  - Sweep **inconsistency tolerance threshold** over absolute differences {0.01, 0.05, 0.1}, per FR-009.
  - Measure **reconstruction stability** defined as the standard deviation of RMSE across the sweep, comparing against the Cycle-Agnostic baseline.
  - Output: `data/processed/sensitivity_report.json`.
-- [~] T031 [US1] Verify computational resource usage (RAM < 7 GB, Runtime < 6h) in `tests/test_performance.py` (FR-008, SC-004).
+- [X] T031 [US1] Verify computational resource usage (RAM < 7 GB, Runtime < 6h) in `tests/test_performance.py` (FR-008, SC-004).
 
 **Checkpoint**: US1 complete including fallback and sensitivity validation. Phase 4 can now begin.
 
@@ -130,20 +130,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for Cycle-Agnostic fallback logic in `tests/test_preprocessing.py`
-- [~] T040 [P] [US2] Unit test for bootstrap resampling in `tests/test_stats.py` (verify 1000 iterations)
+- [X] T018 [P] [US2] Unit test for Cycle-Agnostic fallback logic in `tests/test_preprocessing.py`
+- [X] T040 [P] [US2] Unit test for bootstrap resampling in `tests/test_stats.py` (verify 1000 iterations)
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/models/predict.py` (extended):
+- [X] T020 [US2] Implement `code/models/predict.py` (extended):
  - Load pre-satellite GSN (historical–pre-satellite era).
  - Apply trained RF/GP model (from T015) for cycles present in training.
  - Apply **Cycle-Agnostic fallback model** (from T019) for unseen cycles.
  - Generate prediction intervals for uncertainty bands.
  - Output: `data/processed/reconstruction_1610_2002.parquet`.
-- [~] T021 [US2] Implement `code/analysis/stats.py`:
+- [X] T021 [US2] Implement `code/analysis/stats.py`:
  - Bootstrap resampling with **at least 1000 iterations** for variance comparison across Maunder, Dalton, and Modern minima (FR-005, Constitution Principle VII).
-- [~] T022 [US2] Generate `data/processed/reconstruction_1610_2002.parquet` with TSI values and uncertainty bounds (if not already done in T020).
+- [ ] T022 [US2] Generate `data/processed/reconstruction_1610_2002.parquet` with TSI values and uncertainty bounds (if not already done in T020).
 - [ ] T023 [US2] Generate `data/processed/variance_analysis.json` with bootstrap results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

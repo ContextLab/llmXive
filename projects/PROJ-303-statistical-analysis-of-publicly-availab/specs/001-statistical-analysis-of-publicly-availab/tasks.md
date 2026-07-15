@@ -41,9 +41,9 @@
 - [ ] T005-exec [P] Execute `src/scripts/validate_citations.py` as a blocking gate; HALT pipeline if validation fails (Depends on T005)
 - [ ] T006 Implement `src/scripts/hygiene_check.py` to compute SHA-256 hashes for raw data and write to `state/projects/...yaml` (Depends on T005-exec success to ensure valid data is hashed)
 - [ ] T006-exec [P] Execute `src/scripts/hygiene_check.py` as a blocking gate; HALT pipeline if hash verification fails (Depends on T006)
-- [~] T007 Create base `src/data/loaders.py` for HuggingFace/NOAA dataset fetching with checksum verification
-- [~] T008 Configure error handling and logging infrastructure in `src/pipeline/logging_config.py`
-- [~] T009 Setup `src/pipeline/config.py` to enforce a predefined wall-clock time limit and trigger fallback logic
+- [ ] T007 Create base `src/data/loaders.py` for HuggingFace/NOAA dataset fetching with checksum verification
+- [ ] T008 Configure error handling and logging infrastructure in `src/pipeline/logging_config.py`
+- [X] T009 Setup `src/pipeline/config.py` to enforce a predefined wall-clock time limit and trigger fallback logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,7 +57,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `src/data/ingestion.py` to download NOAA GHCN-Daily CSVs for Northeast USA (2000–2020)
+- [ ] T010 [US1] Implement `src/data/ingestion.py` to download NOAA GHCN-Daily CSVs for Northeast USA (2000–2020)
 - [ ] T011 [US1] Implement station filtering in `src/data/preprocessing.py`: exclude stations with >15% total missing OR >30 day contiguous gaps (Depends on T010)
 - [ ] T012 [US1] Implement linear interpolation for short gaps in `src/data/preprocessing.py` (Depends on T011)
 - [ ] T013 [US1] Calculate high percentile thresholds strictly on 2000–2015 training data in `src/data/preprocessing.py` (Depends on T012)

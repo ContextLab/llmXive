@@ -48,14 +48,14 @@ description: "Task list template for feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/lib/utils.py` containing `set_global_seed()` and checksum utilities
-- [~] T014 [US0] **Fetch Real Stimuli (Pilot)**: Implement `src/metrics/fetch_stimuli.py` to download the first 500 items from the 'train' split of the HuggingFace `video-conference-backgrounds` dataset via `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')`.
-- [~] T014b [US0] **Verify Stimuli Checksum**: Implement `src/metrics/verify_stimuli.py` to compute and record the SHA‑256 checksum of each downloaded stimulus in `state/artifact_hashes`.
-- [~] T014c [US0] **Validate Stimuli Readability**: Implement `src/metrics/validate_stimuli.py` to ensure each image is readable and meets a minimum resolution of 640×360 pixels; log any failures to `logs/validate_stimuli.log`.
+- [X] T014 [US0] **Fetch Real Stimuli (Pilot)**: Implement `src/metrics/fetch_stimuli.py` to download the first 500 items from the 'train' split of the HuggingFace `video-conference-backgrounds` dataset via `datasets.load_dataset('HuggingFaceM4/video-conference-backgrounds', split='train')`.
+- [ ] T014b [US0] **Verify Stimuli Checksum**: Implement `src/metrics/verify_stimuli.py` to compute and record the SHA‑256 checksum of each downloaded stimulus in `state/artifact_hashes`.
+- [ ] T014c [US0] **Validate Stimuli Readability**: Implement `src/metrics/validate_stimuli.py` to ensure each image is readable and meets a minimum resolution of 640×360 pixels; log any failures to `logs/validate_stimuli.log`.
 - [ ] T014c_test [US0] **Unit test for T014c**: Verify that `validate_stimuli.py` correctly identifies readable images and rejects corrupted or undersized files.
-- [~] T032 [US2] **Fetch Real Meeting Clips (Main Study)**: Implement `src/experiment/fetch_clips.py` to download meeting background frames/clips from the same HuggingFace dataset.
-- [~] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute SHA‑256 checksums of clips and record dataset URL and version ID in `research.md`.
+- [ ] T032 [US2] **Fetch Real Meeting Clips (Main Study)**: Implement `src/experiment/fetch_clips.py` to download meeting background frames/clips from the same HuggingFace dataset.
+- [ ] T032b [US2] **Verify Clips & Record Source**: Implement `src/experiment/verify_clips.py` to compute SHA‑256 checksums of clips and record dataset URL and version ID in `research.md`.
 - [ ] T032b_test [US2] **Test verification metadata**: Add a unit test that asserts `research.md` contains the expected `dataset_url` and `version_id` fields after T032b runs.
-- [~] T032c [US2] **Curate Meeting Backgrounds**: Implement `src/experiment/curate_clips.py` to filter fetched clips based on technical criteria (resolution ≥ 640×360, duration ≤ 10 s) and output `data/processed/curated_clips.csv`.
+- [ ] T032c [US2] **Curate Meeting Backgrounds**: Implement `src/experiment/curate_clips.py` to filter fetched clips based on technical criteria (resolution ≥ 640×360, duration ≤ 10 s) and output `data/processed/curated_clips.csv`.
 - [ ] T032c_test [US2] **Integration test for T032c**: Ensure `curated_clips.csv` is created and contains only clips meeting the specified criteria.
 
 ---
@@ -68,7 +68,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 0
 
-- [~] T011 [US0] **Remote Pilot Interface**: Implement `src/experiment/pilot_interface.py` (Streamlit) to present images and collect complexity ratings (1-10) via a **Streamlit Cloud** deployment to facilitate remote recruitment of a cohort (n=20). The app must be publicly accessible.
+- [ ] T011 [US0] **Remote Pilot Interface**: Implement `src/experiment/pilot_interface.py` (Streamlit) to present images and collect complexity ratings (1-10) via a **Streamlit Cloud** deployment to facilitate remote recruitment of a cohort (n=20). The app must be publicly accessible.
 - [ ] T011b [US0] **Recruitment State Manager**: Implement `src/experiment/recruitment.py` to manage participant IDs and generate static invitation templates.
 - [ ] T011c [US0] **Data Ingestion**: Implement `src/experiment/ingest.py` to parse external recruitment CSV exports and map them to `data/measurements/human_ratings.csv`.
 - [ ] T011d [US0] **Deployment Configuration**: Implement `src/experiment/deploy.py` to configure and deploy the Streamlit app to a public URL (e.g., Streamlit Cloud) and generate the recruitment link for distribution.

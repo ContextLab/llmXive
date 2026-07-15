@@ -112,7 +112,7 @@ description: "Task list template for feature implementation"
 - [ ] T015 [P] [US2] Implement ECDF plot generation in code/analysis/distribution_fitting.py (x-axis log scale) (FR-002)
 - [ ] T016 [US2] Fit log-normal and Weibull models using scipy.stats and report KS statistic, p-value, AIC (FR-002)
 - [~] T017 [US2] Detect and report extreme outliers (>30 days) with percentage of total dataset (FR-002)
-- [~] T018 [US2] Save figures to data/figures/ and results to data/processed/distribution_metrics.json (SC-002)
+- [ ] T018 [US2] Save figures to data/figures/ and results to data/processed/distribution_metrics.json (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,15 +126,15 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
-- [~] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
+- [X] T019 [P] [US3] Contract test for analysis output schema in tests/contract/test_analysis_schema.py
+- [X] T020 [P] [US3] Integration test for mixed-effects model convergence in tests/integration/test_mixed_effects.py
 
 ### Implementation for User Story 3
 
-- [~] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni correction in code/analysis/hypothesis_testing.py (FR-004)
-- [~] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in code/analysis/mixed_effects_model.py (FR-005)
+- [X] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni correction in code/analysis/hypothesis_testing.py (FR-004)
+- [X] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in code/analysis/mixed_effects_model.py (FR-005)
 - [~] T023 [US3] Implement leave-one-repository-out cross-validation for MAE and R² metrics (SC-004)
-- [~] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in code/diagnostics/collinearity.py (FR-006)
+- [X] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in code/diagnostics/collinearity.py (FR-006)
 - [ ] T025 [US3] Perform sensitivity analysis sweeping a range of cutoffs, calculate false-positive/false-negative rates, and report threshold sensitivity (status changes) in code/diagnostics/sensitivity_analysis.py (FR-007)
 - [ ] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in code/analysis/results.py (FR-008)
 

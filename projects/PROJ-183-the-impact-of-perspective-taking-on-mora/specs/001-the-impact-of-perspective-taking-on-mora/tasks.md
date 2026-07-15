@@ -59,12 +59,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T005 [P] Create `code/config.py` with random seed pinning, path constants, and dataset URL configuration (verified URL for "Against the Others!" dataset)
+- [X] T005 [P] Create `code/config.py` with random seed pinning, path constants, and dataset URL configuration (verified URL for "Against the Others!" dataset)
 - [~] T006 [P] Initialize `data/raw/`, `data/processed/`, and `data/human/` directories with `.gitkeep`
-- [~] T007 [P] Create `contracts/stimulus.schema.yaml` and `contracts/participant.schema.yaml` defining data structures
-- [~] T008 Create base `code/__init__.py` and analysis `code/analysis/__init__.py` modules
-- [~] T009a [P] Implement formal power analysis function in `code/analysis/stats.py` (input: effect_size, power, alpha) returning required N. Do NOT write to config yet.
-- [~] T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a comment in `code/config.py` at the top of the file: `# Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient. [UNRESOLVED-CLAIM: c_f29cb9d3 — status=not_enough_info] ` Verify the comment exists via `grep` or similar. (FR-009b)
+- [ ] T007 [P] Create `contracts/stimulus.schema.yaml` and `contracts/participant.schema.yaml` defining data structures
+- [X] T008 Create base `code/__init__.py` and analysis `code/analysis/__init__.py` modules
+- [X] T009a [P] Implement formal power analysis function in `code/analysis/stats.py` (input: effect_size, power, alpha) returning required N. Do NOT write to config yet.
+- [X] T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a comment in `code/config.py` at the top of the file: `# Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient. [UNRESOLVED-CLAIM: c_f29cb9d3 — status=not_enough_info] ` Verify the comment exists via `grep` or similar. (FR-009b)
 - [~] T010 [P] Setup `tests/` directory structure with `pytest` configuration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,12 +79,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/ingest.py` to download dataset from verified URL and parse CSV/JSON (FR-001) <!-- FAILED: unspecified -->
-- [~] T014 [US1] Implement filtering logic in `code/data/ingest.py` for `topic in ["climate", "immigration"]` and compute VADER scores if missing (FR-001)
-- [~] T015 [US1] Add error handling in `code/data/ingest.py` to raise `DATASET_INSUFFICIENT` error (code 400) if <60 posts found after filtering (FR-008, Edge Case 1)
-- [~] T016 [US1] Implement stratified sampling logic in `code/data/stimuli.py` to balance moderate/high intensity posts across conditions
-- [~] T017 [US1] Implement `code/data/stimuli.py` to generate "Perspective-Taking" and "Control Summarization" prompt templates (FR-002)
-- [~] T018 [US1] Save final curated stimuli to `data/processed/stimuli.json` with all metadata, instruction variants, and sentiment scores (FR-002)
+- [X] T013 [US1] Implement `code/data/ingest.py` to download dataset from verified URL and parse CSV/JSON (FR-001) <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement filtering logic in `code/data/ingest.py` for `topic in ["climate", "immigration"]` and compute VADER scores if missing (FR-001)
+- [X] T015 [US1] Add error handling in `code/data/ingest.py` to raise `DATASET_INSUFFICIENT` error (code 400) if <60 posts found after filtering (FR-008, Edge Case 1)
+- [ ] T016 [US1] Implement stratified sampling logic in `code/data/stimuli.py` to balance moderate/high intensity posts across conditions
+- [ ] T017 [US1] Implement `code/data/stimuli.py` to generate "Perspective-Taking" and "Control Summarization" prompt templates (FR-002)
+- [ ] T018 [US1] Save final curated stimuli to `data/processed/stimuli.json` with all metadata, instruction variants, and sentiment scores (FR-002)
 - [~] T019 [P] [US1] Add logging for data ingestion, filtering, and stratification steps
 - [ ] T051 [US1] Implement a validation report in `code/analysis/stats.py` (or `code/data/stimuli.py`) to verify that the stratification (T016) successfully balanced the VADER sentiment scores between the two experimental conditions. Save the report to `data/processed/stratification_report.json` and log the difference in mean sentiment. Do NOT fail the pipeline if the difference is large; only report it. (SC-006)
 

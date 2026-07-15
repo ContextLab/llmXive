@@ -70,8 +70,8 @@
 - [ ] T010 [P] Implement `code/association.py` skeleton for linear model fitting (`log2(expr) ~ TE + PC1 + PC2 + PC3`)
 - [ ] T011 [P] Implement `code/association.py` function to apply Benjamini-Hochberg correction and filter FDR < 0.05
 - [~] T012 [P] Implement `code/association.py` function to compute R² reduction with/without PCs for population structure control metric. **Must write the output table to `data/results/population_structure_control_metrics.csv` with columns: `r2_with_pcs`, `r2_without_pcs`, `reduction_percent`. Must handle the edge case where `r2_without_pcs` is 0 by setting `reduction_percent` to `0.0` to prevent division-by-zero errors.** (FR-012, SC-004)
-- [~] T013 [P] Implement `code/permutation.py` skeleton for null distribution generation
-- [~] T014 [P] Implement `code/replication.py` skeleton for independent dataset validation logic
+- [X] T013 [P] Implement `code/permutation.py` skeleton for null distribution generation
+- [X] T014 [P] Implement `code/replication.py` skeleton for independent dataset validation logic
 
 **Checkpoint**: Foundation ready - Mock data generator and basic analysis skeleton complete. User story implementation can now begin.
 
@@ -90,18 +90,18 @@
 - [~] T015 [P] [US1] Unit test for TE-Gene pairing logic and monomorphic filtering in `tests/test_preprocessing.py` (verify distance calculation and frequency thresholding on mock data) <!-- FAILED: unspecified -->
 - [ ] T015A [P] [US1] Unit test for missing data exclusion logic in `tests/test_preprocessing.py` (verify line exclusion per test)
 - [ ] T015B [P] [US1] Contract test for `quantification_method` flag in `tests/test_data_schema.py`. **Verify that the mock data metadata schema correctly declares `quantification_method: TEaware` as a simulated metadata field (not a tool usage flag) to satisfy Constitution Principle VII intent.**
-- [~] T016 [P] [US1] Integration test for full US1 pipeline on mock data in `tests/integration/test_us1_pipeline.py`
+- [X] T016 [P] [US1] Integration test for full US1 pipeline on mock data in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T019 [US1] Implement `code/preprocessing.py` logic to map TE coordinates to gene TSS/TES (Drosophila release 6) and define proximal pairs (≤5kb) using the Mock gene models. (FR-002)
-- [~] T020 [US1] Implement `code/preprocessing.py` logic to handle missing expression values by excluding affected lines per test (FR-009)
+- [X] T019 [US1] Implement `code/preprocessing.py` logic to map TE coordinates to gene TSS/TES (Drosophila release 6) and define proximal pairs (≤5kb) using the Mock gene models. (FR-002)
+- [X] T020 [US1] Implement `code/preprocessing.py` logic to handle missing expression values by excluding affected lines per test (FR-009)
 - [ ] T020A [US1] Implement `code/preprocessing.py` logic for ambiguous TE-gene proximity resolution: if a TE is within 5kb of multiple genes, flag these pairs with 'ambiguous_flag' = true and exclude them from primary association testing (FR-011).
-- [~] T021 [US1] Implement `code/association.py` to fit `log2(expression) ~ TE_presence + PC1 + PC2 + PC3` for each pair (FR-004)
-- [~] T022 [US1] Implement `code/association.py` to calculate VIF and flag pairs with VIF > 5 for descriptive-only reporting (FR-007). **Output must include a 'vif_flag' column.**
-- [~] T023 [US1] Implement `code/association.py` to generate final output table with effect size, confidence intervals, unadjusted p-value, and BH adjusted p-value, **including integration of VIF flags** from T022 (FR-005). **Must append 'vif_flag' column to final results.**
-- [~] T024 [US1] Add error handling in `code/data_generator.py` to raise `DataGenerationError` if mock data generation fails or violates schema constraints (Assumptions)
-- [~] T025 [US1] Add error handling in `code/association.py` to handle cases where no significant pairs are found (output empty table with correct schema).
+- [X] T021 [US1] Implement `code/association.py` to fit `log2(expression) ~ TE_presence + PC1 + PC2 + PC3` for each pair (FR-004)
+- [X] T022 [US1] Implement `code/association.py` to calculate VIF and flag pairs with VIF > 5 for descriptive-only reporting (FR-007). **Output must include a 'vif_flag' column.**
+- [X] T023 [US1] Implement `code/association.py` to generate final output table with effect size, confidence intervals, unadjusted p-value, and BH adjusted p-value, **including integration of VIF flags** from T022 (FR-005). **Must append 'vif_flag' column to final results.**
+- [X] T024 [US1] Add error handling in `code/data_generator.py` to raise `DataGenerationError` if mock data generation fails or violates schema constraints (Assumptions)
+- [X] T025 [US1] Add error handling in `code/association.py` to handle cases where no significant pairs are found (output empty table with correct schema).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,15 +115,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US2] Contract test for replication output schema in `tests/contract/test_replication_schema.py`
-- [~] T030 [P] [US2] Integration test for replication pipeline with missing data scenarios in `tests/integration/test_us2_replication.py`
+- [X] T029 [P] [US2] Contract test for replication output schema in `tests/contract/test_replication_schema.py`
+- [X] T030 [P] [US2] Integration test for replication pipeline with missing data scenarios in `tests/integration/test_us2_replication.py`
 
 ### Implementation for User Story 2
 
-- [~] T031 [US2] Implement `code/replication.py` to load a second independent Mock expression dataset (generated with different seeds) and align gene IDs. (US-2)
-- [~] T032 [US2] Implement `code/replication.py` to filter the set of significant pairs from US1 for testing on the replication dataset. **(Depends on T023 completion artifact)**
-- [~] T033 [US2] Implement `code/replication.py` to fit the same linear model on the replication data for the selected pairs (handling missing lines per FR-009).
-- [~] T034 [US2] Implement `code/replication.py` to calculate direction concordance and replication p-values.
+- [X] T031 [US2] Implement `code/replication.py` to load a second independent Mock expression dataset (generated with different seeds) and align gene IDs. (US-2)
+- [X] T032 [US2] Implement `code/replication.py` to filter the set of significant pairs from US1 for testing on the replication dataset. **(Depends on T023 completion artifact)**
+- [X] T033 [US2] Implement `code/replication.py` to fit the same linear model on the replication data for the selected pairs (handling missing lines per FR-009).
+- [X] T034 [US2] Implement `code/replication.py` to calculate direction concordance and replication p-values.
 - [ ] T035 [US2] Implement `code/replication.py` to generate the comparison table (original effect, replication effect, concordance flag, rep p-value) (FR-010).
 - [ ] T036 [US2] Implement `code/replication.py` to compute replication concordance rate and perform binomial test against null hypothesis of equal probability (SC-002, FR-016).
 - [ ] T037 [US2] Write unit tests in `tests/test_replication.py` for concordance calculation and missing data exclusion logic.

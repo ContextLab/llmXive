@@ -59,8 +59,8 @@
 - [ ] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`.
 - [ ] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
 - [~] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
-- [~] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
-- [~] T008b [P] Implement `code/analyze.py`: Implement error rate calculation (Type I/II), KS test wrapper (p-value distributions only), and JSON reporting structure. **Dependency**: Requires T007 output.
+- [X] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
+- [X] T008b [P] Implement `code/analyze.py`: Implement error rate calculation (Type I/II), KS test wrapper (p-value distributions only), and JSON reporting structure. **Dependency**: Requires T007 output.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,13 +76,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for stratified subsampling logic in `tests/test_subsample.py` (verify class ratio preservation)
-- [~] T010 [P] [US1] Integration test for baseline simulation loop in `tests/test_simulation.py` (verify p-value distribution generation)
+- [X] T009 [P] [US1] Unit test for stratified subsampling logic in `tests/test_subsample.py` (verify class ratio preservation)
+- [X] T010 [P] [US1] Integration test for baseline simulation loop in `tests/test_simulation.py` (verify p-value distribution generation)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement baseline Monte Carlo loop (1,000 iterations per config as per FR-004) in `code/simulation.py` (no augmentation step). **Logic**: Include internal functions for (1) label permutation (shuffle all labels using pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) for Type II error. **Target Column**: Use the priority 'target' -> 'class' -> 'label' -> last column for both ground-truth logic and subsampling. **Dependency**: Requires T007 infrastructure.
-- [~] T014 [US1] Implement error rate calculation in `code/analyze.py`: Compute proportion of p < 0.05 and bootstrap 95% CIs for baseline results.
+- [X] T013 [US1] Implement baseline Monte Carlo loop (1,000 iterations per config as per FR-004) in `code/simulation.py` (no augmentation step). **Logic**: Include internal functions for (1) label permutation (shuffle all labels using pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) for Type II error. **Target Column**: Use the priority 'target' -> 'class' -> 'label' -> last column for both ground-truth logic and subsampling. **Dependency**: Requires T007 infrastructure.
+- [X] T014 [US1] Implement error rate calculation in `code/analyze.py`: Compute proportion of p < 0.05 and bootstrap 95% CIs for baseline results.
 - [~] T015 [US1] Save baseline results to `results/[dataset]_[size]_baseline_null.json` and `results/[dataset]_[size]_baseline_alt.json`. **Naming convention**: `[dataset]` = lowercase underscore (e.g., 'breast_cancer'), `[size]` = integer (e.g., '15').
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

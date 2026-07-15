@@ -56,7 +56,7 @@
 - [ ] T004 Create `code/hygiene.py` to compute `sha256sum` for all files in `data/` and update `state/projects/PROJ-163-...yaml` artifact hashes
 - [X] T005 [P] Implement basic logging infrastructure in `code/__init__.py` and `code/main.py`
 - [ ] T006 [P] Setup environment configuration management (load IBM Quantum API tokens/defaults)
-- [~] T007 Create base data models (dataclasses) for `QubitDevice`, `GraphMetric`, `PerformanceMetric`, `CorrelationResult` in `code/models.py`
+- [X] T007 Create base data models (dataclasses) for `QubitDevice`, `GraphMetric`, `PerformanceMetric`, `CorrelationResult` in `code/models.py`
 - [~] T008 [US1] Update `spec.md` (FR-003) to formally retract the "historical time window" requirement for topology, documenting the resolution as a cross-sectional study (per Plan.md Spec Gap). This task must be completed before T028/T029.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,15 +74,15 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
-- [~] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
+- [X] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `fetch_backends_list` in `code/fetcher.py` to retrieve all accessible backend names
-- [~] T013a [US1] Implement `retry_with_exponential_backoff` in `code/fetcher.py` with explicit parameters: max 3 attempts, 2^N backoff delay, and 60-second timeout to handle 503 errors as a distinct unit of work.
-- [~] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning and exclude device) per US1 Acceptance Scenario 2.
-- [~] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
-- [~] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
+- [X] T012 [US1] Implement `fetch_backends_list` in `code/fetcher.py` to retrieve all accessible backend names
+- [X] T013a [US1] Implement `retry_with_exponential_backoff` in `code/fetcher.py` with explicit parameters: max 3 attempts, 2^N backoff delay, and 60-second timeout to handle 503 errors as a distinct unit of work.
+- [X] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning and exclude device) per US1 Acceptance Scenario 2.
+- [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
+- [X] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
 - [ ] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
 - [ ] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
 - [ ] T017 [US1] Generate structured CSV `data/processed/raw_calibration.csv` containing all valid device metrics

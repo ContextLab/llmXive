@@ -55,12 +55,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Create project structure per implementation plan (`projects/001-crack-propagation-ml/`)
-- [~] T003 Initialize Python 3.11 project with `pyproject.toml` and pinned `requirements.txt` (scikit-learn, xgboost, optuna, pandas, ruptures, matplotlib, seaborn, pyyaml, jsonschema)
+- [X] T003 Initialize Python 3.11 project with `pyproject.toml` and pinned `requirements.txt` (scikit-learn, xgboost, optuna, pandas, ruptures, matplotlib, seaborn, pyyaml, jsonschema)
 - [X] T004 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [~] T005 [P] Create `code/config.py` for hyperparameters, random seeds, and path configuration
-- [~] T006 [P] Create `contracts/dataset.schema.yaml` defining required columns ($da/dN$, $\Delta K$, composition, heat treatment)
-- [~] T007 [P] Create `contracts/output.schema.yaml` defining expected result formats (metrics, plots)
-- [~] T008 [P] Create `code/utils/__init__.py` and `code/utils/stats.py` (file structure for stats module)
+- [X] T005 [P] Create `code/config.py` for hyperparameters, random seeds, and path configuration
+- [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining required columns ($da/dN$, $\Delta K$, composition, heat treatment)
+- [ ] T007 [P] Create `contracts/output.schema.yaml` defining expected result formats (metrics, plots)
+- [X] T008 [P] Create `code/utils/__init__.py` and `code/utils/stats.py` (file structure for stats module)
 - [~] T009 [P] Create skeleton `code/data/loader.py` with schema validation logic (consumes `contracts/dataset.schema.yaml` from T006)
 - [~] T010 [P] Setup environment configuration management and logging infrastructure in `code/`
 
@@ -76,15 +76,15 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement data fetching logic in `code/data/loader.py` to fetch real data from **NASA Fracture Control Database** (CSV: `) and **NIST Materials Data Repository** (CSV: `). Save to `data/raw/` with checksums. **DO NOT** use `numenta/NAB` or generic repos. <!-- FAILED: unspecified -->
-- [~] T014 [US1] Implement `code/data/preprocessor.py` to filter valid $da/dN$/$\Delta K$, impute missing heat-treatment with "Unknown/Not Specified", and encode features
-- [~] T015 [US1] Implement `code/models/baseline.py` for stratified linear regression using only $\log(\Delta K)$ to predict $\log(da/dN)$
-- [~] T016 [US1] Implement `code/main.py` step to train baseline and calculate $R^2$ and p-value against a **null model defined as an intercept-only (horizontal line) model** using a **Permutation Test** to confirm the **log-log linear relationship of the Paris Law** (slope significance).
-- [~] T017 [US1] Implement `code/analysis/viz.py` to generate Partial Dependence Plot (PDP) for $\Delta K$ vs $da/dN$ verifying Paris Law linearity
+- [X] T013 [US1] Implement data fetching logic in `code/data/loader.py` to fetch real data from **NASA Fracture Control Database** (CSV: `) and **NIST Materials Data Repository** (CSV: `). Save to `data/raw/` with checksums. **DO NOT** use `numenta/NAB` or generic repos. <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement `code/data/preprocessor.py` to filter valid $da/dN$/$\Delta K$, impute missing heat-treatment with "Unknown/Not Specified", and encode features
+- [X] T015 [US1] Implement `code/models/baseline.py` for stratified linear regression using only $\log(\Delta K)$ to predict $\log(da/dN)$
+- [X] T016 [US1] Implement `code/main.py` step to train baseline and calculate $R^2$ and p-value against a **null model defined as an intercept-only (horizontal line) model** using a **Permutation Test** to confirm the **log-log linear relationship of the Paris Law** (slope significance).
+- [X] T017 [US1] Implement `code/analysis/viz.py` to generate Partial Dependence Plot (PDP) for $\Delta K$ vs $da/dN$ verifying Paris Law linearity
 - [~] T018 [US1] Add validation logic to halt if dataset lacks required columns after cleaning
-- [~] T010 [US1] Unit test for `code/data/loader.py` schema validation in `tests/unit/test_loader.py` (Write test immediately after T013 code)
-- [~] T011 [US1] Unit test for `code/data/preprocessor.py` imputation logic in `tests/unit/test_preprocessor.py` (Write test immediately after T014 code)
-- [~] T012 [US1] Integration test for baseline model training and $R^2$ calculation in `tests/integration/test_baseline.py`
+- [X] T010 [US1] Unit test for `code/data/loader.py` schema validation in `tests/unit/test_loader.py` (Write test immediately after T013 code)
+- [X] T011 [US1] Unit test for `code/data/preprocessor.py` imputation logic in `tests/unit/test_preprocessor.py` (Write test immediately after T014 code)
+- [X] T012 [US1] Integration test for baseline model training and $R^2$ calculation in `tests/integration/test_baseline.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,8 +98,8 @@
 
 ### Implementation for User Story 2
 
-- [~] T007a [P] [US2] Implement the core Permutation Test function in `code/utils/stats.py` (parameters: n_permutations, seed, metric). **Null Hypothesis**: Target values are randomly permuted. **Test Statistic**: Difference in $R^2$ between models. **P-value**: Proportion of permuted statistics >= observed statistic.
-- [~] T021 [US2] Implement `code/models/augmented.py` to support Random Forest and XGBoost with composition (wt%) and heat-treatment descriptors
+- [X] T007a [P] [US2] Implement the core Permutation Test function in `code/utils/stats.py` (parameters: n_permutations, seed, metric). **Null Hypothesis**: Target values are randomly permuted. **Test Statistic**: Difference in $R^2$ between models. **P-value**: Proportion of permuted statistics >= observed statistic.
+- [X] T021 [US2] Implement `code/models/augmented.py` to support Random Forest and XGBoost with composition (wt%) and heat-treatment descriptors
 - [X] T019 [US2] Unit test for `code/models/augmented.py` fallback logic (missing features) in `tests/unit/test_augmented.py`
 - [ ] T022 [US2] Implement `code/models/trainer.py` using Optuna for hyperparameter tuning ($n\_estimators$, $max\_depth$, $learning\_rate$) with k-fold stratified CV
 - [ ] T023 [US2] Implement `code/main.py` step to perform Permutation Test (using logic from T007a) comparing Baseline vs. Augmented model error reduction. **Note**: Implementation follows Plan.md decision to use ONLY Permutation Tests (F-test rejected).

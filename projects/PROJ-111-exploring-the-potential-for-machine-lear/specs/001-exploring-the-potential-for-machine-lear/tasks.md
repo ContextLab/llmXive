@@ -70,14 +70,14 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for normalization and reshaping in `tests/unit/test_preprocessing.py`
-- [~] T011 [P] [US1] Integration test for end‑to‑end data pipeline in `tests/integration/test_data_pipeline.py` verifying memory < 6 GB for L=24
-- [~] T012 [P] [US1] Validate that `code/data_generation.py` (implemented in T004) correctly generates **both** J1‑J2 Heisenberg and XY model datasets at **L=16** and **L=24**, and that the output files match expected shapes and temperature coverage.
+- [X] T010 [P] [US1] Unit test for normalization and reshaping in `tests/unit/test_preprocessing.py`
+- [X] T011 [P] [US1] Integration test for end‑to‑end data pipeline in `tests/integration/test_data_pipeline.py` verifying memory < 6 GB for L=24
+- [X] T012 [P] [US1] Validate that `code/data_generation.py` (implemented in T004) correctly generates **both** J1‑J2 Heisenberg and XY model datasets at **L=16** and **L=24**, and that the output files match expected shapes and temperature coverage.
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement memory monitoring in `code/preprocessing.py` to ensure L=24 fits within the 6 GB RAM constraint.
-- [~] T015 [US1] Add an explicit assertion in `code/preprocessing.py` that raises a `ValueError` if the maximum absolute difference in sample count between any two temperature bins exceeds 5.
+- [X] T014 [US1] Implement memory monitoring in `code/preprocessing.py` to ensure L=24 fits within the 6 GB RAM constraint.
+- [X] T015 [US1] Add an explicit assertion in `code/preprocessing.py` that raises a `ValueError` if the maximum absolute difference in sample count between any two temperature bins exceeds 5.
 - [~] T016 [US1] Add logging for data generation parameters (T, L, coupling ratios).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -92,14 +92,14 @@
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Unit test for VAE architecture (2 conv/2 deconv layers, latent dim 10) in `tests/unit/test_vae_model.py`
-- [~] T019 [P] [US2] Integration test for training loop convergence and early stopping in `tests/integration/test_training.py`
+- [X] T018 [P] [US2] Unit test for VAE architecture (2 conv/2 deconv layers, latent dim 10) in `tests/unit/test_vae_model.py`
+- [X] T019 [P] [US2] Integration test for training loop convergence and early stopping in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/vae_model.py` with 2 convolutional encoder layers and 2 deconvolutional decoder layers, latent dimension 10.
-- [~] T021 [US2] Implement `code/train.py` with Adam optimizer (lr=1e‑3), MSE loss, KL divergence, and early‑stopping logic.
-- [~] T022 [US2] Implement time‑budget enforcement in `code/train.py` to report partial results if execution exceeds 6 h (FR‑004).
+- [X] T020 [US2] Implement `code/vae_model.py` with 2 convolutional encoder layers and 2 deconvolutional decoder layers, latent dimension 10.
+- [ ] T021 [US2] Implement `code/train.py` with Adam optimizer (lr=1e‑3), MSE loss, KL divergence, and early‑stopping logic.
+- [ ] T022 [US2] Implement time‑budget enforcement in `code/train.py` to report partial results if execution exceeds 6 h (FR‑004).
 - [~] T023 [US2] Integrate data loaders from US1 and ensure batch processing fits within 7 GB RAM.
 - [~] T024 [US2] Implement checkpoint saving with checksums and metadata validation.
 
@@ -115,12 +115,12 @@
 
 ### Tests for User Story 3
 
-- [~] T025 [P] [US3] Integration test for FSS extrapolation and bootstrap confidence intervals in `tests/integration/test_fss.py`
-- [~] T038 [P] [US3] Unit test for peak‑finding algorithm (GP smoothing, derivative analysis) in `tests/unit/test_analysis.py`
+- [X] T025 [P] [US3] Integration test for FSS extrapolation and bootstrap confidence intervals in `tests/integration/test_fss.py`
+- [X] T038 [P] [US3] Unit test for peak‑finding algorithm (GP smoothing, derivative analysis) in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement `code/analysis.py` to calculate total latent variance $\sum \text{Var}(\mu)$ for each temperature bin.
+- [ ] T026 [US3] Implement `code/analysis.py` to calculate total latent variance $\sum \text{Var}(\mu)$ for each temperature bin.
 - [ ] T027 [US3] Implement Gaussian Process regression (squared‑exponential kernel) for smoothing and peak detection per FR‑005. **Explicitly enforce:**
  - Second derivative threshold: **< -0.01** (normalized by global max).
  - Peak height condition: **> 2σ** above a moving average (window size = 5 points) of the residuals.

@@ -65,7 +65,7 @@
 - [ ] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5 [UNRESOLVED-CLAIM: c_c39f1b62 — status=not_enough_info], {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)
 - [ ] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**, trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass halt logic in T019 only if `source == SIMULATED`
 - [~] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
-- [~] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
+- [X] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,19 +81,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. [P] indicates parallel execution of test suites, NOT parallel implementation with code.**
 
-- [~] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
-- [~] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
+- [X] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
+- [X] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split proportions: [deferred] training, [deferred] hold-out** (resolving spec "[deferred]" via plan.md authority); strictly reserve hold-out set from all training/selection steps
-- [~] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run 3 independent iterations per threshold ** to calculate selection frequency; output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (aggregated across 3 runs per threshold) (FR-003)
-- [~] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5-fold CV (FR-004)
-- [~] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004) <!-- FAILED: unspecified -->
-- [~] T018 [US1] Implement `code/analysis/validation.py` for **null model baseline comparison on training/CV folds ONLY**; **DO NOT run permutation testing on hold-out set here** (defer to T033) (FR-005)
+- [X] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split proportions: [deferred] training, [deferred] hold-out** (resolving spec "[deferred]" via plan.md authority); strictly reserve hold-out set from all training/selection steps
+- [X] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run 3 independent iterations per threshold ** to calculate selection frequency; output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (aggregated across 3 runs per threshold) (FR-003)
+- [X] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5-fold CV (FR-004)
+- [X] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004) <!-- FAILED: unspecified -->
+- [X] T018 [US1] Implement `code/analysis/validation.py` for **null model baseline comparison on training/CV folds ONLY**; **DO NOT run permutation testing on hold-out set here** (defer to T033) (FR-005)
 - [~] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read `source_type` from `data_manifest.yaml`; if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities), halt with `EX_DATA_INTEGRITY (02)`; if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT (03)`; **bypass halt ONLY if `source_type == SIMULATED`** (Simulation Mode exception per plan.md); handle contradictory FR-007/FR-008 by prioritizing FR-008 (Power) then FR-007 (Integrity) with unified error message <!-- FAILED: unspecified -->
-- [~] T022 [US1] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², null model comparison, and **permutation p-value (from hold-out set, see T033)** <!-- FAILED: unspecified -->
-- [~] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
+- [ ] T022 [US1] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², null model comparison, and **permutation p-value (from hold-out set, see T033)** <!-- FAILED: unspecified -->
+- [ ] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,12 +107,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
-- [~] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
+- [X] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
+- [X] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
 
 ### Implementation for User Story 2
 
-- [~] T026 [P] [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features
+- [X] T026 [P] [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features
 - [~] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes
 - [ ] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05
 - [ ] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
@@ -130,16 +130,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
+- [X] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [~] T031 [P] [US3] Extend `code/data/split.py` to strictly reserve the hold-out set from training/selection (FR-009) <!-- FAILED: unspecified -->
-- [~] T031b [US3] Implement a validation check in `code/data/split.py` to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
-- [~] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set
-- [~] T033 [US3] Implement permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on the **independent hold-out test set** to generate **model-level p-value**; output to `artifacts/reports/holdout_metrics.json` (FR-005, SC-003)
-- [~] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value
-- [~] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
+- [X] T031 [P] [US3] Extend `code/data/split.py` to strictly reserve the hold-out set from training/selection (FR-009) <!-- FAILED: unspecified -->
+- [X] T031b [US3] Implement a validation check in `code/data/split.py` to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
+- [X] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set
+- [ ] T033 [US3] Implement permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on the **independent hold-out test set** to generate **model-level p-value**; output to `artifacts/reports/holdout_metrics.json` (FR-005, SC-003)
+- [ ] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value
+- [ ] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
 
 **Checkpoint**: All user stories should now be independently functional
 

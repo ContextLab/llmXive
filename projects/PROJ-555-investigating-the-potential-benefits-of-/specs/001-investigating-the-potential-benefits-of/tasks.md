@@ -85,20 +85,20 @@ could not find expected ':'
  in "<unicode string>", line 10, column 1:
  The tests are designed to fail i...
  ^) -->
-- [~] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
+- [X] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
-- [~] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified -->
+- [ ] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
+- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified -->
 - [~] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
  *Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.*
 - [~] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
-- [~] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
-- [~] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
+- [X] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
+- [X] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
 - [~] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
 - [~] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
-- [~] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
+- [X] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,18 +112,18 @@ could not find expected ':'
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [~] T021 [P] [US2] Unit test for break-point detection algorithm in `tests/unit/test_detection.py`
-- [~] T022 [P] [US2] Unit test for asymptotic model fitting in `tests/unit/test_detection.py`
+- [X] T021 [P] [US2] Unit test for break-point detection algorithm in `tests/unit/test_detection.py`
+- [X] T022 [P] [US2] Unit test for asymptotic model fitting in `tests/unit/test_detection.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
+- [X] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
  *Note: Spec.md FR-002 defines deforestation as '2-year sustained drop' which may contradict 'break-point' logic. Task implements spec as written but flags for review.*
-- [~] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
-- [~] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
+- [X] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
+- [X] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
  *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric.*
-- [~] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
-- [~] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
+- [X] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
+- [X] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
 - [ ] T028 [US2] Generate `data/processed/recovery_trajectories.parquet` containing event start/end, severity, and trajectory parameters
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

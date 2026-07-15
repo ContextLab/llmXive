@@ -97,19 +97,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for fixation metric calculation (eye/mouth duration) in `tests/unit/test_features.py`
-- [~] T017 [P] [US2] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
+- [X] T016 [P] [US2] Unit test for fixation metric calculation (eye/mouth duration) in `tests/unit/test_features.py`
+- [X] T017 [P] [US2] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement `code/features/extraction.py` to compute fixation duration (eye/mouth), saccade amplitude, dispersion (FR-003)
-- [~] T019 [US2] Save extracted features to `data/processed/features.csv`
+- [X] T018 [US2] Implement `code/features/extraction.py` to compute fixation duration (eye/mouth), saccade amplitude, dispersion (FR-003)
+- [ ] T019 [US2] Save extracted features to `data/processed/features.csv`
 - [~] T020 [US2] Implement `code/features/classification.py` to calculate **continuous ratio** of eye-to-mouth fixation time (Primary Predictor); append to `data/processed/features.csv`; if mean ratio is <= 0, log a warning and proceed with descriptive statistics only (no assertion failure).
-- [~] T021 [US2] Implement k-means clustering (k=2) in `code/features/classification.py` with silhouette score calculation (FR-004)
+- [X] T021 [US2] Implement k-means clustering (k=2) in `code/features/classification.py` with silhouette score calculation (FR-004)
 - [~] T022 [US2] Implement warning logic: if silhouette < 0.25 or cluster size < 5, log warning and proceed with descriptive stats only
-- [~] T023a [US2] [Plan-2.3] [FR-010] Implement **Bootstrap Stability Check** in `code/features/classification.py`: repeat clustering on multiple bootstrap samples (e.g., 100 iterations) to assess label stability; output stability metrics. This replaces k-fold CV which is invalid for unsupervised clustering.
-- [~] T024a [US2] Implement VIF calculation for predictor pairs; flag VIF ≥5 in `code/utils/diagnostics.py` (FR-005)
-- [~] T024b [US2] Implement k-means clustering for k=2 and k=3 specifically to generate labels for sensitivity analysis; output `data/processed/labels_k2.csv` and `data/processed/labels_k3.csv`.
+- [X] T023a [US2] [Plan-2.3] [FR-010] Implement **Bootstrap Stability Check** in `code/features/classification.py`: repeat clustering on multiple bootstrap samples (e.g., 100 iterations) to assess label stability; output stability metrics. This replaces k-fold CV which is invalid for unsupervised clustering.
+- [X] T024a [US2] Implement VIF calculation for predictor pairs; flag VIF ≥5 in `code/utils/diagnostics.py` (FR-005)
+- [ ] T024b [US2] Implement k-means clustering for k=2 and k=3 specifically to generate labels for sensitivity analysis; output `data/processed/labels_k2.csv` and `data/processed/labels_k3.csv`.
 - [~] T037b [US2] Run `hash_artifacts.py` to update `state/` with hashes after T019, T024a, T024b, T023a (Features & Labels)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,20 +124,20 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T027 [P] [US3] Unit test for LMM convergence and fallback logic in `tests/unit/test_lmm.py`
-- [~] T028 [P] [US3] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_power.py`
+- [X] T027 [P] [US3] Unit test for LMM convergence and fallback logic in `tests/unit/test_lmm.py`
+- [X] T028 [P] [US3] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_power.py`
 
 ### Implementation for User Story 3
 
 - [~] T029a [US3] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **continuous fixation ratio** as fixed effect (Primary Analysis per Plan); output `results/lmm_continuous.csv`; assert model.converged. **If model fails to converge (max_iter=500), immediately fall back to a simpler linear model using the SAME predictor (Continuous Ratio).**
 - [~] T029b [US3] [Descriptive Only] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **processing strategy (derived cluster label from T023a)** as fixed effect; **WARNING: This is Exploratory/Descriptive Only and NOT for primary inference due to circularity risks per Plan.** Output `results/lmm_cluster.csv`; assert model.converged. <!-- FAILED: unspecified -->
 - [~] T030 [US3] Implement Permutation Test in `code/analysis/lmm.py`: permute detection times **1000 times** to establish null distribution; use same data prep as T029a; output `results/permutation_test.json`.
-- [~] T031 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) at α=0.05 in `code/analysis/power.py` (FR-007)
-- [~] T032 [US3] Implement a priori power analysis based on effect size d=0.5, **target power=0.80, alpha=0.05, two-tailed test** in `code/analysis/power.py`
+- [X] T031 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) at α=0.05 in `code/analysis/power.py` (FR-007)
+- [X] T032 [US3] Implement a priori power analysis based on effect size d=0.5, **target power=0.80, alpha=0.05, two-tailed test** in `code/analysis/power.py`
 - [~] T033 [US3] Implement post-hoc power analysis; document if power < 0.80 (FR-008)
 - [~] T034 [US3] Generate statistical results table with estimates, SE, t-values, p-values, and adjusted p-values
-- [~] T025 [US3] [FR-010] Implement Sensitivity Analysis: sweep k over {2, 3}, run **secondary LMM using cluster labels** (from T024b) to report coefficient variance for the **descriptive model**; output `results/sensitivity_report.yaml`. This validates the stability of the exploratory cluster-based approach, not the primary continuous predictor.
-- [~] T026 [US3] Save sensitivity analysis report to `results/sensitivity_report.yaml` (SC-006)
+- [ ] T025 [US3] [FR-010] Implement Sensitivity Analysis: sweep k over {2, 3}, run **secondary LMM using cluster labels** (from T024b) to report coefficient variance for the **descriptive model**; output `results/sensitivity_report.yaml`. This validates the stability of the exploratory cluster-based approach, not the primary continuous predictor.
+- [ ] T026 [US3] Save sensitivity analysis report to `results/sensitivity_report.yaml` (SC-006)
 - [ ] T037c [US3] Run `hash_artifacts.py` to update `state/` with hashes after T026, T034 (Final Results)
 
 **Checkpoint**: All user stories should now be independently functional

@@ -50,7 +50,7 @@
 - [ ] T001e Create `tests/integration/` directory
 - [ ] T001f Create `data/` directory (`data/raw/`, `data/processed/`)
 - [~] T001g Create `output/` directory (`output/figures/`, `output/reports/`)
-- [~] T002a Create `code/requirements.txt` with pinned versions: datasets==2.14.0 [UNRESOLVED-CLAIM: c_df95789a — status=not_enough_info], pandas==2.0.3 [UNRESOLVED-CLAIM: c_1d2fa06d — status=not_enough_info], numpy==1.24.3 [UNRESOLVED-CLAIM: c_2a36a529 — status=not_enough_info], scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_2d2a80ac — status=not_enough_info], statsmodels==0.14.0 [UNRESOLVED-CLAIM: c_6daca785 — status=not_enough_info], torch==2.0.1+cpu [UNRESOLVED-CLAIM: c_06d9e788 — status=not_enough_info], transformers==4.30.2 [UNRESOLVED-CLAIM: c_5f15c112 — status=not_enough_info], seaborn==0.12.2 [UNRESOLVED-CLAIM: c_66932fd3 — status=not_enough_info], matplotlib==3.7.2 [UNRESOLVED-CLAIM: c_2a89cbfd — status=not_enough_info], pyyaml==6.0 [UNRESOLVED-CLAIM: c_7f1e2cb0 — status=not_enough_info], pytest==7.4.0 [UNRESOLVED-CLAIM: c_e4b6de38 — status=not_enough_info], pytest-cov==4.1.0 [UNRESOLVED-CLAIM: c_16c2e4d8 — status=not_enough_info]
+- [X] T002a Create `code/requirements.txt` with pinned versions: datasets==2.14.0 [UNRESOLVED-CLAIM: c_df95789a — status=not_enough_info], pandas==2.0.3 [UNRESOLVED-CLAIM: c_1d2fa06d — status=not_enough_info], numpy==1.24.3 [UNRESOLVED-CLAIM: c_2a36a529 — status=not_enough_info], scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_2d2a80ac — status=not_enough_info], statsmodels==0.14.0 [UNRESOLVED-CLAIM: c_6daca785 — status=not_enough_info], torch==2.0.1+cpu [UNRESOLVED-CLAIM: c_06d9e788 — status=not_enough_info], transformers==4.30.2 [UNRESOLVED-CLAIM: c_5f15c112 — status=not_enough_info], seaborn==0.12.2 [UNRESOLVED-CLAIM: c_66932fd3 — status=not_enough_info], matplotlib==3.7.2 [UNRESOLVED-CLAIM: c_2a89cbfd — status=not_enough_info], pyyaml==6.0 [UNRESOLVED-CLAIM: c_7f1e2cb0 — status=not_enough_info], pytest==7.4.0 [UNRESOLVED-CLAIM: c_e4b6de38 — status=not_enough_info], pytest-cov==4.1.0 [UNRESOLVED-CLAIM: c_16c2e4d8 — status=not_enough_info]
 - [~] T002b Initialize git repository in the project root <!-- FAILED: unspecified -->
 - [~] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -62,8 +62,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Implement `code/config.py` for environment variable loading (including fallback model config)
-- [~] T005 [P] Implement `code/utils.py` with dynamic batch size calculator (ensuring <7GB RAM usage)
+- [X] T004 Implement `code/config.py` for environment variable loading (including fallback model config)
+- [X] T005 [P] Implement `code/utils.py` with dynamic batch size calculator (ensuring <7GB RAM usage)
 - [ ] T006 [P] Implement `code/utils.py` memory monitoring wrapper for batch processing loops
 - [ ] T007 Create base data schemas in `specs/contracts/dataset.schema.yaml` and `specs/contracts/metrics.schema.yaml`
 - [ ] T008 Setup logging infrastructure in `code/utils.py` (error logging for skipped responses)

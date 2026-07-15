@@ -41,9 +41,9 @@
 - [ ] T004 [US1] Implement data download script in `code/download.py` using `openneuro-py` to fetch **ds004041** (Pupil Labs Reading) to `data/raw/`, explicitly verifying the dataset version hash against `data/metadata.yaml` (Constitution Principle I)
 - [ ] T005 [US1] Create data model schema in `code/data_model.py` defining `Participant`, `Passage`, `Window`, and `AdaptationLabel` entities; **explicitly define `simplified_text` attribute as nullable** to reflect dataset limitations
 - [X] T005b [US1] Define luminance normalization algorithm in `code/preprocessing.py` (not data_model.py) as a function or constant, and document the ingestion method for screen luminance logs from `ds004041`
-- [~] T005c [US1] Create `data/metadata.yaml` entry to flag that the source dataset **lacks simplified text** for all passages, ensuring this is traceable for downstream graceful degradation logic (or counterfactual generation)
-- [~] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with structured JSON output for pipeline steps
-- [~] T007 [P] Setup environment configuration management in `code/config.py` (handling data paths, random seeds, CLI thresholds)
+- [X] T005c [US1] Create `data/metadata.yaml` entry to flag that the source dataset **lacks simplified text** for all passages, ensuring this is traceable for downstream graceful degradation logic (or counterfactual generation)
+- [X] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with structured JSON output for pipeline steps
+- [X] T007 [P] Setup environment configuration management in `code/config.py` (handling data paths, random seeds, CLI thresholds)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in sequence
 
@@ -59,10 +59,10 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Note: T009 assumes T005b (Phase 2) is complete.
 
-- [~] T008 [P] [US1] Unit test for blink removal and 4Hz low-pass filtering in `tests/unit/test_preprocessing.py`
-- [~] T009 [P] [US1] Unit test for baseline correction and luminance normalization (using algorithm from T005b in `preprocessing.py`) in `tests/unit/test_preprocessing.py`
-- [~] T010 [P] [US1] Unit test for CLI z-score calculation and 0.5 SD thresholding in `tests/unit/test_cli_engine.py`
-- [~] T011 [P] [US1] Integration test for full US-1 pipeline on sample data in `tests/integration/test_us1_pipeline.py`
+- [X] T008 [P] [US1] Unit test for blink removal and 4Hz low-pass filtering in `tests/unit/test_preprocessing.py`
+- [X] T009 [P] [US1] Unit test for baseline correction and luminance normalization (using algorithm from T005b in `preprocessing.py`) in `tests/unit/test_preprocessing.py`
+- [X] T010 [P] [US1] Unit test for CLI z-score calculation and 0.5 SD thresholding in `tests/unit/test_cli_engine.py`
+- [X] T011 [P] [US1] Integration test for full US-1 pipeline on sample data in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 

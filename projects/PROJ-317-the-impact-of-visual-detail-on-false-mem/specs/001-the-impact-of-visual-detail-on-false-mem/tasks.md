@@ -108,19 +108,19 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T022 [P] [US2] Unit test for session state management in `tests/unit/test_session.py`
-- [~] T023 [P] [US2] Unit test for response generation logic in `tests/unit/test_interface.py`
-- [~] T024 [P] [US2] Integration test for simulated session flow in `tests/integration/test_session_flow.py`
+- [X] T022 [P] [US2] Unit test for session state management in `tests/unit/test_session.py`
+- [X] T023 [P] [US2] Unit test for response generation logic in `tests/unit/test_interface.py`
+- [X] T024 [P] [US2] Integration test for simulated session flow in `tests/integration/test_session_flow.py`
 
 ### Implementation for User Story 2
 
-- [~] T025 [P] [US2] Implement simulated participant interface logic (image display, timing) in `code/participants/interface.py`
-- [~] T026 [US2] Implement distractor task logic (arithmetic questions) in `code/participants/interface.py`
-- [~] T027 [US2] Implement recognition question generator in `code/participants/interface.py`: Extract true details from `data/stimuli_metadata/{id}.yaml`. Generate false/lure details by inverting true details using a predefined mock object pool (e.g., map 'red car' -> 'blue car', 'chair' -> 'table') or selecting random objects from the pool.
-- [~] T028 [US2] Implement response capture and timestamp logging in `code/participants/session.py`
-- [~] T029 [US2] Implement local caching and retry logic for network timeouts in `code/participants/session.py`
-- [~] T030 [US2] Implement partial session recording and flagging for dropouts in `code/participants/session.py`
-- [~] T031 [US2] Add CLI entry point for running simulated participant sessions in `code/cli.py`
+- [X] T025 [P] [US2] Implement simulated participant interface logic (image display, timing) in `code/participants/interface.py`
+- [X] T026 [US2] Implement distractor task logic (arithmetic questions) in `code/participants/interface.py`
+- [X] T027 [US2] Implement recognition question generator in `code/participants/interface.py`: Extract true details from `data/stimuli_metadata/{id}.yaml`. Generate false/lure details by inverting true details using a predefined mock object pool (e.g., map 'red car' -> 'blue car', 'chair' -> 'table') or selecting random objects from the pool.
+- [X] T028 [US2] Implement response capture and timestamp logging in `code/participants/session.py`
+- [X] T029 [US2] Implement local caching and retry logic for network timeouts in `code/participants/session.py`
+- [X] T030 [US2] Implement partial session recording and flagging for dropouts in `code/participants/session.py`
+- [X] T031 [US2] Add CLI entry point for running simulated participant sessions in `code/cli.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,15 +136,15 @@ Examples of foundational tasks (adjust based on your project):
 
 - [~] T032 [P] [US3] Unit test for ANOVA calculation in `tests/unit/test_stats.py`
 - [~] T033 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_stats.py`
-- [~] T034 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis_pipeline.py`
+- [X] T034 [P] [US3] Integration test for full analysis pipeline on mock data in `tests/integration/test_analysis_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [~] T035 [US3] Implement repeated-measures ANOVA using scipy.stats in `code/analysis/stats.py`
-- [~] T036 [US3] Implement multiple-comparison correction (Bonferroni) in `code/analysis/stats.py`
-- [~] T037 [US3] Implement visualization generation (mean false memory rates with confidence intervals) in `code/analysis/viz.py`
-- [~] T038 [US3] Implement dataset-variable fit check (compare mock distribution to target) in `code/analysis/stats.py`
-- [~] T039 [US3] Add CLI entry point for running analysis in `code/cli.py`
+- [X] T035 [US3] Implement repeated-measures ANOVA using scipy.stats in `code/analysis/stats.py`
+- [X] T036 [US3] Implement multiple-comparison correction (Bonferroni) in `code/analysis/stats.py`
+- [X] T037 [US3] Implement visualization generation (mean false memory rates with confidence intervals) in `code/analysis/viz.py`
+- [X] T038 [US3] Implement dataset-variable fit check (compare mock distribution to target) in `code/analysis/stats.py`
+- [X] T039 [US3] Add CLI entry point for running analysis in `code/cli.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -61,17 +61,17 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T012 [P] [US1] Unit test for data linking logic in `tests/unit/test_linking.py` (verify exclusion on mismatch)
-- [~] T013 [P] [US1] Integration test for end-to-end pipeline on single image in `tests/integration/test_us1_pipeline.py`
+- [X] T013 [P] [US1] Integration test for end-to-end pipeline on single image in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [P] [US1] Implement `src/analysis/saliency.py` with CPU-compatible model loading (no CUDA, no 8-bit) and 224x224 downsampling
-- [~] T015 [US1] Implement false-memory pre-filtering logic in `src/data/preprocessing.py` (FR-005: transcript presence, VG absence). **Input**: Output of T010 (linked data). **Output**: `data/processed/candidate_false_memories.json`.
-- [~] T015a [US1] Implement **Human Consensus Workflow** in `src/utils/consensus.py`. **Input**: `data/processed/candidate_false_memories.json` (from T015). **Logic**: CLI interface to collect ratings from Multiple independent raters (simulated via JSON input for automation). **Output**: `data/processed/human_verification_results.json` with consensus flags.
-- [~] T005 [US1] Implement validation logic in `src/utils/validation.py` to calculate 'inconclusive' flag (SC-006) if failure rate > 10%. **Input**: `data/processed/human_verification_results.json` (from T015a). **Output**: `data/processed/validation_status.json`.
-- [~] T016 [US1] Implement `src/analysis/metrics.py` for Pearson correlation (r, p, CI) and mixed-effects logistic regression (FR-006, FR-007). **Input**: `data/processed/human_verification_results.json` (from T015a) and `data/processed/saliency_scores.json` (from T014). Output to `data/processed/correlation_results.json`.
-- [~] T017 [US1] Add Benjamini-Hochberg FDR correction logic in `src/analysis/metrics.py` (FR-008)
-- [~] T019 [US1] Implement `src/main.py` orchestration to run saliency -> flagging -> correlation on the sampled dataset.
+- [ ] T014 [P] [US1] Implement `src/analysis/saliency.py` with CPU-compatible model loading (no CUDA, no 8-bit) and 224x224 downsampling
+- [ ] T015 [US1] Implement false-memory pre-filtering logic in `src/data/preprocessing.py` (FR-005: transcript presence, VG absence). **Input**: Output of T010 (linked data). **Output**: `data/processed/candidate_false_memories.json`.
+- [ ] T015a [US1] Implement **Human Consensus Workflow** in `src/utils/consensus.py`. **Input**: `data/processed/candidate_false_memories.json` (from T015). **Logic**: CLI interface to collect ratings from Multiple independent raters (simulated via JSON input for automation). **Output**: `data/processed/human_verification_results.json` with consensus flags.
+- [ ] T005 [US1] Implement validation logic in `src/utils/validation.py` to calculate 'inconclusive' flag (SC-006) if failure rate > 10%. **Input**: `data/processed/human_verification_results.json` (from T015a). **Output**: `data/processed/validation_status.json`.
+- [ ] T016 [US1] Implement `src/analysis/metrics.py` for Pearson correlation (r, p, CI) and mixed-effects logistic regression (FR-006, FR-007). **Input**: `data/processed/human_verification_results.json` (from T015a) and `data/processed/saliency_scores.json` (from T014). Output to `data/processed/correlation_results.json`.
+- [ ] T017 [US1] Add Benjamini-Hochberg FDR correction logic in `src/analysis/metrics.py` (FR-008)
+- [ ] T019 [US1] Implement `src/main.py` orchestration to run saliency -> flagging -> correlation on the sampled dataset.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,8 +89,8 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `src/analysis/validate.py` to load SALICON test set and compute fixation map predictions
-- [~] T022 [US2] Implement AUC calculation and threshold check (AUC >= 0.70) in `src/analysis/validate.py` (FR-003)
+- [ ] T021 [P] [US2] Implement `src/analysis/validate.py` to load SALICON test set and compute fixation map predictions
+- [ ] T022 [US2] Implement AUC calculation and threshold check (AUC >= 0.70) in `src/analysis/validate.py` (FR-003)
 - [~] T023 [US2] Log validation results to `data/processed/saliency_validation.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -105,11 +105,11 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
+- [X] T024 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [~] T025 [P] [US3] Implement alternative saliency model wrapper (ViT-B/CAM) in `src/analysis/saliency.py` (CPU only, fallback if unavailable)
+- [ ] T025 [P] [US3] Implement alternative saliency model wrapper (ViT-B/CAM) in `src/analysis/saliency.py` (CPU only, fallback if unavailable)
 - [ ] T026 [US3] Implement `src/analysis/robustness.py` to iterate over a range of thresholds and re-run correlation (FR-009). **Input**: Output of T025 and correlation logic from T016.
 - [ ] T027 [US3] Implement comparison logic to verify correlation sign stability and magnitude change <= 0.05 (SC-003). **Baseline**: Compare against result from `data/processed/correlation_results.json` (T016).
 - [ ] T028 [US3] Generate robustness report in `data/processed/robustness_report.md` (Must include columns: threshold, correlation_r, p_value, sign_stable)

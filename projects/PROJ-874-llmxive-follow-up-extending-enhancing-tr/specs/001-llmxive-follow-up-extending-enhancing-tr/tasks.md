@@ -81,9 +81,9 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download.py` to fetch NarrLV/VBench datasets via HuggingFace `datasets` library, ensuring checksums match and aborting on incomplete downloads (FR-001)
-- [~] T012a [US1] Implement `code/download.py` pre-flight validation function to check for existence of *all* required dataset files (NarrLV and VBench) *before* generation begins, aborting with a clear error if any are missing (FR-001)
-- [~] T013 [US1] Implement `code/generate.py` with `--mode baseline-full` (self-reflection enabled) and `--mode baseline-naive` (self-reflection disabled) (FR-002)
+- [X] T012 [US1] Implement `code/download.py` to fetch NarrLV/VBench datasets via HuggingFace `datasets` library, ensuring checksums match and aborting on incomplete downloads (FR-001)
+- [X] T012a [US1] Implement `code/download.py` pre-flight validation function to check for existence of *all* required dataset files (NarrLV and VBench) *before* generation begins, aborting with a clear error if any are missing (FR-001)
+- [X] T013 [US1] Implement `code/generate.py` with `--mode baseline-full` (self-reflection enabled) and `--mode baseline-naive` (self-reflection disabled) (FR-002)
 - [~] T014 [US1] Add logic to record **total end-to-end wall-clock time** per video in logs for both modes, including data loading and model initialization overhead (FR-002, Constitution Principle VI)
 - [~] T015 [US1] Add validation to ensure all required dataset files are present before generation begins (FR-001)
 - [~] T016 [US1] Add error handling for dataset download failures with clear error messages listing missing files
@@ -101,14 +101,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for flow field schema in `tests/contract/test_flow_schema.py`
+- [X] T018 [P] [US2] Contract test for flow field schema in `tests/contract/test_flow_schema.py`
 - [~] T019 [P] [US2] Integration test for flow correction pipeline in `tests/integration/test_flow_correction.py`
 
 ### Implementation for User Story 2
 
-- [~] T020a [US2] Implement `code/utils/flow_benchmark.py` to verify RAFT-Small FP16 feasibility on CPU. **Must run a small benchmark (1 frame) and report success/failure. If FP16 fails (OOM), report fallback to FP32.**
-- [~] T020 [US2] Implement `code/utils/flow.py` to load RAFT-Small model. **Must depend on T020a success. If T020a fails, implement fallback to FP32 precision or abort with clear error. Do not assume FP16 is always feasible.** (FR-003)
-- [~] T021 [US2] Implement `code/correct.py` to compute optical flow fields between consecutive frames of naive baseline videos. **Must include step to verify existence of naive baseline videos (T013 output) and abort with error if missing** (FR-003, FR-001)
+- [X] T020a [US2] Implement `code/utils/flow_benchmark.py` to verify RAFT-Small FP16 feasibility on CPU. **Must run a small benchmark (1 frame) and report success/failure. If FP16 fails (OOM), report fallback to FP32.**
+- [X] T020 [US2] Implement `code/utils/flow.py` to load RAFT-Small model. **Must depend on T020a success. If T020a fails, implement fallback to FP32 precision or abort with clear error. Do not assume FP16 is always feasible.** (FR-003)
+- [X] T021 [US2] Implement `code/correct.py` to compute optical flow fields between consecutive frames of naive baseline videos. **Must include step to verify existence of naive baseline videos (T013 output) and abort with error if missing** (FR-003, FR-001)
 - [~] T022 [US2] Implement non-differentiable warping and smoothing logic using flow fields to generate Condition C outputs. **Must include step to verify existence of flow fields (T021 output) and abort with error if missing** (FR-004)
 - [~] T023 [US2] Implement fallback logic for failed flow estimation (e.g., extreme motion blur) using nearest-neighbor interpolation of flow vectors
 - [~] T024 [US2] Add detection and logging for frames with invalid pixel artifacts (tearing) due to severe 3D drift, flagging them for manual review instead of silently corrupting video
@@ -126,12 +126,12 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T037 [P] [US3] Contract test for metrics schema in `tests/contract/test_metrics_schema.py` (Renamed from T024 to resolve ID collision)
-- [~] T025 [P] [US3] Integration test for statistical analysis in `tests/integration/test_analysis.py`
+- [X] T025 [P] [US3] Integration test for statistical analysis in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [~] T030a [US3] Implement `code/analyze.py` power analysis function using `statsmodels.stats.power` based on pilot variance from T017. **Must calculate power for N=50. If power < 0.8, the report MUST explicitly state the study is underpowered and ABORT subsequent statistical tests (T027/T028) or flag them as invalid.** (SC-006)
-- [~] T027 [US3] Implement `code/analyze.py` to perform Shapiro-Wilk test for normality on metric differences. **Note: Correct interpretation is p < 0.05 implies non-normality (reject null).** (FR-006)
+- [X] T030a [US3] Implement `code/analyze.py` power analysis function using `statsmodels.stats.power` based on pilot variance from T017. **Must calculate power for N=50. If power < 0.8, the report MUST explicitly state the study is underpowered and ABORT subsequent statistical tests (T027/T028) or flag them as invalid.** (SC-006)
+- [X] T027 [US3] Implement `code/analyze.py` to perform Shapiro-Wilk test for normality on metric differences. **Note: Correct interpretation is p < 0.05 implies non-normality (reject null).** (FR-006)
 - [~] T028 [US3] Implement adaptive statistical testing: Wilcoxon signed-rank if normality rejected (p<0.05), else paired t-test. **Note: Correct interpretation is p < 0.05 implies non-normality, triggering Wilcoxon.** (FR-006)
 - [~] T029 [US3] Implement failure case identification logic: flag videos where object permanence drops ≥5% or VBench score drops ≥0.1 compared to naive baseline. **Output must be written to `results/failure_cases.json`. MUST log explicit note that these are 2D perceptual proxies and do not guarantee 3D geometric correctness** (FR-007)
 - [~] T030 [US3] Generate CSV report containing all metrics and a final statistical summary with p-values. **Must consume output of T030a. CSV columns MUST include: 'video_id', 'condition', 'vbench_score', 'fvd', 'object_permanence', 'p_value', 'test_type', 'power_sufficient' (boolean).** (SC-006)
@@ -145,7 +145,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T032a [P] [US0] Update `quickstart.md` with new CLI flags and dataset requirements
-- [~] T032b [P] [US0] Generate `docs/paper/methodology.md` draft based on implementation
+- [X] T032b [P] [US0] Generate `docs/paper/methodology.md` draft based on implementation
 - [~] T033 [P] [US0] Code cleanup and refactoring to ensure memory footprint < 6GB peak. **Verify by running `code/generate.py --profile-memory` and logging peak RSS to `results/memory_profile.log`**
 - [~] T034a [P] [US0] Measure and log RAFT-Small inference time per frame on CPU. **No optimization required; only measurement against CI limits (SC-005)**
 - [~] T035 [P] [US0] Additional unit tests for metric calculation logic in `tests/unit/`

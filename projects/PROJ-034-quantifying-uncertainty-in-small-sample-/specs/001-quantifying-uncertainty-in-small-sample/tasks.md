@@ -57,8 +57,8 @@
 - [ ] T005 [P] Implement `code/simulation/config.py` defining `SimulationConfig` schema (N, predictors, correlation matrix, noise, true coefficients)
 - [X] T006 [P] Implement `code/simulation/engine.py` skeleton: Create file structure, import stubs, and a `calculate_vif` function stub (required by FR-006) to be fleshed out in T014
 - [ ] T007 Create `data/raw/`, `data/simulated/`, and `data/results/` directory structure with `.gitkeep` files in each
-- [~] T008 Configure `requirements.txt` with pinned versions for reproducibility (already done in T002, verify versions)
-- [~] T009 Setup pytest configuration: Create `pytest.ini` (addopts="-v --tb=short") and `tests/conftest.py` with shared fixtures
+- [X] T008 Configure `requirements.txt` with pinned versions for reproducibility (already done in T002, verify versions)
+- [X] T009 Setup pytest configuration: Create `pytest.ini` (addopts="-v --tb=short") and `tests/conftest.py` with shared fixtures
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,17 +74,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py` (Verify $\rho$ within a predefined tolerance threshold.)
-- [~] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py` (Verify handling of $N=5$ or rank-deficient cases)
+- [X] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py` (Verify $\rho$ within a predefined tolerance threshold.)
+- [X] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py` (Verify handling of $N=5$ or rank-deficient cases)
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/simulation/engine.py`: Generate $X$ matrix with Cholesky decomposition for target correlation
-- [~] T013 [US1] Implement `code/simulation/engine.py`: Generate $y$ vector using true coefficients and Gaussian noise
-- [~] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation and flagging (VIF > 10) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`
-- [~] T015 [US1] Implement `code/simulation/engine.py`: Add positive semi-definite check and auto-regeneration logic for invalid matrices (limited number of attempts per config)
-- [~] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON)
-- [~] T017 [US1] Add logging for simulation run parameters: Write to `data/results/simulation.log` in JSON format with fields: `N`, `rho`, `seed`, `duration`, `vif_max`
+- [X] T012 [P] [US1] Implement `code/simulation/engine.py`: Generate $X$ matrix with Cholesky decomposition for target correlation
+- [X] T013 [US1] Implement `code/simulation/engine.py`: Generate $y$ vector using true coefficients and Gaussian noise
+- [X] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation and flagging (VIF > 10) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`
+- [X] T015 [US1] Implement `code/simulation/engine.py`: Add positive semi-definite check and auto-regeneration logic for invalid matrices (limited number of attempts per config)
+- [X] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON)
+- [ ] T017 [US1] Add logging for simulation run parameters: Write to `data/results/simulation.log` in JSON format with fields: `N`, `rho`, `seed`, `duration`, `vif_max`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,17 +98,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for OLS interval calculation in `tests/unit/test_models.py`
-- [~] T019 [P] [US2] Unit test for Bootstrap BCa interval calculation in `tests/unit/test_models.py`
-- [~] T020 [P] [US2] Unit test for Bayesian convergence checks (R-hat) in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Unit test for OLS interval calculation in `tests/unit/test_models.py`
+- [X] T019 [P] [US2] Unit test for Bootstrap BCa interval calculation in `tests/unit/test_models.py`
+- [X] T020 [P] [US2] Unit test for Bayesian convergence checks (R-hat) in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
-- [~] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
-- [~] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
-- [~] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, 2000 samples per chain, 500 warmup) and divergent transition check
-- [~] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
+- [X] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
+- [X] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
+- [X] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
+- [X] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, 2000 samples per chain, 500 warmup) and divergent transition check
+- [X] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
 - [~] T026 [US2] Implement `code/main.py`: Orchestration loop for a sufficient number of Monte Carlo replications, aggregating results to `data/results/coverage_metrics.json` with explicit schema keys: `coverage_rate`, `interval_width`, `valid_n`, `method_id`, `total_attempts`
 - [~] T027 [US2] Implement `code/main.py`: Filter logic to exclude runs with R-hat > 1.05 or VIF > 10 from final coverage calculation; output filtered results to `data/results/filtered_metrics.json`
 
@@ -121,7 +121,7 @@
 **Goal**: Ensure the "best method" is explicitly identified and the validation dataset meets all constraints.
 
 - [ ] T027.5 [US2] Implement `code/scripts/select_best_method.py`: Analyze `data/results/coverage_metrics.json` to identify the best-performing method based on coverage proximity to nominal level and interval width; output `data/results/best_method_config.json`. **Process a sufficient number of attempts; exclude invalid runs from coverage math but log `total_attempts` and `invalid_count` for reproducibility. Do NOT trigger regeneration.**
-- [~] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset (real URL: `) and cache to `data/raw/`
+- [X] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset (real URL: `) and cache to `data/raw/`
 - [~] T030 [US3] Implement `code/validation/uci_runner.py`: Subsample logic to $N < 50$ using stratified random sampling with **explicit validation ensuring at least 3 predictors are retained AND N > p (sample size > predictors)**. If N <= p, resample or log a "rank-deficient" warning and skip that configuration. Output validated subsample to `data/raw/uci_subsampled.csv` with metadata confirming predictor count and N > p status.
 
 **Checkpoint**: Best method selected and validation data prepared with strict constraints.
@@ -136,13 +136,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
+- [X] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
 - [~] T031 [US3] Implement `code/validation/uci_runner.py`: Run the **best method identified in `data/results/best_method_config.json`** on the subsampled data
-- [~] T032 [US3] Implement `code/validation/uci_runner.py`: Generate interval stability metrics and width comparison (Bayesian vs OLS)
-- [~] T033 [US3] Implement `code/validation/uci_runner.py`: Generate diagnostic plots (posterior distributions, interval widths) saved to `data/results/`
+- [X] T032 [US3] Implement `code/validation/uci_runner.py`: Generate interval stability metrics and width comparison (Bayesian vs OLS)
+- [X] T033 [US3] Implement `code/validation/uci_runner.py`: Generate diagnostic plots (posterior distributions, interval widths) saved to `data/results/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,7 +152,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and final reporting
 
-- [~] T034 [P] Implement `code/plots/calibration.py` to generate calibration plots (Interval Width vs. Coverage) for all three methods (FR-007)
+- [X] T034 [P] Implement `code/plots/calibration.py` to generate calibration plots (Interval Width vs. Coverage) for all three methods (FR-007)
 - [ ] T035 [P] Create `code/scripts/run_full_simulation.sh` for reproducible end-to-end execution on CI
 - [ ] T036 [P] Implement `code/scripts/verify_runtime.py`: Automated script to run the full simulation (multiple runs) and generate `data/results/runtime_log.json` with `total_duration` field; **add a check in run_full_simulation.sh that logs a warning if `total_duration` > 21600s (6 hours) but does NOT fail the build**
 - [ ] T037 [P] Update `README.md` with execution instructions (Installation, Usage, Data Flow) and a Mermaid diagram of the data flow

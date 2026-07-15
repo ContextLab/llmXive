@@ -82,17 +82,17 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
-- [~] T013 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
-- [~] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
-- [~] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
+- [X] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
+- [X] T013 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
+- [X] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
+- [X] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
  - Merge using country code + year
  - Match climate data to survey coordinates within a **local radius** (growing season avg: a period of several months prior to harvest)
  - Flag unmatched rows and log warnings
-- [~] T016 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
-- [~] T017 [US1] Implement stratified sampling with **design weights** in `code/data/clean.py` to ensure ≤ 7GB RAM and target N ≥ 5000 households per country; **calculate and apply survey design weights** to preserve design effects for the Mixed-Effects Model
-- [~] T018 [US1] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping every component variable (e.g., conservation_tillage_score) to its source LSMS question ID and response ID
-- [~] T019 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (Download → Clean → Save) **(Must run after T012-T018)**
+- [X] T016 [US1] Implement imputation strategy in `code/data/clean.py` for missing predictor values
+- [X] T017 [US1] Implement stratified sampling with **design weights** in `code/data/clean.py` to ensure ≤ 7GB RAM and target N ≥ 5000 households per country; **calculate and apply survey design weights** to preserve design effects for the Mixed-Effects Model
+- [X] T018 [US1] Implement provenance logger in `code/utils/logging.py` to log a JSON mapping every component variable (e.g., conservation_tillage_score) to its source LSMS question ID and response ID
+- [X] T019 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (Download → Clean → Save) **(Must run after T012-T018)**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean, merged, sampled dataset ready)
 
@@ -106,31 +106,31 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [~] T021 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_diagnostics.py`
+- [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
+- [X] T021 [P] [US2] Unit test for VIF calculation and collinearity flagging in `tests/unit/test_diagnostics.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
+- [ ] T022 [US2] Implement CSA Index construction in `code/data/features.py`:
  - Weighted composite score (conservation tillage, crop diversification, irrigation efficiency)
  - **Exclude** digital-technology access and finance access variables from the index calculation to maintain independence from moderation terms (as per Plan Technical Context)
  - Normalize to a unit scale.
-- [~] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
+- [X] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
  - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
-- [~] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
+- [X] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
  - Include interaction terms for digital and finance access (moderation)
  - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
  - Apply stratified sampling weights
  - Frame all findings as associational (no causal language)
-- [~] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
+- [X] T025 [US2] Implement multiple hypothesis correction in `code/analysis/model.py`:
  - Apply **Benjamini-Hochberg FDR correction** (replacing Bonferroni) for > 5 hypotheses to control false discovery rate in hierarchical data
-- [~] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
-- [~] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
+- [X] T025b [US2] Verify Benjamini-Hochberg FDR correction implementation against Plan requirements in `tests/unit/test_model_correction.py`
+- [X] T026 [US2] Implement robustness check logic in `code/analysis/model.py`:
  - Alternative variable specifications
  - Sensitivity analysis on CSA adoption threshold (sweep moderate to strict cutoffs) and **report variance in significance rates** as per FR-007
-- [~] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
-- [~] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against GitHub Actions free-tier limit (SC-002)
+- [X] T027 [US2] Implement timeout handling in `code/analysis/model.py` to log state and **attempt a reduced-batch retry** if > 6 hours
+- [X] T028 [US2] Implement timeout verification and performance benchmarking in `tests/integration/test_model_timeout.py` to measure convergence time against GitHub Actions free-tier limit (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (model fitted, diagnostics run, results outputted)
 
@@ -144,18 +144,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Contract test for plot output files in `tests/contract/test_plot_outputs.py`
-- [~] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
+- [X] T029 [P] [US3] Contract test for plot output files in `tests/contract/test_plot_outputs.py`
+- [X] T030 [P] [US3] Integration test for robustness check execution in `tests/integration/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [~] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
-- [~] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
-- [~] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
-- [~] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
-- [~] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
-- [~] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
-- [~] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
+- [X] T031 [US3] Implement scatter plot generation in `code/viz/plots.py` (CSA Index vs. Food Security) **(Must run after T023)**
+- [X] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
+- [X] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
+- [X] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
+- [X] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
+- [X] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
+- [X] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
 
 **Checkpoint**: All user stories should now be independently functional
 

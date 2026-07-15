@@ -40,8 +40,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [~] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
-- [~] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
-- [~] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
+- [ ] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
+- [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
 - [~] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
 - [~] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
 - [ ] T006b [P] Create attribution schema contract `contracts/attribution_schema.schema.yaml` (required for T048)

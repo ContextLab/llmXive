@@ -82,8 +82,8 @@
 - [ ] T011 [US1] Implement `code/preprocessing/download.py`: Download logic for OpenNeuro dataset ds000030. The research question and method remain unchanged as per the planning document guidelines, with specific empirical identifiers generalized to reflect the dataset source without asserting precise low-level values. References: OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging the count to `data/metadata/exclusion_log.txt`.
 - [ ] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance.
 - [ ] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
-- [~] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
-- [~] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`. <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
+- [ ] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`. <!-- FAILED: unspecified -->
 - [ ] T015.5 [US1] Implement metadata parsing in `code/preprocessing/metadata.py` to detect presence of `medication_status` field in OpenNeuro JSON sidecars; save result as `analysis_config.json` with key `medication_status_available: true/false`.
 - [~] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
 
@@ -99,15 +99,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
-- [~] T018 [P] [US2] Integration test for feature extraction in `tests/integration/test_graph_metrics.py`: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)` and asserts the output `data/processed/features.csv` has a shape consistent with the number of subjects and the expected feature dimensionality., contains no NaNs, and includes columns for 'global_efficiency', 'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'. <!-- ATOMIZE: requested -->
+- [X] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
+- [ ] T018 [P] [US2] Integration test for feature extraction in `tests/integration/test_graph_metrics.py`: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)` and asserts the output `data/processed/features.csv` has a shape consistent with the number of subjects and the expected feature dimensionality., contains no NaNs, and includes columns for 'global_efficiency', 'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
-- [~] T020 [US2] Implement `code/graph_metrics/calculator.py` to extract regional centrality specifically for Prefrontal and Hippocampal ROIs.
+- [X] T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
+- [X] T020 [US2] Implement `code/graph_metrics/calculator.py` to extract regional centrality specifically for Prefrontal and Hippocampal ROIs.
 - [~] T021 [US2] Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`; if found, apply PCA and save reduced matrix to `data/processed/features_pca.csv`, OR drop features and log to `data/metadata/collinearity_log.txt`.
-- [~] T022 [US2] Implement feature vector assembly (multiple metrics) and save to `data/processed/features.csv`. This task must run AFTER T019, T020, T021. It produces the PRIMARY feature set for the main analysis.
+- [ ] T022 [US2] Implement feature vector assembly (multiple metrics) and save to `data/processed/features.csv`. This task must run AFTER T019, T020, T021. It produces the PRIMARY feature set for the main analysis.
 - [~] T023 [US2] Implement summary statistics report generation (mean/std per metric, stratified by group) in `docs/`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -122,17 +122,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Unit test for permutation test logic in `tests/unit/test_validation.py`: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real, y_shuffled, 100)` and asserts the returned p-value is > 0.05 when labels are shuffled.
-- [~] T025 [P] [US3] Integration test for full classification pipeline in `tests/integration/test_classification.py`: Implement `test_full_pipeline` which runs the full pipeline on a small subset and asserts `data/processed/results.json` exists, contains 'accuracy', 'p_value', 'mde', and 'significance_flag' keys, and that `significance_flag` is `False` when labels are shuffled. <!-- FAILED: unspecified -->
+- [X] T024 [P] [US3] Unit test for permutation test logic in `tests/unit/test_validation.py`: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real, y_shuffled, 100)` and asserts the returned p-value is > 0.05 when labels are shuffled.
+- [ ] T025 [P] [US3] Integration test for full classification pipeline in `tests/integration/test_classification.py`: Implement `test_full_pipeline` which runs the full pipeline on a small subset and asserts `data/processed/results.json` exists, contains 'accuracy', 'p_value', 'mde', and 'significance_flag' keys, and that `significance_flag` is `False` when labels are shuffled. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [~] T026 [P] [US3] Implement `code/classification/models.py` with Logistic Regression and SVM, using strict stratified train-test split.
+- [X] T026 [P] [US3] Implement `code/classification/models.py` with Logistic Regression and SVM, using strict stratified train-test split.
 - [~] T027 [US3] Implement Stability Selection in `code/classification/models.py` using the Meinshausen & Bühlmann algorithm: Manually implement a loop with multiple subsamples, [deferred] sample size per subsample, L1 penalty, and a retention frequency threshold of >60%. Save selected feature indices to `data/processed/stable_features.csv`. Do NOT use `sklearn.linear_model.RandomizedLasso` as it is deprecated and does not implement the full algorithm.
-- [~] T028 [US3] Implement `code/classification/validation.py` for non-parametric permutation t-tests with FDR correction.
-- [~] T029 [US3] Implement `code/classification/validation.py` for separate permutation test (sufficient iterations) to assess accuracy significance against chance.
+- [X] T028 [US3] Implement `code/classification/validation.py` for non-parametric permutation t-tests with FDR correction.
+- [X] T029 [US3] Implement `code/classification/validation.py` for separate permutation test (sufficient iterations) to assess accuracy significance against chance.
 - [~] T030 [US3] Implement calculation of Cohen's d for significant group differences.
-- [~] T031 [US3] Implement sensitivity analysis data generation: Read `data/metadata/analysis_config.json`. If `medication_status_available` is false, generate simulated covariate `sim_med_status` (Bernoulli p=0.5, seed=42) and append it to `data/processed/features.csv` to create a NEW file `data/processed/features_sim_med.csv`. This file is for exploratory sensitivity analysis ONLY and must NOT replace `features.csv`.
+- [ ] T031 [US3] Implement sensitivity analysis data generation: Read `data/metadata/analysis_config.json`. If `medication_status_available` is false, generate simulated covariate `sim_med_status` (Bernoulli p=0.5, seed=42) and append it to `data/processed/features.csv` to create a NEW file `data/processed/features_sim_med.csv`. This file is for exploratory sensitivity analysis ONLY and must NOT replace `features.csv`.
 - [ ] T031a [US3] Implement sensitivity analysis plan documentation: Generate `docs/sensitivity_plan.md`. This document must explicitly state: 1) The limitation (medication data missing), 2) The plan to simulate covariates (as per T031), 3) The conclusion that the primary analysis is 'associational only' and the simulation is a 'what-if' scenario. This satisfies FR-006's requirement to 'report a sensitivity analysis plan'.
 - [ ] T032a [US3] Implement calculation of a 95% Confidence Interval for accuracy using **permutation-based resampling** (shuffling labels and re-running the classifier repeatedly to build the null distribution of accuracies); save results to `data/processed/ci_results.json`. This method must be consistent with the permutation testing approach mandated by FR-005 and SC-003, rather than bootstrapping.
 - [ ] T032b [US3] Generate final report at `docs/results/final_report.md`:

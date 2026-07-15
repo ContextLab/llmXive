@@ -67,18 +67,18 @@
 ### Implementation for User Story 1
 
 - [ ] T016a [P] Implement global timeout utility function in `code/src/generators/timeout.py` with explicit logging and fallback behavior (log warning, proceed) if timeout is hit or a maximum number of retries is exhausted, defining function signature and verifying timeout triggers after X seconds
-- [~] T016 [US1] Implement base generator logic in `code/src/generators/base.py` with shared logic for connectivity checks, A retry limit
+- [X] T016 [US1] Implement base generator logic in `code/src/generators/base.py` with shared logic for connectivity checks, A retry limit
 
 The specific value to remove/generalize: 'a configurable number'
 
 Rewritten passage:
 A retry limit will be established to manage transient failures, with the specific threshold determined during the implementation phase., and warning logging for failed attempts, utilizing T016a for timeout mechanism
-- [~] T013 [P] [US1] Implement Erdős-Rényi generator in `code/src/generators/er.py` inheriting from base
-- [~] T014 [P] [US1] Implement Watts-Strogatz generator in `code/src/generators/sw.py` inheriting from base, utilizing the shared clustering retry logic, global timeout (T016a), and 10-attempt warning logging
-- [~] T015 [P] [US1] Implement Barabási-Albert generator in `code/src/generators/sf.py` inheriting from base
-- [~] T017 [P] [US1] Implement metric extraction function in `code/src/generators/metrics.py` (degree distribution, clustering, average path length)
-- [~] T019 [P] [US1] Implement metadata logging module in `code/src/generators/metadata.py` to record algorithm, edge_probability, preferential_attachment_params, and seed for every generated graph, saving to `data/metadata/graph_<id>.json`
-- [~] T018 [US1] Create batch generation script in `code/src/generators/batch_runner.py` to produce per-topology-class batches, utilizing T019 for logging and T016a for timeout, outputting per-class batches to `data/raw/`
+- [X] T013 [P] [US1] Implement Erdős-Rényi generator in `code/src/generators/er.py` inheriting from base
+- [X] T014 [P] [US1] Implement Watts-Strogatz generator in `code/src/generators/sw.py` inheriting from base, utilizing the shared clustering retry logic, global timeout (T016a), and 10-attempt warning logging
+- [X] T015 [P] [US1] Implement Barabási-Albert generator in `code/src/generators/sf.py` inheriting from base
+- [X] T017 [P] [US1] Implement metric extraction function in `code/src/generators/metrics.py` (degree distribution, clustering, average path length)
+- [X] T019 [P] [US1] Implement metadata logging module in `code/src/generators/metadata.py` to record algorithm, edge_probability, preferential_attachment_params, and seed for every generated graph, saving to `data/metadata/graph_<id>.json`
+- [X] T018 [US1] Create batch generation script in `code/src/generators/batch_runner.py` to produce per-topology-class batches, utilizing T019 for logging and T016a for timeout, outputting per-class batches to `data/raw/`
 - [~] T018a [US1] Implement batch aggregation script in `code/src/generators/aggregate_batch.py` to combine per-topology-class batches into a single global batch, generate `data/raw/global_batch_manifest.json`, and verify the combined total meets the ≥100 threshold (FR-001/SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -93,19 +93,19 @@ A retry limit will be established to manage transient failures, with the specifi
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for spin-flip logic in `code/tests/test_simulation.py` <!-- FAILED: unspecified -->
-- [~] T022 [P] [US2] Unit test for spatial variance calculation in `code/tests/test_simulation.py`
-- [~] T023 [P] [US2] Unit test for divergence detection and abort logic in `code/tests/test_simulation.py`
+- [X] T021 [P] [US2] Unit test for spin-flip logic in `code/tests/test_simulation.py` <!-- FAILED: unspecified -->
+- [X] T022 [P] [US2] Unit test for spatial variance calculation in `code/tests/test_simulation.py`
+- [X] T023 [P] [US2] Unit test for divergence detection and abort logic in `code/tests/test_simulation.py`
 
 ### Implementation for User Story 2
 
-- [~] T024 [P] [US2] Implement simplified Ising spin-flip dynamics in `code/src/simulation/dynamics.py` (CPU-only, no GPU dependencies, default precision)
-- [~] T025 [P] [US2] Implement energy density profile tracking and spatial variance calculation in `code/src/simulation/metrics.py`
-- [~] T026 [P] [US2] Implement numerical stability checks (divergence detection) in `code/src/simulation/stability.py`
-- [~] T027 [US2] Implement diffusion rate calculator in `code/src/simulation/diffusion.py` to calculate rate of change of spatial variance (finite difference), verifying mathematical definition matches spec and asserting variance monotonicity
+- [X] T024 [P] [US2] Implement simplified Ising spin-flip dynamics in `code/src/simulation/dynamics.py` (CPU-only, no GPU dependencies, default precision)
+- [X] T025 [P] [US2] Implement energy density profile tracking and spatial variance calculation in `code/src/simulation/metrics.py`
+- [X] T026 [P] [US2] Implement numerical stability checks (divergence detection) in `code/src/simulation/stability.py`
+- [X] T027 [US2] Implement diffusion rate calculator in `code/src/simulation/diffusion.py` to calculate rate of change of spatial variance (finite difference), verifying mathematical definition matches spec and asserting variance monotonicity
 - [~] T029a [P] [US2] Define and validate JSON schema for `data/analysis/simulation_results.json` against the `SimulationRun` entity to ensure all required fields (network ID, seed, diffusion rate, topology class) are present
-- [~] T029 [US2] Implement result serialization to `data/analysis/simulation_results.json` with seed, network ID, diffusion rate, and topology class, saving to `data/analysis/simulation_results.json`, ensuring schema compliance (T029a)
-- [~] T028 [US2] Create simulation runner script in `code/src/simulation/run_simulation.py` that loads graphs from `data/raw/` and executes multiple time steps, utilizing T024-T027 for core logic and T029 for result serialization, after core logic (T024-T027), serialization (T029), and schema validation (T029a) are implemented
+- [ ] T029 [US2] Implement result serialization to `data/analysis/simulation_results.json` with seed, network ID, diffusion rate, and topology class, saving to `data/analysis/simulation_results.json`, ensuring schema compliance (T029a)
+- [X] T028 [US2] Create simulation runner script in `code/src/simulation/run_simulation.py` that loads graphs from `data/raw/` and executes multiple time steps, utilizing T024-T027 for core logic and T029 for result serialization, after core logic (T024-T027), serialization (T029), and schema validation (T029a) are implemented
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,19 +119,19 @@ A retry limit will be established to manage transient failures, with the specifi
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Unit test for regression analysis in `code/tests/test_analysis.py`
-- [~] T031 [P] [US3] Unit test for ANOVA and multiple-comparison correction (Bonferroni/BH) in `code/tests/test_analysis.py`
-- [~] T032 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_analysis.py`
+- [X] T030 [P] [US3] Unit test for regression analysis in `code/tests/test_analysis.py`
+- [X] T031 [P] [US3] Unit test for ANOVA and multiple-comparison correction (Bonferroni/BH) in `code/tests/test_analysis.py`
+- [X] T032 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [~] T033 [P] [US3] Implement linear and non-linear regression in `code/src/analysis/regression.py`
-- [~] T034 [P] [US3] Implement ANOVA testing and multiple-comparison correction (both Bonferroni and Benjamini-Hochberg options) in `code/src/analysis/anova.py`, ensuring correction applies to ANOVA F-tests AND regression p-values (all family-wise error tests), and verifying correction is applied to regression coefficients
+- [X] T033 [P] [US3] Implement linear and non-linear regression in `code/src/analysis/regression.py`
+- [X] T034 [P] [US3] Implement ANOVA testing and multiple-comparison correction (both Bonferroni and Benjamini-Hochberg options) in `code/src/analysis/anova.py`, ensuring correction applies to ANOVA F-tests AND regression p-values (all family-wise error tests), and verifying correction is applied to regression coefficients
 - [~] T035 [P] [US3] Implement sensitivity sweep for clustering coefficient thresholds in `code/src/analysis/sensitivity.py`, saving results to `data/analysis/sensitivity_sweep.json` with ≥5 distinct cutoffs and verifying file content per SC-005
-- [~] T036 [P] [US3] Implement visualization pipeline in `code/src/analysis/plotting.py` to generate ≥3 figures (scatter, heatmaps) at 300 DPI
+- [X] T036 [P] [US3] Implement visualization pipeline in `code/src/analysis/plotting.py` to generate ≥3 figures (scatter, heatmaps) at 300 DPI
 - [~] T037 [US3] Create master analysis script in `code/src/analysis/run_analysis.py` to aggregate simulation results from T029, run tests (T033, T034, T035), call the plotting module (T036), and save `data/analysis/final_results.json`
-- [~] T038 [US3] Implement report generator in `code/src/analysis/report.py` to frame findings as associational (ROC-001) and document p-values/effect sizes, outputting text for verification
-- [~] T038a [P] [US3] Implement report verification script in `code/src/analysis/verify_report.py` to programmatically verify that the generated report text from T038 explicitly contains the phrase "associational" or similar disclaimers
+- [X] T038 [US3] Implement report generator in `code/src/analysis/report.py` to frame findings as associational (ROC-001) and document p-values/effect sizes, outputting text for verification
+- [X] T038a [P] [US3] Implement report verification script in `code/src/analysis/verify_report.py` to programmatically verify that the generated report text from T038 explicitly contains the phrase "associational" or similar disclaimers
 - [~] T044 [US3] Implement statistical power analysis in `code/src/analysis/power.py` to consume output from T033/T034 (effect sizes, variances), calculate the actual achieved power based on generated sample size (≥100) and observed variance, measure against target r ≥ 0.3, and generate a design validation report (`data/analysis/power_analysis_report.json`) confirming SC-003
 
 **Checkpoint**: All user stories should now be independently functional
@@ -142,8 +142,8 @@ A retry limit will be established to manage transient failures, with the specifi
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T041 [P] Update `code/README.md` **Installation** section with environment setup instructions
-- [~] T042 [P] Update `code/README.md` **Usage** section with execution commands
+- [X] T041 [P] Update `code/README.md` **Installation** section with environment setup instructions
+- [X] T042 [P] Update `code/README.md` **Usage** section with execution commands
 - [~] T043 [P] Update `code/README.md` **Configuration** section with `config.yaml` explanation
 - [~] T045 [P] Run full batch validation script `code/scripts/validate_batch.py` to verify SC-001 (100+ graphs), SC-002 (runtime < 60m/network), and SC-005 (**check `data/analysis/sensitivity_sweep.json` for ≥5 cutoffs**) with explicit exit code 0 criteria
 - [~] T046 [P] Add `pytest` coverage report generation

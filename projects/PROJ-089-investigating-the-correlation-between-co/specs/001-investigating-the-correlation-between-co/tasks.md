@@ -82,10 +82,10 @@
 - [ ] T010 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language
 - [ ] T011 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file commit counts & lines changed (last 2 years) using `pydriller`
 - [ ] T012 [P] [US1] Implement `data_extraction.py`: Generate `data/raw/repos_metadata.csv`
-- [~] T013a [P] [US1] Implement `utils.py`: Validate tool availability (Radon, Semgrep) and log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005)
+- [X] T013a [P] [US1] Implement `utils.py`: Validate tool availability (Radon, Semgrep) and log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005)
 - [~] T013b [P] [US1] Implement `utils.py`: Verify tool validation per SC-005: check if tool matches 'Kitchenham et al. 2009'/'Meneely et al. 2009' (presence check only per Plan limitation) OR has >5,000 GitHub stars; log validation status
 - [~] T014 [P] [US1] Implement `static_analysis.py`: Run `radon` (v.0) on Python files to calculate CC and MI; Run `semgrep` (latest stable version) on Java, JS, TS, Go, Rust files to capture Code Smells and CC. Calculate `debt_score` = Sum(Code Smells + CC). **Note**: Semgrep is used as a Plan-approved override for CPU feasibility; Spec FR-002/SC-005 conflict requires future kickback.
-- [~] T015 [US1] Implement `preprocessing.py`: Filter non-source-code files and exclude files with `avg_loc` < 10. Generate parameterized datasets for sensitivity analysis with thresholds **5, 10, 20** (Plan Phase 4b). Output `data/processed/unified_metrics.csv` containing **raw** metrics: `total_lines_changed`, `debt_score`, `avg_loc`, `contributor_count`.
+- [ ] T015 [US1] Implement `preprocessing.py`: Filter non-source-code files and exclude files with `avg_loc` < 10. Generate parameterized datasets for sensitivity analysis with thresholds **5, 10, 20** (Plan Phase 4b). Output `data/processed/unified_metrics.csv` containing **raw** metrics: `total_lines_changed`, `debt_score`, `avg_loc`, `contributor_count`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,8 +99,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Contract test for `correlation_results.csv` schema in `tests/contract/test_output_schema.py`
-- [~] T017 [P] [US2] Integration test for mixed-effects model execution in `tests/integration/test_analysis.py`
+- [X] T016 [P] [US2] Contract test for `correlation_results.csv` schema in `tests/contract/test_output_schema.py`
+- [X] T017 [P] [US2] Integration test for mixed-effects model execution in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
@@ -109,7 +109,7 @@
 - [~] T020 [US2] Implement `analysis.py`: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score`, controlling for `avg_loc` as a covariate
 - [~] T021 [US2] Implement `analysis.py`: Perform **Meta-analysis of Fisher-transformed r** coefficients across repositories to control family-wise error rate (Plan Phase 4 override of Bonferroni)
 - [~] T022 [US2] Implement `analysis.py`: Run sensitivity analysis re-running the model with `avg_loc` thresholds of **5, 10, 20** using datasets from T015
-- [~] T023 [US2] Implement `analysis.py`: Generate `data/results/correlation_results.csv`, `data/results/sensitivity_analysis.csv`, and `data/results/meta_analysis_results.csv`
+- [ ] T023 [US2] Implement `analysis.py`: Generate `data/results/correlation_results.csv`, `data/results/sensitivity_analysis.csv`, and `data/results/meta_analysis_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,8 +123,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Contract test for `summary_report.txt` content in `tests/contract/test_report_schema.py`
-- [~] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_visualization.py`
+- [X] T024 [P] [US3] Contract test for `summary_report.txt` content in `tests/contract/test_report_schema.py`
+- [X] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_visualization.py`
 
 ### Implementation for User Story 3
 

@@ -60,7 +60,7 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 Setup `code/utils/config.py` for paths, random seeds (`np.random.seed`, `random.seed`), and hyperparameters
-- [~] T005 [P] Implement `code/utils/logging.py` for exclusion logging, fallback events, and methodological notes
+- [X] T005 [P] Implement `code/utils/logging.py` for exclusion logging, fallback events, and methodological notes
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,16 +76,16 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data generation logic in `tests/unit/test_data_generation.py`
+- [ ] T010 [P] [US1] Contract test for data generation logic in `tests/unit/test_data_generation.py`
 - [~] T011 [P] [US1] Integration test for data cleaning pipeline in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T007 [US1] **Attempt Real Data Download**: Implement `code/01_data_acquisition.py` to attempt downloading aluminum alloy fatigue data from HuggingFace Datasets and NIST Materials Data Repository. Include retry logic (3 attempts, exponential backoff). **Do NOT trigger fallback here**; if download fails, log failure and exit with error code to trigger T010.
-- [~] T010 [US1] **Handle Download Failure**: Implement logic in `code/01_data_acquisition.py` to handle T007 failure. **Default Action**: Halt execution and log error. **Conditional Action**: If `config.allow_synthetic_fallback` is True, log warning and proceed to T008. This enforces FR-001 strictness. <!-- FAILED: unspecified -->
-- [~] T008 [US1] **Define Synthetic Generator Schema**: Define the statistical parameters for synthetic data generation in `code/utils/generator_config.py`: mean/std for grain size, secondary phase, dislocation proxy; correlation matrix; and explicit fields for `alloy_batch_id` and `heat_treatment_group` to support grouped CV. Set `random_seed=42`.
-- [~] T009 [US1] **Implement Synthetic Generator (Fallback)**: Implement the deterministic synthetic data generator in `code/01_data_acquisition.py`. **ONLY EXECUTE IF T010 TRIGGERS**. Generate N=150 records using the schema from T008. Ensure `alloy_batch_id` and `heat_treatment_group` are included.
-- [~] T011 [US1] **Generate Synthetic Voronoi Images**: Implement `code/01_data_acquisition.py` to generate synthetic 512×512 grayscale Voronoi tessellation images for testing the image pipeline. Save to `data/raw/synthetic_images/`. **Required for T020 fallback path**.
+- [X] T007 [US1] **Attempt Real Data Download**: Implement `code/01_data_acquisition.py` to attempt downloading aluminum alloy fatigue data from HuggingFace Datasets and NIST Materials Data Repository. Include retry logic (3 attempts, exponential backoff). **Do NOT trigger fallback here**; if download fails, log failure and exit with error code to trigger T010.
+- [X] T010 [US1] **Handle Download Failure**: Implement logic in `code/01_data_acquisition.py` to handle T007 failure. **Default Action**: Halt execution and log error. **Conditional Action**: If `config.allow_synthetic_fallback` is True, log warning and proceed to T008. This enforces FR-001 strictness. <!-- FAILED: unspecified -->
+- [X] T008 [US1] **Define Synthetic Generator Schema**: Define the statistical parameters for synthetic data generation in `code/utils/generator_config.py`: mean/std for grain size, secondary phase, dislocation proxy; correlation matrix; and explicit fields for `alloy_batch_id` and `heat_treatment_group` to support grouped CV. Set `random_seed=42`.
+- [X] T009 [US1] **Implement Synthetic Generator (Fallback)**: Implement the deterministic synthetic data generator in `code/01_data_acquisition.py`. **ONLY EXECUTE IF T010 TRIGGERS**. Generate N=150 records using the schema from T008. Ensure `alloy_batch_id` and `heat_treatment_group` are included.
+- [X] T011 [US1] **Generate Synthetic Voronoi Images**: Implement `code/01_data_acquisition.py` to generate synthetic 512×512 grayscale Voronoi tessellation images for testing the image pipeline. Save to `data/raw/synthetic_images/`. **Required for T020 fallback path**.
 - [ ] T012 [US1] **Validate Raw Data**: Validate that the downloaded (T007) or synthetic (T009) data meets statistical properties (mean, std, correlation) and contains all required columns. **Explicitly calculate and log the percentage of records missing specific microstructural features** to verify the ≥80% threshold required by FR-003. Save to `data/raw/validated_data.csv`.
 - [ ] T014 [US1] **Clean and Impute Data**: Implement data cleaning in `code/01_data_acquisition.py`. Remove records with missing fatigue cycles or unverified microstructure. **Conditional Logic**: If missing microstructural features < 20% of remaining records, impute using **median**; otherwise, exclude the record. Log the method used (impute/exclude) and counts to `results/exclusion_report.log`.
 - [ ] T016 [US1] **Save Cleaned Dataset**: Save the final cleaned dataset to `data/processed/cleaned_aluminum_fatigue.csv` with schema validation. Ensure all required columns are present.

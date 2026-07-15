@@ -66,7 +66,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`: Load SiT-XL/2, iterate through **first 100** ImageNet validation images (streamed/batched to stay < 7GB RAM) with a **fixed -timestep schedule** (random seed for selection), record routing weight matrices (softmax distributions) for every block and timestep to `data/routing_cache/`. **Sampling Strategy**: Use the first 100 images in the validation split to ensure reproducibility. **Verification**: Verify `data/routing_cache/` contains valid `.npy` or `.pt` files for 100 images with schema [block, timestep, history_dim].
+- [X] T011 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/tracing.py`: Load SiT-XL/2, iterate through **first 100** ImageNet validation images (streamed/batched to stay < 7GB RAM) with a **fixed -timestep schedule** (random seed for selection), record routing weight matrices (softmax distributions) for every block and timestep to `data/routing_cache/`. **Sampling Strategy**: Use the first 100 images in the validation split to ensure reproducibility. **Verification**: Verify `data/routing_cache/` contains valid `.npy` or `.pt` files for 100 images with schema [block, timestep, history_dim].
 - [~] T012 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/clustering.py`: Load recorded routing tensors, compute the mean routing vector across all images/blocks for each timestep (input shape: [timesteps, history_dim]), apply k-means clustering to group timesteps based on this mean vector, compute silhouette score, and handle null hypothesis (k < 2 or score < 0.25) by generating global average vector. **Verification**: Save cluster centers to `data/routing_cache/cluster_centers.json` and print silhouette score.
 - [~] T013 [US1] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/canonical_map.py`: Derive the "Canonical Routing Map" (static weight vector per block) from the dominant cluster or global average, save to `data/routing_cache/canonical_map.json`. **Verification**: Verify `data/routing_cache/canonical_map.json` exists and contains a dict with keys [block_id, weight_vector].
 - [~] T014 [US1] Add logging for tracing progress and memory usage to ensure OOM prevention
@@ -83,7 +83,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for latency measurement logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_benchmark.py` (verify timing accuracy)
+- [X] T016 [P] [US2] Unit test for latency measurement logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_benchmark.py` (verify timing accuracy)
 - [~] T017 [P] [US2] Integration test for FID comparison in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/integration/test_fid_comparison.py` (verify FID calculation on dummy samples)
 
 ### Implementation for User Story 2

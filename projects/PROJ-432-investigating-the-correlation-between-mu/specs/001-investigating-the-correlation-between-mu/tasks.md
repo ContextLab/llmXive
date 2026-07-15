@@ -59,10 +59,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Create `src/data/utils.py` with logging, checksum, and date-parsing utilities
-- [~] T005 [P] Create `src/config/constants.yaml` defining T_eff weighting parameters (Grieder 1985), thresholds, and interpolation settings
-- [~] T006 [P] Create `src/data/ingest.py` implementing full download logic for IceCube (via URL/API) and ERA5 (via `cdsapi`), caching to `data/raw/`, with checksum validation **AND explicit capture of the 'original release identifier' from the source portal in the artifact metadata** to satisfy Constitution Data Hygiene requirements.
+- [X] T005 [P] Create `src/config/constants.yaml` defining T_eff weighting parameters (Grieder 1985), thresholds, and interpolation settings
+- [ ] T006 [P] Create `src/data/ingest.py` implementing full download logic for IceCube (via URL/API) and ERA5 (via `cdsapi`), caching to `data/raw/`, with checksum validation **AND explicit capture of the 'original release identifier' from the source portal in the artifact metadata** to satisfy Constitution Data Hygiene requirements.
 - [~] T007 [P] Setup `tests/unit/` and `tests/integration/` directory structure
-- [~] T008 [P] Configure `pytest` and `conftest.py` for CPU-only execution environment
+- [ ] T008 [P] Configure `pytest` and `conftest.py` for CPU-only execution environment
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,12 +76,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement `src/data/ingest.py` to download IceCube muon flux (via `icecube_daily_counts` or direct URL fetch) and cache to `data/raw/icecube.csv`
-- [~] T010 [US1] Implement `src/data/ingest.py` to fetch ERA5 data (via `cdsapi` or HuggingFace mirror) for pressure levels 1000hPa-10hPa and cache to `data/raw/era5.csv`
-- [~] T011 [US1] Implement data validation in `src/data/ingest.py` to check for `date` column, non-negative counts, and valid pressure/temperature ranges
+- [ ] T009 [US1] Implement `src/data/ingest.py` to download IceCube muon flux (via `icecube_daily_counts` or direct URL fetch) and cache to `data/raw/icecube.csv`
+- [ ] T010 [US1] Implement `src/data/ingest.py` to fetch ERA5 data (via `cdsapi` or HuggingFace mirror) for pressure levels 1000hPa-10hPa and cache to `data/raw/era5.csv`
+- [ ] T011 [US1] Implement data validation in `src/data/ingest.py` to check for `date` column, non-negative counts, and valid pressure/temperature ranges
 - [~] T012 [US1] Implement temporal alignment logic in `src/data/ingest.py`: resample muon counts to daily sums, average temperature metrics, and drop dates with missing data in either source
 - [~] T013 [US1] Implement logging of exclusion events to `logs/alignment.json` (JSON format) with **explicit format**: a list of objects `{ "date": "YYYY-MM-DD", "reason": "missing_era5|icecube_maintenance|other", "source": "icecube|era5" }` to satisfy FR-007 transparency requirements for **all** data exclusion events, including non-contiguous gaps and specific reasons per date.
-- [~] T017 [US1] Implement `calculate_t_eff(df: pd.DataFrame) -> pd.Series` in `src/data/preprocess.py` using Grieder (1985) weight function; **include linear interpolation for missing pressure levels** as per spec assumptions; save results to `data/processed/t_eff_values.csv`
+- [ ] T017 [US1] Implement `calculate_t_eff(df: pd.DataFrame) -> pd.Series` in `src/data/preprocess.py` using Grieder (1985) weight function; **include linear interpolation for missing pressure levels** as per spec assumptions; save results to `data/processed/t_eff_values.csv`
 - [ ] T014b [US1] Generate final `data/processed/aligned_daily.csv` by **merging the output of T012 (aligned daily data) with `t_eff_values.csv` (from T017)**, ensuring `t_eff_value` is populated; verify that the output contains non-null temperature metrics to satisfy US1 Independent Test; **Depends on T012 and T017**
 - [ ] T015 [P] [US1] Unit test for alignment logic in `tests/unit/test_ingest.py` (verify date matching and gap handling)
 - [ ] T016 [P] [US1] Integration test for end-to-end ingestion in `tests/integration/test_ingest_flow.py` (verify sample subset output)

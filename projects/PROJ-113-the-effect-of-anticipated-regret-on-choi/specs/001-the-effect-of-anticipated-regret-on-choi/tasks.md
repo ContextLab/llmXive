@@ -74,7 +74,7 @@
 
 - [ ] T044 [Foundational] Implement "Loss Aversion Control" feature in `code/features.py` that calculates a separate `potential_loss_magnitude` metric (max possible loss) independent of the regret proxy.
 - [~] T045 [Foundational] Add `potential_loss_magnitude` as a mandatory covariate in the mixed-effects model formula (to be implemented in T024.1). <!-- FAILED: unspecified -->
-- [~] T046 [Foundational] Add diagnostic logic to `code/features.py` to compare `regret_proxy` and `potential_loss_magnitude` correlation.
+- [X] T046 [Foundational] Add diagnostic logic to `code/features.py` to compare `regret_proxy` and `potential_loss_magnitude` correlation.
 - [~] T047 [Foundational] Update `research.md` with a dedicated section "Distinguishing Regret from Loss Aversion" explaining the operational definitions and the statistical control strategy implemented in T044-T046.
 - [~] T048 [Foundational] Ensure the sensitivity analysis explicitly tests if the effect holds when the proxy is defined purely by price variance (risk) vs. opportunity cost (regret).
 
@@ -90,19 +90,19 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T013 [P] [US1] Unit test for `regret_proxy` calculation with single-option edge case in `tests/unit/test_features.py`
-- [~] T014 [P] [US1] Contract test for data schema validation (missing deferral flags excluded) in `tests/contract/test_schemas.py`
+- [X] T013 [P] [US1] Unit test for `regret_proxy` calculation with single-option edge case in `tests/unit/test_features.py`
+- [X] T014 [P] [US1] Contract test for data schema validation (missing deferral flags excluded) in `tests/contract/test_schemas.py`
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement data loader for HuggingFace dataset `zhehuderek/textual_decisionmaking_data` (referencing T008.2 trace) in `code/ingest.py`
-- [~] T016 [US1] Implement data loader for HuggingFace dataset `PhillyMac/Decision_Making_Content_1` (referencing T008.2 trace) in `code/ingest.py`
-- [~] T017 [US1] Implement deferral flag logic (timeout without action) in `code/ingest.py`
-- [~] T010 [US1] Implement the "Min-Max Regret" proxy calculation logic (opportunity cost) in `code/features.py` function `calculate_min_max_regret` (referencing T008.3 amendment)
+- [X] T015 [US1] Implement data loader for HuggingFace dataset `zhehuderek/textual_decisionmaking_data` (referencing T008.2 trace) in `code/ingest.py`
+- [X] T016 [US1] Implement data loader for HuggingFace dataset `PhillyMac/Decision_Making_Content_1` (referencing T008.2 trace) in `code/ingest.py`
+- [X] T017 [US1] Implement deferral flag logic (timeout without action) in `code/ingest.py`
+- [X] T010 [US1] Implement the "Min-Max Regret" proxy calculation logic (opportunity cost) in `code/features.py` function `calculate_min_max_regret` (referencing T008.3 amendment)
 - [ ] T010.5 [US1] Implement the Spec-mandated "SD of Normalized EU" calculation in `code/features.py` for comparison purposes only (referencing T008.3 amendment)
 - [~] T011 [US1] Add validation to ensure `regret_proxy` is 0 when only one option exists (per FR-002)
 - [~] T018 [US1] Implement fallback logic: If "perceived risk" scores are missing, calculate `price_variance` and use it as the `perceived_risk` COVARIATE in the model formula (referencing T008.4).
-- [~] T019 [US1] Generate `data/processed/regret_proxy_v1.csv` with `regret_proxy` and `deferral` columns
+- [ ] T019 [US1] Generate `data/processed/regret_proxy_v1.csv` with `regret_proxy` and `deferral` columns
 - [ ] T020 [US1] Log number of rows excluded due to missing deferral flags or invalid options
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

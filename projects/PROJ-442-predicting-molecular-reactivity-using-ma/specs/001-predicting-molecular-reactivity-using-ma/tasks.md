@@ -83,11 +83,11 @@
 - [ ] T012 [US1] Implement `src/data/ingestion.py` to The USPTO-MIT subset is available at https://zenodo.org/record/3969375 [UNRESOLVED-CLAIM: c_25c15d06 — status=not_enough_info] and parse raw data
 - [ ] T013c [US1] Define SMARTS patterns for SN1, SN2, and Diels-Alder in `src/modeling/config.yaml` (under `reaction_templates`) to ensure deterministic template matching. Explicit patterns: SN1 (e.g., `[C:1]([O:2])>>[C:1]+[O:2]-`), SN2 (e.g., `[C:1]([O:2])>>[C:1]=[O:2]` with backside attack logic), Diels-Alder (e.g., `[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1`).
 - [~] T013 [US1] Implement reaction template matching in `src/utils/chemistry.py` using patterns from `config.yaml` to classify reactions into SN1, SN2, Diels-Alder
-- [~] T014 [US1] Implement filtering logic in `src/data/ingestion.py` to exclude non-matching rows, log malformed SMILES to error file, and strictly derive target variable: use `yield_pct` if present, otherwise fallback to `success_flag` (binary) as per Spec Assumptions (FR-004)
-- [~] T015 [US1] Implement batch processing logic in `src/data/ingestion.py` to handle memory limits (process in chunks)
+- [X] T014 [US1] Implement filtering logic in `src/data/ingestion.py` to exclude non-matching rows, log malformed SMILES to error file, and strictly derive target variable: use `yield_pct` if present, otherwise fallback to `success_flag` (binary) as per Spec Assumptions (FR-004)
+- [X] T015 [US1] Implement batch processing logic in `src/data/ingestion.py` to handle memory limits (process in chunks)
 - [~] T016 [US1] Add logic to check sample size per class (<1,000) and log warning; explicitly physically remove those rows from the output CSV for classes with <1,000 samples to satisfy the Independent Test's distinct value requirement (FR-006)
-- [~] T017 [US1] Save filtered dataset to `data/processed/filtered_reactions.csv` with checksum and provenance metadata
-- [~] T018 [US1] Integrate logging and state update calls in `src/data/ingestion.py`
+- [ ] T017 [US1] Save filtered dataset to `data/processed/filtered_reactions.csv` with checksum and provenance metadata
+- [X] T018 [US1] Integrate logging and state update calls in `src/data/ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,18 +101,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for RDKit feature extraction (MW, atom counts, topological indices) in `tests/unit/test_features.py`
-- [~] T020 [P] [US2] Unit test for dimensionality reduction pipeline (Variance Threshold + SelectKBest) in `tests/unit/test_features.py`
+- [X] T019 [P] [US2] Unit test for RDKit feature extraction (MW, atom counts, topological indices) in `tests/unit/test_features.py`
+- [X] T020 [P] [US2] Unit test for dimensionality reduction pipeline (Variance Threshold + SelectKBest) in `tests/unit/test_features.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `src/data/preprocessing.py` to extract molecular weight, atom counts, bond types, and topological indices using RDKit
-- [~] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
-- [~] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
-- [~] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
-- [~] T025 [US2] Implement `src/modeling/train.py` to load features, normalize target (Z-score), and train XGBoost model
-- [~] T026 [US2] Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO) validation in `src/modeling/train.py` to ensure generalization to new chemistry (Plan Complexity Tracking)
-- [~] T026b [US2] Implement runtime tracking and enforcement in `src/modeling/train.py`: abort training if runtime exceeds a predefined threshold (FR-003)
+- [X] T021 [US2] Implement `src/data/preprocessing.py` to extract molecular weight, atom counts, bond types, and topological indices using RDKit
+- [X] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
+- [X] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
+- [ ] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
+- [X] T025 [US2] Implement `src/modeling/train.py` to load features, normalize target (Z-score), and train XGBoost model
+- [X] T026 [US2] Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO) validation in `src/modeling/train.py` to ensure generalization to new chemistry (Plan Complexity Tracking)
+- [X] T026b [US2] Implement runtime tracking and enforcement in `src/modeling/train.py`: abort training if runtime exceeds a predefined threshold (FR-003)
 - [ ] T027 [US2] Save trained model artifact to `data/models/xgboost_model.json` and training logs to `data/processed/training_log.json`
 - [ ] T028 [US2] Integrate logging, state update, and error handling in `src/modeling/train.py`
 

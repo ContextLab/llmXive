@@ -61,13 +61,13 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [~] T004 Create `code/utils/complex_ops.py` implementing `to_complex`, `phase_shift`, `vector_add`, `born_rule` with `torch.complex64`
-- [~] T005 [P] Create `code/utils/logging.py` with `detect_nan_inf` and `safe_normalize` utilities
-- [~] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
-- [~] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
-- [~] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
+- [X] T004 Create `code/utils/complex_ops.py` implementing `to_complex`, `phase_shift`, `vector_add`, `born_rule` with `torch.complex64`
+- [X] T005 [P] Create `code/utils/logging.py` with `detect_nan_inf` and `safe_normalize` utilities
+- [X] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
+- [X] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
+- [X] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
 - [~] T009 Setup environment configuration management (seed pinning, device selection `cpu`, batch size 8)
-- [~] T009a [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
+- [X] T009a [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,13 +83,13 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for baseline metrics schema in `tests/contract/test_baseline_schema.py`
-- [~] T011 [P] [US1] Integration test for WiC data loading and frozen BERT inference in `tests/integration/test_baseline_wic.py`
+- [X] T010 [P] [US1] Contract test for baseline metrics schema in `tests/contract/test_baseline_schema.py`
+- [X] T011 [P] [US1] Integration test for WiC data loading and frozen BERT inference in `tests/integration/test_baseline_wic.py`
 
 ### Implementation for User Story 1
 
 - [~] T012 [P] [US1] Implement `code/experiments/run_baseline.py` to load frozen BERT, process WiC, and output `data/results/baseline_metrics.json`
-- [~] T013 [US1] Implement stability check in `code/experiments/run_baseline.py`: run multiple seeds, add an assertion that raises an error if metric variance > 0.02 across runs.
+- [X] T013 [US1] Implement stability check in `code/experiments/run_baseline.py`: run multiple seeds, add an assertion that raises an error if metric variance > 0.02 across runs.
 - [~] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,22 +104,22 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$) in `tests/unit/test_complex_ops.py`
-- [~] T017 [P] [US2] Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after softmax) in `tests/unit/test_complex_ops.py`
-- [~] T018 [P] [US2] Contract test for complex adapter output schema in `tests/contract/test_complex_adapter_schema.py`
-- [~] T020b [P] [US2] Verify U_c varies with context: Add unit test in `tests/unit/test_bert_adapter.py` that asserts $U_c$ changes when input context changes (vs. static matrix).
+- [X] T016 [P] [US2] Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$) in `tests/unit/test_complex_ops.py`
+- [X] T017 [P] [US2] Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after softmax) in `tests/unit/test_complex_ops.py`
+- [X] T018 [P] [US2] Contract test for complex adapter output schema in `tests/contract/test_complex_adapter_schema.py`
+- [X] T020b [P] [US2] Verify U_c varies with context: Add unit test in `tests/unit/test_bert_adapter.py` that asserts $U_c$ changes when input context changes (vs. static matrix).
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `code/models/bert_adapter.py`: Linear projection $\mathbb{R}^d \to \mathbb{C}^d$ (real/imag components)
-- [~] T020 [US2] Implement `code/models/bert_adapter.py`: Context-dependent phase shift operator $U_c$. Input: [batch, seq_len, hidden] real. Operation: compute context embedding via attention pooling over sentence tokens, project to rotation angle theta, apply diagonal phase shift exp(i*theta). Output: [batch, seq_len, hidden] complex. Depends on T019.
-- [~] T021 [US2] Implement `code/models/bert_adapter.py`: Superposition (vector addition) and Born rule ($P_{raw} = \|c_{sum}\|^2$)
-- [~] T022 [US2] Implement `code/models/bert_adapter.py`: Softmax normalization $P_{final} = \frac{e^{P_{raw}}}{e^{P_{raw}} + e^{P_{alt}}}$
-- [~] T023a [US2] [Foundational] Define the FR-009 loss function: Implement `code/models/loss_utils.py` with the specific formula `loss += lambda * (1 + torch.cos(phase_diff))` for ambiguous tokens, where lambda=0.5. Verify this function produces negative gradients for non-anti-parallel phases.
-- [~] T023 [US2] Implement `code/models/bert_adapter.py`: Loss function with penalty term. Depends on T023a. Integrate the specific phase-penalty logic from T023a into the training loop. Verify gradient drives phases toward anti-parallelism in unit test.
-- [~] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
-- [~] T024a [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs.
-- [~] T025 [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples, output validation to `data/results/interference_validation.json`.
+- [X] T019 [P] [US2] Implement `code/models/bert_adapter.py`: Linear projection $\mathbb{R}^d \to \mathbb{C}^d$ (real/imag components)
+- [X] T020 [US2] Implement `code/models/bert_adapter.py`: Context-dependent phase shift operator $U_c$. Input: [batch, seq_len, hidden] real. Operation: compute context embedding via attention pooling over sentence tokens, project to rotation angle theta, apply diagonal phase shift exp(i*theta). Output: [batch, seq_len, hidden] complex. Depends on T019.
+- [X] T021 [US2] Implement `code/models/bert_adapter.py`: Superposition (vector addition) and Born rule ($P_{raw} = \|c_{sum}\|^2$)
+- [X] T022 [US2] Implement `code/models/bert_adapter.py`: Softmax normalization $P_{final} = \frac{e^{P_{raw}}}{e^{P_{raw}} + e^{P_{alt}}}$
+- [X] T023a [US2] [Foundational] Define the FR-009 loss function: Implement `code/models/loss_utils.py` with the specific formula `loss += lambda * (1 + torch.cos(phase_diff))` for ambiguous tokens, where lambda=0.5. Verify this function produces negative gradients for non-anti-parallel phases.
+- [X] T023 [US2] Implement `code/models/bert_adapter.py`: Loss function with penalty term. Depends on T023a. Integrate the specific phase-penalty logic from T023a into the training loop. Verify gradient drives phases toward anti-parallelism in unit test.
+- [ ] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
+- [ ] T024a [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs.
+- [ ] T025 [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples, output validation to `data/results/interference_validation.json`.
 - [ ] T025b [US2] [SC-003] Implement stability check for the complex-valued model: Modify `code/experiments/run_quantum.py` to run multiple seeds, calculate variance of accuracy/F1, and assert variance < 0.02, satisfying SC-003 for the primary hypothesis.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

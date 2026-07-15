@@ -31,7 +31,7 @@
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Create `code/versions.yaml` with pinned versions for SonarQube Scanner, DeepSource CLI, and CodeClimate Engine (as per Plan Constitution VI)
 - [X] T004b [P] Update `code/versions.yaml` to pin the `sentence-transformers` model `all-MiniLM-L6-v2` with its specific commit hash or tag (Constitution Principle VI)
-- [~] T005 [P] Implement `code/utils/hasher.py` for SHA-256 artifact hashing (Constitution Principle V)
+- [X] T005 [P] Implement `code/utils/hasher.py` for SHA-256 artifact hashing (Constitution Principle V)
 
 ---
 
@@ -41,10 +41,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T006 Implement `code/utils/github_client.py` with authenticated GitHub REST API client (handling rate limits and pagination)
-- [~] T007 Create `code/utils/stats.py` containing utility functions for Wilcoxon tests, VIF calculation, and Mixed-Effects regression wrappers (scipy/statsmodels)
-- [~] T008a [P] Implement skeleton/interface for AST-based diff matching logic in `code/utils/aligner.py`
-- [~] T008b [P] Implement skeleton/interface for CPU-optimized embedding similarity function (using `all-MiniLM-L6-v2`) in `code/utils/aligner.py`
+- [X] T006 Implement `code/utils/github_client.py` with authenticated GitHub REST API client (handling rate limits and pagination)
+- [X] T007 Create `code/utils/stats.py` containing utility functions for Wilcoxon tests, VIF calculation, and Mixed-Effects regression wrappers (scipy/statsmodels)
+- [X] T008a [P] Implement skeleton/interface for AST-based diff matching logic in `code/utils/aligner.py`
+- [X] T008b [P] Implement skeleton/interface for CPU-optimized embedding similarity function (using `all-MiniLM-L6-v2`) in `code/utils/aligner.py`
 - [~] T009 Setup environment configuration management (load GitHub tokens, paths from `.env`)
 - [~] T010 Implement data directory structure and checksum validation logic for `data/raw` and `data/processed`
 
@@ -60,13 +60,13 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T011 [P] [US1] Create `tests/contract/test_repository_filter.py` with a failing test that asserts `filter_repos()` raises `ValueError` for invalid license types (Tests the *expected* interface defined in a stub file or module signature)
-- [~] T012 [P] [US1] Integration test for Docker-based tool execution in `code/tests/test_acquisition.py` (mocked tool output)
+- [X] T011 [P] [US1] Create `tests/contract/test_repository_filter.py` with a failing test that asserts `filter_repos()` raises `ValueError` for invalid license types (Tests the *expected* interface defined in a stub file or module signature)
+- [ ] T012 [P] [US1] Integration test for Docker-based tool execution in `code/tests/test_acquisition.py` (mocked tool output)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
-- [~] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
+- [X] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
+- [X] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
 - [ ] T015 [US1] Implement repository cloning logic with error handling (retry 2x, log exclusion) in `code/01_data_acquisition.py`
 - [ ] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
 - [ ] T017 [US1] Implement JSON report parsing and normalization for all three tools into a unified schema in `code/01_data_acquisition.py` (FR-003)

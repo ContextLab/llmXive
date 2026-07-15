@@ -88,16 +88,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Write failing unit tests for contamination injection logic in `tests/unit/test_contamination.py` (verify outlier count = `round(* total_rows)`) for T011
-- [~] T009 [P] [US1] Write failing unit tests for Gaussian noise distribution in `tests/unit/test_contamination.py` (verify mean/std match spec) for T011
+- [X] T008 [P] [US1] Write failing unit tests for contamination injection logic in `tests/unit/test_contamination.py` (verify outlier count = `round(* total_rows)`) for T011
+- [X] T009 [P] [US1] Write failing unit tests for Gaussian noise distribution in `tests/unit/test_contamination.py` (verify mean/std match spec) for T011
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement `code/data/download_datasets.py` to fetch UCI HAR and UCI Wine via `wget`/`requests` and validate numeric columns
-- [~] T011 [US1] Implement `code/data/generate_contamination.py` to inject Gaussian noise and extreme outliers at rates defined in `config.py` (which is populated by `research.md` or defaults) using `numpy`. Do NOT read rates directly from spec.md.
-- [~] T012 [US1] Add logic to handle missing values (impute or log warning) and skip non-numeric columns in `code/data/generate_contamination.py`
+- [X] T010 [P] [US1] Implement `code/data/download_datasets.py` to fetch UCI HAR and UCI Wine via `wget`/`requests` and validate numeric columns
+- [X] T011 [US1] Implement `code/data/generate_contamination.py` to inject Gaussian noise and extreme outliers at rates defined in `config.py` (which is populated by `research.md` or defaults) using `numpy`. Do NOT read rates directly from spec.md.
+- [X] T012 [US1] Add logic to handle missing values (impute or log warning) and skip non-numeric columns in `code/data/generate_contamination.py`
 - [~] T013 [US1] Save contaminated datasets to `data/processed/` with derivation logs and checksums
-- [~] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
+- [X] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,12 +111,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T015 [P] [US2] Unit test for Monte Carlo loop logic in `tests/unit/test_simulation.py` (verify seed 42 reproducibility)
+- [X] T015 [P] [US2] Unit test for Monte Carlo loop logic in `tests/unit/test_simulation.py` (verify seed 42 reproducibility)
 - [~] T016 [P] [US2] Integration test for Type I error calculation on clean data in `tests/integration/test_simulation_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [~] T017 [P] [US2] Implement `code/utils/stats_helpers.py` with functions for standard t-test, ANOVA, and Bonferroni correction
+- [X] T017 [P] [US2] Implement `code/utils/stats_helpers.py` with functions for standard t-test, ANOVA, and Bonferroni correction
 - [~] T018 [US2] Implement `code/data/run_simulation.py` to execute multiple iterations per condition (dataset x contamination rate x magnitude) for UCI HAR and UCI Wine, saving results to `data/results/simulation_results.csv` with columns [dataset, rate, error_rate, power]. Explicitly depend on T014's output (`sensitivity.csv`) for the magnitude parameter sweep.
 - [ ] T019 [US2] Implement logic to resample from a single homogeneous population for Type I error (null hypothesis) instead of label shuffling, per spec.md User Story 2. Algorithm: sample with replacement from the pooled data of both groups to ensure a true null hypothesis.
 - [ ] T019.1 [US2] Update the 'Independent Test' section of User Story 2 in spec.md to replace 'shuffling labels' with 'resampling from a single homogeneous population', ensuring traceability between spec and code.

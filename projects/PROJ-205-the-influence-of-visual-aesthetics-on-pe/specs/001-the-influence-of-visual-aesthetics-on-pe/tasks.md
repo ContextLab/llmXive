@@ -62,10 +62,10 @@
 - [X] T008 [P] Create `code/stimuli/neutral.html` (Standard default browser styling, plain text; source: `docs/STIMULI_DESIGN_V1.json`)
 - [ ] T009 Setup `data/raw/` and `data/processed/` directory structure
 - [X] T010 Create `code/utils/helpers.py` for CSV export formatting, ID generation, and IP hashing (`hash_ip` function)
-- [~] T011b [US0] Create `data/consent/irb_approved.txt` with the full, verbatim IRB-approved consent text (source: paste content from `docs/IRB_PROTO_V1.txt`) <!-- FAILED: unspecified -->
+- [ ] T011b [US0] Create `data/consent/irb_approved.txt` with the full, verbatim IRB-approved consent text (source: paste content from `docs/IRB_PROTO_V1.txt`) <!-- FAILED: unspecified -->
 - [~] T011c [US0] Define `IRB_PROTOCOL_ID` environment variable and ensure it is captured in every consent log entry (Constitution Principle VI compliance)
-- [~] T011 [US0] Configure environment variables to point to `data/consent/irb_approved.txt` for the consent form source
-- [~] T011a [US0] Implement verification logic to validate `docs/IRB_PROTO_V1.txt` content against the `IRB_PROTOCOL_ID` before use
+- [ ] T011 [US0] Configure environment variables to point to `data/consent/irb_approved.txt` for the consent form source
+- [ ] T011a [US0] Implement verification logic to validate `docs/IRB_PROTO_V1.txt` content against the `IRB_PROTOCOL_ID` before use
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,8 +80,8 @@
 ### Implementation for User Story 0
 
 - [~] T012 [US0] Implement consent modal in `code/survey/app.py` displaying IRB text from `data/consent/irb_approved.txt` and including the `IRB_PROTOCOL_ID` in the header
-- [~] T013 [US0] Implement "I Agree" / "I Do Not Agree" logic in `code/survey/app.py`
-- [~] T014 [US0] Create consent logging function in `code/utils/helpers.py` to write `consent_log.csv` (timestamp, user_id, decision, IRB_PROTOCOL_ID)
+- [X] T013 [US0] Implement "I Agree" / "I Do Not Agree" logic in `code/survey/app.py`
+- [X] T014 [US0] Create consent logging function in `code/utils/helpers.py` to write `consent_log.csv` (timestamp, user_id, decision, IRB_PROTOCOL_ID)
 - [~] T015 [US0] Implement redirect logic to withdrawal page on "I Do Not Agree"
 
 **Checkpoint**: User Story 0 is functional; no data collection can occur without consent.
@@ -96,25 +96,25 @@
 
 ### Implementation for User Story 1
 
-- [~] T016a [US1] Define the EXACT 4 Latin Square sequences as a hardcoded constant list in `code/survey/app.py` (DO NOT generate). The list MUST contain exactly these tuples:
+- [X] T016a [US1] Define the EXACT 4 Latin Square sequences as a hardcoded constant list in `code/survey/app.py` (DO NOT generate). The list MUST contain exactly these tuples:
  1. ["Professional", "Minimalist", "Low-Quality", "Neutral"]
  2. ["Minimalist", "Low-Quality", "Neutral", "Professional"]
  3. ["Low-Quality", "Neutral", "Professional", "Minimalist"]
  4. ["Neutral", "Professional", "Minimalist", "Low-Quality"]
-- [~] T016b [US1] Implement random selection logic in `code/survey/app.py` that selects ONE sequence from the hardcoded list in T016a per participant (strict lookup, no generative algorithm)
-- [~] T017 [US1] Implement stimulus rendering loop in `code/survey/app.py` to display HTML files sequentially
-- [~] T018 [US1] Create 7-point Likert rating inputs for Credibility and Professionalism in `code/survey/app.py`
+- [X] T016b [US1] Implement random selection logic in `code/survey/app.py` that selects ONE sequence from the hardcoded list in T016a per participant (strict lookup, no generative algorithm)
+- [X] T017 [US1] Implement stimulus rendering loop in `code/survey/app.py` to display HTML files sequentially
+- [X] T018 [US1] Create 7-point Likert rating inputs for Credibility and Professionalism in `code/survey/app.py`
 - [~] T019 [US1] Implement validation logic to block submission if < 8 ratings are present (FR-008)
 - [~] T020 [US1] Implement client-side state management: Use **in-memory only** (Streamlit session state) to track progress. **FORBIDDEN**: Do NOT use `sessionStorage`, `localStorage`, or cookies to store partial ratings or PII. Implement logic to clear all in-memory state immediately upon successful submission or user abandonment to ensure no PII persists on the client device (Constitution Principle III & VI). **Exception**: Allow `sessionStorage` for partial data retry ONLY if network failure is detected (Spec Edge Case #3). Define 'user abandonment' as 'session state expiration' and 'successful submission' as 'Streamlit form submit event'.
-- [~] T021 [US1] Implement submission handler to record Participant ID, Stimulus Condition, Ratings, Timestamp, Device Info in `code/survey/app.py`
-- [~] T022 [US1] Implement CSV export logic to append to `data/raw/submissions.csv` using `helpers.py`
-- [~] T023a [US1] Implement raw IP address capture in `code/survey/app.py` (capture from request headers into a volatile variable ONLY)
-- [~] T023b [US1] Implement immediate IP hashing in `code/survey/app.py`: Call `helpers.hash_ip()` on the raw IP variable immediately upon capture. **NEVER** write the raw IP to disk, logs, or the CSV. Write ONLY the hashed value.
-- [~] T023c [US1] Implement duplicate flagging: Check if the hashed IP exists in previous submissions. Write the hashed IP and a `duplicate_flag` to `data/raw/submissions.csv`.
+- [X] T021 [US1] Implement submission handler to record Participant ID, Stimulus Condition, Ratings, Timestamp, Device Info in `code/survey/app.py`
+- [ ] T022 [US1] Implement CSV export logic to append to `data/raw/submissions.csv` using `helpers.py`
+- [X] T023a [US1] Implement raw IP address capture in `code/survey/app.py` (capture from request headers into a volatile variable ONLY)
+- [X] T023b [US1] Implement immediate IP hashing in `code/survey/app.py`: Call `helpers.hash_ip()` on the raw IP variable immediately upon capture. **NEVER** write the raw IP to disk, logs, or the CSV. Write ONLY the hashed value.
+- [ ] T023c [US1] Implement duplicate flagging: Check if the hashed IP exists in previous submissions. Write the hashed IP and a `duplicate_flag` to `data/raw/submissions.csv`.
 - [ ] T023d_ui [US1] Render the demographic input form in `code/survey/app.py`: Implement a dropdown for Education with options: [High School, Bachelor's, Master's, PhD] and a number input for Age (years). Ensure validation enforces the ordinal structure.
-- [~] T023d [US1] Implement demographic data collection: Write Age (integer) and Education (integer code 1-4) to `data/raw/submissions.csv` columns, referencing data collected in T023d_ui.
+- [ ] T023d [US1] Implement demographic data collection: Write Age (integer) and Education (integer code 1-4) to `data/raw/submissions.csv` columns, referencing data collected in T023d_ui.
 - [ ] T023e_calc [US1] Implement metadata truncation calculation: Calculate the maximum safe `user_agent` truncation length to ensure `data/raw/submissions.csv` remains < 5MB for N=250. Implement a runtime check and fallback mechanism (truncation or warning) if the limit is exceeded.
-- [~] T023e [US1] Implement metadata truncation: Truncate `user_agent` strings to the calculated length from T023e_calc. Exclude large binary blobs. Ensure `data/raw/submissions.csv` remains < 5MB (SC-005).
+- [ ] T023e [US1] Implement metadata truncation: Truncate `user_agent` strings to the calculated length from T023e_calc. Exclude large binary blobs. Ensure `data/raw/submissions.csv` remains < 5MB (SC-005).
 - [~] T023f [US1] Implement session state flagging logic: detect 'browser close' (missing timestamp) and 'network failure' (partial submission) and write `session_timeout` and `submission_status` flags to CSV. Mark partial records as `submission_status='excluded'` to ensure they are not retained for analysis.
 
 **Checkpoint**: User Story 1 is fully functional; data can be collected and exported.
@@ -130,7 +130,7 @@
 ### Implementation for User Story 2
 
 - [~] T024 [US2] Create `code/analysis/01_preprocess.py` to load `data/raw/submissions.csv`. Filter rows where: `submission_status != 'complete'` OR `session_timeout == true` OR `rating_count < 8`. Log all excluded rows to `data/processed/excluded_audit.csv` for transparency. Reshape valid data to wide format for ANOVA.
-- [~] T025 [US2] Implement Repeated-Measures ANOVA in `code/analysis/01_anova.py` (factor: design condition, DV: credibility)
+- [X] T025 [US2] Implement Repeated-Measures ANOVA in `code/analysis/01_anova.py` (factor: design condition, DV: credibility)
 - [ ] T026 [US2] Implement partial η² calculation in `code/analysis/01_anova.py`
 - [ ] T027 [US2] Implement conditional logic in `code/analysis/01_anova.py`: if p < 0.05, trigger pairwise t-tests
 - [ ] T028 [US2] Implement Bonferroni-corrected pairwise t-tests in `code/analysis/02_pairwise.py` (comparisons)

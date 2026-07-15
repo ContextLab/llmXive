@@ -76,20 +76,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_ingestion.py` (verify non-metallics removed)
-- [~] T011 [P] [US1] Unit test for missing value imputation in `tests/unit/test_preprocessing.py` (verify <5% median, >=5% drop)
-- [~] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`
+- [X] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_ingestion.py` (verify non-metallics removed)
+- [X] T011 [P] [US1] Unit test for missing value imputation in `tests/unit/test_preprocessing.py` (verify <5% median, >=5% drop)
+- [X] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/ingestion.py` to download raw CSV from Zenodo (verify URL reachable)
-- [~] T014 [US1] Implement `code/ingestion.py` logic to filter records: retain ONLY metallic alloys, discard polymers/composites
-- [~] T015 [US1] Implement `code/ingestion.py` logic to calculate missing value percentages and apply imputation (median) or exclusion rules
-- [~] T016 [P] [US1] Implement `code/preprocessing.py` to map elemental weight percentages to feature vectors
-- [~] T017 [P] [US1] Implement `code/preprocessing.py` to calculate derived atomic properties (electronegativity, radius) for post-hoc analysis (exclude from training vector)
+- [X] T013 [P] [US1] Implement `code/ingestion.py` to download raw CSV from Zenodo (verify URL reachable)
+- [X] T014 [US1] Implement `code/ingestion.py` logic to filter records: retain ONLY metallic alloys, discard polymers/composites
+- [X] T015 [US1] Implement `code/ingestion.py` logic to calculate missing value percentages and apply imputation (median) or exclusion rules
+- [X] T016 [P] [US1] Implement `code/preprocessing.py` to map elemental weight percentages to feature vectors
+- [X] T017 [P] [US1] Implement `code/preprocessing.py` to calculate derived atomic properties (electronegativity, radius) for post-hoc analysis (exclude from training vector)
 - [~] T018 [US1] Implement `code/ingestion.py` to generate `data/processed/cleaned_alloys.csv`, calculate retention percentage and record count, and explicitly log these stats to `data/processed/retention_audit.json` (Target: ≥70% retention, ≥200 records) to verify SC-005.
 - [~] T019 [US1] Implement `code/preprocessing.py` to perform **Out-of-Distribution (OOD) test set split based on alloy class**: Identify distinct alloy families (e.g., High-Entropy Alloys, Stainless Steels, Carbon Steels) in the dataset. **If <2 classes exist, fallback to a stratified random split and explicitly flag this condition in the output report**; otherwise, hold out one full family as the test set to generate `data/processed/train_set.parquet` and `data/processed/test_ood_set.parquet`, as mandated by FR-007 and SC-006.
-- [~] T020 [US1] Add "Data Insufficiency Report" generation logic in `code/ingestion.py` if record count < 200 after filtering
+- [X] T020 [US1] Add "Data Insufficiency Report" generation logic in `code/ingestion.py` if record count < 200 after filtering
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for stratified split logic in `tests/unit/test_training.py`
+- [X] T021 [P] [US2] Unit test for stratified split logic in `tests/unit/test_training.py`
 - [ ] T022 [P] [US2] Unit test for permutation test implementation in `tests/unit/test_evaluation.py` (verify n=1000 iterations)
 - [ ] T023 [P] [US2] Integration test for training and evaluation pipeline in `tests/integration/test_model_pipeline.py`
 

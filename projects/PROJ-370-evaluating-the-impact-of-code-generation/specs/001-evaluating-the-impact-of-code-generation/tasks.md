@@ -60,8 +60,8 @@
 - [ ] T006 Define data classes in `src/extraction/schema.py` (PullRequest, BugDetection, AlignmentResult)
 - [~] T007 Define data classes in `src/detection/schema.py` (LLMCodeDetectionResult)
 - [~] T008 Define data classes in `src/inference/schema.py` (InferenceRequest, InferenceResponse)
-- [~] T009 Implement `src/utils/timeout_wrapper.py` to enforce global 6h runtime limit (FR-013). **Deliverable**: Must log a warning to `logs/timeout.log` and exit with code 143 if limit exceeded, gracefully skipping remaining PRs.
-- [~] T010 Setup logging infrastructure in `src/utils/logger.py` with runtime tracking
+- [ ] T009 Implement `src/utils/timeout_wrapper.py` to enforce global 6h runtime limit (FR-013). **Deliverable**: Must log a warning to `logs/timeout.log` and exit with code 143 if limit exceeded, gracefully skipping remaining PRs.
+- [ ] T010 Setup logging infrastructure in `src/utils/logger.py` with runtime tracking
 - [~] T011 Create `contracts/` YAML schemas for PR data, BugDetection, and AlignmentResult
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,7 +77,7 @@
 ### Implementation for User Story 1
 
 - [~] T012 [US1] Implement `src/extraction/fetch_prs.py` to: (a) load and validate the list of 3-5 target repos from `config/settings.py` (FR-001), (b) fetch PRs using GitHub API, (c) handle missing linked issues (empty list), (d) log unverified issues. Output raw JSON to `data/raw/`.
-- [~] T013 [US1] Implement `src/extraction/preprocess.py` to truncate diffs exceeding context window and log warnings (Edge Case)
+- [X] T013 [US1] Implement `src/extraction/preprocess.py` to truncate diffs exceeding context window and log warnings (Edge Case)
 - [~] T014 [US1] Implement `src/extraction/preprocess.py` to extract raw review comments into `data/annotations/raw_comments.json` (NOT ground truth yet)
 - [~] T015 [US1] Implement `src/extraction/preprocess.py` to save raw JSON to `data/raw/` with SHA-256 checksums in `data/raw/checksums.json`
 - [~] T016 [US1] Add validation logic to ensure `linked_issue_ids` are explicitly labeled as "reported" but not ground truth (FR-011)
@@ -95,7 +95,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement `src/detection/detect_llm_code.py` to detect LLM-generated code in diffs using heuristics (FR-016) and output `llm_code_flag` in `data/derived/llm_detections.json`
+- [ ] T018 [US2] Implement `src/detection/detect_llm_code.py` to detect LLM-generated code in diffs using heuristics (FR-016) and output `llm_code_flag` in `data/derived/llm_detections.json`
 - [ ] T019 [P] [US2] Implement `src/inference/load_model.py` to load StarCoder2-3B in default precision with `device_map="auto"` and `low_cpu_mem_usage=True` to ensure memory usage ≤7GB (FR-015).
 - [ ] T019b [P] [US2] Implement `src/utils/memory_watchdog.py` to monitor process memory usage during inference. If usage >7GB, trigger graceful skip and log to `logs/memory_warning.log`.
 - [ ] T020 [P] [US2] Implement `src/inference/prompt_templates.py` with standardized bug detection prompt and severity labels (critical, major, minor, style)

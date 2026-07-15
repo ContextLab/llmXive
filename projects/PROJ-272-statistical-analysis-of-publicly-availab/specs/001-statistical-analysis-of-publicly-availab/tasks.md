@@ -58,8 +58,8 @@
 - [X] T004 Setup configuration management in `code/config.py` (paths, random seeds, CPU-only constraints)
 - [X] T005 [P] Implement logging infrastructure in `code/utils.py` with file and console handlers
 - [ ] T006 [P] Create data validation utilities in `code/utils.py` (UTF-8 normalization, length checks)
-- [~] T007 [P] Setup pre-commit hooks for PII scanning and dependency checks: Create `.pre-commit-config.yaml` with `detect-secrets` and `black` hooks
-- [~] T008 [P] Create base schema definitions in `specs/001-statistical-cognitive-decline/contracts/`: Create `dataset.schema.yaml` and `feature.schema.yaml` using JSON Schema format in YAML, defining fields: `participant_id`, `label`, `text`
+- [ ] T007 [P] Setup pre-commit hooks for PII scanning and dependency checks: Create `.pre-commit-config.yaml` with `detect-secrets` and `black` hooks
+- [ ] T008 [P] Create base schema definitions in `specs/001-statistical-cognitive-decline/contracts/`: Create `dataset.schema.yaml` and `feature.schema.yaml` using JSON Schema format in YAML, defining fields: `participant_id`, `label`, `text`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,11 +73,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL; Compute SHA-256 hash upon download and log it (Depends on T004)
-- [~] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected in config (Depends on T004)
-- [~] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available); Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
+- [X] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL; Compute SHA-256 hash upon download and log it (Depends on T004)
+- [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected in config (Depends on T004)
+- [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available); Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
 - [~] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
-- [~] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group; Fail pipeline with specific error if threshold not met (Depends on T012)
+- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group; Fail pipeline with specific error if threshold not met (Depends on T012)
 - [ ] T012e [US1] Record computed SHA-256 checksum in `data/raw/checksums.json` with filename and hash (Depends on T012)
 - [ ] T013 [US1] Implement text cleaning pipeline in `code/ingestion.py`: remove non-verbal annotations, normalize to UTF-8 (Depends on T012)
 - [ ] T014 [US1] Implement record filtering in `code/ingestion.py`: exclude transcripts < 50 words and missing labels (Depends on T013)

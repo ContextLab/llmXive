@@ -39,8 +39,8 @@
 - [X] T004 Implement `utils/memory_monitor.py` to track RAM usage and trigger downsampling if ≥ 6.5 GB
 - [X] T005 [P] Implement `utils/parsers.py` for SMILES conversion and XYZ parsing (with error handling for malformed molecules)
 - [X] T006 Create base data model classes for `Molecule`, `FeatureSet`, and `ModelResult` in `code/utils/models.py`
-- [~] T007 Setup reproducible environment: Pin `np.random.seed` and `random.seed` in `code/config.py`
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
+- [X] T007 Setup reproducible environment: Pin `np.random.seed` and `random.seed` in `code/config.py`
+- [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [~] T009.1 [US1] **Spec Amendment Record**: Document the Plan's T009.1 Amendment which updates FR-001 to use the HuggingFace source (`lisn/QM9`). **Action**: Explicitly record this amendment in `plan.md` under "Spec Amendments & Overrides" to satisfy the "Single Source of Truth" principle. **Verification**: Ensure `plan.md` contains the amendment record. **Prerequisite**: None (Foundational task).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -55,19 +55,19 @@
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement `code/01_data_download.py`: **Download & Verify**.
+- [X] T009 [US1] Implement `code/01_data_download.py`: **Download & Verify**.
  1. **Source**: Download QM9 dataset **strictly from the verified HuggingFace source (`lisn/QM9`)** as mandated by `plan.md` (T009.1 Amendment).
  2. **Integrity Check**: Validate data integrity by verifying the presence of required DFT columns (dipole, HOMO, LUMO) and valid 3D coordinates.
  3. **Output**: Save raw data to `data/raw/qm9_full.parquet` and checksums to `data/checksums.json`.
  4. **Dependency**: This task MUST complete before T010. **Prerequisite**: T009.1 must be completed first.
 
-- [~] T010 [US1] Implement `code/01_data_download.py` (continued): **Parse & Validate**.
+- [X] T010 [US1] Implement `code/01_data_download.py` (continued): **Parse & Validate**.
  1. **Parsing**: Parse the downloaded `data/raw/qm9_full.parquet` and validate molecule structures.
  2. **Filtering**: Drop rows with missing DFT labels or invalid geometry.
  3. **Output**: Save the filtered dataset to `data/processed/molecules_cleaned.parquet`.
  4. **Dependency**: Must wait for T009.
 
-- [~] T011 [US1] Implement `code/02_feature_extraction.py`: **Split & Feature Generation**.
+- [X] T011 [US1] Implement `code/02_feature_extraction.py`: **Split & Feature Generation**.
  1. **Input**: Load `data/processed/molecules_cleaned.parquet` (output of T010).
  2. **Split Construction**: Construct the final Train/Test split from the pre-filtered dataset.
  3. **Feature Generation**: Generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features. **Explicitly include**: atomic number, hybridization, distance bins, bond angles, and dihedral angles as required by FR-002.
@@ -75,7 +75,7 @@
  5. **Output**: Save outputs to `data/processed/features_2d.npy`, `data/processed/features_3d.npy`, and `data/processed/labels.csv`.
  6. **Dependency**: Must wait for T010.
 
-- [~] T014 [US1] Add unit tests in `tests/test_feature_extraction.py`. Required functions: `test_feature_matrix_shape` (asserts shape matches subset size), `test_label_alignment` (asserts labels match feature indices), `test_3d_parsing_error_handling` (asserts malformed molecules are dropped).
+- [X] T014 [US1] Add unit tests in `tests/test_feature_extraction.py`. Required functions: `test_feature_matrix_shape` (asserts shape matches subset size), `test_label_alignment` (asserts labels match feature indices), `test_3d_parsing_error_handling` (asserts malformed molecules are dropped).
 
 **Checkpoint**: Data pipeline complete. 2D and 3D features are aligned and ready for training.
 
@@ -89,18 +89,18 @@
 
 ### Implementation for User Story 2
 
-- [~] T015 [P] [US2] Implement `code/03_model_training.py` (2D):
+- [X] T015 [P] [US2] Implement `code/03_model_training.py` (2D):
  1. **Grid Search Logic**: Implement K-fold Cross-Validation with `GridSearchCV` using a hyperparameter grid: `n_estimators` ∈ {100, 500, 1000}, `max_depth` ∈ {10, 20, None}.
  2. **Model Training & Saving**: Train the final Random Forest Regressor on the full training set using the best parameters found, and save the model to `artifacts/models/model_2d.pkl`.
-- [~] T016 [US2] Implement `code/03_model_training.py` (3D):
+- [X] T016 [US2] Implement `code/03_model_training.py` (3D):
  1. **Grid Search Logic**: Implement k-fold Cross-Validation with `GridSearchCV` using the *identical* hyperparameter grid as T015.
  2. **Model Training & Saving**: Train the final Random Forest Regressor on the full training set using the best parameters found, and save the model to `artifacts/models/model_3d.pkl`.
-- [~] T017 [US2] Implement `code/03_model_training.py` (Aggregator): **Post-Processing & Reporting**. Run *after* T015 and T016 complete.
+- [X] T017 [US2] Implement `code/03_model_training.py` (Aggregator): **Post-Processing & Reporting**. Run *after* T015 and T016 complete.
  1. Aggregate CV metrics (MAE, RMSE, std_mae per fold) from both models and save to `artifacts/metrics/cv_metrics.json`.
  2. **Stability Verification (SC-005)**: Explicitly calculate the stability ratio (std_mae / mean_mae) for each descriptor. **Action**: If stability ratio > 5%, **set `passed: false` in `artifacts/metrics/stability_report.json` and log a warning**, but **DO NOT halt the pipeline**. Continue artifact generation to allow analysis of why stability failed.
  3. **Output Format**: Save the raw per-fold MAE list to `cv_metrics.json` under a `fold_maes` key. Save `artifacts/metrics/stability_report.json` with schema: `{\"fold_maes\": [float], \"stability_ratio\": float, \"passed\": bool}`.
-- [~] T034 [US2] Implement `code/03_model_training.py` (Monitor): **Runtime Measurement**. Wrap the training pipeline (T015/T016) to measure total runtime. If runtime > 6 hours, trigger a graceful failure with a clear error log and save the partial results to `artifacts/metrics/runtime_failure.json`. **Dependency**: T015, T016.
-- [~] T020 [US2] Add unit tests in `tests/test_model_training.py` to verify model saving and metric calculation.
+- [X] T034 [US2] Implement `code/03_model_training.py` (Monitor): **Runtime Measurement**. Wrap the training pipeline (T015/T016) to measure total runtime. If runtime > 6 hours, trigger a graceful failure with a clear error log and save the partial results to `artifacts/metrics/runtime_failure.json`. **Dependency**: T015, T016.
+- [ ] T020 [US2] Add unit tests in `tests/test_model_training.py` to verify model saving and metric calculation.
 
 **Checkpoint**: Models trained and validated. Performance baselines established.
 
@@ -114,25 +114,25 @@
 
 ### Implementation for User Story 3
 
-- [~] T021 [P] [US3] Implement `code/04_analysis.py` (Baselines): **Compute Mean Predictor Error**.
+- [X] T021 [P] [US3] Implement `code/04_analysis.py` (Baselines): **Compute Mean Predictor Error**.
  1. **Logic**: Calculate the error of predicting the mean of the training labels (Zero-Order Baseline) for each descriptor (dipole, HOMO, LUMO) on the test set. **Note**: This implements the Plan's interpretation of FR-007 ("theoretical lower bound") as the Mean Predictor Error.
  2. **Input**: Load `data/processed/labels.csv` (produced by T011).
  3. **Output**: Save results to `artifacts/metrics/baseline_error.json`.
  4. **Dependency**: Must wait for T011.
 
-- [~] T022 [US3] Implement `code/04_analysis.py` (Predictions): **Generate Predictions**.
+- [X] T022 [US3] Implement `code/04_analysis.py` (Predictions): **Generate Predictions**.
  1. **Logic**: Load model artifacts from `artifacts/models/model_2d.pkl` and `model_3d.pkl` (T015/T016). Generate predictions for the test set (out-of-fold) for both models.
  2. **Input**: Load test labels from `data/processed/labels.csv` (T011).
  3. **Output**: Store per-molecule errors in `artifacts/metrics/test_predictions.json` (includes `error_2d`, `error_3d` arrays per molecule).
  4. **Dependency**: Must wait for T015, T016, and T011.
 
-- [~] T023 [US3] Implement `code/04_analysis.py` (Statistics): **Statistical Analysis**.
+- [X] T023 [US3] Implement `code/04_analysis.py` (Statistics): **Statistical Analysis**.
  1. **Logic**: Perform **non-parametric Wilcoxon signed-rank test** on **per-molecule absolute errors (N~2000)** of 2D vs 3D models for each descriptor. **Input**: Load `error_2d` and `error_3d` arrays from `artifacts/metrics/test_predictions.json`.
  2. **Correction**: Apply **Bonferroni correction** for multiple comparisons (α = 0.05 / 3 ≈ 0.0167). **Note**: This threshold is applied as amended by `plan.md` T023 to ensure statistical power, overriding the default spec threshold.
  3. **Output**: Report p-values to `artifacts/metrics/statistics.json`.
  4. **Dependency**: Must wait for T022.
 
-- [~] T024 [US3] Implement `code/04_analysis.py` (Boundary): **Define Failure Boundary**.
+- [X] T024 [US3] Implement `code/04_analysis.py` (Boundary): **Define Failure Boundary**.
  1. **Logic**: Define "Failure Boundary" where **Relative Error Increase (REI) ≥ 10% OR p-value < 0.0167** (Bonferroni corrected).
  2. **Input**: Load p-values from `artifacts/metrics/statistics.json` (output of T023) and MAE values.
  3. **Output**: Save the list of molecules meeting these criteria to `artifacts/metrics/failure_boundary.json`. Schema: `[{"molecule_id": "string", "descriptor": "string", "reason": "string"},...]`.

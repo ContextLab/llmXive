@@ -39,12 +39,12 @@
 - [ ] T004 Create `data/` directory structure and `.gitkeep` files for raw/derived artifacts
 - [ ] T005 [P] Implement `code/utils/metrics.py` with Radon wrappers (Cyclomatic, Halstead, Cognitive) and error handling for invalid syntax
 - [ ] T006 [P] Implement `code/utils/inference.py` with CPU-optimized LLM loading (GGUF via `llama-cpp-python`), batching logic, and timeout/fail-fast mechanisms
-- [~] T007 [P] Implement `code/utils/stats.py` with segmented regression (change-point detection), bootstrap CI calculation, and correlation functions
+- [X] T007 [P] Implement `code/utils/stats.py` with segmented regression (change-point detection), bootstrap CI calculation, and correlation functions
 - [~] T008 Configure environment variables for dataset paths and model paths in `.env` example file
 - [~] T009 Create base script runners (`00_download_data.py`, `01_compute_metrics.py`, `02_run_inference.py`, `03_analyze_results.py`) with argument parsing and logging
-- [~] T011a [P] [US1] Implement `code/00_download_data.py` to fetch **BigCodeBench** (primary target) or **CodeSearchNet** (fallback) using `datasets.load_dataset`. Must include checksumming and verification of the downloaded file.
-- [~] T011b [P] [US1] Implement schema verification in `code/00_download_data.py` to check for the presence of ground truth annotations required for FR-003. Log the presence of 'summarization' and 'bug detection' fields.
-- [~] T011c [P] [US1] Implement the 'Reconstruction-Only' fallback logic in `code/00_download_data.py`. If independent annotations are missing, flag the dataset configuration as 'Reconstruction-Only' and log this scope change explicitly.
+- [X] T011a [P] [US1] Implement `code/00_download_data.py` to fetch **BigCodeBench** (primary target) or **CodeSearchNet** (fallback) using `datasets.load_dataset`. Must include checksumming and verification of the downloaded file.
+- [X] T011b [P] [US1] Implement schema verification in `code/00_download_data.py` to check for the presence of ground truth annotations required for FR-003. Log the presence of 'summarization' and 'bug detection' fields.
+- [X] T011c [P] [US1] Implement the 'Reconstruction-Only' fallback logic in `code/00_download_data.py`. If independent annotations are missing, flag the dataset configuration as 'Reconstruction-Only' and log this scope change explicitly.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (code development only; execution blocked until dependencies met)
 
@@ -64,10 +64,10 @@
 ### Implementation for User Story 1
 
 - [~] T012 [US1] Implement `code/01_compute_metrics.py` to parse functions from the raw dataset, compute metrics using `code/utils/metrics.py`, and save results to `data/derived/metrics.csv`. **Execution of this task is blocked until T011a completes.**
-- [~] T013 [US1] Add robust error handling in `code/01_compute_metrics.py` to skip invalid syntax functions without crashing the pipeline and log errors
-- [~] T014 [US1] Add a statistical summary step in `code/01_compute_metrics.py` to verify the distribution of complexity scores (low to high range) in the generated CSV
-- [~] T015 [US1] Implement logic in `code/01_compute_metrics.py` to cap sampling at N=1,000 (per Plan constraints) and append a `sampling_log.txt` entry confirming the final count and the cap applied.
-- [~] T015b [US1] Generate a 'Statistical Power Justification' document in `results/statistical_power_justification.md` explaining why N=1,000 is sufficient given the runtime constraints, addressing SC-003's N≥5,000 target.
+- [X] T013 [US1] Add robust error handling in `code/01_compute_metrics.py` to skip invalid syntax functions without crashing the pipeline and log errors
+- [X] T014 [US1] Add a statistical summary step in `code/01_compute_metrics.py` to verify the distribution of complexity scores (low to high range) in the generated CSV
+- [X] T015 [US1] Implement logic in `code/01_compute_metrics.py` to cap sampling at N=1,000 (per Plan constraints) and append a `sampling_log.txt` entry confirming the final count and the cap applied.
+- [X] T015b [US1] Generate a 'Statistical Power Justification' document in `results/statistical_power_justification.md` explaining why N=1,000 is sufficient given the runtime constraints, addressing SC-003's N≥5,000 target.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -81,16 +81,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for hallucination detection and score assignment (score=0) in `code/tests/test_inference.py`
+- [X] T016 [P] [US2] Unit test for hallucination detection and score assignment (score=0) in `code/tests/test_inference.py`
 
 ### Implementation for User Story 2
 
 - [~] T017 [US2] Implement `code/02_run_inference.py` to load a CPU-optimized model (e.g., StarCoder-1B/3B or quantized CodeLlama via GGUF) and process the `data/derived/metrics.csv`. **Execution of this task is blocked until T012 completes.**
-- [~] T018a [US2] Implement ground truth retrieval logic in `code/02_run_inference.py` to fetch independent annotations for 'summarization' and 'bug detection' from the dataset schema (BigCodeBench).
-- [~] T018b [US2] Implement fallback logic in `code/02_run_inference.py`: If independent annotations are missing, switch to 'Reconstruction-Only' mode (comparing output to original source code) to satisfy FR-003's requirement for accuracy calculation. Log the active mode.
-- [~] T018c [US2] Implement hallucination detection in `code/02_run_inference.py` to handle non-code outputs by setting `score=0` and `hallucination_flag=true`.
-- [~] T019 [US2] Implement accuracy calculation in `code/02_run_inference.py` using ROUGE-L, F1, and BLEU
-- [~] T020 [US2] Add timeout and memory limit handling in `code/02_run_inference.py` to mark specific functions as "timeout/fail" without halting the pipeline
+- [X] T018a [US2] Implement ground truth retrieval logic in `code/02_run_inference.py` to fetch independent annotations for 'summarization' and 'bug detection' from the dataset schema (BigCodeBench).
+- [X] T018b [US2] Implement fallback logic in `code/02_run_inference.py`: If independent annotations are missing, switch to 'Reconstruction-Only' mode (comparing output to original source code) to satisfy FR-003's requirement for accuracy calculation. Log the active mode.
+- [X] T018c [US2] Implement hallucination detection in `code/02_run_inference.py` to handle non-code outputs by setting `score=0` and `hallucination_flag=true`.
+- [X] T019 [US2] Implement accuracy calculation in `code/02_run_inference.py` using ROUGE-L, F1, and BLEU
+- [X] T020 [US2] Add timeout and memory limit handling in `code/02_run_inference.py` to mark specific functions as "timeout/fail" without halting the pipeline
 - [ ] T021 [US2] Save results to `data/derived/inference_results.csv` with columns for Function ID, Model ID, Task Type, Generated Text, Accuracy Score, and Hallucination Flag
 - [ ] T022 [US2] Implement **stratified sampling (by complexity)** in `code/02_run_inference.py` to ensure the subset is representative. Limit total inference to **N=1,000** to meet the 6-hour runtime constraint on the free-tier runner.
 

@@ -66,11 +66,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [~] T001a Create directory `data/raw/` and `data/derived/`
-- [~] T005 [P] Implement checksum validation script for raw data in `code/load_data.py` (T001a creates dirs, this validates content)
+- [X] T005 [P] Implement checksum validation script for raw data in `code/load_data.py` (T001a creates dirs, this validates content)
 - [~] T004 [P] Implement `code/load_data.py` to load and validate local fallback dataset `data/IL-Benchmark-local.zip` and `data/experimental_bulk_properties.csv` (Primary Source due to CI constraints)
-- [~] T006 [P] Implement `code/utils.py` for common statistical functions (bootstrap resampling, error metrics)
-- [~] T007 Create base `CalculationResult` and `IonPair` data classes in `code/models.py`
-- [~] T008 Configure error handling and logging infrastructure in `code/logger.py`
+- [X] T006 [P] Implement `code/utils.py` for common statistical functions (bootstrap resampling, error metrics)
+- [X] T007 Create base `CalculationResult` and `IonPair` data classes in `code/models.py`
+- [X] T008 Configure error handling and logging infrastructure in `code/logger.py`
 - [~] T009 Setup environment configuration management for dataset paths and random seeds
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -87,19 +87,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for energy parsing logic in `tests/unit/test_parse_psi4.py`
-- [~] T011 [P] [US1] Unit test for error metric calculation (MAE, RMSE, MSE) in `tests/unit/test_metrics.py`
-- [~] T012 [P] [US1] Integration test for full pipeline on a subset of 2 ion pairs in `tests/integration/test_pipeline_us1.py`
+- [X] T010 [P] [US1] Unit test for energy parsing logic in `tests/unit/test_parse_psi4.py`
+- [X] T011 [P] [US1] Unit test for error metric calculation (MAE, RMSE, MSE) in `tests/unit/test_metrics.py`
+- [X] T012 [P] [US1] Integration test for full pipeline on a subset of 2 ion pairs in `tests/integration/test_pipeline_us1.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/run_psi4.py` to execute B3LYP/def2-TZVP + D3 (Becke-Johnson damping) + **Counterpoise correction** (using `bsse_type='cp'`) single-point calculations on CPU only
-- [~] T014 [US1] Implement retry logic (up to 3 attempts) for failed Psi4 jobs within `code/run_psi4.py`
-- [~] T015 [US1] Implement `code/analyze_energies.py` to extract total energy and D3 dispersion contribution from Psi4 output
-- [~] T016 [US1] Implement `code/analyze_energies.py` to compute MAE, RMSE, and Mean Signed Error (MSE) against CCSD(T)/CBS references
-- [~] T017 [US1] Implement `code/analyze_energies.py` to generate `raw_energies.csv` with columns: pair_id, reference_energy, dft_total_energy, d3_dispersion_energy, signed_error
-- [~] T018 [US1] Implement bootstrap resampling (**1,000 replicates**) in `code/analyze_energies.py` to compute 95% CI for raw MAE (FR-014). **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power. <!-- FAILED: unspecified -->
-- [~] T019 [US1] Update `code/generate_reports.py` to include raw energy metrics and MAE CI in `benchmark_report.md`
+- [X] T013 [P] [US1] Implement `code/run_psi4.py` to execute B3LYP/def2-TZVP + D3 (Becke-Johnson damping) + **Counterpoise correction** (using `bsse_type='cp'`) single-point calculations on CPU only
+- [X] T014 [US1] Implement retry logic (up to 3 attempts) for failed Psi4 jobs within `code/run_psi4.py`
+- [X] T015 [US1] Implement `code/analyze_energies.py` to extract total energy and D3 dispersion contribution from Psi4 output
+- [X] T016 [US1] Implement `code/analyze_energies.py` to compute MAE, RMSE, and Mean Signed Error (MSE) against CCSD(T)/CBS references
+- [X] T017 [US1] Implement `code/analyze_energies.py` to generate `raw_energies.csv` with columns: pair_id, reference_energy, dft_total_energy, d3_dispersion_energy, signed_error
+- [X] T018 [US1] Implement bootstrap resampling (**1,000 replicates**) in `code/analyze_energies.py` to compute 95% CI for raw MAE (FR-014). **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power. <!-- FAILED: unspecified -->
+- [X] T019 [US1] Update `code/generate_reports.py` to include raw energy metrics and MAE CI in `benchmark_report.md`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,17 +113,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for linear scaling optimization in `tests/unit/test_scaling.py`
-- [~] T021 [P] [US2] Unit test for hypothesis testing (s=1.0) logic in `tests/unit/test_hypothesis.py`
+- [X] T020 [P] [US2] Unit test for linear scaling optimization in `tests/unit/test_scaling.py`
+- [X] T021 [P] [US2] Unit test for hypothesis testing (s=1.0) logic in `tests/unit/test_hypothesis.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [P] [US2] Implement `code/derive_scaling.py` to fit a scalar `s > 0` minimizing MAE of corrected energies (E_corrected = E_base + s * E_D3)
-- [~] T023 [US2] Implement bootstrap resampling (**1,000 replicates**) in `code/derive_scaling.py` to generate confidence intervals for scaling factor `s` and hypothesis test. **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power.
-- [~] T024 [US2] Implement hypothesis test in `code/derive_scaling.py` to check if the confidence interval for `s` excludes 1.0
+- [X] T022 [P] [US2] Implement `code/derive_scaling.py` to fit a scalar `s > 0` minimizing MAE of corrected energies (E_corrected = E_base + s * E_D3)
+- [X] T023 [US2] Implement bootstrap resampling (**1,000 replicates**) in `code/derive_scaling.py` to generate confidence intervals for scaling factor `s` and hypothesis test. **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power.
+- [X] T024 [US2] Implement hypothesis test in `code/derive_scaling.py` to check if the confidence interval for `s` excludes 1.0
 - [~] T025 [US2] Write `scaling_factor.txt` containing the optimal `s` and its CI
-- [~] T026 [US2] Update `code/analyze_energies.py` to recompute error metrics using the scaled D3 term <!-- FAILED: unspecified -->
-- [~] T027 [US2] Update `code/generate_reports.py` to include scaling factor, CI, and hypothesis test result in `benchmark_report.md`
+- [X] T026 [US2] Update `code/analyze_energies.py` to recompute error metrics using the scaled D3 term <!-- FAILED: unspecified -->
+- [X] T027 [US2] Update `code/generate_reports.py` to include scaling factor, CI, and hypothesis test result in `benchmark_report.md`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,13 +137,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for correlation calculation (Pearson/Spearman) in `tests/unit/test_correlation.py`
-- [~] T029 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_bonferroni.py`
+- [X] T028 [P] [US3] Unit test for correlation calculation (Pearson/Spearman) in `tests/unit/test_correlation.py`
+- [X] T029 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_bonferroni.py`
 
 ### Implementation for User Story 3
 
-- [~] T030 [P] [US3] Implement `code/correlate_bulk.py` to merge energy results with experimental density/viscosity data <!-- FAILED: unspecified -->
-- [~] T031 [US3] Implement `code/correlate_bulk.py` to compute Pearson and Spearman correlations between Raw D3 Term and Density
+- [ ] T030 [P] [US3] Implement `code/correlate_bulk.py` to merge energy results with experimental density/viscosity data <!-- FAILED: unspecified -->
+- [ ] T031 [US3] Implement `code/correlate_bulk.py` to compute Pearson and Spearman correlations between Raw D3 Term and Density
 - [ ] T032 [US3] Implement `code/correlate_bulk.py` to compute Pearson and Spearman correlations between Scaled D3 Term and Density
 - [ ] T033 [US3] Implement `code/correlate_bulk.py` to compute Pearson and Spearman correlations between **Dispersion-Only Error** (E_D3_term - s*E_D3_ref) and Viscosity. **Note**: Plan explicitly excludes Total Interaction-Energy Error correlation as scientifically invalid.
 - [ ] T034 [US3] Implement bootstrap resampling (**1,000 replicates**) in `code/correlate_bulk.py` for confidence intervals of all correlation coefficients. **Note**: Dataset limited to 20 pairs by Plan/CI; Spec requires ≥100 for statistical power.

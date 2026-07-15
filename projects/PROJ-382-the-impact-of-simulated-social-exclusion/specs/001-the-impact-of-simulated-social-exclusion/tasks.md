@@ -49,7 +49,7 @@
 - [ ] T002b [P] Create `pyproject.toml` configuration for `black` (e.g., `line-length=88`, `target-version=['py311']`)
 - [ ] T002c [P] Create a verification script or Makefile target to run `flake8` and `black --check` to validate linting compliance
 - [ ] T003 [P] Implement base configuration loader (`code/config.py`) to read OSF URLs from YAML
-- [~] T004 [P] Setup logging infrastructure with deterministic logging format for `data/processed/mapping_log.json`
+- [ ] T004 [P] Setup logging infrastructure with deterministic logging format for `data/processed/mapping_log.json`
 - [~] T005 Create base data validation schema (Pydantic or Pandas dtype checks) for `condition`, `prosocial_amount`, `randomized`
 - [~] T006 Implement error handling wrapper for network requests (timeouts, 404s) to ensure pipeline continuity
 - [~] T007 Setup environment configuration management for `PYTHONHASHSEED` and random seeds
@@ -68,9 +68,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Unit test for schema validation logic in `tests/unit/test_ingest_schema.py`
-- [~] T009 [P] [US1] Unit test for missing value imputation logic (median vs exclude) in `tests/unit/test_ingest_imputation.py`
-- [~] T010 [P] [US1] Integration test for end-to-end ingestion with mock OSF responses in `tests/integration/test_ingest_flow.py`
+- [X] T008 [P] [US1] Unit test for schema validation logic in `tests/unit/test_ingest_schema.py`
+- [X] T009 [P] [US1] Unit test for missing value imputation logic (median vs exclude) in `tests/unit/test_ingest_imputation.py`
+- [X] T010 [P] [US1] Integration test for end-to-end ingestion with mock OSF responses in `tests/integration/test_ingest_flow.py`
 
 ### Implementation for User Story 1
 

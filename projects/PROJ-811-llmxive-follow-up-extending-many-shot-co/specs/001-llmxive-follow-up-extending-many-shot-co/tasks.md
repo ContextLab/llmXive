@@ -90,11 +90,11 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 4, column 2:
  **Input**: Design documents from...
  ^) -->
-- [~] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [~] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
-- [~] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
+- [X] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
+- [ ] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
+- [ ] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
 - [~] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
-- [~] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
+- [ ] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
 
 **⚠️ GATING CHECK**: T016 must pass (r ≥ 0.6) AND T017 must complete before Phase 4 can begin.
 
@@ -110,20 +110,20 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
-- [~] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
-- [~] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
+- [X] T019 [P] [US2] Unit test for "Logical Ascending" sort order verification in `code/tests/test_prompt_gen.py`
+- [X] T020 [P] [US2] Unit test for deterministic shuffling with fixed seed in `code/tests/test_prompt_gen.py`
+- [X] T021 [P] [US2] Integration test for prompt file generation across multiple seeds in `code/tests/test_integration.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
-- [~] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
-- [~] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score".
-- [~] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
-- [~] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
+- [X] T022 [US2] Implement "Logical Ascending" sorter in `code/src/prompt_gen.py` (sort by DAG depth from T018, non-decreasing). **Depends on: T016 (Validation Pass)**.
+- [X] T023 [US2] Implement "Logical Random" shuffler in `code/src/prompt_gen.py` (fixed seed, preserve distribution)
+- [X] T024a [US2] Implement "Original CDS" (Semantic Curvature) metric calculation in `code/src/prompt_gen.py`. Algorithm: Compute sentence embeddings via SBERT, calculate cosine similarity between adjacent sentences, then compute the variance of these similarities as the "Curvature Score".
+- [X] T024b [US2] Implement "Original CDS" sorting logic in `code/src/prompt_gen.py` using the Curvature Score from T024a.
+- [X] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
 - [~] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
 - [~] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
-- [~] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
+- [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,7 +137,7 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
+- [X] T029 [P] [US3] Unit test for accuracy calculation and retry logic in `code/tests/test_inference.py`
 - [ ] T030 [P] [US3] Unit test for LMM model fitting and p-value extraction in `code/tests/test_analysis.py`
 - [ ] T031 [P] [US3] Integration test for full pipeline (Prompt → Inference → Stats) on a small subset in `code/tests/test_integration.py`
 

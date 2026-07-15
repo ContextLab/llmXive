@@ -49,8 +49,8 @@
 - [X] T001d Create directory: `data/logs`
 - [X] T001e Create directory: `tests/`
 - [X] T001f Create directory: `docs/`
-- [~] T002a Initialize `requirements.txt` file in repository root with empty content or header comment.
-- [~] T002b Pin dependencies in `requirements.txt` with exact versions: `numpy==1.26.4`, `scipy==1.13.1`, `pandas==2.2.2`, `statsmodels==0.14.2`, `nibabel==5.2.1`, `scikit-learn==1.5.0`, `tqdm==4.66.4`, `requests==2.32.3`, `pytest==8.2.2`, `psutil==6.0.0`.
+- [X] T002a Initialize `requirements.txt` file in repository root with empty content or header comment.
+- [X] T002b Pin dependencies in `requirements.txt` with exact versions: `numpy==1.26.4`, `scipy==1.13.1`, `pandas==2.2.2`, `statsmodels==0.14.2`, `nibabel==5.2.1`, `scikit-learn==1.5.0`, `tqdm==4.66.4`, `requests==2.32.3`, `pytest==8.2.2`, `psutil==6.0.0`.
 
 ---
 
@@ -60,9 +60,9 @@
 
 **⚠️ CRITICAL**: No preprocessing or modeling can begin until data is acquired and validated.
 
-- [~] T039 [US1] Implement `code/data_loader.py` function to download pre-processed HCP multi-dimensional volumes from OpenNeuro S3 bucket (ds000030) using `awscli` or `requests` with checksum verification
-- [~] T040 [US1] Implement `code/data_loader.py` function to download `Creative_Problem_Solving.csv` phenotype file from verified HCP release source
-- [~] T041 [US1] Add pre-computation validation step in `code/main.py` to verify downloaded data integrity and existence before running entropy calculations
+- [X] T039 [US1] Implement `code/data_loader.py` function to download pre-processed HCP multi-dimensional volumes from OpenNeuro S3 bucket (ds000030) using `awscli` or `requests` with checksum verification
+- [X] T040 [US1] Implement `code/data_loader.py` function to download `Creative_Problem_Solving.csv` phenotype file from verified HCP release source
+- [X] T041 [US1] Add pre-computation validation step in `code/main.py` to verify downloaded data integrity and existence before running entropy calculations
 
 ---
 
@@ -72,15 +72,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Implement `code/config.py` to manage paths (`PHENOTYPE_PATH`, `RAW_DATA_DIR`), entropy parameters (`m=2`, `r=0.2*SD`), and motion thresholds (`FD > 0.2mm`)
-- [~] T005 Implement `code/utils.py` for logging infrastructure, file I/O helpers, and VIF (Variance Inflation Factor) calculation logic
-- [~] T006 [US1] Implement `code/data_loader.py` with functions to:
+- [X] T004 Implement `code/config.py` to manage paths (`PHENOTYPE_PATH`, `RAW_DATA_DIR`), entropy parameters (`m=2`, `r=0.2*SD`), and motion thresholds (`FD > 0.2mm`)
+- [X] T005 Implement `code/utils.py` for logging infrastructure, file I/O helpers, and VIF (Variance Inflation Factor) calculation logic
+- [X] T006 [US1] Implement `code/data_loader.py` with functions to:
  1. **Validate existence** of `Creative_Problem_Solving.csv` and **halt execution** if missing (per FR-008)
  2. Load NIfTI volumes using `nibabel`
 - [~] T007 [US1] Implement motion scrubbing in `code/data_loader.py` to filter time series based on FD, **exclude subjects with <100 remaining frames** (logging to `data/logs/missing_data.log`), and log FD-based exclusions to `data/logs/motion_exclusions.log` per FR-006. **Additionally, initiate the [deferred] invalid parcels check** by counting NaNs per subject during loading and logging counts to `data/logs/parcel_quality.log` (detailed flagging logic in T015b).
  - *Note: This task is sequential relative to T006. Internal loops over subjects may be parallelized, but the task produces a global list required by downstream tasks.*
-- [~] T007b [US1] Implement logic to **persist the list of valid subject IDs** to `data/processed/valid_subjects.csv` (CSV) so downstream tasks (T013, T022) can consume it. This file MUST be generated immediately after T007 completes.
-- [~] T008 Setup `tests/` directory structure and `conftest.py` for shared fixtures (sample data paths, mock entropy vectors)
+- [ ] T007b [US1] Implement logic to **persist the list of valid subject IDs** to `data/processed/valid_subjects.csv` (CSV) so downstream tasks (T013, T022) can consume it. This file MUST be generated immediately after T007 completes.
+- [ ] T008 Setup `tests/` directory structure and `conftest.py` for shared fixtures (sample data paths, mock entropy vectors)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -96,19 +96,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for vectorized Sample Entropy calculation in `tests/test_entropy.py` (verify against known small matrix)
-- [~] T011 [P] [US1] Integration test for motion exclusion logic in `tests/test_data_loader.py` (verify subjects with FD > 0.2mm and <100 frames are skipped)
-- [~] T012 [P] [US1] Integration test for AUC aggregation in `tests/test_entropy.py` (verify Area Under Curve calculation across scales)
+- [X] T010 [P] [US1] Unit test for vectorized Sample Entropy calculation in `tests/test_entropy.py` (verify against known small matrix)
+- [X] T011 [P] [US1] Integration test for motion exclusion logic in `tests/test_data_loader.py` (verify subjects with FD > 0.2mm and <100 frames are skipped)
+- [X] T012 [P] [US1] Integration test for AUC aggregation in `tests/test_entropy.py` (verify Area Under Curve calculation across scales)
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement vectorized `compute_sample_entropy` function in `code/entropy.py` (CPU-optimized, no GPU dependencies, default precision)
-- [~] T014 [P] [US1] Implement `compute_multiscale_entropy` in `code/entropy.py` to calculate entropy across multiple scales (1-20) and aggregate the result as the **Area Under the Curve (AUC) of the entropy-vs-scale profile** per FR-009
-- [~] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007/valid_subjects.csv**, handling NaNs per FR-001.
+- [X] T013 [P] [US1] Implement vectorized `compute_sample_entropy` function in `code/entropy.py` (CPU-optimized, no GPU dependencies, default precision)
+- [X] T014 [P] [US1] Implement `compute_multiscale_entropy` in `code/entropy.py` to calculate entropy across multiple scales (1-20) and aggregate the result as the **Area Under the Curve (AUC) of the entropy-vs-scale profile** per FR-009
+- [X] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007/valid_subjects.csv**, handling NaNs per FR-001.
  - **Input**: HCP Atlas definition file (external input).
  - **Output**: Per-parcel entropy values.
 - [~] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases. This task consumes the parcel counts logged in T007.
-- [~] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
+- [X] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
 - [~] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv`
 - [~] T017b [US1] Implement instrumentation in `code/entropy.py` to **log peak RAM usage using `psutil`** for the full entropy computation run to `data/logs/ram_usage.log` per SC-003
 

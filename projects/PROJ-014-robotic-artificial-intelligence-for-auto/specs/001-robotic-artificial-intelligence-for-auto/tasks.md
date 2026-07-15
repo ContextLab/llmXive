@@ -44,9 +44,9 @@ found character '`' that cannot start any token
  ```python
  ^) -->
 - [X] T007 Create `code/src/environment/sim_wrapper.py` to wrap CARLA/KITTI simulation with noise injection (FR-004, US-1)
-- [~] T008a [P] Create `code/src/data/calibration.py` for extrinsic calibration and coordinate transformation validation logic (FR-009, US-2)
-- [~] T008b [US2] Execute `scripts/validate_calibration.py` to perform coordinate transformation validation, generate `results/calibration_report.json`, and BLOCK if report is missing or validation fails (FR-009)
-- [~] T009 Implement `code/scripts/hash_artifacts.py` to compute SHA-256 hashes for versioning discipline (Principle V)
+- [X] T008a [P] Create `code/src/data/calibration.py` for extrinsic calibration and coordinate transformation validation logic (FR-009, US-2)
+- [ ] T008b [US2] Execute `scripts/validate_calibration.py` to perform coordinate transformation validation, generate `results/calibration_report.json`, and BLOCK if report is missing or validation fails (FR-009)
+- [X] T009 Implement `code/scripts/hash_artifacts.py` to compute SHA-256 hashes for versioning discipline (Principle V)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,14 +62,14 @@ found character '`' that cannot start any token
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for baseline output schema in `code/tests/contract/test_baseline_schema.py`
-- [~] T011 [P] [US1] Integration test for Pure Pursuit navigation in `code/tests/integration/test_pure_pursuit.py`
+- [X] T010 [P] [US1] Contract test for baseline output schema in `code/tests/contract/test_baseline_schema.py`
+- [X] T011 [P] [US1] Integration test for Pure Pursuit navigation in `code/tests/integration/test_pure_pursuit.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement Pure Pursuit controller in `code/src/environment/baselines.py`
-- [~] T013 [P] [US1] Implement Dijkstra path planner in `code/src/environment/baselines.py` (CPU-optimized, x64 map resolution)
-- [~] T014 [P] [US1] Implement Stochastic (Random) policy in `code/src/environment/baselines.py`
+- [X] T012 [P] [US1] Implement Pure Pursuit controller in `code/src/environment/baselines.py`
+- [X] T013 [P] [US1] Implement Dijkstra path planner in `code/src/environment/baselines.py` (CPU-optimized, x64 map resolution)
+- [X] T014 [P] [US1] Implement Stochastic (Random) policy in `code/src/environment/baselines.py`
 - [~] T015 [US1] Implement `code/scripts/run_baselines.py` to orchestrate N=30 seeds, handle crashes, and log results to `results/baseline_metrics.json` (schema: `{success_rate: float, path_optimality: float, seeds: list}`)
 - [~] T016 [US1] Add error handling for memory pressure crashes (resume from checkpoint) per Edge Cases
 - [~] T017 [US1] Add logging for baseline path optimality ratios and success rates
@@ -86,12 +86,12 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for modality tensor shapes in `code/tests/contract/test_modality_shapes.py`
-- [~] T019 [P] [US2] Integration test for occupancy grid generation in `code/tests/integration/test_occupancy_grid.py`
+- [X] T018 [P] [US2] Contract test for modality tensor shapes in `code/tests/contract/test_modality_shapes.py`
+- [X] T019 [P] [US2] Integration test for occupancy grid generation in `code/tests/integration/test_occupancy_grid.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/src/data/pipeline.py` RGB preprocessing (center-crop, normalize, fixed spatial resolution)
+- [X] T020 [P] [US2] Implement `code/src/data/pipeline.py` RGB preprocessing (center-crop, normalize, fixed spatial resolution)
 - [ ] T021 [P] [US2] Implement `code/src/data/pipeline.py` Depth map downsampling logic
 - [ ] T022 [P] [US2] Implement `code/src/data/pipeline.py` 2D Occupancy Grid generation (binary matrix, m-radius, noise handling)
 - [ ] T023 [US2] Implement `code/scripts/generate_modalities.py` to process raw sensor data AND consume validated calibration parameters from `results/calibration_report.json` (produced by T008b) to ensure spatial alignment; save modalities to `data/modalities/` (FR-009, US-2)

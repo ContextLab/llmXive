@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `code/config.py` to define `TMP_DIR`, `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, retry limits, and dataset version constants
-- [~] T005 [P] Create `code/utils/disk_check.py` to verify ≥14GB free space in `TMP_DIR` before execution (FR-002, Edge Cases) and exit with clear error if insufficient
-- [~] T006 [P] Create `code/utils/network.py` implementing exponential backoff with a maximum of 3 retries for HTTP requests (FR-006)
-- [~] T007 Create `data/provenance.json` structure to record ENCODE accession IDs, JASPAR version, and download timestamps
+- [X] T005 [P] Create `code/utils/disk_check.py` to verify ≥14GB free space in `TMP_DIR` before execution (FR-002, Edge Cases) and exit with clear error if insufficient
+- [X] T006 [P] Create `code/utils/network.py` implementing exponential backoff with a maximum of 3 retries for HTTP requests (FR-006)
+- [X] T007 Create `data/provenance.json` structure to record ENCODE accession IDs, JASPAR version, and download timestamps
 - [~] T008 Setup `tests/` directory structure (`unit`, `integration`, `contract`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,15 +75,15 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Unit test `tests/unit/test_ingest.py::test_parse_handles_malformed_bed` to assert parser raises specific `ValueError` on malformed BED input and logs error.
-- [~] T011 [P] [US1] Unit test `tests/unit/test_network.py::test_retry_exponential_backoff` to assert network utility retries exactly 3 times with exponential delays before raising `MaxRetriesError`.
+- [X] T010 [P] [US1] Unit test `tests/unit/test_ingest.py::test_parse_handles_malformed_bed` to assert parser raises specific `ValueError` on malformed BED input and logs error.
+- [X] T011 [P] [US1] Unit test `tests/unit/test_network.py::test_retry_exponential_backoff` to assert network utility retries exactly 3 times with exponential delays before raising `MaxRetriesError`.
 
 ### Implementation for User Story 1
 
-- [~] T016 [US1] Implement `code/main.py` pre-flight check to verify ≥14GB free space in `TMP_DIR` (referencing spec Edge Cases and FR-002) before download starts.
-- [~] T012 [US1] Implement `code/download.py` to download ENCODE peak files for GM, K562, HepG2, H1-hESC, IMR90 using `code/utils/network.py` (FR-001, FR-006)
-- [~] T013 [US1] Implement parsing logic in `code/preprocess.py` to convert downloaded files to standardized BED format and store in `data/interim/` (FR-002)
-- [~] T014 [US1] Implement gene annotation and background model aggregation in `code/preprocess.py` using `pybedtools` to map peak coordinates to gene symbols (hg38) and aggregate (union) peaks from other cell types as background model (FR-002, FR-004)
+- [X] T016 [US1] Implement `code/main.py` pre-flight check to verify ≥14GB free space in `TMP_DIR` (referencing spec Edge Cases and FR-002) before download starts.
+- [X] T012 [US1] Implement `code/download.py` to download ENCODE peak files for GM, K562, HepG2, H1-hESC, IMR90 using `code/utils/network.py` (FR-001, FR-006)
+- [X] T013 [US1] Implement parsing logic in `code/preprocess.py` to convert downloaded files to standardized BED format and store in `data/interim/` (FR-002)
+- [X] T014 [US1] Implement gene annotation and background model aggregation in `code/preprocess.py` using `pybedtools` to map peak coordinates to gene symbols (hg38) and aggregate (union) peaks from other cell types as background model (FR-002, FR-004)
 - [~] T015 [US1] Implement `code/main.py` orchestration logic to run ingestion and generate `data/processed/ingestion_summary.json` with peak counts per cell type (depends on T012, T013, T014 completion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -98,15 +98,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test `tests/unit/test_background.py::test_union_aggregation` to assert background generation correctly aggregates (unioning) Peak Regions from the other 4 cell types.
-- [~] T019 [P] [US2] Unit test `tests/unit/test_motifs.py::test_fisher_exact_correction` to assert Fisher's test returns correct p-values and Benjamini-Hochberg correction returns correct q-values for a known input matrix.
+- [X] T018 [P] [US2] Unit test `tests/unit/test_background.py::test_union_aggregation` to assert background generation correctly aggregates (unioning) Peak Regions from the other 4 cell types.
+- [X] T019 [P] [US2] Unit test `tests/unit/test_motifs.py::test_fisher_exact_correction` to assert Fisher's test returns correct p-values and Benjamini-Hochberg correction returns correct q-values for a known input matrix.
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/scan.py` to invoke FIMO (subprocess) against JASPAR CORE database with p-value ≤0.0001 threshold (FR-003). Depends on T014 output (background model and parsed peaks). <!-- ATOMIZE: requested -->
-- [~] T022 [US2] Implement enrichment calculation in `code/enrichment.py` using Fisher's exact test against the background model (union of other cell types) (FR-004)
-- [~] T023 [US2] Implement Benjamini-Hochberg correction in `code/enrichment.py` to generate adjusted q-values (FR-004)
-- [~] T025 [US2] Add chunked processing logic in `code/enrichment.py` to ensure memory usage stays <7GB if dataset size approaches RAM limits (GitHub Actions free-tier constraint)
+- [ ] T021 [US2] Implement `code/scan.py` to invoke FIMO (subprocess) against JASPAR CORE database with p-value ≤0.0001 threshold (FR-003). Depends on T014 output (background model and parsed peaks). <!-- ATOMIZE: requested -->
+- [X] T022 [US2] Implement enrichment calculation in `code/enrichment.py` using Fisher's exact test against the background model (union of other cell types) (FR-004)
+- [X] T023 [US2] Implement Benjamini-Hochberg correction in `code/enrichment.py` to generate adjusted q-values (FR-004)
+- [X] T025 [US2] Add chunked processing logic in `code/enrichment.py` to ensure memory usage stays <7GB if dataset size approaches RAM limits (GitHub Actions free-tier constraint)
 - [~] T024 [US2] Update `code/main.py` to orchestrate scanning, enrichment, and output `data/processed/enrichment_matrix.csv` (depends on T021, T022, T023 outputs)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -121,8 +121,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test `tests/unit/test_viz.py::test_heatmap_silhouette_score` to assert clustering function returns silhouette score and logs it.
-- [~] T027 [P] [US3] Unit test `tests/unit/test_validate.py::test_chip_overlap_calculation` to assert overlap percentage is calculated correctly against a mock ChIP-seq dataset.
+- [X] T026 [P] [US3] Unit test `tests/unit/test_viz.py::test_heatmap_silhouette_score` to assert clustering function returns silhouette score and logs it.
+- [X] T027 [P] [US3] Unit test `tests/unit/test_validate.py::test_chip_overlap_calculation` to assert overlap percentage is calculated correctly against a mock ChIP-seq dataset.
 
 ### Implementation for User Story 3
 

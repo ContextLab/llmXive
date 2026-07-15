@@ -59,7 +59,7 @@
 - [ ] T004 Create `contracts/dataset.schema.yaml` defining required columns (power, speed, hatch, thickness, porosity) and types
 - [ ] T005 [P] Implement `code/utils.py` with helper functions for logging, seed setting, and state hash updating
 - [~] T006 [P] Setup `code/` directory structure with `__init__.py` and placeholder files for data, models, and results
-- [~] T007 Create `state/` directory and initial `state.yaml` for artifact versioning
+- [ ] T007 Create `state/` directory and initial `state.yaml` for artifact versioning
 - [~] T008 Configure environment configuration management (`.env` example and loading logic in `utils.py`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,21 +74,21 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download_data.py` to fetch the verified 316L LPBF dataset from Zenodo (ID: - placeholder for actual ID, use specific URL like `), verify material type is 316L, and save to `data/raw/`.
+- [X] T012 [US1] Implement `code/download_data.py` to fetch the verified 316L LPBF dataset from Zenodo (ID: - placeholder for actual ID, use specific URL like `), verify material type is 316L, and save to `data/raw/`.
 - [~] T013 [US1] Implement `code/download_data.py` checksum logic (SHA-256) and update `state.yaml` after download.
-- [~] T014 [US1] Implement `code/preprocess.py` to load raw data, map column synonyms (e.g., "P" -> "laser_power"), and implement fallback logic: FIRST check if a 'VolumetricEnergyDensity' (or similar) column exists; if present, use it. If not, check raw parameters; filter rows where scan_speed <= 0, hatch_spacing <= 0, or layer_thickness <= 0. Assign sentinel value -1.0 for missing raw parameters if Ev is used.
-- [~] T015 [US1] Implement `code/preprocess.py` to detect "Degenerate Dataset" (zero porosity variance). If detected, raise a specific "Degenerate Dataset" error and halt execution (do not filter).
-- [~] T016 [US1] Implement `code/preprocess.py` to normalize input features (power, speed, hatch, thickness) to [0, 1] and calculate `VolumetricEnergyDensity` for valid rows where raw parameters are available.
+- [X] T014 [US1] Implement `code/preprocess.py` to load raw data, map column synonyms (e.g., "P" -> "laser_power"), and implement fallback logic: FIRST check if a 'VolumetricEnergyDensity' (or similar) column exists; if present, use it. If not, check raw parameters; filter rows where scan_speed <= 0, hatch_spacing <= 0, or layer_thickness <= 0. Assign sentinel value -1.0 for missing raw parameters if Ev is used.
+- [X] T015 [US1] Implement `code/preprocess.py` to detect "Degenerate Dataset" (zero porosity variance). If detected, raise a specific "Degenerate Dataset" error and halt execution (do not filter).
+- [X] T016 [US1] Implement `code/preprocess.py` to normalize input features (power, speed, hatch, thickness) to [0, 1] and calculate `VolumetricEnergyDensity` for valid rows where raw parameters are available.
 - [~] T017 [US1] Implement `code/preprocess.py` contract validation step: Load `contracts/dataset.schema.yaml` and exit if validation fails.
-- [~] T018 [US1] Save final processed dataset to `data/processed/cleaned_316L.csv` and update `state.yaml` with the new hash.
+- [ ] T018 [US1] Save final processed dataset to `data/processed/cleaned_316L.csv` and update `state.yaml` with the new hash.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Contract tests ensure data integrity before modeling. These tasks depend on implementation tasks and CANNOT run in parallel with them.
 
 - [~] T009 [US1] Contract test: Validate `data/processed/cleaned_316L.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_dataset_schema.py` (Depends on T018)
-- [~] T010 [US1] Unit test: Verify median imputation logic with synthetic missing data in `tests/unit/test_preprocessing.py` (Depends on T014)
-- [~] T011 [US1] Unit test: Verify normalization scaling to [0, 1] range in `tests/unit/test_preprocessing.py` (Depends on T016) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T010 [US1] Unit test: Verify median imputation logic with synthetic missing data in `tests/unit/test_preprocessing.py` (Depends on T014)
+- [X] T011 [US1] Unit test: Verify normalization scaling to [0, 1] range in `tests/unit/test_preprocessing.py` (Depends on T016) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
   in "<unicode string>", line 2, column 17:
             contents: |
                     ^) -->

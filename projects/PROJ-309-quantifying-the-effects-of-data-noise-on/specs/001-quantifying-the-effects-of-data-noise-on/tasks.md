@@ -95,16 +95,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`
-- [~] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
+- [X] T011 [P] [US1] Integration test for reproducibility (seed stability) in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement Lorenz attractor integration in `code/generators.py` using `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3)
-- [~] T013 [US1] Implement Rössler attractor integration in `code/generators.py` with standard parameters
-- [~] T014 [US1] Implement trajectory validation (NaN check, minimum length threshold) in `code/generators.py`
+- [X] T012 [US1] Implement Lorenz attractor integration in `code/generators.py` using `scipy.integrate.solve_ivp` with standard parameters (σ=10, ρ=28, β=8/3)
+- [X] T013 [US1] Implement Rössler attractor integration in `code/generators.py` with standard parameters
+- [X] T014 [US1] Implement trajectory validation (NaN check, minimum length threshold) in `code/generators.py`
 - [~] T015 [US1] Add logging for integration overflow warnings and trajectory generation metadata
 - [~] T016 [US1] Write clean trajectories to `data/raw/` with naming convention `{system_type}_clean_{seed}.csv` and sidecar checksum file
-- [~] T017 [US1] **Compute Ground Truth Metrics**: Implement logic in `code/metrics.py` to compute Correlation Dimension and Lyapunov Exponent for clean trajectories generated in T012/T013. Store results in `data/processed/ground_truth_metrics_{seed}.json` to serve as the reference for error calculation.
+- [X] T017 [US1] **Compute Ground Truth Metrics**: Implement logic in `code/metrics.py` to compute Correlation Dimension and Lyapunov Exponent for clean trajectories generated in T012/T013. Store results in `data/processed/ground_truth_metrics_{seed}.json` to serve as the reference for error calculation.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,14 +118,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for noisy trajectory schema in `tests/contract/test_noisy_trajectory.py`
-- [~] T019 [P] [US2] Unit test for SNR calculation accuracy in `tests/unit/test_noise.py`
+- [X] T018 [P] [US2] Contract test for noisy trajectory schema in `tests/contract/test_noisy_trajectory.py`
+- [X] T019 [P] [US2] Unit test for SNR calculation accuracy in `tests/unit/test_noise.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement Gaussian noise injection in `code/noise.py` with target SNR accuracy ±0.5dB (See US-2 Acceptance Scenario 1: Negative to positive decibel levels in fixed increments. per FR-002)
-- [~] T021 [US2] Implement uniform quantization noise injection in `code/noise.py` with user-specified bit resolution (FR-003)
-- [~] T022 [US2] Implement SNR verification logic (calculate actual SNR post-injection) in `code/noise.py`
+- [X] T020 [P] [US2] Implement Gaussian noise injection in `code/noise.py` with target SNR accuracy ±0.5dB (See US-2 Acceptance Scenario 1: Negative to positive decibel levels in fixed increments. per FR-002)
+- [X] T021 [US2] Implement uniform quantization noise injection in `code/noise.py` with user-specified bit resolution (FR-003)
+- [X] T022 [US2] Implement SNR verification logic (calculate actual SNR post-injection) in `code/noise.py`
 - [~] T023 [US2] Add error handling for unsupported noise types (only Gaussian and uniform quantization supported)
 - [~] T024 [US2] Write noisy trajectories to `data/processed/` with metadata in sidecar JSON file `manifest_{system_type}.json`
 
@@ -141,15 +141,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T025 [P] [US3] Contract test for metric results schema in `tests/contract/test_metrics.py`
-- [~] T026 [P] [US3] Unit test for Grassberger-Procaccia algorithm correctness on known synthetic data in `tests/unit/test_metrics.py`
+- [X] T025 [P] [US3] Contract test for metric results schema in `tests/contract/test_metrics.py`
+- [X] T026 [P] [US3] Unit test for Grassberger-Procaccia algorithm correctness on known synthetic data in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement Correlation Dimension (Grassberger-Procaccia) in `code/metrics.py` with embedding dimension search
-- [~] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
-- [~] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
-- [~] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
+- [X] T027 [P] [US3] Implement Correlation Dimension (Grassberger-Procaccia) in `code/metrics.py` with embedding dimension search
+- [X] T028 [US3] Implement Largest Lyapunov Exponent (Rosenstein's algorithm) in `code/metrics.py` with convergence checks
+- [X] T029 [US3] Implement False Nearest Neighbors (FNN) in `code/metrics.py` (embedding=2, threshold=10× std)
+- [X] T030 [US3] **Implement Error Calculation**: Implement logic in `code/analysis.py` to calculate absolute error for each metric as `|computed_value - ground_truth_value| / |ground_truth_value| × 100`. The `ground_truth_value` MUST be sourced from the metrics computed in Task T017 (Clean Trajectory Metrics). (See FR-007)
 - [~] T031 [US3] **Identify Critical Threshold**: Implement logic to identify critical SNR threshold where FNN rate exceeds a majority level <!-- ATOMIZE: requested -->
 
 Reference: [Citation preserved verbatim]
@@ -169,13 +169,13 @@ Method: [Method preserved verbatim] (per SC-003). (See FR-008, SC-003)
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T033 [P] [US4] Integration test for CSV export format in `tests/integration/test_export.py`
+- [X] T033 [P] [US4] Integration test for CSV export format in `tests/integration/test_export.py`
 
 ### Implementation for User Story 4
 
-- [~] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in `code/visualize.py`
-- [~] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in `code/visualize.py`
-- [~] T036 [US4] Implement pipeline orchestration in `code/main.py` to run generation → noise → metrics → analysis → export
+- [X] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in `code/visualize.py`
+- [X] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in `code/visualize.py`
+- [X] T036 [US4] Implement pipeline orchestration in `code/main.py` to run generation → noise → metrics → analysis → export
 - [~] T037 [US4] Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010)
 - [~] T038 [US4] Write final results and plots to `data/results/` including `error_vs_snr.png`, `final_lookup.csv`, and `critical_threshold_report.json`
 

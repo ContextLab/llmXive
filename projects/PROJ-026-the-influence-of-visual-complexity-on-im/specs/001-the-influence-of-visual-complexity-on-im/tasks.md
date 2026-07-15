@@ -81,14 +81,14 @@
 - [ ] T009 [P] [US1] Unit test for edge density calculation in `tests/test_stimuli/test_metrics.py`
 - [ ] T010 [P] [US1] Unit test for entropy calculation in `tests/test_stimuli/test_metrics.py`
 - [ ] T011 [P] [US1] Unit test for fractal dimension (box-counting) in `tests/test_stimuli/test_metrics.py`
-- [~] T012 [P] [US1] Integration test for full pipeline on sample images in `tests/test_stimuli/test_pipeline.py`
+- [X] T012 [P] [US1] Integration test for full pipeline on sample images in `tests/test_stimuli/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement edge density (Canny) in `code/stimuli/metrics.py`
-- [~] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`
-- [~] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a bounded range or raise ValueError if out of bounds).
-- [~] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing in T017. Skips corrupted files, logs filenames. Depends on T013-T015.
+- [X] T013 [P] [US1] Implement edge density (Canny) in `code/stimuli/metrics.py`
+- [X] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`
+- [X] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a bounded range or raise ValueError if out of bounds).
+- [X] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing in T017. Skips corrupted files, logs filenames. Depends on T013-T015.
 - [~] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`.
 - [~] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores (use pandas.qcut with a specified number of bins).
 
@@ -104,16 +104,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for D-score calculation (Greenwald D2) in `tests/test_data/test_process.py`
-- [~] T020 [P] [US2] Unit test for trial filtering (latency <300ms, >10000ms, errors) in `tests/test_data/test_process.py`
-- [~] T021 [P] [US2] Integration test for participant exclusion (<10 valid trials) in `tests/test_data/test_process.py`
+- [X] T019 [P] [US2] Unit test for D-score calculation (Greenwald D2) in `tests/test_data/test_process.py`
+- [X] T020 [P] [US2] Unit test for trial filtering (latency <300ms, >10000ms, errors) in `tests/test_data/test_process.py`
+- [X] T021 [P] [US2] Integration test for participant exclusion (<10 valid trials) in `tests/test_data/test_process.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`
-- [~] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`
+- [X] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`
+- [X] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`
 - [~] T024 [US2] Implement logic to exclude participants with insufficient valid trials (<10) and flag as `NaN`
-- [~] T025 [US2] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI)
+- [X] T025 [US2] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI)
 - [~] T026 [US2] Create `code/data/process.py` to aggregate raw logs into `data/processed/aggregated_d_scores.csv`. Input: raw logs. Output schema: `participant_id, session_id, d_score, n_trials_valid, status`. Dependency: Requires T022 and T023.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,22 +128,22 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for Permutation Test logic in `tests/test_analysis/test_permutation.py`
-- [~] T029 [P] [US3] Unit test for Sensitivity Analysis (threshold sweep) in `tests/test_analysis/test_permutation.py`
-- [~] T030 [P] [US3] Unit test for Leave-One-Image-Out (LOIO) logic in `tests/test_analysis/test_permutation.py`
-- [~] T031 [P] [US3] Integration test for full analysis pipeline in `tests/test_analysis/test_pipeline.py`
+- [X] T028 [P] [US3] Unit test for Permutation Test logic in `tests/test_analysis/test_permutation.py`
+- [X] T029 [P] [US3] Unit test for Sensitivity Analysis (threshold sweep) in `tests/test_analysis/test_permutation.py`
+- [X] T030 [P] [US3] Unit test for Leave-One-Image-Out (LOIO) logic in `tests/test_analysis/test_permutation.py`
+- [X] T031 [P] [US3] Integration test for full analysis pipeline in `tests/test_analysis/test_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [~] T032 [P] [US3] Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity)
-- [~] T033 [US3] Implement Permutation Test in `code/analysis/permutation.py`. Parameters: A sufficient number of permutations to ensure stable p-value estimation, seed 42, metric = mean difference of D-scores. Note: This task implements FR-003 (amended).
+- [X] T032 [P] [US3] Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity)
+- [X] T033 [US3] Implement Permutation Test in `code/analysis/permutation.py`. Parameters: A sufficient number of permutations to ensure stable p-value estimation, seed 42, metric = mean difference of D-scores. Note: This task implements FR-003 (amended).
 - [~] T034 [US3] Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation p-value'. Explicitly note that 'partial η²' is not applicable; this satisfies FR-004 intent with the correct metric for the chosen test.
 - [~] T034a [US3] Implement post-hoc power calculation in `code/analysis/permutation.py`. Parameters: Cohen's d = 0.5, alpha = 0.05, sample size = N. Use `statsmodels.stats.power.TTestIndPower`. Output: `data/results/power_analysis.json` with `power_value`, `target (a high value), `status` (pass/fail). Depends on T033, T034.
-- [~] T035a [US3] Implement Sensitivity Analysis: Threshold sweep (±0.05, ±0.10, ±0.15 SD of the complexity metric distribution) AND LOIO in `code/analysis/permutation.py`. Logic: Exclude sweep points where n < 15 per condition.
-- [~] T035b [US3] Generate LOIO sensitivity plot in `code/viz/plot.py`.
-- [~] T036 [US3] Save results to `data/results/permutation_results.json` and `data/results/sensitivity_results.json`. Dependency: Requires T033, T034, T035a, and T035b.
-- [~] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, Standard confidence interval error bars, The text will be formatted using a standard, readable font size., viridis palette) in `code/viz/plot.py`.
-- [~] T038 [US3] Create `code/main.py` to orchestrate the full pipeline (Load -> Process -> Analyze -> Plot).
+- [X] T035a [US3] Implement Sensitivity Analysis: Threshold sweep (±0.05, ±0.10, ±0.15 SD of the complexity metric distribution) AND LOIO in `code/analysis/permutation.py`. Logic: Exclude sweep points where n < 15 per condition.
+- [X] T035b [US3] Generate LOIO sensitivity plot in `code/viz/plot.py`.
+- [ ] T036 [US3] Save results to `data/results/permutation_results.json` and `data/results/sensitivity_results.json`. Dependency: Requires T033, T034, T035a, and T035b.
+- [X] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, Standard confidence interval error bars, The text will be formatted using a standard, readable font size., viridis palette) in `code/viz/plot.py`.
+- [X] T038 [US3] Create `code/main.py` to orchestrate the full pipeline (Load -> Process -> Analyze -> Plot).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +155,7 @@
 
 - [~] T039 [P] Documentation updates in `docs/` (README, usage examples)
 - [~] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
-- [~] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
+- [ ] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
 - [ ] T043b Vectorize image processing loops if execution time exceeds target.
 - [ ] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`
 - [ ] T045 Run `quickstart.md` validation to ensure reproducibility

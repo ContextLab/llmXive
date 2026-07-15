@@ -58,10 +58,10 @@
 - [ ] T004 [P] Create `data/` directory structure (`raw/`, `processed/`) and `results/` in root
 - [ ] T005 [P] Create `code/` directory structure with `__init__.py`
 - [ ] T006 [P] Create `tests/` directory structure (`unit/`, `integration/`) with `__init__.py`
-- [~] T007 Create `contracts/` directory and define `dataset.schema.yaml` for processed data and `results.schema.yaml` for analysis output
-- [~] T008a [P] Implement `code/utils.py` function `estimate_memory_usage` that performs linear extrapolation from the **first 1000 lines** of the input file to predict total RAM usage, returning the estimated MB (FR-008)
-- [~] T008b [P] Implement `code/utils.py` function `check_subsample_trigger` that compares the estimated memory from T008a against the 6GB threshold and returns a boolean flag for subsampling (FR-008)
-- [~] T009 Create `code/main.py` CLI entry point with argument parsing for input file and output directory
+- [ ] T007 Create `contracts/` directory and define `dataset.schema.yaml` for processed data and `results.schema.yaml` for analysis output
+- [X] T008a [P] Implement `code/utils.py` function `estimate_memory_usage` that performs linear extrapolation from the **first 1000 lines** of the input file to predict total RAM usage, returning the estimated MB (FR-008)
+- [X] T008b [P] Implement `code/utils.py` function `check_subsample_trigger` that compares the estimated memory from T008a against the 6GB threshold and returns a boolean flag for subsampling (FR-008)
+- [X] T009 Create `code/main.py` CLI entry point with argument parsing for input file and output directory
 - [~] T010 [P] Update `README.md` to document the invocation parameters and exit codes for the automated `Reference-Validator Agent` gate (Constitution Principle II)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,18 +78,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test `test_extract_handles_zero_overlap_returns_empty_graph` in `tests/unit/test_extract.py` verifying graph construction logic
-- [~] T012 [P] [US1] Unit test `test_dissipation_fallback_zero_work` in `tests/unit/test_extract.py` verifying absolute energy change fallback when Work_Input is 0
-- [~] T013 [P] [US1] Integration test `test_pipeline_flow_synthetic_data` in `tests/integration/test_pipeline_flow.py` verifying end-to-end CSV generation with non-null metrics <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Unit test `test_extract_handles_zero_overlap_returns_empty_graph` in `tests/unit/test_extract.py` verifying graph construction logic
+- [X] T012 [P] [US1] Unit test `test_dissipation_fallback_zero_work` in `tests/unit/test_extract.py` verifying absolute energy change fallback when Work_Input is 0
+- [ ] T013 [P] [US1] Integration test `test_pipeline_flow_synthetic_data` in `tests/integration/test_pipeline_flow.py` verifying end-to-end CSV generation with non-null metrics <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [~] T014a [US1] Implement `code/extract.py` class `YadeParser` with method `parse_positions` and `parse_forces` to extract raw data (FR-001)
-- [~] T014b [US1] Implement `code/extract.py` method `build_contact_network` (edges defined by overlap > 0) and `calc_coordination_clustering` (FR-002, FR-002b)
-- [~] T014c [US1] Implement `code/extract.py` method `calc_dissipation`: Calculate `Work_Input - (ΔKE + ΔPE)`; if `Work_Input > 0`, prepare for normalization; else return `|ΔKE + ΔPE|` (FR-003)
-- [~] T014d [US1] Implement `code/extract.py` method `normalize_dissipation`: Calculate `normalized_dissipation_rate = Dissipation / Work_Input` if `Work_Input > 0`, else `NaN`; **write this column to the per-timestep CSV output** (FR-003, FR-004)
-- [~] T014e [US1] Integration verification: Implement a test harness in `code/extract.py` to verify `YadeParser` instance produces a valid CSV row per timestep containing all required metrics (coordination, clustering, heterogeneity, normalized_dissipation) <!-- FAILED: unspecified -->
-- [~] T015 [US1] Implement force heterogeneity (CV of contact forces) calculation **integrated into the per-timestep loop of `extract.py`**; **verify `force_heterogeneity` column exists and is non-null for all rows in `data/processed/metrics.csv`** (FR-002b)
+- [X] T014a [US1] Implement `code/extract.py` class `YadeParser` with method `parse_positions` and `parse_forces` to extract raw data (FR-001)
+- [X] T014b [US1] Implement `code/extract.py` method `build_contact_network` (edges defined by overlap > 0) and `calc_coordination_clustering` (FR-002, FR-002b)
+- [X] T014c [US1] Implement `code/extract.py` method `calc_dissipation`: Calculate `Work_Input - (ΔKE + ΔPE)`; if `Work_Input > 0`, prepare for normalization; else return `|ΔKE + ΔPE|` (FR-003)
+- [X] T014d [US1] Implement `code/extract.py` method `normalize_dissipation`: Calculate `normalized_dissipation_rate = Dissipation / Work_Input` if `Work_Input > 0`, else `NaN`; **write this column to the per-timestep CSV output** (FR-003, FR-004)
+- [X] T014e [US1] Integration verification: Implement a test harness in `code/extract.py` to verify `YadeParser` instance produces a valid CSV row per timestep containing all required metrics (coordination, clustering, heterogeneity, normalized_dissipation) <!-- FAILED: unspecified -->
+- [ ] T015 [US1] Implement force heterogeneity (CV of contact forces) calculation **integrated into the per-timestep loop of `extract.py`**; **verify `force_heterogeneity` column exists and is non-null for all rows in `data/processed/metrics.csv`** (FR-002b)
 - [~] T016a [US1] Implement handling for **missing force values**: log warnings; if <50% of *total expected contacts* missing, impute **missing force values** as 0.0, set `force_heterogeneity` to 0.0, and add `data_quality_flag` column with value `UNRELIABLE` (Spec Edge Cases: Missing Forces)
 - [~] T016b [US1] Implement handling for **missing contacts (topological disconnect)**: if >50% of *total expected contacts* are missing, **exclude the entire timestep** from output; if <50% missing, set `clustering_coefficient` to 0.0 (representing no clustering) and do NOT impute forces, flagging the row (Spec Edge Cases: Disconnected Networks)
 - [ ] T017 [US1] Implement "Topology-Only" (degree distribution entropy) and "Force-Only" (mean force magnitude on force chains) metrics to avoid circularity (FR-009)

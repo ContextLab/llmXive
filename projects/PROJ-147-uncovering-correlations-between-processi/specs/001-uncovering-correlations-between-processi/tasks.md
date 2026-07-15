@@ -59,16 +59,16 @@
 - [X] T005 [P] Implement `code/utils/logging.py` for `pipeline.log` and structured warnings (FR-007, FR-012)
 - [ ] T006 [P] Create `code/data/` directory structure (`raw/`, `processed/`)
 - [~] T007 [P] Define data schemas in `docs/contracts/` (`dataset.schema.yaml`, `input.schema.yaml`, etc.)
-- [~] T008 Implement `code/utils/texture.py` wrapper for `pymtex` to compute ODF intensities ({100}, {110}, {111}) in MRD (FR-003)
-- [~] T009 Implement `code/data/synthetic.py` physics-based generator ensuring ≥50 samples/alloy family with known ground truth (FR-001, FR-011)
-- [~] T009a Implement `code/data/synthetic.py` configuration to generate at least 3 distinct alloy families with ≥50 samples each and output `ground_truth.json` validating family counts (FR-009) <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
+- [X] T008 Implement `code/utils/texture.py` wrapper for `pymtex` to compute ODF intensities ({100}, {110}, {111}) in MRD (FR-003)
+- [X] T009 Implement `code/data/synthetic.py` physics-based generator ensuring ≥50 samples/alloy family with known ground truth (FR-001, FR-011)
+- [X] T009a Implement `code/data/synthetic.py` configuration to generate at least 3 distinct alloy families with ≥50 samples each and output `ground_truth.json` validating family counts (FR-009) <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
 found character '`' that cannot start any token
  in "<unicode string>", line 3, column 17:
  - Public names: `generate_synthetic_dataset`, `v...
  ^) -->
-- [~] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
-- [~] T011a Implement `code/data/processor.py` for unit standardization, median imputation (≤20% NaN), 3σ outlier removal, and derivation of physics-based features (strain rate, Zener-Hollomon) per spec formulas (FR-002); **depends on T008** (Texture Utils) for ODF-based feature derivation if applicable.
-- [~] T011b Create unit tests `tests/test_preprocessing.py` to validate mathematical correctness of derived features (strain rate, Zener-Hollomon) against spec definitions **explicitly listing the mathematical formulas as docstrings in test_preprocessing.py** before model ingestion (FR-002)
+- [ ] T010 Implement `code/data/loader.py` to attempt real data ingestion (Materials Project/OMDB/NIST) and fallback to synthetic (FR-001, FR-008); **MUST validate that the combined dataset (Real + Synthetic) contains at least 3 distinct alloy families** before training proceeds.
+- [X] T011a Implement `code/data/processor.py` for unit standardization, median imputation (≤20% NaN), 3σ outlier removal, and derivation of physics-based features (strain rate, Zener-Hollomon) per spec formulas (FR-002); **depends on T008** (Texture Utils) for ODF-based feature derivation if applicable.
+- [X] T011b Create unit tests `tests/test_preprocessing.py` to validate mathematical correctness of derived features (strain rate, Zener-Hollomon) against spec definitions **explicitly listing the mathematical formulas as docstrings in test_preprocessing.py** before model ingestion (FR-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,11 +84,11 @@ found character '`' that cannot start any token
 
 > **NOTE**: The spec requires an independent test execution. We will create integration tests to verify the pipeline runs end-to-end.
 
-- [~] T012 [P] [US1] Create integration test `tests/test_pipeline.py` to run full pipeline on synthetic data and verify artifact existence
+- [X] T012 [P] [US1] Create integration test `tests/test_pipeline.py` to run full pipeline on synthetic data and verify artifact existence
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
+- [ ] T013 [P] [US1] Implement `code/models/trainer.py` for multi-output RandomForestRegressor training with 5-fold CV grid search (≤30 mins) (FR-004)
 - [ ] T014 [US1] Implement `code/models/predictor.py` for inference logic handling out-of-range warnings (Edge Case)
 - [ ] T015 [US1] Implement `code/main.py` entry point to orchestrate: Load -> Preprocess -> Train -> Predict -> Save (FR-001, FR-004, FR-005)
 - [ ] T016 [US1] Add validation logic in `main.py` to abort if <50 samples/alloy family (FR-008)

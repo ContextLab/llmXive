@@ -39,8 +39,8 @@
 - [X] T004 [P] Implement `src/utils/logging.py` for standardized logging and error handling
 - [X] T005 [P] Implement `src/utils/manifest.py` for reproducibility manifest generation (JSON)
 - [X] T006 [P] Create `src/utils/config.py` to load environment variables and random seeds
-- [~] T007 [P] Setup `tests/unit/test_utils.py` for logging and manifest validation
-- [~] T008 [P] Create base data structures: `AbstractRecord`, `TopicVector`, `DivergenceMeasurement` in `src/models/entities.py` (Downstream tasks depend on these class definitions)
+- [X] T007 [P] Setup `tests/unit/test_utils.py` for logging and manifest validation
+- [ ] T008 [P] Create base data structures: `AbstractRecord`, `TopicVector`, `DivergenceMeasurement` in `src/models/entities.py` (Downstream tasks depend on these class definitions)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,17 +54,17 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T009 [P] [US1] Unit test for API rate-limit backoff logic in `tests/unit/test_fetch.py`
-- [~] T010 [P] [US1] Unit test for token count filtering (min 20 tokens) in `tests/unit/test_preprocess.py`
+- [X] T009 [P] [US1] Unit test for API rate-limit backoff logic in `tests/unit/test_fetch.py`
+- [X] T010 [P] [US1] Unit test for token count filtering (min 20 tokens) in `tests/unit/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement `src/data/fetch/arxiv_fetcher.py` with exponential backoff and **at most 3 retry attempts** per endpoint, filtering by publication year from the early 21st century to 2024
-- [~] T012 [P] [US1] Implement `src/data/fetch/pubmed_fetcher.py` with exponential backoff and **at most 3 retry attempts** per endpoint, filtering by publication year 2000–2024
-- [~] T013 [US1] Implement `src/data/fetch/orchestrator.py` to coordinate both fetchers and save raw JSONL to `data/raw/` with SHA256 checksums
-- [~] T014 [P] [US1] Implement `src/data/preprocess/tokenizer.py` using NLTK/spaCy with window-specific stopword loading
-- [~] T015 [US1] Implement `src/data/preprocess/filter.py` to exclude records <20 tokens and log exclusion counts
-- [~] T016 [US1] Implement `src/data/storage/saver.py` to save processed CSVs to `data/processed/` partitioned by the **specific 5-year windows**
+- [ ] T011 [P] [US1] Implement `src/data/fetch/arxiv_fetcher.py` with exponential backoff and **at most 3 retry attempts** per endpoint, filtering by publication year from the early 21st century to 2024
+- [ ] T012 [P] [US1] Implement `src/data/fetch/pubmed_fetcher.py` with exponential backoff and **at most 3 retry attempts** per endpoint, filtering by publication year 2000–2024
+- [X] T013 [US1] Implement `src/data/fetch/orchestrator.py` to coordinate both fetchers and save raw JSONL to `data/raw/` with SHA256 checksums
+- [ ] T014 [P] [US1] Implement `src/data/preprocess/tokenizer.py` using NLTK/spaCy with window-specific stopword loading
+- [ ] T015 [US1] Implement `src/data/preprocess/filter.py` to exclude records <20 tokens and log exclusion counts
+- [ ] T016 [US1] Implement `src/data/storage/saver.py` to save processed CSVs to `data/processed/` partitioned by the **specific 5-year windows**
 - [~] T017 [US1] Update `results/manifest.json` with `arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -79,17 +79,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for k-selection logic (elbow method within 10% tolerance) in `tests/unit/test_lda.py`
+- [X] T018 [P] [US2] Unit test for k-selection logic (elbow method within 10% tolerance) in `tests/unit/test_lda.py`
 - [~] T019 [P] [US2] Unit test for topic alignment (cosine similarity) in `tests/unit/test_align.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `src/models/lda/fitter.py` to fit LDA (k=10, max_iter=20) **iteratively for each of the five defined windows (2000–2004, 2005–2009, 2010–2014, 2015–2019, 2020–2024)** using `scikit-learn`
-- [~] T021 [US2] Implement `src/models/lda/validator.py` to compute c_v coherence; flag runs <0.4 and prevent downstream processing for that window
-- [~] T022 [P] [US2] Implement `src/models/lda/k_selector.py` to validate k=10 using elbow method/held-out likelihood; select optimal k if needed
-- [~] T023 [US2] Implement `src/models/lda/aligner.py` to align topic indices across windows via cosine similarity of topic-word distributions (**Depends on completion of T020 across all 5 windows**; resolves label switching critical for valid divergence)
-- [~] T024 [US2] Implement `src/models/metrics/proportions.py` to compute topic proportion vectors (sum=1.0, no NaN) for each window
-- [~] T025 [US2] Save topic vectors to `results/stats/topic_vectors.json` and update manifest with `k_topics`, `coherence_threshold`
+- [X] T020 [P] [US2] Implement `src/models/lda/fitter.py` to fit LDA (k=10, max_iter=20) **iteratively for each of the five defined windows (2000–2004, 2005–2009, 2010–2014, 2015–2019, 2020–2024)** using `scikit-learn`
+- [ ] T021 [US2] Implement `src/models/lda/validator.py` to compute c_v coherence; flag runs <0.4 and prevent downstream processing for that window
+- [ ] T022 [P] [US2] Implement `src/models/lda/k_selector.py` to validate k=10 using elbow method/held-out likelihood; select optimal k if needed
+- [ ] T023 [US2] Implement `src/models/lda/aligner.py` to align topic indices across windows via cosine similarity of topic-word distributions (**Depends on completion of T020 across all 5 windows**; resolves label switching critical for valid divergence)
+- [ ] T024 [US2] Implement `src/models/metrics/proportions.py` to compute topic proportion vectors (sum=1.0, no NaN) for each window
+- [ ] T025 [US2] Save topic vectors to `results/stats/topic_vectors.json` and update manifest with `k_topics`, `coherence_threshold`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -103,16 +103,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for JS divergence calculation (base=2) in `tests/unit/test_metrics.py`
-- [~] T027 [P] [US3] Unit test for MaxT correction logic in `tests/unit/test_stats.py`
+- [X] T026 [P] [US3] Unit test for JS divergence calculation (base=2) in `tests/unit/test_metrics.py`
+- [X] T027 [P] [US3] Unit test for MaxT correction logic in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [~] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
-- [~] T029 [US3] Implement `src/models/metrics/permutation.py` to perform n=1000 permutations on a **stratified sample of min(2000, available) abstracts/window** with LDA refit (**Depends on raw processed data from T016, refit logic from T020, and alignment logic from T023**; generates null distribution via refit)
-- [~] T030 [US3] Implement `src/models/metrics/ci.py` to compute bootstrapped 95% confidence intervals (width ≤0.2)
-- [~] T031 [US3] Implement `src/models/metrics/correction.py` to apply **MaxT procedure for FWER control** across window pairs (per plan.md justification for dependent windows, overriding generic BH mention in spec)
-- [~] T034 [US3] Implement sensitivity analysis in `src/models/metrics/sensitivity.py` sweeping coherence thresholds across a range of values and reporting inconsistency rates (**Depends on completion of T020 and T021**; must run before manifest finalization)
+- [ ] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
+- [ ] T029 [US3] Implement `src/models/metrics/permutation.py` to perform n=1000 permutations on a **stratified sample of min(2000, available) abstracts/window** with LDA refit (**Depends on raw processed data from T016, refit logic from T020, and alignment logic from T023**; generates null distribution via refit)
+- [X] T030 [US3] Implement `src/models/metrics/ci.py` to compute bootstrapped 95% confidence intervals (width ≤0.2)
+- [ ] T031 [US3] Implement `src/models/metrics/correction.py` to apply **MaxT procedure for FWER control** across window pairs (per plan.md justification for dependent windows, overriding generic BH mention in spec)
+- [ ] T034 [US3] Implement sensitivity analysis in `src/models/metrics/sensitivity.py` sweeping coherence thresholds across a range of values and reporting inconsistency rates (**Depends on completion of T020 and T021**; must run before manifest finalization)
 - [ ] T033 [US3] Implement `src/main.py` to orchestrate the full pipeline (Fetch → Preprocess → LDA → Align → Divergence → Test → Sensitivity → Viz)
 - [ ] T035 [US3] Finalize `results/manifest.json` with all required parameters (random seeds, k, iterations, checksums, etc.) including sensitivity results
 - [ ] T036 [US3] Save final statistics to `results/stats/divergence_results.json` and figures to `results/figures/`

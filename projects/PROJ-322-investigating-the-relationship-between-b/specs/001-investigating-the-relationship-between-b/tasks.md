@@ -85,7 +85,7 @@
 
 - [ ] T011 [US1] Implement `code/data_ingestion.py` to download OpenNeuro data (e.g., `ds000006` or similar mTBI dataset) and generate `data/results/manifest.csv`
 
-- [~] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
+- [X] T012 [US1] Implement `code/preprocessing.py` for minimal confound regression using `nilearn` and AAL parcellation
 
 - [~] T013 [US1] Add logic to skip subjects with missing time points (acute/chronic) and log exclusion reasons (Edge Case)
 
@@ -97,9 +97,9 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Execution of these tasks requires the code from T011-T016 to exist.
 
-- [~] T009 [P] [US1] Define and implement unit test `tests/unit/test_memory_monitor.py::test_get_current_ram_gb_returns_float` and `tests/unit/test_memory_monitor.py::test_is_limit_exceeded_raises_memory_error_when_ram_gt_6gb`
+- [X] T009 [P] [US1] Define and implement unit test `tests/unit/test_memory_monitor.py::test_get_current_ram_gb_returns_float` and `tests/unit/test_memory_monitor.py::test_is_limit_exceeded_raises_memory_error_when_ram_gt_6gb`
 
-- [~] T010 [P] [US1] Define and implement integration test `tests/integration/test_data_ingestion.py::test_ingestion_skips_subjects_with_missing_time_points_and_logs_exclusion`
+- [X] T010 [P] [US1] Define and implement integration test `tests/integration/test_data_ingestion.py::test_ingestion_skips_subjects_with_missing_time_points_and_logs_exclusion`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,15 +113,15 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `code/graph_metrics.py` to compute Global Efficiency, Local Efficiency, and Modularity (Q) from connectivity matrices using `networkx` (FR-002)
+- [X] T019 [P] [US2] Implement `code/graph_metrics.py` to compute Global Efficiency, Local Efficiency, and Modularity (Q) from connectivity matrices using `networkx` (FR-002)
 
 - [~] T020 [US2] Implement proportional sparsity thresholding on connectivity matrices before metric calculation. (FR-008)
 
-- [~] T021 [US2] Implement `code/statistical_model.py` to fit Linear Mixed-Effects Model: `CognitiveScore ~ Efficiency + Modularity + Time + (1|Subject)` (FR-003)
+- [X] T021 [US2] Implement `code/statistical_model.py` to fit Linear Mixed-Effects Model: `CognitiveScore ~ Efficiency + Modularity + Time + (1|Subject)` (FR-003)
 
-- [~] T022a [US2] Implement VIF calculation; if VIF > 5, attempt PCA on graph metrics. Success criteria: eigenvalues > 0 AND cumulative variance explained > 60%. If successful, output `data/results/pca_metrics.json`.
+- [ ] T022a [US2] Implement VIF calculation; if VIF > 5, attempt PCA on graph metrics. Success criteria: eigenvalues > 0 AND cumulative variance explained > 60%. If successful, output `data/results/pca_metrics.json`.
 
-- [~] T022b [US2] [Depends on T022a] If PCA fails (catch `numpy.linalg.LinAlgError` for singular matrix/rank deficiency OR if cumulative variance < 60%), generate `data/results/descriptive_vif_report.json`. This report MUST contain the correlation matrix of predictors and variance decomposition to describe the joint relationship (FR-006).
+- [ ] T022b [US2] [Depends on T022a] If PCA fails (catch `numpy.linalg.LinAlgError` for singular matrix/rank deficiency OR if cumulative variance < 60%), generate `data/results/descriptive_vif_report.json`. This report MUST contain the correlation matrix of predictors and variance decomposition to describe the joint relationship (FR-006).
 
 - [~] T023 [US2] Handle non-convergence: log warning, skip subject, continue processing batch (Edge Case)
 
@@ -133,9 +133,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Define and implement unit test `tests/unit/test_graph_metrics.py::test_global_efficiency_returns_positive_scalar_for_connected_graph` and `tests/unit/test_graph_metrics.py::test_modularity_returns_value_between_0_and_1`
+- [X] T017 [P] [US2] Define and implement unit test `tests/unit/test_graph_metrics.py::test_global_efficiency_returns_positive_scalar_for_connected_graph` and `tests/unit/test_graph_metrics.py::test_modularity_returns_value_between_0_and_1`
 
-- [~] T018 [P] [US2] Define and implement unit test `tests/unit/test_collinearity.py::test_vif_calculation_returns_infinite_for_perfectly_collinear_predictors` and `tests/unit/test_collinearity.py::test_pca_fallback_triggers_when_vif_gt_5_and_variance_explained_gt_60`
+- [X] T018 [P] [US2] Define and implement unit test `tests/unit/test_collinearity.py::test_vif_calculation_returns_infinite_for_perfectly_collinear_predictors` and `tests/unit/test_collinearity.py::test_pca_fallback_triggers_when_vif_gt_5_and_variance_explained_gt_60`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,19 +149,19 @@
 
 ### Implementation for User Story 3
 
-- [~] T028 [P] [US3] Implement `code/robustness.py` with a sufficient number of permutation iterations to calculate empirical p-value. (FR-004, SC-002)
+- [X] T028 [P] [US3] Implement `code/robustness.py` with a sufficient number of permutation iterations to calculate empirical p-value. (FR-004, SC-002)
 
-- [~] T029 [US3] Implement sensitivity analysis: sweep correlation thresholds based on data-driven representative values (e.g., quantiles of correlation distribution) and output `data/results/sensitivity_analysis.csv` (FR-005, SC-003)
+- [ ] T029 [US3] Implement sensitivity analysis: sweep correlation thresholds based on data-driven representative values (e.g., quantiles of correlation distribution) and output `data/results/sensitivity_analysis.csv` (FR-005, SC-003)
 
 - [~] T030 [US3] Implement hard stop at 6 hours runtime with "Time Limit Warning" at 5 hours (FR-003, SC-004)
 
-- [~] T031 [US3] Generate final `data/results/analysis_report.json` containing all metrics, p-values, flags (synthetic, pilot, validation_gap), and limitations. Explicitly aggregate runtime and memory logs from T005b/T007 to verify SC-004/SC-005 compliance: read logs, parse metrics, compute `runtime_ok` (total_time <= 5h) and `memory_ok` (peak_ram <= 6GB) booleans, and include `compliance_status: { runtime_ok, memory_ok }` in the report.
+- [ ] T031 [US3] Generate final `data/results/analysis_report.json` containing all metrics, p-values, flags (synthetic, pilot, validation_gap), and limitations. Explicitly aggregate runtime and memory logs from T005b/T007 to verify SC-004/SC-005 compliance: read logs, parse metrics, compute `runtime_ok` (total_time <= 5h) and `memory_ok` (peak_ram <= 6GB) booleans, and include `compliance_status: { runtime_ok, memory_ok }` in the report.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Define and implement unit test `tests/unit/test_robustness.py::test_permutation_pvalue_is_less_than_parametric_pvalue_for_known_signal` and `tests/unit/test_robustness.py::test_permutation_iterations_match_input_parameter`
+- [X] T026 [P] [US3] Define and implement unit test `tests/unit/test_robustness.py::test_permutation_pvalue_is_less_than_parametric_pvalue_for_known_signal` and `tests/unit/test_robustness.py::test_permutation_iterations_match_input_parameter`
 
-- [~] T027 [P] [US3] Define and implement integration test `tests/integration/test_sensitivity.py::test_sensitivity_sweep_outputs_table_with_varying_thresholds_and_correlation_coefficients`
+- [X] T027 [P] [US3] Define and implement integration test `tests/integration/test_sensitivity.py::test_sensitivity_sweep_outputs_table_with_varying_thresholds_and_correlation_coefficients`
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -83,16 +83,16 @@
 
 - [ ] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`.
 - [ ] T012e [US1] Implement `code/data/validate.py` to dynamically validate dataset IDs against a verified list of datasets containing required behavioral variables. If a hardcoded ID (e.g., ds000030) is not in the verified list, halt with `ERR_INVALID_DATASET` and log the specific missing variable. Define `validate_dataset_id()`.
-- [~] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks:
+- [X] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks:
  1. Check sample size N >= 85 (Hard Gate). If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally. No bypass for 'Spec Amendment' is permitted.
  2. Verify dataset variable availability: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, halt with `DataValidationError` (code `ERR_DATA_MISSING`). Log specific missing field name.
  3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
  Define `check_data_integrity()`.
-- [~] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
+- [X] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
 - [~] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
 - [~] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
-- [~] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
-- [~] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
+- [X] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
+- [X] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for metric calculation outputs in `tests/contract/test_metric_schema.py`. Implement `test_metric_schema_has_required_columns()` and `test_metric_values_in_range()`.
-- [~] T020 [P] [US2] Integration test for sliding-window analysis in `tests/integration/test_sliding_window.py`. Implement `test_sliding_window_produces_time_series()` and `test_sensitivity_analysis_reports_icc()`.
+- [X] T019 [P] [US2] Contract test for metric calculation outputs in `tests/contract/test_metric_schema.py`. Implement `test_metric_schema_has_required_columns()` and `test_metric_values_in_range()`.
+- [X] T020 [P] [US2] Integration test for sliding-window analysis in `tests/integration/test_sliding_window.py`. Implement `test_sliding_window_produces_time_series()` and `test_sensitivity_analysis_reports_icc()`.
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/analysis/metrics.py` to calculate static functional connectivity matrices (400x400 correlation). Define `compute_static_connectivity(time_series: np.array)`.
-- [~] T022 [US2] Implement `code/analysis/metrics.py` to derive static network metrics (global efficiency, modularity, within-module degree) for DMN, Auditory, Salience networks. Define `compute_static_metrics(matrix: np.array, network_map: dict)`.
-- [~] T023 [US2] Implement `code/analysis/metrics.py` for sliding-window dynamic connectivity (window=30 TRs, step=5 TRs). Define `compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int)`.
-- [~] T024 [US2] Implement `code/analysis/metrics.py` to calculate dynamic reconfiguration rate from sliding-window matrices. Define `compute_reconfiguration_rate(dynamic_matrices: list[np.array])`.
-- [~] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
-- [~] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
-- [~] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
+- [X] T021 [P] [US2] Implement `code/analysis/metrics.py` to calculate static functional connectivity matrices (400x400 correlation). Define `compute_static_connectivity(time_series: np.array)`.
+- [X] T022 [US2] Implement `code/analysis/metrics.py` to derive static network metrics (global efficiency, modularity, within-module degree) for DMN, Auditory, Salience networks. Define `compute_static_metrics(matrix: np.array, network_map: dict)`.
+- [X] T023 [US2] Implement `code/analysis/metrics.py` for sliding-window dynamic connectivity (window=30 TRs, step=5 TRs). Define `compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int)`.
+- [X] T024 [US2] Implement `code/analysis/metrics.py` to calculate dynamic reconfiguration rate from sliding-window matrices. Define `compute_reconfiguration_rate(dynamic_matrices: list[np.array])`.
+- [X] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
+- [X] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
+- [X] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
 - [ ] T028 [US2] Generate `SensitivityReport` JSON/Parquet with stability metrics and ICC values. Save to `data/derived/sensitivity_report.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

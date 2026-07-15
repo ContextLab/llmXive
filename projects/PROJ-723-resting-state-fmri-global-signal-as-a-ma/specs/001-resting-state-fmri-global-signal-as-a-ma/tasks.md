@@ -58,11 +58,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Implement `code/config.py` to define paths, random seeds, and hyperparameters
-- [~] T005 [P] Implement `code/utils.py` for logging, file I/O helpers, and error handling
-- [~] T006 [P] Create `code/mwq_scoring.py` to document MWQ version, reverse-scoring rules, and total score calculation (Principle VII)
-- [~] T007 [P] Implement `prepare_bids_structure()` function in `code/ingestion.py` to generate BIDS-compatible directory structure logic. Output: reusable function. Verification: Run on sample subject, verify `sub-<label>/func/` exists. (Phase 0, Step 3)
-- [~] T008 [P] Implement `generate_sidecars()` function in `code/ingestion.py` to create JSON sidecars for fMRI runs. Output: reusable function. File pattern: `sub-<label>_task-rest_bold.json`. Required keys: `TR`, `voxel_size`, `pipeline_version`. (Phase 0, Step 3)
+- [X] T004 Implement `code/config.py` to define paths, random seeds, and hyperparameters
+- [X] T005 [P] Implement `code/utils.py` for logging, file I/O helpers, and error handling
+- [X] T006 [P] Create `code/mwq_scoring.py` to document MWQ version, reverse-scoring rules, and total score calculation (Principle VII)
+- [X] T007 [P] Implement `prepare_bids_structure()` function in `code/ingestion.py` to generate BIDS-compatible directory structure logic. Output: reusable function. Verification: Run on sample subject, verify `sub-<label>/func/` exists. (Phase 0, Step 3)
+- [X] T008 [P] Implement `generate_sidecars()` function in `code/ingestion.py` to create JSON sidecars for fMRI runs. Output: reusable function. File pattern: `sub-<label>_task-rest_bold.json`. Required keys: `TR`, `voxel_size`, `pipeline_version`. (Phase 0, Step 3)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,10 +76,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement data download logic in `code/ingestion.py` to fetch HCP resting-state fMRI (NPI source, parquet/zip format) and MWQ scores. Output: files in `data/raw/`. (FR-001) <!-- FAILED: unspecified -->
+- [X] T009 [US1] Implement data download logic in `code/ingestion.py` to fetch HCP resting-state fMRI (NPI source, parquet/zip format) and MWQ scores. Output: files in `data/raw/`. (FR-001) <!-- FAILED: unspecified -->
 - [~] T010 [US1] [Requires: T009] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
-- [~] T011 [US1] [Requires: T010] Implement voxel-wise mean time series (global signal) computation per run in `code/ingestion.py` (FR-002)
-- [~] T012 [US1] [Requires: T011] Implement standard deviation calculation of global signal per run and averaging across runs per subject in `code/ingestion.py` (FR-002)
+- [X] T011 [US1] [Requires: T010] Implement voxel-wise mean time series (global signal) computation per run in `code/ingestion.py` (FR-002)
+- [X] T012 [US1] [Requires: T011] Implement standard deviation calculation of global signal per run and averaging across runs per subject in `code/ingestion.py` (FR-002)
 - [~] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
 - [~] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
 - [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0` and log warnings

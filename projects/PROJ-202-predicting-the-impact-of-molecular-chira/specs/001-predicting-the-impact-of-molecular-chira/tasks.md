@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/interim`) with `.gitkeep`
-- [~] T005 [P] Create `code/00_setup_env.py` to verify environment constraints (CPU-only, RAM < 7GB check)
+- [X] T005 [P] Create `code/00_setup_env.py` to verify environment constraints (CPU-only, RAM < 7GB check)
 - [ ] T006 [P] Implement random seed pinning utility (`code/utils/seeding.py`) for reproducibility
 - [ ] T007 [P] [FR-001/Key Entities/Constitution VI] Create base data models for Enantiomeric Pair, Receptor Complex, and Sensory Rating (`code/models/data_models.py`) per `data-model.md`. **CRITICAL**: Implement receptor preparation logic to fetch raw AlphaFold PDB structures and process them using **RDKit/OpenMM** for CPU-tractability. **Do not** use Modeller; the pipeline MUST use raw AlphaFold models directly as authorized by the Plan.md "Constitution Deviation" to meet CPU time constraints.
 - [ ] T008 [P] Configure logging infrastructure to `data/logs/pipeline.log`

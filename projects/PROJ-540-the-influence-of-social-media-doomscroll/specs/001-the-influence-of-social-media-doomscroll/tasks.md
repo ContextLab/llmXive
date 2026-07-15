@@ -40,9 +40,9 @@
 - [X] T004 [P] Implement environment configuration management for dataset URLs and random seeds (`code/config.py`)
 - [ ] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
 - [X] T005 [P] Setup error handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`) in `code/exceptions.py`
-- [~] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
-- [~] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
-- [~] T019a [P] [Foundational] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs; MUST raise `MathematicalCouplingError` and HALT if coupling detected (Per Plan Phase 1.5). This function must be callable by US2 tasks.
+- [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
+- [ ] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
+- [X] T019a [P] [Foundational] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs; MUST raise `MathematicalCouplingError` and HALT if coupling detected (Per Plan Phase 1.5). This function must be callable by US2 tasks.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,15 +58,15 @@
 
 > **NOTE: Write these tests FIRST (Scaffolding only), ensure they FAIL before implementation**
 
-- [~] T008 [P] [US1] Unit test scaffolding in `tests/test_ingest.py`: Define class `TestIngestion` and function `test_schema_validation_raises_error_on_missing_column` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
-- [~] T009 [P] [US1] Unit test scaffolding in `tests/test_clean.py`: Define class `TestCleaning` and function `test_listwise_deletion_halts_on_low_power` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
+- [X] T008 [P] [US1] Unit test scaffolding in `tests/test_ingest.py`: Define class `TestIngestion` and function `test_schema_validation_raises_error_on_missing_column` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
+- [X] T009 [P] [US1] Unit test scaffolding in `tests/test_clean.py`: Define class `TestCleaning` and function `test_listwise_deletion_halts_on_low_power` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement data ingestion script `code/ingest.py` to download data from verified URL (e.g., GSS/Pew) and parse to `data/raw/`
-- [~] T011 [US1] Implement schema validation in `code/ingest.py` to ensure columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender` exist
-- [~] T012 [US1] Implement listwise deletion in `code/clean.py` for missing predictor/outcome values. **MUST enforce Spec FR-002**: HALT with `PowerLimitationError` if resulting N < 30. If 30 <= N < 100, log 'Low Power' warning and proceed. (Note: The Plan suggests N < 130 for higher power, but the Spec requires N < 30; implement Spec logic and log the Plan's stricter guideline as a comment).
-- [~] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
+- [X] T010 [US1] Implement data ingestion script `code/ingest.py` to download data from verified URL (e.g., GSS/Pew) and parse to `data/raw/`
+- [X] T011 [US1] Implement schema validation in `code/ingest.py` to ensure columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender` exist
+- [X] T012 [US1] Implement listwise deletion in `code/clean.py` for missing predictor/outcome values. **MUST enforce Spec FR-002**: HALT with `PowerLimitationError` if resulting N < 30. If 30 <= N < 100, log 'Low Power' warning and proceed. (Note: The Plan suggests N < 130 for higher power, but the Spec requires N < 30; implement Spec logic and log the Plan's stricter guideline as a comment).
+- [ ] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
 - [~] T014 [US1] Add logging for row counts, missing value statistics, and power check results
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -81,20 +81,20 @@
 
 ### Tests for User Story 2
 
-- [~] T015 [P] [US2] Unit test in `tests/test_model.py`: Define function `test_pearson_correlation_matches_manual_calculation` to verify correlation logic against hardcoded synthetic values.
-- [~] T016 [P] [US2] Unit test in `tests/test_validity.py`: Define function `test_coupling_detection_raises_error_on_identical_variables` to verify the `validity.py` module raises `MathematicalCouplingError` when inputs are identical.
+- [X] T015 [P] [US2] Unit test in `tests/test_model.py`: Define function `test_pearson_correlation_matches_manual_calculation` to verify correlation logic against hardcoded synthetic values.
+- [X] T016 [P] [US2] Unit test in `tests/test_validity.py`: Define function `test_coupling_detection_raises_error_on_identical_variables` to verify the `validity.py` module raises `MathematicalCouplingError` when inputs are identical.
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement Pearson/Spearman correlation calculation in `code/model.py` (FR-004)
-- [~] T018 [US2] Implement OLS regression fitting in `code/model.py` with formula `anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender`. Create a reusable function `fit_regression_model`.
-- [~] T019 [US2] Implement assumption checks in `code/model.py`:
+- [X] T017 [US2] Implement Pearson/Spearman correlation calculation in `code/model.py` (FR-004)
+- [X] T018 [US2] Implement OLS regression fitting in `code/model.py` with formula `anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender`. Create a reusable function `fit_regression_model`.
+- [X] T019 [US2] Implement assumption checks in `code/model.py`:
  1. **Invoke** the distinct construct validation function from `code/validity.py` (T019a) to ensure `baseline_anxiety` and `anxiety_score` are distinct.
  2. Implement Linearity, Homoscedasticity (Breusch-Pagan), Normality (Shapiro-Wilk), and VIF checks as separate functions.
  3. Output diagnostic metrics and pass/fail status.
 - [~] T020 [US2] Implement proxy flagging logic for `general_anxiety` vs `anticipatory_anxiety` (FR-008)
-- [~] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
-- [~] T022 [US2] Save correlation results to `outputs/correlation_results.json`
+- [ ] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
+- [ ] T022 [US2] Save correlation results to `outputs/correlation_results.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -108,18 +108,18 @@
 
 ### Tests for User Story 3
 
-- [~] T023 [P] [US3] Unit test in `tests/test_robustness.py`: Define function `test_subset_selection_filters_top_25_percentile` to verify the filtering logic for the high-engagement subset.
-- [~] T024 [P] [US3] Integration test in `tests/test_viz.py`: Define function `test_plot_file_exists_and_contains_regression_line` to verify the plot file exists and contains the expected regression line.
+- [X] T023 [P] [US3] Unit test in `tests/test_robustness.py`: Define function `test_subset_selection_filters_top_25_percentile` to verify the filtering logic for the high-engagement subset.
+- [X] T024 [P] [US3] Integration test in `tests/test_viz.py`: Define function `test_plot_file_exists_and_contains_regression_line` to verify the plot file exists and contains the expected regression line.
 
 ### Implementation for User Story 3
 
-- [~] T025 [US3] Implement robustness check logic in `code/robustness.py`:
+- [X] T025 [US3] Implement robustness check logic in `code/robustness.py`:
  1. Calculate correlation between `social_media_engagement` and `news_exposure_freq`.
  2. **IF** correlation > 0.3, select the top 25th percentile of `social_media_engagement` from `data/processed/analysis_data.csv`.
  3. **IF** correlation <= 0.3, skip the check and log a warning (Per Spec FR-006).
 - [~] T026 [US3] Re-fit regression on the high-engagement subset defined in T025 by **calling** the `fit_regression_model` function created in T018 (do not duplicate code). Compare coefficients/significance with full model.
-- [~] T027 [US3] Save robustness results to `outputs/robustness_results.json`
-- [~] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
+- [ ] T027 [US3] Save robustness results to `outputs/robustness_results.json`
+- [X] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
 - [ ] T029 [US3] Save plot to `outputs/plot.png`
 - [ ] T030 [US3] Generate `outputs/final_report.md` summarizing findings, limitations, and associational nature
 

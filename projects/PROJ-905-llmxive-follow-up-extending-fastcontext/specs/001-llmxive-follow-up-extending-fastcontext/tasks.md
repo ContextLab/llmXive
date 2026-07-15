@@ -68,18 +68,18 @@ EOF`
 
 - [ ] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment. <!-- FAILED: unspecified -->
 - [ ] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value <!-- FAILED: unspecified -->
-- [~] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
+- [X] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `* dir_score + w1 * test_score + w2 * import_score, where w1 and w2 are adjustable weights determined during the optimization phase.`.
+- [X] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `* dir_score + w1 * test_score + w2 * import_score, where w1 and w2 are adjustable weights determined during the optimization phase.`.
  - `dir_score`: Binary check for presence of `src/`, `tests/`, `docs/` (A binary indicator where 1 if all present, 0 if none, linear interpolation for partial).
  - `test_score`: Binary check for `tests/` directory presence (The presence of the feature, coded as a binary indicator, is evaluated using the method described in [Citation]. This approach aligns with the research question regarding the occurrence of the phenomenon, as outlined in [Citation].).
  - `import_score`: Ratio of absolute imports (`import pkg`) to total imports (Maximum if all absolute, 0.0 if all relative).
  (FR-001)
-- [~] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
-- [~] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
-- [~] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
+- [X] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
+- [X] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
+- [ ] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -93,16 +93,16 @@ EOF`
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_fastcontext_lite_runs_on_regular_repo` using fixture `sample_regular_repo` to assert `run_lite_pipeline` completes in < 5s and returns valid JSON log <!-- FAILED: unspecified -->
-- [~] T017 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_original_fastcontext_4b_runs_on_cpu` using fixture `sample_regular_repo` to assert `run_baseline_4b` completes on CPU (no CUDA) with explicit OOM/timeout handling (max limited duration, 7GB RAM) and returns valid JSON log (FR-004)
-- [~] T018 [P] [US2] Unit test `tests/unit/test_metrics_logger.py::test_log_schema_validates_required_fields` using mock data to assert `validate_log` passes for schema containing `context_precision`, `total_tokens`, `wall_clock_latency`
+- [X] T016 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_fastcontext_lite_runs_on_regular_repo` using fixture `sample_regular_repo` to assert `run_lite_pipeline` completes in < 5s and returns valid JSON log <!-- FAILED: unspecified -->
+- [X] T017 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_original_fastcontext_4b_runs_on_cpu` using fixture `sample_regular_repo` to assert `run_baseline_4b` completes on CPU (no CUDA) with explicit OOM/timeout handling (max limited duration, 7GB RAM) and returns valid JSON log (FR-004)
+- [X] T018 [P] [US2] Unit test `tests/unit/test_metrics_logger.py::test_log_schema_validates_required_fields` using mock data to assert `validate_log` passes for schema containing `context_precision`, `total_tokens`, `wall_clock_latency`
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords, search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(variable lower bound,)`, `max_features=10000 `, `analyzer='word'`) ensuring CPU-only execution (FR-003)
-- [~] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
-- [~] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
-- [~] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
+- [X] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords, search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(variable lower bound,)`, `max_features=10000 `, `analyzer='word'`) ensuring CPU-only execution (FR-003)
+- [X] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
+- [X] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
+- [X] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
 - [~] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -117,7 +117,7 @@ EOF`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[,, 0.15]) to assert `run_ttest` returns p < 0.05
+- [X] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[,, 0.15]) to assert `run_ttest` returns p < 0.05
 - [ ] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
 - [ ] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
 

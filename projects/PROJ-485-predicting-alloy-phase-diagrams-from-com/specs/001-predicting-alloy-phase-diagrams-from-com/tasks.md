@@ -39,14 +39,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 [P] Setup `code/utils/logging.py` for structured error logging (FR-007, FR-008)
-- [~] T005 [P] Implement `code/utils/checksum.py` for SHA-256 data verification (Constitution Principle III)
-- [~] T006 [P] Create `data/raw/elemental_properties.csv` with columns: `element`, `atomic_radius_angstrom`, `electronegativity_pauling`, `valence_electrons`. Seed with rows for Cu, Al, Zn, Fe, C (Constitution Principle III)
-- [~] T006a [P] Implement verification logic to cross-reference `data/raw/elemental_properties.csv` values against a primary reference (e.g., NIST Webbook or standard tables) to ensure ≤1% deviation (Constitution Principle II)
-- [~] T007 [P] Create `code/main.py` pipeline orchestrator with state management (state/PROJ-485/...yaml)
-- [~] T008 [P] Implement `code/utils/error_codes.py` as a Python Enum class with string values for: `DATA_SOURCE_MISSING`, `INVALID_DATA_SCHEMA`, `MISSING_TEMP_COORDS`, `LOW_DATA_DENSITY`, `API_RATE_LIMIT_EXCEEDED`, `INSUFFICIENT_POWER`
+- [X] T004 [P] Setup `code/utils/logging.py` for structured error logging (FR-007, FR-008)
+- [X] T005 [P] Implement `code/utils/checksum.py` for SHA-256 data verification (Constitution Principle III)
+- [ ] T006 [P] Create `data/raw/elemental_properties.csv` with columns: `element`, `atomic_radius_angstrom`, `electronegativity_pauling`, `valence_electrons`. Seed with rows for Cu, Al, Zn, Fe, C (Constitution Principle III)
+- [ ] T006a [P] Implement verification logic to cross-reference `data/raw/elemental_properties.csv` values against a primary reference (e.g., NIST Webbook or standard tables) to ensure ≤1% deviation (Constitution Principle II)
+- [X] T007 [P] Create `code/main.py` pipeline orchestrator with state management (state/PROJ-485/...yaml)
+- [X] T008 [P] Implement `code/utils/error_codes.py` as a Python Enum class with string values for: `DATA_SOURCE_MISSING`, `INVALID_DATA_SCHEMA`, `MISSING_TEMP_COORDS`, `LOW_DATA_DENSITY`, `API_RATE_LIMIT_EXCEEDED`, `INSUFFICIENT_POWER`
 - [~] T009 [P] Setup environment configuration management for data source URLs (Constitution Principle II)
-- [~] T009a [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block; halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1)
+- [X] T009a [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block; halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,18 +60,18 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingest/load_data.py` with exponential backoff (limited retries) for API access (FR-001, FR-007)
-- [~] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs if primary source fails (FR-012)
+- [X] T012 [US1] Implement `code/ingest/load_data.py` with exponential backoff (limited retries) for API access (FR-001, FR-007)
+- [X] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs if primary source fails (FR-012)
 - [~] T014 [US1] Implement filtering logic to exclude entries with missing temperature values and log `MISSING_TEMP_COORDS` (FR-001, FR-008)
 - [~] T015 [US1] Implement `code/features/generate_descriptors.py` to calculate: mean atomic radius, electronegativity variance, valence electron count, Hume-Rothery concentration using constants from `data/raw/elemental_properties.csv` (created by T006) (FR-002, FR-015)
 - [~] T016 [US1] Add validation in `code/features/generate_descriptors.py` to verify derived values against `data/raw/elemental_properties.csv` (SC-005, SC-007)
-- [~] T017 [US1] Implement data checksumming and state update in `code/ingest/load_data.py` after raw data load (Constitution Principle III, V)
-- [~] T018 [US1] Write processed data to `data/processed/descriptors.csv` with schema compliance (FR-001)
+- [X] T017 [US1] Implement data checksumming and state update in `code/ingest/load_data.py` after raw data load (Constitution Principle III, V)
+- [ ] T018 [US1] Write processed data to `data/processed/descriptors.csv` with schema compliance (FR-001)
 
 ### Tests for User Story 1 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow. They depend on T008 and T012-T018.*
 
-- [~] T010 [P] [US1] Write `tests/test_ingest.py` with function `test_invalid_schema_raises_error` asserting `INVALID_DATA_SCHEMA` is raised on bad schema (Mandatory per US-1 Independent Test). **Depends on T008 completion.**
+- [X] T010 [P] [US1] Write `tests/test_ingest.py` with function `test_invalid_schema_raises_error` asserting `INVALID_DATA_SCHEMA` is raised on bad schema (Mandatory per US-1 Independent Test). **Depends on T008 completion.**
 - [ ] T011 [P] [US1] Write `tests/test_features.py` with function `test_descriptor_deviation` asserting derived values deviate ≤1% from `data/raw/elemental_properties.csv` (Mandatory per US-1 Independent Test)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

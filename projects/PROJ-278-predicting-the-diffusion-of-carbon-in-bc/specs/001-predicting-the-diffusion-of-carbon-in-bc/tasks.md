@@ -43,8 +43,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T009 [US1] Implement `code/01_download.py` to fetch `MeLiDC` parquet from verified HuggingFace URL, generate SHA256 checksum, and store in `data/raw/`
-- [~] T010 [US1] Implement `code/02_preprocess.py` to:
+- [X] T009 [US1] Implement `code/01_download.py` to fetch `MeLiDC` parquet from verified HuggingFace URL, generate SHA256 checksum, and store in `data/raw/`
+- [X] T010 [US1] Implement `code/02_preprocess.py` to:
  - Filter for `structure == "BCC"` and `solute == "C"`
  - Enforce provenance check (exclude entries missing `microstructure_controlled`/`single_crystal` flags)
  - Normalize atomic fractions to sum to 1.0
@@ -52,9 +52,9 @@
  - Apply `log10` transformation to `diffusion_coefficient` (FR-003)
  - Output `data/processed/dataset_cleaned.csv`
  - Note: This task produces a clean dataset ready for modeling. The decision to use LOOCV vs 80/20 split is handled in the training phase (T015).
-- [~] T011 [P] [US1] Implement `tests/test_preprocess.py` to verify that if BCC+Carbon count < 30, the system emits a `PowerWarning` and successfully executes LOOCV (fallback behavior) during the training phase, rather than raising `DataInsufficientError`.
+- [X] T011 [P] [US1] Implement `tests/test_preprocess.py` to verify that if BCC+Carbon count < 30, the system emits a `PowerWarning` and successfully executes LOOCV (fallback behavior) during the training phase, rather than raising `DataInsufficientError`.
 - [~] T012 [P] [US1] Contract test for `dataset.schema.yaml` validation in `tests/test_preprocess.py`
-- [~] T013 [P] [US1] Validation test ensuring no non-BCC or missing-composition entries remain in `tests/test_preprocess.py`
+- [X] T013 [P] [US1] Validation test ensuring no non-BCC or missing-composition entries remain in `tests/test_preprocess.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -69,7 +69,7 @@
 ### Tests for User Story 2
 
 - [~] T014 [P] [US2] Contract test for `model_output.schema.yaml` validation in `tests/test_contracts.py`
-- [~] T015 [US2] Implement `code/03_train.py` to:
+- [X] T015 [US2] Implement `code/03_train.py` to:
  - Split data: 80/20 if $N \ge 30$, else LOOCV (emit `PowerWarning`)
  - Train Random Forest, XGBoost, and Elastic Net with constrained grid search (a limited set of combinations)
  - Train an **Elastic Net** model explicitly as the "linear baseline" for permutation testing (per FR-005 and Plan Phase 2)
@@ -78,7 +78,7 @@
  - Perform a permutation test with **10,000 iterations** comparing best ML model vs. the Elastic Net baseline
  - Save trained best model object to `data/outputs/best_model.pkl`
  - Output `data/outputs/model_results.json`
-- [~] T016 [P] [US2] Implement `code/memory_monitor.py` using `psutil` to track and log peak memory usage during model training
+- [X] T016 [P] [US2] Implement `code/memory_monitor.py` using `psutil` to track and log peak memory usage during model training
 - [ ] T017 [P] [US2] Add pytest fixture in `tests/test_memory.py` that wraps training execution and asserts peak memory < 6 GB
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

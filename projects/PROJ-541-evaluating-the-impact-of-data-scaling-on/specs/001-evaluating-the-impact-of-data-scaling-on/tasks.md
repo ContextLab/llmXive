@@ -58,14 +58,14 @@
 ### Tests for User Story 1
 
 - [X] T008 [P] [US1] Contract test for null hypothesis generation in `code/tests/unit/simulation/test_generator.py`
-- [~] T009 [P] [US1] Contract test for alternative hypothesis generation in `code/tests/unit/simulation/test_generator.py`
-- [~] T010 [P] [US1] Test for skewness/heteroscedasticity parameter accuracy in `code/tests/unit/simulation/test_generator.py`
+- [X] T009 [P] [US1] Contract test for alternative hypothesis generation in `code/tests/unit/simulation/test_generator.py`
+- [X] T010 [P] [US1] Test for skewness/heteroscedasticity parameter accuracy in `code/tests/unit/simulation/test_generator.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `generate_synthetic_data` function in `code/simulation/generator.py` supporting normal, skewed, and heteroscedastic distributions
-- [~] T012 [US1] Implement ground truth validation logic in `code/simulation/generator.py` that returns a boolean and logs assertion failures if `mean_diff >= 0.01` for null or `|mean_diff - 1.0| >= 0.05` for alternative. **Deliverable**: Function returns `(bool, str)` where bool indicates validity and str contains error message if invalid.
-- [~] T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`: Log `WARNING` with message "Skipping iteration: zero variance detected" if `std_dev < 1e-9` and skip the specific iteration. **Condition**: `if std_dev < 1e-9`. **Log Level**: `WARNING`.
+- [X] T011 [US1] Implement `generate_synthetic_data` function in `code/simulation/generator.py` supporting normal, skewed, and heteroscedastic distributions
+- [X] T012 [US1] Implement ground truth validation logic in `code/simulation/generator.py` that returns a boolean and logs assertion failures if `mean_diff >= 0.01` for null or `|mean_diff - 1.0| >= 0.05` for alternative. **Deliverable**: Function returns `(bool, str)` where bool indicates validity and str contains error message if invalid.
+- [X] T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`: Log `WARNING` with message "Skipping iteration: zero variance detected" if `std_dev < 1e-9` and skip the specific iteration. **Condition**: `if std_dev < 1e-9`. **Log Level**: `WARNING`.
 - [~] T014 [US1] Implement data persistence to `data/synthetic/` with metadata (seed, config) for reproducibility
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -80,19 +80,19 @@
 
 ### Tests for User Story 2
 
-- [~] T015 [P] [US2] Contract test for Standardization scaling properties (mean=0, std=1) in `code/tests/unit/preprocessing/test_scaling.py`
-- [~] T016 [P] [US2] Contract test for Min-Max scaling properties (min=0, max=1) in `code/tests/unit/preprocessing/test_scaling.py`
-- [~] T017 [P] [US2] Contract test for Robust scaling (median/IQR) and zero-IQR handling in `code/tests/unit/preprocessing/test_scaling.py`
-- [~] T018 [P] [US2] Test for p-value invariance under linear scaling transformations in `code/tests/unit/analysis/test_tests.py`
+- [X] T015 [P] [US2] Contract test for Standardization scaling properties (mean=0, std=1) in `code/tests/unit/preprocessing/test_scaling.py`
+- [X] T016 [P] [US2] Contract test for Min-Max scaling properties (min=0, max=1) in `code/tests/unit/preprocessing/test_scaling.py`
+- [X] T017 [P] [US2] Contract test for Robust scaling (median/IQR) and zero-IQR handling in `code/tests/unit/preprocessing/test_scaling.py`
+- [X] T018 [P] [US2] Test for p-value invariance under linear scaling transformations in `code/tests/unit/analysis/test_tests.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement `standardize_data` function in `code/preprocessing/scaling.py`
-- [~] T020 [P] [US2] Implement `min_max_scale` function in `code/preprocessing/scaling.py`
-- [~] T021 [P] [US2] Implement `robust_scale` function in `code/preprocessing/scaling.py` with explicit zero-IQR handling: Log `WARNING` and skip the iteration if IQR is zero. **Action**: Do not return a constant; skip iteration entirely.
-- [~] T022 [US2] Implement `run_t_test` and `run_anova` in `code/analysis/tests.py`
-- [~] T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with automatic binning logic using **Sturges' rule** for continuous variables. **Deliverable**: Function must explicitly implement Sturges' rule for binning.
-- [~] T024 [US2] Create pipeline wrapper in `code/analysis/tests.py` to apply scaling then test, returning `TestResult` entities
+- [X] T019 [P] [US2] Implement `standardize_data` function in `code/preprocessing/scaling.py`
+- [X] T020 [P] [US2] Implement `min_max_scale` function in `code/preprocessing/scaling.py`
+- [X] T021 [P] [US2] Implement `robust_scale` function in `code/preprocessing/scaling.py` with explicit zero-IQR handling: Log `WARNING` and skip the iteration if IQR is zero. **Action**: Do not return a constant; skip iteration entirely.
+- [X] T022 [US2] Implement `run_t_test` and `run_anova` in `code/analysis/tests.py`
+- [X] T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with automatic binning logic using **Sturges' rule** for continuous variables. **Deliverable**: Function must explicitly implement Sturges' rule for binning.
+- [X] T024 [US2] Create pipeline wrapper in `code/analysis/tests.py` to apply scaling then test, returning `TestResult` entities
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,15 +106,15 @@
 
 ### Tests for User Story 3
 
-- [~] T025 [P] [US3] Contract test for empirical error rate calculation (count < alpha / total) in `code/tests/unit/analysis/test_metrics.py`
-- [~] T026 [P] [US3] Contract test for confidence interval calculation (normal approximation or exact binomial) in `code/tests/unit/analysis/test_metrics.py` <!-- FAILED: unspecified -->
+- [X] T025 [P] [US3] Contract test for empirical error rate calculation (count < alpha / total) in `code/tests/unit/analysis/test_metrics.py`
+- [X] T026 [P] [US3] Contract test for confidence interval calculation (normal approximation or exact binomial) in `code/tests/unit/analysis/test_metrics.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
 - [~] T027 [US3] Implement simulation loop orchestration in `code/main.py` (or `code/simulation/orchestrator.py`) to run sufficient iterations per config. **Depends on**: Completion of Phase 3 (US1) and Phase 4 (US2) implementation. **Output**: Append each `TestResult` to `results/simulation_results.csv` per iteration.
-- [~] T028 [US3] Implement checkpointing mechanism in `code/main.py` to save partial results and **report summary** (number of completed iterations) if loop exceeds a **predefined time threshold**, enforcing a **hard stop**. **Deliverable**: Report must explicitly state count of completed iterations and save partial CSV.
-- [~] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power
-- [~] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs alpha=0.05 with 95% CI
+- [X] T028 [US3] Implement checkpointing mechanism in `code/main.py` to save partial results and **report summary** (number of completed iterations) if loop exceeds a **predefined time threshold**, enforcing a **hard stop**. **Deliverable**: Report must explicitly state count of completed iterations and save partial CSV.
+- [X] T029 [US3] Implement `calculate_aggregate_metrics` in `code/analysis/metrics.py` to compute Type I error and Power
+- [X] T030 [US3] Implement `generate_error_rate_plot` in `code/visualization/plots.py` showing empirical rate vs alpha=0.05 with 95% CI
 - [~] T031a [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **synthetic data**: Fit mixed-effects model with `scaling_method` and `distribution_type` as fixed effects, and `simulation_batch` as the random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_synthetic.csv`. **Formula**: `deviation ~ scaling_method + distribution_type + (1|simulation_batch)`. **Deliverable**: Function must return model summary and save to CSV.
 - [~] T031b [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py` for **real-world data**: Fit mixed-effects model with `scaling_method` as fixed effect, `dataset_id` as random effect. Dependent variable: `deviation from nominal alpha`. Output: `results/mixed_effects_summary.csv`. **Formula**: `deviation ~ scaling_method + (1|dataset_id)`. **Deliverable**: Function must return model summary and save to CSV.
 - [~] T032 [US3] Generate summary report comparing deviations of each scaling method from nominal 0.05
@@ -131,14 +131,14 @@
 
 ### Tests for User Story 4
 
-- [~] T033 [P] [US4] Contract test for dataset ingestion (handle missing values, output clean DF) in `code/tests/unit/preprocessing/test_ingestion.py`
-- [~] T034a [P] [US4] Integration test for full real-world pipeline on Iris dataset in `code/tests/integration/test_real_world.py`
+- [X] T033 [P] [US4] Contract test for dataset ingestion (handle missing values, output clean DF) in `code/tests/unit/preprocessing/test_ingestion.py`
+- [X] T034a [P] [US4] Integration test for full real-world pipeline on Iris dataset in `code/tests/integration/test_real_world.py`
 
 ### Implementation for User Story 4
 
-- [~] T034a [US4] **Create Dataset Configuration**: Generate `data/config/datasets.yaml` containing the list of verified datasets (IDs: `uciml/iris`, `uciml/wine`, `uciml/breast-cancer-wisconsin`, `uciml/heart-statlog`, `uciml/ionosphere`, `uciml/credit-a`, `uciml/credit-g`, `uciml/hepatitis`, `uciml/horse-colic`, `openml/d/2`, `openml/d/3`, `openml/d/11`). Include metadata (source, expected size) for each.
-- [~] T035 [US4] Implement `download_dataset` function in `code/preprocessing/ingestion.py` using specific verified URLs or `datasets.load_dataset` for the datasets listed in `data/config/datasets.yaml`. **Deliverable**: Function must read dataset list from `data/config/datasets.yaml`.
-- [~] T036 [US4] Implement data cleaning and preprocessing (imputation/removal) in `code/preprocessing/ingestion.py`
+- [X] T034a [US4] **Create Dataset Configuration**: Generate `data/config/datasets.yaml` containing the list of verified datasets (IDs: `uciml/iris`, `uciml/wine`, `uciml/breast-cancer-wisconsin`, `uciml/heart-statlog`, `uciml/ionosphere`, `uciml/credit-a`, `uciml/credit-g`, `uciml/hepatitis`, `uciml/horse-colic`, `openml/d/2`, `openml/d/3`, `openml/d/11`). Include metadata (source, expected size) for each.
+- [X] T035 [US4] Implement `download_dataset` function in `code/preprocessing/ingestion.py` using specific verified URLs or `datasets.load_dataset` for the datasets listed in `data/config/datasets.yaml`. **Deliverable**: Function must read dataset list from `data/config/datasets.yaml`.
+- [X] T036 [US4] Implement data cleaning and preprocessing (imputation/removal) in `code/preprocessing/ingestion.py`
 - [ ] T037 [US4] Create `RealWorldDataset` entity and metadata storage in `code/preprocessing/ingestion.py`
 - [ ] T034b [US4] **Orchestrate Real-World Dataset Ingestion**: Implement loop in `code/main.py` to iterate over the configuration list in `data/config/datasets.yaml`. Track metadata for each source (source, size, missing_rate) in `data/metadata/manifest.json`. Skip missing datasets with warnings. **Depends on**: T034a, T035, T036. **Config**: Read dataset list from `data/config/datasets.yaml`.
 - [ ] T038 [US4] Reuse scaling and testing pipeline (US2) on real data in `code/main.py`. **Depends on**: Completion of Phase 4 (US2) implementation (T019-T024) and Phase 6 setup (T035-T036).

@@ -58,7 +58,7 @@
 - [X] T004 [P] Implement `code/config.py` with paths, seeds (42), and constants
 - [ ] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
 - [ ] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA256 checksums and update `state/...yaml`
-- [~] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
+- [X] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +75,13 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
-- [~] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
+- [X] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
 - [~] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
-- [~] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> Binary Adjacency (density thresholded) AND Weighted Adjacency (streamline count); input:.trk/.tck streamlines,.nii.gz atlas; output: `data/processed/binary_adjacency.npy`, `data/processed/weighted_adjacency.npy`
+- [ ] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
+- [ ] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> Binary Adjacency (density thresholded) AND Weighted Adjacency (streamline count); input:.trk/.tck streamlines,.nii.gz atlas; output: `data/processed/binary_adjacency.npy`, `data/processed/weighted_adjacency.npy`
 - [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and Global Efficiency (on the **weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014); input: `data/processed/weighted_adjacency.npy`; output: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`
 - [ ] T016 [US1] Implement logging of all processing steps, warnings, and errors to `data/logs/pipeline.log`
 - [ ] T017 [US1] Save processed matrices (`structural.npy`, `rsfc.npy`) to `data/processed/` with provenance metadata

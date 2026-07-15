@@ -84,8 +84,8 @@ expected alphabetic or numeric character, but found '*'
 - [ ] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to -parcel adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from ` (SHA-256: `a1b2c3d4...`) and apply it via registration to the OpenNeuro data. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T011 [US1] Implement `code/data/simulate_EEG.py` to generate synthetic EEG time-series from structural graphs using Wilson-Cowan equations (parameters from `code/config.py` section `SIMULATION_PARAMS`). **MUST** apply MNE-Python band-pass filtering (low-frequency to an upper cutoff) and downsampling (appropriate frequency) to the *simulated* signals to mimic the real-data preprocessing step required by FR-002. **Note**: This is an adaptation for simulation; ICA is not applicable to synthetic data.
 - [ ] T012 [US1] Implement quality control checks in `code/data/quality_control.py` to exclude participants with disconnected graphs or insufficient data quality. **Define** 'removed channels' as channels with SNR < 5dB in simulated data. **Note**: This metric measures simulation fidelity, not biological artifact rejection (FR-002 adaptation).
-- [~] T012b [US1] Implement reporting logic in `code/data/quality_control.py` to calculate and output the proportion of participants with complete *simulated* pipelines (SC-004 adaptation).
-- [~] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3).
+- [X] T012b [US1] Implement reporting logic in `code/data/quality_control.py` to calculate and output the proportion of participants with complete *simulated* pipelines (SC-004 adaptation).
+- [X] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data pipeline complete)
 
@@ -99,11 +99,11 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 2
 
-- [~] T014 [P] [US2] Implement `code/analysis/metrics.py` to compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX and BCTpy (FR-003). **Note**: Can run in parallel with T015 *after* T010 completes.
-- [~] T015 [US2] Implement `code/analysis/avalanches.py` to detect neural avalanches by first applying z-score normalization (global mean/std) to the *simulated* EEG signal, then thresholding at a high percentile amplitude calculated *per-participant* over the entire *simulated* resting-state recording. **Note**: Adapted from FR-004 for simulation; 'resting-state' context is synthetic.
-- [~] T016 [US2] Implement power-law model fitting in `code/analysis/fitting.py` using `powerlaw` package with model comparison (power-law vs. exponential vs. log-normal) per FR-011.
-- [~] T017 [US2] Create export script `code/analysis/export_metrics.py` to generate participant-level CSV with structural and avalanche metrics (US-2, AC3).
-- [~] T018 [P] [US2] Implement unit tests in `tests/test_metrics.py` (e.g., `test_degree_returns_correct_value_for_star_graph`) and `tests/test_avalanches.py` (e.g., `test_avalanche_detection_handles_flat_signal`).
+- [X] T014 [P] [US2] Implement `code/analysis/metrics.py` to compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX and BCTpy (FR-003). **Note**: Can run in parallel with T015 *after* T010 completes.
+- [X] T015 [US2] Implement `code/analysis/avalanches.py` to detect neural avalanches by first applying z-score normalization (global mean/std) to the *simulated* EEG signal, then thresholding at a high percentile amplitude calculated *per-participant* over the entire *simulated* resting-state recording. **Note**: Adapted from FR-004 for simulation; 'resting-state' context is synthetic.
+- [X] T016 [US2] Implement power-law model fitting in `code/analysis/fitting.py` using `powerlaw` package with model comparison (power-law vs. exponential vs. log-normal) per FR-011.
+- [X] T017 [US2] Create export script `code/analysis/export_metrics.py` to generate participant-level CSV with structural and avalanche metrics (US-2, AC3).
+- [X] T018 [P] [US2] Implement unit tests in `tests/test_metrics.py` (e.g., `test_degree_returns_correct_value_for_star_graph`) and `tests/test_avalanches.py` (e.g., `test_avalanche_detection_handles_flat_signal`).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (metrics computed)
 
@@ -117,12 +117,12 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [~] T019 [US3] Implement `code/analysis/stats.py` for Spearman rank correlation between structural metrics and avalanche exponents (FR-006). **Depends on**: T014 and T015 completion.
-- [~] T020 [US3] Implement non-parametric permutation test (sufficient shuffles) and family-wise error correction using **Holm-Bonferroni** method in `code/analysis/stats.py` (FR-007). **Depends on**: T019 completion.
-- [~] T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py` with flagging logic for VIF ≥ 5 (FR-009).
-- [~] T022 [US3] Implement sensitivity analysis sweep across a range of thresholds in `code/analysis/sensitivity.py` (FR-008).
-- [~] T023 [US3] Create final report generator `code/analysis/report.py` ensuring all findings are framed as associational (FR-010).
-- [~] T024 [P] [US3] Implement integration tests in `tests/test_stats.py` using a mock dataset of a small cohort of participants with known ground-truth correlations; assert p_value < 0.05 for known correlation.
+- [X] T019 [US3] Implement `code/analysis/stats.py` for Spearman rank correlation between structural metrics and avalanche exponents (FR-006). **Depends on**: T014 and T015 completion.
+- [X] T020 [US3] Implement non-parametric permutation test (sufficient shuffles) and family-wise error correction using **Holm-Bonferroni** method in `code/analysis/stats.py` (FR-007). **Depends on**: T019 completion.
+- [X] T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py` with flagging logic for VIF ≥ 5 (FR-009).
+- [X] T022 [US3] Implement sensitivity analysis sweep across a range of thresholds in `code/analysis/sensitivity.py` (FR-008).
+- [X] T023 [US3] Create final report generator `code/analysis/report.py` ensuring all findings are framed as associational (FR-010).
+- [X] T024 [P] [US3] Implement integration tests in `tests/test_stats.py` using a mock dataset of a small cohort of participants with known ground-truth correlations; assert p_value < 0.05 for known correlation.
 
 **Checkpoint**: All user stories should now be independently functional
 

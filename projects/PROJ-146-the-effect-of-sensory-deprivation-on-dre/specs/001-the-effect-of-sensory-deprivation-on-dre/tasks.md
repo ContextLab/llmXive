@@ -90,7 +90,7 @@
 - [~] T014 [US1] Implement logic to save processed data to `data/processed/` with derived `condition` column based on deprivation intensity thresholds (strict, moderate, partial)
 - [~] T015 [US1] Add validation to ensure `recall` is binary (0/1) and `bizarreness` is integer 1-7 in the final dataframe
 - [~] T016 [US1] Add logging for data generation parameters and ingestion source (real vs. synthetic)
-- [~] T017 [US1] Implement logic to generate/iterate processed datasets for ALL three thresholds defined in `protocol.yaml` (strict, moderate, partial) and save them as distinct files: `data/processed/data_threshold_strict.csv`, `data/processed/data_threshold_moderate.csv`, `data/processed/data_threshold_partial.csv`. Each file must contain the `condition` column populated with the exact label from `protocol.yaml`.
+- [ ] T017 [US1] Implement logic to generate/iterate processed datasets for ALL three thresholds defined in `protocol.yaml` (strict, moderate, partial) and save them as distinct files: `data/processed/data_threshold_strict.csv`, `data/processed/data_threshold_moderate.csv`, `data/processed/data_threshold_partial.csv`. Each file must contain the `condition` column populated with the exact label from `protocol.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Data Pipeline Ready)
 
@@ -104,17 +104,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [~] T019 [P] [US2] Unit test for logistic regression fit on known data in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
+- [X] T019 [P] [US2] Unit test for logistic regression fit on known data in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/models.py` with `fit_logistic_mixed` using `statsmodels` GLM with Firth correction (penalized likelihood) or a custom penalized likelihood wrapper to handle zero-count recall cases, as native mixed-effects Firth is unsupported.
-- [~] T021 [US2] Implement `fit_linear_mixed` in `code/models.py` for `bizarreness` scores using `statsmodels` (approximation if necessary)
+- [X] T020 [US2] Implement `code/models.py` with `fit_logistic_mixed` using `statsmodels` GLM with Firth correction (penalized likelihood) or a custom penalized likelihood wrapper to handle zero-count recall cases, as native mixed-effects Firth is unsupported.
+- [X] T021 [US2] Implement `fit_linear_mixed` in `code/models.py` for `bizarreness` scores using `statsmodels` (approximation if necessary)
 - [~] T022 [US2] Implement logic to handle `participant_id` as a random intercept (using `statsmodels` grouping) for logistic and linear models.
 - [~] T022a [US2] **Design Waiver**: Document the deviation from FR-008 (Mixed-Effects Ordinal) due to lack of CPU-tractable mixed-effects ordinal libraries in Python. Define the fallback strategy: use Fixed-Effects OrderedModel (T024) and validate its accuracy against the known random-intercept ground truth of the synthetic data (T023).
-- [~] T023 [US2] Implement `code/models.py` with `validate_ordinal_approx`: A routine that takes the synthetic data (with known random intercepts), fits the Fixed-Effects OrderedModel, and compares the recovered fixed effects against the known ground truth to quantify the approximation error. This satisfies the robustness intent of FR-008.
-- [~] T024 [US2] Implement `fit_ordinal_approx` in `code/models.py` using `statsmodels.OrderedModel` as a FIXED-EFFECTS approximation for robustness check against the linear model, strictly following the Design Waiver (T022a) and using the validation routine (T023) to confirm validity.
+- [X] T023 [US2] Implement `code/models.py` with `validate_ordinal_approx`: A routine that takes the synthetic data (with known random intercepts), fits the Fixed-Effects OrderedModel, and compares the recovered fixed effects against the known ground truth to quantify the approximation error. This satisfies the robustness intent of FR-008.
+- [X] T024 [US2] Implement `fit_ordinal_approx` in `code/models.py` using `statsmodels.OrderedModel` as a FIXED-EFFECTS approximation for robustness check against the linear model, strictly following the Design Waiver (T022a) and using the validation routine (T023) to confirm validity.
 - [~] T025 [US2] Implement result serialization to `results/models/` containing fixed effects estimates, standard errors, degrees of freedom, and p-values
 - [~] T026 [US2] Add logic to detect sample size < 10 and issue a warning or fallback to fixed-effects model
 - [~] T027 [US2] Ensure all results are framed as "associational" in the output metadata (no causal language)
@@ -131,13 +131,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
-- [~] T029 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_sensitivity.py`
+- [X] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
+- [X] T029 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
 - [~] T030 [US3] Implement `code/sensitivity.py` with `run_threshold_sweep` to iterate over the three distinct datasets generated in T017 (`data_threshold_strict.csv`, `data_threshold_moderate.csv`, `data_threshold_partial.csv`). Read the exact threshold labels from `protocol.yaml` and use them in the report.
-- [~] T031 [US3] Implement `run_bootstrap` in `code/sensitivity.py` with a dynamic resample loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard cap of 5,000 resamples is reached [UNRESOLVED-CLAIM: c_8fc7da0a — status=not_enough_info]. If the cap is hit, use the last stable CI and log a warning.
+- [X] T031 [US3] Implement `run_bootstrap` in `code/sensitivity.py` with a dynamic resample loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard cap of 5,000 resamples is reached [UNRESOLVED-CLAIM: c_8fc7da0a — status=not_enough_info]. If the cap is hit, use the last stable CI and log a warning.
 - [~] T032 [US3] Implement logic to compare bootstrap CIs against original parametric CIs AND explicitly check if the confidence interval crosses zero.; flag as 'unstable' if it does, satisfying SC-003.
 - [~] T033 [US3] Implement result aggregation to `results/models/` containing variation tables for odds ratios across thresholds
 - [ ] T034 [US3] Add logic to generate a "Robustness" summary section in the final report data

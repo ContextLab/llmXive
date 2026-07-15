@@ -75,18 +75,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match` to verify empty list when no compounds match SMARTS. <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<scalar>'
+- [X] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match` to verify empty list when no compounds match SMARTS. <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<scalar>'
  in "<unicode string>", line 2, column 3:
  """Unit tests for the SMARTS-based...
  ^) -->
-- [~] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
+- [X] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/download.py` to fetch Tox21 dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`, including checksum verification
+- [ ] T011 [US1] Implement `code/download.py` to fetch Tox21 dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`, including checksum verification
 - [~] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`
 - [~] T013 [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint; if sample size < 50, log a "Low Sample Size" warning and skip statistical tests (do not raise error), recording this limitation in `data/processed/filter_log.txt`
-- [~] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`
+- [ ] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,14 +100,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T015 [P] [US2] Unit test in `tests/unit/test_fingerprints.py::test_morgan_fingerprint_generation` to verify Morgan fingerprint generation parameters.
-- [~] T016 [P] [US2] Unit test in `tests/unit/test_split.py::test_greedy_split_tanimoto_threshold` to verify the greedy split logic maintains Tanimoto < 0.85.
+- [X] T015 [P] [US2] Unit test in `tests/unit/test_fingerprints.py::test_morgan_fingerprint_generation` to verify Morgan fingerprint generation parameters.
+- [X] T016 [P] [US2] Unit test in `tests/unit/test_split.py::test_greedy_split_tanimoto_threshold` to verify the greedy split logic maintains Tanimoto < 0.85.
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB
-- [~] T018 [US2] Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split (Tanimoto < 0.85) for each of 5 folds: 1) Initialize test set with the compound furthest from the mean; 2) Iterate through remaining compounds, selecting the one with max min-distance to current test set; 3) Add to test set if distance > threshold; 4) Verify test set size >= 20; 5) Halt execution if split cannot achieve 20 samples with Tanimoto < 0.85.
-- [~] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA)
+- [X] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB
+- [X] T018 [US2] Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split (Tanimoto < 0.85) for each of 5 folds: 1) Initialize test set with the compound furthest from the mean; 2) Iterate through remaining compounds, selecting the one with max min-distance to current test set; 3) Add to test set if distance > threshold; 4) Verify test set size >= 20; 5) Halt execution if split cannot achieve 20 samples with Tanimoto < 0.85.
+- [X] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA)
 - [~] T020 [US2] Save model artifacts and split indices to `data/processed/models/` and `data/processed/splits/`
 - [~] T021 [US2] Add error handling in `code/split.py` to halt execution, log "Insufficient Structural Diversity: Cannot achieve valid split," and output `data/processed/invalid_split_report.md` if the 20-sample threshold with Tanimoto < 0.85 cannot be met.
 
@@ -123,16 +123,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on CV scores.
-- [~] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
+- [X] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on CV scores.
+- [X] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
 
 ### Implementation for User Story 3
 
-- [~] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for all 5 folds
-- [~] T025 [US3] Implement `code/evaluate.py` to perform a Paired t-test on the 5-fold CV scores for BOTH ROC-AUC and Precision-Recall AUC differences to determine statistical significance (p < 0.05). <!-- ATOMIZE: requested -->
-- [~] T026 [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC
-- [~] T027 [US3] Implement `code/evaluate.py` to map Morgan fingerprint bits to phosphorus-centered substructures: 1) Identify phosphorus atom (atomic number characteristic of the element) in the molecule; 2) Use RDKit `GetBitInfo` to find bits within a defined radius of the phosphorus atom; 3) Sum the Gini importance for these specific bits; 4) Compare this sum to the total Gini importance.
-- [~] T028 [US3] Implement `code/evaluate.py` to verify SC-003: explicitly check if the sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by ≥ 15%; record result in report.
+- [X] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for all 5 folds
+- [X] T025 [US3] Implement `code/evaluate.py` to perform a Paired t-test on the 5-fold CV scores for BOTH ROC-AUC and Precision-Recall AUC differences to determine statistical significance (p < 0.05). <!-- ATOMIZE: requested -->
+- [X] T026 [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC
+- [X] T027 [US3] Implement `code/evaluate.py` to map Morgan fingerprint bits to phosphorus-centered substructures: 1) Identify phosphorus atom (atomic number characteristic of the element) in the molecule; 2) Use RDKit `GetBitInfo` to find bits within a defined radius of the phosphorus atom; 3) Sum the Gini importance for these specific bits; 4) Compare this sum to the total Gini importance.
+- [X] T028 [US3] Implement `code/evaluate.py` to verify SC-003: explicitly check if the sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by ≥ 15%; record result in report.
 - [ ] T029 [US3] Generate final report `data/processed/research_results.md` containing: (1) Metrics table (ROC-AUC, PR-AUC, Balanced Accuracy per fold), (2) Statistical Test Results (p-values for ROC-AUC and PR-AUC), (3) SC-003 Analysis (Gini sums and threshold verification)
 - [ ] T030 [US3] Add logic to handle "Low Sample Size" warning: if n < 50, skip t-test and report descriptive stats only in `data/processed/research_results.md`
 

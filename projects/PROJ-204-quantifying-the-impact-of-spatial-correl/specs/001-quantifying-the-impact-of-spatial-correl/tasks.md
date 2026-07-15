@@ -74,7 +74,7 @@
 - [ ] T005 [P] Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`, `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`, `code/report/`, `tests/`
 - [X] T006 [P] Create base configuration loader for environment variables, random seeds, and thresholds (e.g., `min_sample_count`, `ingestion_success_threshold`) in `code/utils/config.py`
 - [ ] T007 Implement `code/main_pipeline.py` entry point: accepts `--config` path, logs to `logs/pipeline.log`, orchestrates download -> preprocess -> analyze -> report steps
-- [~] T008 Create data model definitions (ElementalMap, DevicePerformance, SpatialMetric, AnalysisResult) in `code/data/models.py`
+- [X] T008 Create data model definitions (ElementalMap, DevicePerformance, SpatialMetric, AnalysisResult) in `code/data/models.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,14 +88,14 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified -->
+- [ ] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified -->
 - [~] T011 [US1] **Conditional Download**: If T010 succeeded, fetch EDS maps from the verified URL determined by T010 (not placeholder URLs) and Zenodo, saving raw files to `data/raw/`. If T010 failed, skip this task. (FR-001) <!-- FAILED: unspecified -->
-- [~] T012 [US1] Implement `code/data/align.py` to resample maps to a common pixel grid and handle dimension mismatches (US-1 Edge Case)
-- [~] T013 [US1] Implement `code/preprocess/calibrate.py` to mask defective regions (dead pixels, artifacts) and log masked area percentage (US-1 Scenario 2)
+- [X] T012 [US1] Implement `code/data/align.py` to resample maps to a common pixel grid and handle dimension mismatches (US-1 Edge Case)
+- [X] T013 [US1] Implement `code/preprocess/calibrate.py` to mask defective regions (dead pixels, artifacts) and log masked area percentage (US-1 Scenario 2)
 - [~] T014c [US1] Implement `code/data/ingest.py` to orchestrate download, alignment, and masking, outputting a unified CSV to `data/processed/unified_dataset.csv` with columns: sample_id, Pb_map_path, I_map_path, MA_map_path, PCE, J_sc, V_oc. **Note**: This task produces the "pre-filter" valid dataset used for sensitivity analysis.
 - [~] T015 [US1] Add validation logic to exclude samples with missing performance metrics and log warnings with specific sample IDs (US-1 Scenario 3)
-- [~] T016 [US1] Implement co-location validation check in `code/validation/co_location.py` to verify EDS map and PCE originate from the same device by matching `device_id` metadata fields, setting a `validation_flag` for each sample (FR-007)
-- [~] T023 [US1] Implement depth resolution validation in `code/validation/depth_check.py` to flag samples where bulk EDS may not correlate with surface PCE, setting a `depth_flag` (FR-008)
+- [ ] T016 [US1] Implement co-location validation check in `code/validation/co_location.py` to verify EDS map and PCE originate from the same device by matching `device_id` metadata fields, setting a `validation_flag` for each sample (FR-007)
+- [X] T023 [US1] Implement depth resolution validation in `code/validation/depth_check.py` to flag samples where bulk EDS may not correlate with surface PCE, setting a `depth_flag` (FR-008)
 - [~] T010b [US1] **Calculate Ingestion Rate**: Compute `ingestion_success_rate` (N_processed / N_requested) from T010/T011 results and write to `state/ingestion_stats.json` for reporting.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,9 +111,9 @@
 ### Implementation for User Story 2
 
 - [~] T019 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D autocorrelation functions for Pb, I, and MA maps, writing results to `data/processed/spatial_metrics.csv` with columns: sample_id, element, correlation_length, model_type, AIC (FR-002)
-- [~] T020 [US2] Implement decay model fitting (exponential, Gaussian, power-law) in `code/analysis/spatial_metrics.py` with AIC-based best-fit selection (FR-002)
+- [X] T020 [US2] Implement decay model fitting (exponential, Gaussian, power-law) in `code/analysis/spatial_metrics.py` with AIC-based best-fit selection (FR-002)
 - [~] T021 [US2] Implement logic to flag "undefined" correlation lengths when decay does not occur within image bounds and record lower bounds (US-2 Scenario 3)
-- [~] T022 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D Fourier transforms and integrated low-frequency spectral power (low-frequency range) (FR-003)
+- [X] T022 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D Fourier transforms and integrated low-frequency spectral power (low-frequency range) (FR-003)
 - [~] T024 [US2] Aggregate all spatial metrics into a structured DataFrame in `data/processed/spatial_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,12 +128,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T034 [US3] **Unified Sample Filtering**: Implement `code/modeling/filter.py` to consume `validation_flag` (T016) and `depth_flag` (T023), filtering out mismatched samples from the dataset produced by T014c. This task produces the **primary_analysis_dataset** used for all subsequent correlation calculations (T027, T028, T029, AND T031c). (FR-007, FR-008)
+- [X] T034 [US3] **Unified Sample Filtering**: Implement `code/modeling/filter.py` to consume `validation_flag` (T016) and `depth_flag` (T023), filtering out mismatched samples from the dataset produced by T014c. This task produces the **primary_analysis_dataset** used for all subsequent correlation calculations (T027, T028, T029, AND T031c). (FR-007, FR-008)
 - [~] T031c [US3] **Sensitivity Analysis (Counter-Factual)**: Implement `code/modeling/sensitivity.py` to calculate the impact of excluding depth-confounded samples. **Input**: The "pre-filter" valid dataset from T014c and the **primary_analysis_dataset** from T034. **Execution Order**: This task runs AFTER T034 completes, but CAN run in parallel with T027, T028, and T029 as it consumes T034's output. **Action**: Compute correlation coefficients on both datasets, calculate the delta (Δr), and define the quantitative threshold for "high sensitivity" (default: [deferred] change in correlation coefficient, configurable via `config.yaml`). Report whether the exclusion of flagged samples significantly alters the conclusion. (FR-008)
-- [~] T027 [US3] Implement `code/modeling/correlation.py` to calculate Pearson and Spearman correlation coefficients and p-values between spatial metrics and PCE using the **primary_analysis_dataset from T034** (FR-004)
-- [~] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons in `code/modeling/correlation.py` and report raw/adjusted p-values (FR-004)
-- [~] T029 [US3] Implement `code/modeling/gam.py` to fit Generalized Additive Models (GAM) for detecting non-linear relationships (FR-004)
-- [~] T030 [US3] Implement `code/analysis/robustness.py` to perform leave-one-out cross-validation and report Δr changes for each sample (FR-005, SC-003)
+- [X] T027 [US3] Implement `code/modeling/correlation.py` to calculate Pearson and Spearman correlation coefficients and p-values between spatial metrics and PCE using the **primary_analysis_dataset from T034** (FR-004)
+- [X] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons in `code/modeling/correlation.py` and report raw/adjusted p-values (FR-004)
+- [X] T029 [US3] Implement `code/modeling/gam.py` to fit Generalized Additive Models (GAM) for detecting non-linear relationships (FR-004)
+- [X] T030 [US3] Implement `code/analysis/robustness.py` to perform leave-one-out cross-validation and report Δr changes for each sample (FR-005, SC-003)
 - [~] T032 [US3] Implement `code/report/generate.py` to generate summary report (CSV at `data/report/summary.csv` and PDF at `data/report/summary.pdf`) with fields: correlation coefficient, p-value, sample count, best-fit model, AIC, Δr max, **ingestion_success_rate** (read from `state/ingestion_stats.json`), and **sensitivity_delta_r** (from T031c) (FR-006)
 - [~] T033 [US3] Add logic to calculate statistical power; if N < `config.min_sample_count` (default a moderate number), flag results as 'non-definitive' and halt interpretation (Assumptions)
 

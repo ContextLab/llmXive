@@ -59,8 +59,8 @@
 - [X] T005 Implement `code/config.py` with paths, seeds (42), and API key handling
 - [X] T006 Implement `code/utils/logging.py` with structured logging for provenance
 - [X] T007 Implement `code/utils/checksums.py` to generate SHA-256 for `data/` artifacts
-- [~] T008 Create `contracts/` schema files: `dataset.schema.yaml`, `output.schema.yaml`
-- [~] T009 Implement `code/main.py` orchestration skeleton with error handling for `ERR_INSUFFICIENT_DATA`
+- [ ] T008 Create `contracts/` schema files: `dataset.schema.yaml`, `output.schema.yaml`
+- [X] T009 Implement `code/main.py` orchestration skeleton with error handling for `ERR_INSUFFICIENT_DATA`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,19 +76,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for BCC filtering logic in `tests/unit/test_filter_bcc.py`
-- [~] T011 [P] [US1] Integration test for API retry/backoff logic in `tests/integration/test_api_retry.py`
-- [~] T012 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_merged_schema.py`
+- [X] T010 [P] [US1] Unit test for BCC filtering logic in `tests/unit/test_filter_bcc.py`
+- [X] T011 [P] [US1] Integration test for API retry/backoff logic in `tests/integration/test_api_retry.py`
+- [X] T012 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_merged_schema.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/ingestion/fetch_experimental.py` to download BCC Fe-alloy data from the URL defined in `code/config.py` (e.g., `CONFIG.EXPERIMENTAL_DATA_URL`)
-- [~] T014 [US1] Implement `code/ingestion/fetch_dft.py` to query Materials Project API for elastic constants (with exponential backoff)
-- [~] T015 [US1] Implement `code/ingestion/merge_and_filter.py` to join datasets, filter for Space Group 229 (BCC), and handle nulls
-- [~] T016 [US1] Implement `code/ingestion/merge_and_filter.py` to handle range values (e.g., "200-250") by taking midpoints and flagging uncertainty
-- [~] T017 [US1] Write the final merged dataset to `data/intermediate/merged.csv` and verify row count ≥ 20; raise `ERR_INSUFFICIENT_DATA` if not
-- [~] T018 [US1] Add logging for API queries and failures to `data/provenance/dft_queries.jsonl`
-- [~] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
+- [X] T013 [US1] Implement `code/ingestion/fetch_experimental.py` to download BCC Fe-alloy data from the URL defined in `code/config.py` (e.g., `CONFIG.EXPERIMENTAL_DATA_URL`)
+- [X] T014 [US1] Implement `code/ingestion/fetch_dft.py` to query Materials Project API for elastic constants (with exponential backoff)
+- [X] T015 [US1] Implement `code/ingestion/merge_and_filter.py` to join datasets, filter for Space Group 229 (BCC), and handle nulls
+- [X] T016 [US1] Implement `code/ingestion/merge_and_filter.py` to handle range values (e.g., "200-250") by taking midpoints and flagging uncertainty
+- [ ] T017 [US1] Write the final merged dataset to `data/intermediate/merged.csv` and verify row count ≥ 20; raise `ERR_INSUFFICIENT_DATA` if not
+- [X] T018 [US1] Add logging for API queries and failures to `data/provenance/dft_queries.jsonl`
+- [ ] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
 - [~] T020 [US1] Update `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` with artifact hashes
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,19 +103,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for feature encoding (one-hot, fractions) in `tests/unit/test_features.py`
-- [~] T022 [P] [US2] Unit test for statistical power calculation in `tests/unit/test_power_analysis.py`
-- [~] T023 [P] [US2] Integration test for nested CV loop in `tests/integration/test_cv_loop.py`
+- [X] T021 [P] [US2] Unit test for feature encoding (one-hot, fractions) in `tests/unit/test_features.py`
+- [X] T022 [P] [US2] Unit test for statistical power calculation in `tests/unit/test_power_analysis.py`
+- [X] T023 [P] [US2] Integration test for nested CV loop in `tests/integration/test_cv_loop.py`
 
 ### Implementation for User Story 2
 
-- [~] T024 [US2] Implement `code/modeling/features.py` to encode composition (one-hot, atomic fractions) and normalize DFT descriptors
-- [~] T025 [US2] Implement `code/modeling/features.py` to calculate Variance Inflation Factors (VIF) and report multicollinearity
-- [~] T026 [US2] Implement `code/modeling/train.py` to train Random Forest with k-fold CV (composition-only baseline)
-- [~] T027 [US2] Implement `code/modeling/train.py` to train Random Forest with composition + DFT descriptors
-- [~] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
-- [~] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
-- [~] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
+- [X] T024 [US2] Implement `code/modeling/features.py` to encode composition (one-hot, atomic fractions) and normalize DFT descriptors
+- [X] T025 [US2] Implement `code/modeling/features.py` to calculate Variance Inflation Factors (VIF) and report multicollinearity
+- [X] T026 [US2] Implement `code/modeling/train.py` to train Random Forest with k-fold CV (composition-only baseline)
+- [X] T027 [US2] Implement `code/modeling/train.py` to train Random Forest with composition + DFT descriptors
+- [X] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
+- [X] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
+- [X] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
 - [ ] T031 [US2] Calculate and report Pearson correlation between Shear Modulus and Yield Strength (SC-001, FR-005) using `data/intermediate/merged.csv` as input and write to `output.json`
 - [ ] T032 [US2] Write final metrics to `data/results/output.json` conforming to `contracts/output.schema.yaml`
 

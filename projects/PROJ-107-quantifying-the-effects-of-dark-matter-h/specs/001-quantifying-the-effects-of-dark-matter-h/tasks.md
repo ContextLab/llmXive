@@ -59,7 +59,7 @@
 - [ ] T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`) to handle <7GB RAM constraints
 - [ ] T006 [P] Create base logging infrastructure for pipeline tracking
 - [ ] T007 Setup `data/metadata.yaml` schema for checksums and version tracking
-- [~] T008 Implement `code/main.py` entry point for pipeline orchestration
+- [X] T008 Implement `code/main.py` entry point for pipeline orchestration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,11 +80,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement TNG-100 data fetcher in `code/ingestion/tng_loader.py`: Fetch static HDF files from `https://www.tng-project.org/api/v2/snapshots/000/halos` (specifically the list of HDF5 files for Snapshot 000) using `requests`, handling pagination and checksums. **Note**: Use the API to retrieve the list of files, then download specific HDF5 files.
-- [~] T012 [P] [US1] Implement reduced inertia tensor calculation in `code/processing/inertia_tensor.py` (eigenvalue decomposition)
-- [~] T013 [US1] Implement shape metrics derivation (axial ratios, triaxiality) in `code/processing/shape_metrics.py`
-- [~] T014 [US1] Implement halo filtering logic (exclude N < 10,000 particles) in `code/processing/shape_metrics.py`
-- [~] T015 [US1] Implement chunked loop logic in `code/processing/pipeline_runner.py`: Read input chunks (configurable size), iterate over haloes, and yield processed records. Includes T016 logic.
+- [ ] T011 [P] [US1] Implement TNG-100 data fetcher in `code/ingestion/tng_loader.py`: Fetch static HDF files from `https://www.tng-project.org/api/v2/snapshots/000/halos` (specifically the list of HDF5 files for Snapshot 000) using `requests`, handling pagination and checksums. **Note**: Use the API to retrieve the list of files, then download specific HDF5 files.
+- [X] T012 [P] [US1] Implement reduced inertia tensor calculation in `code/processing/inertia_tensor.py` (eigenvalue decomposition)
+- [X] T013 [US1] Implement shape metrics derivation (axial ratios, triaxiality) in `code/processing/shape_metrics.py`
+- [X] T014 [US1] Implement halo filtering logic (exclude N < 10,000 particles) in `code/processing/shape_metrics.py`
+- [X] T015 [US1] Implement chunked loop logic in `code/processing/pipeline_runner.py`: Read input chunks (configurable size), iterate over haloes, and yield processed records. Includes T016 logic.
 - [~] T017 [US1] Implement aggregation and validation in `code/processing/pipeline_runner.py`: Merge chunks, validate 0 < b/a ≤ 1 and 0 < c/a ≤ 1, log excluded haloes, and output `data/processed/halo_shapes.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,17 +101,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for binning logic (prolate/triaxial/spherical) in `code/tests/test_stats.py`
-- [~] T019 [P] [US2] Unit test for Bonferroni correction application in `code/tests/test_stats.py`
+- [X] T018 [P] [US2] Unit test for binning logic (prolate/triaxial/spherical) in `code/tests/test_stats.py`
+- [X] T019 [P] [US2] Unit test for Bonferroni correction application in `code/tests/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement shape binning logic (c/a < 0.5, 0.5-0.8, > 0.8) in `code/processing/shape_metrics.py`. **Depends on T013/T014 output**.
-- [~] T021 [US2] Implement mass-matching algorithm in `code/analysis/stats.py`: Use Nearest-Neighbor Matching with a moderate mass tolerance to control for confounding. **Do not use Propensity Score Stratification**.
-- [~] T022 [US2] Implement non-parametric tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py`
+- [X] T020 [US2] Implement shape binning logic (c/a < 0.5, 0.5-0.8, > 0.8) in `code/processing/shape_metrics.py`. **Depends on T013/T014 output**.
+- [X] T021 [US2] Implement mass-matching algorithm in `code/analysis/stats.py`: Use Nearest-Neighbor Matching with a moderate mass tolerance to control for confounding. **Do not use Propensity Score Stratification**.
+- [X] T022 [US2] Implement non-parametric tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py`
 - [~] T023 [US2] Implement linear regression with mass control in `code/analysis/stats.py`: Perform regression of galaxy property ~ continuous shape parameters (**specifically 'triaxiality' and 'b_a_ratio' columns from `data/processed/halo_shapes.csv`**) controlling for halo mass.
-- [~] T024 [US2] Implement Bonferroni correction for multiple comparisons in `code/analysis/stats.py`
-- [~] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`
+- [X] T024 [US2] Implement Bonferroni correction for multiple comparisons in `code/analysis/stats.py`
+- [ ] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`
 - [ ] T026 [US2] Add metadata flag `associational_only=true` to **ALL** output datasets: `data/processed/halo_shapes.csv`, `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/millennium_results.csv`, and `data/processed/alignment_angles.csv`. **Note**: This task must be completed before T030 and T038 generate their files, or T030/T038 must integrate this logic.
 - [ ] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01)
 

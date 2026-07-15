@@ -56,7 +56,7 @@
 - [ ] T004 Implement `Reference-Validator` script in `code/reference_validator.py` to verify dataset URLs against `research.md` and halt on mismatch (Constitution Principle II); if any URL fails, halt pipeline and log specific failure to `data/logs/validation_error.log`
 - [ ] T005 Create schema contracts in `specs/001-sentiment-revenue-lag-analysis/contracts/`: `dataset.schema.yaml` and `analysis_results.schema.yaml`
 - [ ] T006 Implement schema validation utilities in `code/tests/test_dataset_schema.py` and `code/tests/test_analysis_results_schema.py`
-- [~] T007 Create base data entities and configuration loader in `code/config.py` and `code/entities.py`
+- [X] T007 Create base data entities and configuration loader in `code/config.py` and `code/entities.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,15 +70,15 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T008 [P] [US1] Contract test for merged dataset schema in `code/tests/test_dataset_schema.py`
+- [X] T008 [P] [US1] Contract test for merged dataset schema in `code/tests/test_dataset_schema.py`
 
 ### Implementation for User Story 1
 
-- [~] T009 [P] [US1] Implement `download_datasets()` in `code/data_ingestion.py` to fetch TMDB 5000 and IMDb Reviews from verified public URLs defined in `research.md#verified-datasets` using `wget`
-- [~] T010 [US1] Implement `merge_datasets()` in `code/data_ingestion.py` to join on movie title/year using `pandas` with fuzzy matching fallback
+- [X] T009 [P] [US1] Implement `download_datasets()` in `code/data_ingestion.py` to fetch TMDB 5000 and IMDb Reviews from verified public URLs defined in `research.md#verified-datasets` using `wget`
+- [X] T010 [US1] Implement `merge_datasets()` in `code/data_ingestion.py` to join on movie title/year using `pandas` with fuzzy matching fallback
 - [~] T011 [US1] Implement `filter_valid_movies()` in `code/data_ingestion.py` to exclude movies with missing revenue or <3 months of review history; **must** log the count of excluded movies and the final count to `data/logs/ingestion_log.txt`, and **raise an error** if final count < 500
-- [~] T012 [US1] Implement `align_timestamps()` in `code/data_ingestion.py` to create a weekly **sentiment** time-series structure aligned to `release_date`; **explicitly treat `opening_weekend_revenue` as a static anchor** (broadcast to all weeks) and **enforce** the 3-month minimum history check defined in FR-002 during this step
-- [~] T015 [US1] Implement `compute_vader_sentiment()` in `code/sentiment_analysis.py` using `nltk.vader` (CPU-only) to score weekly review text and merge scores into the time-series structure
+- [X] T012 [US1] Implement `align_timestamps()` in `code/data_ingestion.py` to create a weekly **sentiment** time-series structure aligned to `release_date`; **explicitly treat `opening_weekend_revenue` as a static anchor** (broadcast to all weeks) and **enforce** the 3-month minimum history check defined in FR-002 during this step
+- [X] T015 [US1] Implement `compute_vader_sentiment()` in `code/sentiment_analysis.py` using `nltk.vader` (CPU-only) to score weekly review text and merge scores into the time-series structure
 - [ ] T013 [US1] Save intermediate `data/processed/merged_clean.parquet` and log row counts to `data/logs/ingestion_log.txt`; **must verify** output contains columns `title`, `release_date`, `opening_weekend_revenue` (static), `sentiment_score`, `genre` and `row_count >= 500`; **fail** if not
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (includes sentiment scores and static revenue anchors)

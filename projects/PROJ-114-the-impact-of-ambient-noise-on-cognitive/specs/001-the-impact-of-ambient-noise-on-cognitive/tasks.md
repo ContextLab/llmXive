@@ -59,7 +59,7 @@
 - [ ] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
 - [ ] T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant, NoiseLog, and TaskPerformance (Input entities only)
 - [~] T005 [P] Implement `code/scripts/update_state.py` to compute SHA-256 hashes of artifacts and update `state/projects/PROJ-114-.../current_stage.yaml`
-- [~] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
+- [X] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
 - [ ] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

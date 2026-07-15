@@ -60,13 +60,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pinned `datasets`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `radon`, `torch`, `transformers`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `gitpython`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [~] T005 [P] Implement `code/utils/config.py` for random seeds, paths, and API credentials
-- [~] T006 [P] Setup `code/utils/validators.py` for schema validation and PII scanning
-- [~] T007 [P] Create base data models in `code/utils/models.py`:
+- [ ] T005 [P] Implement `code/utils/config.py` for random seeds, paths, and API credentials
+- [X] T006 [P] Setup `code/utils/validators.py` for schema validation and PII scanning
+- [X] T007 [P] Create base data models in `code/utils/models.py`:
  - `PullRequest` class with fields: `pr_id`, `repo_id`, `author_type`, `review_duration`, `file_size`, `complexity_score`
  - `CodeSnippet` class with fields: `snippet_id`, `source_commit`, `generation_source`, `complexity_metrics`, `semantic_similarity_score`
-- [~] T008 [P] Setup `Dockerfile` for environment replication (CPU-only)
-- [~] T013 [P] Implement `code/utils/rate_limiter.py` with exponential backoff strategy (a limited number of retries as per spec Edge Cases) for GitHub API
+- [X] T008 [P] Setup `Dockerfile` for environment replication (CPU-only)
+- [ ] T013 [P] Implement `code/utils/rate_limiter.py` with exponential backoff strategy (a limited number of retries as per spec Edge Cases) for GitHub API
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,17 +82,17 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for GitHub API response parsing in `tests/contract/test_github_scraper.py`
-- [~] T011 [P] [US1] Integration test for generation on CPU in `tests/integration/test_synthetic_generator.py`
+- [X] T010 [P] [US1] Contract test for GitHub API response parsing in `tests/contract/test_github_scraper.py`
+- [X] T011 [P] [US1] Integration test for generation on CPU in `tests/integration/test_synthetic_generator.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
-- [~] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (for secondary diagnostic purposes only, not primary generation).
+- [X] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
+- [ ] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (for secondary diagnostic purposes only, not primary generation).
 - [~] T014b [US1] **MANDATORY GENERATION**: Implement `code/data_acquisition/synthetic_generator.py` to generate synthetic code snippets using a CPU-tractable LLM (CodeLlama) with a -second timeout per snippet (FR-002). **CRITICAL**: If generation fails or exceeds time limit, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT silently fall back to classification. Output: `data/processed/generated_snippets.parquet`.
-- [~] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
-- [~] T016 [US1] Implement `code/feature_extraction/timestamps.py` to extract review duration (PR open to first comment/merge) (FR-003)
-- [~] T017 [US1] Implement `code/feature_extraction/style_features.py` to compute style metrics required for classification (FR-009)
+- [X] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
+- [X] T016 [US1] Implement `code/feature_extraction/timestamps.py` to extract review duration (PR open to first comment/merge) (FR-003)
+- [X] T017 [US1] Implement `code/feature_extraction/style_features.py` to compute style metrics required for classification (FR-009)
 - [ ] T017b [US1] [P] **DIAGNOSTIC ONLY**: Implement `code/feature_extraction/semantic_similarity.py` to compute semantic similarity scores for every code snippet using CodeBERT embeddings (FR-009). **NOTE**: These scores are for a Secondary Diagnostic Report only and are explicitly EXCLUDED from matching covariates per Plan. Output: `data/processed/diagnostic_scores.parquet`.
 - [ ] T018 [US1] Add error handling for `radon` failures (skip file, log warning, exclude from dataset) (Edge Case)
 - [ ] T019 [US1] Add validation to ensure generated snippets (from T014b) are syntactically valid (≥95% success rate check) (SC-007). **Dependency**: T019 depends on T014b output.

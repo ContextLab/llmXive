@@ -79,10 +79,10 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T010 [US1] Implement preprocessing in `code/preprocess.py`: handle missing values via median imputation and split data into sequential 30-day windows (FR-001, FR-002)
 - [ ] T011 [US1] Implement model training in `code/train_and_importance.py`: train `RandomForestRegressor` (n_estimators=100, max_depth=10, seed=42) on first window (FR-003)
 - [ ] T012 [US1] Implement R² validation logic in `code/train_and_importance.py`: skip window if R² < 0.8 and log "Model Failure" (FR-003b)
-- [~] T012b [US1] **NEW**: Implement stability metric aggregation in `code/utils/stats_aggregator.py`: calculate and report count of successful windows and average R² of valid windows per window (SC-003, FR-003b)
-- [~] T013 [US1] Implement permutation importance calculation in `code/train_and_importance.py` using `sklearn.inspection.permutation_importance` (FR-003)
-- [~] T014 [US1] Implement window iteration loop in `code/main.py` to process all multiple windows, **integrating the R² < 0.8 skip logic from T012**, **including per-window variance check from T015** to drop zero-variance features per window, **and aggregating stability metrics from T012b** to ensure invalid windows are excluded and metrics are updated per-window, and save `importance_profiles.csv` (FR-003, FR-003b)
-- [~] T015 [US1] Add error handling for feature variance in `code/preprocess.py`: implement `variance_check()` function returning dropped_features list; add unit test confirming zero-variance feature is dropped per window (FR-001, Spec Edge Cases) <!-- SKIPPED: non-mapping output -->
+- [X] T012b [US1] **NEW**: Implement stability metric aggregation in `code/utils/stats_aggregator.py`: calculate and report count of successful windows and average R² of valid windows per window (SC-003, FR-003b)
+- [X] T013 [US1] Implement permutation importance calculation in `code/train_and_importance.py` using `sklearn.inspection.permutation_importance` (FR-003)
+- [X] T014 [US1] Implement window iteration loop in `code/main.py` to process all multiple windows, **integrating the R² < 0.8 skip logic from T012**, **including per-window variance check from T015** to drop zero-variance features per window, **and aggregating stability metrics from T012b** to ensure invalid windows are excluded and metrics are updated per-window, and save `importance_profiles.csv` (FR-003, FR-003b)
+- [X] T015 [US1] Add error handling for feature variance in `code/preprocess.py`: implement `variance_check()` function returning dropped_features list; add unit test confirming zero-variance feature is dropped per window (FR-001, Spec Edge Cases) <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,11 +96,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [~] T016 [P] [US2] Implement Spearman correlation calculator in `code/drift_analysis.py` (FR-004)
+- [X] T016 [P] [US2] Implement Spearman correlation calculator in `code/drift_analysis.py` (FR-004)
 - [~] T017 [US2] Implement pairwise drift calculation logic to compare Window T vs Window T+1 (FR-004)
 - [~] T019 [US2] Implement writer function in `code/drift_analysis.py` that appends (window_t, window_t+1, rho, p_value) to `outputs/drift_metrics.csv`, ensuring the p-value column is included from the null baseline comparison (FR-006)
-- [~] T020 [US2] Implement Null Model Baseline: shuffle chronological order of time windows (FR-007), re-calculate importance rankings, **calculate mean rho of multiple shuffled runs**, and generate `outputs/null_baseline.json` (FR-007, SC-004). **Note: Implementation follows Spec FR-007 (window shuffling); plan.md vector-permutation is an alternative methodology not implemented in this scope.**
-- [~] T023 [US2] Implement block permutation significance test (with a sufficient number of resamples) in `code/significance_test.py` to return p-value for the correlation sequence (FR-008)
+- [ ] T020 [US2] Implement Null Model Baseline: shuffle chronological order of time windows (FR-007), re-calculate importance rankings, **calculate mean rho of multiple shuffled runs**, and generate `outputs/null_baseline.json` (FR-007, SC-004). **Note: Implementation follows Spec FR-007 (window shuffling); plan.md vector-permutation is an alternative methodology not implemented in this scope.**
+- [X] T023 [US2] Implement block permutation significance test (with a sufficient number of resamples) in `code/significance_test.py` to return p-value for the correlation sequence (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, including Null Model Baseline and p-value calculation
 
@@ -114,13 +114,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [~] T021 [P] [US3] Implement Mann-Kendall trend test in `code/significance_test.py` to return Kendall's Tau (FR-005)
+- [X] T021 [P] [US3] Implement Mann-Kendall trend test in `code/significance_test.py` to return Kendall's Tau (FR-005)
 - [~] T022 [US3] Implement trend direction logic: report "monotonic decrease" if Tau < 0 (FR-005)
 - [~] T018 [US3] Implement "high drift" flagging logic in `code/drift_analysis.py`: **read `outputs/null_baseline.json` (from T020) and p-value (from T023)**, flag transitions ONLY if the block permutation p-value < 0.05 (FR-004b)
 - [~] T024 [US3] Add logic to handle small sample size constraints (n < 10) and rely on permutation p-values (FR-008)
-- [~] T025 [US3] Integrate all metrics (Spearman rho, Kendall tau, p-value) into final `outputs/drift_metrics.csv` (FR-006)
-- [~] T026a [US3] Implement aggregation logic in `code/main.py` to **compute global stats from `drift_metrics.csv` and stability metrics from T012b** for robustness measurement (SC-003, FR-006)
-- [~] T026b [US3] Implement final report generation in `outputs/global_stats.json` to serialize aggregated stats with keys: `mean_rho`, `trend_direction`, `p_value`, `stable_window_count` (SC-003, FR-006)
+- [ ] T025 [US3] Integrate all metrics (Spearman rho, Kendall tau, p-value) into final `outputs/drift_metrics.csv` (FR-006)
+- [X] T026a [US3] Implement aggregation logic in `code/main.py` to **compute global stats from `drift_metrics.csv` and stability metrics from T012b** for robustness measurement (SC-003, FR-006)
+- [ ] T026b [US3] Implement final report generation in `outputs/global_stats.json` to serialize aggregated stats with keys: `mean_rho`, `trend_direction`, `p_value`, `stable_window_count` (SC-003, FR-006)
 
 **Checkpoint**: All user stories should now be independently functional
 

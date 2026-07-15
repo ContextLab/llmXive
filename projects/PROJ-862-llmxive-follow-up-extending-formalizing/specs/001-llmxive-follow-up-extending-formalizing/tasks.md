@@ -58,11 +58,11 @@
 - [ ] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest)
 - [X] T005 [P] Setup virtual environment instructions in `docs/` (or `code/scripts/setup.sh`)
 - [ ] T006 [P] Implement `code/data_loader.py` to fetch the reasoning dataset (BigBench subset) from a verified URL/HF dataset, ensuring `expected_answer` column exists, and **raise ConfigurationError and halt** if missing (NO synthetic fallback)
-- [~] T007 [P] Implement `code/model_utils.py` to load the frozen transformer model (Llama or distilled variant) in CPU-only mode with `torch.no_grad()` and `model.eval()`
-- [~] T008 [P] Implement `code/streaming_utils.py` to provide chunked/batched iteration over large datasets to respect the available RAM limit
-- [~] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition; raise `MemoryLimitExceeded` if the threshold is breached during execution (SC-004)
-- [~] T009 [P] Implement `code/config.py` to define noise sweep parameters ($\sigma \in [\text{low}, \text{high}]$), model paths, random seeds, and memory limits
-- [~] T010 [P] Create data schema contracts in `specs/001-lm-axive-noise-injection/contracts/` (dataset.schema.yaml, latent-vector.schema.yaml, statistical-result.schema.yaml, validity-log.schema.yaml)
+- [X] T007 [P] Implement `code/model_utils.py` to load the frozen transformer model (Llama or distilled variant) in CPU-only mode with `torch.no_grad()` and `model.eval()`
+- [X] T008 [P] Implement `code/streaming_utils.py` to provide chunked/batched iteration over large datasets to respect the available RAM limit
+- [X] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition; raise `MemoryLimitExceeded` if the threshold is breached during execution (SC-004)
+- [X] T009 [P] Implement `code/config.py` to define noise sweep parameters ($\sigma \in [\text{low}, \text{high}]$), model paths, random seeds, and memory limits
+- [ ] T010 [P] Create data schema contracts in `specs/001-lm-axive-noise-injection/contracts/` (dataset.schema.yaml, latent-vector.schema.yaml, statistical-result.schema.yaml, validity-log.schema.yaml)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,8 +78,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for baseline output schema in `tests/contract/test_baseline_vectors.py`
-- [~] T012 [P] [US1] Unit test for hidden state extraction logic in `tests/unit/test_extract_hidden.py`
+- [X] T011 [P] [US1] Contract test for baseline output schema in `tests/contract/test_baseline_vectors.py`
+- [X] T012 [P] [US1] Unit test for hidden state extraction logic in `tests/unit/test_extract_hidden.py`
 
 ### Implementation for User Story 1
 

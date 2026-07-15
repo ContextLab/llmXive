@@ -63,8 +63,8 @@
 - [X] T005 [P] Create `code/utils/contract_validation.py` to enforce schema contracts in `contracts/` per Constitution Principle V
 - [ ] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
 - [ ] T007 [P] Create `code/data/generate_taxonomies.py` to generate `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json` per FR-008, validating taxonomy structure against SO Survey 2023 source
-- [~] T008 [P] Setup `data/` directory structure: `raw/`, `processed/`, `events/`, `taxonomy/` per `plan.md`, creating `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`
-- [~] T009 [P] Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
+- [ ] T008 [P] Setup `data/` directory structure: `raw/`, `processed/`, `events/`, `taxonomy/` per `plan.md`, creating `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`
+- [X] T009 [P] Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,20 +80,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for trend output schema in `tests/contract/test_trend_results.py`, validating Growth/Decline/Stable/Insufficient Data classifications
-- [~] T011 [P] [US1] Integration test for Mann-Kendall pipeline end-to-end in `tests/integration/test_trend_pipeline.py`, validating pre-whitening step
+- [ ] T010 [P] [US1] Contract test for trend output schema in `tests/contract/test_trend_results.py`, validating Growth/Decline/Stable/Insufficient Data classifications
+- [X] T011 [P] [US1] Integration test for Mann-Kendall pipeline end-to-end in `tests/integration/test_trend_pipeline.py`, validating pre-whitening step
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow dump (canonical URL: `TODO: Replace with canonical URL`) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`), extracting tag names and post creation dates, ensuring CPU-only streaming per plan.md constraints
-- [~] T013 [US1] **requires T012** Implement `code/data/preprocess.py` to aggregate frequencies into monthly bins (over the multi-year study period), normalize tag strings to lowercase and trimmed whitespace, and filter for ≥12 months data per FR-003
-- [~] T014 [US1] **requires T013** Implement `code/analysis/trends.py` with Modified Mann-Kendall (pre-whitening), Theil-Sen slope, Benjamini-Hochberg correction (per plan.md decision), and post-hoc power analysis (MDES). MUST implement classification logic: if p >= 0.05 AND power < 0.8, classify as "Insufficient Data" (report MDES if power < 0.8); if p >= 0.05 AND power >= 0.8, classify as "Stable". Output schema MUST include "Insufficient Data" category per FR-003, FR-013.
-- [~] T015 [US1] **requires T014, T039** Implement `code/analysis/correlation.py` to map tags to GitHub repos via Search API (topic) and NPM via Search API (keyword), log tag as 'unmapped' if no match found after limited attempts per FR-007, and compute Pearson correlation coefficient using data from T039, storing results in trend_results.json. <!-- ATOMIZE: requested -->
-- [~] T039 [US1] **requires T015** Implement `code/data/external.py` to fetch actual GitHub star counts and NPM download numbers for mapped tags per FR-007.
-- [~] T040 [US1] **requires T039, T014** Implement correlation calculation logic in `code/analysis/correlation.py` to compute correlation coefficients between trend slopes and external metrics, storing results for T018.
-- [~] T016 [US1] **requires T014** Implement bootstrapping logic to calculate 95% confidence intervals for Theil-Sen trend slopes and write results to `data/processed/confidence_interval.json` per FR-010.
-- [~] T017 [US1] Create `notebooks/02_trend_analysis.ipynb` integrating all US1 logic, visualizations, and mandatory limitation disclosure headers/footers per FR-006, FR-011
-- [~] T018 [US1] **requires T016, T040** Generate `data/processed/trend_results.json` (aggregating trend, CI, and correlation data), calculate SHA-256 hashes for trend_results.json and confidence_interval.json, and update state file per FR-012.
+- [X] T012 [US1] Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow dump (canonical URL: `TODO: Replace with canonical URL`) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`), extracting tag names and post creation dates, ensuring CPU-only streaming per plan.md constraints
+- [X] T013 [US1] **requires T012** Implement `code/data/preprocess.py` to aggregate frequencies into monthly bins (over the multi-year study period), normalize tag strings to lowercase and trimmed whitespace, and filter for ≥12 months data per FR-003
+- [X] T014 [US1] **requires T013** Implement `code/analysis/trends.py` with Modified Mann-Kendall (pre-whitening), Theil-Sen slope, Benjamini-Hochberg correction (per plan.md decision), and post-hoc power analysis (MDES). MUST implement classification logic: if p >= 0.05 AND power < 0.8, classify as "Insufficient Data" (report MDES if power < 0.8); if p >= 0.05 AND power >= 0.8, classify as "Stable". Output schema MUST include "Insufficient Data" category per FR-003, FR-013.
+- [X] T015 [US1] **requires T014, T039** Implement `code/analysis/correlation.py` to map tags to GitHub repos via Search API (topic) and NPM via Search API (keyword), log tag as 'unmapped' if no match found after limited attempts per FR-007, and compute Pearson correlation coefficient using data from T039, storing results in trend_results.json. <!-- ATOMIZE: requested -->
+- [X] T039 [US1] **requires T015** Implement `code/data/external.py` to fetch actual GitHub star counts and NPM download numbers for mapped tags per FR-007.
+- [X] T040 [US1] **requires T039, T014** Implement correlation calculation logic in `code/analysis/correlation.py` to compute correlation coefficients between trend slopes and external metrics, storing results for T018.
+- [ ] T016 [US1] **requires T014** Implement bootstrapping logic to calculate 95% confidence intervals for Theil-Sen trend slopes and write results to `data/processed/confidence_interval.json` per FR-010.
+- [X] T017 [US1] Create `notebooks/02_trend_analysis.ipynb` integrating all US1 logic, visualizations, and mandatory limitation disclosure headers/footers per FR-006, FR-011
+- [ ] T018 [US1] **requires T016, T040** Generate `data/processed/trend_results.json` (aggregating trend, CI, and correlation data), calculate SHA-256 hashes for trend_results.json and confidence_interval.json, and update state file per FR-012.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,17 +107,17 @@
 
 ### Tests for User Story 2
 
-- [~] T019 [P] [US2] Contract test for decomposition output schema in `tests/contract/test_decomposition_results.py`, validating Ljung-Box result
-- [~] T020 [P] [US2] Integration test for STL/Hodrick-Prescott pipeline in `tests/integration/test_decomposition_pipeline.py`, validating ADF and seasonality pre-tests
+- [X] T019 [P] [US2] Contract test for decomposition output schema in `tests/contract/test_decomposition_results.py`, validating Ljung-Box result
+- [X] T020 [P] [US2] Integration test for STL/Hodrick-Prescott pipeline in `tests/integration/test_decomposition_pipeline.py`, validating ADF and seasonality pre-tests
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] **requires T013, T041** Implement `code/analysis/decomposition.py` with mandatory pre-condition: perform Augmented Dickey-Fuller (ADF) test on *each* time series BEFORE decomposition. If non-stationary (p < 0.05), apply first-order differencing. Then apply STL (if seasonal) or Hodrick-Prescott (if non-seasonal) to the differenced series per FR-004, FR-009.
-- [~] T041 [US2] **requires T013** Implement seasonality pre-test (spectral analysis or autocorrelation check) in `code/analysis/decomposition.py`, outputting a boolean for method selection per FR-009.
-- [~] T022 [US2] **requires T021** Implement residual independence check (Ljung-Box lag=12) and event alignment (Rayleigh test) in `code/analysis/decomposition.py`, reporting results per FR-009, SC-003.
-- [~] T023 [US2] **requires T022** Implement `code/viz/plots.py` to generate multi-panel decomposition plots with confidence intervals, using `code/viz/templates.py` to inject limitation headers per FR-011
-- [~] T024 [US2] Create `notebooks/03_decomposition.ipynb` demonstrating decomposition on specific tags (e.g., "react"), including all code and final visualization outputs per FR-006
-- [~] T025 [US2] Generate `data/processed/decomposition_results.json` including Ljung-Box and Rayleigh test results, calculate SHA-256 hashes for decomposition_results.json, and update state file per FR-012.
+- [X] T021 [US2] **requires T013, T041** Implement `code/analysis/decomposition.py` with mandatory pre-condition: perform Augmented Dickey-Fuller (ADF) test on *each* time series BEFORE decomposition. If non-stationary (p < 0.05), apply first-order differencing. Then apply STL (if seasonal) or Hodrick-Prescott (if non-seasonal) to the differenced series per FR-004, FR-009.
+- [X] T041 [US2] **requires T013** Implement seasonality pre-test (spectral analysis or autocorrelation check) in `code/analysis/decomposition.py`, outputting a boolean for method selection per FR-009.
+- [X] T022 [US2] **requires T021** Implement residual independence check (Ljung-Box lag=12) and event alignment (Rayleigh test) in `code/analysis/decomposition.py`, reporting results per FR-009, SC-003.
+- [ ] T023 [US2] **requires T022** Implement `code/viz/plots.py` to generate multi-panel decomposition plots with confidence intervals, using `code/viz/templates.py` to inject limitation headers per FR-011
+- [X] T024 [US2] Create `notebooks/03_decomposition.ipynb` demonstrating decomposition on specific tags (e.g., "react"), including all code and final visualization outputs per FR-006
+- [ ] T025 [US2] Generate `data/processed/decomposition_results.json` including Ljung-Box and Rayleigh test results, calculate SHA-256 hashes for decomposition_results.json, and update state file per FR-012.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,16 +131,16 @@
 
 ### Tests for User Story 3
 
-- [~] T026 [P] [US3] Contract test for cluster output schema in `tests/contract/test_cluster_results.py`, validating Jaccard similarity, hierarchical clustering results, AND **permutation test results** for cluster coherence per FR-005
-- [~] T027 [P] [US3] Integration test for clustering pipeline in `tests/integration/test_clustering_pipeline.py`, validating Jaccard and hierarchical clustering
+- [X] T026 [P] [US3] Contract test for cluster output schema in `tests/contract/test_cluster_results.py`, validating Jaccard similarity, hierarchical clustering results, AND **permutation test results** for cluster coherence per FR-005
+- [X] T027 [P] [US3] Integration test for clustering pipeline in `tests/integration/test_clustering_pipeline.py`, validating Jaccard and hierarchical clustering
 
 ### Implementation for User Story 3
 
-- [~] T028 [P] [US3] Implement `code/analysis/clustering.py` to compute Jaccard similarity matrix for all pairs of tags appearing on the same posts per FR-005
-- [~] T029 [US3] **requires T028** Implement hierarchical clustering and permutation test for cluster coherence validation in `code/analysis/clustering.py` per FR-005
+- [X] T028 [P] [US3] Implement `code/analysis/clustering.py` to compute Jaccard similarity matrix for all pairs of tags appearing on the same posts per FR-005
+- [X] T029 [US3] **requires T028** Implement hierarchical clustering and permutation test for cluster coherence validation in `code/analysis/clustering.py` per FR-005
 - [~] T030 [US3] **requires T029** Implement `code/analysis/clustering.py` logic for Cluster Label Alignment Score using fuzzy matching (Levenshtein distance ≤ 2) against `data/taxonomy/survey_2023.json` per FR-008, SC-004
-- [~] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
-- [~] T032 [US3] Generate `data/processed/cluster_results.json` including Cluster Label Alignment Score and intra-cluster similarity coefficient, calculate SHA-256 hashes for cluster_results.json, and update state file per FR-012.
+- [X] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
+- [ ] T032 [US3] Generate `data/processed/cluster_results.json` including Cluster Label Alignment Score and intra-cluster similarity coefficient, calculate SHA-256 hashes for cluster_results.json, and update state file per FR-012.
 
 **Checkpoint**: All user stories should now be independently functional
 

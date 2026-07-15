@@ -59,7 +59,7 @@
 - [X] T005 Implement `code/utils/constants.py` with versioned periodic table data (Metallic Radii, Electronegativity)
 - [ ] T006 Implement `code/utils/logging.py` for standardized logging and error tracking
 - [~] T007 Setup `data/` directory structure (`raw/`, `curated/`, `artifacts/`) and checksum logic
-- [~] T008 [P] Implement `code/data/acquisition.py` to fetch real data from NIST/Materials Project sources using Materials Project API v2 (endpoint: `, params: `elements`, `crystal_system=fcc`, auth via `MP_API_KEY` env var); MUST save output to `data/raw/fetched_diffusion.csv` and MUST log a warning "Data Insufficiency: N < 50" and proceed if N < 50 (resolving conflict with spec Edge Cases) instead of halting; this task replaces the hard halt to satisfy spec Edge Cases and FR-001/FR-002 flow
+- [ ] T008 [P] Implement `code/data/acquisition.py` to fetch real data from NIST/Materials Project sources using Materials Project API v2 (endpoint: `, params: `elements`, `crystal_system=fcc`, auth via `MP_API_KEY` env var); MUST save output to `data/raw/fetched_diffusion.csv` and MUST log a warning "Data Insufficiency: N < 50" and proceed if N < 50 (resolving conflict with spec Edge Cases) instead of halting; this task replaces the hard halt to satisfy spec Edge Cases and FR-001/FR-002 flow
 - [ ] T009 [P] Implement `tests/contract/test_schema.py` to validate data structure against `contracts/diffusion_record.schema.yaml` for the `DiffusionRecord` entity
 - [ ] T010 Implement `tests/unit/test_constants.py` to verify periodic table data integrity
 

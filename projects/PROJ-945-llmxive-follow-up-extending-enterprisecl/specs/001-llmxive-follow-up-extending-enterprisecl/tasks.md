@@ -40,9 +40,9 @@
 - [ ] T011 [P] Implement dataset fetcher in `src/utils/data_loader.py` to download EnterpriseClawBench from canonical source (NAB/UCI/GitHub) with checksum verification; save to `data/raw/`; **MUST raise exception on failure, no synthetic fallback**
 - [ ] T004a [US1] [FR-001] Verify existence and integrity of initial success/failure ground truth labels in raw dataset (after T011); Write validation report to `data/results/ground_truth_validation.json` with schema: `{ 'status': 'pass|fail', 'issues': [], 'sample_size': int, 'pass_criteria': 'pass if >95% labels exist' }`
 - [~] T005 [P] Implement citation verification script in `src/utils/verify_citations.py` (Read citations from spec.md using regex for '## References' block, query primary sources via DOI, write pass/fail status to `data/results/citation_report.json` as a list of objects with 'source', 'status', 'error_message')
-- [~] T006 [P] Create base configuration loader for paths and seeds in `src/config.py`
-- [~] T007 Implement memory and time monitoring utility in `src/utils/resource_monitor.py` (logs `/proc/self/status` RSS and wall-clock)
-- [~] T008 Setup artifact hashing utility in `src/utils/hash_artifacts.py`
+- [X] T006 [P] Create base configuration loader for paths and seeds in `src/config.py`
+- [ ] T007 Implement memory and time monitoring utility in `src/utils/resource_monitor.py` (logs `/proc/self/status` RSS and wall-clock)
+- [ ] T008 Setup artifact hashing utility in `src/utils/hash_artifacts.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,8 +56,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement log parser in `src/features/extract.py` to read raw logs from `data/raw/`
-- [~] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
+- [X] T012 [US1] Implement log parser in `src/features/extract.py` to read raw logs from `data/raw/`
+- [X] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
 - [ ] T014 [US1] Implement token frequency distribution counter in `src/features/extract.py`
 - [ ] T015 [US1] Implement pragmatic marker detector (error recovery, state transitions) in `src/features/extract.py`
 - [ ] T016 [US1] Implement generator-based log parser in `src/features/extract.py` that yields chunks of substantial size to prevent memory overflow; verify peak RSS < 7GB in full pipeline

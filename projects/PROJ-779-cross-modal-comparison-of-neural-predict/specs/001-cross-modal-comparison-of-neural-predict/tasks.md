@@ -80,21 +80,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T012 [P] [US1] Unit test for sampling rate validation in `tests/unit/data/test_validation.py`
-- [~] T013 [P] [US1] Unit test for trial count validation in `tests/unit/data/test_validation.py`
-- [~] T014 [P] [US1] Integration test for full download and preprocess pipeline in `tests/integration/test_pipeline.py`
+- [X] T012 [P] [US1] Unit test for sampling rate validation in `tests/unit/data/test_validation.py`
+- [X] T013 [P] [US1] Unit test for trial count validation in `tests/unit/data/test_validation.py`
+- [X] T014 [P] [US1] Integration test for full download and preprocess pipeline in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `code/data/download.py` to fetch ds (auditory) using `mne.datasets`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.**
-- [~] T016 [US1] Implement `code/data/download.py` to fetch ds (visual) using `huggingface_hub.snapshot_download` with **Dataset ID: openneuro/ds ** and **Version Tag: r.0 **. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.** **Depends on T015 completion** (sequential dataset fetch for consistency). <!-- FAILED: unspecified -->
-- [~] T017 [US1] Implement `code/data/download.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T015.**
-- [~] T018 [US1] Implement `code/data/download.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T016.** <!-- FAILED: unspecified -->
-- [~] T019 [US1] Implement `code/data/preprocess.py` bandpass filter (low-frequency cutoff).
-- [~] T020 [US1] Implement `code/data/preprocess.py` ICA artifact removal (using MNE default settings, CPU-tractable). **Depends on T019.**
-- [~] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020.**
+- [X] T015 [US1] Implement `code/data/download.py` to fetch ds (auditory) using `mne.datasets`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.**
+- [X] T016 [US1] Implement `code/data/download.py` to fetch ds (visual) using `huggingface_hub.snapshot_download` with **Dataset ID: openneuro/ds ** and **Version Tag: r.0 **. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.** **Depends on T015 completion** (sequential dataset fetch for consistency). <!-- FAILED: unspecified -->
+- [X] T017 [US1] Implement `code/data/download.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T015.**
+- [X] T018 [US1] Implement `code/data/download.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T016.** <!-- FAILED: unspecified -->
+- [X] T019 [US1] Implement `code/data/preprocess.py` bandpass filter (low-frequency cutoff).
+- [X] T020 [US1] Implement `code/data/preprocess.py` ICA artifact removal (using MNE default settings, CPU-tractable). **Depends on T019.**
+- [X] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020.**
 - [~] T022 [US1] Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logging. **Depends on T021.**
-- [~] T023 [US1] Create `code/main.py` orchestration script to chain download → validate → preprocess
+- [X] T023 [US1] Create `code/main.py` orchestration script to chain download → validate → preprocess
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. US2 and US3 can only start after T022 completes.
 
@@ -108,17 +108,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US2] Unit test for difference wave computation in `tests/unit/analysis/test_metrics.py`
-- [~] T025 [P] [US2] Unit test for peak/amplitude extraction in `tests/unit/analysis/test_metrics.py`
-- [~] T026 [P] [US2] Integration test for full extraction pipeline in `tests/integration/test_extraction.py`
+- [X] T024 [P] [US2] Unit test for difference wave computation in `tests/unit/analysis/test_metrics.py`
+- [X] T025 [P] [US2] Unit test for peak/amplitude extraction in `tests/unit/analysis/test_metrics.py`
+- [X] T026 [P] [US2] Integration test for full extraction pipeline in `tests/integration/test_extraction.py`
 
 ### Implementation for User Story 2
 
-- [~] T027 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves (Oddball - Standard) at fronto-central electrodes (Auditory). **Depends on T022 (Cleaned Data Artifact).**
-- [~] T028 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves at occipito-parietal electrodes (Visual). **Depends on T022 (Cleaned Data Artifact).**
-- [~] T029 [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities)
-- [~] T030 [US2] Implement `code/analysis/metrics.py` mean amplitude extraction for the same windows <!-- FAILED: unspecified -->
-- [~] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels
+- [X] T027 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves (Oddball - Standard) at fronto-central electrodes (Auditory). **Depends on T022 (Cleaned Data Artifact).**
+- [X] T028 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves at occipito-parietal electrodes (Visual). **Depends on T022 (Cleaned Data Artifact).**
+- [X] T029 [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities)
+- [X] T030 [US2] Implement `code/analysis/metrics.py` mean amplitude extraction for the same windows <!-- FAILED: unspecified -->
+- [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels
 - [~] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
@@ -133,15 +133,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T033 [P] [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py` <!-- SKIPPED: non-mapping output -->
-- [~] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
-- [~] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
+- [X] T033 [P] [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py` <!-- SKIPPED: non-mapping output -->
+- [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
+- [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
 - [~] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints
 
 ### Implementation for User Story 3
 
-- [~] T037 [US3] Implement `code/analysis/source.py` to setup ICBM152 head model and compute lead fields. **Depends on T022 (cleaned data) and T005 (config paths).**
-- [~] T038 [US3] Implement `code/analysis/source.py` MNE with depth weighting and orientation normalization. **Depends on T037 (Lead Fields).**
+- [X] T037 [US3] Implement `code/analysis/source.py` to setup ICBM152 head model and compute lead fields. **Depends on T022 (cleaned data) and T005 (config paths).**
+- [X] T038 [US3] Implement `code/analysis/source.py` MNE with depth weighting and orientation normalization. **Depends on T037 (Lead Fields).**
 - [~] T039 [US3] Implement `code/analysis/source.py` sensitivity analysis: sweep spatial smoothing kernel (σ ∈ {low, medium, high} mm), compute Coefficient of Variation, and **Generate and save `data/results/sensitivity_analysis.csv` containing source strength vs. sigma values** (FR-014). **Depends on T038.**
 - [ ] T040 [US3] Implement `code/analysis/stats.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.**
 - [ ] T041 [US3] Implement `code/analysis/stats.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T040.**

@@ -74,17 +74,17 @@
 ### Sub-phase 3A: Test File Creation (Prerequisite to Implementation)
 
 - [ ] T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff ≤ 2.0)
-- [~] T010 [P] [US1] Create test file `tests/test_stimuli.py` with test for sentiment check (VADER diff ≤ 0.05)
-- [~] T011 [P] [US1] Create test file `tests/test_randomization.py` with test for randomization distribution (k runs, balanced split)
+- [X] T010 [P] [US1] Create test file `tests/test_stimuli.py` with test for sentiment check (VADER diff ≤ 0.05)
+- [X] T011 [P] [US1] Create test file `tests/test_randomization.py` with test for randomization distribution (k runs, balanced split)
 
 ### Sub-phase 3B: Implementation
 
 - [~] T012 [US1] Implement the stimulus generation script to generate "Partner" and "Tool" vignettes based on a controlled template, ensuring no other linguistic variables change
-- [~] T013 [US1] Integrate `textstat` in `code/01_stimulus_generation.py` to calculate Flesch-Kincaid scores and enforce ≤ 2.0 point difference (FR-001, SC-001)
-- [~] T014 [US1] Integrate `vaderSentiment` in `code/01_stimulus_generation.py` to calculate compound scores, enforce ≤ 0.05 difference, AND implement a rejection/regeneration loop with a `max_attempts` limit (e.g., 10) and a fallback strategy to log a warning and halt if constraints cannot be met (FR-010, SC-005)
-- [~] T015 [US1] Implement `code/02_randomization.py` to Assign a unique Participant ID to exactly one condition (Partner/Tool) with a balanced ratio. (FR-002)
-- [~] T016 [US1] Export generated vignettes to `data/stimuli/vignettes_partner.csv` and `data/stimuli/vignettes_tool.csv`
-- [~] T017 [US1] Implement logic to immediately write randomization metadata (Participant ID, Condition, Timestamp) to `data/processed/randomization_log.json` BEFORE survey display to prevent drift (US-1, Constitution III)
+- [X] T013 [US1] Integrate `textstat` in `code/01_stimulus_generation.py` to calculate Flesch-Kincaid scores and enforce ≤ 2.0 point difference (FR-001, SC-001)
+- [X] T014 [US1] Integrate `vaderSentiment` in `code/01_stimulus_generation.py` to calculate compound scores, enforce ≤ 0.05 difference, AND implement a rejection/regeneration loop with a `max_attempts` limit (e.g., 10) and a fallback strategy to log a warning and halt if constraints cannot be met (FR-010, SC-005)
+- [X] T015 [US1] Implement `code/02_randomization.py` to Assign a unique Participant ID to exactly one condition (Partner/Tool) with a balanced ratio. (FR-002)
+- [ ] T016 [US1] Export generated vignettes to `data/stimuli/vignettes_partner.csv` and `data/stimuli/vignettes_tool.csv`
+- [ ] T017 [US1] Implement logic to immediately write randomization metadata (Participant ID, Condition, Timestamp) to `data/processed/randomization_log.json` BEFORE survey display to prevent drift (US-1, Constitution III)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,12 +98,12 @@
 
 ### Pilot Study Validation (Must precede Main Data Collection)
 
-- [~] T024 [US2] Implement `code/03_pilot_study.py` to execute a pilot study (n≥30) and validate that the manipulation check question accurately discriminates between readers and non-readers (FR-011)
+- [X] T024 [US2] Implement `code/03_pilot_study.py` to execute a pilot study (n≥30) and validate that the manipulation check question accurately discriminates between readers and non-readers (FR-011)
 - [~] T025 [P] [US2] Run pilot study validation and log results to `data/processed/pilot_validation_report.json`
 
 ### Main Data Collection Implementation
 
-- [~] T019 [US2] Implement `code/04_data_collection.py` to ingest raw survey data (simulated or imported) and map responses to `Participant` entities
+- [X] T019 [US2] Implement `code/04_data_collection.py` to ingest raw survey data (simulated or imported) and map responses to `Participant` entities
 - [ ] T020 [P] [US2] Implement validation logic in `code/04_data_collection.py` to ensure Likert scales are integers within the expected range. (US-2, FR-003)
 - [ ] T021 [P] [US2] Implement logic to flag `manipulation_check_failed` boolean based on the manipulation check question response (US-2, FR-003)
 - [ ] T022 [US2] Implement logic to exclude partial responses (participants who abandoned halfway) from the final dataset (Edge Case)

@@ -85,12 +85,12 @@ The study will investigate [Research Question] using [Method] (Citation). A fixe
  - **Cyberbullying Survey 2021**: `.
  Include validation of file integrity (checksum) and log E‑MISSING‑001 if required items are absent.
 - [ ] T018 [US1] Validate GSS 2022 structure; if PCL‑5 items or essential harassment variables are missing, log a warning and **skip** GSS ingestion, proceeding with the Cyberbullying dataset alone (fallback documented). This satisfies the plan’s concern about dataset suitability.
-- [~] T013 [P] [US1] Implement `code/data/preprocessing.py` to:
+- [X] T013 [P] [US1] Implement `code/data/preprocessing.py` to:
  1. Perform listwise deletion for variables with >5 % missingness.
  2. For remaining missing values, apply **MICE** imputation (`m=5`, `max_iter=10`, `random_state=42`) **only on the predictor matrix**: `['age','gender','education','income','social_support','harassment_severity','depression','anxiety','ptsd']`.
  3. Apply scale scoring using `config/scales.yaml` (including conditional PCL‑5 handling).
  This merges the former T013a functionality.
-- [~] T014 [P] [US1] Implement `code/data/cohort.py` to:
+- [X] T014 [P] [US1] Implement `code/data/cohort.py` to:
  1. Compute propensity scores for dataset source (GSS vs Cyberbullying) using demographics (`age`, `gender`, `education`, `income`).
  2. Perform **nearest‑neighbor matching** with caliper ≤0.2 SD of the logit of the propensity score.
  3. Apply inverse‑probability weighting to create a **synthetic cohort** where each row represents a weighted pair.
@@ -101,7 +101,7 @@ The study will investigate [Research Question] using [Method] (Citation). A fixe
  - Check **variance of Harassment Exposure** (SD > 0.5, N > 30).
  - Compute **VIF** for the model matrix (`social_support`, `harassment_exposure`, interaction, plus covariates) and ensure VIF < 5.
  - Log warnings if any check fails; the pipeline proceeds only if balance criteria are met.
-- [~] T016 [US1] Save the validated synthetic cohort to `data/results/synthetic_cohort.csv` **only after** successful T015.
+- [ ] T016 [US1] Save the validated synthetic cohort to `data/results/synthetic_cohort.csv` **only after** successful T015.
 - [~] T017 [US1] Add comprehensive logging for ingestion, preprocessing, matching, and validation steps, including any fallback decisions.
 
 **Checkpoint**: User Story 1 is fully functional and produces a spec‑compliant synthetic cohort.
@@ -114,16 +114,16 @@ The study will investigate [Research Question] using [Method] (Citation). A fixe
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [~] T018a [P] [US2] Contract test for regression results schema in `tests/contract/test_regression_results_schema.py`
+- [X] T018a [P] [US2] Contract test for regression results schema in `tests/contract/test_regression_results_schema.py`
 - [~] T019 [P] [US2] Unit test for bootstrapping logic in `tests/unit/test_bootstrap_ci.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/analysis/models.py` to fit OLS models with heteroskedasticity‑consistent (HC3) standard errors for Depression, Anxiety, and PTSD (if PCL‑5 present). Include interaction term `SocialSupport:HarassmentExposure`.
-- [~] T021 [P] [US2] Compute **[deferred] bias‑corrected accelerated (BCa) bootstrap CIs** with 1,000 resamples using `statsmodels.stats.bootstrap`. Seed the process with `bootstrap_seed` from `config/seeds.yaml`.
+- [X] T020 [P] [US2] Implement `code/analysis/models.py` to fit OLS models with heteroskedasticity‑consistent (HC3) standard errors for Depression, Anxiety, and PTSD (if PCL‑5 present). Include interaction term `SocialSupport:HarassmentExposure`.
+- [X] T021 [P] [US2] Compute **[deferred] bias‑corrected accelerated (BCa) bootstrap CIs** with 1,000 resamples using `statsmodels.stats.bootstrap`. Seed the process with `bootstrap_seed` from `config/seeds.yaml`.
 - [~] T022 [P] [US2] Add fallback: if the robust model fails to converge, automatically refit a standard OLS model (no HCSE) and log status `E‑NONCONV‑001`.
 - [~] T023 [P] [US2] Implement Benjamini‑Hochberg FDR correction across the set of outcome tests (Depression, Anxiety, PTSD) and attach adjusted p‑values to the results.
-- [~] T024 [P] [US2] Save regression outputs (coefficients, SEs, p‑values, bootstrap CIs, adjusted p‑values) to `data/results/regression_results.csv`.
+- [ ] T024 [P] [US2] Save regression outputs (coefficients, SEs, p‑values, bootstrap CIs, adjusted p‑values) to `data/results/regression_results.csv`.
 - [~] T025 [P] [US2] Update `code/analysis/results.py` to read `synthetic_cohort.csv` (produced by T016) and generate a summary report `data/results/regression_summary.md`.
 
 **Checkpoint**: User Stories 1 & 2 are independently testable.
@@ -136,16 +136,16 @@ The study will investigate [Research Question] using [Method] (Citation). A fixe
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [~] T026 [P] [US3] Contract test for sensitivity results schema in `tests/contract/test_sensitivity_results_schema.py`
+- [X] T026 [P] [US3] Contract test for sensitivity results schema in `tests/contract/test_sensitivity_results_schema.py`
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement `code/analysis/sensitivity.py` to:
+- [X] T027 [P] [US3] Implement `code/analysis/sensitivity.py` to:
  1. Re‑fit models using **continuous harassment severity** instead of binary exposure.
  2. If a `platform` column exists, stratify analyses by platform. Only the **top three** most frequent platforms are kept; all others are grouped as `Other`.
  3. If fewer than two platforms are present, log `E‑SKIP‑001` and skip stratification.
 - [~] T028 [P] [US3] Compare interaction coefficients from each sensitivity run against the baseline (from T020) and produce a table of coefficient shifts.
-- [~] T029 [P] [US3] Save the sensitivity summary to `data/results/sensitivity_analysis.csv`.
+- [ ] T029 [P] [US3] Save the sensitivity summary to `data/results/sensitivity_analysis.csv`.
 - [~] T030 [P] [US3] Add logging for each scenario, including data availability warnings.
 
 **Checkpoint**: All user stories are now functional.

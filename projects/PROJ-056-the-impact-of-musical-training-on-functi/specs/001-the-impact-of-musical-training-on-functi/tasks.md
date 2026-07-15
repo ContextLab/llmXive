@@ -73,9 +73,9 @@ Examples of foundational tasks (adjust based on your plan):
 - [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage and enforce ≤7GB limit: Implement a `check_memory_limit()` function that raises `MemoryLimitExceeded` if current RSS > 7GB. **Verify**: `pytest` must raise `MemoryLimitExceeded` when a mock dataset > 7GB is passed to the monitor.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with structured output
 - [ ] T007 [P] Create base data models (`Subject`, `ConnectivityMatrix`) in `code/data/models.py`: Define classes with attributes `subject_id`, `group`, `years_of_training`, `age`, `sex`, `motion_score`, `ses_score` for Subject. **Mandatory**: Implement validation logic to ensure instances match `contracts/subject.schema.yaml`.
-- [~] T008 Implement `code/data/synthetic_generator.py` for Null-First validation (no injected effects). **SIMULATION MODE ONLY**: This generator is ONLY for Verification Mode. It creates **simulated** data, not raw data. It must NOT be used in Analysis Mode.
-- [~] T009 Implement `code/data/mock_nifti.py` to generate valid NIfTI headers for format testing
-- [~] T010 Implement `code/main.py` entry point with `--mode` flag (verification vs analysis)
+- [ ] T008 Implement `code/data/synthetic_generator.py` for Null-First validation (no injected effects). **SIMULATION MODE ONLY**: This generator is ONLY for Verification Mode. It creates **simulated** data, not raw data. It must NOT be used in Analysis Mode.
+- [ ] T009 Implement `code/data/mock_nifti.py` to generate valid NIfTI headers for format testing
+- [X] T010 Implement `code/main.py` entry point with `--mode` flag (verification vs analysis)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,23 +91,23 @@ Examples of foundational tasks (adjust based on your plan):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for filtering logic (≥1 year threshold) in `tests/unit/test_preprocess.py`: Implement `test_filter_by_training_years` with assertion `assert len(df[df['years_of_training'] >= 1]) == expected_count` and `assert 'years_of_training' in df.columns`.
-- [~] T012 [P] [US1] Unit test for confounder matching (propensity score or regression) in `tests/unit/test_matching.py`: Implement `test_matching_balance` with assertion `assert abs(df['age'].mean() - expected_age) < 0.1` and `assert df['sex'].value_counts()['M'] > 0`.
+- [X] T011 [P] [US1] Unit test for filtering logic (≥1 year threshold) in `tests/unit/test_preprocess.py`: Implement `test_filter_by_training_years` with assertion `assert len(df[df['years_of_training'] >= 1]) == expected_count` and `assert 'years_of_training' in df.columns`.
+- [X] T012 [P] [US1] Unit test for confounder matching (propensity score or regression) in `tests/unit/test_matching.py`: Implement `test_matching_balance` with assertion `assert abs(df['age'].mean() - expected_age) < 0.1` and `assert df['sex'].value_counts()['M'] > 0`.
 - [~] T013 [P] [US1] Integration test for full ingestion pipeline on synthetic data in `tests/integration/test_ingestion.py`: Implement `test_full_ingestion` with assertion `assert os.path.exists('data/processed/subjects_cleaned.csv')` and `assert len(pd.read_csv('data/processed/subjects_cleaned.csv')) == 10`.
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/data/download.py` to handle local path loading OR synthetic generation. **Function Signature**: `def load_data(path: str, mode: str) -> pd.DataFrame`. **Logic**:
+- [X] T014 [US1] Implement `code/data/download.py` to handle local path loading OR synthetic generation. **Function Signature**: `def load_data(path: str, mode: str) -> pd.DataFrame`. **Logic**:
  1. If `mode='analysis'` and path is invalid, raise `DataAccessError('Data Source Missing: Real data required for Analysis Mode')`.
  2. If `mode='verification'`, use `synthetic_generator.py`.
  3. **Mandatory Check**: Immediately after loading (and before returning), count subjects per group. If `len(df[df['group']=='musician']) < 50` OR `len(df[df['group']=='non_musician']) < 50`, raise `ValueError('Insufficient Data for Power: <50 subjects per group')` and halt execution immediately. This check applies to BOTH synthetic and real data sources to satisfy US-1 Acceptance Scenario 1.
-- [~] T015 [US1] Implement `code/data/preprocess.py` to filter subjects by `years_of_training` (≥1) and exclude missing data.
-- [~] T018 [US1] Implement error handling for corrupted NIfTI files in `code/data/preprocess.py`: Wrap NIfTI loading in try/except block; if `nibabel` fails, log error, skip subject, and continue.
-- [~] T016 [US1] Implement Confounder Handling with Fallback Logic in `code/data/preprocess.py`:
+- [X] T015 [US1] Implement `code/data/preprocess.py` to filter subjects by `years_of_training` (≥1) and exclude missing data.
+- [X] T018 [US1] Implement error handling for corrupted NIfTI files in `code/data/preprocess.py`: Wrap NIfTI loading in try/except block; if `nibabel` fails, log error, skip subject, and continue.
+- [X] T016 [US1] Implement Confounder Handling with Fallback Logic in `code/data/preprocess.py`:
  1. **Primary Method**: Attempt Propensity Score Matching (PSM) for confounders (age, sex, motion, SES).
  2. **Fallback Condition**: If PSM convergence fails after 100 iterations OR if estimated RAM usage > 6.5GB during PSM, switch to Linear Regression Residualization.
  3. **Constraint**: Do NOT run both methods sequentially. Run PSM; if it fails, run Regression. Output the matched/residualized dataset.
-- [~] T019 [US1] Output `data/processed/subjects_cleaned.csv` with `subject_id`, `group`, `years_of_training`, `age`, `sex`, `motion_score`, `ses_score`.
+- [ ] T019 [US1] Output `data/processed/subjects_cleaned.csv` with `subject_id`, `group`, `years_of_training`, `age`, `sex`, `motion_score`, `ses_score`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,19 +121,19 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for Fisher z-transform logic in `tests/unit/test_connectivity.py`: Implement `test_fisher_z` with assertion `assert abs(z_transformed - expected) < 1e-6` for input r=0.5.
-- [~] T021 [P] [US2] Unit test for FDR correction (Benjamini-Hochberg) in `tests/unit/test_stats.py`: Implement `test_fdr_correction` with known p-values and expected q-values.
-- [~] T022 [P] [US2] Unit test for NBS permutation logic on small graph in `tests/unit/test_nbs.py`: Implement `test_nbs_small_graph` using a small graph with known component size 1. Assert the detected component size matches 1. <!-- FAILED: unspecified -->
-- [~] T023 [P] [US2] Integration test for group comparison on synthetic data in `tests/integration/test_group_comparison.py`
+- [X] T020 [P] [US2] Unit test for Fisher z-transform logic in `tests/unit/test_connectivity.py`: Implement `test_fisher_z` with assertion `assert abs(z_transformed - expected) < 1e-6` for input r=0.5.
+- [X] T021 [P] [US2] Unit test for FDR correction (Benjamini-Hochberg) in `tests/unit/test_stats.py`: Implement `test_fdr_correction` with known p-values and expected q-values.
+- [X] T022 [P] [US2] Unit test for NBS permutation logic on small graph in `tests/unit/test_nbs.py`: Implement `test_nbs_small_graph` using a small graph with known component size 1. Assert the detected component size matches 1. <!-- FAILED: unspecified -->
+- [X] T023 [P] [US2] Integration test for group comparison on synthetic data in `tests/integration/test_group_comparison.py`
 
 ### Implementation for User Story 2
 
-- [~] T024 [US2] Implement `code/analysis/connectivity.py` to compute Pearson correlation between ROIs (AAL/Schaefer atlas) and apply Fisher z-transform. **Constraint**: Must implement chunked loading/streaming to ensure memory < 7GB during matrix generation (integrated with T025 requirements).
-- [~] T026 [US2] Implement `code/analysis/stats.py` for Welch's t-test between musician/non-musician groups. <!-- FAILED: unspecified -->
-- [~] T027 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/analysis/stats.py` to generate `q_value`.
-- [~] T028 [US2] Implement effect size calculation (Cohen's d) and 95% CI in `code/analysis/stats.py`.
-- [~] T029a [US2] Implement Network-Based Statistic (NBS) in `code/analysis/stats.py` (permutation-based). **Parameters**: 1000 permutations, edge threshold 0.05. Identify largest connected component.
-- [~] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
+- [X] T024 [US2] Implement `code/analysis/connectivity.py` to compute Pearson correlation between ROIs (AAL/Schaefer atlas) and apply Fisher z-transform. **Constraint**: Must implement chunked loading/streaming to ensure memory < 7GB during matrix generation (integrated with T025 requirements).
+- [X] T026 [US2] Implement `code/analysis/stats.py` for Welch's t-test between musician/non-musician groups. <!-- FAILED: unspecified -->
+- [X] T027 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/analysis/stats.py` to generate `q_value`.
+- [X] T028 [US2] Implement effect size calculation (Cohen's d) and 95% CI in `code/analysis/stats.py`.
+- [X] T029a [US2] Implement Network-Based Statistic (NBS) in `code/analysis/stats.py` (permutation-based). **Parameters**: 1000 permutations, edge threshold 0.05. Identify largest connected component.
+- [ ] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
 - [ ] T031 [US2] Output `data/processed/nbs_results.csv` with `component_id`, `size_edges`, `p_value_fwer`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

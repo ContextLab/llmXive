@@ -71,7 +71,7 @@
 - [ ] T011a [P] [US1] **Verify RAVDESS Source**: Query the official HuggingFace API to validate the RAVDESS dataset URL. If `spec.md` FR-001 URL is empty, default to the verified canonical URL `parlance/RAVDESS` and document the resolution in `code/config.py`.
 - [ ] T011 [P] [US1] Implement `code/utils/download.py` to fetch RAVDESS dataset from the verified URL (from T011a) and cache in `data/raw`.
 - [ ] T012 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`
-- [~] T013 [US1] Implement `code/utils/stimulus_gen.py` to:
+- [X] T013 [US1] Implement `code/utils/stimulus_gen.py` to:
  - Load frames and filter by multiple emotion categories
  - **If an emotion category is missing from the dataset, log a warning, exclude it from generation, and proceed with available categories** (Edge Case)
  - Generate stimuli with varying flanker counts (≥3 levels) and eccentricities
@@ -79,7 +79,7 @@
  - **Explicitly record exact flanker count and eccentricity for every generated image**
  - **Write exclusion reasons to `data/interim/generation_errors.log`**
  - Output generated images to `data/interim/stimuli`
-- [~] T014 [US1] Generate `data/interim/stimuli_manifest.json` by:
+- [ ] T014 [US1] Generate `data/interim/stimuli_manifest.json` by:
  - **Reading `data/interim/generation_errors.log` (T013) to update 'status' fields for excluded items**
  - **Validating that every image in `data/interim/stimuli` has a corresponding entry with exact flanker count and eccentricity values**
  - Linking file paths to metadata (emotion, flanker count, eccentricity)
@@ -87,9 +87,9 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T008 [P] [US1] Unit test for frame extraction logic in `tests/unit/test_frame_extractor.py`
-- [~] T009 [P] [US1] Unit test for stimulus composition and overlap detection in `tests/unit/test_stimulus_gen.py`
-- [~] T010 [P] [US1] Integration test for full pipeline in `tests/integration/test_pipeline.py`
+- [X] T008 [P] [US1] Unit test for frame extraction logic in `tests/unit/test_frame_extractor.py`
+- [X] T009 [P] [US1] Unit test for stimulus composition and overlap detection in `tests/unit/test_stimulus_gen.py`
+- [X] T010 [P] [US1] Integration test for full pipeline in `tests/integration/test_pipeline.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/utils/clutter_metrics.py` to compute local contrast variance and spatial frequency energy for the flanker region of each stimulus **consuming `stimuli_manifest.json` (T014) and generated images from `data/interim/stimuli` (T013)**
+- [X] T019 [US2] Implement `code/utils/clutter_metrics.py` to compute local contrast variance and spatial frequency energy for the flanker region of each stimulus **consuming `stimuli_manifest.json` (T014) and generated images from `data/interim/stimuli` (T013)**
 - [ ] T020 [US2] Implement chunked processing in `code/utils/clutter_metrics.py` to ensure memory usage stays < 7 GB (Constraint)
 - [ ] T021 [US2] **Implement sampling fallback mechanism**: Add logic to `code/utils/clutter_metrics.py` to automatically switch to dataset sampling if chunked processing still exceeds available memory capacity (Edge Case)
 - [ ] T022 [US2] Generate `data/processed/clutter_metrics.csv` joining metrics to `stimuli_manifest.json` via file path

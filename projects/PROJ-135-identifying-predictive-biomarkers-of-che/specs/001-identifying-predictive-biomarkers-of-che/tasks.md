@@ -58,7 +58,7 @@
 - [ ] T004 Implement `src/config.py`: Define paths, random seeds, FDR thresholds, CPU/memory limits, and `MAX_VARIANCE_GENES`
 - [ ] T005 [P] Implement `src/utils.py`: Logging setup, checksum generation, and timeout watchdog (5h limit)
 - [ ] T006 [P] Create schema definitions in `specs/001-chemo-biomarker-discovery/contracts/` (dataset.schema.yaml, model_output.schema.yaml, meta_analysis.schema.yaml)
-- [~] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
+- [ ] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
 - [~] T008 Setup `pytest` configuration and contract test harness for YAML schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,17 +75,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
 - [~] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA HTSeq-Counts & clinical via HuggingFace mirror for **≥3 tumor types** (FR-001). **Requirement**: Initial download MUST target ≥3 types before any filtering.
-- [~] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets (GSE25055, GSE42752) via HuggingFace mirror (FR-002). **Requirement**: Ensure at least 2 GEO datasets with response labels are acquired.
-- [~] T013b [US1] Implement **Partial Success Handler** in `src/data_acquisition.py`: If TCGA download succeeds but GEO download fails (missing or no response labels), log a warning, set `external_validation_status: "skipped"` in `results/summary.md`, and **proceed** with internal validation only (Plan T011, Spec Edge Cases).
-- [~] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`: Verify response labels (RECIST/CR/PR); exclude tumor types lacking labels; **Terminate execution with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"` ONLY IF the count of valid TCGA tumor types is < 3**. If TCGA >= 3 but GEO is missing, proceed with internal validation and log the limitation (FR-001, FR-002, Plan T011, T013).
-- [~] T015 [US1] Implement `src/preprocessing.py`: Harmonize Ensembl/Entrez to HGNC symbols using `mygene`/`biomaRt`; filter if coverage <95% (FR-003).
-- [~] T016 [US1] Implement `src/preprocessing.py`: Filter low-expression genes (CPM < 1 in >80% samples) (FR-004).
+- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA HTSeq-Counts & clinical via HuggingFace mirror for **≥3 tumor types** (FR-001). **Requirement**: Initial download MUST target ≥3 types before any filtering.
+- [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets (GSE25055, GSE42752) via HuggingFace mirror (FR-002). **Requirement**: Ensure at least 2 GEO datasets with response labels are acquired.
+- [ ] T013b [US1] Implement **Partial Success Handler** in `src/data_acquisition.py`: If TCGA download succeeds but GEO download fails (missing or no response labels), log a warning, set `external_validation_status: "skipped"` in `results/summary.md`, and **proceed** with internal validation only (Plan T011, Spec Edge Cases).
+- [ ] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`: Verify response labels (RECIST/CR/PR); exclude tumor types lacking labels; **Terminate execution with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"` ONLY IF the count of valid TCGA tumor types is < 3**. If TCGA >= 3 but GEO is missing, proceed with internal validation and log the limitation (FR-001, FR-002, Plan T011, T013).
+- [ ] T015 [US1] Implement `src/preprocessing.py`: Harmonize Ensembl/Entrez to HGNC symbols using `mygene`/`biomaRt`; filter if coverage <95% (FR-003).
+- [ ] T016 [US1] Implement `src/preprocessing.py`: Filter low-expression genes (CPM < 1 in >80% samples) (FR-004).
 - [ ] T017 [US1] Implement `src/preprocessing.py`: **Cross-Platform Alignment & Batch Correction**:
  1. **Pre-requisite**: **Normalize Microarray data to a VST-equivalent scale** (using `limma::voom` or equivalent log2-CPM with offset) before batch correction.
  2. **Primary**: If both TCGA (RNA-seq) and GEO (Microarray) data are present, apply **ComBat-seq** (via `rpy2`/`sva`) to align GEO data to TCGA distribution (FR-014, Plan T017).

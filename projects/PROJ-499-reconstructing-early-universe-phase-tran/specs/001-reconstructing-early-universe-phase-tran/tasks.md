@@ -78,7 +78,7 @@
 - [ ] T024 [US2] Implement `code/synthetic_data.py` to generate ground truth datasets for Inflation ($r=0.01$) and Phase Transition ($E_{PT}=10^{15}$ GeV) models with known noise characteristics.
 - [ ] T025a [US2] Implement `code/validation.py` to run the pipeline on synthetic Inflation data and verify that the posterior distribution for $r$ covers the true value within the 95% credible interval and is centered within 10%. **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005, US2 Acceptance 1).
 - [ ] T025b [US2] Implement `code/validation.py` to run the pipeline on synthetic Phase Transition data and verify that the posterior distribution for $E_{PT}$ covers the true value within the 95% credible interval and is centered within 10%. **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005, US2 Acceptance 1).
-- [~] T025c [US2] Implement `code/validation.py` to verify that the Bayes factor correctly distinguishes between models by exceeding the decision threshold ($K > 10$) for the ground truth model in both synthetic cases (SC-002, SC-003).
+- [X] T025c [US2] Implement `code/validation.py` to verify that the Bayes factor correctly distinguishes between models by exceeding the decision threshold ($K > 10$) for the ground truth model in both synthetic cases (SC-002, SC-003).
 
 **Checkpoint**: Synthetic Validation complete. Pipeline is validated. Proceed to Phase 1 only if T025a/b/c pass.
 
@@ -94,14 +94,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for data download integrity in `tests/contract/test_data_ingestion.py`
-- [~] T011 [P] [US1] Integration test for masked map generation in `tests/integration/test_masking.py`
+- [X] T010 [P] [US1] Contract test for data download integrity in `tests/contract/test_data_ingestion.py`
+- [X] T011 [P] [US1] Integration test for masked map generation in `tests/integration/test_masking.py`
 
 ### Implementation for User Story 1
 
 - [~] T012 [US1] Implement `code/data_ingestion.py` to download Planck SMICA B-mode maps and BICEP/Keck spectra. **Input**: Read `PLANCK_MAP_ID` and `BICEP_URL` from `code/config.py`. **Dependencies**: Call `retry_download` and `verify_checksum` from `code/utils.py` (T005). **Output**: Store downloaded files in `data/raw/` and SHA-256 checksums in `data/hashes.json`. Implement retry logic for corrupted downloads.
-- [~] T013 [US1] Implement `code/data_ingestion.py` to apply Planck 2015 Common Mask to B-mode maps (FR-002).
-- [~] T014 [US1] Implement `code/spectrum_computation.py` to compute $C_\ell^{BB}$ from masked maps using `pyHEALPix` (healpy) in CPU-only mode (FR-003).
+- [X] T013 [US1] Implement `code/data_ingestion.py` to apply Planck 2015 Common Mask to B-mode maps (FR-002).
+- [X] T014 [US1] Implement `code/spectrum_computation.py` to compute $C_\ell^{BB}$ from masked maps using `pyHEALPix` (healpy) in CPU-only mode (FR-003).
 - [~] T015 [US1] Add validation logic to verify sky coverage. **Metric**: `coverage = non-masked pixels / total pixels`. **Behavior**: **Raise ValueError** if `coverage < 0.70`. (Satisfies US1 Acceptance Scenario 1, SC-001).
 - [~] T016 [US1] Add logging for data ingestion and masking operations with checksum verification status.
 
@@ -117,15 +117,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for synthetic data generation in `tests/contract/test_model_generation.py`
-- [~] T019 [P] [US2] Integration test for Nested Sampling convergence in `tests/integration/test_inference.py`
+- [X] T018 [P] [US2] Contract test for synthetic data generation in `tests/contract/test_model_generation.py`
+- [X] T019 [P] [US2] Integration test for Nested Sampling convergence in `tests/integration/test_inference.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/model_generation.py` to generate theoretical spectra. **Input**: Grid of $r$ over a relevant small-range interval and $E_{PT} \in [10^{14}, 10^{16}]$ GeV (log scale). **Output**: JSON file with exact schema: `{"model_type": str, "params": dict, "l_values": list[int], "cl_values": list[float]}` (FR-004).
-- [~] T021a [US2] Implement `code/inference.py` using `dynesty` (Nested Sampling) with limited live points (e.g., 50 (1904.02180, https://arxiv.org/abs/1904.02180)) for CPU feasibility to estimate posteriors for $r$ and $E_{PT}$ (Plan requirement, FR-005).
-- [~] T022 [US2] Implement `code/inference.py` to detect non-convergence (evidence estimate instability) and log warnings or extend the run (Edge Case).
-- [~] T023 [US2] Implement `code/inference.py` to clamp model predictions for $\ell < 2$ and flag extrapolated points (Edge Case).
+- [X] T020 [P] [US2] Implement `code/model_generation.py` to generate theoretical spectra. **Input**: Grid of $r$ over a relevant small-range interval and $E_{PT} \in [10^{14}, 10^{16}]$ GeV (log scale). **Output**: JSON file with exact schema: `{"model_type": str, "params": dict, "l_values": list[int], "cl_values": list[float]}` (FR-004).
+- [X] T021a [US2] Implement `code/inference.py` using `dynesty` (Nested Sampling) with limited live points (e.g., 50 (1904.02180, https://arxiv.org/abs/1904.02180)) for CPU feasibility to estimate posteriors for $r$ and $E_{PT}$ (Plan requirement, FR-005).
+- [X] T022 [US2] Implement `code/inference.py` to detect non-convergence (evidence estimate instability) and log warnings or extend the run (Edge Case).
+- [X] T023 [US2] Implement `code/inference.py` to clamp model predictions for $\ell < 2$ and flag extrapolated points (Edge Case).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,15 +139,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Contract test for Bayes factor precision in `tests/contract/test_model_comparison.py`
-- [~] T027 [P] [US3] Integration test for sky patch consistency in `tests/integration/test_sky_split.py`
+- [X] T026 [P] [US3] Contract test for Bayes factor precision in `tests/contract/test_model_comparison.py`
+- [X] T027 [P] [US3] Integration test for sky patch consistency in `tests/integration/test_sky_split.py`
 
 ### Implementation for User Story 3
 
-- [~] T028a [P] [US3] Implement `code/model_comparison.py` to compute Bayes factors via `dynesty` evidence calculation for Inflation vs. Phase Transition vs. Null (Plan requirement, FR-006).
-- [~] T029 [US3] Implement `code/validation.py` to split sky into independent patches (Northern/Southern) and verify consistency of best-fit $r$ values (FR-007).
-- [~] T030 [US3] Implement `code/model_comparison.py` to report Bayes factor $K$ with 2 decimal places precision and decision thresholds ($K > 10$) (US3 Acceptance 1).
-- [~] T031 [US3] Add plotting functionality in `code/plotting.py` to visualize posteriors and Bayes factors for all models.
+- [X] T028a [P] [US3] Implement `code/model_comparison.py` to compute Bayes factors via `dynesty` evidence calculation for Inflation vs. Phase Transition vs. Null (Plan requirement, FR-006).
+- [X] T029 [US3] Implement `code/validation.py` to split sky into independent patches (Northern/Southern) and verify consistency of best-fit $r$ values (FR-007).
+- [X] T030 [US3] Implement `code/model_comparison.py` to report Bayes factor $K$ with 2 decimal places precision and decision thresholds ($K > 10$) (US3 Acceptance 1).
+- [X] T031 [US3] Add plotting functionality in `code/plotting.py` to visualize posteriors and Bayes factors for all models.
 - [~] T032 [US3] Implement `code/utils.py` to generate `data/derived/model_comparison_results.json` with exact schema from contracts/
 
 **Checkpoint**: All user stories should now be independently functional
@@ -158,9 +158,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038a [P] Update `docs/quickstart.md` with new CLI flags and execution steps.
+- [X] T038a [P] Update `docs/quickstart.md` with new CLI flags and execution steps.
 - [~] T038b [P] Update `docs/data-model.md` with schema changes and `docs/research.md` with final results (Phase 0.5 and Phase 1-3 outcomes). <!-- ATOMIZE: requested -->
-- [~] T039 Code cleanup and refactoring for CPU efficiency: **Deliverable**: Reduce cyclomatic complexity of `code/inference.py` to a level that ensures maintainability and computational efficiency.
+- [X] T039 Code cleanup and refactoring for CPU efficiency: **Deliverable**: Reduce cyclomatic complexity of `code/inference.py` to a level that ensures maintainability and computational efficiency.
 - [~] T040 Performance optimization across all stories: **Deliverable**: Complete a 1000-step `dynesty` run on Nside=64 synthetic data within 2 hours on CPU.
 - [~] T041 [P] Additional unit tests for edge cases in `tests/unit/`
 - [~] T042 Security hardening for data download URLs

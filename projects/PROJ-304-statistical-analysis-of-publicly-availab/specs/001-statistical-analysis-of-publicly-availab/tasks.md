@@ -82,10 +82,10 @@
 
 - [ ] T011 [US1] Implement `code/ingestion.py` to load synthetic noise and covariate data (traffic, land use, population) <!-- ATOMIZE: requested -->
 - [ ] T015 [US1] Implement `code/preprocessing.py::clean_traffic_data` to ensure `df['traffic_volume']` retains 0.0 values and only applies imputation/exclusion to `NaN` values, logging the count of excluded rows to `data/processed/exclusion_log.csv`
-- [~] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal [UNRESOLVED-CLAIM: c_78c7f411 — status=not_enough_info]
-- [~] T013 [US1] Implement daily aggregation logic in `code/preprocessing.py` (mean, median, 95th percentile **per day** per grid cell); **Unit of analysis is (grid_id, date)**; Output is a DataFrame retaining daily granularity
-- [~] T014 [US1] Implement spatial harmonization in `code/ingestion.py` to merge covariates into 200m grid cells using output from T013, handling missing covariates via exclusion and **logging a WARNING level message indicating the number of excluded cells**
-- [~] T016 [US1] Write harmonized dataset to `data/processed/harmonized.parquet` and update checksums
+- [X] T012 [US1] Implement `code/preprocessing.py` to apply IQR filter (1.5x IQR) for decibel outlier removal [UNRESOLVED-CLAIM: c_78c7f411 — status=not_enough_info]
+- [X] T013 [US1] Implement daily aggregation logic in `code/preprocessing.py` (mean, median, 95th percentile **per day** per grid cell); **Unit of analysis is (grid_id, date)**; Output is a DataFrame retaining daily granularity
+- [X] T014 [US1] Implement spatial harmonization in `code/ingestion.py` to merge covariates into 200m grid cells using output from T013, handling missing covariates via exclusion and **logging a WARNING level message indicating the number of excluded cells**
+- [ ] T016 [US1] Write harmonized dataset to `data/processed/harmonized.parquet` and update checksums
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,14 +99,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_models.py`
-- [~] T018 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_models.py`
+- [X] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement spatial weight matrix construction in `code/models.py`: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)
-- [~] T020 [US2] Implement OLS regression fitting in `code/models.py` using `statsmodels`
-- [~] T021 [US2] Implement Spatial Lag and Spatial Error model fitting in `code/models.py` using `PySAL`
+- [X] T019 [US2] Implement spatial weight matrix construction in `code/models.py`: Queen Contiguity first, fallback to K-Nearest Neighbor (K=8)
+- [X] T020 [US2] Implement OLS regression fitting in `code/models.py` using `statsmodels`
+- [X] T021 [US2] Implement Spatial Lag and Spatial Error model fitting in `code/models.py` using `PySAL`
 - [~] T022 [US2] Implement robust standard error calculation: **Conley SEs for OLS**, **HAC/Model-specific robust SEs for Spatial Lag/Error** using `linearmodels`; output p-values
 - [ ] T023 [US2] Apply Benjamini-Hochberg FDR correction (α=0.05) to the p-values [UNRESOLVED-CLAIM: c_edb5a251 — status=not_enough_info] **derived from the robust SEs in T022** for primary covariates
 - [ ] T024 [US2] Implement convergence fallback: if Spatial models fail, fall back to OLS but still calculate/report OLS Moran's I

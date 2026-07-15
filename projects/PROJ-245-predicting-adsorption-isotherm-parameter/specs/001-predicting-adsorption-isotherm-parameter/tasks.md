@@ -60,14 +60,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T012 [P] [US1] Contract test for schema compliance in `tests/contract/test_dataset_schema.py`
-- [~] T013 [P] [US1] Unit test for RDKit descriptor calculation in `tests/unit/test_descriptors.py`
+- [X] T013 [P] [US1] Unit test for RDKit descriptor calculation in `tests/unit/test_descriptors.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [P] [US1] Implement `code/data/descriptors.py` to calculate molecular weight, polar surface area, polarizability, H-bond counts, van der Waals volume (per FR-001), AND kinetic diameter (required for SC-002 consensus check) using RDKit. Note: Kinetic diameter is an additional requirement for SC-002, not FR-001.
-- [~] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and handle missing pore volume (impute/exclude with logging) (FR-002); depends on T014
+- [X] T014 [P] [US1] Implement `code/data/descriptors.py` to calculate molecular weight, polar surface area, polarizability, H-bond counts, van der Waals volume (per FR-001), AND kinetic diameter (required for SC-002 consensus check) using RDKit. Note: Kinetic diameter is an additional requirement for SC-002, not FR-001.
+- [X] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and handle missing pore volume (impute/exclude with logging) (FR-002); depends on T014
 - [~] T016 [US1] Implement outlier detection in `code/data/preprocess.py` to flag adsorbates with identical descriptors but conflicting targets; depends on T014, T015; output must be `data/processed/outliers.csv` with columns [material_id, descriptor_hash, target_variance] (Edge Cases)
-- [~] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline (Download -> Synthetic Gen -> Preprocess -> Outlier Check); depends on T015, T016
+- [X] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline (Download -> Synthetic Gen -> Preprocess -> Outlier Check); depends on T015, T016
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -81,7 +81,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 3:
  - **File Created**: `tests/contrac...
  ^
@@ -89,18 +89,18 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 3, column 4:
  - **File Created**: `tests/contract...
  ^) -->
-- [~] T019 [P] [US2] Integration test for material-level data splitting in `tests/integration/test_data_split.py`
+- [X] T019 [P] [US2] Integration test for material-level data splitting in `tests/integration/test_data_split.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/models/train.py` to perform material-level split: Group rows by material_id, then split groups, ensuring no material_id exists in both train and test sets (FR-003); depends on T015
-- [~] T021 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting models (FR-004)
-- [~] T022 [US2] Implement 5-fold cross-validation and hyperparameter tuning in `code/models/train.py`
-- [~] T023 [US2] Implement `code/models/evaluate.py` to calculate R², RMSE, MAE on the independent test set (SC-001)
+- [X] T020 [US2] Implement `code/models/train.py` to perform material-level split: Group rows by material_id, then split groups, ensuring no material_id exists in both train and test sets (FR-003); depends on T015
+- [X] T021 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting models (FR-004)
+- [X] T022 [US2] Implement 5-fold cross-validation and hyperparameter tuning in `code/models/train.py`
+- [X] T023 [US2] Implement `code/models/evaluate.py` to calculate R², RMSE, MAE on the independent test set (SC-001)
 - [~] T024 [US2] Implement null model comparison (predicting mean) and verify a significant RMSE improvement
 - [~] T025 [US2] Implement permutation-based p-value calculation for feature importances
-- [~] T026 [US2] Implement Benjamini-Hochberg FDR correction for p-values in `code/models/evaluate.py` (FR-006, SC-005)
-- [~] T027 [US2] Update `code/main.py` orchestrator to support running the pipeline on the external literature dataset (Phase 3); depends on T020, T021
+- [X] T026 [US2] Implement Benjamini-Hochberg FDR correction for p-values in `code/models/evaluate.py` (FR-006, SC-005)
+- [X] T027 [US2] Update `code/main.py` orchestrator to support running the pipeline on the external literature dataset (Phase 3); depends on T020, T021
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,19 +114,19 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Contract test for SHAP output format in `tests/contract/test_shap_output.py`
+- [X] T028 [P] [US3] Contract test for SHAP output format in `tests/contract/test_shap_output.py`
 - [~] T029 [P] [US3] Integration test for feature ranking validation in `tests/integration/test_feature_ranking.py`
 
 ### Implementation for User Story 3
 
 - [~] T035a [US3] Curate and save the external validation dataset (Kr on CNTs) to `data/external/kr_cnt.csv`. Source: Manually extract data points from the literature source "Krypton adsorption on carbon nanotubes" () or equivalent verified source. Ensure the CSV matches `contracts/dataset.schema.yaml`. This task creates the missing producer for T035.
 - [~] T035 [US3] Implement `code/data/load_external.py` to load the manually curated `data/external/kr_cnt.csv` and validate it against `contracts/dataset.schema.yaml` (Phase 3 External Data); depends on T035a
-- [~] T030 [P] [US3] Implement `code/interpret/shap_analysis.py` to generate SHAP summary plots for top-ranked features (FR-005)
-- [~] T031 [US3] Implement `code/interpret/shap_analysis.py` to generate partial dependence plots (PDP) for top descriptors
-- [~] T032 [US3] Implement validation logic in `code/interpret/shap_analysis.py` to compare top-ranked features against the literature consensus list (polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume). This logic MUST be implemented to generate `data/validation/sc002_match_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase. (SC-002)
-- [~] T033 [US3] Implement re-training logic in `code/interpret/shap_analysis.py` on the top 3 descriptors only and verify R² >= 0.60. This logic MUST be implemented to generate `data/validation/sc003_r2_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase to satisfy SC-003.
+- [X] T030 [P] [US3] Implement `code/interpret/shap_analysis.py` to generate SHAP summary plots for top-ranked features (FR-005)
+- [X] T031 [US3] Implement `code/interpret/shap_analysis.py` to generate partial dependence plots (PDP) for top descriptors
+- [X] T032 [US3] Implement validation logic in `code/interpret/shap_analysis.py` to compare top-ranked features against the literature consensus list (polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume). This logic MUST be implemented to generate `data/validation/sc002_match_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase. (SC-002)
+- [X] T033 [US3] Implement re-training logic in `code/interpret/shap_analysis.py` on the top 3 descriptors only and verify R² >= 0.60. This logic MUST be implemented to generate `data/validation/sc003_r2_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase to satisfy SC-003.
 - [~] T034 [US3] Implement diagnostic report generation for cases where R² < 0.5 (suggesting non-linear effects)
-- [~] T036 [US3] Update `code/main.py` orchestrator to integrate the external dataset loading and validation flow (Phase 3); depends on T035, T032, T033; must trigger T032 and T033 only when external data is present.
+- [X] T036 [US3] Update `code/main.py` orchestrator to integrate the external dataset loading and validation flow (Phase 3); depends on T035, T032, T033; must trigger T032 and T033 only when external data is present.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,10 +137,10 @@ expected alphabetic or numeric character, but found '*'
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T037 [P] Documentation updates in `README.md` and `docs/`
-- [~] T038 Code cleanup and refactoring of `code/main.py` orchestrator
+- [X] T038 Code cleanup and refactoring of `code/main.py` orchestrator
 - [~] T039 Performance optimization: Ensure pipeline runtime < 6h on GitHub Actions free-tier (SC-004) <!-- ATOMIZE: requested -->
 - [~] T040 [P] Additional unit tests for edge cases (empty datasets, single material) in `tests/unit/`
-- [~] T041 Security hardening: Sanitize inputs in `code/data/download.py`
+- [X] T041 Security hardening: Sanitize inputs in `code/data/download.py`
 - [ ] T042 Run `quickstart.md` validation if available
 
 ---

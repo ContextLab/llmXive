@@ -83,8 +83,8 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement Random Forest baseline training in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits)
-- [~] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, and save model to `models/`
-- [~] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
+- [ ] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, and save model to `models/`
+- [ ] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
 - [~] T016 [US1] Add error handling for RDKit parsing failures (log invalid count, exclude from dataset)
 - [~] T017 [US1] Add logging for baseline training operations and exclusion counts
 
@@ -100,16 +100,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for MPNN architecture (CPU-only verification) in `tests/unit/test_gnn_arch.py`
-- [~] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py` <!-- ATOMIZE: requested -->
+- [X] T018 [P] [US2] Unit test for MPNN architecture (CPU-only verification) in `tests/unit/test_gnn_arch.py`
+- [ ] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement Message Passing Neural Network (MPNN) in `code/models/gnn_mpnn.py` using PyTorch Geometric, ensuring NO CUDA/GPU calls
-- [~] T021 [US2] Implement `code/training/train_gnn.py` to train MPNN with early stopping on validation loss
+- [X] T020 [US2] Implement Message Passing Neural Network (MPNN) in `code/models/gnn_mpnn.py` using PyTorch Geometric, ensuring NO CUDA/GPU calls
+- [X] T021 [US2] Implement `code/training/train_gnn.py` to train MPNN with early stopping on validation loss
 - [~] T022 [US2] Ensure GNN training completes within 6 hours on 2-core CPU runner (simplify architecture if needed: fewer layers, smaller hidden dims)
-- [~] T023 [US2] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on test set
-- [~] T024 [US2] Save GNN predictions and metrics to `results/gnn_metrics.json`
+- [X] T023 [US2] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on test set
+- [ ] T024 [US2] Save GNN predictions and metrics to `results/gnn_metrics.json`
 - [~] T025 [US2] Implement comparison logic to calculate RMSE delta between Baseline and GNN without arbitrary pass/fail flags
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,15 +124,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for paired t-test and power analysis logic in `tests/unit/test_stats.py`
-- [~] T027 [P] [US3] Unit test for visualization generation (non-zero variance, >1KB) in `tests/unit/test_viz.py`
+- [X] T026 [P] [US3] Unit test for paired t-test and power analysis logic in `tests/unit/test_stats.py`
+- [X] T027 [P] [US3] Unit test for visualization generation (non-zero variance, >1KB) in `tests/unit/test_viz.py`
 
 ### Implementation for User Story 3
 
-- [~] T028 [US3] Implement `code/evaluation/statistical_test.py` to perform paired t-test on absolute errors of RF and GNN (alpha=0.05) and calculate post-hoc power
-- [~] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules
+- [X] T028 [US3] Implement `code/evaluation/statistical_test.py` to perform paired t-test on absolute errors of RF and GNN (alpha=0.05) and calculate post-hoc power
+- [X] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules
 - [~] T030 [US3] Ensure visualizations are saved as PNG files with non-zero variance and size > 1KB to `results/`
-- [~] T031 [US3] Implement `code/evaluation/report_generator.py` to compile RMSE, R², p-value, power, and delta into a final summary table
+- [X] T031 [US3] Implement `code/evaluation/report_generator.py` to compile RMSE, R², p-value, power, and delta into a final summary table
 - [~] T032 [US3] Add logic to detect and report "ceiling effect" if Baseline R² > 0.95
 
 **Checkpoint**: All user stories should now be independently functional

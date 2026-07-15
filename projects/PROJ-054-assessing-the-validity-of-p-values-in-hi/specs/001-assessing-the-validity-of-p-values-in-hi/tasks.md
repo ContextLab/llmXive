@@ -59,8 +59,8 @@
 - [ ] T004.5 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py` specifically for condition number > 10^12 (required by T004 and referenced by T007 context)
 - [ ] T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
 - [ ] T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
-- [~] T007 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (does NOT raise a custom error as this threshold is not in spec) and verify by running a test that triggers the limit and asserts the warning is logged (FR-009 context only for condition number)
-- [~] T008 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05 (SC-005)
+- [X] T007 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (does NOT raise a custom error as this threshold is not in spec) and verify by running a test that triggers the limit and asserts the warning is logged (FR-009 context only for condition number)
+- [X] T008 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05 (SC-005)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,15 +76,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
-- [~] T011 [P] [US1] Unit test for distribution shape validation (t-distribution, skewed normal) in `tests/unit/test_data_gen.py` <!-- FAILED: unspecified -->
-- [~] T012 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
+- [X] T010 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
+- [X] T011 [P] [US1] Unit test for distribution shape validation (t-distribution, skewed normal) in `tests/unit/test_data_gen.py` <!-- FAILED: unspecified -->
+- [X] T012 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning a range from no correlation to strong positive correlation.
-- [~] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
-- [~] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
+- [X] T013 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning a range from no correlation to strong positive correlation.
+- [X] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
+- [X] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
 - [~] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
 - [~] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested -->
 
@@ -100,8 +100,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for t-test/F-test execution on null data in `tests/unit/test_stats.py`
-- [~] T019 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
+- [X] T018 [P] [US2] Unit test for t-test/F-test execution on null data in `tests/unit/test_stats.py`
+- [X] T019 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
 
 ### Implementation for User Story 2
 

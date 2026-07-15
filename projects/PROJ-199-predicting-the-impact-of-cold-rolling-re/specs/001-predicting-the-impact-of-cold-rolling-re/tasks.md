@@ -58,10 +58,10 @@
 
 - [ ] T004 [P] Create subdirectories `raw`, `processed`, `interim` within the existing `data/` folder with `.gitkeep`
 - [X] T005 [P] Implement base configuration loader for environment variables and seed management (`code/__init__.py`)
-- [~] T006 [P] Setup logging infrastructure to track data lineage and processing steps (`code/utils/logging.py`)
-- [~] T007a [P] Implement Pydantic model for 'EBSD Sample' (`code/data/models.py`)
-- [~] T007b [P] Implement Pydantic model for 'Texture Descriptor' (`code/data/models.py`)
-- [~] T008 Implement unit tests for base schema validation in `tests/unit/test_models.py`
+- [X] T006 [P] Setup logging infrastructure to track data lineage and processing steps (`code/utils/logging.py`)
+- [X] T007a [P] Implement Pydantic model for 'EBSD Sample' (`code/data/models.py`)
+- [X] T007b [P] Implement Pydantic model for 'Texture Descriptor' (`code/data/models.py`)
+- [X] T008 Implement unit tests for base schema validation in `tests/unit/test_models.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE**: Tests marked [P] can be written in parallel with implementation, but execution depends on the implementation being complete.
 
-- [~] T009 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
-- [~] T010 [P] [US1] Write test stubs and assertions for the download and filter flow (can be written in parallel with T011/T012 implementation) in `tests/integration/test_data_pipeline.py`
+- [X] T009 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py`
+- [X] T010 [P] [US1] Write test stubs and assertions for the download and filter flow (can be written in parallel with T011/T012 implementation) in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first.
-- [~] T011b [US1] Implement `code/data/generate_synthetic.py` as a **FALLBACK ONLY** mechanism, triggered strictly if T011 (real data download) fails. Generate synthetic EBSD data with pinned seeds. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (Plan: Dataset Fit Note)
-- [~] T012 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (FR-002)
+- [ ] T011 [P] [US1] Implement `code/data/download.py` to fetch EBSD data from HuggingFace (dataset ID specified in research.md Section 2.1) OR fallback to local synthetic generation (FR-001). **Priority**: Real data ingestion first.
+- [X] T011b [US1] Implement `code/data/generate_synthetic.py` as a **FALLBACK ONLY** mechanism, triggered strictly if T011 (real data download) fails. Generate synthetic EBSD data with pinned seeds. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (Plan: Dataset Fit Note)
+- [X] T012 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. Reduction levels MUST be read from `code/config.py`; if values are missing, raise a `ConfigurationError` immediately. (FR-002)
 - [~] T013 [US1] Add error handling for missing reduction levels or corrupted files, logging warnings and proceeding (US-1 Scenario 3)
 - [~] T014 [US1] Implement exclusion logic: flag samples where >50% of points are filtered as "low reliability" and EXCLUDE them from the final training set (Edge Case)
-- [~] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence)
+- [ ] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,7 +101,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for Brass/Copper/S/Goss calculation logic in `tests/unit/test_descriptors.py`
+- [X] T016 [P] [US2] Unit test for Brass/Copper/S/Goss calculation logic in `tests/unit/test_descriptors.py`
 - [ ] T017 [P] [US2] Benchmark test against Rosenstock et al. (2018) values in `tests/unit/test_benchmark_validation.py`
 
 ### Implementation for User Story 2

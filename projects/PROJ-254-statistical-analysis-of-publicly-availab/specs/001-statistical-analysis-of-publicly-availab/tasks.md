@@ -102,14 +102,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T017 [P] [US2] Contract test for `yearly_similarity.csv` schema: `tests/contract/test_similarity_schema.py` function `test_similarity_schema_validation` against `tests/contract/schemas/similarity_schema.yaml`
-- [~] T018 [P] [US2] Unit test for cosine similarity calculation logic: `tests/unit/test_similarity_calc.py` function `test_cosine_similarity` using fixture `tests/fixtures/similarity_input.npy` (dim=100), asserting a stringent tolerance threshold
+- [X] T018 [P] [US2] Unit test for cosine similarity calculation logic: `tests/unit/test_similarity_calc.py` function `test_cosine_similarity` using fixture `tests/fixtures/similarity_input.npy` (dim=100), asserting a stringent tolerance threshold
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `src/code/similarity.py` to load `yearly_embeddings/{year}.npy` files, compute pairwise cosine similarity matrices, and calculate mean off-diagonal similarity and intra-genre variance (FR-004)
-- [~] T020 [US2] Save results to `data/derived/yearly_similarity.csv` with columns: year, mean_off_diagonal_similarity, intra_genre_variance (FR-004)
-- [~] T021 [US2] Implement `src/code/viz.py` to generate `similarity_trend.png` (line plot with 95% CI bands) using matplotlib (FR-007)
-- [~] T022 [US2] Implement `src/code/viz.py` to generate `genre_similarity_heatmap.html` (interactive heatmap) using plotly (FR-007)
+- [X] T019 [US2] Implement `src/code/similarity.py` to load `yearly_embeddings/{year}.npy` files, compute pairwise cosine similarity matrices, and calculate mean off-diagonal similarity and intra-genre variance (FR-004)
+- [ ] T020 [US2] Save results to `data/derived/yearly_similarity.csv` with columns: year, mean_off_diagonal_similarity, intra_genre_variance (FR-004)
+- [X] T021 [US2] Implement `src/code/viz.py` to generate `similarity_trend.png` (line plot with 95% CI bands) using matplotlib (FR-007)
+- [X] T022 [US2] Implement `src/code/viz.py` to generate `genre_similarity_heatmap.html` (interactive heatmap) using plotly (FR-007)
 - [~] T023 [US2] Add error handling for missing embedding files and logging of visualization generation status to `pipeline_log.txt` (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,14 +124,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Contract test for regression output schema: `tests/contract/test_regression_schema.py` function `test_regression_schema_validation` against `tests/contract/schemas/regression_schema.yaml`
+- [X] T024 [P] [US3] Contract test for regression output schema: `tests/contract/test_regression_schema.py` function `test_regression_schema_validation` against `tests/contract/schemas/regression_schema.yaml`
 - [~] T025 [P] [US3] Unit test for Cook's Distance calculation: `tests/unit/test_cooks_distance.py` function `test_cooks_distance` using fixture `tests/fixtures/cooks_input.csv`, asserting `abs(calculated - expected) < 1e-5` for specific row
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `src/code/regression.py` function `flag_low_coverage` to identify years with <1,000 unique tracks (flag for exclusion from regression only) and years with >20% missing genre tags (log warning), without creating a separate filtered artifact (Edge Cases). Logic: 1) Filter tracks with missing genre tags and log warning if >20%. 2) Count remaining unique tracks; if <1,000, flag year for regression exclusion.
+- [X] T029 [US3] Implement `src/code/regression.py` function `flag_low_coverage` to identify years with <1,000 unique tracks (flag for exclusion from regression only) and years with >20% missing genre tags (log warning), without creating a separate filtered artifact (Edge Cases). Logic: 1) Filter tracks with missing genre tags and log warning if >20%. 2) Count remaining unique tracks; if <1,000, flag year for regression exclusion.
 - [~] T026 [US3] Implement `src/code/regression.py` function `fit_linear_regression` to load `data/derived/yearly_similarity.csv`, internally filter out flagged low-coverage years, and fit a linear regression model (year vs. mean_off_diagonal_similarity) using statsmodels with robust standard errors (FR-005) <!-- FAILED: unspecified -->
-- [~] T027 [US3] Output regression results (slope, 95% CI, p-value) to console and `data/derived/regression_results.json` (FR-005)
+- [ ] T027 [US3] Output regression results (slope, 95% CI, p-value) to console and `data/derived/regression_results.json` (FR-005)
 - [~] T036 [US3] Implement `src/code/regression.py` function `calculate_cooks_distance` to calculate Cook's Distance for outliers using the regression model from T026 and generate `data/derived/cooks_distance_report.csv` (Robustness Check, replacing waived FR-006)
 - [~] T030 [US3] Add comprehensive logging of model parameters, convergence status, and outlier counts to `pipeline_log.txt` (FR-008)
 
@@ -144,10 +144,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T031a Update `README.md` sections: Installation, Usage, Data Sources, and Results Interpretation
-- [~] T031b Add docstrings to `src/code/ingest.py`, `src/code/embeddings.py`, and `src/code/similarity.py` functions
-- [~] T032a Refactor batch processing logic in `src/code/ingest.py` for modularity
-- [~] T032b Refactor memory management logic in `src/code/embeddings.py` for clarity
-- [~] T033a Implement chunked loading for MPD parquet files (chunk size: k) in `src/code/ingest.py`
+- [X] T031b Add docstrings to `src/code/ingest.py`, `src/code/embeddings.py`, and `src/code/similarity.py` functions
+- [X] T032a Refactor batch processing logic in `src/code/ingest.py` for modularity
+- [X] T032b Refactor memory management logic in `src/code/embeddings.py` for clarity
+- [X] T033a Implement chunked loading for MPD parquet files (chunk size: k) in `src/code/ingest.py`
 - [~] T034 [P] Additional unit tests for edge cases (empty years, API failures) in `tests/unit/`
 - [~] T035 Run `quickstart.md` validation to ensure end-to-end reproducibility <!-- FAILED: unspecified -->
 

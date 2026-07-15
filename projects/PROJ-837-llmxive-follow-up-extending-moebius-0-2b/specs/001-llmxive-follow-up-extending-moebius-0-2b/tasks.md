@@ -83,9 +83,9 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data/loader.py` to fetch Places365 subset from HuggingFace (`mit-places/Places365`) with checksum verification
-- [~] T013 [P] [US1] Implement `code/data/mask_generator.py` to create synthetic masks with varying complexity; record `gradient_variance` and `texture_entropy`
-- [~] T014 [US1] Implement `code/data/annotator.py` to provide CLI/JSON interface for crowdsourcing structure
+- [ ] T012 [P] [US1] Implement `code/data/loader.py` to fetch Places365 subset from HuggingFace (`mit-places/Places365`) with checksum verification
+- [X] T013 [P] [US1] Implement `code/data/mask_generator.py` to create synthetic masks with varying complexity; record `gradient_variance` and `texture_entropy`
+- [X] T014 [US1] Implement `code/data/annotator.py` to provide CLI/JSON interface for crowdsourcing structure
  - [ ] T014a [US1] **CI Mode**: Generate `data/annotations/decoupled_scores.csv` with columns `[image_id, score, mode]`. Logic: Generate scores using **random independent values** (uniform distribution 1-5) strictly decoupled from synthetic mask metrics (gradient/entropy) to satisfy FR-007 and avoid circularity. {{claim:c_9f11c331}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604).
  - [ ] T014b [US1] **Research Mode**: Implement logic to load external human-annotated CSV. Validate schema and integrity.
  - [ ] T014c [US1] **Research Mode Ingestion**: Implement the specific mechanism to ingest, manage, and validate real human participant data for 'Research Mode' as required by FR-002.

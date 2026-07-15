@@ -52,7 +52,7 @@
 - [ ] T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5 prompts each for database access, HTML rendering, authentication, and injection **
 - [ ] T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
 - [ ] T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
-- [~] T009 [P] Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL with **A timeout per scan is established.** (scanner infrastructure setup)
+- [X] T009 [P] Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL with **A timeout per scan is established.** (scanner infrastructure setup)
 - [~] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -69,8 +69,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Integration test for generation pipeline with timeout handling in `tests/integration/test_generate.py`
-- [~] T012 [P] [US1] Contract test for scanner output format in `tests/contract/test_scanner_output.py`
+- [X] T011 [P] [US1] Integration test for generation pipeline with timeout handling in `tests/integration/test_generate.py`
+- [X] T012 [P] [US1] Contract test for scanner output format in `tests/contract/test_scanner_output.py`
 
 ### Implementation for User Story 1
 

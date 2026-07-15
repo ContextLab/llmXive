@@ -66,7 +66,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T007b [P] Create `code/lib/models.py` class `ReconstructedScene`
 - [X] T007c [P] Create `code/lib/models.py` class `GroundTruthLiDAR`
 - [ ] T007d [P] Create `code/lib/models.py` class `FidelityMetrics`
-- [~] T008 [P] Configure logging infrastructure to `data/results/execution.log` with structured JSON output
+- [ ] T008 [P] Configure logging infrastructure to `data/results/execution.log` with structured JSON output
 - [~] T009 [P] Setup environment configuration management (loaders for `city_list.txt`, random seeds)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -83,9 +83,9 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011a [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual)
-- [~] T011b [P] [US1] Unit test for degradation parameters in `tests/unit/test_degradation.py` (verify coarse spatial resolution and partial cloud coverage; **verify implementation of Kolmogorov-Smirnov (KS) test for mask distribution comparison**)
-- [~] T011c [P] [US1] Unit test for cloud mask validation logic in `tests/unit/test_mask_validation.py` (verify KS-test implementation)
+- [X] T011a [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual)
+- [X] T011b [P] [US1] Unit test for degradation parameters in `tests/unit/test_degradation.py` (verify coarse spatial resolution and partial cloud coverage; **verify implementation of Kolmogorov-Smirnov (KS) test for mask distribution comparison**)
+- [X] T011c [P] [US1] Unit test for cloud mask validation logic in `tests/unit/test_mask_validation.py` (verify KS-test implementation)
 
 ### Implementation for User Story 1
 
@@ -93,11 +93,11 @@ Examples of foundational tasks (adjust based on your project):
 - [~] T013 [US1] Implement `code/01_patch_extraction.py` to **extract 100m² patches ** from the downloaded 1km² aligned tiles (output of T012); output to `data/processed/patches_100m2/`; ensure this step occurs BEFORE degradation to satisfy compute budget constraints (SC-003, FR-003); generate `data/processed/patch_manifest.csv`
 - [~] T015 [US1] Acquire reference real cloud masks for a small subset of selected regions from Sentinel-2 Cloud Probability dataset (e.g., `S2MSK` products) and save to `data/raw/real_cloud_masks_subset/`; **define the statistical comparison method (Kolmogorov-Smirnov test)** to compare the distribution of synthetic masks against these real masks; **DO NOT** switch the data source to real masks, use only for tuning
 - [~] T016 [US1] Implement `code/02b_validate_masks.py` to **perform the Kolmogorov-Smirnov test** between synthetic mask stats and `data/raw/real_cloud_masks_subset/`; output `data/results/mask_similarity_score.json`; if similarity < 0.8, **tune the degradation pipeline parameters** (T014a) to improve similarity, ensuring the experiment remains synthetic-only
-- [~] T014a [US1] Implement `code/02_degradation_pipeline.py` to apply **downscale to coarse spatial resolution
+- [X] T014a [US1] Implement `code/02_degradation_pipeline.py` to apply **downscale to coarse spatial resolution
 
 The research question and method remain unchanged as per the original planning document, with the specific empirical value generalized to a qualitative descriptor.** and **procedural cloud masks** (tuned per T016) to the 100m² patches from T013; output intermediate degraded scenes to `data/processed/degraded_base/`; ensure the resolution is explicitly set to 30m/pixel ± 1%
 - [~] T014b [US1] Implement `code/02_degradation_pipeline.py` to apply **temporal shifts** (simulating stale imagery via temporal interpolation or selection from adjacent dates) and **systematically vary NNF** (Normalized Noise Fraction) by sweeping degradation intensity across the sample set; output the final NNF-varied dataset to `data/processed/nnf_varied_scenes/` and `data/processed/degraded_manifest.json`
-- [~] T017 [US1] Save aligned pairs, patches, and degraded scenes to `data/processed/` with checksums in `data/manifest.json`
+- [ ] T017 [US1] Save aligned pairs, patches, and degraded scenes to `data/processed/` with checksums in `data/manifest.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,7 +111,7 @@ The research question and method remain unchanged as per the original planning d
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for ONNX Runtime initialization in `tests/unit/test_cpu_3dgs.py` (verify no GPU device calls)
+- [X] T018 [P] [US2] Unit test for ONNX Runtime initialization in `tests/unit/test_cpu_3dgs.py` (verify no GPU device calls)
 - [~] T019 [P] [US2] Integration test for memory usage in `tests/integration/test_memory_limits.py` (verify < 6.5 GB peak RAM)
 
 ### Implementation for User Story 2

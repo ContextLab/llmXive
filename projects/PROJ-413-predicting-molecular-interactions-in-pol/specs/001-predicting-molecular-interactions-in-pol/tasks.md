@@ -70,12 +70,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement MolNet download via `datasets.load_dataset('molnet',...)` in `code/data/download.py` with SHA256 checksum recording. **Note**: This task fetches all required fields (polymer_smiles, filler_smiles, adhesion_energy). If these fields are missing, the script MUST trigger the hard abort logic (E-DATA-001) defined in T013. The Plan overrides the Spec's NIST cross-reference requirement; if MolNet lacks data, the pipeline aborts.
+- [X] T011 [US1] Implement MolNet download via `datasets.load_dataset('molnet',...)` in `code/data/download.py` with SHA256 checksum recording. **Note**: This task fetches all required fields (polymer_smiles, filler_smiles, adhesion_energy). If these fields are missing, the script MUST trigger the hard abort logic (E-DATA-001) defined in T013. The Plan overrides the Spec's NIST cross-reference requirement; if MolNet lacks data, the pipeline aborts.
 - [~] T012 [US1] **DELETED**: NIST cross-referencing removed. The Plan explicitly rejects the NIST fallback as scientifically invalid due to lack of structured API. The Spec's FR-001 requirement for NIST is superseded by the Plan's "hard abort" strategy.
-- [~] T013 [US1] Implement hard abort logic with exit code E-DATA-001 if adhesion energy is missing OR row count <100 in `code/data/clean.py`. **Note**: This task enforces the Plan's "hard abort" logic, overriding the Spec's proxy fallback as scientifically invalid.
-- [~] T014 [US1] Implement data cleaning and validation script in `code/data/clean.py` to flag missing values (≤5% threshold) and process data if row count ≥100.
-- [~] T015 [US1] Implement 'Limited Power' warning logic in `code/data/clean.py`: if 100 ≤ rows < 500, log warning and calculate margin of error (e.g., `1.96 * std / sqrt(n)`).
-- [~] T016 [US1] Generate `data/curated/curated_dataset.csv` with complete molecular graph structures and adhesion energy measurements.
+- [X] T013 [US1] Implement hard abort logic with exit code E-DATA-001 if adhesion energy is missing OR row count <100 in `code/data/clean.py`. **Note**: This task enforces the Plan's "hard abort" logic, overriding the Spec's proxy fallback as scientifically invalid.
+- [X] T014 [US1] Implement data cleaning and validation script in `code/data/clean.py` to flag missing values (≤5% threshold) and process data if row count ≥100.
+- [X] T015 [US1] Implement 'Limited Power' warning logic in `code/data/clean.py`: if 100 ≤ rows < 500, log warning and calculate margin of error (e.g., `1.96 * std / sqrt(n)`).
+- [ ] T016 [US1] Generate `data/curated/curated_dataset.csv` with complete molecular graph structures and adhesion energy measurements.
 - [~] T017 [US1] Extract hand-crafted descriptors (degree, density, clustering coefficient) from `data/curated/curated_dataset.csv` and save to `data/processed/descriptors.csv` in `code/data/descriptor_extractor.py`.
 - [~] T018 [US1] Update `state/projects/PROJ-413-...yaml` with SHA256 hash of `curated_dataset.csv` via `utils/hash_state.py`.
 
@@ -91,12 +91,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for GAT model architecture definition in `tests/contract/test_gat_model.py`.
-- [~] T020 [P] [US2] Integration test for checkpointing and resume functionality in `tests/integration/test_training_resume.py`.
+- [X] T019 [P] [US2] Contract test for GAT model architecture definition in `tests/contract/test_gat_model.py`.
+- [X] T020 [P] [US2] Integration test for checkpointing and resume functionality in `tests/integration/test_training_resume.py`.
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement 3-layer Graph Attention Network (GAT) using `torch_geometric.nn.GATConv` in `code/models/gat.py` (3 layers, hidden=64, dropout=0.5). **CRITICAL NOTE**: Although Spec FR-003 mandates a GCN, the Plan's "Critical Note on Spec Alignment" explicitly states the model MUST be a GAT to satisfy attention requirements and handle feature weighting. This task implements the GAT as per the Plan, overriding the Spec's GCN requirement.
+- [X] T021 [P] [US2] Implement 3-layer Graph Attention Network (GAT) using `torch_geometric.nn.GATConv` in `code/models/gat.py` (3 layers, hidden=64, dropout=0.5). **CRITICAL NOTE**: Although Spec FR-003 mandates a GCN, the Plan's "Critical Note on Spec Alignment" explicitly states the model MUST be a GAT to satisfy attention requirements and handle feature weighting. This task implements the GAT as per the Plan, overriding the Spec's GCN requirement.
 - [~] T022 [US2] Implement SMILES-to-heterogeneous graph conversion in `code/data/graph_build.py` using `rdkit.Chem.rdmolfiles.MolFromSmiles` to generate `data/processed/graphs.pt` from `data/curated/curated_dataset.csv`.
 - [~] T023 [US2] Generate `analysis/topology_audit.md` from `graph_build.py` listing node counts, edge counts, and pruning statistics.
 - [ ] T024 [US2] Save processed graphs to `data/processed/graphs.pt`.

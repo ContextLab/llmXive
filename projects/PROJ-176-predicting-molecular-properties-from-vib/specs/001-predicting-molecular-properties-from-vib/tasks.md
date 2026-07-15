@@ -60,7 +60,7 @@
 - [X] T006 Create `code/utils/seed_utils.py` to pin random seeds for reproducibility (Principle I)
 - [ ] T007 Setup `data/` directory structure (`raw/`, `preprocessed/`, `external/`)
 - [ ] T008 Create `contracts/` schema files (`dataset.schema.yaml`, `model_output.schema.yaml`, `evaluation_results.schema.yaml`)
-- [~] T009 Create `code/main.py` as a CLI skeleton with argparse subcommands for each phase (download, preprocess, train, evaluate, validate) to ensure additive integration in later phases
+- [X] T009 Create `code/main.py` as a CLI skeleton with argparse subcommands for each phase (download, preprocess, train, evaluate, validate) to ensure additive integration in later phases
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,19 +78,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Contract test for data alignment in `tests/test_data_alignment.py` (verifies InChIKey match)
-- [~] T011 [P] [US1] Unit test for preprocessing artifacts in `tests/test_preprocessing.py` (verifies grid fidelity, smoothing, normalization)
-- [~] T012 [P] [US1] Unit test for error handling in `tests/test_data_errors.py` (verifies fast fail on corrupted data/missing properties)
+- [X] T011 [P] [US1] Unit test for preprocessing artifacts in `tests/test_preprocessing.py` (verifies grid fidelity, smoothing, normalization)
+- [X] T012 [P] [US1] Unit test for error handling in `tests/test_data_errors.py` (verifies fast fail on corrupted data/missing properties)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/data/download.py` to fetch QM9 and IR-spectra from verified URLs (datasets.load_dataset or direct URL)
-- [~] T014a [US1] Implement `code/data/preprocess.py` (Part 1): Inner join on `InChIKey` and log discarded count (keep data in memory)
-- [~] T014b [US1] Implement `code/data/preprocess.py` (Part 2): Interpolate spectra to a fixed grid covering the mid-infrared region with unit wavenumber spacing (keep data in memory)
-- [~] T014c [US1] Implement `code/data/preprocess.py` (Part 3): Apply Gaussian smoothing (σ = 2 cm⁻¹) and unit area normalization (keep data in memory)
-- [~] T014d [US1] Implement `code/data/preprocess.py` (Part 4): Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; write final aligned `.npz` to `data/preprocessed/`
-- [~] T015 [US1] Implement `code/data/preprocess.py` (Part 5): Check metadata for DFT functional/basis set; flag mismatches as 'Domain Shift' candidates per Plan Phase 1
-- [~] T019 [US1] Implement `code/data/preprocess.py` (Part 6): Perform Coverage Audit (KS-test) comparing property distributions between full QM9 and aligned subset to detect selection bias (Log warning if p < 0.05)
-- [~] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> alignment -> preprocess -> save `.npz`
+- [X] T013 [US1] Implement `code/data/download.py` to fetch QM9 and IR-spectra from verified URLs (datasets.load_dataset or direct URL)
+- [X] T014a [US1] Implement `code/data/preprocess.py` (Part 1): Inner join on `InChIKey` and log discarded count (keep data in memory)
+- [X] T014b [US1] Implement `code/data/preprocess.py` (Part 2): Interpolate spectra to a fixed grid covering the mid-infrared region with unit wavenumber spacing (keep data in memory)
+- [X] T014c [US1] Implement `code/data/preprocess.py` (Part 3): Apply Gaussian smoothing (σ = 2 cm⁻¹) and unit area normalization (keep data in memory)
+- [X] T014d [US1] Implement `code/data/preprocess.py` (Part 4): Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; write final aligned `.npz` to `data/preprocessed/`
+- [X] T015 [US1] Implement `code/data/preprocess.py` (Part 5): Check metadata for DFT functional/basis set; flag mismatches as 'Domain Shift' candidates per Plan Phase 1
+- [X] T019 [US1] Implement `code/data/preprocess.py` (Part 6): Perform Coverage Audit (KS-test) comparing property distributions between full QM9 and aligned subset to detect selection bias (Log warning if p < 0.05)
+- [X] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> alignment -> preprocess -> save `.npz`
 - [~] T017 [US1] Add logging for data ingestion steps and mismatch counts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Note**: T019 must run after T014d to audit the filtered subset.
@@ -106,20 +106,20 @@
 
 ### Tests for User Story 2
 
-- [~] T018 [P] [US2] Unit test for model architecture in `tests/test_model.py` (verifies 3 heads, kernel sizes /9, no CUDA ops)
-- [~] T021 [P] [US2] Unit test for training loop in `tests/test_training.py` (verifies early stopping trigger and checkpoint save)
-- [~] T020 [P] [US2] Integration test for NaN detection in `tests/test_training_stability.py` (verifies immediate stop on NaN loss)
+- [X] T018 [P] [US2] Unit test for model architecture in `tests/test_model.py` (verifies 3 heads, kernel sizes /9, no CUDA ops)
+- [X] T021 [P] [US2] Unit test for training loop in `tests/test_training.py` (verifies early stopping trigger and checkpoint save)
+- [X] T020 [P] [US2] Integration test for NaN detection in `tests/test_training_stability.py` (verifies immediate stop on NaN loss)
 
 ### Implementation for User Story 2
 
-- [~] T025 [US2] Implement `code/models/cnn_1d.py` with exactly three convolutional blocks (kernel sizes, 9, 64 filters), ReLU, max pooling, and multiple separate regression heads (dipole, polarizability, HOMO-LUMO)
-- [~] T026 [US2] Implement `code/models/trainer.py` with:
+- [X] T025 [US2] Implement `code/models/cnn_1d.py` with exactly three convolutional blocks (kernel sizes, 9, 64 filters), ReLU, max pooling, and multiple separate regression heads (dipole, polarizability, HOMO-LUMO)
+- [X] T026 [US2] Implement `code/models/trainer.py` with:
  - Adam optimizer (lr=1e-3)
  - Early stopping (patience=10) monitoring 'val_loss' (weighted sum of 3 heads)
  - CPU-only execution (explicitly disable CUDA, standard float precision)
  - TensorBoard logging to 'runs/training/'
-- [~] T023 [US2] Integrate `code/models/trainer.py` with `code/main.py` subcommand to load preprocessed `.npz`, split data, train, and save best checkpoint (`model_best.pt`)
-- [~] T024 [US2] Implement `code/main.py` timeout enforcement using `code/utils/timeout_wrapper.py` during training
+- [X] T023 [US2] Integrate `code/models/trainer.py` with `code/main.py` subcommand to load preprocessed `.npz`, split data, train, and save best checkpoint (`model_best.pt`)
+- [X] T024 [US2] Implement `code/main.py` timeout enforcement using `code/utils/timeout_wrapper.py` during training
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,13 +133,13 @@
 
 ### Tests for User Story 3
 
-- [~] T027 [P] [US3] Unit test for metrics calculation in `tests/test_evaluation.py` (verifies MAE, R² formulas)
-- [~] T028 [P] [US3] Unit test for statistical tests in `tests/test_statistics.py` (verifies t-test, TOST, and Hotelling's T² implementation)
+- [X] T027 [P] [US3] Unit test for metrics calculation in `tests/test_evaluation.py` (verifies MAE, R² formulas)
+- [X] T028 [P] [US3] Unit test for statistical tests in `tests/test_statistics.py` (verifies t-test, TOST, and Hotelling's T² implementation)
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `code/evaluation/metrics.py` to compute MAE and R² for each of the target properties
-- [~] T032 [US3] Implement `code/evaluation/metrics.py` to perform paired-sample t-tests (Primary Validation per SC-003, null hypothesis: mean error = 0)
+- [X] T029 [US3] Implement `code/evaluation/metrics.py` to compute MAE and R² for each of the target properties
+- [X] T032 [US3] Implement `code/evaluation/metrics.py` to perform paired-sample t-tests (Primary Validation per SC-003, null hypothesis: mean error = 0)
 - [ ] T033 [US3] Implement `code/evaluation/metrics.py` to perform TOST (equivalence) and Hotelling's T² tests (Secondary/Exploratory per Plan Phase 3)
 - [ ] T030 [US3] Implement `code/evaluation/evaluate.py` to load `model_best.pt` and test set, run inference, and generate `results/evaluation_metrics.json`
 - [ ] T031 [US3] Integrate `code/evaluation/evaluate.py` with `code/main.py` subcommand to run after training

@@ -72,19 +72,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for recall metric calculation in `tests/unit/test_metrics.py`
-- [~] T011 [P] [US1] Integration test for training loop memory constraints in `tests/integration/test_training_memory.py`
+- [X] T010 [P] [US1] Contract test for recall metric calculation in `tests/unit/test_metrics.py`
+- [X] T011 [P] [US1] Integration test for training loop memory constraints in `tests/integration/test_training_memory.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement gpt2‑medium baseline wrapper (`code/models/base.py`) **and** DistilGPT2 fallback (`code/models/base_fallback.py`). The wrapper must expose the same interface; selection logic lives in `code/models/loading.py`. Addresses FR‑001, FR‑002, and the spec’s requirement for a gpt2‑medium baseline (with documented fallback).
-- [~] T013 [P] [US1] Implement cosine similarity calculation for soft‑addressed retrieval (FR‑002) in `code/models/spatial.py`.
-- [~] T014 [US1] Implement training loop (`code/training/loop.py`) with adaptive batch size (8 → 4) and, if RSS > 6 GB at batch size 4, cap the dataset to [deferred] of its size. Include detailed logging of memory usage and batch‑size decisions.
+- [X] T012 [US1] Implement gpt2‑medium baseline wrapper (`code/models/base.py`) **and** DistilGPT2 fallback (`code/models/base_fallback.py`). The wrapper must expose the same interface; selection logic lives in `code/models/loading.py`. Addresses FR‑001, FR‑002, and the spec’s requirement for a gpt2‑medium baseline (with documented fallback).
+- [X] T013 [P] [US1] Implement cosine similarity calculation for soft‑addressed retrieval (FR‑002) in `code/models/spatial.py`.
+- [X] T014 [US1] Implement training loop (`code/training/loop.py`) with adaptive batch size (8 → 4) and, if RSS > 6 GB at batch size 4, cap the dataset to [deferred] of its size. Include detailed logging of memory usage and batch‑size decisions.
 - [~] T015 [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`.
 - [~] T016 [US1] Implement main execution entry point (`code/main.py`) to orchestrate download → model loading → train (across seeds ‑4) → evaluate. Must generate `artifacts/results/run_summary.json` with keys: `seeds`, `accuracies`, `effective_batch_size`, `runtime_seconds`.
 - [~] T017a [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. Must run after T014.
 - [~] T017b [US1] Record final effective hyperparameters and any deviations (e.g., batch‑size reduction, dataset capping) in `artifacts/results/hyperparams_log.json`, explicitly noting the 6 GB RAM threshold (FR‑003).
-- [~] T017c [US1] Verify total runtime ≤ 5 hours; write `artifacts/results/runtime_report.json` with `runtime_seconds` and a boolean `within_limit`.
+- [ ] T017c [US1] Verify total runtime ≤ 5 hours; write `artifacts/results/runtime_report.json` with `runtime_seconds` and a boolean `within_limit`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,14 +98,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for t‑test and Cohen's d calculation in `tests/unit/test_stats.py`
+- [X] T018 [P] [US2] Unit test for t‑test and Cohen's d calculation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
+- [X] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
 - [~] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006).
 - [~] T021 [US2] Implement effect‑size calculation (Cohen's d) with 95 % confidence intervals (FR‑007).
-- [~] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset.
+- [ ] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,13 +119,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Unit test for interference distance calculation in `tests/unit/test_metrics.py`
+- [X] T023 [P] [US3] Unit test for interference distance calculation in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
 - [~] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. The metric must be computed **separately** for the spatial variant and the non‑spatial baseline, and the results stored in `artifacts/results/interference_distance.json` with fields `spatial`, `baseline`, and `delta`.
-- [~] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
-- [~] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
+- [X] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
+- [X] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
 - [~] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.
 - [ ] T028 [US3] Add documentation to `research.md` under a new “Structural Metrics” heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking.
 

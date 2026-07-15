@@ -50,7 +50,7 @@
 - [ ] T001e Create `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs/` directory structure
 - [ ] T001f Create `.gitkeep` files in all empty directories
 
-- [~] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, numpy, scipy, deap, matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, numpy, scipy, deap, matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev)
 - [~] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -62,8 +62,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [~] T004 [P] Setup `data/raw` and `data/processed` directory structure with `.gitkeep`
-- [~] T005 [P] Implement `code/versioning.py` script to compute SHA-256 hashes for data/code artifacts and update state YAML
-- [~] T005b [P] Verify `code/versioning.py` runs successfully on a dummy artifact and updates state YAML correctly
+- [X] T005 [P] Implement `code/versioning.py` script to compute SHA-256 hashes for data/code artifacts and update state YAML
+- [X] T005b [P] Verify `code/versioning.py` runs successfully on a dummy artifact and updates state YAML correctly
 - [~] T006 [P] Setup environment configuration management (`.env` loading, seed pinning) <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 2, column 1:
  **Summary**: Implemented `code/c...
@@ -73,9 +73,9 @@ expected alphabetic or numeric character, but found '*'
  **Summary**: Implemented `code/co...
  ^) -->
 - [~] T006b [P] Implement CLI argument and `.env` support for `variance_threshold` parameter (FR-006) and verify it is read correctly by downstream tasks
-- [~] T007 Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`
+- [X] T007 Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`
 - [~] T008 Configure error handling and logging infrastructure (structured logs)
-- [~] T009 Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing
+- [X] T009 Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,8 +89,8 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data (FR-001). **Note**: This task implements the pivot to DFT proxies as documented in spec.md FR-001/US-1.
-- [~] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present (FR-002)
+- [X] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data (FR-001). **Note**: This task implements the pivot to DFT proxies as documented in spec.md FR-001/US-1.
+- [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present (FR-002)
 - [ ] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500 (US-1 Acceptance 1)
 - [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
 - [ ] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element

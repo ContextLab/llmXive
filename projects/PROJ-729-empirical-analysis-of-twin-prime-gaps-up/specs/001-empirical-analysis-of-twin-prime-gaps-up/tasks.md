@@ -86,10 +86,10 @@
  - Must compute `normalized_gap = delta / log(p_n)`
  - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
 - [~] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified -->
-- [~] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
+- [X] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
  - Ensure RAM usage < 2 GiB and execution time < 45 mins
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`
-- [~] T014b [US1] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the generation pipeline. **Output**: Save metrics to `data/results/performance_gen.json`.
+- [ ] T014b [US1] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the generation pipeline. **Output**: Save metrics to `data/results/performance_gen.json`.
  - **Dependency**: Must run sequentially immediately after T014 to capture metrics of the just-completed run.
 - [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`
  - **Dependency**: Must run sequentially immediately after T014 to validate the generated artifact.

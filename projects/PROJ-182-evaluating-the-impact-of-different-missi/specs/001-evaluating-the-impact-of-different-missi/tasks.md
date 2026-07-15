@@ -39,9 +39,9 @@
 - [ ] T004 [P] Create contract schemas in `contracts/` (`simulation_config.schema.yaml`, `estimation_result.schema.yaml`, `aggregated_metric.schema.yaml`) with JSON Schema structure ($schema, type, properties with types, required fields)
 - [ ] T005 [P] Implement configuration loader in `code/src/config_loader.py` to read `config/simulation.yaml` (sample_size, true_effect, seed), `config/missingness.yaml` (rates, mechanisms), `config/estimation.yaml` (bandwidth_rule, imputation_count)
 - [ ] T006 Create base data model classes in `code/src/models.py` (`SimulationConfig`: sample_size:int, true_effect:float, **exclusion_restriction:float**; `MissingnessPattern`: mask:bool; `EstimationResult`: estimate:float, se:float; `AggregatedMetric`: bias:float, rmse:float, coverage:float)
-- [~] T007 Setup validation utility in `code/src/validators.py` to enforce contract schemas on all generated/processed data
-- [~] T008 Configure logging infrastructure in `code/src/logging_config.py` to track simulation progress and errors
-- [~] T009 Create orchestration script `code/main.py` with placeholder logic to validate configuration before simulation starts
+- [X] T007 Setup validation utility in `code/src/validators.py` to enforce contract schemas on all generated/processed data
+- [X] T008 Configure logging infrastructure in `code/src/logging_config.py` to track simulation progress and errors
+- [ ] T009 Create orchestration script `code/main.py` with placeholder logic to validate configuration before simulation starts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,8 +55,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement synthetic RD data generator in `code/src/generators/rd_data.py`: Formula `Y = beta0 + beta1*X + beta2*Z + tau*D + epsilon`, where `X~Uniform(-1,1)`, `Z~Normal(0,1)`, `D=(X>0)`, `epsilon~Normal(0, sigma)`. **Include exclusion restriction Z* (independent of X, affects missingness)**. *Note: Implements Linear Model as resolved in spec amendment.*
-- [~] T014 [US1] Implement MCAR mask generator in `code/src/generators/missingness.py`: Read missingness rate from `config/missingness.yaml`; apply Bernoulli(p=rate) mask independent of all variables.
+- [ ] T013 [US1] Implement synthetic RD data generator in `code/src/generators/rd_data.py`: Formula `Y = beta0 + beta1*X + beta2*Z + tau*D + epsilon`, where `X~Uniform(-1,1)`, `Z~Normal(0,1)`, `D=(X>0)`, `epsilon~Normal(0, sigma)`. **Include exclusion restriction Z* (independent of X, affects missingness)**. *Note: Implements Linear Model as resolved in spec amendment.*
+- [X] T014 [US1] Implement MCAR mask generator in `code/src/generators/missingness.py`: Read missingness rate from `config/missingness.yaml`; apply Bernoulli(p=rate) mask independent of all variables.
 - [ ] T015 [US1] Implement MAR mask generator in `code/src/generators/missingness.py`: Logistic regression on Z (covariate) to generate mask; target rate from config.
 - [ ] T016 [US1] Implement MNAR mask generator in `code/src/generators/missingness.py`: Probit link on Y (outcome) to generate mask; target rate from config. **Include exclusion restriction Z* logic for Heckman identification**. *Note: Uses ground truth Y for generation, but resulting dataset passed to estimators has Y masked.*
 - [ ] T018 [US1] Add validation logic to ensure missingness patterns match definitions: **FAIL simulation** if MCAR p < 0.05 (dependence) OR if MAR/MNAR p >= 0.05 (no correlation). Explicitly map to US-1 Acceptance Scenario 1 (p > 0.05 for MCAR success) and Scenarios 2/3 (p < 0.05 for MAR/MNAR success).

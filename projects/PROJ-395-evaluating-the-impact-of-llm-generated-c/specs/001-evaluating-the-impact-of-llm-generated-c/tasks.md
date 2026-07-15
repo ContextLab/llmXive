@@ -59,8 +59,8 @@
 - [ ] T004 Setup `data/raw/`, `data/processed/`, `state/`, and `code/` directories
 - [X] T005 [P] Create `code/config.py` with random seeds, model parameters, timeouts (60s per exec), and CI memory limits (GB)
 - [ ] T006 [P] Create `code/utils.py` with error handling (SyntaxError, Timeout, OOM), retry logic, and CSV I/O helpers
-- [~] T007 Create `code/profiling_env.yaml` to record runner OS, CPU model, and Python version
-- [~] T008 Implement `code/download.py` to fetch HumanEval/MBPP from HuggingFace with version pinning and checksum verification
+- [X] T007 Create `code/profiling_env.yaml` to record runner OS, CPU model, and Python version
+- [ ] T008 Implement `code/download.py` to fetch HumanEval/MBPP from HuggingFace with version pinning and checksum verification
 - [~] T009 Implement `state/` versioning logic to compute and record SHA-256 hashes for artifacts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,15 +78,15 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Unit test for `code/download.py` ensuring dataset loads without auth
-- [~] T011 [P] [US1] Contract test for memory measurement schema in `tests/contract/test_memory_schema.py`
+- [X] T011 [P] [US1] Contract test for memory measurement schema in `tests/contract/test_memory_schema.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/generate.py` with CPU-tractable model logic: Use 'TinyLlama' as primary model based on Plan.md CPU feasibility constraints (fits available RAM); Attempt `load_in_8bit=True` first, fallback to float16 if bitsandbytes unavailable; Do NOT fallback to Phi-2 as Plan explicitly deems it too large; Requires: T008
-- [~] T013 [US1] Implement `code/profile.py` harness using `tracemalloc` (steady-state) and `memory_profiler` (peak) with -run median logic
-- [~] T014 [US1] Implement stability check in `code/profile.py`: Calculate Interquartile Range (IQR) of 3 runs; re-run if IQR > 15% of median (max 2 retries); Use IQR per Plan.md override of Spec A; Requires: T013
-- [~] T015 [US1] Implement timeout handling in `code/profile.py`: Terminate execution >60s, record status='timeout', and calculate 'Total Resource Cost' as composite penalty (7GB * 60s) for censored data handling; Requires: T013
-- [~] T016 [US1] Implement error handling in `code/profile.py`: catch `SyntaxError`, record status='N/A', and continue to next problem
+- [ ] T012 [US1] Implement `code/generate.py` with CPU-tractable model logic: Use 'TinyLlama' as primary model based on Plan.md CPU feasibility constraints (fits available RAM); Attempt `load_in_8bit=True` first, fallback to float16 if bitsandbytes unavailable; Do NOT fallback to Phi-2 as Plan explicitly deems it too large; Requires: T008
+- [ ] T013 [US1] Implement `code/profile.py` harness using `tracemalloc` (steady-state) and `memory_profiler` (peak) with -run median logic
+- [ ] T014 [US1] Implement stability check in `code/profile.py`: Calculate Interquartile Range (IQR) of 3 runs; re-run if IQR > 15% of median (max 2 retries); Use IQR per Plan.md override of Spec A; Requires: T013
+- [ ] T015 [US1] Implement timeout handling in `code/profile.py`: Terminate execution >60s, record status='timeout', and calculate 'Total Resource Cost' as composite penalty (7GB * 60s) for censored data handling; Requires: T013
+- [ ] T016 [US1] Implement error handling in `code/profile.py`: catch `SyntaxError`, record status='N/A', and continue to next problem
 - [~] T017 [US1] Implement `code/utils.py` logic to write `data/processed/memory_measurements.csv` with schema: problem_id, source_type, peak_memory, steady_state, status, total_resource_cost
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,15 +101,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
-- [~] T019 [P] [US2] Integration test for full analysis pipeline in `tests/integration/test_analysis.py`
+- [X] T018 [P] [US2] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
+- [X] T019 [P] [US2] Integration test for full analysis pipeline in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
 - [~] T020 [US2] Create `code/analyze.py` skeleton with data loading for `data/processed/memory_measurements.csv`; Requires: T017
-- [~] T021 [US2] Implement statistical analysis in `code/analyze.py`: PRIMARY method is Kaplan-Meier estimator for censored data (timeouts/OOMs) per Plan.md; Fallback to Tobit regression if KM unavailable; Fallback to Wilcoxon signed-rank test if both KM and Tobit unavailable; Exclude zero-differences; Handle ties by average ranks; Requires: T020
-- [~] T022 [US2] Implement Wilcoxon signed-rank test on uncensored subset (excluding zero-differences) in `code/analyze.py`
-- [~] T023 [US2] Implement multiple-comparison correction (Holm-Bonferroni) for ≥3 tests in `code/analyze.py`
+- [X] T021 [US2] Implement statistical analysis in `code/analyze.py`: PRIMARY method is Kaplan-Meier estimator for censored data (timeouts/OOMs) per Plan.md; Fallback to Tobit regression if KM unavailable; Fallback to Wilcoxon signed-rank test if both KM and Tobit unavailable; Exclude zero-differences; Handle ties by average ranks; Requires: T020
+- [X] T022 [US2] Implement Wilcoxon signed-rank test on uncensored subset (excluding zero-differences) in `code/analyze.py`
+- [X] T023 [US2] Implement multiple-comparison correction (Holm-Bonferroni) for ≥3 tests in `code/analyze.py`
 - [ ] T024 [US2] Implement effect size calculation (Cohen's d or rank-biserial correlation) in `code/analyze.py`
 - [ ] T025 [US2] Generate statistical report JSON/CSV with raw/corrected p-values, effect sizes, and confidence intervals
 

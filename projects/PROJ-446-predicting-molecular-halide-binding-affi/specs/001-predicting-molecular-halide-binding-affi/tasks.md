@@ -95,11 +95,11 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement host-identity stratified splitter (`code/03_model_training.py`): Ensure no host molecule appears in both train and validation sets within a fold.
-- [~] T019 [US2] Implement Random Forest training (`code/03_model_training.py`): Use scikit-learn default hyperparameters, CPU-only, k-fold CV. Record R² and RMSE per fold.
-- [~] T020 [US2] Implement Gradient Boosting training (`code/03_model_training.py`): Use scikit-learn default hyperparameters, CPU-only, k-fold CV. Record R² and RMSE per fold.
-- [~] T021 [US2] Implement resource monitoring (`code/03_model_training.py`): Log peak RAM usage and runtime. **Verification:** Explicitly compare runtime against the 6-hour threshold and RAM against 7GB threshold defined in SC-003. **Fail** the task if either threshold is exceeded.
-- [~] T022 [US2] Save model run artifacts to `data/processed/model_runs.json` (includes model_type, folds, metrics, feature importances). **Dependency:** Must run after T019 and T020 complete.
+- [X] T018 [US2] Implement host-identity stratified splitter (`code/03_model_training.py`): Ensure no host molecule appears in both train and validation sets within a fold.
+- [X] T019 [US2] Implement Random Forest training (`code/03_model_training.py`): Use scikit-learn default hyperparameters, CPU-only, k-fold CV. Record R² and RMSE per fold.
+- [X] T020 [US2] Implement Gradient Boosting training (`code/03_model_training.py`): Use scikit-learn default hyperparameters, CPU-only, k-fold CV. Record R² and RMSE per fold.
+- [X] T021 [US2] Implement resource monitoring (`code/03_model_training.py`): Log peak RAM usage and runtime. **Verification:** Explicitly compare runtime against the 6-hour threshold and RAM against 7GB threshold defined in SC-003. **Fail** the task if either threshold is exceeded.
+- [ ] T022 [US2] Save model run artifacts to `data/processed/model_runs.json` (includes model_type, folds, metrics, feature importances). **Dependency:** Must run after T019 and T020 complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data pipeline feeds model training).
 
@@ -113,11 +113,11 @@
 
 ### Implementation for User Story 3
 
-- [~] T023 [US3] Implement feature stability analysis (`code/04_feature_analysis.py`): Run multiple bootstrap resamples, calculate coefficient of variation (CV) for the top features. Flag features with CV ≥ 0.3 as "unstable".
-- [~] T024 [US3] Implement Partial Dependence Plot generation (`code/04_feature_analysis.py`): Generate plots for ≥2 key features (e.g., hydrogen-bond donor count, cavity size) across the halide series (F⁻→Cl⁻→Br⁻→I⁻).
-- [~] T025 [US3] Implement Physical Plausibility Check (`code/04_feature_analysis.py`): **Logic:** Dynamically identify the **top feature** from the stability ranking. Verify that the sign of its coefficient aligns with first-principles electrostatics (e.g., if top feature is charge density, positive sign implies increased affinity; if top feature is cavity volume, verify sign aligns with steric expectations). If the sign contradicts the expected physical principle for that specific feature, flag as "physically implausible".
+- [X] T023 [US3] Implement feature stability analysis (`code/04_feature_analysis.py`): Run multiple bootstrap resamples, calculate coefficient of variation (CV) for the top features. Flag features with CV ≥ 0.3 as "unstable".
+- [X] T024 [US3] Implement Partial Dependence Plot generation (`code/04_feature_analysis.py`): Generate plots for ≥2 key features (e.g., hydrogen-bond donor count, cavity size) across the halide series (F⁻→Cl⁻→Br⁻→I⁻).
+- [X] T025 [US3] Implement Physical Plausibility Check (`code/04_feature_analysis.py`): **Logic:** Dynamically identify the **top feature** from the stability ranking. Verify that the sign of its coefficient aligns with first-principles electrostatics (e.g., if top feature is charge density, positive sign implies increased affinity; if top feature is cavity volume, verify sign aligns with steric expectations). If the sign contradicts the expected physical principle for that specific feature, flag as "physically implausible".
 - [~] T026 [US3] Generate feature interpretation summary table mapping features to chemical hypotheses. **Dependency:** Must run after T023 and T025 complete.
-- [~] T027 [US3] Save analysis outputs to `data/processed/feature_analysis.json` and `docs/paper/figures/`.
+- [ ] T027 [US3] Save analysis outputs to `data/processed/feature_analysis.json` and `docs/paper/figures/`.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -131,11 +131,11 @@
 
 ### Implementation for User Story 4
 
-- [~] T028 [US4] Implement Bootstrap Confidence Interval calculation (`code/05_statistical_reporting.py`): **Requirement:** MUST NOT use Paired Wilcoxon signed-rank test. **Algorithm:** Resample rows from the full measurement set a sufficient number of times to ensure statistical robustness. For each resample, compute the mean R² and RMSE for each halide group. Calculate the difference in means between halide pairs. Extract the lower and upper percentiles of the difference distribution to form the confidence interval.
-- [~] T029 [US4] Implement power analysis check (`code/05_statistical_reporting.py`): Verify N ≥ 10 per halide group. **Output:** If N < 10 for any group, report the analysis as "underpowered" AND explicitly report the CI width as the string **"wide"** in the output JSON and report.
-- [~] T030 [US4] Implement final report generation (`code/05_statistical_reporting.py`): Include explicit "associational, not causal" disclaimer. Flag differences ≥ 0.1 with 95% CI. **Requirement:** Explicitly document the exclusion of validated questionnaires/psychometric instruments (referencing Spec Assumptions) to explain why the "Verified Accuracy" gate for measurement validity does not apply.
-- [~] T031 [US4] Handle "Simulated Data Mode" logic (`code/05_statistical_reporting.py`): **Logic:** Explicitly read `data/simulated/state.json`. If `SIMULATED_MODE` is True: (1) **Hard-abort** all comparative analysis (US-4) logic immediately; (2) Generate a warning log stating: "WARNING: Simulated Data Mode active. Project FAILS to answer the primary comparative research question."; (3) Write a report section explicitly stating the comparative analysis is unanswerable and aborted.
-- [~] T032 [US4] Save final report to `docs/paper/report.md` and summary stats to `data/processed/statistical_summary.json`.
+- [X] T028 [US4] Implement Bootstrap Confidence Interval calculation (`code/05_statistical_reporting.py`): **Requirement:** MUST NOT use Paired Wilcoxon signed-rank test. **Algorithm:** Resample rows from the full measurement set a sufficient number of times to ensure statistical robustness. For each resample, compute the mean R² and RMSE for each halide group. Calculate the difference in means between halide pairs. Extract the lower and upper percentiles of the difference distribution to form the confidence interval.
+- [X] T029 [US4] Implement power analysis check (`code/05_statistical_reporting.py`): Verify N ≥ 10 per halide group. **Output:** If N < 10 for any group, report the analysis as "underpowered" AND explicitly report the CI width as the string **"wide"** in the output JSON and report.
+- [X] T030 [US4] Implement final report generation (`code/05_statistical_reporting.py`): Include explicit "associational, not causal" disclaimer. Flag differences ≥ 0.1 with 95% CI. **Requirement:** Explicitly document the exclusion of validated questionnaires/psychometric instruments (referencing Spec Assumptions) to explain why the "Verified Accuracy" gate for measurement validity does not apply.
+- [X] T031 [US4] Handle "Simulated Data Mode" logic (`code/05_statistical_reporting.py`): **Logic:** Explicitly read `data/simulated/state.json`. If `SIMULATED_MODE` is True: (1) **Hard-abort** all comparative analysis (US-4) logic immediately; (2) Generate a warning log stating: "WARNING: Simulated Data Mode active. Project FAILS to answer the primary comparative research question."; (3) Write a report section explicitly stating the comparative analysis is unanswerable and aborted.
+- [ ] T032 [US4] Save final report to `docs/paper/report.md` and summary stats to `data/processed/statistical_summary.json`.
 
 **Checkpoint**: All user stories should now be independently functional and the final report generated.
 
@@ -146,12 +146,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T033 [P] Update `README.md`: Add a section describing the project goal, dependencies, and how to run the pipeline.
-- [~] T034 [P] Update `docs/quickstart.md`: Add step-by-step instructions for setting up the environment and running the first task.
-- [~] T035 [P] Update `docs/API.md` (or code docstrings): Ensure all public functions in `code/` have descriptive docstrings.
+- [X] T034 [P] Update `docs/quickstart.md`: Add step-by-step instructions for setting up the environment and running the first task.
+- [X] T035 [P] Update `docs/API.md` (or code docstrings): Ensure all public functions in `code/` have descriptive docstrings.
 - [~] T036 Run `ruff check --fix` and `black` format on all `code/` files; ensure no lint errors remain.
 - [~] T037 Performance optimization across all scripts (ensure CPU constraints met)
 - [~] T038 Run quickstart.md validation to ensure reproducibility
-- [~] T039 Update `state.yaml` with final artifact hashes
+- [X] T039 Update `state.yaml` with final artifact hashes
 
 ---
 

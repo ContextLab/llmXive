@@ -59,10 +59,10 @@
 
 - [X] T004 Create contract schemas in `contracts/` (`trace.schema.yaml`, `metrics.schema.yaml`, `benchmark_results.schema.yaml`, `compressibility_analysis.schema.yaml`). **Note**: `compressibility_analysis.schema.yaml` must validate statistical artifacts (regression coefficients, p-values, and trade-off curve data points) to ensure the Single Source of Truth principle for the paper.
 - [ ] T005 [P] Implement `contracts/trace.schema.yaml` validation logic in `code/contracts/__init__.py`
-- [~] T006 [P] Setup `code/config.py` with seeds, paths, and threshold configurations
+- [X] T006 [P] Setup `code/config.py` with seeds, paths, and threshold configurations
 - [~] T007 Create base data loaders and schema validators in `code/utils/`
 - [~] T008 Configure `pytest` with contract test plugins in `tests/contract/`
-- [~] T009 Setup environment configuration management (`.env.example`, `config.yaml`)
+- [ ] T009 Setup environment configuration management (`.env.example`, `config.yaml`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,8 +80,8 @@
 
 > **NOTE: Write these tests AFTER implementation (T012) to ensure they run against the generated data.**
 
-- [~] T010 [P] [US1] Contract test for generated trace schema in `tests/contract/test_trace_schema.py` (Validates output of T012)
-- [~] T011 [P] [US1] Integration test for dataset generation pipeline in `tests/integration/test_synthetic_generation.py` (Validates end-to-end flow of T012)
+- [X] T010 [P] [US1] Contract test for generated trace schema in `tests/contract/test_trace_schema.py` (Validates output of T012)
+- [X] T011 [P] [US1] Integration test for dataset generation pipeline in `tests/integration/test_synthetic_generation.py` (Validates end-to-end flow of T012)
 
 ### Implementation for User Story 1
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for metrics schema in `tests/contract/test_metrics_schema.py`
+- [X] T018 [P] [US2] Contract test for metrics schema in `tests/contract/test_metrics_schema.py`
 - [~] T019 [P] [US2] Unit test for entropy and variance calculations in `tests/unit/test_metrics_extract.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/metrics/extract.py` to compute sequence entropy and tool-repetition frequency (FR-002)
-- [~] T021 [US2] Implement `code/metrics/extract.py` to compute argument semantic variance using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance = mean pairwise cosine distance of all argument embeddings in a trace. **Note**: Model size ~80MB fits within 7GB RAM constraint.
-- [~] T022 [US2] Generate `data/processed/feature_matrix.csv` containing structural metrics for every trace
-- [~] T023 [P] [US2] Implement `code/models/rule_induction.py` to perform **per-trace rule induction** (FR-003). **Goal**: For EACH trace (or small batch), train a lightweight CPU model (e.g., Decision Tree with strict depth limits) to reproduce the trace's `final_state`. **Deliverable**: A set of symbolic rules and a computed "Compressibility Score" for EACH trace.
+- [X] T020 [P] [US2] Implement `code/metrics/extract.py` to compute sequence entropy and tool-repetition frequency (FR-002)
+- [X] T021 [US2] Implement `code/metrics/extract.py` to compute argument semantic variance using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance = mean pairwise cosine distance of all argument embeddings in a trace. **Note**: Model size ~80MB fits within 7GB RAM constraint.
+- [ ] T022 [US2] Generate `data/processed/feature_matrix.csv` containing structural metrics for every trace
+- [X] T023 [P] [US2] Implement `code/models/rule_induction.py` to perform **per-trace rule induction** (FR-003). **Goal**: For EACH trace (or small batch), train a lightweight CPU model (e.g., Decision Tree with strict depth limits) to reproduce the trace's `final_state`. **Deliverable**: A set of symbolic rules and a computed "Compressibility Score" for EACH trace.
 - [~] T024 [US2] Implement logic to calculate "Compressibility Score" for each trace as `RuleSetSize / TraceLength` conditioned on `Fidelity >= 90%`. **Constraint**: Use the per-trace induction results from T023, not a global model.
 - [~] T025 [US2] Ensure rule induction model is CPU-tractable and completes within time limits for the full dataset size.
-- [~] T026 [US2] Save per-trace rule sets and compressibility scores to `data/processed/per_trace_scores.csv` and `data/processed/rules/`.
+- [ ] T026 [US2] Save per-trace rule sets and compressibility scores to `data/processed/per_trace_scores.csv` and `data/processed/rules/`.
 - [ ] T027 [US2] Implement `code/evaluation/calculate_compression_ratio.py` to compute **per-trace fidelity** data points (Fidelity Loss vs. Compression Ratio) required to plot the trade-off curve (SC-002). **Deliverable**: A CSV mapping each trace to its compression ratio and fidelity loss.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

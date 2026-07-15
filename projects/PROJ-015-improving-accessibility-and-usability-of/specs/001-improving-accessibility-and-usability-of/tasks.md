@@ -76,16 +76,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 0
 
-- [~] T010 [P] [US0] Implement `TraditionalInterface` renderer in `code/simulator/interfaces/traditional.py` <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [X] T010 [P] [US0] Implement `TraditionalInterface` renderer in `code/simulator/interfaces/traditional.py` <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
 expected <block end>, but found ':'
  in "<unicode string>", line 1, column 1:
 : T010
  ^) -->
-- [~] T011 [P] [US0] Implement `ExplainableInterface` renderer with rule-based XAI overlay logic in `code/simulator/interfaces/explainable.py`
-- [~] T012a [US0] Create the skeleton Streamlit app entry point `code/simulator/app.py` (basic layout, no collectors yet)
-- [~] T013a [US0] Implement `XAIOverlayGenerator` in `code/simulator/xai_generator.py` using deterministic rule-based mapping (Task difficulty -> Heatmap opacity) as the default simulation.
-- [~] T013b [US0] Implement `ConfigurableXAIWrapper` in `code/simulator/xai_wrapper.py` to allow runtime selection of SHAP/LIME algorithms (if available) or fallback to the rule-based simulation (requires T013a), satisfying the requirement to integrate specific XAI techniques. Default to rule-based simulation to avoid unverified dependencies.
-- [~] T014 [US0] Add session logging logic to record `interface_variant` in `code/simulator/session_logger.py`
+- [X] T011 [P] [US0] Implement `ExplainableInterface` renderer with rule-based XAI overlay logic in `code/simulator/interfaces/explainable.py`
+- [X] T012a [US0] Create the skeleton Streamlit app entry point `code/simulator/app.py` (basic layout, no collectors yet)
+- [X] T013a [US0] Implement `XAIOverlayGenerator` in `code/simulator/xai_generator.py` using deterministic rule-based mapping (Task difficulty -> Heatmap opacity) as the default simulation.
+- [X] T013b [US0] Implement `ConfigurableXAIWrapper` in `code/simulator/xai_wrapper.py` to allow runtime selection of SHAP/LIME algorithms (if available) or fallback to the rule-based simulation (requires T013a), satisfying the requirement to integrate specific XAI techniques. Default to rule-based simulation to avoid unverified dependencies.
+- [X] T014 [US0] Add session logging logic to record `interface_variant` in `code/simulator/session_logger.py`
 
 **Checkpoint**: At this point, the simulator can render both interface types and log which one was presented.
 
@@ -99,11 +99,11 @@ expected <block end>, but found ':'
 
 ### Implementation for User Story 1
 
-- [~] T015 [P] [US1] Implement `LatinSquareCounterbalancer` in `code/simulator/counterbalance.py` to assign `Traditional->Explainable` or `Explainable->Traditional` sequences
-- [~] T016 [P] [US1] Implement data collection handlers for `completion_time`, `error_count`, and `explanation_engagement_time` in `code/simulator/metrics_collector.py`
-- [~] T017 [P] [US1] Integrate all collectors (T016, T015) and SUS questionnaire (T017) into the Streamlit app flow in `code/simulator/app.py` ensuring sequence order is respected (requires T016, T015, T012a). Implement SUS logic: if >1 missing items, reject session; if <=1 missing, impute missing value with mean of participant's other responses per EC-001.
+- [X] T015 [P] [US1] Implement `LatinSquareCounterbalancer` in `code/simulator/counterbalance.py` to assign `Traditional->Explainable` or `Explainable->Traditional` sequences
+- [X] T016 [P] [US1] Implement data collection handlers for `completion_time`, `error_count`, and `explanation_engagement_time` in `code/simulator/metrics_collector.py`
+- [X] T017 [P] [US1] Integrate all collectors (T016, T015) and SUS questionnaire (T017) into the Streamlit app flow in `code/simulator/app.py` ensuring sequence order is respected (requires T016, T015, T012a). Implement SUS logic: if >1 missing items, reject session; if <=1 missing, impute missing value with mean of participant's other responses per EC-001.
 - [~] T019 [US1] Implement raw data logging to `data/raw/session_{id}.json` with checksum generation (requires T007 data models, T015 counterbalancing, T010/T011 renderers).
-- [~] T020 [US1] Implement dropout handling: log `dropout_reason` and flag `status='incomplete'` for partial sessions in `code/simulator/session_logger.py`
+- [X] T020 [US1] Implement dropout handling: log `dropout_reason` and flag `status='incomplete'` for partial sessions in `code/simulator/session_logger.py`
 
 **Checkpoint**: The system can collect real-time interaction data, handle dropouts, and store immutable raw logs.
 
@@ -117,13 +117,13 @@ expected <block end>, but found ':'
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement data cleaning pipeline: filter incomplete sessions, apply SUS imputation in `code/analysis/data_cleaner.py` (depends on T019 raw data generation).
-- [~] T022 [P] [US2] Implement Shapiro-Wilk normality test on difference scores in `code/analysis/stat_utils.py`.
-- [~] T023 [P] [US2] Implement Repeated Measures ANOVA for Completion Time, Error Count, and SUS in `code/analysis/stat_utils.py`. Explicitly exclude `explanation_engagement_time` from inferential testing (descriptive only) per Plan Phase 3, as comparing to a constant zero is tautological.
+- [X] T021 [P] [US2] Implement data cleaning pipeline: filter incomplete sessions, apply SUS imputation in `code/analysis/data_cleaner.py` (depends on T019 raw data generation).
+- [X] T022 [P] [US2] Implement Shapiro-Wilk normality test on difference scores in `code/analysis/stat_utils.py`.
+- [X] T023 [P] [US2] Implement Repeated Measures ANOVA for Completion Time, Error Count, and SUS in `code/analysis/stat_utils.py`. Explicitly exclude `explanation_engagement_time` from inferential testing (descriptive only) per Plan Phase 3, as comparing to a constant zero is tautological.
 - [~] T023b [P] [US2] Implement descriptive statistics reporting (mean, std) for `explanation_engagement_time` in `code/analysis/stat_utils.py` and output to `data/processed/descriptive_stats.csv`.
-- [~] T024 [P] [US2] Implement Holm-Bonferroni correction for multiple comparisons in `code/analysis/stat_utils.py`.
-- [~] T025 [US2] Create the main analysis script `code/analysis/run_analysis.py` that orchestrates cleaning, testing, and output generation. <!-- FAILED: unspecified -->
-- [~] T026 [US2] Generate `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size.
+- [X] T024 [P] [US2] Implement Holm-Bonferroni correction for multiple comparisons in `code/analysis/stat_utils.py`.
+- [X] T025 [US2] Create the main analysis script `code/analysis/run_analysis.py` that orchestrates cleaning, testing, and output generation. <!-- FAILED: unspecified -->
+- [ ] T026 [US2] Generate `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size.
 
 **Checkpoint**: The system can process raw data into statistically valid summary metrics with proper corrections.
 
@@ -137,10 +137,10 @@ expected <block end>, but found ':'
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement visualization functions using `matplotlib` for box plots with error bars in `code/analysis/visualizer.py` (depends on T026 metrics_summary.csv).
-- [~] T028 [P] [US3] Create the master Jupyter notebook `code/analysis.ipynb` with cells for: Data Loading, Cleaning, Statistical Analysis, Visualization, and Reporting.
-- [~] T029 [US3] Ensure `code/analysis.ipynb` is fully executable from raw data to final figures on CPU-only environment, automatically resolving checksummed raw data files defined in T019 without manual path adjustments.
-- [~] T030 [US3] Generate a summary report text file `data/processed/report_summary.txt` including: (1) actual N achieved, (2) power limitation flags for underpowered subgroups (even if aggregate N >= 30), and (3) exclusion reasons for incomplete sessions.
+- [X] T027 [P] [US3] Implement visualization functions using `matplotlib` for box plots with error bars in `code/analysis/visualizer.py` (depends on T026 metrics_summary.csv).
+- [X] T028 [P] [US3] Create the master Jupyter notebook `code/analysis.ipynb` with cells for: Data Loading, Cleaning, Statistical Analysis, Visualization, and Reporting.
+- [X] T029 [US3] Ensure `code/analysis.ipynb` is fully executable from raw data to final figures on CPU-only environment, automatically resolving checksummed raw data files defined in T019 without manual path adjustments.
+- [ ] T030 [US3] Generate a summary report text file `data/processed/report_summary.txt` including: (1) actual N achieved, (2) power limitation flags for underpowered subgroups (even if aggregate N >= 30), and (3) exclusion reasons for incomplete sessions.
 
 **Checkpoint**: The entire pipeline is reproducible via a single notebook, producing publication-ready figures.
 

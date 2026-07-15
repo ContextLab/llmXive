@@ -69,8 +69,8 @@
 - [X] T015 [P] Create `code/analysis/inference.py` skeleton with `run_mcmc()` function signature
 - [X] T016 [P] Create `code/main.py` skeleton: Entry point that loads config, enforces seeds, and logs start
 - [X] T017 [P] Define Forward Model Algorithm: Write docstring and comments in `code/data/simulation.py` detailing the injection logic: `a_lm_new = a_lm_iso + k * alpha_lm` **BEFORE** convolution with beam functions (Plan Task 1.2)
-- [~] T018 [US2] Implement `inject_sme_coefficient()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** (sub-sampled for RAM), injecting specific k values (Plan Task 1.3) <!-- FAILED: unspecified -->
-- [~] T019 [US2] Implement `generate_isotropic_null()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** and realistic noise (using config-defined noise models) (Plan Task 1.3)
+- [X] T018 [US2] Implement `inject_sme_coefficient()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** (sub-sampled for RAM), injecting specific k values (Plan Task 1.3) <!-- FAILED: unspecified -->
+- [X] T019 [US2] Implement `generate_isotropic_null()` in `code/data/simulation.py` to produce 200 FITS files in `data/simulations/` with **Nside=256** and realistic noise (using config-defined noise models) (Plan Task 1.3)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,8 +86,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T020 [P] [US1] Unit test `tests/test_data.py::test_download_retry_logic`: Verify exponential backoff and retry count <!-- ATOMIZE: requested -->
-- [~] T021 [P] [US1] Unit test `tests/test_data.py::test_checksum_verification`: Verify `assert file_hash == expected_hash`
+- [X] T020 [P] [US1] Unit test `tests/test_data.py::test_download_retry_logic`: Verify exponential backoff and retry count <!-- ATOMIZE: requested -->
+- [X] T021 [P] [US1] Unit test `tests/test_data.py::test_checksum_verification`: Verify `assert file_hash == expected_hash`
 - [X] T022 [P] [US1] Unit test `tests/test_data.py::test_mask_application`: Verify masked pixels are zeroed
 - [X] T023 [P] [US1] Integration test `tests/test_data.py::test_end_to_end_pipeline`: Verify `data/processed/` contains valid FITS files <!-- FAILED: unspecified -->
 

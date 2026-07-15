@@ -39,8 +39,8 @@
 - [ ] T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s, step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md` is referenced as the source of this deviation.
 - [ ] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
 - [ ] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
-- [~] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
-- [~] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
+- [X] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
+- [X] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
 - [ ] T009 Setup environment configuration and `code/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel

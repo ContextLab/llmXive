@@ -86,7 +86,7 @@
 
 - [~] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from ` (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` with CLI command `qiime feature-table summarize --i-table table.qza --o-visualization table.qzv` followed by `qiime taxa barplot` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **NOTE: The Plan mandates 'Virtual Cohort Matching' (Path A) or 'Distributional Comparison' (Path B). This task implements the data preparation for both paths.**
 - [~] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset `ds000248` (Spec/Constitution mandate). Filter (0.5–45 Hz), run FastICA (20 components), epoch (2-min), compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **NOTE: Output the available subjects (target ≥50); log a warning if count < 50.**
-- [~] T014 [US1] Implement `code/match_cohorts.py` to perform **Virtual Cohort Matching** (Path A) and fallback logic (Path B):
+- [X] T014 [US1] Implement `code/match_cohorts.py` to perform **Virtual Cohort Matching** (Path A) and fallback logic (Path B):
  1. Load `microbiome_features.csv` and `eeg_features.csv`.
  2. **Path A (Matching)**: Match AGP and OpenNeuro subjects based on (Age, Sex, BMI) using **Nearest-Neighbor** matching (scikit-learn `NearestNeighbors`) as the PRIMARY method.
  3. **Fallback Logic**: If Nearest-Neighbor fails to converge or returns <10 pairs, attempt Propensity Score matching as a secondary method.
@@ -114,14 +114,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for CLR transformation function in `tests/unit/test_transformations.py` (verify log(0) handling with pseudocount)
+- [X] T018 [P] [US2] Unit test for CLR transformation function in `tests/unit/test_transformations.py` (verify log(0) handling with pseudocount)
 - [~] T019 [P] [US2] Unit test for FDR correction in `tests/unit/test_statistics.py` (verify Benjamini-Hochberg logic)
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement CLR transformation in `code/correlation_analysis.py` applying pseudocount=0.5 to subject-level data (Path A) or group-level means (Path B)
-- [~] T021 [US2] Implement alpha power aggregation per subject/group in `code/correlation_analysis.py` using Welch's method results from Phase 1
-- [~] T022 [US2] Implement **Conditional Statistical Testing** in `code/correlation_analysis.py`:
+- [X] T020 [P] [US2] Implement CLR transformation in `code/correlation_analysis.py` applying pseudocount=0.5 to subject-level data (Path A) or group-level means (Path B)
+- [X] T021 [US2] Implement alpha power aggregation per subject/group in `code/correlation_analysis.py` using Welch's method results from Phase 1
+- [X] T022 [US2] Implement **Conditional Statistical Testing** in `code/correlation_analysis.py`:
  - **If Path A (matched_pairs.csv exists)**: Perform Spearman correlation between **the 20 taxa with the highest mean relative abundance** and mean alpha power per matched pair. Apply Benjamini-Hochberg FDR (q<0.1).
  - **If Path B (distribution_groups.csv exists)**: Perform Mann-Whitney U or Kolmogorov-Smirnov tests comparing alpha power distributions between High/Low abundance groups.
  - **NOTE**: Strictly follow the Plan's conditional logic. Do NOT use PCoA axes for the primary test unless specified as a secondary diagnostic.

@@ -80,13 +80,13 @@
 - [ ] T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85, parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row count > 0)
 - [ ] T012 [US1] Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition
 - [ ] T013 [US1] Implement stoichiometry mapping in `code/01_ingest_and_clean.py`: Use `utils/mapping.json` to assign material families
-- [~] T014 [US1] Implement retention check in `code/01_ingest_and_clean.py`: Calculate retention rate of **filtered input records**; if < 95%, exit with code 1, print "CRITICAL: Retention < 95%" to stderr, and write `state/retention_log.json` with structure: `{"retention_rate": float, "total_input": int, "retained_count": int, "status": "FAIL"}`; otherwise log `{"status": "PASS"}` (verify log contains `status: PASS` for pipeline to continue)
-- [~] T015 [US1] Implement `code/02_engineer_features.py`: Calculate Mean Atomic Radius (weighted avg) using `mendeleev`
-- [~] T016 [US1] Implement `code/02_engineer_features.py`: Calculate Electronegativity Variance using `mendeleev`
-- [~] T017 [US1] Implement `code/02_engineer_features.py`: Calculate Valence Electron Concentration (VEC) (weighted avg)
-- [~] T018 [US1] Implement `code/02_engineer_features.py`: Calculate Atomic Number Variance
-- [~] T019 [US1] Implement `code/02_engineer_features.py`: Add Temperature as a covariate and Material Family as categorical feature
-- [~] T020 [US1] Save final engineered dataset to `data/processed/final_features.csv` (verify file exists, contains expected columns: mean_atomic_radius, electronegativity_variance, vec, atomic_number_variance, temperature, material_family, and has no nulls in engineered feature columns)
+- [X] T014 [US1] Implement retention check in `code/01_ingest_and_clean.py`: Calculate retention rate of **filtered input records**; if < 95%, exit with code 1, print "CRITICAL: Retention < 95%" to stderr, and write `state/retention_log.json` with structure: `{"retention_rate": float, "total_input": int, "retained_count": int, "status": "FAIL"}`; otherwise log `{"status": "PASS"}` (verify log contains `status: PASS` for pipeline to continue)
+- [X] T015 [US1] Implement `code/02_engineer_features.py`: Calculate Mean Atomic Radius (weighted avg) using `mendeleev`
+- [X] T016 [US1] Implement `code/02_engineer_features.py`: Calculate Electronegativity Variance using `mendeleev`
+- [X] T017 [US1] Implement `code/02_engineer_features.py`: Calculate Valence Electron Concentration (VEC) (weighted avg)
+- [X] T018 [US1] Implement `code/02_engineer_features.py`: Calculate Atomic Number Variance
+- [X] T019 [US1] Implement `code/02_engineer_features.py`: Add Temperature as a covariate and Material Family as categorical feature
+- [ ] T020 [US1] Save final engineered dataset to `data/processed/final_features.csv` (verify file exists, contains expected columns: mean_atomic_radius, electronegativity_variance, vec, atomic_number_variance, temperature, material_family, and has no nulls in engineered feature columns)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 **⚠️ Dependency**: Phase 4 (US2) tasks require successful completion of T014 (retention check). If T014 halts, US2 cannot proceed.
@@ -111,7 +111,7 @@
 - [~] T027 [US2] Implement F-test comparison between Gradient Boosting and Linear Regression to verify statistically significant improvement (p < 0.05) over baseline (SC-002, SC-003). **Output**: F-statistic and p-value. Requires T023, T024, T025 completion.
 - [~] T028 [US2] Extract and rank top 5 feature importances from the trained model
 - [~] T029 [US2] Calculate individual Pearson correlation coefficients (r) for each descriptor vs. Seebeck
-- [~] T030 [US2] Save model metrics, feature importances, and correlations to `data/processed/model_output.json` (verify JSON contains keys: r2_score, ci_lower, ci_upper, p_value, f_statistic, f_p_value, feature_importances)
+- [ ] T030 [US2] Save model metrics, feature importances, and correlations to `data/processed/model_output.json` (verify JSON contains keys: r2_score, ci_lower, ci_upper, p_value, f_statistic, f_p_value, feature_importances)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,7 +129,7 @@
 - [~] T032 [US3] Implement VIF calculation and Pearson correlation matrix for collinearity check
 - [~] T033 [US3] Generate scatter plots of Top 3 descriptors vs. Seebeck (with trend lines) to `docs/figures/`
 - [~] T034 [US3] Implement Classification Logic: **Success** if R² > 0.2 (regardless of p-value); **Inconclusive** if 0.2 ≤ R² < 0.4; **Failure** if R² < 0.2. Additionally, report a separate "Significance" flag: "Significant" if p < 0.05, else "Not Significant". (Matches spec.md:US-3)
-- [~] T035 [US3] Generate `docs/report.md` containing R², CI, p-value, F-test results, classification (Success/Inconclusive/Failure), and top descriptors (verify report contains R² value, classification string, and 95% CI text)
+- [ ] T035 [US3] Generate `docs/report.md` containing R², CI, p-value, F-test results, classification (Success/Inconclusive/Failure), and top descriptors (verify report contains R² value, classification string, and 95% CI text)
 - [~] T036 [US3] Update root `README.md` with links to figures and summary of findings
 
 **Checkpoint**: All user stories should now be independently functional
@@ -140,11 +140,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T037a [P] Write unit test `test_mean_atomic_radius()` in `code/tests/test_feature_engineering.py`: Test with valid formula, empty formula (expect error/NaN), and single element (expect mean = element radius).
-- [~] T037b [P] Write unit test `test_electronegativity_variance()` in `code/tests/test_feature_engineering.py`: Test with valid formula, uniform composition (expect 0 variance), and missing element (expect error/NaN).
-- [~] T037c [P] Write unit test `test_vec_calculation()` in `code/tests/test_feature_engineering.py`: Test with valid formula, known VEC value, and empty formula.
-- [~] T038 [P] Write unit tests in `code/tests/test_stoichiometry.py` for formula parsing (e.g., "Bi2Te3" -> {"Bi": 2, "Te": 3}, invalid formulas).
-- [~] T039 [P] Write unit tests in `code/tests/test_model_metrics.py` for CV and permutation logic (verify CI calculation from fold scores, verify permutation p-value logic).
+- [X] T037a [P] Write unit test `test_mean_atomic_radius()` in `code/tests/test_feature_engineering.py`: Test with valid formula, empty formula (expect error/NaN), and single element (expect mean = element radius).
+- [X] T037b [P] Write unit test `test_electronegativity_variance()` in `code/tests/test_feature_engineering.py`: Test with valid formula, uniform composition (expect 0 variance), and missing element (expect error/NaN).
+- [X] T037c [P] Write unit test `test_vec_calculation()` in `code/tests/test_feature_engineering.py`: Test with valid formula, known VEC value, and empty formula.
+- [X] T038 [P] Write unit tests in `code/tests/test_stoichiometry.py` for formula parsing (e.g., "Bi2Te3" -> {"Bi": 2, "Te": 3}, invalid formulas).
+- [X] T039 [P] Write unit tests in `code/tests/test_model_metrics.py` for CV and permutation logic (verify CI calculation from fold scores, verify permutation p-value logic).
 - [~] T040 Run quickstart.md validation and ensure full pipeline runs within 6 hours on CPU-only runner
 
 ---

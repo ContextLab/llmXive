@@ -49,7 +49,7 @@
 - [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/plots/`): Ensure directories exist and contain `.gitkeep` files.
 - [ ] T005 [P] Create base configuration loader in `src/config.py`: Implement `load_config()` function reading `DATA_URL`, `RANDOM_SEED`, and `LOG_LEVEL` from environment variables with defaults.
 - [ ] T006 [P] Implement logging infrastructure in `src/logging_config.py`: Configure root logger with format `%(asctime)s - %(levelname)s - %(message)s` and level `INFO`.
-- [~] T009 [P] Setup content hashing utility in `src/utils/hashing.py`: Implement `def compute_sha256(file_path: str) -> str` function.
+- [ ] T009 [P] Setup content hashing utility in `src/utils/hashing.py`: Implement `def compute_sha256(file_path: str) -> str` function.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,8 +63,8 @@
 
 **Note**: Specific data models are deferred to Phase 3 until the data schema is verified.
 
-- [~] T010 [P] [US1] Unit test for antibiotic exclusion logic in `tests/unit/test_ingestion.py`: Implement `test_antibiotic_exclusion_logic()` verifying samples with `antibiotic_use_last_3m=True` are filtered.
-- [~] T011 [P] [US1] Unit test for sleep data validation in `tests/unit/test_ingestion.py`: Implement `test_sleep_data_validation()` verifying samples with null `sleep_efficiency` or `sleep_duration_hours` are filtered.
+- [X] T010 [P] [US1] Unit test for antibiotic exclusion logic in `tests/unit/test_ingestion.py`: Implement `test_antibiotic_exclusion_logic()` verifying samples with `antibiotic_use_last_3m=True` are filtered.
+- [X] T011 [P] [US1] Unit test for sleep data validation in `tests/unit/test_ingestion.py`: Implement `test_sleep_data_validation()` verifying samples with null `sleep_efficiency` or `sleep_duration_hours` are filtered.
 
 **Checkpoint**: Tests for US1 ready. Implementation blocked until T012/T012b pass.
 
@@ -80,18 +80,18 @@
 
 ### Implementation for User Story 1
 
-- [~] T012a [US1] Implement Data Feasibility Check (URL) in `src/ingestion.py`: Verify the existence of the verified data source URL (from plan.md). **If missing, raise FileNotFoundError and exit with code 1.**
-- [~] T012b [US1] [BLOCKED UNTIL T012a PASSES] Implement Schema Verification in `src/ingestion.py`: Fetch a sample/headers of the source. Verify file format (BIOM/CSV) and presence of required columns (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`). **If missing, raise FileNotFoundError and exit with code 1.**
-- [~] T013 [US1] [BLOCKED UNTIL T012b PASSES] Implement download logic with exponential backoff in `src/ingestion.py`. **Must use the verified URL from the plan's '# Verified datasets' block.**
-- [~] T014 [US1] [BLOCKED UNTIL T012b PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts.**
-- [~] T015 [US1] [BLOCKED UNTIL T012b PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py`.
-- [~] T016 [US1] [BLOCKED UNTIL T012b PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`.
+- [X] T012a [US1] Implement Data Feasibility Check (URL) in `src/ingestion.py`: Verify the existence of the verified data source URL (from plan.md). **If missing, raise FileNotFoundError and exit with code 1.**
+- [X] T012b [US1] [BLOCKED UNTIL T012a PASSES] Implement Schema Verification in `src/ingestion.py`: Fetch a sample/headers of the source. Verify file format (BIOM/CSV) and presence of required columns (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`). **If missing, raise FileNotFoundError and exit with code 1.**
+- [X] T013 [US1] [BLOCKED UNTIL T012b PASSES] Implement download logic with exponential backoff in `src/ingestion.py`. **Must use the verified URL from the plan's '# Verified datasets' block.**
+- [X] T014 [US1] [BLOCKED UNTIL T012b PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts.**
+- [X] T015 [US1] [BLOCKED UNTIL T012b PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py`.
+- [ ] T016 [US1] [BLOCKED UNTIL T012b PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`.
 - [~] T017 [US1] [BLOCKED UNTIL T012b PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, and calculate/store `exclusion_proportion` in `data/processed/ingestion_report.json`.
 
 ### Model Definition (Deferred until Schema Verified)
 
 - [~] T037 [US1] [BLOCKED UNTIL T012b PASSES] Define Pydantic models (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) in `src/models/schemas.py` based on the verified schema from T012b.
-- [~] T038 [US1] [BLOCKED UNTIL T012b PASSES] Write unit tests for models in `tests/unit/test_models.py`: Implement `test_microbiome_sample_instantiation()` and `test_sleep_metric_instantiation()`.
+- [X] T038 [US1] [BLOCKED UNTIL T012b PASSES] Write unit tests for models in `tests/unit/test_models.py`: Implement `test_microbiome_sample_instantiation()` and `test_sleep_metric_instantiation()`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (if T012b passed).
 
@@ -105,18 +105,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`: Implement `test_spearman_correlation_calculation()`.
-- [~] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`: Implement `test_benjamini_hochberg_correction()`.
+- [X] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`: Implement `test_spearman_correlation_calculation()`.
+- [X] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`: Implement `test_benjamini_hochberg_correction()`.
 
 ### Implementation for User Story 2
 
-- [~] T020a [US2] Implement rarefaction logic in `src/diversity.py`: Create function `rarefy_table(counts, depth)` to subsample OTU tables to a fixed sequencing depth.
-- [~] T020b [US2] [BLOCKED UNTIL T020a PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) **using the rarefied table** in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016).** <!-- FAILED: unspecified -->
-- [~] T021 [US2] Implement Spearman rank correlation test between diversity indices and sleep variables in `src/correlation.py`.
-- [~] T022 [US2] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
-- [~] T023 [US2] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_meaningful` (q-value < 0.05 AND |r| > 0.3) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability.
-- [~] T024 [US2] Save correlation results (r, p, q, significance, is_moderate, is_meaningful) to `data/processed/correlation_results.csv`.
-- [~] T025 [US2] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
+- [ ] T020a [US2] Implement rarefaction logic in `src/diversity.py`: Create function `rarefy_table(counts, depth)` to subsample OTU tables to a fixed sequencing depth.
+- [ ] T020b [US2] [BLOCKED UNTIL T020a PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) **using the rarefied table** in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016).** <!-- FAILED: unspecified -->
+- [ ] T021 [US2] Implement Spearman rank correlation test between diversity indices and sleep variables in `src/correlation.py`.
+- [ ] T022 [US2] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
+- [ ] T023 [US2] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_meaningful` (q-value < 0.05 AND |r| > 0.3) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability.
+- [ ] T024 [US2] Save correlation results (r, p, q, significance, is_moderate, is_meaningful) to `data/processed/correlation_results.csv`.
+- [ ] T025 [US2] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -130,12 +130,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`: Implement `test_scatterplot_generation()`.
+- [X] T026 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`: Implement `test_scatterplot_generation()`.
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
-- [~] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
+- [ ] T027 [US3] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
+- [ ] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
 - [ ] T029 [US3] Compile final report including summary table of correlations in `src/report.py`.
 - [ ] T030 [US3] Save all plot artifacts to `data/processed/plots/`.
 - [ ] T031 [US3] Generate final HTML/PDF report with all findings and "No significant associations" handling.

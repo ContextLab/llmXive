@@ -59,7 +59,7 @@
 - [ ] T005 [P] Implement fallback logic in `download_data.py`: If CodeXGLUE fetch fails or is unverified, **DO NOT** switch to HumanEval/MBPP as no human baseline exists for those prompts per Verified Fallback Protocol. Instead, proceed with the available sample size (N < 200) or fail gracefully with a clear error message. **MUST** log the specific reason for sample size reduction.
 - [ ] T005.1 [P] Define exclusion criteria for unmatched prompts: Create logic to exclude any prompt from `human_baseline_times.json` that does not have a corresponding entry in the downloaded CodeXGLUE dataset. **MUST** explicitly state that no mapping logic for alternative datasets (HumanEval/MBPP) is required or permitted. **T005.1 must be completed before T005 implementation begins.**
 - [ ] T006 [P] Implement `validate_baseline.py` to synthesize local human baseline data: **MUST validate that hardcoded time values from the 2025 comparative analysis paper (Table X, Section Y) represent raw developer time (minutes/hours), not pre-calculated CO₂**. If the 2025 paper data is missing, **execute the Synthesized Baseline Protocol** using specific literature values (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature) with explicit citation. **The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify a valid literature source.** Load into `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>}`. **Depends on T004** to ensure the downloaded prompt IDs exist for matching. **Includes a verification step that fails if the data does not match the raw time schema.**
-- [~] T007 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`
+- [X] T007 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`
 - [~] T008 [P] Implement checksum validation for downloaded raw data in `download_data.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,8 +76,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for `run_inference.py` output schema in `tests/contract/test_inference_schema.py`
-- [~] T010 [P] [US1] Unit test for CodeCarbon CPU device detection in `tests/unit/test_codecarbon_cpu.py`
+- [X] T009 [P] [US1] Contract test for `run_inference.py` output schema in `tests/contract/test_inference_schema.py`
+- [X] T010 [P] [US1] Unit test for CodeCarbon CPU device detection in `tests/unit/test_codecarbon_cpu.py`
 
 ### Implementation for User Story 1
 

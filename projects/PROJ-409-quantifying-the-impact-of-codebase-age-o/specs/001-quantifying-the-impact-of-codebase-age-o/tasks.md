@@ -105,7 +105,7 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 - [ ] T015.1 [US2] In `metrics_calculator.py`, implement logic to locate and execute associated unit tests for each snippet if available; if not, generate synthetic semantic validation by attempting code execution (syntax + type + basic runtime logic) to assign a binary valid/invalid score.
 - [ ] T015.2 [US2] Implement `code/inference/file_aggregator.py` to group snippets by `file_path` and calculate mean `perplexity`, mean `functional_correctness_rate`, mean `complexity`, and mean `token_length` into `data/aggregated/file_metrics.csv` (Key Methodological Adjustment).
 - [ ] T015.3 [US2] Implement `code/inference/age_aggregator.py` to aggregate `median_commit_age` from snippet-level to file-level (using mean or median) and merge this with `data/aggregated/file_metrics.csv`, ensuring the unit of analysis matches the Plan's 'Key Methodological Adjustment'.
-- [~] T016 [US2] Implement `code/inference/run_inference.py` CLI entry point to process the extraction CSV, applying a per-snippet timeout and total global timeout.
+- [X] T016 [US2] Implement `code/inference/run_inference.py` CLI entry point to process the extraction CSV, applying a per-snippet timeout and total global timeout.
 - [~] T017 [US2] Add robust error handling in `run_inference.py` to log failures, record `NaN` for metrics on timeouts/OOMs, and continue processing without crashing.
 - [~] T018 [US2] Implement logic in `run_inference.py` to stop new inferences if total runtime approaches a predefined threshold. If the time limit is reached, finalize the report with available data and mark the run as 'incomplete' ONLY IF the 800-snippet minimum is not met; otherwise mark as 'complete' with available data.
 - [~] T019 [US2] Verify inference output CSV structure (columns: `snippet_id`, `perplexity`, `functional_correctness_rate`, `inference_time`, `status`) and verify `file_metrics.csv` exists with aggregated data.
@@ -125,9 +125,9 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 ### Implementation for User Story 3
 
 - [~] T020 [US3] Implement `code/analysis/correlation.py` to perform Spearman rank correlation on `data/aggregated/file_metrics.csv` (which now includes file-level `median_commit_age`), handling NaNs by excluding rows, and controlling for `complexity` and `token_length` covariates.
-- [~] T021 [US3] Implement `code/analysis/report_generator.py` to generate a final Markdown/JSON report stating correlation coefficients, p-values, and statistical significance flags.
+- [X] T021 [US3] Implement `code/analysis/report_generator.py` to generate a final Markdown/JSON report stating correlation coefficients, p-values, and statistical significance flags.
 - [~] T022 [US3] Add logic in `report_generator.py` to explicitly state "No significant correlation" if p-value > 0.05.
-- [~] T023 [US3] Integrate `code/utils/hasher.py` to hash the final results CSV and update the project state YAML (Constitution V).
+- [X] T023 [US3] Integrate `code/utils/hasher.py` to hash the final results CSV and update the project state YAML (Constitution V).
 - [~] T024 [US3] Verify final report contains all required metrics and correctly interprets statistical significance based on p < 0.05 threshold.
 - [ ] T024.1 [US3] Create `tests/verify_report.py` to programmatically assert the report JSON keys exist and values are numeric.
 
@@ -143,8 +143,8 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 - [ ] T026.1 Refactor `code/inference/metrics_calculator.py` to reduce cyclomatic complexity to a low level.
 - [ ] T026.2 Refactor `code/analysis/correlation.py` to reduce cyclomatic complexity to a lower, manageable level.
 - [ ] T027.1 Implement batching in `code/inference/model_loader.py` to target average inference time < 30s per snippet.
-- [~] T028 [P] Add unit tests for extraction logic in `tests/unit/test_extraction.py`.
-- [~] T029 [P] Add unit tests for inference logic in `tests/unit/test_inference.py`.
+- [ ] T028 [P] Add unit tests for extraction logic in `tests/unit/test_extraction.py`.
+- [X] T029 [P] Add unit tests for inference logic in `tests/unit/test_inference.py`.
 - [~] T030 Run `quickstart.md` validation.
 
 ---

@@ -59,12 +59,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 [P] Create `data/checksums.json` with initial structure `{"files": {}}` to satisfy Constitution Principle III.
-- [~] T005 [P] Implement `code/logger.py` with a standard logging configuration (JSON format, file output) and create `code/config.py` with empty placeholders.
-- [~] T006 [P] Create `code/models.py` explicitly defining `Participant`, `Condition`, and `ModelResult` entities as Pydantic or dataclass models.
-- [~] T007 [P] Setup pytest framework in `tests/` with `conftest.py` and `tests/contract/` directory.
-- [~] T008 [P] Implement `code/utils.py` for common helpers (seeding, file I/O, checksum calculation).
-- [~] T010a [P] [US1] Read effect sizes (Cohen's d) and citations from `research.md` and define them as constants in `code/config.py` for simulation parameters.
+- [X] T004 [P] Create `data/checksums.json` with initial structure `{"files": {}}` to satisfy Constitution Principle III.
+- [X] T005 [P] Implement `code/logger.py` with a standard logging configuration (JSON format, file output) and create `code/config.py` with empty placeholders.
+- [X] T006 [P] Create `code/models.py` explicitly defining `Participant`, `Condition`, and `ModelResult` entities as Pydantic or dataclass models.
+- [ ] T007 [P] Setup pytest framework in `tests/` with `conftest.py` and `tests/contract/` directory.
+- [X] T008 [P] Implement `code/utils.py` for common helpers (seeding, file I/O, checksum calculation).
+- [X] T010a [P] [US1] Read effect sizes (Cohen's d) and citations from `research.md` and define them as constants in `code/config.py` for simulation parameters.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,18 +78,18 @@
 
 ### Implementation for User Story 1
 
-- [~] T010b [P] [US1] Implement `code/generate_data.py`: Synthetic data generator using parameters from T010a, ensuring N=800 and between-subjects design.
-- [~] T011 [US1] Implement `code/generate_data.py`: Add a validation function that raises a `ValueError` with the message "Error: status_level has no variance. Experimental condition integrity violated." if the generated data lacks variance, and exit with code 1.
-- [~] T012 [US1] Implement `code/preprocess.py`: Load raw synthetic data, map `status_level` and `observed_behavior` to categorical factors (High/Low, Risky/Conservative).
-- [~] T012b [US1] Implement `code/preprocess.py`: Implement the specific binning strategy (e.g., High vs Low/Medium) for input data with >2 levels, OR implement logic to flag ambiguity for manual review as required by FR-002.
-- [~] T012c [US1] Implement `code/preprocess.py`: Create a "meta-analysis stub" function that logs a clear decision record explaining why FR-001(b) was discarded in favor of simulation, satisfying the 'OR' requirement.
-- [~] T012d [US1] Implement `code/config.py`: Create a `decision_record.json` file explicitly documenting the exclusion of the FR-001(b) meta-analysis path due to the Plan's constraint against external API calls and the unavailability of a single public dataset with the required factorial design.
-- [~] T012e [US1] Implement `code/generate_data.py`: Add a validation check to ensure the generated dataset strictly adheres to the "between-subjects" design (one observation per `participant_id`) as mandated by the Plan's decision to use a Fixed-Effects model.
-- [~] T013 [US1] Implement `code/preprocess.py`: Handle missing values (imputation or exclusion) and report the final N used for analysis.
-- [~] T014a [US1] Implement `code/preprocess.py`: Detect outcome variable type (binary vs. continuous) based on data distribution.
-- [~] T014b [US1] Implement `code/preprocess.py`: Implement the logic to switch the regression family (binomial vs. gaussian) or flag for manual review based on T014a's detection, satisfying FR-003.
-- [~] T015 [P] [US1] Write `tests/contract/test_data_schema.py` to validate output CSV columns and data types against `data-model.md`.
-- [~] T016 [P] [US1] Write `tests/unit/test_data_generation.py` to verify deterministic output given a fixed seed.
+- [X] T010b [P] [US1] Implement `code/generate_data.py`: Synthetic data generator using parameters from T010a, ensuring N=800 and between-subjects design.
+- [X] T011 [US1] Implement `code/generate_data.py`: Add a validation function that raises a `ValueError` with the message "Error: status_level has no variance. Experimental condition integrity violated." if the generated data lacks variance, and exit with code 1.
+- [X] T012 [US1] Implement `code/preprocess.py`: Load raw synthetic data, map `status_level` and `observed_behavior` to categorical factors (High/Low, Risky/Conservative).
+- [X] T012b [US1] Implement `code/preprocess.py`: Implement the specific binning strategy (e.g., High vs Low/Medium) for input data with >2 levels, OR implement logic to flag ambiguity for manual review as required by FR-002.
+- [X] T012c [US1] Implement `code/preprocess.py`: Create a "meta-analysis stub" function that logs a clear decision record explaining why FR-001(b) was discarded in favor of simulation, satisfying the 'OR' requirement.
+- [X] T012d [US1] Implement `code/config.py`: Create a `decision_record.json` file explicitly documenting the exclusion of the FR-001(b) meta-analysis path due to the Plan's constraint against external API calls and the unavailability of a single public dataset with the required factorial design.
+- [X] T012e [US1] Implement `code/generate_data.py`: Add a validation check to ensure the generated dataset strictly adheres to the "between-subjects" design (one observation per `participant_id`) as mandated by the Plan's decision to use a Fixed-Effects model.
+- [X] T013 [US1] Implement `code/preprocess.py`: Handle missing values (imputation or exclusion) and report the final N used for analysis.
+- [X] T014a [US1] Implement `code/preprocess.py`: Detect outcome variable type (binary vs. continuous) based on data distribution.
+- [X] T014b [US1] Implement `code/preprocess.py`: Implement the logic to switch the regression family (binomial vs. gaussian) or flag for manual review based on T014a's detection, satisfying FR-003.
+- [X] T015 [P] [US1] Write `tests/contract/test_data_schema.py` to validate output CSV columns and data types against `data-model.md`.
+- [X] T016 [P] [US1] Write `tests/unit/test_data_generation.py` to verify deterministic output given a fixed seed.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,9 +104,9 @@
 ### Implementation for User Story 2
 
 - [~] T020a [US2] Implement `code/analysis.py`: Validate data structure (between vs within) based on `participant_id` repetition and write the result to `data/processed/structure_config.json` with schema `{"type": "between|within", "n_subjects": int}`.
-- [~] T020b [US2] Implement `code/analysis.py`: Consume `family_type` flag from T014b and configure the regression family (Binomial vs Gaussian) for the model.
-- [~] T021a [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_mixed_effects` that fits a Mixed-Effects model using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior + (1|participant_id)` IF `structure_config` is 'within-subjects'.
-- [~] T021b [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_fixed_effects` that fits a Fixed-Effects model (OLS/GLM) using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior` IF `structure_config` is 'between-subjects'.
+- [X] T020b [US2] Implement `code/analysis.py`: Consume `family_type` flag from T014b and configure the regression family (Binomial vs Gaussian) for the model.
+- [X] T021a [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_mixed_effects` that fits a Mixed-Effects model using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior + (1|participant_id)` IF `structure_config` is 'within-subjects'.
+- [X] T021b [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_fixed_effects` that fits a Fixed-Effects model (OLS/GLM) using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior` IF `structure_config` is 'between-subjects'.
 - [ ] T021c [US2] **Must run after T014b**: Implement `code/analysis.py`: Logic to select between `fit_mixed_effects` and `fit_fixed_effects` based on `structure_config` and `family_type`, ensuring adaptive behavior per FR-003.
 - [ ] T022 [US2] Implement `code/analysis.py`: Calculate Variance Inflation Factors (VIF) for all predictors and flag if > 5.0.
 - [ ] T023 [US2] Implement `code/analysis.py`: Extract fixed effects coefficients, standard errors, and p-values for the interaction term.

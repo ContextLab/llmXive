@@ -58,8 +58,8 @@
 - [ ] T004 Create `contracts/` directory and define `workflow.schema.yaml`
 - [ ] T005 Create `contracts/` directory and define `execution_log.schema.yaml`
 - [ ] T006 Create `contracts/` directory and define `analysis_results.schema.yaml`
-- [~] T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base` (FR-009)
-- [~] T008 Initialize `state/` directory and create initial `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`
+- [ ] T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base` (FR-009)
+- [X] T008 Initialize `state/` directory and create initial `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`
 - [~] T009 Create `data/raw/`, `data/processed/`, and `data/results/` directories
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,17 +78,17 @@
 
 - [~] T010 [US1] Unit test for graph variance in `tests/unit/test_generator.py`
  - **Assertion**: Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.
-- [~] T011 [US1] Contract test for workflow JSON output in `tests/contract/test_workflow_schema.py`
+- [X] T011 [US1] Contract test for workflow JSON output in `tests/contract/test_workflow_schema.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/generators/synthetic_workflow.py` with deterministic seeding (FR-001)
+- [X] T012 [P] [US1] Implement `code/generators/synthetic_workflow.py` with deterministic seeding (FR-001)
  - Generates a collection of DAGs, depths 1-20, complexities 1-10.
  - Records budget caps and metadata.
-- [~] T013 [P] [US1] Implement `code/engines/oracle_policy.py` as an independent rule-based validator (FR-008)
+- [X] T013 [P] [US1] Implement `code/engines/oracle_policy.py` as an independent rule-based validator (FR-008)
  - **Build the distinct Oracle logic** as a standalone module separate from execution engines.
  - Defines ground-truth validity; separate from execution engines.
-- [~] T014 [US1] Implement `code/engines/full_context.py` (FR-002)
+- [X] T014 [US1] Implement `code/engines/full_context.py` (FR-002)
  - Executes workflows with full policy graphs.
  - **MUST invoke oracle_policy.py to validate each step and record specific 'policy-violation' flags in the log** (SC-001).
  - Produces ground-truth execution logs against Oracle.

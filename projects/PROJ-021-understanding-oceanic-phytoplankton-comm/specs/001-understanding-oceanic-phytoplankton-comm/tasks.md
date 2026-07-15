@@ -84,9 +84,9 @@
 - [ ] T011b [US1] Fetch MODIS Aqua/Terra ocean color data from verified source using `datasets.load_dataset("nasa-modis/MODIS-Aqua-Chlorophyll")` to `data/raw/modis.nc`
 - [ ] T011 [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from HuggingFace datasets (`seabass/seabass`) to `data/raw/seabass.csv` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T012 [US1] Implement spatial/temporal alignment in `code/02_preprocessing.py` (grid reanalysis and MODIS to a coarser resolution, create monthly composites, linear interpolation for gaps ≤2 months with error quantification saved to `data/logs/interpolation_error.log`, flag larger gaps for exclusion)
-- [~] T013a [US1] Validate ≥10-year temporal overlap in `code/02_preprocessing.py` and implement stratified train/val/test split logic by ocean basin, outputting split indices
+- [X] T013a [US1] Validate ≥10-year temporal overlap in `code/02_preprocessing.py` and implement stratified train/val/test split logic by ocean basin, outputting split indices
 - [~] T013 [US1] Implement basin stratification and unified masking in `code/02_preprocessing.py` (retain basin ID, apply unified missing data mask across all three sources, exclude grid cells with missing in-situ data, monitor memory usage and enforce GB RAM limit with logging to `data/logs/memory_enforcement.log`)
-- [~] T014 [US1] Generate final aligned dataset artifact in `data/processed/aligned_dataset.nc` (verify no missing values due to misalignment)
+- [ ] T014 [US1] Generate final aligned dataset artifact in `data/processed/aligned_dataset.nc` (verify no missing values due to misalignment)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,15 +101,15 @@
 ### Tests for User Story 2 ⚠️
 
 - [~] T015 [P] [US2] Contract test for model metrics schema in `tests/contract/test_schemas.py` (validates model_performance.schema.yaml)
-- [~] T016 [P] [US2] Integration test for CPU feasibility in `tests/integration/test_pipeline.py` (verifies runtime <6h and RAM <7GB for full training)
+- [X] T016 [P] [US2] Integration test for CPU feasibility in `tests/integration/test_pipeline.py` (verifies runtime <6h and RAM <7GB for full training)
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement Random Forest baseline in `code/03_model_training.py` (≤500 trees, scikit-learn, CPU-only, train/val split)
-- [~] T018 [US2] Implement lightweight CLIP-based VLM fine-tuning in `code/03_model_training.py` (concatenated image/text inputs, CPU-only, early stopping after a predefined number of epochs if no convergence; if convergence fails, log failure and default to baseline model performance metrics for the comparison artifact)
-- [~] T019 [US2] Implement model evaluation and comparison in `code/04_evaluation.py` (compute RMSE, R², MAE for both models on held-out test set)
-- [~] T019a [US2] Perform statistical significance test in `code/04_evaluation.py` (paired t-test or bootstrap to validate if VLM R² exceeds baseline by ≥0.05, output p-value and confidence interval)
-- [~] T020 [US2] Generate model performance artifact in `data/artifacts/model_comparison.csv` (includes basin-stratified R² scores)
+- [X] T017 [US2] Implement Random Forest baseline in `code/03_model_training.py` (≤500 trees, scikit-learn, CPU-only, train/val split)
+- [X] T018 [US2] Implement lightweight CLIP-based VLM fine-tuning in `code/03_model_training.py` (concatenated image/text inputs, CPU-only, early stopping after a predefined number of epochs if no convergence; if convergence fails, log failure and default to baseline model performance metrics for the comparison artifact)
+- [X] T019 [US2] Implement model evaluation and comparison in `code/04_evaluation.py` (compute RMSE, R², MAE for both models on held-out test set)
+- [X] T019a [US2] Perform statistical significance test in `code/04_evaluation.py` (paired t-test or bootstrap to validate if VLM R² exceeds baseline by ≥0.05, output p-value and confidence interval)
+- [ ] T020 [US2] Generate model performance artifact in `data/artifacts/model_comparison.csv` (includes basin-stratified R² scores)
 - [~] T020a [US2] Calculate basin variance metrics in `code/04_evaluation.py` (compute variance in R² scores across basins and difference between highest/lowest, output to `data/artifacts/basin_variance.json`)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,13 +124,13 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [~] T021 [P] [US3] Contract test for feature importance output in `tests/contract/test_schemas.py` (validates The importance scores sum to unity.)
-- [~] T022 [P] [US3] Integration test for visualization generation in `tests/integration/test_pipeline.py` (verifies map files are generated correctly)
+- [X] T021 [P] [US3] Contract test for feature importance output in `tests/contract/test_schemas.py` (validates The importance scores sum to unity.)
+- [X] T022 [P] [US3] Integration test for visualization generation in `tests/integration/test_pipeline.py` (verifies map files are generated correctly)
 
 ### Implementation for User Story 3
 
 - [~] T023 [US3] Implement permutation importance analysis in `code/04_evaluation.py` (rank drivers, normalize scores to sum=1.0, verify sum equals unity within an acceptable tolerance and record verification result in `data/logs/importance_verification.log`, handle multicollinearity)
-- [~] T024 [US3] Implement spatial visualization generation in `code/04_evaluation.py` (create GeoTIFF/PNG maps of top driver importance per basin)
+- [X] T024 [US3] Implement spatial visualization generation in `code/04_evaluation.py` (create GeoTIFF/PNG maps of top driver importance per basin)
 - [~] T025 [US3] Implement in-situ correlation analysis in `code/04_evaluation.py` (calculate correlation coefficient r between predictions and in-situ measurements per basin, AND compute and output the difference between highest and lowest basin R² to `data/artifacts/basin_r2_difference.json`)
 - [~] T026 [US3] Generate final driver attribution artifacts in `data/artifacts/feature_importance_maps/` (include legend and basin labels)
 

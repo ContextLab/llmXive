@@ -44,7 +44,7 @@
  3. If the count of valid datasets is insufficient (e.g., < 15), raise a critical error [UNRESOLVED-CLAIM: c_6c91f9b3 — status=not_enough_info].
  4. Implement **robust network error handling**: if a download fails, log the error, skip that dataset, and continue with the rest.
 - [X] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
-- [~] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
+- [X] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,8 +60,8 @@
 
 > **NOTE**: These tests ensure the evaluation engine produces the correct volume and structure of data.
 
-- [~] T009 [P] [US1] Contract test for `EvaluationRun` schema in `tests/contract/test_evaluation_run.py` (Depends on Phase 2 schema definitions)
-- [~] T010 [US1] **Write Integration Test** `test_repeated_cv_iris` in `tests/integration/test_cv_engine.py`.
+- [X] T009 [P] [US1] Contract test for `EvaluationRun` schema in `tests/contract/test_evaluation_run.py` (Depends on Phase 2 schema definitions)
+- [X] T010 [US1] **Write Integration Test** `test_repeated_cv_iris` in `tests/integration/test_cv_engine.py`.
  - **Dataset**: Use a standard benchmark dataset from OpenML., filtering to classes 0 and 1 only to create a binary classification subset.
  - **Assertion**: Verify that the expected number of rows are generated (multiple repeats × 3 models).
  - **Assertion**: Verify non-zero variance in accuracy scores across multiple repeats for at least one model.
@@ -69,12 +69,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.
+- [X] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.
  - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.
  - **Constraint**: It MUST NOT reduce the fold count or alter the dataset for valid cases.
-- [~] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM [UNRESOLVED-CLAIM: c_3063dfde — status=not_enough_info] in `code/evaluator.py` (Depends on T011 structure)
+- [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM [UNRESOLVED-CLAIM: c_3063dfde — status=not_enough_info] in `code/evaluator.py` (Depends on T011 structure)
 - [~] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
-- [~] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
+- [ ] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -88,22 +88,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py` <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<block sequence start>'
+- [X] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py` <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<block sequence start>'
  in "<unicode string>", line 6, column 1:
  - **File Created**: `tests/unit/...
  ^) -->
-- [~] T017 [P] [US2] Unit test for Pearson correlation calculation in `tests/unit/test_analyser.py`
+- [X] T017 [P] [US2] Unit test for Pearson correlation calculation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement aggregation logic in `code/analyser.py` to compute `mean_accuracy`, `cv_accuracy`, `mean_f1`, `cv_f1` per (dataset, model).
+- [X] T018 [US2] Implement aggregation logic in `code/analyser.py` to compute `mean_accuracy`, `cv_accuracy`, `mean_f1`, `cv_f1` per (dataset, model).
  - **Input**: Must consume `results/raw_evaluations.csv` (validated against schema from T007).
-- [~] T019 [US2] Implement **Pearson correlation** calculation in `code/analyser.py` to compute correlation coefficients between CV metrics and dataset properties (sample size, feature count) as required by FR-004.
+- [X] T019 [US2] Implement **Pearson correlation** calculation in `code/analyser.py` to compute correlation coefficients between CV metrics and dataset properties (sample size, feature count) as required by FR-004.
  - **Primary Output**: Pearson r.
  - **Secondary**: Compute Spearman rho for robustness check.
  - **Verification**: Ensure `correlation_results.csv` contains non-null Pearson r values for all rows.
 - [~] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
-- [~] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv` including Pearson r, p-values, and regression residuals <!-- FAILED: unspecified -->
+- [ ] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv` including Pearson r, p-values, and regression residuals <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

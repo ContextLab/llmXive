@@ -84,12 +84,12 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/binning.py` to convert timestamps to UTC Julian dates and bin events into configurable intervals (FR-010)
-- [~] T013 [P] [US1] Implement `src/anisotropy.py` to generate HEALPix maps at an appropriate resolution and fit spherical harmonic coefficients (ℓ≤2)
-- [~] T014 [US1] Implement `src/pipeline.py` to orchestrate download, binning, and map generation per interval
-- [~] T015 [US1] Implement `run_pipeline.sh` wrapper script that calls `src/pipeline.py` with `--bin-size` argument
+- [ ] T013 [P] [US1] Implement `src/anisotropy.py` to generate HEALPix maps at an appropriate resolution and fit spherical harmonic coefficients (ℓ≤2)
+- [ ] T014 [US1] Implement `src/pipeline.py` to orchestrate download, binning, and map generation per interval
+- [ ] T015 [US1] Implement `run_pipeline.sh` wrapper script that calls `src/pipeline.py` with `--bin-size` argument
 - [~] T016 [US1] Add logic to handle partial intervals (last bin) and explicitly **set the `partial_interval` boolean flag to `true` in the output CSV** if the final interval is shorter than the bin size, as required by FR-003
 - [~] T017 [US1] Implement `run_all.sh` orchestrator that calls `run_pipeline.sh`, logs "Data acquisition completed", and **handles missing sources by logging a warning and proceeding with available data** (e.g., Auger-only) to ensure the output CSV contains ≥90% of expected rows, satisfying US-1 Acceptance Scenario 2
-- [~] T018 [US1] Create `data/results/dipole_timeseries.csv` with columns: `interval_start, dipole_amp, dipole_phase, quad_amp, partial_interval`
+- [ ] T018 [US1] Create `data/results/dipole_timeseries.csv` with columns: `interval_start, dipole_amp, dipole_phase, quad_amp, partial_interval`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,19 +104,19 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T019 [P] [US2] Contract test for statistical methods in `tests/contract/test_stats.py`
-- [~] T020 [P] [US2] Integration test for correlation analysis in `tests/integration/test_correlation.py`
+- [X] T020 [P] [US2] Integration test for correlation analysis in `tests/integration/test_correlation.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `src/stats.py` with Lomb-Scargle periodogram function (using `astropy.timeseries`)
-- [~] T022 [US2] Implement block-bootstrap resampling in `src/stats.py` with **conditional logic**: if the number of independent blocks is < 30, reduce block length to **1 × bin_size**; otherwise use **2 × bin_size**, ensuring compliance with FR-005
+- [ ] T021 [P] [US2] Implement `src/stats.py` with Lomb-Scargle periodogram function (using `astropy.timeseries`)
+- [ ] T022 [US2] Implement block-bootstrap resampling in `src/stats.py` with **conditional logic**: if the number of independent blocks is < 30, reduce block length to **1 × bin_size**; otherwise use **2 × bin_size**, ensuring compliance with FR-005
 - [~] T023 [US2] Implement Monte-Carlo shuffle test (sufficient permutations) shuffling solar proxy series relative to anisotropy, **and ensure the block-bootstrap logic in T022 is fully integrated here** with the conditional fallback (if blocks < 30, use 1x bin_size) to satisfy FR-005
-- [~] T024 [US2] Implement Bonferroni correction logic (α=0.0017) and "positive result" flagging in `src/stats.py`
+- [ ] T024 [US2] Implement Bonferroni correction logic (α=0.0017) and "positive result" flagging in `src/stats.py`
 - [~] T025 [US2] Create `analyze_correlation.py` entry point to run all statistical tests per detector (IceCube, Auger)
 - [~] T026 [US2] Generate PDF output with periodogram plots, correlation heatmaps, and FAP reports
-- [~] T027 [US2] **Generate synthetic dataset with injected known correlation signal**: Implement `src/validation.py` to create a simulated dataset with a known ground truth correlation (specific amplitude and phase) between anisotropy and solar proxy, **saving the output to `data/synthetic/validation_input.csv`**, serving as the input for the blind validation step (FR-011)
-- [~] T028 [US2] Implement blind validation in `src/validation.py` using the synthetic dataset generated in T027; **write metrics (fp_rate, power) to `data/results/validation_metrics.json`** to verify FR-011 requirements. The JSON must contain keys `fp_rate` (float) and `power` (float).
-- [~] T029 [US2] **Add an assertion in `tests/unit/test_validation.py` that raises an error if `fp_rate > 0.05` or `power < 0.8`** using the metrics from T028, ensuring the system fails the build if thresholds are not met. This task enforces the verification step required by FR-011 and SC-008.
+- [ ] T027 [US2] **Generate synthetic dataset with injected known correlation signal**: Implement `src/validation.py` to create a simulated dataset with a known ground truth correlation (specific amplitude and phase) between anisotropy and solar proxy, **saving the output to `data/synthetic/validation_input.csv`**, serving as the input for the blind validation step (FR-011)
+- [ ] T028 [US2] Implement blind validation in `src/validation.py` using the synthetic dataset generated in T027; **write metrics (fp_rate, power) to `data/results/validation_metrics.json`** to verify FR-011 requirements. The JSON must contain keys `fp_rate` (float) and `power` (float).
+- [X] T029 [US2] **Add an assertion in `tests/unit/test_validation.py` that raises an error if `fp_rate > 0.05` or `power < 0.8`** using the metrics from T028, ensuring the system fails the build if thresholds are not met. This task enforces the verification step required by FR-011 and SC-008.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,16 +130,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Contract test for report generation in `tests/contract/test_report.py`
-- [~] T031 [P] [US3] Integration test for full report build in `tests/integration/test_report_build.py`
+- [X] T030 [P] [US3] Contract test for report generation in `tests/contract/test_report.py`
+- [X] T031 [P] [US3] Integration test for full report build in `tests/integration/test_report_build.py`
 
 ### Implementation for User Story 3
 
-- [~] T032 [P] [US3] Create LaTeX template `reports/report_template.tex` with sections for methods, results, and figures
+- [X] T032 [P] [US3] Create LaTeX template `reports/report_template.tex` with sections for methods, results, and figures
 - [~] T033 [US3] Implement `make_report.sh` to compile `report.pdf` using `pdflatex` and copy figures
-- [~] T034 [US3] Add script to generate `requirements.txt` with exact versions of all Python packages
+- [X] T034 [US3] Add script to generate `requirements.txt` with exact versions of all Python packages
 - [~] T035 [US3] Implement figure generation scripts for time-series, heatmaps, and periodograms
-- [~] T036 [US3] Add error handling for missing `requirements.txt` with clear abort message
+- [X] T036 [US3] Add error handling for missing `requirements.txt` with clear abort message
 - [~] T037 [US3] Ensure report includes statement on hypothesis support based on Bonferroni-corrected p-values
 
 **Checkpoint**: All user stories should now be independently functional

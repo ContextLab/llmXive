@@ -58,7 +58,7 @@
 - [ ] T004 [P] Implement data ingestion for the **Strong Lens Finding Challenge (SLFC)** dataset (the verified proxy for DES) in `code/src/data_loader.py`. Extract `is_lens` labels from the SLFC dataset and save them to `data/raw/real_labels.csv` to serve as ground truth for purity calculation (FR-003). **Do NOT use this file for injection recovery.**
 - [ ] T006 [Depends on T004] Implement **Simulated Injection Generation** in `code/src/data_loader.py`. **Inject synthetic lens images** at random coordinates into the SLFC background to create a ground truth catalog. Save this to `data/raw/injection_ground_truth.csv` with columns `RA`, `Dec`, `injected_id`. This satisfies FR-008's requirement for an explicit *injection/recovery* simulation catalog. **This task is the sole producer of the injection catalog to avoid race conditions with T004.**
 - [ ] T005 [P] Implement chunked CSV/Parquet loader in `code/src/loader.py` to process the **SLFC dataset** without loading the full dataset into RAM (FR-001). MUST log peak memory usage to `data/processed/memory_profile.csv`. If usage exceeds **6GB** (per plan.md constraint), **log a warning but do not fail the build**, satisfying SC-005's measurement requirement.
-- [~] T007 [P] Create coordinate matching utility in `code/src/utils.py` to handle RA/Dec matching with ≤ 1.0 arcsec tolerance (FR-003, FR-008)
+- [X] T007 [P] Create coordinate matching utility in `code/src/utils.py` to handle RA/Dec matching with ≤ 1.0 arcsec tolerance (FR-003, FR-008)
 - [~] T008 [P] Setup `pytest` configuration and unit test scaffolding in `tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
@@ -77,12 +77,12 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for threshold grid generation logic in `tests/unit/test_filter.py` (verify grid dimensions)
-- [~] T011 [P] [US1] Unit test for handling missing values (NA/NaN) in `tests/unit/test_filter.py` (verify exclusion without crash)
+- [X] T010 [P] [US1] Unit test for threshold grid generation logic in `tests/unit/test_filter.py` (verify grid dimensions)
+- [X] T011 [P] [US1] Unit test for handling missing values (NA/NaN) in `tests/unit/test_filter.py` (verify exclusion without crash)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `filter_by_thresholds()` in `code/src/filter.py` to iterate SNR (`range(5, 21, 1)`) and Morph (`np.arange(0.3, 0.95, 0.1)`) and count detections (FR-002). **Explicitly ensure the grid includes a representative threshold value near the upper bound of the parameter range.**.
+- [X] T012 [US1] Implement `filter_by_thresholds()` in `code/src/filter.py` to iterate SNR (`range(5, 21, 1)`) and Morph (`np.arange(0.3, 0.95, 0.1)`) and count detections (FR-002). **Explicitly ensure the grid includes a representative threshold value near the upper bound of the parameter range.**.
 - [ ] T013 [US1] Implement logic to exclude rows with missing SNR or morphology values per US-1 acceptance criteria
 - [ ] T014 [US1] Generate `data/processed/detection_matrix.csv` containing `snr_threshold`, `morph_threshold`, `detection_count` (FR-002)
 - [ ] T014b [US1] [Depends on T014] Generate `data/processed/detected_candidates.csv` containing the list of `RA`, `Dec`, `is_lens`, and `threshold_pair_id` for all candidates passing each threshold pair. This artifact is required for T018 (purity), T020a (variance), and T021 (recovery).

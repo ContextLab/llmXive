@@ -58,9 +58,9 @@
 
 - [ ] T004 [P] Implement `utils/config.py` to define paths, random seeds, and constants.
 - [ ] T005 [P] Implement `utils/provenance.py` for metadata logging and hash generation.
-- [~] T006 [P] Create `tests/test_data_contract.py` with a failing `test_schema_compliance` function stub and `tests/test_metrics.py` with a failing `test_metrics_calc` function stub.
-- [~] T007 Setup `run_pipeline.sh` orchestration script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` to execute `python data/download_ebd.py && python data/download_nlcd.py && python data/merge_and_buffer.py && python models/train.py && python models/evaluate.py && python viz/plot_confusion.py && python viz/plot_importance.py && python viz/map_habitat.py`.
-- [~] T008 [P] Implement `data/fetch_guild_mapping.py` to download the external foraging guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via the defined HTTPS URL, validate its schema (species_id, foraging_guild), and save to `data/processed/guild_mapping.csv`.
+- [ ] T006 [P] Create `tests/test_data_contract.py` with a failing `test_schema_compliance` function stub and `tests/test_metrics.py` with a failing `test_metrics_calc` function stub.
+- [ ] T007 Setup `run_pipeline.sh` orchestration script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` to execute `python data/download_ebd.py && python data/download_nlcd.py && python data/merge_and_buffer.py && python models/train.py && python models/evaluate.py && python viz/plot_confusion.py && python viz/plot_importance.py && python viz/map_habitat.py`.
+- [ ] T008 [P] Implement `data/fetch_guild_mapping.py` to download the external foraging guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via the defined HTTPS URL, validate its schema (species_id, foraging_guild), and save to `data/processed/guild_mapping.csv`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,14 +74,14 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement `data/download_ebd.py` to fetch EBD data from official eBird HTTPS URL (or verified S3 fallback per Plan 'Risks & Mitigations' if official fails) and generate checksums in `data/metadata.yaml`.
-- [~] T012 [P] [US1] Implement `data/download_nlcd.py` to fetch NLCD 2019 land cover data from USGS EarthExplorer and generate checksums. <!-- FAILED: unspecified -->
+- [ ] T011 [P] [US1] Implement `data/download_ebd.py` to fetch EBD data from official eBird HTTPS URL (or verified S3 fallback per Plan 'Risks & Mitigations' if official fails) and generate checksums in `data/metadata.yaml`.
+- [ ] T012 [P] [US1] Implement `data/download_nlcd.py` to fetch NLCD 2019 land cover data from USGS EarthExplorer and generate checksums. <!-- FAILED: unspecified -->
 - [ ] T012.5 [US1] Implement `data/filter_top_25.py` to load raw EBD data (from T011), calculate record counts per species, select the top 25 species by count, and save the filtered subset to `data/processed/ebd_top25.csv`.
-- [~] T013 [US1] Implement `data/merge_and_buffer.py` to join filtered EBD records (from T012.5) with NLCD data, calculate 100m buffer land cover proportions, and assign foraging guilds by joining with `data/processed/guild_mapping.csv` (produced by T008).
-- [~] T014 [US1] Implement filtering logic in `data/merge_and_buffer.py` to retain only species with ≥50 observations and log excluded species to `data/processed/excluded_species.log`.
-- [~] T015 [US1] Implement `validate_schema()` in `data/merge_and_buffer.py` that raises `ValueError` if columns `species_id`, `foraging_guild`, `land_cover_proportions` are missing, and add unit test `test_validate_schema`.
-- [~] T016 [US1] Implement `data/aggregate.py` to aggregate filtered observations into species-level profiles and save to `data/processed/species_profiles.csv`.
-- [~] T017 [US1] Implement logic to extract the top-ranked species by observation count from `data/processed/species_profiles.csv` and persist to `data/processed/top_species.json`.
+- [ ] T013 [US1] Implement `data/merge_and_buffer.py` to join filtered EBD records (from T012.5) with NLCD data, calculate 100m buffer land cover proportions, and assign foraging guilds by joining with `data/processed/guild_mapping.csv` (produced by T008).
+- [ ] T014 [US1] Implement filtering logic in `data/merge_and_buffer.py` to retain only species with ≥50 observations and log excluded species to `data/processed/excluded_species.log`.
+- [ ] T015 [US1] Implement `validate_schema()` in `data/merge_and_buffer.py` that raises `ValueError` if columns `species_id`, `foraging_guild`, `land_cover_proportions` are missing, and add unit test `test_validate_schema`.
+- [ ] T016 [US1] Implement `data/aggregate.py` to aggregate filtered observations into species-level profiles and save to `data/processed/species_profiles.csv`.
+- [ ] T017 [US1] Implement logic to extract the top-ranked species by observation count from `data/processed/species_profiles.csv` and persist to `data/processed/top_species.json`.
 - [ ] T010 [P] [US1] Validate schema compliance in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/tests/test_data_contract.py` by asserting `merged_observations.csv` matches `contracts/dataset.schema.yaml` (Depends on T014 output).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

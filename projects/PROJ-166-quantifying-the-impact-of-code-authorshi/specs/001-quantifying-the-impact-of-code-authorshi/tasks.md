@@ -68,8 +68,8 @@
  - `tests/unit/data/test_extract_github.py::test_author_count_calculation`: Mock git log output, assert unique author count matches expected.
  - `tests/unit/data/test_merge_datasets.py::test_url_matching`: Mock NVD data, assert exact match logic works and ambiguous matches are ignored.
 - [ ] T013 [P] [US1] Add logging in `code/data/merge_datasets.py` for skipped repositories and ambiguous NVD matches. Use `logging.WARNING` for skips and `logging.ERROR` for ambiguous matches. Log format: `"[REPO_URL] Reason: <reason>"`. Write to `logs/merge_warnings.log`.
-- [~] T014 [P] [US1] Implement a validation function in `code/data/merge_datasets.py` that checks `repo_metrics.csv` for null values in `kloc` and `cve_count`. If nulls are found, raise a `ValueError` immediately. Ensure `cve_count` defaults to 0 if missing, not null.
-- [~] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours.
+- [X] T014 [P] [US1] Implement a validation function in `code/data/merge_datasets.py` that checks `repo_metrics.csv` for null values in `kloc` and `cve_count`. If nulls are found, raise a `ValueError` immediately. Ensure `cve_count` defaults to 0 if missing, not null.
+- [X] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,8 +85,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
-- [~] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
+- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
+- [X] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
 
 ### Implementation for User Story 1
 
@@ -104,7 +104,7 @@
 
 ### Tests for User Story 2
 
-- [~] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
+- [X] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
 - [~] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative-Binomial GLM with `cve_count` as response, `author_count` + controls as predictors, and `log(kloc)` as **offset** (per FR-004). **Strictly ignore Plan.md's suggestion to use free predictor.** Exclude rows where `kloc` is zero (log(0) undefined) with a warning log. Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to p-values. Generate `data/processed/model_results.json` containing coefficients, standard errors, p-values, 95% CIs, adjusted p-values, VIF metrics, and a `convergence_status` boolean (true if converged, false if failed).
 - [~] T018 [US2] (Merged into T017)
 
@@ -120,15 +120,15 @@
 
 ### Tests for User Story 3
 
-- [~] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
+- [X] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
 - [~] T020 [P] [US3] Integration test for subsample and entropy analysis in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
 
-- [~] T021 [US3] Implement `code/analysis/robustness.py` to perform subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset and controls.
+- [X] T021 [US3] Implement `code/analysis/robustness.py` to perform subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset and controls.
 - [~] T022 [US3] Implement Shannon entropy calculation for author contributions (replace `author_count` predictor with entropy metric) and re-fit GLM. **Explicitly replace the primary predictor.**
 - [~] T023 [US3] Apply Benjamini-Hochberg correction to all p-values from subsample and entropy models.
-- [~] T024 [US3] Generate `data/processed/robustness_results.json` containing subsample coefficients, entropy model results, and adjusted p-values.
+- [ ] T024 [US3] Generate `data/processed/robustness_results.json` containing subsample coefficients, entropy model results, and adjusted p-values.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -139,14 +139,14 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T025 [P] Documentation updates in `README.md`: Add a CLI usage section with example commands, a "Methods" section explaining the GLM offset approach, and a "Data" section describing the pipeline.
-- [~] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
-- [~] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a representative set of repositories. Output format: JSON with `total_time_seconds`. Pass/fail threshold: < 12 minutes (to allow 500 in < 6h).
+- [X] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
+- [X] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a representative set of repositories. Output format: JSON with `total_time_seconds`. Pass/fail threshold: < 12 minutes (to allow 500 in < 6h).
 - [~] T028 [P] Additional unit tests for edge cases in `tests/unit/analysis/`:
  - `test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.
  - `test_empty_nvd_match`: Verify cve_count=0 when no match found.
-- [~] T029 [P] Update `code/config.py` to use `os.getenv` for API keys.
-- [~] T030 [P] Add test `tests/unit/test_config_no_leak.py` to verify no API keys are logged.
-- [~] T031 [P] Create CI script `scripts/validate_quickstart.sh` that executes the pipeline on the seed dataset and exits 0 on success.
+- [X] T029 [P] Update `code/config.py` to use `os.getenv` for API keys.
+- [X] T030 [P] Add test `tests/unit/test_config_no_leak.py` to verify no API keys are logged.
+- [X] T031 [P] Create CI script `scripts/validate_quickstart.sh` that executes the pipeline on the seed dataset and exits 0 on success.
 
 ---
 

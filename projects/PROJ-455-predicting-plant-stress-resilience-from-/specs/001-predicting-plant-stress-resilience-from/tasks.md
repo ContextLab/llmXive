@@ -61,9 +61,9 @@
  - T004.3 Create `contracts/recovery.schema.yaml` defining JSON/YAML schema for `RecoveryMetric`.
 - [ ] T005 [P] Implement base data models (`MetabolomicProfile`, `RecoveryMetric`, `RecoveryIndex`) with validation rules in `code/data/models.py` using Pydantic.
 - [X] T006 [P] Setup logging and error handling infrastructure in `code/utils/logging.py` by implementing a `get_logger` function that configures a standard JSON formatter and file/console handlers.
-- [~] T007 Create the Mechanism-Guided Synthetic Generator in `code/data/generator.py` by implementing `generate_synthetic_data(n_samples, stress_type)` that outputs a Parquet file to `data/raw/synthetic_*.parquet` with embedded ground-truth pathways. <!-- FAILED: unspecified -->
+- [ ] T007 Create the Mechanism-Guided Synthetic Generator in `code/data/generator.py` by implementing `generate_synthetic_data(n_samples, stress_type)` that outputs a Parquet file to `data/raw/synthetic_*.parquet` with embedded ground-truth pathways. <!-- FAILED: unspecified -->
 - [~] T008 [P] Implement the Mock Adapter in `code/data/ingest.py` by creating `MockAdapter` class that calls the synthetic generator and returns a Pandas DataFrame matching `dataset.schema.yaml`.
-- [~] T009 [P] Implement the Real Adapter stub in `code/data/ingest.py` by creating `RealAdapter` class with a `fetch(accession_id)` method that validates URL format and returns a stub DataFrame or raises a NotImplementedError.
+- [X] T009 [P] Implement the Real Adapter stub in `code/data/ingest.py` by creating `RealAdapter` class with a `fetch(accession_id)` method that validates URL format and returns a stub DataFrame or raises a NotImplementedError.
 - [ ] T009.1 [P] Implement ExternalDatasetManager in `code/data/ingest.py` by creating `ExternalDatasetManager` class that ingests, checksums, and validates multiple independent external datasets (NCBI GEO/Zenodo) for LODO.
 - [ ] T009.2 [P] Implement LODO Data Prep in `code/data/ingest.py` by creating `prepare_lodo_datasets()` function that organizes external datasets into train/test splits for Leave-One-Dataset-Out validation.
 - [ ] T009.3 [P] Implement Synthetic Multi-Dataset Generator in `code/data/generator.py` by creating `generate_lodo_synthetic_datasets(n_datasets, stress_types)` that produces multiple distinct Parquet files with varying noise profiles and stress vectors to simulate external datasets for LODO validation.
@@ -80,19 +80,19 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingest_schema.py`.
-- [~] T011 [P] [US1] Integration test for preprocessing pipeline in `tests/integration/test_preprocess_pipeline.py`.
+- [X] T010 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingest_schema.py`.
+- [X] T011 [P] [US1] Integration test for preprocessing pipeline in `tests/integration/test_preprocess_pipeline.py`.
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data/ingest.py::RealAdapter::fetch` to parse NCBI GEO/Zenodo XML/JSON responses into a `MetabolomicProfile` DataFrame. <!-- FAILED: unspecified -->
-- [~] T013 [US1] Implement `code/data/ingest.py::filter_by_recovery_time(df, min_days=7)` function that returns a filtered DataFrame.
-- [~] T014 [US1] Implement `code/data/preprocess.py::normalize_recovery(df)` function that maps biomass/survival columns to a `RecoveryIndex` (normalized scale) column.
-- [~] T015 [US1] Implement `code/data/preprocess.py::check_missing_threshold(df, threshold=0.1)` that raises a `DataRejectionError` if missing >10%.
-- [~] T016 [US1] Implement `code/data/preprocess.py::impute_half_min(df)` function that replaces NaN with half the column minimum.
-- [~] T017 [US1] Implement `code/data/preprocess.py::normalize_tic_and_log(df)` function that applies TIC normalization and **natural log (ln)** transformation (using `np.log` with zero-handling logic) as required by FR-003.
-- [~] T018 [US1] Implement `code/data/preprocess.py::aggregate_population(df)` function that computes mean pre-stress and mean recovery per group if individual pairing is missing.
-- [~] T019 [US1] Add validation and error handling for dataset rejection scenarios in `code/data/ingest.py` to catch `DataRejectionError` and log specific rejection reasons (e.g., 'Missing >10%') to `code/utils/logging.py`.
+- [X] T012 [US1] Implement `code/data/ingest.py::RealAdapter::fetch` to parse NCBI GEO/Zenodo XML/JSON responses into a `MetabolomicProfile` DataFrame. <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `code/data/ingest.py::filter_by_recovery_time(df, min_days=7)` function that returns a filtered DataFrame.
+- [X] T014 [US1] Implement `code/data/preprocess.py::normalize_recovery(df)` function that maps biomass/survival columns to a `RecoveryIndex` (normalized scale) column.
+- [X] T015 [US1] Implement `code/data/preprocess.py::check_missing_threshold(df, threshold=0.1)` that raises a `DataRejectionError` if missing >10%.
+- [X] T016 [US1] Implement `code/data/preprocess.py::impute_half_min(df)` function that replaces NaN with half the column minimum.
+- [X] T017 [US1] Implement `code/data/preprocess.py::normalize_tic_and_log(df)` function that applies TIC normalization and **natural log (ln)** transformation (using `np.log` with zero-handling logic) as required by FR-003.
+- [X] T018 [US1] Implement `code/data/preprocess.py::aggregate_population(df)` function that computes mean pre-stress and mean recovery per group if individual pairing is missing.
+- [X] T019 [US1] Add validation and error handling for dataset rejection scenarios in `code/data/ingest.py` to catch `DataRejectionError` and log specific rejection reasons (e.g., 'Missing >10%') to `code/utils/logging.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,7 +106,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_result_schema.py`.
+- [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_result_schema.py`.
 - [~] T021 [P] [US2] Unit test for feature importance extraction in `tests/unit/test_feature_importance.py`. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
   in "<unicode string>", line 2, column 1:
     **Implementation Details:**

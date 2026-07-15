@@ -100,7 +100,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T018 [P] [US2] Contract test for `correlation_results.schema.yaml` in `tests/contract/test_correlation_schema.py`
-- [~] T019 [P] [US2] Unit test for FDR correction logic in `tests/unit/test_stats.py`
+- [X] T019 [P] [US2] Unit test for FDR correction logic in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
@@ -123,17 +123,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Integration test for full pipeline reproducibility in `tests/integration/test_full_pipeline.py`
+- [X] T026 [P] [US3] Integration test for full pipeline reproducibility in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
 - [~] T027 [US3] Implement sensitivity analysis in `code/04_regression_analysis.py` excluding participants with neurological conditions/medications. **Input**: `data/processed/correlation_results_fdr.csv` (from T021), `data/processed/behavioral_scores.csv`. **Output**: `data/processed/sensitivity_exclusion_results.csv`. (FR-006)
 - [~] T028 [US3] Implement threshold sensitivity sweep in `code/04_regression_analysis.py`. **Cutoffs to sweep**: 1. **Artifact rejection threshold** (range: 15% to 25% amplitude deviation). 2. **SNR threshold** (range: dB to 7 dB). **Sweep values**: {0.0, 0.05, 0.1} absolute difference from baseline. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/correlation_results_fdr.csv`. **Output**: `data/processed/sensitivity_threshold_results.csv`. (FR-007, US-3)
-- [~] T029 [US3] Generate `sensitivity_report.json` comparing results across exclusion scenarios and threshold sweeps. **Required fields**: scenario, r_value, p_value, n_excluded. **Input**: `data/processed/sensitivity_exclusion_results.csv`, `data/processed/sensitivity_threshold_results.csv`. **Output**: `data/processed/sensitivity_report.json`. (SC-003)
+- [ ] T029 [US3] Generate `sensitivity_report.json` comparing results across exclusion scenarios and threshold sweeps. **Required fields**: scenario, r_value, p_value, n_excluded. **Input**: `data/processed/sensitivity_exclusion_results.csv`, `data/processed/sensitivity_threshold_results.csv`. **Output**: `data/processed/sensitivity_report.json`. (SC-003)
 - [~] T030 [US3] Implement `code/05_generate_report.py` to produce final report with correlation matrices, effect sizes, **FDR-corrected p-values (primary)**, and sensitivity comparisons. **Explicitly state that FDR correction was used to satisfy Spec FR-005**. **Input**: `data/processed/`. **Output**: `reports/final_report.md`. (FR-007, SC-003)
-- [~] T031 [US3] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `reports/final_report.md`. **Output**: `reports/final_report.md` (updated). (FR-009, SC-005)
-- [~] T032a [US3] Validate **CSV data artifacts** (`correlation_results_fdr.csv`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/correlation_results.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.csv.txt`. (Contract Test)
-- [~] T032b [US3] Validate **JSON artifacts** (`sensitivity_report.json`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/output.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.json.txt`. (Contract Test)
+- [ ] T031 [US3] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `reports/final_report.md`. **Output**: `reports/final_report.md` (updated). (FR-009, SC-005)
+- [ ] T032a [US3] Validate **CSV data artifacts** (`correlation_results_fdr.csv`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/correlation_results.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.csv.txt`. (Contract Test)
+- [ ] T032b [US3] Validate **JSON artifacts** (`sensitivity_report.json`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/output.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_log.json.txt`. (Contract Test)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,8 +143,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T033a [P] Create `docs/diagrams/data_flow.png` illustrating data movement from raw to final report.
-- [~] T033b [P] Create `docs/methodology_notes.md` detailing processing steps and assumptions.
+- [ ] T033a [P] Create `docs/diagrams/data_flow.png` illustrating data movement from raw to final report.
+- [X] T033b [P] Create `docs/methodology_notes.md` detailing processing steps and assumptions.
 - [~] T034 [P] Apply numba JIT compilation to `utils/entropy_utils.py` functions: `sample_entropy`, `approximate_entropy` for CPU optimization.
 - [ ] T035 [P] Reduce peak memory in `code/02_preprocess_eeg.py` to <6GB via chunked loading verification.
 - [ ] T036 [P] Additional unit tests for edge cases (NaN handling, short recordings) in `tests/unit/`

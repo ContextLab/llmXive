@@ -60,7 +60,7 @@
 - [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
 - [ ] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
 - [~] T008 Configure error handling and logging infrastructure in `code/utils/`
-- [~] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
+- [X] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,21 +74,21 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_schema.py`
-- [~] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_ingestion.py`
+- [X] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_schema.py`
+- [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingestion/aggregator.py` to fetch data from the 'Verified Literature Corpus' (specific PDF URLs: [list from research.md] and database endpoints: Materials Project, NIST, OpenAlloy) using `pdfplumber` and `requests` <!-- FAILED: unspecified -->
-- [~] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
+- [X] T012 [US1] Implement `code/ingestion/aggregator.py` to fetch data from the 'Verified Literature Corpus' (specific PDF URLs: [list from research.md] and database endpoints: Materials Project, NIST, OpenAlloy) using `pdfplumber` and `requests` <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
  - Exclude alloys with >5 elements
  - Standardize hardness to HV units
  - Filter for room-temperature measurements only
  - Validate elemental composition sums to a threshold read from `code/config.py` (default 0.95, marked as provisional per spec.md FR-002 deferred status)
  - Implement random sampling logic with fixed seed (from T004) if dataset exceeds RAM limits (per FR-011)
-- [~] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
-- [~] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
-- [~] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
+- [X] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
+- [ ] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
+- [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
 - [~] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,17 +103,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [~] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
+- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
-- [~] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
-- [~] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
-- [~] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
-- [~] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
-- [~] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
+- [X] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
+- [X] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
+- [X] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
+- [X] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
+- [X] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
+- [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
 - [ ] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
 - [ ] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
 - [ ] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`

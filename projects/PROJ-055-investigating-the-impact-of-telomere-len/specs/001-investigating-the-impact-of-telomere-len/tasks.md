@@ -80,16 +80,16 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T011 [P] [US1] Unit test for Dryad URL parsing and CSV loading in `tests/test_ingest.py`
-- [~] T012 [P] [US1] Unit test for unit conversion logic (qPCR to kb) in `tests/test_clean.py`
-- [~] T013 [P] [US1] Integration test for full merge pipeline with synthetic data in `tests/test_clean.py`
+- [X] T012 [P] [US1] Unit test for unit conversion logic (qPCR to kb) in `tests/test_clean.py`
+- [X] T013 [P] [US1] Integration test for full merge pipeline with synthetic data in `tests/test_clean.py`
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/01_discover_data.py` to query Dryad API and extract valid dataset IDs; halt if 0 results found.
-- [~] T015 [US1] Implement `code/02_ingest_data.py` to download raw CSVs from Dryad (using `requests`) and AnAge (using direct CSV fetch or `anage` R package via `rpy2`), applying SHA256 checksums. **Do NOT use `rotl` for AnAge data**.
-- [~] T016 [US1] Implement `code/03_clean_merge.py` to filter for wild-caught/early-life individuals, convert all telomere units to kilobases (kb), and log unconvertible records to `logs/unconvertible_units.csv`.
+- [X] T014 [US1] Implement `code/01_discover_data.py` to query Dryad API and extract valid dataset IDs; halt if 0 results found.
+- [X] T015 [US1] Implement `code/02_ingest_data.py` to download raw CSVs from Dryad (using `requests`) and AnAge (using direct CSV fetch or `anage` R package via `rpy2`), applying SHA256 checksums. **Do NOT use `rotl` for AnAge data**.
+- [X] T016 [US1] Implement `code/03_clean_merge.py` to filter for wild-caught/early-life individuals, convert all telomere units to kilobases (kb), and log unconvertible records to `logs/unconvertible_units.csv`.
 - [~] T017 [US1] Implement merge logic in `code/03_clean_merge.py` to join telomere data with AnAge ecological data (migration, body mass) on species name; exclude unmatched records and log to `logs/missing_data_log.csv`. Include validation to ensure output `data/processed/merged_data.csv` meets schema requirements (columns: `species`, `telomere_length_kb`, `lifespan`, `migration_status`, `body_mass_g`) AND explicitly verifies the 'wild-caught' filter was applied.
-- [~] T019 [US1] Implement memory pressure check in `code/03_clean_merge.py` to trigger chunked processing or subsampling if RAM > 6GB.
+- [X] T019 [US1] Implement memory pressure check in `code/03_clean_merge.py` to trigger chunked processing or subsampling if RAM > 6GB.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,14 +103,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Unit test for phylogenetic tree fetching via `rotl` in `tests/test_model.py`
-- [~] T021 [P] [US2] Unit test for PGLS formula construction and R script invocation in `tests/test_model.py`
+- [X] T020 [P] [US2] Unit test for phylogenetic tree fetching via `rotl` in `tests/test_model.py`
+- [X] T021 [P] [US2] Unit test for PGLS formula construction and R script invocation in `tests/test_model.py`
 
 ### Implementation for User Story 2
 
 - [~] T022 [US2] Implement `code/04_model_pglS.py` to extract unique species from `data/processed/merged_data.csv` and fetch the corresponding phylogenetic tree from `rotl` (Newick format) to `data/phylogeny/`. **Must run before T023/T024**.
-- [~] T023 [US2] Create `code/R/01_fit_pglS.R` to define and fit the PGLS model. Use `phylolm` (selected for iterative lambda estimation capability as per plan.md) to ensure phylogenetic covariance structure is derived from data. The model formula will be implemented as `lifespan ~ telomere_length` with the tree passed as the covariance matrix argument to match the conceptual requirement `lifespan ~ telomere_length + phylogenetic_covariance`.
-- [~] T024 [US2] Implement `code/04_model_pglS.py` to call the R script via `rpy2`, passing the merged data and tree, and capturing the summary statistics (coefficient, SE, p-value, lambda). Implement logic to handle low power cases (<15 species) by logging the exact string "Low Power: Phylogenetic inference unreliable" and skipping the modeling step (do not halt the entire pipeline abruptly) instead of failing or proceeding.
+- [X] T023 [US2] Create `code/R/01_fit_pglS.R` to define and fit the PGLS model. Use `phylolm` (selected for iterative lambda estimation capability as per plan.md) to ensure phylogenetic covariance structure is derived from data. The model formula will be implemented as `lifespan ~ telomere_length` with the tree passed as the covariance matrix argument to match the conceptual requirement `lifespan ~ telomere_length + phylogenetic_covariance`.
+- [X] T024 [US2] Implement `code/04_model_pglS.py` to call the R script via `rpy2`, passing the merged data and tree, and capturing the summary statistics (coefficient, SE, p-value, lambda). Implement logic to handle low power cases (<15 species) by logging the exact string "Low Power: Phylogenetic inference unreliable" and skipping the modeling step (do not halt the entire pipeline abruptly) instead of failing or proceeding.
 - [~] T025 [US2] Implement `code/04_model_pglS.py` to save model results to `results/model_summary.csv` and log the phylogenetic signal (lambda).
 - [~] T026 [US2] Create `code/R/02_sensitivity.R` to perform LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10), outputting `results/sensitivity_log.csv` with columns: `species_id`, `coefficient`, `se`, `p_value`, `method_justification`. **Depends on T025**.
 - [ ] T027A [US2] Implement wrapper in `code/04_model_pglS.py` to call `02_sensitivity.R`, log the justification for the chosen method (LOOCV vs jackknife based on species count), and validate the output schema of `sensitivity_log.csv`.
@@ -129,8 +129,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T031 [P] [US3] Unit test for interaction term parsing in `tests/test_model.py`
-- [~] T032 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_visualize.py`
+- [X] T031 [P] [US3] Unit test for interaction term parsing in `tests/test_model.py`
+- [X] T032 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_visualize.py`
 
 ### Implementation for User Story 3
 

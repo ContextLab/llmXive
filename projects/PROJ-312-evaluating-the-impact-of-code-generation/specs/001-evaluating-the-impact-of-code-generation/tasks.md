@@ -100,7 +100,7 @@
  ```
 - [X] T005 [P] Implement schema validation utility in `code/utils.py`: Function `validate_json_schema(data, schema_path)` that returns True/False and logs errors
 - [~] T006 [P] Setup logging infrastructure: Create file `logs/pipeline.log` with JSON formatting. Capture rate-limit headers `X-RateLimit-Remaining` and `X-RateLimit-Reset` on every API call.
-- [~] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier 2.0, max delay 60s, jitter strategy (random 0-50% of delay), a limited number of retries.
+- [X] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier 2.0, max delay 60s, jitter strategy (random 0-50% of delay), a limited number of retries.
 - [~] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -117,22 +117,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for classification logic (keywords/labels) in `tests/unit/test_classifier.py`
+- [X] T009 [P] [US1] Unit test for classification logic (keywords/labels) in `tests/unit/test_classifier.py`
 - [~] T010 [P] [US1] Unit test for turnaround time calculation (wall-clock hours) in `tests/unit/test_time_calc.py`
 - [~] T011 [P] [US1] Contract test for `pull_request.schema.yaml` validation in `tests/contract/test_schema_validation.py`
 
 ### Implementation for User Story 1
 
-- [~] T012a [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoint: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` (and JS equivalent). Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
+- [ ] T012a [US1] Fetch a representative set of top Python and JavaScript repositories by star count using GitHub API endpoint: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc` (and JS equivalent). Save output to `data/raw/repos.json` as a list of objects with `name` and `stars` (FR-001)
 - [~] T012b [US1] For each repo from T012a, fetch all PRs and iterate through the list of commits for *each* PR to extract commit messages for classification (FR-001, Edge Case)
-- [~] T013 [US1] Implement logic in `code/fetch_data.py` to exclude PRs with missing `merged_at` timestamps and log exclusion counts (FR-010)
-- [~] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; ensure these repos are tracked for exclusion from final analysis (Edge Case)
-- [~] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
-- [~] T016 [US1] Implement turnaround time calculation in `code/fetch_data.py` as total calendar hours (merged_at - created_at) (FR-003)
+- [X] T013 [US1] Implement logic in `code/fetch_data.py` to exclude PRs with missing `merged_at` timestamps and log exclusion counts (FR-010)
+- [X] T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with < 50 PRs after filtering and log warnings; ensure these repos are tracked for exclusion from final analysis (Edge Case)
+- [X] T015 [US1] Implement classification logic in `code/fetch_data.py` to label PRs as AI-assisted or non-AI-labeled based on commit messages ("copilot", "ai-generated") and labels ("ai-generated", "copilot-assisted", "llm-code") (FR-002)
+- [X] T016 [US1] Implement turnaround time calculation in `code/fetch_data.py` as total calendar hours (merged_at - created_at) (FR-003)
 - [~] T017 [US1] Calculate and log median star count and median number of contributors for selected repositories (FR-013)
 - [~] T018 [US1] Save raw data to `data/raw/` and processed data to `data/processed/` with schema validation (FR-001)
 - [~] T018b [US1] Calculate overall data quality success rate (processed/total PRs). If < 95%, raise `DataQualityError` with message "Data quality threshold not met: X%" and halt pipeline. Otherwise, log success (SC-003)
-- [~] T019 [US1] Implement `code/validate_spot_check.py` to perform manual spot-check of a *stratified random sample* (n=50) of non-AI-labeled PRs. Stratification must be based on repository and PR size (number of files changed). Estimate false-negative rate (FR-011)
+- [X] T019 [US1] Implement `code/validate_spot_check.py` to perform manual spot-check of a *stratified random sample* (n=50) of non-AI-labeled PRs. Stratification must be based on repository and PR size (number of files changed). Estimate false-negative rate (FR-011)
 - [ ] T020 [US1] Save spot-check results to `data/spot_check/validation_report.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

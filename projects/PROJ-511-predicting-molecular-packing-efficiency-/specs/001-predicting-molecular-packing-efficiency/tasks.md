@@ -78,13 +78,13 @@
 > **NOTE**: Write these tests FIRST (TDD).
 > **Dependency Note**: While code can be written in parallel, execution depends on T004 (schema) and T012-T018 (implementation).
 
-- [~] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
-- [~] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
+- [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
+- [ ] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD with logging (FR-001, FR-017)
-- [~] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
+- [X] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD with logging (FR-001, FR-017)
+- [X] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
 - [ ] T015 [US1] Implement `code/compute_raw_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`**. This task must output both metrics clearly to allow downstream filtering.
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017)

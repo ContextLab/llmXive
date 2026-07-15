@@ -78,8 +78,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Unit test for memory watchdog in `tests/unit/test_memory.py`
-- [~] T012 [P] [US1] Unit test for bootstrap significance logic in `tests/unit/test_stats.py`
+- [X] T011 [P] [US1] Unit test for memory watchdog in `tests/unit/test_memory.py`
+- [X] T012 [P] [US1] Unit test for bootstrap significance logic in `tests/unit/test_stats.py`
 - [~] T014 [P] [US1] Integration test for full single cycle in `tests/integration/test_single_cycle.py`
 
 ### Implementation for User Story 1

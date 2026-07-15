@@ -62,7 +62,7 @@
 - [ ] T007 Create `data/processed/` directory structure and schema validation for derived metrics.
 - [~] T008 Implement `code/ablation.py` to perform a **full ablation study on the training set** (re-run engine with layers removed) to generate ground-truth utility labels. **Input**: `data/raw/trajectories.csv`. **Output**: `data/processed/ablation_labels_full.json` (schema: `{layer_id, utility_score}`). **Depends on**: T006 (Parser) and T005 (Entropy).
 - [~] T008b Implement `code/extractor.py` to convert ablation results into structured training labels. **Input**: `data/processed/ablation_labels_full.json`. **Output**: `data/processed/utility_labels.csv`. **Depends on**: T008.
-- [~] T008c Implement `code/validator.py` to check sample count (n < 300). If n < 300, log warning and trigger fallback to heuristic (fixed k=2). **Depends on**: T008b.
+- [X] T008c Implement `code/validator.py` to check sample count (n < 300). If n < 300, log warning and trigger fallback to heuristic (fixed k=2). **Depends on**: T008b.
 - [~] T014a [P] Implement `code/splitter.py` to perform stratified data split of the trajectories into training set and hold-out set (specifically a subset for hold-out). **Output**: `data/processed/train_set.csv`, `data/processed/holdout_set.csv`.
 - [~] T014 [US1] Implement proxy validation logic in `code/classifier.py`. **Logic**: Check Pearson correlation (≥ 0.7) between static logs (proxy) and ablation utility (ground truth) on the hold-out set (from T014a). **Output**: `data/processed/proxy_validation_report.json`. **Action**: Raise exception if r < 0.7. **Depends on**: T008b, T014a.
 - [~] T009 [US1] Implement `code/classifier.py` to train lightweight CPU-tractable models (Decision Tree/Logistic Regression). **Input**: `data/processed/utility_labels.csv` (ablation-derived ground-truth utility from T008b). **Target**: `utility_score`. **Split**: 80/20. **Output**: `models/layer_utility_classifier.pkl`. **Note**: Trains exclusively on ablation-derived ground truth. **Depends on**: T008b, T008c, T014 (must pass).
@@ -79,24 +79,24 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T012 [P] [US1] Unit test for entropy calculation edge cases (NaN, Inf, zero moves) in `tests/unit/test_entropy.py`.
-- [~] T013 [P] [US1] Unit test for token budget enforcement and minimum context floor in `tests/unit/test_simulator.py`.
+- [X] T012 [P] [US1] Unit test for entropy calculation edge cases (NaN, Inf, zero moves) in `tests/unit/test_entropy.py`.
+- [X] T013 [P] [US1] Unit test for token budget enforcement and minimum context floor in `tests/unit/test_simulator.py`.
 
 ### Implementation for User Story 1 (Dynamic Policy)
 
-- [~] T015 [US1] Implement dynamic layer selection logic in `code/simulator.py`. **Logic**: Use trained model (T009) to predict top-k layers based on current turn entropy, **integrating** this prediction with the token budget constraint logic (4096 tokens). **Depends on**: T009.
-- [~] T016 [US1] Add logic to enforce a hard token budget and a minimum context floor in `code/simulator.py`. **Error Condition**: If predicted token count > 4096, the system MUST **truncate or prune the least useful layers** until the prompt size is ≤ 4096. It MUST NOT fallback to full layers if that exceeds the budget. **Depends on**: T015.
-- [~] T017 [US1] Add logging for layer selection decisions and entropy values in `code/simulator.py`.
+- [X] T015 [US1] Implement dynamic layer selection logic in `code/simulator.py`. **Logic**: Use trained model (T009) to predict top-k layers based on current turn entropy, **integrating** this prediction with the token budget constraint logic (4096 tokens). **Depends on**: T009.
+- [X] T016 [US1] Add logic to enforce a hard token budget and a minimum context floor in `code/simulator.py`. **Error Condition**: If predicted token count > 4096, the system MUST **truncate or prune the least useful layers** until the prompt size is ≤ 4096. It MUST NOT fallback to full layers if that exceeds the budget. **Depends on**: T015.
+- [X] T017 [US1] Add logging for layer selection decisions and entropy values in `code/simulator.py`.
 
 ### Implementation for User Story 2 (Baselines & Aggregation)
 
 **Note**: Baselines (T019, T020) are moved here to ensure they run after Dynamic Policy (T015) logic is established, enabling T021 aggregation.
 
-- [~] T019 [US2] Implement "Static All-Layers" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
-- [~] T020 [US2] Implement "No-Store Random" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
-- [~] T021 [US2] Create aggregation script `code/stats.py` to compute average win rate and token usage per condition. **Input**: Outputs from T015, T019, T020.
-- [~] T022 [US2] Generate summary CSV output in `data/processed/baseline_comparison.csv`. **Schema**: `condition, win_rate, avg_tokens`. **Aggregation Logic**: Mean of win_rate and token columns grouped by condition.
-- [~] T022a [US2] Implement verification logic to calculate percentage reduction in token usage. **Output**: Generate `data/processed/token_reduction_verification.json` containing a boolean field `passed` (true if reduction ≥ 30%). **Build Logic**: The build pipeline MUST fail if `passed` is false. **Input**: `data/processed/baseline_comparison.csv`. **Output**: `data/processed/token_reduction_verification.json`.
+- [X] T019 [US2] Implement "Static All-Layers" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
+- [X] T020 [US2] Implement "No-Store Random" baseline execution in `code/simulator.py`. **Depends on**: T015 (for shared engine logic).
+- [X] T021 [US2] Create aggregation script `code/stats.py` to compute average win rate and token usage per condition. **Input**: Outputs from T015, T019, T020.
+- [ ] T022 [US2] Generate summary CSV output in `data/processed/baseline_comparison.csv`. **Schema**: `condition, win_rate, avg_tokens`. **Aggregation Logic**: Mean of win_rate and token columns grouped by condition.
+- [ ] T022a [US2] Implement verification logic to calculate percentage reduction in token usage. **Output**: Generate `data/processed/token_reduction_verification.json` containing a boolean field `passed` (true if reduction ≥ 30%). **Build Logic**: The build pipeline MUST fail if `passed` is false. **Input**: `data/processed/baseline_comparison.csv`. **Output**: `data/processed/token_reduction_verification.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,13 +110,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T023 [P] [US3] Unit test for McNemar's test selection logic (binary data) in `tests/unit/test_stats.py`.
-- [~] T024 [P] [US3] Unit test for Bonferroni correction application in `tests/unit/test_stats.py`.
+- [X] T023 [P] [US3] Unit test for McNemar's test selection logic (binary data) in `tests/unit/test_stats.py`.
+- [X] T024 [P] [US3] Unit test for Bonferroni correction application in `tests/unit/test_stats.py`.
 
 ### Implementation for User Story 3
 
 - [~] T024a [US3] Implement trajectory divergence detection in `code/stats.py`. **Logic**: Analyze paired trajectories from Dynamic vs Static runs to detect non-deterministic divergence (e.g., different final states from same start). **Output**: `data/processed/divergence_report.json` (boolean `is_divergent`). **Depends on**: T021.
-- [~] T025 [US3] Implement statistical testing logic in `code/stats.py`. **Logic**:
+- [X] T025 [US3] Implement statistical testing logic in `code/stats.py`. **Logic**:
  1. Read `divergence_report.json` (T024a).
  2. If `is_divergent` is true, execute **Permutation Test** (or Z-test) for win/loss outcomes.
  3. If `is_divergent` is false (paired/deterministic), execute **McNemar's test**.

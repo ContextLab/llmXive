@@ -85,11 +85,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
+- [ ] T013 [US1] Implement `src/data_generation.py`: Generate BBH waveforms (IMRPhenomPv) with masses [10, 50] $M_\odot$ and distances [100, 1000] Mpc.
 - [~] T013a [US1] Verify that the stratified bins (8-14, 14-20, 20-30, 30-50) collectively cover the full [8, 50] range, and that individual injected signals meet the ±0.5 SNR tolerance (US-1 Acceptance Scenario 1)
-- [~] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for all required bit depths:, 8, 10, 12, 14, and 16 bits (FR-002)
-- [~] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
-- [~] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size < 4GB and checksum recorded in `state.yaml`
+- [ ] T014 [US1] Implement `src/data_generation.py`: Apply Fixed Full-Scale Range (FSR) quantization for all required bit depths:, 8, 10, 12, 14, and 16 bits (FR-002)
+- [ ] T015 [US1] [after T014] Implement `src/data_generation.py`: Generate parallel float64 baseline waveforms for every quantized signal (FR-007)
+- [ ] T016 [US1] [after T015] Save output dataset to `data/processed/waveforms_pilot_{seed}.h5` in HDF5 format, ensuring batch size fits 7 GB RAM limit; verify file size < 4GB and checksum recorded in `state.yaml`
 - [~] T017 [US1] Add validation: verify quantized signals contain **no more than** $2^N$ unique levels (accounting for signal amplitude clipping) and SNR tolerance ±0.5
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,9 +109,9 @@
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
-- [~] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 10, 12, 14, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 1200 signals/run (full FR-002 set)
-- [~] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
+- [ ] T020 [P] [US2] Implement `src/inference_engine.py`: CPU-optimized Bilby/PyCBC-Inference wrapper with Uniform MCMC (fixed steps)
+- [ ] T021 [US2] Implement `src/inference_engine.py`: Stratified batch processing loop for bit depths (1, 8, 10, 12, 14, 16) × SNR bins (8-14, 14-20, 20-30, 30-50) × 50 signals = 1200 signals/run (full FR-002 set)
+- [ ] T022 [US2] Implement `src/inference_engine.py`: Parallel execution strategy to fit within 6-hour CI limit (2 cores)
 - [~] T023 [US2] Compute MSE between injected ground-truth and recovered posterior means for chirp mass, spin, and distance
 - [~] T024 [US2] Save inference results to `data/results/inference_pilot_{seed}.json` as JSON/CSV, including 90% credible intervals
 - [~] T025 [US2] Handle edge cases: record "non-detections" for SNR < 8 or failed convergence instead of crashing
@@ -128,8 +128,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for threshold fitting: verify crossover detection logic in `tests/unit/test_analysis.py`
-- [~] T027 [P] [US3] Integration test for reproducibility: verify std dev of crossover SNR < 0.5 across 10 runs in `tests/integration/test_reproducibility.py`
+- [X] T026 [P] [US3] Unit test for threshold fitting: verify crossover detection logic in `tests/unit/test_analysis.py`
+- [X] T027 [P] [US3] Integration test for reproducibility: verify std dev of crossover SNR < 0.5 across 10 runs in `tests/integration/test_reproducibility.py`
 
 ### Implementation for User Story 3
 

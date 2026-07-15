@@ -47,11 +47,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T015 Initialize Python 3.11 project: Create `requirements.txt` (pandas, numpy, scikit-learn, pyyaml, requests, pytest, pytest-cov) and create virtualenv at `.venv`
-- [~] T016 [P] Configure linting: Create `.flake8` and `pyproject.toml` with formatting rules for black/flake8
-- [~] T017 Create `code/utils.py` with logging configuration (JSON format) and chunking helpers (function signatures: `estimate_ram`, `process_chunked`)
-- [~] T018 Implement memory-safe chunking logic in `code/utils.py`: Implement `process_chunked` function with dynamic chunksize adjustment; **Fallback**: if memory estimation fails or total size unknown, force batch size to ≤1000 samples
-- [~] T019 Create `data/metadata/descriptor_sources.yaml` with pinned versions of elemental property tables; **Requirement**: Must record the exact source (e.g., "Materials Project v2024", "GFA-DB v1.0") for *each* descriptor instance computed
+- [X] T015 Initialize Python 3.11 project: Create `requirements.txt` (pandas, numpy, scikit-learn, pyyaml, requests, pytest, pytest-cov) and create virtualenv at `.venv`
+- [X] T016 [P] Configure linting: Create `.flake8` and `pyproject.toml` with formatting rules for black/flake8
+- [X] T017 Create `code/utils.py` with logging configuration (JSON format) and chunking helpers (function signatures: `estimate_ram`, `process_chunked`)
+- [X] T018 Implement memory-safe chunking logic in `code/utils.py`: Implement `process_chunked` function with dynamic chunksize adjustment; **Fallback**: if memory estimation fails or total size unknown, force batch size to ≤1000 samples
+- [X] T019 Create `data/metadata/descriptor_sources.yaml` with pinned versions of elemental property tables; **Requirement**: Must record the exact source (e.g., "Materials Project v2024", "GFA-DB v1.0") for *each* descriptor instance computed
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,18 +67,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T020 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [X] T020 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
 - [~] T021 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T022 [US1] Implement `code/data_ingestion.py` fetch logic: Define Zenodo GFA-DB as primary source (API endpoint: `) and Materials Project as fallback; implement fetching with retry logic, exponential backoff, and graceful failure for 503; **Output**: Raw data in `data/raw/`
+- [X] T022 [US1] Implement `code/data_ingestion.py` fetch logic: Define Zenodo GFA-DB as primary source (API endpoint: `) and Materials Project as fallback; implement fetching with retry logic, exponential backoff, and graceful failure for 503; **Output**: Raw data in `data/raw/`
 - [~] T023 [US1] Implement `code/data_ingestion.py` fallback: Generate synthetic dataset (Inoue's rules) **only for code testing** in `data/raw/synthetic_fallback.csv`; implement `generate_synthetic_dataset` function; **Requirement**: If synthetic mode is active, pipeline MUST halt with `SYNTHETIC_ONLY` error before any metric calculation or report generation to prevent accidental inclusion in final results
-- [~] T024 [US1] Implement `code/data_ingestion.py` chunked processing: Read CSV in batches of ≤1000, estimate RAM, adjust chunksize dynamically; enforce fallback to ≤1000 if memory exceeds limit
+- [X] T024 [US1] Implement `code/data_ingestion.py` chunked processing: Read CSV in batches of ≤1000, estimate RAM, adjust chunksize dynamically; enforce fallback to ≤1000 if memory exceeds limit
 - [~] T025 [US1] Implement `code/data_ingestion.py` schema validation: Verify `composition` and `gfa_label` (or `critical_cooling_rate`); apply threshold `Rc < 100 K/s` if needed; **Output**: Filtered CSV `data/processed/validated_compositions.csv` and log of excluded samples
-- [~] T026 [US1] Create `code/descriptor_computation.py` with standardized elemental property lookup using `data/metadata/descriptor_sources.yaml`; define formulas: ΔHmix, δ, VEC, Δχ
-- [~] T027 [US1] Implement `code/descriptor_computation.py` to compute ΔHmix, δ, VEC, Δχ for each sample using the defined formulas
-- [~] T028 [US1] Implement `code/descriptor_computation.py` logic to flag and exclude samples with missing elemental data (log entry required)
+- [X] T026 [US1] Create `code/descriptor_computation.py` with standardized elemental property lookup using `data/metadata/descriptor_sources.yaml`; define formulas: ΔHmix, δ, VEC, Δχ
+- [X] T027 [US1] Implement `code/descriptor_computation.py` to compute ΔHmix, δ, VEC, Δχ for each sample using the defined formulas
+- [X] T028 [US1] Implement `code/descriptor_computation.py` logic to flag and exclude samples with missing elemental data (log entry required)
 - [ ] T029 [US1] Run `code/descriptor_computation.py` to generate `data/processed/computed_descriptors.csv` with all computed features and original composition; **Depends on**: T023 (if testing) or T022 (if production)
 - [ ] T030 [P] [US1] Unit test for descriptor computation formulas in `tests/unit/test_descriptors.py`
 

@@ -44,7 +44,7 @@
  contents: |
  ^) -->
 - [ ] T007 Create base data models in `code/data_models.py` (GameRecord, TeamMetrics, ModelResult)
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
+- [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
 - [~] T009 Setup environment configuration management: create `.env.example` file with variables `DATA_PATH`, `RANDOM_SEED`, `CI_MODE`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -61,15 +61,15 @@
 
 ### Implementation for User Story 1
 
-- [~] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
-- [~] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
-- [~] T012b [US1] Implement logic to document 'Synthetic Fallback' status in `artifacts/reports/final_report.json` if Synthetic Mode is triggered, explicitly framing results as 'Validation-Only' to satisfy FR-001 real-data requirement distinction. **Depends on: T012a**
-- [~] T013a [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Traditional Metrics** (AVG, ERA) per game.
-- [~] T013b [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Advanced Metrics** (wOBA, BABIP, park-adjusted run expectancy) per game.
-- [~] T014 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for handling missing advanced metrics (impute with league average for that year or exclude systemic missingness).
-- [~] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight).
+- [ ] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
+- [ ] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
+- [ ] T012b [US1] Implement logic to document 'Synthetic Fallback' status in `artifacts/reports/final_report.json` if Synthetic Mode is triggered, explicitly framing results as 'Validation-Only' to satisfy FR-001 real-data requirement distinction. **Depends on: T012a**
+- [X] T013a [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Traditional Metrics** (AVG, ERA) per game.
+- [X] T013b [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Advanced Metrics** (wOBA, BABIP, park-adjusted run expectancy) per game.
+- [X] T014 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for handling missing advanced metrics (impute with league average for that year or exclude systemic missingness).
+- [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight).
 - [~] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
-- [~] T016b [US1] **Depends on: T016a**: Generate evidence artifact `artifacts/reports/data_completeness_report.json` containing the completeness rate and the 'Empirical Hypothesis Untested' flag if applicable (satisfies SC-005 measurability).
+- [ ] T016b [US1] **Depends on: T016a**: Generate evidence artifact `artifacts/reports/data_completeness_report.json` containing the completeness rate and the 'Empirical Hypothesis Untested' flag if applicable (satisfies SC-005 measurability).
 - [ ] T017 [US1] **Depends on: T016b**: Add logging for data ingestion stats, synthetic fallback triggers, and imputation actions.
 - [ ] T018 [P] [US1] Write unit tests for wOBA/BABIP calculation formulas in `tests/test_feature_engineering.py`
 

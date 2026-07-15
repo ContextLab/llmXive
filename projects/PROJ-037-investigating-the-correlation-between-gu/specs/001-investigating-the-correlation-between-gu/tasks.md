@@ -59,9 +59,9 @@
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`
 - [ ] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
 - [~] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.)
-- [~] T006b [P] Implement validation logic in `code/utils/validators.py` to check non-null constraints and data types for the merged cohort
-- [~] T007 [P] Setup random seed management for reproducibility in `code/utils/seeding.py`
-- [~] T008 [P] Create base configuration loader for environment variables in `code/config.py`
+- [X] T006b [P] Implement validation logic in `code/utils/validators.py` to check non-null constraints and data types for the merged cohort
+- [X] T007 [P] Setup random seed management for reproducibility in `code/utils/seeding.py`
+- [ ] T008 [P] Create base configuration loader for environment variables in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,18 +77,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for data merging logic in `tests/test_ingestion.py` (verify N calculation)
-- [~] T010 [P] [US1] Unit test for missing data imputation logic in `tests/test_ingestion.py`
+- [X] T009 [P] [US1] Unit test for data merging logic in `tests/test_ingestion.py` (verify N calculation)
+- [X] T010 [P] [US1] Unit test for missing data imputation logic in `tests/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [P] [US1] Implement `code/ingestion.py` to download American Gut Project 16S rRNA data (using `biom-format` and `skbio` for parsing; manual download via `requests` or `wget` from canonical URLs) and Open Humans sleep metadata; verify data integrity via checksums
-- [~] T012 [US1] Implement merge logic in `code/ingestion.py` to join datasets on Participant ID; if no matches found (N=0), log a WARNING "No matching participants found; proceeding with available sample size" to `logs/ingestion.log` and continue execution (do NOT exit with code 1)
-- [~] T013 [US1] Implement filtering logic in `code/ingestion.py` to exclude participants with missing sleep/microbiome data
-- [~] T014 [US1] Implement outlier capping for sleep duration (<2h or >16h) at 1st/99th percentiles in `code/ingestion.py`
-- [~] T015 [US1] Implement covariate imputation (median/mode) for BMI, age, antibiotic history in `code/ingestion.py`
-- [~] T016 [US1] Generate summary report in `code/ingestion.py` listing the **exact retained participant count (N)** and distribution of key covariates (age, BMI, antibiotic use)
-- [~] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv`
+- [X] T011 [P] [US1] Implement `code/ingestion.py` to download American Gut Project 16S rRNA data (using `biom-format` and `skbio` for parsing; manual download via `requests` or `wget` from canonical URLs) and Open Humans sleep metadata; verify data integrity via checksums
+- [X] T012 [US1] Implement merge logic in `code/ingestion.py` to join datasets on Participant ID; if no matches found (N=0), log a WARNING "No matching participants found; proceeding with available sample size" to `logs/ingestion.log` and continue execution (do NOT exit with code 1)
+- [X] T013 [US1] Implement filtering logic in `code/ingestion.py` to exclude participants with missing sleep/microbiome data
+- [X] T014 [US1] Implement outlier capping for sleep duration (<2h or >16h) at 1st/99th percentiles in `code/ingestion.py`
+- [X] T015 [US1] Implement covariate imputation (median/mode) for BMI, age, antibiotic history in `code/ingestion.py`
+- [X] T016 [US1] Generate summary report in `code/ingestion.py` listing the **exact retained participant count (N)** and distribution of key covariates (age, BMI, antibiotic use)
+- [ ] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,21 +102,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for alpha diversity calculation in `tests/test_analysis.py`
-- [~] T019 [P] [US2] Unit test for FDR correction logic in `tests/test_analysis.py`
+- [X] T018 [P] [US2] Unit test for alpha diversity calculation in `tests/test_analysis.py`
+- [X] T019 [P] [US2] Unit test for FDR correction logic in `tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/diversity.py` to calculate Alpha diversity (Shannon, Simpson) and Beta diversity (Bray-Curtis) per participant
-- [~] T021 [US2] Implement `code/analysis.py` to perform Spearman/Pearson correlation tests between diversity metrics and sleep variables (duration, quality, chronotype)
-- [~] T022 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` for all p-values
-- [~] T023 [US2] Implement distance-based redundancy analysis (dbRDA) in `code/analysis.py` for non-linear screening of sleep vs. beta diversity
-- [~] T024 [US2] Implement Generalized Linear Model (GLM) in `code/analysis.py` adjusting for confounders (age, BMI, diet type, medication, antibiotic history); **Note**: Explicitly flag that "diet timing" (required by FR-004) is unavailable in AGP and "diet type" is used as a substitute per plan mitigation; document this requirement deviation in the output report.
-- [~] T025 [US2] Implement PERMANOVA in `code/analysis.py` strictly for categorical sleep variables (not continuous); use dbRDA for continuous variables as per plan mitigation.
+- [X] T020 [P] [US2] Implement `code/diversity.py` to calculate Alpha diversity (Shannon, Simpson) and Beta diversity (Bray-Curtis) per participant
+- [X] T021 [US2] Implement `code/analysis.py` to perform Spearman/Pearson correlation tests between diversity metrics and sleep variables (duration, quality, chronotype)
+- [X] T022 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` for all p-values
+- [X] T023 [US2] Implement distance-based redundancy analysis (dbRDA) in `code/analysis.py` for non-linear screening of sleep vs. beta diversity
+- [X] T024 [US2] Implement Generalized Linear Model (GLM) in `code/analysis.py` adjusting for confounders (age, BMI, diet type, medication, antibiotic history); **Note**: Explicitly flag that "diet timing" (required by FR-004) is unavailable in AGP and "diet type" is used as a substitute per plan mitigation; document this requirement deviation in the output report.
+- [X] T025 [US2] Implement PERMANOVA in `code/analysis.py` strictly for categorical sleep variables (not continuous); use dbRDA for continuous variables as per plan mitigation.
 - [~] T026 [US2] Generate heatmap of taxa-sleep associations in `code/viz.py` and save to `data/outputs/heatmap.png`
 - [~] T027 [US2] Generate PCoA ordination plot colored by sleep quality scores in `code/viz.py` and save to `data/outputs/pcoa_sleep_quality.png`
-- [~] T028 [US2] Generate final results table in `data/outputs/correlation_results.csv` including effect sizes, p-values, and FDR-corrected p-values
-- [~] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
+- [ ] T028 [US2] Generate final results table in `data/outputs/correlation_results.csv` including effect sizes, p-values, and FDR-corrected p-values
+- [ ] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,8 +130,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T030 [P] [US3] Unit test for bootstrap resampling logic in `tests/test_validation.py`
-- [~] T031 [P] [US3] Unit test for sensitivity sweep logic in `tests/test_validation.py`
+- [X] T030 [P] [US3] Unit test for bootstrap resampling logic in `tests/test_validation.py`
+- [X] T031 [P] [US3] Unit test for sensitivity sweep logic in `tests/test_validation.py`
 
 ### Implementation for User Story 3
 

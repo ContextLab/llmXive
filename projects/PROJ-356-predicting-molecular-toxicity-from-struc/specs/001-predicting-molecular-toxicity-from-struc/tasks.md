@@ -60,8 +60,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T009 Create `contracts/` directory with `dataset.schema.yaml`, `model_output.schema.yaml`, and `alerts.schema.yaml`
-- [~] T010 [P] Implement `config/structural_alerts.json` with a curated set of SMARTS patterns and weights:
+- [ ] T009 Create `contracts/` directory with `dataset.schema.yaml`, `model_output.schema.yaml`, and `alerts.schema.yaml`
+- [ ] T010 [P] Implement `config/structural_alerts.json` with a curated set of SMARTS patterns and weights:
  1. NitroAromatic: `[*;a]([N+](=O)[O-])` (weight: 1.5)
  2. Epoxide: `[C;D3]1[O;D1][C;D3]1` (weight: 2.0)
  3. PrimaryAromaticAmine: `[N;D1;H2][c]` (weight: 1.2)
@@ -73,8 +73,8 @@
  9. Azo: `[N;D1]=[N;D1]` (weight: 1.8)
  10. Hydrazine: `[N;D1][N;D1]` (weight: 1.5)
  (FR-003)
-- [~] T011 [P] Create `src/pipeline/run.py` orchestration skeleton with CLI argument parsing
-- [~] T012 Create `src/config/__init__.py` and environment variable management for paths
+- [ ] T011 [P] Create `src/pipeline/run.py` orchestration skeleton with CLI argument parsing
+- [ ] T012 Create `src/config/__init__.py` and environment variable management for paths
 - [ ] T013 Implement `src/scripts/update_state.py` for artifact hashing and state file updates
 - [ ] T014 Setup logging infrastructure in `src/utils/logger.py` to capture data counts, errors, and checksums
 

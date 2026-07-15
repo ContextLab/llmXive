@@ -58,9 +58,9 @@
 - [X] T004 Create `contracts/aligned_event.schema.yaml` defining SolarFlareEvent, CMEEvent, GeomagneticStorm, and AlignedEvent entities
 - [X] T005 [P] Create `contracts/metrics.schema.yaml` defining correlation coefficients, p-values, R², VIF, and threshold metrics
 - [X] T006 [P] Implement `code/versioning.py` for SHA-256 hashing and state file updates (`state/projects/PROJ-031-...yaml`)
-- [~] T006b [P] [Setup Only] Define the `code/profiler.py` interface and configuration for end-to-end timing and peak RAM measurement. **This task MUST NOT execute the final profiling run; it only sets up the module. The actual execution to measure total pipeline time MUST occur in Phase N (T045) after all metric writers complete.**
-- [~] T007 [P] Setup `data/source_manifest.yaml` structure for tracking FTP/HTTP URLs and retrieval timestamps
-- [~] T008 Create base `code/__init__.py` and directory structure (`data/raw`, `data/processed`, `results`, `code`, `tests`)
+- [X] T006b [P] [Setup Only] Define the `code/profiler.py` interface and configuration for end-to-end timing and peak RAM measurement. **This task MUST NOT execute the final profiling run; it only sets up the module. The actual execution to measure total pipeline time MUST occur in Phase N (T045) after all metric writers complete.**
+- [X] T007 [P] Setup `data/source_manifest.yaml` structure for tracking FTP/HTTP URLs and retrieval timestamps
+- [X] T008 Create base `code/__init__.py` and directory structure (`data/raw`, `data/processed`, `results`, `code`, `tests`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,20 +76,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Contract test for `aligned_events.csv` schema validation in `tests/contract/test_aligned_event.py` (Function: `test_aligned_event_schema_valid`, Assert: `schema.validate(data)` using a mock fixture with valid schema-compliant JSON)
-- [~] T010 [P] [US1] Integration test for full download-and-align flow in `tests/integration/test_ingest_align.py` (Function: `test_full_ingest_align_flow`, Assert: `os.path.exists(aligned_csv) and len(df) > 0` using a mocked FTP response with 100 rows of synthetic but schema-valid data)
+- [X] T009 [P] [US1] Contract test for `aligned_events.csv` schema validation in `tests/contract/test_aligned_event.py` (Function: `test_aligned_event_schema_valid`, Assert: `schema.validate(data)` using a mock fixture with valid schema-compliant JSON)
+- [X] T010 [P] [US1] Integration test for full download-and-align flow in `tests/integration/test_ingest_align.py` (Function: `test_full_ingest_align_flow`, Assert: `os.path.exists(aligned_csv) and len(df) > 0` using a mocked FTP response with 100 rows of synthetic but schema-valid data)
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/` (≥10 years)
-- [~] T012 [US1] Implement `code/ingest.py` to retrieve CME catalog data (speed, width, direction) from CDAWeb SOHO/LASCO
-- [~] T012b [US1] Implement `code/ingest.py` utility to verify the CDAWeb SOHO/LASCO URL is reachable and returns valid data; update `data/source_manifest.yaml` with "Unverified" status if verification fails, per Plan Constitution Check strategy.
+- [X] T011 [US1] Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/` (≥10 years)
+- [X] T012 [US1] Implement `code/ingest.py` to retrieve CME catalog data (speed, width, direction) from CDAWeb SOHO/LASCO
+- [X] T012b [US1] Implement `code/ingest.py` utility to verify the CDAWeb SOHO/LASCO URL is reachable and returns valid data; update `data/source_manifest.yaml` with "Unverified" status if verification fails, per Plan Constitution Check strategy.
 - [~] T013 [US1] Implement `code/ingest.py` to download Dst indices from NOAA SWPC and write to `data/raw/dst_indices.csv`
 - [~] T013b [US1] Implement `code/ingest.py` to download Kp indices from NOAA SWPC and write to `data/raw/kp_indices.csv`; validate against schema
-- [~] T014 [US1] Implement `code/align.py` to identify Dst minima (storms) independently, then match preceding solar events within ≤3-day window
-- [~] T015 [US1] Implement `code/align.py` logic to flag missing solar predictors as null (do NOT exclude events) and handle "no match found" cases
+- [X] T014 [US1] Implement `code/align.py` to identify Dst minima (storms) independently, then match preceding solar events within ≤3-day window
+- [X] T015 [US1] Implement `code/align.py` logic to flag missing solar predictors as null (do NOT exclude events) and handle "no match found" cases
 - [~] T016 [US1] Implement logic to flag recurrent activity periods (distinct minima separated by <24 hours of recovery) in the primary `aligned_events.csv` with a `is_recurrent` flag. **This task MUST NOT exclude events from the primary dataset; exclusion for analysis MUST happen in a derived subset.**
-- [~] T016b [US1] Implement logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv` for use in correlation analysis (US2). **This task explicitly creates the filtered subset to satisfy the 'no exclusion' rule for the primary dataset while enabling the analysis requirement.**
+- [ ] T016b [US1] Implement logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv` for use in correlation analysis (US2). **This task explicitly creates the filtered subset to satisfy the 'no exclusion' rule for the primary dataset while enabling the analysis requirement.**
 - [~] T018 [US1] Add validation in `code/validate.py` to check `aligned_events.csv` against `contracts/aligned_event.schema.yaml`. **This validation MUST block the writing of `aligned_events.csv` and the update of `data/source_manifest.yaml` if validation fails.**
 - [ ] T017 [US1] Write `data/processed/aligned_events.csv` and update `data/source_manifest.yaml` with checksums (only if T018 passes)
 - [ ] T019 [US1] Add logging for data quality metrics (counts of missing CME speeds, flares, etc.)

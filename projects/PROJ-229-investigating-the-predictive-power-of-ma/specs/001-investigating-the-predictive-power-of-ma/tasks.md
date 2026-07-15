@@ -75,8 +75,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
-- [~] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete.
+- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
+- [ ] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete.
 
 ### Implementation for User Story1
 

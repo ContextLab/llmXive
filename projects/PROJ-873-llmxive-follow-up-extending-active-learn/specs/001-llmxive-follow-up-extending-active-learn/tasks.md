@@ -84,15 +84,15 @@
 
 - [ ] T012 [US1] Implement synthetic redundancy injection in `code/data_loader.py` (synonym replacement via NLTK WordNet, sentence shuffling) to create multiple clusters of 3–5 near-duplicates per dataset, serving FR-002
 - [~] T012a [US1] Verify that the injected dataset contains at least 20 clusters of 3–5 near-duplicate items, asserting FR-002 compliance before proceeding, serving FR-002
-- [~] T013 [US1] Implement cosine similarity proxy calculation in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003
-- [~] T014 [US1] Implement LLM consensus validation logic in `code/ranker.py` to estimate ground truth accuracy of the proxy on a sampled set of flagged calls, serving FR-003 <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement cosine similarity proxy calculation in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity > 0.95 as "wasted", serving FR-003
+- [X] T014 [US1] Implement LLM consensus validation logic in `code/ranker.py` to estimate ground truth accuracy of the proxy on a sampled set of flagged calls, serving FR-003 <!-- FAILED: unspecified -->
 - [~] T013c [US1] Calculate the dynamic sample size for LLM consensus validation using the formula: min([deferred] of total flagged calls, a predefined upper bound)., serving FR-003
 - [~] T013b [US1] Filter logged comparisons from T013 for similarity > 0.95, calculate the sample size using T013c, and select a stratified random sample for validation, serving FR-003
-- [~] T015 [US1] Implement baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003
+- [X] T015 [US1] Implement baseline active ranker execution loop in `code/ranker.py` that processes the full candidate list without clustering, serving FR-003
 - [~] T015a [US1] Generate the "unique subset" of the candidate list by removing near-duplicates identified in T012, serving US-1
 - [~] T015b [US1] Run the baseline active ranker against the unique subset generated in T015a (after T012 injection) to establish the reference NDCG@10, and explicitly calculate and log the NDCG@10 drop percentage to test the "[deferred] lower" hypothesis in US-1, serving US-1
-- [~] T016 [US1] Implement NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004
-- [~] T017 [US1] Validate synthetic redundancy against a small set of real-world near-duplicates from BEIR `trec-covid` in `code/data_loader.py` to ensure generalizability, serving FR-009
+- [X] T016 [US1] Implement NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004
+- [X] T017 [US1] Validate synthetic redundancy against a small set of real-world near-duplicates from BEIR `trec-covid` in `code/data_loader.py` to ensure generalizability, serving FR-009
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Baseline behavior on redundant data)
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard threshold > 0.95 in `tests/unit/test_clustering.py`
+- [X] T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard threshold > 0.95 in `tests/unit/test_clustering.py`
 - [~] T019 [P] [US2] Integration test for full pipeline execution with resource limits in `tests/integration/test_full_pipeline.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement MinHash-LSH algorithm in `code/clustering.py` to group near-duplicate passages with Jaccard similarity > 0.95, serving FR-001
-- [~] T021 [US2] Implement pre-clustering filter logic in `code/ranker.py` to reduce the candidate pool before ranking (using output from T015), ensuring pool size reduction >= 30%; if reduction < 30%, abort execution and log a constraint violation, serving US-2
-- [~] T022 [US2] Implement NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004
-- [~] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006
-- [~] T024 [US2] Validate correlation between Jaccard (MinHash) and Cosine (Embeddings) similarity on a labeled subset in `code/metrics.py`, serving FR-008
-- [~] T025 [US2] Implement parameter sweep for MinHash-LSH threshold in `code/run_pipeline.py` to measure sensitivity of NDCG recovery, serving SC-005
-- [~] T025a [US2] Compare resulting NDCG curves from T025 against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005
+- [X] T020 [P] [US2] Implement MinHash-LSH algorithm in `code/clustering.py` to group near-duplicate passages with Jaccard similarity > 0.95, serving FR-001
+- [X] T021 [US2] Implement pre-clustering filter logic in `code/ranker.py` to reduce the candidate pool before ranking (using output from T015), ensuring pool size reduction >= 30%; if reduction < 30%, abort execution and log a constraint violation, serving US-2
+- [X] T022 [US2] Implement NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004
+- [X] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006
+- [X] T024 [US2] Validate correlation between Jaccard (MinHash) and Cosine (Embeddings) similarity on a labeled subset in `code/metrics.py`, serving FR-008
+- [X] T025 [US2] Implement parameter sweep for MinHash-LSH threshold in `code/run_pipeline.py` to measure sensitivity of NDCG recovery, serving SC-005
+- [X] T025a [US2] Compare resulting NDCG curves from T025 against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Baseline vs. Clustering-Aided comparison)
 
@@ -131,14 +131,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US3] Unit test for Wilcoxon signed-rank test implementation and Bonferroni correction in `tests/unit/test_metrics.py`
+- [X] T026 [P] [US3] Unit test for Wilcoxon signed-rank test implementation and Bonferroni correction in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [~] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants
-- [~] T028 [US3] Implement Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005
-- [~] T029 [US3] Implement Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005
-- [~] T030 [US3] Apply Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007
+- [X] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants
+- [X] T028 [US3] Implement Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005
+- [X] T029 [US3] Implement Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005
+- [X] T030 [US3] Apply Bonferroni correction for multiple hypothesis testing (NDCG and efficiency) in `code/metrics.py`, serving FR-007
 - [ ] T031 [US3] Generate final statistical report in `data/results/statistical_report.md` explicitly including Bonferroni-corrected p-values and "wasted call" ratio metrics as required by FR-007 and SC-003, serving US-3
 
 **Checkpoint**: All user stories should now be independently functional and statistically validated

@@ -62,7 +62,7 @@ Examples of foundational tasks (adjust based on your project):
  - **DEPENDS_ON**: T007
 - [X] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
 - [~] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (≥192 bytes)
-- [~] T008 [P] Configure GitHub Actions workflow `.github/workflows/benchmark.yml` with `ubuntu-latest`, timeout 6h, and steps for build, run, and analysis
+- [ ] T008 [P] Configure GitHub Actions workflow `.github/workflows/benchmark.yml` with `ubuntu-latest`, timeout 6h, and steps for build, run, and analysis
 - [~] T009 [P] Setup environment configuration for `run_benchmarks.sh` to handle core pinning via `taskset` and output directory creation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,9 +79,9 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T012 [US1] Unit test for `verify_layout.cpp` output validation in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/unit/test_layout.cpp`
+- [X] T012 [US1] Unit test for `verify_layout.cpp` output validation in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/unit/test_layout.cpp`
  - **DEPENDS_ON**: T005 (verify_layout.cpp must be built first)
-- [~] T013 [US1] Integration test for build script `build.sh` success in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_build.sh`
+- [X] T013 [US1] Integration test for build script `build.sh` success in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_build.sh`
  - **DEPENDS_ON**: T015
 
 ### Implementation for User Story 1
@@ -103,8 +103,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
-- [~] T020 [P] [US2] Integration test for `run_benchmarks.sh` generating a set of samples in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_benchmark_run.sh`
+- [ ] T019 [P] [US2] Contract test for CSV output schema in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/contract/test_csv_schema.py`
+- [X] T020 [P] [US2] Integration test for `run_benchmarks.sh` generating a set of samples in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/tests/integration/test_benchmark_run.sh`
 
 ### Implementation for User Story 2
 

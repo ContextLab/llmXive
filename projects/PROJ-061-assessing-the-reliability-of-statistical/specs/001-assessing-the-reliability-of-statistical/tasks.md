@@ -66,8 +66,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5) using `statsmodels`
-- [~] T013 [US1] Implement `code/power_empirical.py`: Bootstrap simulation engine with a **fixed [deferred] iterations** (configurable via `code/config.py`) preserving data distribution <!-- FAILED: unspecified -->
+- [X] T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5) using `statsmodels`
+- [X] T013 [US1] Implement `code/power_empirical.py`: Bootstrap simulation engine with a **fixed [deferred] iterations** (configurable via `code/config.py`) preserving data distribution <!-- FAILED: unspecified -->
 - [~] T014 [US1] Implement main pipeline logic in `code/main.py` to load dataset (from T004a list), compute theoretical vs empirical, and save results to `data/results/baseline.json` conforming to `contracts/power_estimate.schema.yaml` (keys: theoretical_power, empirical_power, absolute_error). **Depends on T012, T013, T004, T005, T008**.
 - [~] T015 [US1] Add validation logic to skip datasets with N < 30 and log "insufficient sample size"
 - [~] T016 [US1] Add logic to handle missing values via listwise deletion before power calculation
@@ -84,10 +84,10 @@
 
 ### Tests for User Story 2
 
-- [~] T017 [P] [US2] Unit test for heavy-tailed noise injection in `tests/unit/test_perturbations.py`
-- [~] T018 [P] [US2] Unit test for AR(1) autocorrelation injection in `tests/unit/test_perturbations.py`
-- [~] T019 [P] [US2] Unit test for effect size heterogeneity injection in `tests/unit/test_perturbations.py`
-- [~] T020 [P] [US2] Integration test for bias calculation with induced violations in `tests/integration/test_pipeline.py`
+- [X] T017 [P] [US2] Unit test for heavy-tailed noise injection in `tests/unit/test_perturbations.py`
+- [X] T018 [P] [US2] Unit test for AR(1) autocorrelation injection in `tests/unit/test_perturbations.py`
+- [X] T019 [P] [US2] Unit test for effect size heterogeneity injection in `tests/unit/test_perturbations.py`
+- [X] T020 [P] [US2] Integration test for bias calculation with induced violations in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 

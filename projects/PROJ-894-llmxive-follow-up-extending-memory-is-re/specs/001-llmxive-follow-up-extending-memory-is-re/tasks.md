@@ -82,7 +82,7 @@
 - [ ] T012 [US1] Implement "Full" active reconstruction algorithm (traverse entire relevant subgraph) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py`
 - [ ] T013 [US1] Implement baseline execution runner using `code/runner.py` that logs `task_id`, `accuracy`, `nodes_visited`, `latency_ms` to `data/processed/baseline_results.csv`
 - [~] T013b [US1] Implement noisy baseline execution runner using `code/runner.py` on the **synthetic noisy graphs** (generated in T011) that logs `task_id`, `accuracy`, `nodes_visited`, `latency_ms` to `data/processed/noisy_baseline_results.csv` <!-- FAILED: unspecified -->
-- [~] T014 [US1] Add robust error handling for disconnected graphs and degenerate inputs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py`
+- [X] T014 [US1] Add robust error handling for disconnected graphs and degenerate inputs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,17 +96,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T015 [P] [US2] Unit test for "Lazy" traversal logic with evidence threshold in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_strategies.py`
-- [~] T016 [P] [US2] Unit test for "Greedy" traversal logic with top-k selection in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_strategies.py`
+- [X] T015 [P] [US2] Unit test for "Lazy" traversal logic with evidence threshold in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_strategies.py`
+- [X] T016 [P] [US2] Unit test for "Greedy" traversal logic with top-k selection in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_strategies.py`
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
-- [~] T018 [US2] Implement "Greedy" traversal heuristic (select top-k confidence edges) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/greedy.py`
+- [X] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
+- [X] T018 [US2] Implement "Greedy" traversal heuristic (select top-k confidence edges) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/greedy.py`
 - [~] T019 [US2] Implement execution runners for Lazy and Greedy strategies using `code/runner.py` logging to `data/processed/lazy_results.csv` and `data/processed/greedy_results.csv`
 - [~] T019b [US2] Implement noisy execution runners for Lazy and Greedy strategies using `code/runner.py` on the **synthetic noisy graphs** (generated in T011) logging to `data/processed/noisy_lazy_results.csv` and `data/processed/noisy_greedy_results.csv`
 - [~] T020 [US2] Implement sensitivity analysis sweep for **Lazy heuristic evidence threshold** (values **, 0.7, 0.9**) and output results to `data/processed/sweep_results.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
-- [~] T021 [US2] Add logic to handle "unreachable target" cases by defaulting to full traversal or flagging "unresolved" in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
+- [X] T021 [US2] Add logic to handle "unreachable target" cases by defaulting to full traversal or flagging "unresolved" in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,15 +120,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T022 [P] [US3] Unit test for paired t-test/Wilcoxon implementation on mock data in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
-- [~] T023 [P] [US3] Unit test for **Point-Biserial correlation** calculation (binary success vs continuous node count) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
+- [X] T022 [P] [US3] Unit test for paired t-test/Wilcoxon implementation on mock data in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
+- [X] T023 [P] [US3] Unit test for **Point-Biserial correlation** calculation (binary success vs continuous node count) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
 - [~] T033 [US3] Implement schema validation script to verify all result CSVs (`baseline_results.csv`, `lazy_results.csv`, `greedy_results.csv`, `noisy_baseline_results.csv`, `noisy_lazy_results.csv`, `noisy_greedy_results.csv`) strictly adhere to `contracts/results.schema.yaml` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/utils/validate_results.py`
 - [~] T024a [US3] Implement statistical analysis script (paired t-test/Wilcoxon) comparing heuristic vs. baseline accuracy on the **primary LoCoMo benchmark dataset** (inputs: `baseline_results.csv`, `lazy_results.csv`, `greedy_results.csv` produced by T013 and T019), outputting p-values and test statistics to `data/processed/stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
 - [~] T024b [US3] Implement robustness check script to compare heuristic vs. baseline accuracy on the **synthetic noisy graph dataset** (inputs: `data/processed/noisy_baseline_results.csv`, `data/processed/noisy_lazy_results.csv`, `data/processed/noisy_greedy_results.csv` produced by T013b and T019b), calculating descriptive statistics and accuracy deltas (no p-value requirement) to `data/processed/noisy_stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
-- [~] T025 [US3] Implement correlation analysis script (Point-Biserial) between `nodes_visited` and reasoning success rate across all tasks in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
+- [X] T025 [US3] Implement correlation analysis script (Point-Biserial) between `nodes_visited` and reasoning success rate across all tasks in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
 - [~] T027 [US3] Implement logic to: (1) perform sensitivity analysis using data from `sweep_results.csv` (produced by T020), AND (2) identify the specific complexity threshold where **accuracy drops below a significant threshold of the baseline** by **binning the full dataset** of `nodes_visited` and `success` flags (from all primary and noisy result CSVs) into bins such that each bin contains at least 3 tasks (n ≥ 3), identifying the first bin with mean accuracy < 95% baseline. Output threshold to `data/processed/stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
 - [~] T026 [US3] Implement report generator to **auto-generate** `docs/results.md` strictly from `data/processed/stats_report.json` (no hand-typed numbers) using a Jinja2 template in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/report_generator.py`
 
@@ -141,7 +141,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T028a [P] Update `README.md` with execution instructions and environment setup in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
-- [~] T028b [P] Generate `docs/results.md` from `stats.json` and finalize documentation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
+- [ ] T028b [P] Generate `docs/results.md` from `stats.json` and finalize documentation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
 - [ ] T029a Refactor strategy modules (`full.py`, `lazy.py`, `greedy.py`) to inherit from a common base class in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/`
 - [ ] T030 [P] Profile graph traversal loops in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py` using `cProfile`, identify the top hotspots, and implement optimizations to reduce average task latency by at least 15% in the `full.py` traversal loop. Verify improvement with a benchmark script.
 - [ ] T031 [P] Additional unit tests for edge cases (zero edges, single node) in `tests/unit/`

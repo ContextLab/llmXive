@@ -70,7 +70,7 @@
 - [ ] T017.5 [US1] Implement explicit variable type validation: verify selected variables are continuous numeric before simulation begins (FR-002).
 - [~] T018 [US1] Implement data cleaner: exclude rows with missing values and filter for continuous variables only (FR-002, Edge Cases).
 - [~] T019 [US1] Implement edge case handler: skip datasets with insufficient row counts, handle categorical variables, and log warnings (Edge Cases).
-- [~] T020 [US1] Implement population mean calculator: compute the mean of the FULL UCI DATASET ARRAY for each variable to serve as operational ground truth (Constitution Principle VII, FR-010) and save to `data/processed/population_means.json`.
+- [ ] T020 [US1] Implement population mean calculator: compute the mean of the FULL UCI DATASET ARRAY for each variable to serve as operational ground truth (Constitution Principle VII, FR-010) and save to `data/processed/population_means.json`.
 - [~] T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30 *with replacement* from the cleaned UCI dataset array to approximate the super-population distribution for testing the t-interval's infinite population assumption (FR-010).
 - [~] T022 [US1] Implement t-interval calculation using `scipy.stats.t.ppf` for critical values (FR-005).
 - [~] T023 [US1] Implement bootstrap percentile interval calculation using A large number of bootstrap resamples and `numpy.random.choice` (FR-005).
@@ -78,7 +78,7 @@
 - [~] T025 [US1] Implement the main Monte Carlo loop: A large number of replications per configuration (dataset, n, confidence level) to ensure stable estimation (FR-003).
 - [~] T026 [US1] Ensure all computations are CPU-only (no CUDA, no GPU libraries) (FR-004).
 - [~] T027 [US1] Add logging for simulation progress and warnings for skipped configurations (Edge Cases).
-- [~] T028 [US1] Write raw coverage records to `data/processed/coverage_records.json` with schema: `dataset_id`, `sample_size`, `interval_lower`, `interval_upper`, `contains_mean` (FR-003).
+- [ ] T028 [US1] Write raw coverage records to `data/processed/coverage_records.json` with schema: `dataset_id`, `sample_size`, `interval_lower`, `interval_upper`, `contains_mean` (FR-003).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

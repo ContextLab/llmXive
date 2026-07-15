@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` for paths, `random_state=42` seed, and constants
-- [~] T005 [P] Implement `code/utils.py` with helper functions for geo-matching and encoding
+- [X] T005 [P] Implement `code/utils.py` with helper functions for geo-matching and encoding
 - [~] T006 [P] Setup `tests/` directory structure with `__init__.py` and `pytest` configuration
-- [~] T007b Create `merged_dataset.schema.yaml` contract file defining required fields and types for contract validation
+- [ ] T007b Create `merged_dataset.schema.yaml` contract file defining required fields and types for contract validation
 - [~] T008 Configure environment variable management for data paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,14 +77,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [P] [US1] Unit test for severity encoding logic in `tests/test_ingest.py`
-- [~] T010 [P] [US1] Integration test for FARS/NOAA merge logic in `tests/test_ingest.py` (mock URLs or small sample)
-- [~] T011 [P] [US1] Contract test verifying `match_method` field population in `tests/test_ingest.py`
+- [X] T009 [P] [US1] Unit test for severity encoding logic in `tests/test_ingest.py`
+- [X] T010 [P] [US1] Integration test for FARS/NOAA merge logic in `tests/test_ingest.py` (mock URLs or small sample)
+- [X] T011 [P] [US1] Contract test verifying `match_method` field population in `tests/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement FARS download and pre-filtering in `code/ingest.py` (use deterministic NHTSA 2022 URL, verify checksums)
-- [~] T012b [US1] Implement chunking logic for datasets >7GB in `code/ingest.py` (process in chunks, write intermediate results to disk to prevent OOM)
+- [X] T012 [US1] Implement FARS download and pre-filtering in `code/ingest.py` (use deterministic NHTSA 2022 URL, verify checksums)
+- [X] T012b [US1] Implement chunking logic for datasets >7GB in `code/ingest.py` (process in chunks, write intermediate results to disk to prevent OOM)
 - [ ] T013 [US1] Implement NOAA ISD download and pre-filtering in `code/ingest.py` (use HuggingFace `noaa/isd-hourly` fallback, filter by proximity)
 - [ ] T014 [US1] Implement spatial-temporal merge logic: MUST implement linear interpolation for time gaps between weather stations; fallback to nearest-hour ONLY if interpolation fails; verify output contains `match_method=interpolated` for time-delta > 0 in `code/ingest.py`
 - [ ] T015 [US1] Implement severity encoding (=Property, Injury, Fatality) and exclusion logic in `code/ingest.py`

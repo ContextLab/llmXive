@@ -115,7 +115,7 @@ found character '`' that cannot start any token
 - [ ] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
 - [X] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml`. **Dependency**: T033 (calibration check).
 - [ ] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process [deferred] students per condition. **Dependency**: T020, T021b.
-- [~] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
+- [ ] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
 - [~] T023 [US2] Add logic to simulate response times and comprehension ratings (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005). **Dependency**: T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,12 +130,12 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T024 [P] [US3] Contract test for analysis output schema in `code/tests/contract/test_schemas.py`
-- [~] T025 [P] [US3] Integration test for full analysis pipeline in `code/tests/integration/test_pipeline.py` <!-- ATOMIZE: requested -->
+- [X] T024 [P] [US3] Contract test for analysis output schema in `code/tests/contract/test_schemas.py`
+- [X] T025 [P] [US3] Integration test for full analysis pipeline in `code/tests/integration/test_pipeline.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 
-- [~] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts (FR-006, FR-011). **Dependency**: T022, T007.
+- [X] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts (FR-006, FR-011). **Dependency**: T022, T007.
 - [ ] T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's d with 95% CI for pairwise comparisons and validate CI width ≤0.20 (FR-006, SC-003). **Dependency**: T026.
 - [ ] T028 [US3] Implement logic to merge simulated and real student data (≥200 records) and validate `data_source` effects. **Dependency**: T026, T034.
 - [ ] T029 [US3] Generate results markdown with significance testing (p < 0.05) and CI width validation (SC-003). **Dependency**: T027, T028, T034.

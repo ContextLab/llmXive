@@ -80,16 +80,16 @@
 - [ ] T019 [US1] Implement code submission streaming as UTF-8 with unique submission ID per problem (code/experiment/submission_handler.py)
 - [ ] T020 [US1] Implement condition switching logic (LLM-assisted → baseline) with LLM assistant disable (code/experiment/condition_manager.py)
 - [X] T021 [US1] Implement randomization with participant ID, condition assignment, seed logging AND pinning random seeds in code/ for reproducibility per Constitution Principle I (code/experiment/randomization.py) - FR-012 logging layer
-- [~] T022 [US1] Implement counterbalancing (Latin square or random order swap) for carryover mitigation (code/experiment/counterbalance.py)
-- [~] T023 [US1] Implement JaCoText model integration for Java code generation (CPU-only): load model from code/models/jacotext_cpu.py, call inference API with prompt, catch model loading/inference errors, log submission with model response (code/models/jacotext_cpu.py) - MUST wait for T011b/T011c resolution confirmation <!-- FAILED: unspecified -->
-- [~] T024 [US1] Implement StarCoder model integration for Python code generation (CPU-only) (code/models/starcoder_cpu.py) - MUST wait for T012 completion
-- [~] T024a [US1] Implement conditional model selection fallback: unavailable = model load failure OR size >1GB; trigger = config flag in settings.py; fallback = StarCoder for both languages with warning logged (code/models/model_selector.py)
-- [~] T025 [US1] Implement participant recruitment flow with ≥1 year programming experience filter [UNRESOLVED-CLAIM: c_9f0411de — status=not_enough_info] (code/experiment/recruitment.py)
+- [X] T022 [US1] Implement counterbalancing (Latin square or random order swap) for carryover mitigation (code/experiment/counterbalance.py)
+- [X] T023 [US1] Implement JaCoText model integration for Java code generation (CPU-only): load model from code/models/jacotext_cpu.py, call inference API with prompt, catch model loading/inference errors, log submission with model response (code/models/jacotext_cpu.py) - MUST wait for T011b/T011c resolution confirmation <!-- FAILED: unspecified -->
+- [X] T024 [US1] Implement StarCoder model integration for Python code generation (CPU-only) (code/models/starcoder_cpu.py) - MUST wait for T012 completion
+- [X] T024a [US1] Implement conditional model selection fallback: unavailable = model load failure OR size >1GB; trigger = config flag in settings.py; fallback = StarCoder for both languages with warning logged (code/models/model_selector.py)
+- [X] T025 [US1] Implement participant recruitment flow with ≥1 year programming experience filter [UNRESOLVED-CLAIM: c_9f0411de — status=not_enough_info] (code/experiment/recruitment.py)
 
 ### User Story 1 Test Execution
 
-- [~] T050a [P] Run contract tests for US1 schemas (tests/contract/test_submission.py) <!-- FAILED: unspecified -->
-- [~] T051a [P] Run integration tests for US1 (tests/integration/test_experiment_flow.py) <!-- FAILED: unspecified -->
+- [X] T050a [P] Run contract tests for US1 schemas (tests/contract/test_submission.py) <!-- FAILED: unspecified -->
+- [X] T051a [P] Run integration tests for US1 (tests/integration/test_experiment_flow.py) <!-- FAILED: unspecified -->
 - [~] T052a [P] Run unit tests for US1 components (tests/unit/test_experiment_*.py) <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,23 +104,23 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T026 [P] [US2] Contract test for metric schema in tests/contract/test_metric.py
+- [X] T026 [P] [US2] Contract test for metric schema in tests/contract/test_metric.py
 - [~] T027 [P] [US2] Integration test for quality assessment pipeline in tests/integration/test_quality_pipeline.py
 
 ### Implementation for User Story 2
 
-- [~] T028 [P] [US2] Implement HumanEval test suite execution and pass rate calculation (≥0.01 precision) [UNRESOLVED-CLAIM: c_20f40018 — status=not_enough_info] (code/quality/pass_rate.py)
-- [~] T029 [P] [US2] Implement cyclomatic complexity computation using radon cc (integer ≥1 (Wikidata Q6007191, https://www.wikidata.org/wiki/Q6007191)) [UNRESOLVED-CLAIM: c_3e8fc3c4 — status=not_enough_info] (code/quality/complexity.py)
-- [~] T030 [P] [US2] {{claim:c_d6f9e3b9}} (code/quality/coverage.py)
-- [~] T031 [P] [US2] Implement static analysis warning count using pylint (Python) or checkstyle (Java) (code/quality/static_analysis.py)
-- [~] T032 [US2] Implement quality metric aggregation and storage per submission (code/quality/metric_aggregator.py)
-- [~] T033 [P] [US2] Set 300s timeout for test suite execution [UNRESOLVED-CLAIM: c_06c1d1f2 — status=not_enough_info], catch subprocess.TimeoutExpired/Exception, log error with submission ID and traceback, return error response to client (code/quality/execution_sandbox.py)
-- [~] T034 [P] [US2] Implement syntax error detection and handling for invalid submissions: parse with ast.parse(), catch SyntaxError, log submission ID with error details and line number, return 400 response to user with error message (code/quality/syntax_validator.py)
-- [~] T035 [P] [US2] Implement GitHub Actions job-level session timeout handling: set session limits with appropriate warning thresholds and force-stop mechanisms with graceful submission save, distinct from inference-level timeouts (code/quality/llm_timeout_handler.py)
+- [X] T028 [P] [US2] Implement HumanEval test suite execution and pass rate calculation (≥0.01 precision) [UNRESOLVED-CLAIM: c_20f40018 — status=not_enough_info] (code/quality/pass_rate.py)
+- [X] T029 [P] [US2] Implement cyclomatic complexity computation using radon cc (integer ≥1 (Wikidata Q6007191, https://www.wikidata.org/wiki/Q6007191)) [UNRESOLVED-CLAIM: c_3e8fc3c4 — status=not_enough_info] (code/quality/complexity.py)
+- [X] T030 [P] [US2] {{claim:c_d6f9e3b9}} (code/quality/coverage.py)
+- [X] T031 [P] [US2] Implement static analysis warning count using pylint (Python) or checkstyle (Java) (code/quality/static_analysis.py)
+- [X] T032 [US2] Implement quality metric aggregation and storage per submission (code/quality/metric_aggregator.py)
+- [X] T033 [P] [US2] Set 300s timeout for test suite execution [UNRESOLVED-CLAIM: c_06c1d1f2 — status=not_enough_info], catch subprocess.TimeoutExpired/Exception, log error with submission ID and traceback, return error response to client (code/quality/execution_sandbox.py)
+- [X] T034 [P] [US2] Implement syntax error detection and handling for invalid submissions: parse with ast.parse(), catch SyntaxError, log submission ID with error details and line number, return 400 response to user with error message (code/quality/syntax_validator.py)
+- [X] T035 [P] [US2] Implement GitHub Actions job-level session timeout handling: set session limits with appropriate warning thresholds and force-stop mechanisms with graceful submission save, distinct from inference-level timeouts (code/quality/llm_timeout_handler.py)
 
 ### User Story 2 Test Execution
 
-- [~] T050b [P] Run contract tests for US2 schemas (tests/contract/test_metric.py)
+- [X] T050b [P] Run contract tests for US2 schemas (tests/contract/test_metric.py)
 - [~] T051b [P] Run integration tests for US2 (tests/integration/test_quality_pipeline.py) <!-- FAILED: unspecified -->
 - [~] T052b [P] Run unit tests for US2 components (tests/unit/test_quality_*.py)
 

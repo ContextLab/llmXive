@@ -59,7 +59,7 @@
 - [ ] T005 [P] Create `contracts/config.schema.yaml` and implement validation in `code/main.py` using `pydantic`
 - [ ] T006 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for data integrity
 - [X] T007 Setup logging infrastructure in `code/__init__.py` to record runtime params and seeds (FR-009)
-- [~] T008 Implement synthetic data generator in `code/synthetic_data.py` for unit tests ONLY. MUST generate data with: (a) missing weeks (NaNs), (b) constant segments (zero variance), and (c) outliers. Must NOT be used for final report; reference E-NO-DATA fallback.
+- [X] T008 Implement synthetic data generator in `code/synthetic_data.py` for unit tests ONLY. MUST generate data with: (a) missing weeks (NaNs), (b) constant segments (zero variance), and (c) outliers. Must NOT be used for final report; reference E-NO-DATA fallback.
 - [~] T009 Define `E-NO-DATA` exception class in `code/exceptions.py`. Implement a validation script in `code/main.py` that checks for the existence of `data/raw/fluview_ili.csv` and `data/raw/ground_truth_events.csv`. If either is missing, raise `E-NO-DATA` with log message "Pipeline halted: Real CDC data unavailable" and exit. (FR-001, FR-006, Constitution Principle VI)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,19 +77,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. Execution depends on code existing.**
 > **Prerequisite**: T008 (synthetic data generator) must be complete.
 
-- [~] T010 [P] [US1] Write unit test `tests/unit/test_mmd.py` with function `test_mmd_stat_correctness` using synthetic data from T008 to verify MMD logic.
-- [~] T011 [P] [US1] Write integration test `tests/integration/test_pipeline.py` with function `test_full_pipeline_flags` to verify full flow. <!-- FAILED: unspecified -->
+- [X] T010 [P] [US1] Write unit test `tests/unit/test_mmd.py` with function `test_mmd_stat_correctness` using synthetic data from T008 to verify MMD logic.
+- [ ] T011 [P] [US1] Write integration test `tests/integration/test_pipeline.py` with function `test_full_pipeline_flags` to verify full flow. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
 - [~] T012a [US1] Implement `code/download_data.py` to fetch CDC FluView ILI CSV from the canonical CDC source (e.g., ` API or verified direct CSV) and save to `data/raw/fluview_ili.csv`. **MUST** verify file checksum against a known hash if available, or log the exact URL and retrieval date. Do NOT use third-party mirrors (NAB) as the primary source. (FR-001, Constitution Principle VI)
 - [~] T012b [US1] Implement `code/download_data.py` (or separate function) to fetch CDC Virological/Hospitalization ground truth from a verified CDC URL (e.g., specific API endpoint or direct CSV). **MUST NOT** allow a fallback to a local file provided by the user. If the fetch fails, raise `E-NO-DATA` exception. Save to `data/raw/ground_truth_events.csv` with columns `start_week, end_week, event_name`. (FR-006, Constitution Principle IV)
-- [~] T013 [US1] Implement `code/preprocess.py` to handle missing weeks (remove), log-transform, and standardize (FR-002)
-- [~] T014 [US1] Implement `code/mmd_detector.py` with Gaussian-kernel MMD, multi-week windows, and dynamic permutation count. **Internal Logic**: Include a runtime monitor that checks elapsed time. If time > 30 mins, reduce `permutations` in config (e.g., halve it), log "Permutations reduced to X", and re-calculate the MMD statistic. **Do NOT** change the Bonferroni threshold `p < 0.01/N`; the threshold remains strict. (FR-003, FR-004, FR-008)
-- [~] T015 [US1] Implement Bonferroni correction in `code/mmd_detector.py`: calculate `N` (number of window pairs) dynamically, apply `p < 0.01/N`, and output `flags.csv`. Ensure `N` is recalculated for each sensitivity run (different window sizes). (FR-004)
+- [X] T013 [US1] Implement `code/preprocess.py` to handle missing weeks (remove), log-transform, and standardize (FR-002)
+- [X] T014 [US1] Implement `code/mmd_detector.py` with Gaussian-kernel MMD, multi-week windows, and dynamic permutation count. **Internal Logic**: Include a runtime monitor that checks elapsed time. If time > 30 mins, reduce `permutations` in config (e.g., halve it), log "Permutations reduced to X", and re-calculate the MMD statistic. **Do NOT** change the Bonferroni threshold `p < 0.01/N`; the threshold remains strict. (FR-003, FR-004, FR-008)
+- [X] T015 [US1] Implement Bonferroni correction in `code/mmd_detector.py`: calculate `N` (number of window pairs) dynamically, apply `p < 0.01/N`, and output `flags.csv`. Ensure `N` is recalculated for each sensitivity run (different window sizes). (FR-004)
 - [~] T016 [US1] Implement `code/evaluate.py` to load `data/raw/ground_truth_events.csv`, verify source independence (URL whitelist check, ensure no ILI columns), and parse ±2-week tolerance (FR-006)
-- [~] T017 [US1] Implement metrics calculation (precision, recall, detection delay within ±2 weeks) in `code/evaluate.py`
-- [~] T018 [US1] Implement `code/report_generator.py` to produce `report.pdf` with metrics (FR-006)
+- [X] T017 [US1] Implement metrics calculation (precision, recall, detection delay within ±2 weeks) in `code/evaluate.py`
+- [X] T018 [US1] Implement `code/report_generator.py` to produce `report.pdf` with metrics (FR-006)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

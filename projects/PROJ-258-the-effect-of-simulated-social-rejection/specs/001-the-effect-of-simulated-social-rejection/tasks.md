@@ -76,13 +76,13 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST include logic to verify the dataset contains BOTH Cyberball and Reward tasks.** If single-cohort found, set `design_type="Within-Subjects"`. If not, **DO NOT halt**; instead, flag for composite validation.
-- [~] T016 [US1] **Immediately after download**, generate `data/raw/checksums.json` to preserve raw data integrity (Constitution Principle III). This MUST occur before any validation logic.
-- [~] T015 [US1] Add memory guard in `code/ingest.py` to monitor **runtime RAM usage** using `psutil`. **Halt execution with exit code if the process memory footprint exceeds a predefined threshold.**, explicitly distinguishing this from raw file size on disk (FR-001, Plan Clarification). This check must occur *before* full data loading.
-- [~] T013 [US1] Implement `validate_schema(df)` in `code/ingest.py` to check for `Condition` (Cyberball), `Condition` (Reward), `Reaction Time`, `Mood`. **Exit code 1 if required variables are missing AND no fallback dataset is available.**
-- [~] T014 [US1] Implement `verify_single_cohort(df)` in `code/ingest.py` to ensure Participant IDs are consistent within the SINGLE dataset. If consistent, set `design_type="Within-Subjects"`. If inconsistent or missing, proceed to T017.
-- [~] T017 [US1] Implement `validate_composite_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST match Participant IDs across distinct datasets (ds000208 vs ds003392).** If matching IDs exist, set `design_type="Between-Subjects"`. If no matching IDs, halt with "Data Unavailable" (exit code 1).
-- [~] T019 [US1] Implement `log_design_switch()` in `code/ingest.py` to explicitly record the transition from "Single-Cohort attempt" to "Composite Fallback" in the execution log, ensuring traceability for the "associational" framing.
+- [X] T012 [P] [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST include logic to verify the dataset contains BOTH Cyberball and Reward tasks.** If single-cohort found, set `design_type="Within-Subjects"`. If not, **DO NOT halt**; instead, flag for composite validation.
+- [ ] T016 [US1] **Immediately after download**, generate `data/raw/checksums.json` to preserve raw data integrity (Constitution Principle III). This MUST occur before any validation logic.
+- [X] T015 [US1] Add memory guard in `code/ingest.py` to monitor **runtime RAM usage** using `psutil`. **Halt execution with exit code if the process memory footprint exceeds a predefined threshold.**, explicitly distinguishing this from raw file size on disk (FR-001, Plan Clarification). This check must occur *before* full data loading.
+- [X] T013 [US1] Implement `validate_schema(df)` in `code/ingest.py` to check for `Condition` (Cyberball), `Condition` (Reward), `Reaction Time`, `Mood`. **Exit code 1 if required variables are missing AND no fallback dataset is available.**
+- [X] T014 [US1] Implement `verify_single_cohort(df)` in `code/ingest.py` to ensure Participant IDs are consistent within the SINGLE dataset. If consistent, set `design_type="Within-Subjects"`. If inconsistent or missing, proceed to T017.
+- [X] T017 [US1] Implement `validate_composite_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST match Participant IDs across distinct datasets (ds000208 vs ds003392).** If matching IDs exist, set `design_type="Between-Subjects"`. If no matching IDs, halt with "Data Unavailable" (exit code 1).
+- [X] T019 [US1] Implement `log_design_switch()` in `code/ingest.py` to explicitly record the transition from "Single-Cohort attempt" to "Composite Fallback" in the execution log, ensuring traceability for the "associational" framing.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. The pipeline must support both Within-Subjects (if found) and Between-Subjects (fallback) paths.
 
@@ -96,16 +96,16 @@
 
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
-- [~] T018 [P] [US2] Contract test in `tests/test_preprocess.py::test_outlier_detection_iqr` to assert correct flagging per Condition group
-- [~] T019 [P] [US2] Integration test in `tests/test_preprocess.py::test_memory_usage_under_limit` to verify memory stays ≤ 7 GB
+- [X] T018 [P] [US2] Contract test in `tests/test_preprocess.py::test_outlier_detection_iqr` to assert correct flagging per Condition group
+- [X] T019 [P] [US2] Integration test in `tests/test_preprocess.py::test_memory_usage_under_limit` to verify memory stays ≤ 7 GB
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/preprocess.py` with `clean_data(df)` function
-- [~] T021 [US2] Implement `normalize_rt(df)` in `code/preprocess.py` to standardize reaction times <!-- SKIPPED: non-mapping output -->
-- [~] T022 [US2] Implement `detect_outliers_iqr(df, group_col='Condition')` in `code/preprocess.py` to flag/cap outliers using a standard interquartile range multiplier per group (FR-002)
-- [~] T023 [US2] Implement `extract_features(df)` in `code/preprocess.py` to compute `mean_rt` and `avg_mood` per participant/condition
-- [~] T024 [US2] Save intermediate data to `data/interim/preprocessed_data.csv` with `design_type` tag
+- [X] T020 [P] [US2] Implement `code/preprocess.py` with `clean_data(df)` function
+- [X] T021 [US2] Implement `normalize_rt(df)` in `code/preprocess.py` to standardize reaction times <!-- SKIPPED: non-mapping output -->
+- [X] T022 [US2] Implement `detect_outliers_iqr(df, group_col='Condition')` in `code/preprocess.py` to flag/cap outliers using a standard interquartile range multiplier per group (FR-002)
+- [X] T023 [US2] Implement `extract_features(df)` in `code/preprocess.py` to compute `mean_rt` and `avg_mood` per participant/condition
+- [X] T024 [US2] Save intermediate data to `data/interim/preprocessed_data.csv` with `design_type` tag
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

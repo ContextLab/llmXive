@@ -39,8 +39,8 @@
 - [ ] T004 Create `code/utils.py` with helper functions for cosmological calculations and file I/O
 - [ ] T006 [P] Setup `pytest` configuration and directory structure (`tests/unit/`, `tests/integration/`, `tests/contract/`)
 - [ ] T007 Create base data models (dataclasses) in `code/models.py` for `SupernovaRecord`, `HealpixPixel`, `HarmonicCoefficient`
-- [~] T008 Configure environment variable loading for `code/main.py` and simulation seeds
-- [~] T009 Implement logging infrastructure in `code/utils.py` to track excluded entries and processing steps
+- [X] T008 Configure environment variable loading for `code/main.py` and simulation seeds
+- [X] T009 Implement logging infrastructure in `code/utils.py` to track excluded entries and processing steps
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -57,11 +57,11 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [~] T010 [P] [US1] Contract test for `data/processed/residuals.csv` schema in `tests/contract/test_residuals.py`
-- [~] T011 [P] [US1] Integration test verifying row count and coordinate validity in `tests/integration/test_ingestion.py`
+- [X] T011 [P] [US1] Integration test verifying row count and coordinate validity in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingest.py` to download Pantheon+ v1.0 from official repository (handling checksum verification)
+- [ ] T012 [US1] Implement `code/ingest.py` to download Pantheon+ v1.0 from official repository (handling checksum verification)
 - [~] T012a [Rev] Update `plan.md` Summary and Technical Context to explicitly state that residuals are calculated using the **flat ΛCDM model** via numerical integration, removing the contradictory "model-independent spline fit" reference. **Dependencies: T012**
 - [ ] T013 [US1] Implement filtering logic in `code/ingest.py` to exclude entries with missing RA, Dec, redshift, or distance modulus
 - [ ] T005 [US1] Implement `code/utils.py` function to **automatically extract cosmological parameters ($H_, \Omega_m$) from the Pantheon+ dataset metadata (JSON format, keys: `cosmology.H0`, `cosmology.Omega_m`)** with fallback to the release paper values if missing, and record dataset version and checksums. **Dependencies: T012**

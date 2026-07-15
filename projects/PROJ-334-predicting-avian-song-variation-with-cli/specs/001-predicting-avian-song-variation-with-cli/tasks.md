@@ -58,12 +58,12 @@
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt`
 - [ ] T005 [P] Create base configuration loader for environment variables and paths
-- [~] T006 [P] Create base logging infrastructure (`code/utils.py`) with file and console handlers
-- [~] T007 [P] Create schema definition files (`contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`)
-- [~] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`
-- [~] T008a [P] Implement coordinate reprojection logic (`code/utils.py`) to handle WGS84/NAD83 conversions for spatial joins
-- [~] T009 [P] Create data source contracts (`contracts/data_sources.yaml`) defining Xeno-Canto and WorldClim v2.1 URLs, sample paths, and version pinning logic
-- [~] T010 Create `code/main.py` orchestration entry point with argument parsing
+- [X] T006 [P] Create base logging infrastructure (`code/utils.py`) with file and console handlers
+- [ ] T007 [P] Create schema definition files (`contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`)
+- [X] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`
+- [X] T008a [P] Implement coordinate reprojection logic (`code/utils.py`) to handle WGS84/NAD83 conversions for spatial joins
+- [X] T009 [P] Create data source contracts (`contracts/data_sources.yaml`) defining Xeno-Canto and WorldClim v2.1 URLs, sample paths, and version pinning logic
+- [X] T010 Create `code/main.py` orchestration entry point with argument parsing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,10 +77,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `fetch_xeno_canto.py` to download real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
-- [~] T012 [US1] Implement `fetch_worldclim.py` to download real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
+- [ ] T011 [US1] Implement `fetch_xeno_canto.py` to download real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
+- [ ] T012 [US1] Implement `fetch_worldclim.py` to download real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
 - [~] T013 [US1] Implement `code/ingestion.py` to load raw CSVs, validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008a utilities
-- [~] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within a 10km radius of coordinates and applying species-range mapping (since WorldClim lacks species_id)
+- [X] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within a 10km radius of coordinates and applying species-range mapping (since WorldClim lacks species_id)
 - [ ] T014a [US1] Implement species-range mapping logic in `code/ingestion.py` to map species IDs to geographic regions for the join
 - [ ] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
 - [ ] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`

@@ -46,7 +46,7 @@ This project implements **all three tasks** (Summarization, Bug Detection, Code 
 - [ ] T004.1 [P] Create `config.yaml` to define the memory threshold (e.g., `memory_threshold_percent:`) and other runtime parameters (FR-006). This task explicitly defines the "predefined" threshold required by the spec.
 - [ ] T004 [US2] Implement `code/utils/memory_guard.py` with RAM monitoring (FR-006) to abort/downsample if usage exceeds the threshold defined in `config.yaml` (T004.1).
 - [ ] T005 [US2] Implement `code/utils/prompts.py` with standardized prompt templates for Summarization, Bug Detection, and Code Completion
-- [~] T006 [US3] Create `contracts/analysis_schema.yaml` defining the output structure for statistical results (GLM, Correlation, Stratified Analysis)
+- [X] T006 [US3] Create `contracts/analysis_schema.yaml` defining the output structure for statistical results (GLM, Correlation, Stratified Analysis)
 - [~] T007 [P] Setup deterministic logging configuration (random seed fixation, radon version recording) per Constitution VI
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -62,18 +62,18 @@ This project implements **all three tasks** (Summarization, Bug Detection, Code 
 ### Tests for User Story 1 (MANDATORY)
 
 - [~] T010 [P] [US1] Prerequisites: T001, T002. Unit test for `radon` metric calculation on known code snippets in `tests/unit/test_complexity_calc.py`
-- [~] T011 [P] [US1] Prerequisites: T001, T002. Integration test for data download and extraction in `tests/integration/test_data_acquisition.py`
+- [X] T011 [P] [US1] Prerequisites: T001, T002. Integration test for data download and extraction in `tests/integration/test_data_acquisition.py`
 
 ### Implementation for User Story 1
 
 - [~] T012 [US1] Prerequisites: T001, T002. Implement `code/01_data_acquisition.py` to download CodeSearchNet Python subset to `data/raw/` (FR-001). Log `total_raw_snippets` (count of all downloaded snippets) to `data/processed/metadata.json`.
-- [~] T013 [US1] Prerequisites: T012. Implement `code/02_complexity_annotation.py` to parse functions, compute Cyclomatic Complexity, Halstead Volume, Maintainability Index, and **preserve the ground_truth (docstring) column** from the raw dataset (FR-002). Log syntax errors and exclude them from the final CSV.
-- [~] T014 [US1] Prerequisites: T013. Add error handling in `02_complexity_annotation.py` to skip snippets with syntax errors and log warnings to `data/processed/exclusions.log` (Edge Case). Ensure `metadata.json` tracks `total_valid_snippets` (excluding syntax errors) and `total_raw_snippets`.
-- [~] T015 [US1] Prerequisites: T014. Implement logic to save processed data to `data/processed/annotated_metrics.csv` with `metadata.json` containing `total_raw_snippets` and `total_valid_snippets` counts (Constitution VI).
+- [X] T013 [US1] Prerequisites: T012. Implement `code/02_complexity_annotation.py` to parse functions, compute Cyclomatic Complexity, Halstead Volume, Maintainability Index, and **preserve the ground_truth (docstring) column** from the raw dataset (FR-002). Log syntax errors and exclude them from the final CSV.
+- [ ] T014 [US1] Prerequisites: T013. Add error handling in `02_complexity_annotation.py` to skip snippets with syntax errors and log warnings to `data/processed/exclusions.log` (Edge Case). Ensure `metadata.json` tracks `total_valid_snippets` (excluding syntax errors) and `total_raw_snippets`.
+- [ ] T015 [US1] Prerequisites: T014. Implement logic to save processed data to `data/processed/annotated_metrics.csv` with `metadata.json` containing `total_raw_snippets` and `total_valid_snippets` counts (Constitution VI).
 - [~] T016 [US1] Prerequisites: T015. Verify all rows in output CSV have valid numeric values for all three metrics (SC-004).
-- [~] T017 [US1] Prerequisites: T015. Implement 'Binning Strategy' logic to define Low/Medium/High tertiles for complexity stratification. **Note: Binning is for descriptive visualization and robustness checks only; the primary analysis uses GLM with splines.** Explicitly write the calculated binning boundaries to `data/processed/metadata.json` (Constitution VII).
-- [~] T018.1 [US1] Prerequisites: T015. Implement `code/02_bug_injection.py` to generate a derived dataset `data/processed/bug_injected.csv` by programmatically injecting bugs (operator swaps) into a subset of snippets. This satisfies the ground truth requirement for Bug Detection (Plan Amendment 2).
-- [~] T018.2 [US1] Prerequisites: T015. Implement `code/02_truncation.py` to generate a derived dataset `data/processed/truncated_code.csv` by truncating functions and storing the *original full function* alongside the truncated version. This provides the ground truth for Code Completion execution validation (Plan Amendment 2).
+- [ ] T017 [US1] Prerequisites: T015. Implement 'Binning Strategy' logic to define Low/Medium/High tertiles for complexity stratification. **Note: Binning is for descriptive visualization and robustness checks only; the primary analysis uses GLM with splines.** Explicitly write the calculated binning boundaries to `data/processed/metadata.json` (Constitution VII).
+- [ ] T018.1 [US1] Prerequisites: T015. Implement `code/02_bug_injection.py` to generate a derived dataset `data/processed/bug_injected.csv` by programmatically injecting bugs (operator swaps) into a subset of snippets. This satisfies the ground truth requirement for Bug Detection (Plan Amendment 2).
+- [ ] T018.2 [US1] Prerequisites: T015. Implement `code/02_truncation.py` to generate a derived dataset `data/processed/truncated_code.csv` by truncating functions and storing the *original full function* alongside the truncated version. This provides the ground truth for Code Completion execution validation (Plan Amendment 2).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

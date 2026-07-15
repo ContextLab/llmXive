@@ -82,14 +82,14 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/generation/loader.py` to download `openai/human-eval` via `datasets` library and cache to `data/raw/humaneval/`
-- [~] T013 [US1] Implement `code/generation/generator.py` with dynamic batch sizing: probe memory, reduce batch size if >7GB, log every reduction step to `memory_log.json`
+- [X] T013 [US1] Implement `code/generation/generator.py` with dynamic batch sizing: probe memory, reduce batch size if >7GB, log every reduction step to `memory_log.json`
 - [~] T014 [US1] Implement `code/generation/generator.py` generation loop: generate multiple samples per task per style (T=0.7, seed=42), enforce 5m timeout per task, **log a timeout error and skip the task** if exceeded, and **immediately write raw samples to `data/processed/samples_all.csv`** (task_id, style, sample_id, code, pass_status=null) **before any testing or filtering occurs**. *(Note: 20 samples supersedes FR-003's original 5 per plan.md)*
-- [~] T015 [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status
-- [~] T016 [US1] Implement `code/generation/tester.py` error handling: catch AST parsing errors, log Task ID/Style, skip sample without crashing
+- [X] T015 [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status
+- [X] T016 [US1] Implement `code/generation/tester.py` error handling: catch AST parsing errors, log Task ID/Style, skip sample without crashing
 - [~] T017a [US1] Implement `code/generation/pipeline.py` to update `data/processed/samples_all.csv` with `pass_status` (True/False) based on T015 results. Write to temp file first or update carefully to preserve data hygiene.
 - [~] T017b [US1] Implement `code/generation/pipeline.py` to create `data/processed/samples_valid.csv` by filtering `samples_all.csv` where `pass_status` is True
-- [~] T018 [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if difference between any two style groups exceeds a **substantial magnitude**, **write the flag string "Potentially Biased" to the final report metadata and the output CSV**, as required by FR-016.
-- [~] T018b [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if pass rate for **any** style group is < 1%, **HALT execution immediately**, log "Model Incapability" warning, and **prevent entry into Phase 4 (Metrics)**. **Execute this check immediately after T017b and BEFORE any US2 tasks (T024/T025)**. <!-- FAILED: unspecified -->
+- [X] T018 [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if difference between any two style groups exceeds a **substantial magnitude**, **write the flag string "Potentially Biased" to the final report metadata and the output CSV**, as required by FR-016.
+- [X] T018b [US1] Implement `code/generation/pipeline.py` to calculate pass rates; if pass rate for **any** style group is < 1%, **HALT execution immediately**, log "Model Incapability" warning, and **prevent entry into Phase 4 (Metrics)**. **Execute this check immediately after T017b and BEFORE any US2 tasks (T024/T025)**. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,19 +103,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Unit test for AST edit distance calculation (identical samples = 0 distance) in `tests/unit/test_metrics.py`
-- [~] T020 [P] [US2] Unit test for n-gram entropy calculation in `tests/unit/test_metrics.py`
+- [X] T019 [P] [US2] Unit test for AST edit distance calculation (identical samples = 0 distance) in `tests/unit/test_metrics.py`
+- [X] T020 [P] [US2] Unit test for n-gram entropy calculation in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/analysis/metrics.py` n-gram entropy calculation function
-- [~] T022 [US2] Implement `code/analysis/metrics.py` AST edit distance calculation using `networkx` graph alignment (Zhang-Shasha or similar)
-- [~] T023 [US2] Implement `code/analysis/metrics.py` pairwise computation logic for all valid samples within a task/style group
+- [X] T021 [P] [US2] Implement `code/analysis/metrics.py` n-gram entropy calculation function
+- [X] T022 [US2] Implement `code/analysis/metrics.py` AST edit distance calculation using `networkx` graph alignment (Zhang-Shasha or similar)
+- [X] T023 [US2] Implement `code/analysis/metrics.py` pairwise computation logic for all valid samples within a task/style group
 - [~] T024 [US2] Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** (reading from `data/processed/samples_all.csv` **after T017a has populated `pass_status`**, but **ignoring the status** to include all rows) and save to `data/processed/metrics_all.csv` <!-- SKIPPED: non-mapping output -->
 - [~] T025 [US2] Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** (reading from `data/processed/samples_valid.csv` produced by T017b) and save to `data/processed/metrics_valid.csv`
-- [~] T026 [US2] Implement `code/analysis/metrics.py` collinearity check: compute **Spearman** correlation coefficient between AST distance and n-gram entropy (per FR-017) using data from T025/T026. If r > 0.9, flag "Redundant Metrics" and recommend AST distance as primary.
+- [X] T026 [US2] Implement `code/analysis/metrics.py` collinearity check: compute **Spearman** correlation coefficient between AST distance and n-gram entropy (per FR-017) using data from T025/T026. If r > 0.9, flag "Redundant Metrics" and recommend AST distance as primary.
 - [~] T027 [US2] Implement logic to inject "Suggestion: Use AST Distance only" into the report generation if collinearity (Spearman r > 0.9) is detected. (Note: This task depends on T026, T024, and T025 completing first).
-- [~] T028 [US2] Implement zero-variance detection in `code/analysis/metrics.py`: log "Zero Variance" warning if a group has no variance
+- [X] T028 [US2] Implement zero-variance detection in `code/analysis/metrics.py`: log "Zero Variance" warning if a group has no variance
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,17 +131,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Unit test for Kruskal-Wallis H-test setup and execution in `tests/unit/test_stats.py`
-- [~] T030 [P] [US3] Unit test for sensitivity analysis threshold sweep in `tests/unit/test_stats.py`
+- [X] T029 [P] [US3] Unit test for Kruskal-Wallis H-test setup and execution in `tests/unit/test_stats.py`
+- [X] T030 [P] [US3] Unit test for sensitivity analysis threshold sweep in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [~] T032 [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3)
-- [~] T033 [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
+- [X] T032 [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3)
+- [X] T033 [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
 - [~] T034 [US3] Implement sensitivity analysis: sweep α over a range of small values and report range of significant tasks
-- [~] T035 [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T026) vs 'All Generated' (from T025) results and quantify difference
-- [~] T036 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold)**, survivorship bias section, **bias flag ("Potentially Biased")**, and **collinearity suggestion text**
-- [~] T037 [US3] Implement power limitation warning in `code/analysis/reporter.py`: flag if effect sizes are small or **N=164 tasks ** is insufficient for robust conclusion.
+- [X] T035 [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T026) vs 'All Generated' (from T025) results and quantify difference
+- [X] T036 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold)**, survivorship bias section, **bias flag ("Potentially Biased")**, and **collinearity suggestion text**
+- [X] T037 [US3] Implement power limitation warning in `code/analysis/reporter.py`: flag if effect sizes are small or **N=164 tasks ** is insufficient for robust conclusion.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,7 +151,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
+- [ ] T038 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
 - [ ] T039 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
 - [ ] T040 [P] Add SHA256 checksumming for raw dataset and record in `state/checksums.json` (Data Hygiene)
 - [ ] T041 [P] Update `state/` file with execution status, memory logs, and final report path

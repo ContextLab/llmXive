@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `src/data/download.py` with functions to fetch ChEMBL/ZINC15 SMILES and NCBI Pathogen Detection frequencies (with backoff)
-- [~] T014 [US1] Implement `src/data/process.py` to canonicalize SMILES, calculate standardized set of RDKit descriptors using `rdkit.Chem.Descriptors.descList`, and exclude invalid compounds
-- [~] T015 [US1] Implement merge logic in `src/data/process.py` to join structure and resistance data on InChIKey, flagging missing resistance as NaN
+- [ ] T013 [US1] Implement `src/data/download.py` with functions to fetch ChEMBL/ZINC15 SMILES and NCBI Pathogen Detection frequencies (with backoff)
+- [ ] T014 [US1] Implement `src/data/process.py` to canonicalize SMILES, calculate standardized set of RDKit descriptors using `rdkit.Chem.Descriptors.descList`, and exclude invalid compounds
+- [ ] T015 [US1] Implement merge logic in `src/data/process.py` to join structure and resistance data on InChIKey, flagging missing resistance as NaN
 - [~] T016 [US1] Generate `merge_metrics.json` in `data/processed/` reporting `total_requested`, `matches`, and `fraction` (SC-001)
-- [~] T017 [P] [US1] Implement checksum verification (SHA256) for downloaded raw files in `src/data/download.py` and log to `data_version.json` using the schema fields defined in T007a (`source_url`, `checksum_sha256`, `timestamp`)
+- [ ] T017 [P] [US1] Implement checksum verification (SHA256) for downloaded raw files in `src/data/download.py` and log to `data_version.json` using the schema fields defined in T007a (`source_url`, `checksum_sha256`, `timestamp`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,20 +101,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for UMAP parameter application (n_neighbors=15, min_dist=0.1) in `tests/unit/test_dimensionality.py`
-- [~] T019 [P] [US2] Unit test for DBSCAN clustering logic and "noise" handling in `tests/unit/test_clustering.py`
-- [~] T020 [P] [US2] Unit test for Fisher's exact test implementation and permutation validation in `tests/unit/test_permutation_validation.py`
-- [~] T021 [P] [US2] Integration test for full UMAP -> DBSCAN -> Fisher pipeline in `tests/integration/test_clustering.py`
+- [X] T018 [P] [US2] Unit test for UMAP parameter application (n_neighbors=15, min_dist=0.1) in `tests/unit/test_dimensionality.py`
+- [X] T019 [P] [US2] Unit test for DBSCAN clustering logic and "noise" handling in `tests/unit/test_clustering.py`
+- [X] T020 [P] [US2] Unit test for Fisher's exact test implementation and permutation validation in `tests/unit/test_permutation_validation.py`
+- [X] T021 [P] [US2] Integration test for full UMAP -> DBSCAN -> Fisher pipeline in `tests/integration/test_clustering.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [US2] Implement `src/analysis/dimensionality.py` to apply UMAP to the descriptor matrix and save 2D embedding to `data/processed/umap_embedding.csv`
-- [~] T023 [US2] Implement `src/viz/plots.py` to generate UMAP scatter plot colored by resistance phenotype and save to `data/processed/umap_scatter.png`
+- [ ] T022 [US2] Implement `src/analysis/dimensionality.py` to apply UMAP to the descriptor matrix and save 2D embedding to `data/processed/umap_embedding.csv`
+- [ ] T023 [US2] Implement `src/viz/plots.py` to generate UMAP scatter plot colored by resistance phenotype and save to `data/processed/umap_scatter.png`
 - [~] T023b [US2] Calculate silhouette score for the UMAP embedding generated in T022 and log the score to `clustering_results.json` for internal verification (not a required output artifact)
-- [~] T024 [US2] Implement `src/analysis/clustering.py` to run DBSCAN (eps=0.5, min_samples=10) on UMAP coordinates
+- [ ] T024 [US2] Implement `src/analysis/clustering.py` to run DBSCAN (eps=0.5, min_samples=10) on UMAP coordinates
 - [~] T027 [US2] Add logic to exclude clusters with <10 samples from enrichment ranking (flag as "insufficient power")
-- [~] T025 [US2] Implement Fisher's exact test in `src/analysis/clustering.py` to evaluate cluster enrichment for high-resistance compounds
-- [~] T026 [US2] Implement `run_label_permutation_test` in `src/analysis/clustering.py` to validate enrichment is not a tautology; Run exactly 1000 iterations using the `PERMUTATION_ITERATIONS` value from `src/config.py` (T004)
+- [ ] T025 [US2] Implement Fisher's exact test in `src/analysis/clustering.py` to evaluate cluster enrichment for high-resistance compounds
+- [ ] T026 [US2] Implement `run_label_permutation_test` in `src/analysis/clustering.py` to validate enrichment is not a tautology; Run exactly 1000 iterations using the `PERMUTATION_ITERATIONS` value from `src/config.py` (T004)
 - [~] T028 [US2] Generate `clustering_results.json` containing cluster IDs, enrichment p-values, permutation p-values, and diagnostic messages
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -129,9 +129,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T029 [P] [US3] Unit test for Mann-Whitney U and Cohen's d calculation in `tests/unit/test_stats.py`
-- [~] T030 [P] [US3] Unit test for Benjamini-Hochberg FDR correction logic in `tests/unit/test_stats.py`
-- [~] T031 [P] [US3] Unit test for Hartigan's dip test and GMM bimodality assessment in `tests/unit/test_stats.py`
+- [X] T029 [P] [US3] Unit test for Mann-Whitney U and Cohen's d calculation in `tests/unit/test_stats.py`
+- [X] T030 [P] [US3] Unit test for Benjamini-Hochberg FDR correction logic in `tests/unit/test_stats.py`
+- [X] T031 [P] [US3] Unit test for Hartigan's dip test and GMM bimodality assessment in `tests/unit/test_stats.py`
 - [ ] T032 [P] [US3] Unit test for VIF filtering to remove collinear descriptors in `tests/unit/test_stats.py`
 - [ ] T033 [P] [US3] Integration test for full statistical pipeline (Binary vs Continuous) in `tests/integration/test_stats.py`
 

@@ -49,8 +49,8 @@
 - [ ] T004 Setup CI workflow (GitHub Actions) to install R-base, R packages (lme4, ordinal), and Python dependencies
 - [ ] T005 Create `.gitignore` to exclude `data/raw/*` (except.gitkeep), `data/processed/*`, `__pycache__`, and model caches
 - [X] T006 [P] Implement `code/utils/pii_scanner.py` for PII scanning (regex for email, phone, SSN patterns)
-- [~] T007 [P] Implement `code/utils/data_integrity.py` for checksumming and data integrity checks
-- [~] T008 [P] Create `contracts/dataset.schema.yaml` defining Dialogue, Utterance, and User entities
+- [X] T007 [P] Implement `code/utils/data_integrity.py` for checksumming and data integrity checks
+- [ ] T008 [P] Create `contracts/dataset.schema.yaml` defining Dialogue, Utterance, and User entities
 
 **Checkpoint**: Setup ready - Foundational phase can now begin
 
@@ -62,7 +62,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. These tasks verify the data exists and meets schema requirements.
 
-- [~] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
+- [ ] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
 - [~] T010 [P] Setup environment configuration management (`.env` template for HF_TOKEN if needed)
 - [~] T011 [P] [US1] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
 - [~] T012 [P] [US1/US3] **VERIFICATION GATE**: Validate presence of `quality_rating`, `user_id`, `age`, and `gender` fields in the merged dataset.
@@ -87,12 +87,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T013 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
-- [~] T014 [P] [US1] Unit test for politeness scoring logic (batched inference) in `tests/unit/test_scoring.py`
+- [X] T013 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T014 [P] [US1] Unit test for politeness scoring logic (batched inference) in `tests/unit/test_scoring.py`
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Implement `code/01_download_and_score.py` to fetch **Persona-Chat** (HF ID: `lhoestq/personachat`) and **EmpatheticDialogues** (HF ID: `empathetic_dialogues`) as **mandatory primary inputs** per FR-001.
+- [X] T015 [US1] Implement `code/01_download_and_score.py` to fetch **Persona-Chat** (HF ID: `lhoestq/personachat`) and **EmpatheticDialogues** (HF ID: `empathetic_dialogues`) as **mandatory primary inputs** per FR-001.
  - *Logic*:
  1. Download Persona-Chat and EmpatheticDialogues first.
  2. Verify presence of `quality_rating`, `user_id`, `dialogue_id`.

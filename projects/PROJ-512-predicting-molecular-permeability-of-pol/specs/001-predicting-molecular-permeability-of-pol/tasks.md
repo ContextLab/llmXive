@@ -60,7 +60,7 @@
 - [X] T006 [P] Create base `PolymerGraph` entity class in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/polymer_graph.py` with node/edge feature schemas (atom type, hybridization, bond type)
 - [ ] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
 - [ ] T008 Setup CPU-only PyTorch environment check in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/main.py`
-- [~] T009 Implement gradient clipping mechanism (max norm threshold) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
+- [X] T009 Implement gradient clipping mechanism (max norm threshold) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,12 +74,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement NIST/PubChem data fetcher in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using real URLs or `datasets.load_dataset`. **Constraint**: Must load from NIST Polymer Database or PubChem. **Failure Condition**: If the dataset loader raises a 404 or returns fewer than 500 records, the script MUST raise a `SystemExit` with the message "CRITICAL: NIST/PubChem data not found. Simulation fallback is prohibited by FR-001." <!-- FAILED: unspecified -->
-- [~] T011 [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; calculate MW of the repeat unit.
-- [~] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string and average log-permeability (arithmetic mean); log exclusions. **Constraint**: Flag entries where calculated MW of the repeat unit < 1000 Da for manual review; if the environment variable `EXCLUDE_SMALL_MOLS` is set to "true", exclude them. Log all flagged entries to `logs/small_molecule_review.csv`.
-- [~] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`
-- [~] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`
-- [~] T015 [US1] Add unit tests for SMILES parsing and feature extraction in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_ingestion.py`
+- [X] T010 [US1] Implement NIST/PubChem data fetcher in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using real URLs or `datasets.load_dataset`. **Constraint**: Must load from NIST Polymer Database or PubChem. **Failure Condition**: If the dataset loader raises a 404 or returns fewer than 500 records, the script MUST raise a `SystemExit` with the message "CRITICAL: NIST/PubChem data not found. Simulation fallback is prohibited by FR-001." <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; calculate MW of the repeat unit.
+- [X] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string and average log-permeability (arithmetic mean); log exclusions. **Constraint**: Flag entries where calculated MW of the repeat unit < 1000 Da for manual review; if the environment variable `EXCLUDE_SMALL_MOLS` is set to "true", exclude them. Log all flagged entries to `logs/small_molecule_review.csv`.
+- [X] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`
+- [ ] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`
+- [X] T015 [US1] Add unit tests for SMILES parsing and feature extraction in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,13 +94,13 @@
 ### Implementation for User Story 2
 
 - [~] T020 [US2] Implement Murcko scaffold splitting logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py` (addressing spec US-2 marker by executing split immediately for pipeline continuity). **Input**: `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Algorithm**: Use RDKit's `GetScaffoldForMol` with a similarity cutoff of a high threshold (configurable via env var) to ensure test scaffolds are unseen in training.
-- [~] T021 [US2] Implement Message-Passing GNN (multiple layers, moderate hidden dimensions) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/gnn.py` using CPU-compatible PyTorch. **Constraint**: Must use float32 precision; no mixed precision or 8-bit quantization.
-- [~] T022 [US2] Implement Random Forest baseline using ECFP4 fingerprints in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [~] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [~] T024 [US2] Implement training loop with early stopping and gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
-- [~] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
-- [~] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [~] T027 [US2] Add integration test for full training and evaluation pipeline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/integration/test_training.py`
+- [X] T021 [US2] Implement Message-Passing GNN (multiple layers, moderate hidden dimensions) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/gnn.py` using CPU-compatible PyTorch. **Constraint**: Must use float32 precision; no mixed precision or 8-bit quantization.
+- [X] T022 [US2] Implement Random Forest baseline using ECFP4 fingerprints in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
+- [X] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
+- [X] T024 [US2] Implement training loop with early stopping and gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
+- [X] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
+- [X] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
+- [ ] T027 [US2] Add integration test for full training and evaluation pipeline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/integration/test_training.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,12 +114,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [~] T031 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [~] T032 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [~] T033 [US3] Implement sensitivity analysis sweeping R² thresholds across a range of low-to-moderate values. in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Output**: Generate a JSON file containing the sweep results with keys: `threshold` (float), `false_positive_rate` (float), `true_positive_rate` (float). Ensure a set of rows corresponding to the specified thresholds.
-- [~] T034 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [~] T035 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
+- [X] T030 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T031 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T032 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [X] T033 [US3] Implement sensitivity analysis sweeping R² thresholds across a range of low-to-moderate values. in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Output**: Generate a JSON file containing the sweep results with keys: `threshold` (float), `false_positive_rate` (float), `true_positive_rate` (float). Ensure a set of rows corresponding to the specified thresholds.
+- [X] T034 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
+- [X] T035 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

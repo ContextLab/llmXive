@@ -58,8 +58,8 @@
 
 - [ ] T005 Implement `src/utils/logging.py` for execution logging (FR-001.1)
 - [ ] T006 Implement `src/utils/validation.py` for schema validation (FR-002, Edge Cases)
-- [~] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
-- [~] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
+- [X] T007 [P] Create base data models: `SyntheticVideoFrame`, `InternalStateVector`, `SchedulerDecision` in `src/data_synthesis/models.py` (aligned with plan.md structure)
+- [X] T008 Setup streaming/batching utilities in `src/feature_extraction/streaming.py` to enforce <6GB RAM limit
 - [~] T009 Configure environment variables for `JOYAI_VL_MODEL_PATH` and `DATA_SEED`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,16 +77,16 @@
 > **NOTE**: Write these tests FIRST (TDD). These tasks are to WRITE the test code. The tests will FAIL until implementation (T013-T017) is complete.
 > **[P] Clarification**: T010-T012 are "Test Code Writing" tasks. They can be written in parallel with T013-T017 "Implementation" tasks because they depend on the interface definition, not the implementation completion.
 
-- [~] T010 [P] [US1] Write contract test code: Verify labeling logic uses only visual events in `tests/unit/test_visual_labeler.py`
-- [~] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
-- [~] T012 [P] [US1] Write test code: Verify deterministic rule application for ambiguous events (sitting vs. falling) in `tests/unit/test_visual_labeler.py`
+- [X] T010 [P] [US1] Write contract test code: Verify labeling logic uses only visual events in `tests/unit/test_visual_labeler.py`
+- [ ] T011 [P] [US1] Write integration test code: Verify execution log contains zero VLM calls in `tests/integration/test_data_pipeline.py`
+- [X] T012 [P] [US1] Write test code: Verify deterministic rule application for ambiguous events (sitting vs. falling) in `tests/unit/test_visual_labeler.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
-- [~] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
-- [~] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
-- [~] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
+- [ ] T013 [US1] Implement `src/data_synthesis/generator.py` to produce video content. **CI Mode**: Generate a subset (e.g., hours) to fit 6h runtime. **Non-CI Mode**: Generate full hours. Use chunked streaming to write directly to disk (FR-001). <!-- FAILED: unspecified -->
+- [ ] T013a [US1] **NEW**: Implement verification logic in `src/data_synthesis/verify_volume.py` to confirm `manifest.jsonl` reports >= 180,000 seconds (50 hours) of video for Non-CI runs, or the defined subset for CI runs.
+- [ ] T013b [US1] **NEW**: Implement "Streaming Handoff" logic in `src/data_synthesis/handoff.py` to allow US2/US3 to begin processing chunks as T013 writes them, avoiding false serialization.
+- [ ] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
 - [ ] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
 - [ ] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
 - [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`

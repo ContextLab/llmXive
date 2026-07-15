@@ -59,11 +59,11 @@
 - [ ] T004 [P] Implement `code/utils.py` for logging, SMILES validation (RDKit), file I/O, and **mandatory dataset verification hard gate**: Abort execution with error if input CSV lacks `smiles`, `logS`, or `logP` columns (FR-008, Plan: Dataset Verification)
 - [X] T005 Create `code/entropy.py` skeleton with function signatures for `compute_atom_entropy` and `compute_bond_entropy` (FR-002, FR-003)
 - [X] T006 Create `code/model.py` skeleton for Ridge Regression training and sensitivity analysis (FR-006, FR-011)
-- [~] T007 Create `code/viz.py` skeleton for scatter plot generation with regression lines (FR-007)
-- [~] T008 Create `code/cli.py` entry point with sub-commands `compute_entropy`, `train_model`, `plot_correlation` (FR-009)
+- [X] T007 Create `code/viz.py` skeleton for scatter plot generation with regression lines (FR-007)
+- [X] T008 Create `code/cli.py` entry point with sub-commands `compute_entropy`, `train_model`, `plot_correlation` (FR-009)
 - [~] T009 Setup data directory structure (`data/raw`, `data/processed`, `results/models`, `results/reports`, `results/plots`)
-- [~] T034 [Rev] **Clarify Information Metrics (Code)**: Update `code/entropy.py` docstrings to explicitly document that "entropy" refers to **Shannon entropy of degree distributions** (topological) (FR-002, FR-003)
-- [~] T035 [Rev] **Clarify Information Metrics (Doc)**: Update `docs/data-model.md` to explicitly document the entropy definition (FR-002, FR-003)
+- [X] T034 [Rev] **Clarify Information Metrics (Code)**: Update `code/entropy.py` docstrings to explicitly document that "entropy" refers to **Shannon entropy of degree distributions** (topological) (FR-002, FR-003)
+- [X] T035 [Rev] **Clarify Information Metrics (Doc)**: Update `docs/data-model.md` to explicitly document the entropy definition (FR-002, FR-003)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,17 +79,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for `compute_atom_entropy` logic in `tests/unit/test_entropy.py`
-- [~] T011 [P] [US1] Unit test for `compute_bond_entropy` logic in `tests/unit/test_entropy.py`
-- [~] T012 [P] [US1] Integration test for malformed SMILES handling (logging/skipping) in `tests/integration/test_cli.py`
-- [~] T013 [P] [US1] Integration test for 10k molecule processing time limit (≤30 min) in `tests/integration/test_performance.py`. **Task**: Create `test_10k_molecules_under_30min` that loads a REAL 10k molecule dataset (or verified real-world proxy), runs `compute_entropy`, and asserts execution time < 1800s. (FR-001, SC-003)
+- [X] T010 [P] [US1] Unit test for `compute_atom_entropy` logic in `tests/unit/test_entropy.py`
+- [X] T011 [P] [US1] Unit test for `compute_bond_entropy` logic in `tests/unit/test_entropy.py`
+- [X] T012 [P] [US1] Integration test for malformed SMILES handling (logging/skipping) in `tests/integration/test_cli.py`
+- [X] T013 [P] [US1] Integration test for 10k molecule processing time limit (≤30 min) in `tests/integration/test_performance.py`. **Task**: Create `test_10k_molecules_under_30min` that loads a REAL 10k molecule dataset (or verified real-world proxy), runs `compute_entropy`, and asserts execution time < 1800s. (FR-001, SC-003)
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `compute_atom_entropy` in `code/entropy.py` using RDKit atom degree distribution (FR-002)
-- [~] T015 [US1] Implement `compute_bond_entropy` in `code/entropy.py` using RDKit bond degree distribution (FR-003)
-- [~] T016 [US1] Implement `compute_entropy` CLI command in `code/cli.py` to read CSV, apply entropy functions, and write intermediate CSV. **Logic**: Handle missing row values (NaN) for `logS`/`logP` by skipping those rows for downstream modeling but preserving them in the entropy-only output. **Note**: This produces an intermediate artifact only. (FR-001, FR-005)
-- [~] T017 [US1] **Implement metadata join logic** in `code/utils.py` or `code/cli.py` to merge the entropy-enriched CSV with `logS`/`logP` columns, producing the **final enriched CSV** required for US2 input. **Constraint**: This is the ONLY task that produces the final joined dataset. (FR-004)
+- [X] T014 [US1] Implement `compute_atom_entropy` in `code/entropy.py` using RDKit atom degree distribution (FR-002)
+- [X] T015 [US1] Implement `compute_bond_entropy` in `code/entropy.py` using RDKit bond degree distribution (FR-003)
+- [X] T016 [US1] Implement `compute_entropy` CLI command in `code/cli.py` to read CSV, apply entropy functions, and write intermediate CSV. **Logic**: Handle missing row values (NaN) for `logS`/`logP` by skipping those rows for downstream modeling but preserving them in the entropy-only output. **Note**: This produces an intermediate artifact only. (FR-001, FR-005)
+- [X] T017 [US1] **Implement metadata join logic** in `code/utils.py` or `code/cli.py` to merge the entropy-enriched CSV with `logS`/`logP` columns, producing the **final enriched CSV** required for US2 input. **Constraint**: This is the ONLY task that produces the final joined dataset. (FR-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,18 +103,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for 80/20 train/test split with seed 42 in `tests/unit/test_model.py`
+- [ ] T018 [P] [US2] Unit test for 80/20 train/test split with seed 42 in `tests/unit/test_model.py`
 - [~] T019 [P] [US2] Unit test for Bonferroni and Benjamini-Hochberg correction logic in `tests/unit/test_model.py`
-- [~] T020 [P] [US2] Integration test for model training and report generation in `tests/integration/test_model.py`
-- [~] T021 [P] [US2] Integration test for baseline comparison (Mean, MW+Atom Count) in `tests/integration/test_baseline.py`
+- [X] T020 [P] [US2] Integration test for model training and report generation in `tests/integration/test_model.py`
+- [X] T021 [P] [US2] Integration test for baseline comparison (Mean, MW+Atom Count) in `tests/integration/test_baseline.py`
 
 ### Implementation for User Story 2
 
 - [~] T023 [US2] Implement `train_model` CLI command with 80/20 split (seed 42) and Ridge Regression (α=1.0) in `code/model.py`. **Input**: Requires output from T017 (`data/processed/enriched.csv`). (FR-005, FR-006)
 - [~] T024 [US2] Implement calculation of RMSE and Pearson r on test set, saving `ridge_logS.pkl` and `ridge_logP.pkl` (FR-006)
 - [~] T025 [US2] Implement baseline models (Mean, MW-only, MW+Atom Count) and Partial Correlation analysis to control for molecular size (Plan: Baseline & Confounding Control). **Output**: Generate baseline metrics for comparison. (Plan: Statistical Methodology)
-- [~] T027 [US2] Implement sensitivity analysis sweep across alpha values spanning low, medium, and high magnitudes.. **Metric**: Calculate relative range ((max - min) / mean) for RMSE and Pearson r. **Output**: Append stability metrics to `results/reports/sensitivity_sweep.json`. (FR-011, SC-010)
-- [~] T026 [US2] Implement JSON report generation. **Content**: Include RMSE, Pearson r, Bonferroni-adjusted p-values, **Benjamini-Hochberg (FDR) adjusted p-values**, and the **Entropy-vs-Size comparison table**. **Logic**: Evaluate Scientific Success Criterion (Entropy RMSE < Size baseline RMSE). **Output**: Save to `results/reports/metrics.json`. (FR-006, FR-010, Plan: Baseline & Confounding Control)
+- [ ] T027 [US2] Implement sensitivity analysis sweep across alpha values spanning low, medium, and high magnitudes.. **Metric**: Calculate relative range ((max - min) / mean) for RMSE and Pearson r. **Output**: Append stability metrics to `results/reports/sensitivity_sweep.json`. (FR-011, SC-010)
+- [ ] T026 [US2] Implement JSON report generation. **Content**: Include RMSE, Pearson r, Bonferroni-adjusted p-values, **Benjamini-Hochberg (FDR) adjusted p-values**, and the **Entropy-vs-Size comparison table**. **Logic**: Evaluate Scientific Success Criterion (Entropy RMSE < Size baseline RMSE). **Output**: Save to `results/reports/metrics.json`. (FR-006, FR-010, Plan: Baseline & Confounding Control)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,12 +128,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T028 [P] [US3] Unit test for plot rendering (labels, line, R²) in `tests/unit/test_viz.py`
-- [~] T029 [P] [US3] Integration test for plot generation in `tests/integration/test_viz.py`
+- [X] T028 [P] [US3] Unit test for plot rendering (labels, line, R²) in `tests/unit/test_viz.py`
+- [X] T029 [P] [US3] Integration test for plot generation in `tests/integration/test_viz.py`
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement `plot_correlation` CLI command in `code/viz.py` to generate scatter plots (FR-007)
+- [X] T030 [US3] Implement `plot_correlation` CLI command in `code/viz.py` to generate scatter plots (FR-007)
 - [~] T031 [US3] Add logic to overlay linear regression line and annotate R² on plots (FR-007)
 - [~] T032 [US3] Ensure plots are saved as PNG with ≥300 dpi resolution and proper axis labels (SC-004)
 - [~] T033 [US3] Generate `entropy_vs_logS.png` and `entropy_vs_logP.png` for both entropy types (SC-004)

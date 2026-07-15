@@ -58,7 +58,7 @@
 - [ ] T004 Setup global config module (`code/config.py`) with paths, seeds, memory limits, and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
 - [X] T005 [P] Implement audit logging infrastructure (`code/utils/audit_logger.py`) to capture skipped files and ambiguous prompts (FR-008)
 - [ ] T006 Create base data models/entities (`code/data/models.py`) for `PhysicalScenario`, `LatentVector`, `CounterfactualEdit`
-- [~] T007 Setup memory profiling utility (`code/utils/memory_guard.py`) to dynamically adjust batch sizes based on `psutil` usage
+- [X] T007 Setup memory profiling utility (`code/utils/memory_guard.py`) to dynamically adjust batch sizes based on `psutil` usage
 - [~] T008 Initialize `data/` directory structure (`raw/`, `processed/`, `validation/`) with checksum verification scripts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,7 +73,7 @@
 
 ### Tests for User Story 1
 
-- [~] T009 [P] [US1] Unit test for data filtering logic in `tests/unit/test_data_filter.py`
+- [X] T009 [P] [US1] Unit test for data filtering logic in `tests/unit/test_data_filter.py`
 - [ ] T010 [P] [US1] Integration test for latent extraction on a single sample clip in `tests/integration/test_latent_extraction.py`
 
 ### Implementation for User Story 1

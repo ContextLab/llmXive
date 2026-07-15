@@ -63,9 +63,9 @@
 
 - [ ] T006 Implement `utils/transformations.py` with Box-Cox, Yeo-Johnson, and rank-based inverse normal functions (handling positive-value constraints)
 
-- [~] T007 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
+- [ ] T007 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
 
-- [~] T008 Create `results/simulation_seeds.txt` to log seeds per run ID (format: `RUN_ID=<id> SEED=42`) ensuring the file is located in `results/` alongside specific simulation outputs to satisfy Constitution VII "alongside results" requirement
+- [ ] T008 Create `results/simulation_seeds.txt` to log seeds per run ID (format: `RUN_ID=<id> SEED=42`) ensuring the file is located in `results/` alongside specific simulation outputs to satisfy Constitution VII "alongside results" requirement
 
 - [~] T009 Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log` with specific format to record exclusions, imputation rates, and transformation interventions
 
@@ -83,19 +83,19 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These are atomic tasks, one per test function.
 
-- [~] T010a [US1] Unit test for valid URL validation: Implement `tests/unit/test_download.py::test_valid_url_returns_true_for_valid_url` asserting `is_valid_url("...")` returns True
+- [X] T010a [US1] Unit test for valid URL validation: Implement `tests/unit/test_download.py::test_valid_url_returns_true_for_valid_url` asserting `is_valid_url("...")` returns True
 
-- [~] T010b [US1] Unit test for invalid URL validation: Implement `tests/unit/test_download.py::test_invalid_url_returns_false` asserting `is_valid_url("not_a_url")` returns False
+- [X] T010b [US1] Unit test for invalid URL validation: Implement `tests/unit/test_download.py::test_invalid_url_returns_false` asserting `is_valid_url("not_a_url")` returns False
 
-- [~] T011a [US1] Unit test for Shapiro-Wilk p-value calculation: Implement `tests/unit/test_filter.py::test_shapiro_wilk_p_value_calculation` asserting `shapiro_test([1,2,3,4,5])` returns a p-value object
+- [X] T011a [US1] Unit test for Shapiro-Wilk p-value calculation: Implement `tests/unit/test_filter.py::test_shapiro_wilk_p_value_calculation` asserting `shapiro_test([1,2,3,4,5])` returns a p-value object
 
-- [~] T011b [US1] Unit test for Shapiro-Wilk filtering logic (p < 0.05): Implement `tests/unit/test_filter.py::test_filter_keeps_non_normal` asserting a dataset with p=0.01 is kept and p=0.10 is excluded
+- [X] T011b [US1] Unit test for Shapiro-Wilk filtering logic (p < 0.05): Implement `tests/unit/test_filter.py::test_filter_keeps_non_normal` asserting a dataset with p=0.01 is kept and p=0.10 is excluded
 
 - [~] T012a [US1] Integration test for full download-and-filter pipeline: Implement `tests/integration/test_pipeline.py::test_full_download_filter_pipeline` asserting that running both scripts produces a valid `data/datasets.csv` with ≥1 entry
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/download_datasets.py` to fetch datasets from UCI/OpenML with explicit URL logging
+- [X] T013 [US1] Implement `code/download_datasets.py` to fetch datasets from UCI/OpenML with explicit URL logging
 
 - [ ] T014 [US1] Append SHA-256 checksum computation to `code/download_datasets.py`, write to `data/checksums.csv`, AND update `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` artifact_hashes map (FR-010, Constitution III/V). **Dependency**: Must run immediately AFTER T013 (Download) to checksum the raw downloaded data before any filtering or exclusion logic is applied.
 

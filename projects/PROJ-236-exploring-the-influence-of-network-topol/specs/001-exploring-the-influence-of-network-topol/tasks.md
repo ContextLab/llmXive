@@ -39,9 +39,9 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [~] T004 [P] Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`. **Verification**: Unit test that loads a sample config and asserts expected keys.
-- [~] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`. **Verification**: Unit test that generates a file, computes checksum, recomputes, and matches.
-- [~] T006 [P] Create base logging infrastructure in `code/utils/logging.py`. **Verification**: Integration test that logs a message and checks that it appears in the designated log file.
+- [X] T004 [P] Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`. **Verification**: Unit test that loads a sample config and asserts expected keys.
+- [X] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`. **Verification**: Unit test that generates a file, computes checksum, recomputes, and matches.
+- [X] T006 [P] Create base logging infrastructure in `code/utils/logging.py`. **Verification**: Integration test that logs a message and checks that it appears in the designated log file.
 - [ ] T007 [P] Create Pydantic base entities `NetworkRealization` and `TransportResult` in `code/utils/models.py`. **Verification**: Unit test (`T007‑UT`) that instantiates each model with valid data and expects no `ValidationError`.
 - [ ] T008 [P] Setup random seed management (np.random.seed()) in `code/utils/seeds.py`. **Verification**: Unit test that sets a seed, generates random numbers, resets seed, and verifies reproducibility.
 - [ ] T009 [P] Generate contract schema `contracts/network_realization.schema.yaml` describing the NetworkRealization data model. **Verification**: File exists and validates against a sample instance.

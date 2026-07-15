@@ -58,9 +58,9 @@
 - [ ] T004 Setup `data/raw/`, `data/intermediate/`, `data/results/` directory structure with `.gitkeep`
 - [X] T005 [P] Implement `code/utils/backoff.py` with exponential backoff logic (≤3 retries, ≥60s delay) for GitHub API
 - [X] T006 [P] Implement `code/utils/path_normalizer.py` for FR-009 (lowercase, strip extensions, normalize slashes)
-- [~] T007 Create `code/config.py` for environment variables (cutoff date T, depth limit, repo list)
-- [~] T008 Setup `code/__init__.py` and logging infrastructure to disk
-- [~] T009 Implement `code/state_manager.py` for content hashing and versioning. **CRITICAL**: This task MUST ensure that raw ownership attribution CSVs are committed to the repository (e.g., in `data/ownership_metrics/`) to satisfy Constitution Principle VI ("raw files MUST be version-controlled and included in the repository"). Additionally, generate content hashes for these files and record them in `state/...yaml` for state management.
+- [X] T007 Create `code/config.py` for environment variables (cutoff date T, depth limit, repo list)
+- [X] T008 Setup `code/__init__.py` and logging infrastructure to disk
+- [X] T009 Implement `code/state_manager.py` for content hashing and versioning. **CRITICAL**: This task MUST ensure that raw ownership attribution CSVs are committed to the repository (e.g., in `data/ownership_metrics/`) to satisfy Constitution Principle VI ("raw files MUST be version-controlled and included in the repository"). Additionally, generate content hashes for these files and record them in `state/...yaml` for state management.
  **Specific Instructions**:
  1. Update `.gitignore` to explicitly ignore `data/raw/` and `data/intermediate/` while allowing `data/ownership_metrics/*.csv`.
  2. Commit only the CSV files matching the pattern `*_ownership.csv` in `data/ownership_metrics/`.
@@ -79,15 +79,15 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [US1] Implement `code/data_collection.py` to clone a set of GitHub repos with `git clone --depth` (up to cutoff T), using a sufficient depth to capture relevant version history. **Verification**: After cloning, run `git rev-list --count HEAD` in `data/raw/<repo_name>/`. The task MUST assert `count >= 1000` OR `count == total_commits` (if the repo has < 1000 commits). If the repo has ≥1000 commits, the shallow clone must have exactly 1000 commits. If the count is < 1000 and < total_commits, the task fails.
-- [~] T011 [US1] Implement logic in `code/data_collection.py` to validate commit count (≥1000) and skip if insufficient, logging warnings
-- [~] T012 [US1] Implement `code/data_collection.py` to parse shallow history into intermediate CSVs (commits: author, timestamp, file_path)
-- [~] T013 [US1] Implement `code/data_collection.py` to fetch GitHub Issues for time window T+1, handling rate limits via `utils/backoff.py`
-- [~] T014 [US1] Implement `code/data_collection.py` to apply `utils/path_normalizer.py` and link issues to modules using exact path matching (FR-009)
-- [~] T015 [US1] Implement disk-based storage logic in `code/data_collection.py` to write intermediate CSVs immediately, ensuring peak RAM ≤7 GB
-- [~] T016 [US1] Implement validation in `code/data_collection.py` to verify dataset-variable fit (committers, timestamps, file paths, line counts) and skip invalid repos
-- [~] T017 [US1] Create `tests/unit/test_data_collection.py` to mock Git and GitHub API responses and verify cloning/parsing logic
-- [~] T018 [US1] Create `tests/integration/test_data_pipeline.py` to run end-to-end on a small sample repo (e.g., `apache/httpd`) and verify output CSVs
+- [X] T010 [US1] Implement `code/data_collection.py` to clone a set of GitHub repos with `git clone --depth` (up to cutoff T), using a sufficient depth to capture relevant version history. **Verification**: After cloning, run `git rev-list --count HEAD` in `data/raw/<repo_name>/`. The task MUST assert `count >= 1000` OR `count == total_commits` (if the repo has < 1000 commits). If the repo has ≥1000 commits, the shallow clone must have exactly 1000 commits. If the count is < 1000 and < total_commits, the task fails.
+- [X] T011 [US1] Implement logic in `code/data_collection.py` to validate commit count (≥1000) and skip if insufficient, logging warnings
+- [X] T012 [US1] Implement `code/data_collection.py` to parse shallow history into intermediate CSVs (commits: author, timestamp, file_path)
+- [X] T013 [US1] Implement `code/data_collection.py` to fetch GitHub Issues for time window T+1, handling rate limits via `utils/backoff.py`
+- [X] T014 [US1] Implement `code/data_collection.py` to apply `utils/path_normalizer.py` and link issues to modules using exact path matching (FR-009)
+- [X] T015 [US1] Implement disk-based storage logic in `code/data_collection.py` to write intermediate CSVs immediately, ensuring peak RAM ≤7 GB
+- [X] T016 [US1] Implement validation in `code/data_collection.py` to verify dataset-variable fit (committers, timestamps, file paths, line counts) and skip invalid repos
+- [X] T017 [US1] Create `tests/unit/test_data_collection.py` to mock Git and GitHub API responses and verify cloning/parsing logic
+- [X] T018 [US1] Create `tests/integration/test_data_pipeline.py` to run end-to-end on a small sample repo (e.g., `apache/httpd`) and verify output CSVs
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,10 +101,10 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/metrics_calc.py` to calculate Gini coefficient per module from ownership CSVs (precision ≥3 decimals)
-- [~] T020 [US2] Implement `code/metrics_calc.py` to filter out modules deleted between T and T+1 for BOTH predictor and outcome (FR-008)
-- [~] T021 [US2] Implement `code/metrics_calc.py` to calculate code churn (lines added/deleted) per module
-- [~] T022 [US2] Implement `code/metrics_calc.py` to compute cyclomatic complexity using `radon` on the latest snapshot (exclude non-Python files). **Verification**: Count total Python modules and modules with valid scores. Assert that `valid_count / total_count >= 0.95`. If the threshold is not met, log a critical warning and fail the task (or stop the pipeline) to prevent downstream analysis on invalid data.
+- [X] T019 [US2] Implement `code/metrics_calc.py` to calculate Gini coefficient per module from ownership CSVs (precision ≥3 decimals)
+- [X] T020 [US2] Implement `code/metrics_calc.py` to filter out modules deleted between T and T+1 for BOTH predictor and outcome (FR-008)
+- [X] T021 [US2] Implement `code/metrics_calc.py` to calculate code churn (lines added/deleted) per module
+- [X] T022 [US2] Implement `code/metrics_calc.py` to compute cyclomatic complexity using `radon` on the latest snapshot (exclude non-Python files). **Verification**: Count total Python modules and modules with valid scores. Assert that `valid_count / total_count >= 0.95`. If the threshold is not met, log a critical warning and fail the task (or stop the pipeline) to prevent downstream analysis on invalid data.
 - [ ] T023 [US2] Implement `code/metrics_calc.py` to calculate normalized bug density (bugs/KLOC), excluding modules with 0 lines of code
 - [ ] T024 [US2] Implement `code/metrics_calc.py` to calculate module Size (KLOC) and Age (months since creation). **Note**: This task must also generate the `Gini²` (Gini squared) term for use in T031.
 - [ ] T025 [US2] Create `tests/unit/test_metrics_calc.py` to verify Gini calculation, KLOC normalization, and complexity scoring

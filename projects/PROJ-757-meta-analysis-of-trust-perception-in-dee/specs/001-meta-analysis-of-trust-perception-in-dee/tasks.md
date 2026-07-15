@@ -60,7 +60,7 @@
 - [X] T006 [P] Implement `code/utils.py` with logging, config loading, checksum generation logic, AND a utility function to parse `data/screening/inclusion_criteria.yaml`. **Note**: This task depends on T017 completing first; do not execute T006 until T017 has generated the YAML file. <!-- FAILED: unspecified -->
 - [~] T008 Implement mock API response fixtures for OpenAlex, Semantic Scholar, and arXiv in `tests/unit/`
 - [~] T009 Implement synthetic data generator for effect size math verification in `tests/unit/`
-- [~] T017 [P] Generate `data/screening/inclusion_criteria.yaml` programmatically. The YAML MUST contain keys for exclusion codes: `NO_TRUST_METRIC`, `NO_CONTROL_CONDITION`, `NO_MODERATOR_DATA`, and `NOT_PEER_REVIEWED`, mapping to the specific logic defined in `plan.md` Phase 1.
+- [ ] T017 [P] Generate `data/screening/inclusion_criteria.yaml` programmatically. The YAML MUST contain keys for exclusion codes: `NO_TRUST_METRIC`, `NO_CONTROL_CONDITION`, `NO_MODERATOR_DATA`, and `NOT_PEER_REVIEWED`, mapping to the specific logic defined in `plan.md` Phase 1.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,13 +74,13 @@
 
 ### Tests for User Story 1
 
-- [~] T010 [P] [US1] Unit test for search query construction and API backoff logic in `tests/unit/test_search.py`
-- [~] T011 [P] [US1] Unit test for screening logic (exclusion codes: NO_TRUST_METRIC, NO_CONTROL_CONDITION, NO_MODERATOR_DATA) in `tests/unit/test_screening.py`
-- [~] T012 [P] [US1] Unit test for Cohen's Kappa calculation and adjudication flagging in `tests/unit/test_screening.py`
+- [X] T010 [P] [US1] Unit test for search query construction and API backoff logic in `tests/unit/test_search.py`
+- [X] T011 [P] [US1] Unit test for screening logic (exclusion codes: NO_TRUST_METRIC, NO_CONTROL_CONDITION, NO_MODERATOR_DATA) in `tests/unit/test_screening.py`
+- [X] T012 [P] [US1] Unit test for Cohen's Kappa calculation and adjudication flagging in `tests/unit/test_screening.py`
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [ ] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 1:
  **Task ID**: T013
  ^
@@ -88,9 +88,9 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 3, column 2:
  **Task ID**: T013
  ^) -->
-- [~] T014 [US1] Implement export of raw results to `data/search_results/raw_studies.csv` with fields: title, year, source, abstract, DOI
-- [~] T015 [US1] Implement dual-reviewer simulation logic in `code/01_search_and_screen.py` applying `data/screening/inclusion_criteria.yaml`
-- [~] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 (HALT) to wait for human input.
+- [ ] T014 [US1] Implement export of raw results to `data/search_results/raw_studies.csv` with fields: title, year, source, abstract, DOI
+- [ ] T015 [US1] Implement dual-reviewer simulation logic in `code/01_search_and_screen.py` applying `data/screening/inclusion_criteria.yaml`
+- [ ] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 (HALT) to wait for human input.
 - [ ] T016.5 [US1] **Adjudication Workflow**: Implement logic to detect the `adjudication_request.csv` flag. If present, the system must pause and wait for a human operator to manually edit `screening_log.csv` (resolving disputes) and clear the flag. Upon detection of resolved flags, re-run the screening logic (T015) and proceed to T018.
 - [ ] T018 [US1] **Deferred**: Removed. PRISMA generation moved to Phase N (T042) to ensure it uses final harmonized data.
 
