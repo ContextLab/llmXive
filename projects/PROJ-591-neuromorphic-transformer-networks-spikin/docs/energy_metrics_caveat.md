@@ -2,59 +2,74 @@
 
 ## Overview
 
-This document clarifies the nature of energy measurements produced by the Neuromorphic Transformer Networks pipeline, specifically addressing the limitations of CPU-based energy estimation.
+This document clarifies the methodology and limitations of energy consumption measurements
+in the Neuromorphic Transformer Networks project (PROJ-591).
 
-## The "CPU Proxy" Caveat
+## The "CPU Proxy" Methodology
 
-The energy metrics logged by `code/metrics/energy_logger.py` and reported in `data/processed/baseline_metrics.csv` and `data/processed/spiking_metrics.csv` are **estimates derived from wall-clock time**, not direct hardware power measurements.
+Due to hardware constraints (CPU-only execution environment), this project does not
+measure actual physical power consumption via hardware sensors (e.g., RAPL, IPMI, or
+specialized power meters). Instead, it employs a **CPU Proxy** estimation strategy
+implemented in `code/metrics/energy_logger.py`.
 
-### Why This Limitation Exists
+### How It Works
 
-1. **Hardware Constraints**: The project is constrained to CPU-only execution per the Constitution and CI requirements. Standard energy monitoring tools like `codecarbon` are optimized for GPU workloads and often provide unreliable or missing data on CPU-only systems.
-
-2. **Proxy Methodology**: When direct power measurement is unavailable, the system falls back to estimating energy consumption using:
+1. **Wall-Clock Time Measurement**: The system measures the precise execution time
+ of training and inference steps using `time.perf_counter()`.
+2. **Baseline Power Assumption**: A fixed power coefficient (Watts) is applied to
+ the elapsed time. This coefficient represents a standard TDP (Thermal Design Power)
+ for the target CPU class (e.g., 65W for a typical server CPU).
+3. **Calculation**:
  ```
- estimated_energy = wall_clock_time × cpu_power_baseline
+ Energy (kWh) = (Elapsed_Time_seconds * Assumed_Power_Watts) / 3,600,000
  ```
- Where `cpu_power_baseline` is a configurable constant (default: 65W for a typical server CPU).
+4. **Fallback Logic**: If the `codecarbon` library fails to initialize or detect
+ supported hardware, the system automatically falls back to this wall-clock
+ estimation and sets the `is_estimated` flag to `True`.
 
-3. **"Estimated" Flag**: All energy records generated via this fallback mechanism are marked with `is_estimated=True` in the logs. This flag is propagated to the CSV output as a boolean column.
+## Critical Limitations
 
-## Interpretation Guidelines
+### 1. Not Physical Measurement
+The values recorded in `data/processed/baseline_metrics.csv` and
+`data/processed/spiking_metrics.csv` are **estimates**, not direct physical
+measurements. They do not account for:
+- Dynamic voltage and frequency scaling (DVFS)
+- Actual CPU utilization percentages (idle vs.满载)
+- Memory bus energy consumption
+- Cooling overhead (PUE)
 
-When analyzing results:
+### 2. Relative Comparison Validity
+While absolute energy values are approximate, the **relative comparison** between
+the Baseline Transformer and the Spiking Transformer is valid for this study.
+Since both models run on the same hardware, under the same workload conditions,
+and with the same measurement methodology, the *difference* in energy consumption
+reflects the architectural efficiency gains of the spiking approach.
 
-- **Comparative Validity**: While absolute energy values are estimates, **relative comparisons** between baseline and spiking models trained under identical conditions remain valid. The same proxy methodology applies to both, preserving the ratio of energy consumption.
+### 3. Spiking Efficiency Context
+The primary hypothesis is that spiking neural networks (SNNs) reduce energy by
+utilizing sparse activation (fewer spikes). Even with a CPU proxy, the reduction
+in floating-point operations (FLOPs) and memory access patterns in the spiking
+model should correlate with lower estimated energy usage.
 
-- **Statistical Analysis**: Paired t-tests (Task T022) on energy-per-token metrics are statistically sound because the systematic error introduced by the proxy method cancels out when comparing matched seeds.
+## Reporting Standards
 
-- **Absolute Values**: Do not interpret the absolute kWh values as precise physical measurements. They represent a consistent proxy for computational effort.
+All generated reports (e.g., `data/results/statistical_analysis_report.md`) must
+explicitly state:
+> "Energy metrics are derived via a CPU proxy estimation (wall-clock time × fixed
+> power coefficient) due to the lack of direct hardware power sensing in the
+> execution environment. Values are marked as 'estimated' in the data files."
 
-## Implementation Details
+## Implementation Reference
 
-The fallback logic is implemented in `code/metrics/energy_logger.py`:
-
-- If `codecarbon` fails to initialize or returns `None` for power data, the system automatically switches to the time-based proxy.
-- The `EnergyLogger` class sets the `is_estimated` flag accordingly.
-- The `estimate_energy_from_time` function applies the configurable power baseline.
+- **Source Code**: `code/metrics/energy_logger.py`
+- **Key Function**: `estimate_energy_from_time()`
+- **Data Flag**: `is_estimated` (boolean) in `EnergyRecord` dataclass
+- **Fallback Trigger**: `codecarbon` initialization failure or unsupported hardware
 
 ## Future Improvements
 
-To obtain direct power measurements:
-
-1. Deploy on hardware with IPMI or RAPL (Running Average Power Limit) support.
-2. Use external power meters for physical measurement.
-3. Upgrade to GPU-accelerated environments where `codecarbon` provides direct telemetry.
-
-## References
-
-- Constitution Principle III: Data Hygiene and State Tracking
-- Task T007: Implementation of `energy_logger.py`
-- Task T018: Integration of energy logging in spiking training
-- Spec FR-009: Paired Statistical Design (relies on consistent measurement methodology)
-
-## Conclusion
-
-The "CPU Proxy" caveat does not invalidate the scientific findings of this project. The primary goal is to demonstrate the **relative efficiency** of spiking neural dynamics compared to conventional transformers. Since both models are measured using the same proxy methodology under identical conditions, the comparative results remain robust and scientifically meaningful.
-
-For absolute energy values, users must acknowledge the estimated nature of the data and treat them as computational effort proxies rather than physical power measurements.
+To transition from "Proxy" to "Physical" measurement:
+1. Deploy on hardware with RAPL (Running Average Power Limit) support.
+2. Integrate `codecarbon` with actual power meter APIs.
+3. Update `requirements.txt` to include `rapl` or `pyrapl` dependencies.
+4. Modify `EnergyLogger` to read from `/sys/class/powercap/intel-rapl/` on Linux.

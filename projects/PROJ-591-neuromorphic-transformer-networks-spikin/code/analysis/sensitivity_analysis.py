@@ -1,159 +1,144 @@
-"""
-Sensitivity Analysis for Neuromorphic Transformer Study (Task T024)
-
-Implements a sensitivity sweep over energy reduction thresholds to calculate
-False Positive (FP) and False Negative (FN) rates.
-
-Ground Truth Definition: A model is considered a "true positive" for energy
-efficiency if it achieves >= 30% reduction in energy_per_token compared to
-the baseline.
-
-Thresholds to sweep: {0.20, 0.25, 0.30, 0.35}
-
-Output: data/results/sensitivity_analysis.csv
-"""
-
 import os
 import sys
 import argparse
 import pandas as pd
 import numpy as np
+from typing import Dict, List, Tuple, Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
+# Constants for the sensitivity analysis
+THRESHOLDS = [0.20, 0.25, 0.30, 0.35]
+GROUND_TRUTH_THRESHOLD = 0.30  # Ground truth: >= 30% reduction
 
-from analysis.statistical_tests import load_metrics_data
-
-def calculate_reduction_metrics(baseline_df, spiking_df):
+def calculate_reduction_metrics(baseline_df: pd.DataFrame, spiking_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregates data by seed and calculates the mean energy reduction per seed.
-    Returns a DataFrame with columns: seed, baseline_mean_energy, spiking_mean_energy, reduction_ratio.
+    Calculate the percentage reduction in perplexity and energy for each seed.
+    Returns a DataFrame with seed, baseline_perplexity, spiking_perplexity,
+    perplexity_reduction, baseline_energy, spiking_energy, energy_reduction.
     """
-    # Group by seed to get mean energy per seed across epochs (or just use the final epoch if needed,
-    # but typically we compare final performance or mean performance over stable epochs).
-    # For this analysis, we will use the mean energy per token across all epochs for each seed
-    # to represent the model's efficiency for that seed.
+    # Merge on seed to ensure pairing
+    merged = pd.merge(
+        baseline_df, spiking_df, on='seed', suffixes=('_base', '_spike')
+    )
 
-    baseline_agg = baseline_df.groupby('seed')['energy_per_token_kWh'].mean().reset_index()
-    baseline_agg.columns = ['seed', 'baseline_mean_energy']
+    # We need the final epoch metrics for each seed (or the best epoch if early stopping)
+    # Assuming the CSV contains multiple epochs, we take the last recorded epoch for simplicity
+    # or the one with the lowest perplexity. For this task, we'll take the last row per seed.
+    final_baseline = baseline_df.sort_values('epoch').groupby('seed').last().reset_index()
+    final_spiking = spiking_df.sort_values('epoch').groupby('seed').last().reset_index()
 
-    spiking_agg = spiking_df.groupby('seed')['energy_per_token_kWh'].mean().reset_index()
-    spiking_agg.columns = ['seed', 'spiking_mean_energy']
+    merged = pd.merge(
+        final_baseline[['seed', 'perplexity', 'energy_per_token_kWh']],
+        final_spiking[['seed', 'perplexity', 'energy_per_token_kWh']],
+        on='seed',
+        suffixes=('_base', '_spike')
+    )
 
-    # Merge on seed
-    merged = pd.merge(baseline_agg, spiking_agg, on='seed', how='inner')
-
-    if merged.empty:
-        raise ValueError("No matching seeds found between baseline and spiking datasets.")
-
-    # Calculate reduction ratio: (Baseline - Spiking) / Baseline
-    # If Spiking is lower, this is positive.
-    merged['reduction_ratio'] = (merged['baseline_mean_energy'] - merged['spiking_mean_energy']) / merged['baseline_mean_energy']
+    # Calculate reductions
+    # Reduction = (Baseline - Spiking) / Baseline
+    # Positive value means Spiking is better (lower perplexity/energy)
+    merged['perplexity_reduction'] = (merged['perplexity_base'] - merged['perplexity_spike']) / merged['perplexity_base']
+    merged['energy_reduction'] = (merged['energy_per_token_kWh_base'] - merged['energy_per_token_kWh_spike']) / merged['energy_per_token_kWh_base']
 
     return merged
 
-def run_sensitivity_sweep(merged_data, thresholds):
+def run_sensitivity_sweep(
+    baseline_path: str,
+    spiking_path: str,
+    output_path: str,
+    thresholds: List[float] = THRESHOLDS
+) -> pd.DataFrame:
     """
-    Calculates FP and FN rates for each threshold.
+    Run sensitivity analysis over the specified thresholds.
+    Calculates True Positive (TP), False Positive (FP), True Negative (TN), False Negative (FN)
+    based on the ground truth (>= 30% reduction).
 
-    Ground Truth (GT): reduction_ratio >= 0.30 (30% reduction)
-    Prediction (Pred): reduction_ratio >= threshold
+    Ground Truth: Reduction >= 0.30
+    Prediction: Reduction >= threshold
 
-    Confusion Matrix Logic:
-    - True Positive (TP): GT=True AND Pred=True (Model is actually efficient, and we classified it as such)
-    - False Positive (FP): GT=False AND Pred=True (Model is NOT actually efficient, but we thought it was)
-    - False Negative (FN): GT=True AND Pred=False (Model IS actually efficient, but we missed it)
-    - True Negative (TN): GT=False AND Pred=False
-
-    Rates:
-    - FP Rate = FP / (FP + TN)  (Proportion of inefficient models incorrectly flagged as efficient)
-    - FN Rate = FN / (FN + TP)  (Proportion of efficient models incorrectly missed)
+    TP: GT=True, Pred=True
+    FP: GT=False, Pred=True
+    TN: GT=False, Pred=False
+    FN: GT=True, Pred=False
     """
+    if not os.path.exists(baseline_path) or not os.path.exists(spiking_path):
+        raise FileNotFoundError(f"Input files not found: {baseline_path} or {spiking_path}")
+
+    baseline_df = pd.read_csv(baseline_path)
+    spiking_df = pd.read_csv(spiking_path)
+
+    metrics_df = calculate_reduction_metrics(baseline_df, spiking_df)
+
     results = []
 
-    # Define Ground Truth: >= 30% reduction
-    gt_threshold = 0.30
-    merged_data['is_efficient_gt'] = merged_data['reduction_ratio'] >= gt_threshold
-
     for thresh in thresholds:
-        # Prediction based on current threshold
-        merged_data['is_efficient_pred'] = merged_data['reduction_ratio'] >= thresh
+        # Ground Truth: Actual reduction >= 0.30
+        gt_positive = metrics_df['energy_reduction'] >= GROUND_TRUTH_THRESHOLD
+        # Prediction: Predicted reduction >= threshold
+        pred_positive = metrics_df['energy_reduction'] >= thresh
 
-        # Calculate counts
-        tp = ((merged_data['is_efficient_gt']) & (merged_data['is_efficient_pred'])).sum()
-        fp = ((~merged_data['is_efficient_gt']) & (merged_data['is_efficient_pred'])).sum()
-        fn = ((merged_data['is_efficient_gt']) & (~merged_data['is_efficient_pred'])).sum()
-        tn = ((~merged_data['is_efficient_gt']) & (~merged_data['is_efficient_pred'])).sum()
+        tp = (gt_positive & pred_positive).sum()
+        fp = (~gt_positive & pred_positive).sum()
+        tn = (~gt_positive & ~pred_positive).sum()
+        fn = (gt_positive & ~pred_positive).sum()
 
-        # Calculate rates (handle division by zero)
-        fp_denom = fp + tn
-        fn_denom = fn + tp
+        total = len(metrics_df)
+        if total == 0:
+            raise ValueError("No data points found for analysis.")
 
-        fp_rate = fp / fp_denom if fp_denom > 0 else 0.0
-        fn_rate = fn / fn_denom if fn_denom > 0 else 0.0
+        # Calculate rates
+        # Sensitivity (Recall) = TP / (TP + FN) = TP / Total_Ground_Truth_Positive
+        # Specificity = TN / (TN + FP)
+        # FP Rate = FP / (FP + TN)
+        # FN Rate = FN / (FN + TP)
+
+        gt_pos_count = tp + fn
+        gt_neg_count = tn + fp
+
+        sensitivity = tp / gt_pos_count if gt_pos_count > 0 else 0.0
+        specificity = tn / gt_neg_count if gt_neg_count > 0 else 0.0
+        fp_rate = fp / gt_neg_count if gt_neg_count > 0 else 0.0
+        fn_rate = fn / gt_pos_count if gt_pos_count > 0 else 0.0
 
         results.append({
             'threshold': thresh,
             'tp': int(tp),
             'fp': int(fp),
-            'fn': int(fn),
             'tn': int(tn),
+            'fn': int(fn),
+            'sensitivity': sensitivity,
+            'specificity': specificity,
             'fp_rate': fp_rate,
             'fn_rate': fn_rate,
-            'total_samples': len(merged_data)
+            'total_samples': total
         })
 
-    return pd.DataFrame(results)
+    results_df = pd.DataFrame(results)
+    results_df.to_csv(output_path, index=False)
+    return results_df
 
 def main():
-    # Define paths relative to project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    data_dir = os.path.join(project_root, "data", "processed")
-    results_dir = os.path.join(project_root, "data", "results")
-
-    baseline_path = os.path.join(data_dir, "baseline_metrics.csv")
-    spiking_path = os.path.join(data_dir, "spiking_metrics.csv")
-    output_path = os.path.join(results_dir, "sensitivity_analysis.csv")
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis for spiking transformer energy reduction.")
+    parser.add_argument('--baseline', type=str, default='data/processed/baseline_metrics.csv',
+                        help='Path to baseline metrics CSV')
+    parser.add_argument('--spiking', type=str, default='data/processed/spiking_metrics.csv',
+                        help='Path to spiking metrics CSV')
+    parser.add_argument('--output', type=str, default='data/results/sensitivity_analysis.csv',
+                        help='Path to save sensitivity analysis results')
+    args = parser.parse_args()
 
     # Ensure output directory exists
-    os.makedirs(results_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
-    # Check if input files exist
-    if not os.path.exists(baseline_path):
-        raise FileNotFoundError(f"Baseline metrics not found at {baseline_path}. Run training tasks first.")
-    if not os.path.exists(spiking_path):
-        raise FileNotFoundError(f"Spiking metrics not found at {spiking_path}. Run training tasks first.")
-
-    print(f"Loading baseline data from {baseline_path}...")
-    baseline_df = load_metrics_data(baseline_path)
-
-    print(f"Loading spiking data from {spiking_path}...")
-    spiking_df = load_metrics_data(spiking_path)
-
-    # Calculate reduction metrics
-    print("Calculating energy reduction ratios per seed...")
-    merged_data = calculate_reduction_metrics(baseline_df, spiking_df)
-
-    print(f"Found {len(merged_data)} matching seeds.")
-    print(f"Reduction ratios: {merged_data['reduction_ratio'].values}")
-
-    # Define thresholds
-    thresholds = [0.20, 0.25, 0.30, 0.35]
-
-    # Run sensitivity analysis
-    print(f"Running sensitivity sweep over thresholds: {thresholds}")
-    sensitivity_results = run_sensitivity_sweep(merged_data, thresholds)
-
-    # Save results
-    sensitivity_results.to_csv(output_path, index=False)
-    print(f"Sensitivity analysis saved to {output_path}")
-
-    # Print summary
-    print("\nSensitivity Analysis Summary:")
-    print(sensitivity_results.to_string(index=False))
+    try:
+        results = run_sensitivity_sweep(args.baseline, args.spiking, args.output)
+        print(f"Sensitivity analysis complete. Results saved to {args.output}")
+        print(results.to_string(index=False))
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error during analysis: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

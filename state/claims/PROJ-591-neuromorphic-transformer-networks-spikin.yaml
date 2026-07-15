@@ -386,3 +386,673 @@
   source_type: external
   status: verified
   updated_at: '2026-07-01T23:08:04Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Download WikiText-2 from HuggingFace datasets.load_dataset('wikitext',
+    'wikitext-2-raw-v1')
+  claim_id: c_bcfb5d93
+  context: 'T004 Implement code/data/dataset_loader.py to download WikiText-2. Primary
+    Source: Use datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'') (HuggingFace)
+    as the canonical source per Constitution Principle I.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/dataset_loader.py to download WikiText-2. Primary
+    Source: Use datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'') (HuggingFace)
+    as the canonical source per Constitution Principle I.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:13:16Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Fallback to S3 URL for WikiText-2 with 3 retry attempts
+  claim_id: c_c25302b7
+  context: 'Primary Source: Use datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'')
+    (HuggingFace) as the canonical source per Constitution Principle I. Fallback:
+    If HF fails, use https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
+    with 3 retry attempts.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Fallback: If HF fails, use https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
+    with 3 retry attempts.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:14:03Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Compute SHA-256 checksum of downloaded WikiText-2 data
+  claim_id: c_5dae5d8f
+  context: 'Data Hygiene: Compute SHA-256 checksum of the downloaded data and record
+    it in state/projects/PROJ-591-neuromorphic-transformer-networks-spikin.yaml (Constitution
+    Principle III).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Data Hygiene: Compute SHA-256 checksum of the downloaded data and record
+    it in state/projects/PROJ-591-neuromorphic-transformer-networks-spikin.yaml (Constitution
+    Principle III).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:14:55Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: 'Baseline Transformer architecture: 4-head, ~2M parameters'
+  claim_id: c_b6be89f6
+  context: T005 Implement code/models/baseline_transformer.py for a -layer, 4-head
+    Transformer (~2M params) with CPU-only enforcement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/models/baseline_transformer.py for a -layer, 4-head Transformer
+    (~2M params) with CPU-only enforcement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:15:52Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: 'Early stopping configuration: patience 2, delta 0.01'
+  claim_id: c_96b50f74
+  context: T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline
+    training.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Add early stopping logic (patience=2, delta=0.01) to baseline training.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:15:52Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: 'Zero-spike termination: >50% silent neurons for 3 epochs triggers error'
+  claim_id: c_804d9e84
+  context: T017 [US2] ... Integrate zero-spike detection logic (FR-006 edge case)
+    as a blocking condition within the training loop. If >50% neurons silent for 3
+    epochs, raise TrainingTerminationError...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If >50% neurons silent for 3 epochs, raise TrainingTerminationError,
+    log warning ''WARNING: Zero-spike detection triggered'', and save diagnostic report
+    to data/logs/zero_spike_report.json.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:15:52Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.20, 0.25, 0.30, 0.35 with ground
+    truth 30% reduction'
+  claim_id: c_0fb5781f
+  context: "T024 [US3] Implement sensitivity analysis sweep over thresholds {0.20,\
+    \ 0.25, 0.30, 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30,\
+    \ 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:16:50Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: early stopping reduces average runtime by 15 to 20 percent
+  claim_id: c_f1244e1e
+  context: Implemented in `code/main.py` with patience of 2 epochs. Prevents unnecessary
+    training when validation loss plateaus. Reduces average runtime by ~15-20%
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Early stopping reduces average runtime by ~15-20%.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:46:26Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: baseline average runtime for 3 epochs is 126.73 seconds
+  claim_id: c_2070a4c8
+  context: Runtime Statistics table showing Baseline Avg (3 epochs) as 126.73 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Avg (3 epochs) runtime is 126.73 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:46:54Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: spiking average runtime for 3 epochs is 187.33 seconds
+  claim_id: c_527036f6
+  context: Runtime Statistics table showing Spiking Avg (3 epochs) as 187.33 seconds.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Spiking Avg (3 epochs) runtime is 187.33 seconds.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:46:54Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: total benchmark time for 6 runs is 942.2 seconds
+  claim_id: c_26c3e010
+  context: Runtime Statistics table showing Total Benchmark Time (6 runs) as 942.2
+    seconds (15.7 minutes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Benchmark Time for 6 runs is 942.2 seconds (15.7 minutes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:47:26Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: estimated full run for 5 seeds and 10 epochs is 5.2 hours
+  claim_id: c_a06b09bb
+  context: Runtime Statistics table showing Estimated Full Run (5 seeds, 10 epochs)
+    as 5.2 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimated Full Run (5 seeds, 10 epochs) is 5.2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:47:57Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: maximum allowed runtime is 6.0 hours
+  claim_id: c_8dd167dd
+  context: Runtime Statistics table showing Maximum Allowed Runtime as 6.0 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum Allowed Runtime is 6.0 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:48:31Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: baseline model seed 1 duration 125.4 seconds perplexity 45.2
+  claim_id: c_cb81315e
+  context: Per-Seed Breakdown table row for Seed 1 Baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline model with Seed 1 has a duration of 125.4 seconds and final perplexity
+    of 45.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:49:05Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: baseline model seed 2 duration 128.1 seconds perplexity 44.8
+  claim_id: c_ae122816
+  context: Per-Seed Breakdown table row for Seed 2 Baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline model with Seed 2 has a duration of 128.1 seconds and final perplexity
+    of 44.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:49:32Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: baseline model seed 3 duration 126.7 seconds perplexity 45.5
+  claim_id: c_2145b10b
+  context: Per-Seed Breakdown table row for Seed 3 Baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline model with Seed 3 has a duration of 126.7 seconds and final perplexity
+    of 45.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:50:01Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: spiking model seed 1 duration 185.3 seconds perplexity 48.1
+  claim_id: c_bc74a9d2
+  context: Per-Seed Breakdown table row for Seed 1 Spiking.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Spiking model with Seed 1 has a duration of 185.3 seconds and final perplexity
+    of 48.1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:50:01Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: spiking model seed 2 duration 189.2 seconds perplexity 47.9
+  claim_id: c_4749e806
+  context: Per-Seed Breakdown table row for Seed 2 Spiking.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Spiking model with Seed 2 has a duration of 189.2 seconds and final perplexity
+    of 47.9.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:50:01Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: spiking model seed 3 duration 187.5 seconds perplexity 48.3
+  claim_id: c_5c27ecff
+  context: Per-Seed Breakdown table row for Seed 3 Spiking.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Spiking model with Seed 3 has a duration of 187.5 seconds and final perplexity
+    of 48.3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:50:01Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/docs/optimization_report.md
+  attempts: 1
+  canonical: benchmark demonstrates 0.8 hours margin below maximum allowed runtime
+  claim_id: c_f4929268
+  context: Conclusion section stating the benchmark results demonstrate a comfortable
+    margin (0.8 hours) below the maximum allowed runtime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark demonstrates a margin of 0.8 hours below the maximum allowed
+    runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:50:24Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: mean baseline perplexity is 12.85
+  claim_id: c_a1867208
+  context: Perplexity Comparison section listing mean values for baseline and spiking
+    models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean baseline perplexity: 12.85'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:56:23Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: mean spiking perplexity is 13.20
+  claim_id: c_52736d8e
+  context: Perplexity Comparison section listing mean values for baseline and spiking
+    models.
+  evidence:
+    asserted: '13.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Mean spiking perplexity: 13.20'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T03:56:23Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: t-statistic for perplexity comparison is -2.45
+  claim_id: c_1ab85791
+  context: Perplexity Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T-statistic: -2.45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:57:25Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: uncorrected p-value for perplexity comparison is 0.062
+  claim_id: c_c093acbd
+  context: Perplexity Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value (uncorrected): 0.062'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:58:05Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: bonferroni corrected p-value for perplexity comparison is 0.124
+  claim_id: c_8cd5601a
+  context: Perplexity Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value (Bonferroni corrected): 0.124'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T03:59:00Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: mean baseline energy is 0.000112 kWh
+  claim_id: c_cf129295
+  context: Energy Per Token Comparison section listing mean energy values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean baseline energy: 0.000112 kWh'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:00:03Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: mean spiking energy is 0.000082 kWh
+  claim_id: c_edb54c8f
+  context: Energy Per Token Comparison section listing mean energy values.
+  evidence:
+    asserted: '8.2e-05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Mean spiking energy: 0.000082 kWh'
+  resolved_value: '3.141593'
+  resolver: approximate
+  source_hash: 164d7016879ae8cb4b8c9ecfa8c1106609fff435bc324bd94b551bd54c3c494a
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:00:03Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: t-statistic for energy comparison is 4.87
+  claim_id: c_38b4345c
+  context: Energy Per Token Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T-statistic: 4.87'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:00:03Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: uncorrected p-value for energy comparison is 0.006
+  claim_id: c_7b0a7bd9
+  context: Energy Per Token Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value (uncorrected): 0.006'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:00:32Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: bonferroni corrected p-value for energy comparison is 0.012
+  claim_id: c_407d0cfc
+  context: Energy Per Token Comparison section listing t-statistic and p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value (Bonferroni corrected): 0.012'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:09Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: true positive rate is 95% at 20% threshold
+  claim_id: c_4e59f758
+  context: Sensitivity Analysis section listing true positive rates at various thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'At 20% threshold: 95% true positive rate'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:10Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: true positive rate is 92% at 25% threshold
+  claim_id: c_a0148efa
+  context: Sensitivity Analysis section listing true positive rates at various thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'At 25% threshold: 92% true positive rate'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:10Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: true positive rate is 88% at 30% threshold
+  claim_id: c_f86400f0
+  context: Sensitivity Analysis section listing true positive rates at various thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'At 30% threshold: 88% true positive rate'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:10Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: true positive rate is 75% at 35% threshold
+  claim_id: c_4f110d97
+  context: Sensitivity Analysis section listing true positive rates at various thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'At 35% threshold: 75% true positive rate'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:10Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: average isi variance is 0.10
+  claim_id: c_392e1407
+  context: Temporal Coding Metrics section listing average metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'ISI Variance: 0.10 (avg)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:01:55Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: average bits per spike is 2.42
+  claim_id: c_c92bb130
+  context: Temporal Coding Metrics section listing average metrics.
+  evidence:
+    asserted: '2.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Bits per Spike: 2.42 (avg)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:01:55Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: average spike train synchrony is 0.48
+  claim_id: c_27f71bd6
+  context: Temporal Coding Metrics section listing average metrics.
+  evidence:
+    asserted: '0.48'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Spike Train Synchrony: 0.48 (avg)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:01:55Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/data/results/statistical_analysis_report.md
+  attempts: 1
+  canonical: spiking transformer achieves 27% average energy consumption reduction
+  claim_id: c_987d90bb
+  context: Conclusion section summarizing energy reduction results.
+  evidence:
+    asserted: '27.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The spiking transformer achieves a statistically significant reduction
+    in energy consumption (~27% average)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T04:01:55Z'
