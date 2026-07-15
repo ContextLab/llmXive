@@ -1,10 +1,25 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "llmXive automated science pipeline"
+requires-python = ">=3.9"
+dependencies = [
+    "torch==2.3.0+cpu",
+    "transformers==4.41.2",
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "numpy",
+    "pyyaml"
+]
 
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -20,6 +35,6 @@ exclude = '''
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]

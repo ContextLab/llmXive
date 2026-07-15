@@ -1,7 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
-import json
-import hashlib
+from typing import Any, Dict, List, Type, TypeVar
+
+T = TypeVar('T', bound='SyntheticProblem')
 
 @dataclass
 class SyntheticProblem:
@@ -13,6 +14,7 @@ class SyntheticProblem:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert instance to dictionary."""
         return {
             "id": self.id,
             "premises": self.premises,
@@ -23,7 +25,8 @@ class SyntheticProblem:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SyntheticProblem":
+    def from_dict(cls: Type[T], data: Dict[str, Any]) -> T:
+        """Create instance from dictionary."""
         return cls(
             id=data["id"],
             premises=data["premises"],

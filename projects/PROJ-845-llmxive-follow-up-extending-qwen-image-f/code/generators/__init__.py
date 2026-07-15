@@ -1,1 +1,3 @@
-# code.generators package
+# Generators package
+from logic_generator import generate_propositional_problem, generate_arithmetic_problem, generate_dataset_batch
+from test_set_generator import compute_structure_hash, load_existing_hashes, generate_unique_problem

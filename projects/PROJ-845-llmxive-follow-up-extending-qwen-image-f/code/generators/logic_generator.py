@@ -1,249 +1,98 @@
 import hashlib
 import random
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from models.synthetic_problem import SyntheticProblem
 from config import Config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Logical operators and their precedence for parsing
-OPERATORS = ['AND', 'OR', 'IMPLIES', 'NOT']
-ATOMS = ['P', 'Q', 'R', 'S', 'T']
+# Simple propositional logic templates
+TEMPLATES_PROP = [
+    ("If A then B", "A", "B", ["imp", "var"]),
+    ("A and B", "A", "B", ["and", "var"]),
+    ("A or B", "A", "B", ["or", "var"]),
+    ("Not A", "A", "Not A", ["not", "var"]),
+    ("A implies B, A, therefore B", "A", "B", ["imp", "var", "mp"]),
+]
 
-def _parse_premises(premises: List[str]) -> List[str]:
-    """Simple placeholder parser; in a full implementation, this would
-    build a formal representation of the premises."""
-    return premises
-
-def _check_satisfiability(premises: List[str], solution: str) -> bool:
+def generate_propositional_problem(entropy_level: str, seed: int) -> SyntheticProblem:
     """
-    Perform a simple SAT check to verify if the premises are consistent
-    and allow for the solution to be true.
-    
-    This implementation uses a randomized truth assignment simulation
-    to approximate satisfiability for the generated propositional logic problems.
-    For a rigorous check, a full SAT solver (e.g., pycosat) would be ideal,
-    but we implement a lightweight check here to avoid external dependencies
-    beyond the core requirements.
-    
-    Logic:
-    1. If premises contain a direct contradiction (e.g., "P AND NOT P"), return False.
-    2. Simulate random truth assignments to atoms.
-    3. If any assignment satisfies all premises, the problem is solvable.
-    4. We also verify that the solution is not logically impossible given the premises.
+    Generate a single propositional logic problem.
     """
-    # 1. Quick contradiction check for simple patterns
-    premises_str = " ".join(premises).upper()
-    for atom in ATOMS:
-        if f"{atom} AND NOT {atom}" in premises_str or f"NOT {atom} AND {atom}" in premises_str:
-            logger.debug(f"Direct contradiction detected in premises: {premises}")
-            return False
+    random.seed(seed)
+    template = random.choice(TEMPLATES_PROP)
     
-    # 2. Randomized satisfiability check (Monte Carlo style)
-    # If we can find at least one assignment where premises are True, it's likely satisfiable.
-    # Given the small scale of generated problems, 1000 trials is sufficient.
-    trials = 1000
-    atoms_in_problem = set()
-    for p in premises:
-        for atom in ATOMS:
-            if atom in p:
-                atoms_in_problem.add(atom)
+    premises = [template[0]]
+    solution = template[2] if len(template) > 2 else "Unknown"
+    operators = template[3]
     
-    if not atoms_in_problem:
-        # No atoms, premises are just constants or empty
-        return True
-
-    atoms_list = list(atoms_in_problem)
+    # Adjust entropy by complexity (simulated)
+    if entropy_level == "high":
+        premises.append("C is true")
+        operators.append("var")
+    elif entropy_level == "low":
+        premises = [template[0]]
+        operators = [template[3][0]]
     
-    for _ in range(trials):
-        # Random assignment
-        assignment = {atom: random.choice([True, False]) for atom in atoms_list}
-        
-        # Evaluate premises
-        all_premises_true = True
-        for p in premises:
-            if not _eval_proposition(p, assignment):
-                all_premises_true = False
-                break
-        
-        if all_premises_true:
-            # Found a model for premises. Now check if solution is consistent.
-            # Ideally, the solution should be implied, but for "solvability"
-            # we just need the system not to be contradictory.
-            # If the solution is "P" and we found a model where premises are true but P is false,
-            # that's fine for satisfiability of premises, but might mean the solution isn't derived.
-            # However, the task asks to discard UNSOLVABLE problems (contradictions).
-            # So if premises are satisfiable, we consider it solvable.
-            return True
-    
-    # If no assignment found in trials, assume unsatisfiable (or very hard)
-    logger.debug(f"Failed to find satisfiable assignment after {trials} trials")
-    return False
-
-def _eval_proposition(expr: str, assignment: Dict[str, bool]) -> bool:
-    """
-    Evaluate a simple propositional expression given an assignment.
-    Handles: ATOM, NOT ATOM, ATOM AND ATOM, ATOM OR ATOM, ATOM IMPLIES ATOM.
-    Assumes well-formed input for the generator's output format.
-    """
-    expr = expr.strip().upper()
-    
-    # Handle NOT
-    if expr.startswith("NOT"):
-        inner = expr[3:].strip()
-        return not _eval_proposition(inner, assignment)
-    
-    # Handle AND, OR, IMPLIES (left to right, simple split)
-    # Note: This is a naive parser. For complex nesting, a recursive descent parser is needed.
-    # Given the generator creates simple chains, we check for the main operator.
-    
-    # Check IMPLIES
-    if " IMPLIES " in expr:
-        parts = expr.split(" IMPLIES ", 1)
-        lhs = _eval_proposition(parts[0], assignment)
-        rhs = _eval_proposition(parts[1], assignment)
-        return (not lhs) or rhs
-    
-    # Check AND
-    if " AND " in expr:
-        parts = expr.split(" AND ", 1)
-        return _eval_proposition(parts[0], assignment) and _eval_proposition(parts[1], assignment)
-    
-    # Check OR
-    if " OR " in expr:
-        parts = expr.split(" OR ", 1)
-        return _eval_proposition(parts[0], assignment) or _eval_proposition(parts[1], assignment)
-    
-    # Base case: Atom
-    if expr in assignment:
-        return assignment[expr]
-    
-    # Fallback for constants or unknown
-    return False
-
-def generate_propositional_problem(entropy_level: str = "Medium") -> Optional[SyntheticProblem]:
-    """
-    Generates a propositional logic problem.
-    If the generated problem is unsolvable (contradictory premises), it returns None.
-    """
-    # Generate random components
-    num_premises = random.randint(2, 4)
-    premises = []
-    operators_used = []
-    
-    for _ in range(num_premises):
-        atom1 = random.choice(ATOMS)
-        atom2 = random.choice(ATOMS)
-        op = random.choice(OPERATORS[:3]) # Exclude NOT for premise structure simplicity
-        
-        if op == 'NOT':
-            premise = f"NOT {atom1}"
-        else:
-            premise = f"{atom1} {op} {atom2}"
-        
-        premises.append(premise)
-        if op not in operators_used:
-            operators_used.append(op)
-    
-    # Generate a solution that is likely derivable or at least consistent
-    # For simplicity, we pick one of the atoms involved
-    all_atoms = set()
-    for p in premises:
-        for a in ATOMS:
-            if a in p:
-                all_atoms.add(a)
-    
-    if not all_atoms:
-        return None
-        
-    solution_atom = random.choice(list(all_atoms))
-    # Simple solution: "P is True" or "P"
-    solution = solution_atom
-    
-    # Check solvability
-    if not _check_satisfiability(premises, solution):
-        logger.debug(f"Generated problem is unsolvable: {premises} -> {solution}")
-        return None
-    
-    # Calculate structure hash
-    structure_str = "|".join(premises) + "||" + solution
-    structure_hash = hashlib.sha256(structure_str.encode()).hexdigest()
+    problem_id = hashlib.md5(f"{seed}{template[0]}".encode()).hexdigest()[:8]
     
     return SyntheticProblem(
-        id=hashlib.sha256(str(random.random()).encode()).hexdigest()[:16],
+        id=problem_id,
         premises=premises,
-        operators=operators_used,
+        operators=operators,
         solution=solution,
         entropy_level=entropy_level,
-        metadata={
-            "structure_hash": structure_hash,
-            "num_premises": num_premises,
-            "solved": True
-        }
+        metadata={"seed": seed, "template": template[0]}
     )
 
-def generate_arithmetic_problem(entropy_level: str = "Medium") -> Optional[SyntheticProblem]:
+def generate_arithmetic_problem(entropy_level: str, seed: int) -> SyntheticProblem:
     """
-    Generates a simple arithmetic problem.
-    Checks for solvability (e.g., no division by zero, integer results if required).
+    Generate a simple arithmetic problem.
     """
-    ops = ['+', '-', '*']
-    # Avoid division for simplicity in this generator unless handled carefully
-    a = random.randint(1, 20)
-    b = random.randint(1, 20)
-    op = random.choice(ops)
+    random.seed(seed)
+    a = random.randint(1, 10)
+    b = random.randint(1, 10)
+    op = random.choice(["+", "-", "*"])
     
-    if op == '+':
-        result = a + b
-        premise = f"{a} + {b}"
-    elif op == '-':
-        result = a - b
-        premise = f"{a} - {b}"
+    if op == "+":
+        res = a + b
+    elif op == "-":
+        res = a - b
     else:
-        result = a * b
-        premise = f"{a} * {b}"
+        res = a * b
     
-    solution = str(result)
+    premises = [f"{a} {op} {b} = ?"]
+    solution = str(res)
+    operators = [op]
     
-    # Arithmetic problems are generally solvable unless constraints are weird
-    # We assume standard arithmetic rules apply.
-    
-    structure_str = f"{premise}={solution}"
-    structure_hash = hashlib.sha256(structure_str.encode()).hexdigest()
+    problem_id = hashlib.md5(f"{seed}{a}{op}{b}".encode()).hexdigest()[:8]
     
     return SyntheticProblem(
-        id=hashlib.sha256(str(random.random()).encode()).hexdigest()[:16],
-        premises=[premise],
-        operators=[op],
+        id=problem_id,
+        premises=premises,
+        operators=operators,
         solution=solution,
         entropy_level=entropy_level,
-        metadata={
-            "structure_hash": structure_hash,
-            "num_premises": 1,
-            "solved": True
-        }
+        metadata={"seed": seed, "a": a, "b": b, "op": op}
     )
 
-def main():
+def generate_dataset_batch(
+    count: int,
+    entropy_level: str,
+    seed: int
+) -> List[SyntheticProblem]:
     """
-    Main entry point for testing the generator with contradiction detection.
+    Generate a batch of problems with a specific entropy level.
     """
-    logger.info("Testing logic generator with contradiction detection...")
-    config = Config()
-    random.seed(config.seed)
-    
-    success_count = 0
-    fail_count = 0
-    
-    for i in range(100):
-        prob = generate_propositional_problem("High")
-        if prob:
-            success_count += 1
+    problems = []
+    for i in range(count):
+        # Alternate between logic and arithmetic
+        if i % 2 == 0:
+            p = generate_propositional_problem(entropy_level, seed + i)
         else:
-            fail_count += 1
+            p = generate_arithmetic_problem(entropy_level, seed + i)
+        problems.append(p)
     
-    logger.info(f"Generated {success_count} solvable problems, discarded {fail_count} unsolvable ones.")
-
-if __name__ == "__main__":
-    main()
+    logger.info(f"Generated {len(problems)} problems with entropy level: {entropy_level}")
+    return problems

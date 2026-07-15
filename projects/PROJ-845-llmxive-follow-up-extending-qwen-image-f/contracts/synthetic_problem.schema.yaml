@@ -1,17 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: SyntheticProblem
-description: |
-  Schema for a synthetic logical or arithmetic problem generated for the
-  llmXive pipeline. Used to define the ground truth structure and entropy
-  level of training and test samples.
+description: Schema for synthetic logic/arithmetic problem instances used in the dataset.
 type: object
-required:
-  - id
-  - premises
-  - operators
-  - solution
-  - entropy_level
-  - metadata
 properties:
   id:
     type: string
@@ -20,7 +10,7 @@ properties:
     type: array
     items:
       type: string
-    description: List of premise strings forming the problem context.
+    description: List of premise statements or conditions.
   operators:
     type: array
     items:
@@ -28,15 +18,19 @@ properties:
     description: List of logical or arithmetic operators used in the problem.
   solution:
     type: string
-    description: The ground truth solution or answer string.
+    description: The correct solution or conclusion derived from premises.
   entropy_level:
     type: string
-    enum:
-      - high
-      - low
-      - target
-    description: The controlled entropy classification of the problem.
+    enum: ["High", "Low", "Target"]
+    description: Classification of the problem's entropy level.
   metadata:
     type: object
-    description: Additional key-value pairs for problem attributes.
     additionalProperties: true
+    description: Additional metadata such as structure_hash, generation_seed, etc.
+required:
+  - id
+  - premises
+  - operators
+  - solution
+  - entropy_level
+  - metadata

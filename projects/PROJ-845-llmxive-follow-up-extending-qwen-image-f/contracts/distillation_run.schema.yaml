@@ -1,9 +1,44 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: DistillationRun
-description: |
-  Schema for a single distillation run record, capturing model parameters,
-  training dynamics, and resource usage constraints.
+description: Schema for recording the results of a single distillation training run.
 type: object
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the training run.
+  entropy_subset:
+    type: string
+    enum: ["High", "Low", "Target"]
+    description: The entropy subset used for this training run.
+  model_params:
+    type: object
+    additionalProperties: true
+    description: Hyperparameters and configuration used for the student model.
+  training_loss_curve:
+    type: array
+    items:
+      type: number
+    description: List of loss values recorded per epoch.
+  convergence_epoch:
+    type: integer
+    description: The epoch at which the loss threshold was first met, or max_epochs + 1 if failed.
+  final_accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Final accuracy on the validation set.
+  status:
+    type: string
+    enum: ["success", "failed_non_converge", "failed_resource_limit"]
+    description: Outcome status of the run.
+  resource_usage:
+    type: object
+    properties:
+      peak_ram_gb:
+        type: number
+      runtime_seconds:
+        type: number
+    description: Resource consumption metrics.
 required:
   - run_id
   - entropy_subset
@@ -13,54 +48,3 @@ required:
   - final_accuracy
   - status
   - resource_usage
-properties:
-  run_id:
-    type: string
-    description: Unique identifier for the distillation run.
-  entropy_subset:
-    type: string
-    enum:
-      - high
-      - low
-      - target
-    description: The entropy subset (dataset) used for this run.
-  model_params:
-    type: object
-    description: Configuration parameters used for the student model.
-    additionalProperties: true
-  training_loss_curve:
-    type: array
-    items:
-      type: number
-    description: List of loss values recorded per epoch.
-  convergence_epoch:
-    type: integer
-    minimum: 0
-    description: |
-      The epoch at which the loss first met the convergence threshold.
-      If the model did not converge, this should be max_epochs + 1.
-  final_accuracy:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Final accuracy on the validation/test set.
-  status:
-    type: string
-    enum:
-      - completed
-      - failed_non_converge
-      - failed_resource_limit
-    description: Outcome status of the run.
-  resource_usage:
-    type: object
-    description: Resource consumption metrics.
-    required:
-      - peak_ram_gb
-      - wall_clock_hours
-    properties:
-      peak_ram_gb:
-        type: number
-        minimum: 0.0
-      wall_clock_hours:
-        type: number
-        minimum: 0.0
