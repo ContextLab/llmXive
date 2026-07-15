@@ -1,334 +1,295 @@
 """
-Visualization module for generating boxplot figures comparing human-written
-and LLM-generated code metrics.
+Visualization module for generating boxplot visualizations of metric distributions.
+Generates figures for each metric type comparing human-written vs LLM-generated code.
 """
+
 import os
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Any, Tuple
 
-# Import existing project utilities
-from logging_config import setup_logger, get_logger
+# Import from existing project modules
+from data_model import MetricResult
 from state_tracker import update_state_with_artifact, load_state_file, save_state_file
-from seeds import get_seed_value
+from logging_config import get_logger
+from seeds import set_seed
 
-# Configure logger
-logger = get_logger(__name__)
+# Configure logging
+logger = get_logger("visualization")
 
 # Constants
-FIGURE_DPI = 300
-FIGURE_WIDTH = 10
-FIGURE_HEIGHT = 7
-FIGURE_FORMAT = 'png'
-STATE_FILE_PATH = Path('state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml')
-OUTPUT_DIR = Path('results/figures')
-
-# Metric column names expected in the aggregated CSVs
-METRIC_COLUMNS = [
-    'cyclomatic_complexity',
-    'loc',
-    'maintainability_index',
-    'potential_bug_count',
-    'style_issue_count'
+FIGURE_DIR = Path("results/figures")
+METRICS_DIR = Path("data/metrics")
+METRIC_TYPES = [
+    "cyclomatic_complexity",
+    "maintainability_index",
+    "loc",
+    "bug_potential",
+    "style_issues"
 ]
+GROUP_LABELS = {
+    "human": "Human-Written",
+    "codegen": "LLM-Generated (CodeParrot/CodeGen)"
+}
 
-def load_metric_data(metric_type: str, data_dir: Path) -> Optional[pd.DataFrame]:
+def load_metric_data(metric_type: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load aggregated metric data from CSV file.
-
+    Load metric data for human and LLM groups from CSV files.
+    
     Args:
-        metric_type: The type of metric (e.g., 'cyclomatic_complexity')
-        data_dir: Directory containing the metric CSV files
-
+        metric_type: The type of metric to load (e.g., 'cyclomatic_complexity')
+        
     Returns:
-        DataFrame with metric data or None if file not found
+        Tuple of (human_df, codegen_df) DataFrames
     """
-    file_path = data_dir / f"{metric_type}_aggregated.csv"
-    if not file_path.exists():
-        logger.warning(f"Metric file not found: {file_path}")
-        return None
-
+    human_path = METRICS_DIR / f"human_{metric_type}.csv"
+    codegen_path = METRICS_DIR / f"codegen_{metric_type}.csv"
+    
+    if not human_path.exists() or not codegen_path.exists():
+        logger.warning(f"Missing metric files for {metric_type}: {human_path.exists()}, {codegen_path.exists()}")
+        return None, None
+    
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded {len(df)} rows from {file_path}")
-        return df
+        human_df = pd.read_csv(human_path)
+        codegen_df = pd.read_csv(codegen_path)
+        logger.info(f"Loaded {len(human_df)} human and {len(codegen_df)} codegen snippets for {metric_type}")
+        return human_df, codegen_df
     except Exception as e:
-        logger.error(f"Error loading {file_path}: {e}")
-        return None
+        logger.error(f"Error loading metric data for {metric_type}: {e}")
+        return None, None
 
 def create_boxplot(
-    df: pd.DataFrame,
     metric_type: str,
+    human_data: List[float],
+    codegen_data: List[float],
     output_path: Path,
-    xlabel: str = "Dataset Group",
-    ylabel: str = "Score",
-    title: str = None
+    figsize: Tuple[int, int] = (10, 6)
 ) -> bool:
     """
-    Create a boxplot comparing metric distributions between human and LLM code.
-
+    Create a boxplot visualization comparing human and LLM-generated code metrics.
+    
     Args:
-        df: DataFrame containing metric values and group labels
-        metric_type: Name of the metric being plotted
+        metric_type: The metric type being visualized
+        human_data: List of metric values for human-written code
+        codegen_data: List of metric values for LLM-generated code
         output_path: Path to save the figure
-        xlabel: Label for x-axis
-        ylabel: Label for y-axis
-        title: Optional title for the plot
-
+        figsize: Figure size in inches
+        
     Returns:
         True if successful, False otherwise
     """
+    set_seed(42)  # Reproducibility
+    
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Prepare data for boxplot
+    data_to_plot = [human_data, codegen_data]
+    labels = [GROUP_LABELS["human"], GROUP_LABELS["codegen"]]
+    
+    # Create boxplot
+    bp = ax.boxplot(data_to_plot, labels=labels, patch_artist=True, notch=True)
+    
+    # Color the boxes
+    colors = ['#3498db', '#e74c3c']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.7)
+    
+    # Add median lines
+    for i, line in enumerate(bp['medians']):
+        line.set_color('black')
+        line.set_linewidth(2)
+    
+    # Calculate and annotate statistics
+    human_stats = {
+        'mean': np.mean(human_data),
+        'median': np.median(human_data),
+        'std': np.std(human_data),
+        'q1': np.percentile(human_data, 25),
+        'q3': np.percentile(human_data, 75)
+    }
+    
+    codegen_stats = {
+        'mean': np.mean(codegen_data),
+        'median': np.median(codegen_data),
+        'std': np.std(codegen_data),
+        'q1': np.percentile(codegen_data, 25),
+        'q3': np.percentile(codegen_data, 75)
+    }
+    
+    # Add statistics text box
+    stats_text = (
+        f"Human: Median={human_stats['median']:.2f}, IQR={human_stats['q3']-human_stats['q1']:.2f}\n"
+        f"LLM:   Median={codegen_stats['median']:.2f}, IQR={codegen_stats['q3']-codegen_stats['q1']:.2f}"
+    )
+    
+    ax.text(
+        0.98, 0.98, stats_text,
+        transform=ax.transAxes,
+        fontsize=10,
+        verticalalignment='top',
+        horizontalalignment='right',
+        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    )
+    
+    # Labels and title
+    metric_title = metric_type.replace('_', ' ').title()
+    ax.set_title(f'{metric_title} Distribution: Human vs LLM-Generated Code', fontsize=14, fontweight='bold')
+    ax.set_ylabel(metric_title, fontsize=12)
+    ax.set_xlabel('Source', fontsize=12)
+    
+    # Grid for better readability
+    ax.grid(True, alpha=0.3, linestyle='--')
+    
+    # Save figure
     try:
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Set random seed for reproducibility
-        seed = get_seed_value()
-        np.random.seed(seed)
-        plt.rcParams['figure.dpi'] = FIGURE_DPI
-        plt.rcParams['savefig.dpi'] = FIGURE_DPI
-
-        # Prepare data for boxplot
-        # Expected columns: 'group' (human/llm) and the metric value column
-        group_col = 'group'
-        value_col = metric_type
-
-        if group_col not in df.columns or value_col not in df.columns:
-            logger.error(f"DataFrame missing required columns. Available: {df.columns.tolist()}")
-            return False
-
-        # Filter out NaN values
-        df_clean = df[[group_col, value_col]].dropna()
-
-        if len(df_clean) == 0:
-            logger.error("No valid data points after filtering NaN values")
-            return False
-
-        # Create figure and axis
-        fig, ax = plt.subplots(figsize=(FIGURE_WIDTH, FIGURE_HEIGHT))
-
-        # Prepare data for boxplot
-        groups = df_clean[group_col].unique()
-        data_to_plot = [
-            df_clean[df_clean[group_col] == g][value_col].values
-            for g in sorted(groups)
-        ]
-
-        # Create boxplot with custom styling
-        bp = ax.boxplot(
-            data_to_plot,
-            labels=[g.capitalize() for g in sorted(groups)],
-            patch_artist=True,
-            showmeans=True,
-            meanline=True,
-            showfliers=True
-        )
-
-        # Color the boxes
-        colors = ['#3498db', '#e74c3c']  # Blue for human, Red for LLM
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(0.7)
-
-        # Style the means
-        for meanline in bp['medians']:
-            meanline.set_color('black')
-            meanline.set_linewidth(2)
-
-        # Add labels and title
-        if title is None:
-            title = f"Distribution of {metric_type.replace('_', ' ').title()}\n(Human vs LLM Generated Code)"
-
-        ax.set_title(title, fontsize=14, fontweight='bold')
-        ax.set_xlabel(xlabel, fontsize=12)
-        ax.set_ylabel(ylabel, fontsize=12)
-
-        # Add grid for readability
-        ax.yaxis.grid(True, linestyle='--', alpha=0.7)
-        ax.set_axisbelow(True)
-
-        # Add statistical annotations if available in the dataframe
-        # Look for columns containing statistical test results
-        stat_cols = [col for col in df.columns if 'p_value' in col.lower() or 'cliffs' in col.lower()]
-        if stat_cols:
-            # Add a text box with key statistics
-            stats_text = []
-            for col in stat_cols:
-                if len(df[col]) > 0 and not pd.isna(df[col].iloc[0]):
-                    stats_text.append(f"{col}: {df[col].iloc[0]:.4f}")
-
-            if stats_text:
-                ax.text(
-                    0.98, 0.98, '\n'.join(stats_text),
-                    transform=ax.transAxes,
-                    fontsize=10,
-                    verticalalignment='top',
-                    horizontalalignment='right',
-                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                )
-
-        # Save the figure
         plt.tight_layout()
-        plt.savefig(output_path, format=FIGURE_FORMAT, bbox_inches='tight')
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close(fig)
-
-        logger.info(f"Successfully saved boxplot to {output_path}")
+        logger.info(f"Saved boxplot for {metric_type} to {output_path}")
         return True
-
     except Exception as e:
-        logger.error(f"Error creating boxplot for {metric_type}: {e}")
+        logger.error(f"Error saving boxplot for {metric_type}: {e}")
+        plt.close(fig)
         return False
 
-def generate_all_boxplots(
-    data_dir: Path,
-    output_dir: Optional[Path] = None
-) -> Dict[str, str]:
+def generate_all_boxplots() -> Dict[str, str]:
     """
-    Generate boxplot figures for all available metrics.
-
-    Args:
-        data_dir: Directory containing aggregated metric CSV files
-        output_dir: Directory to save figures (defaults to results/figures)
-
+    Generate boxplot visualizations for all metric types.
+    
     Returns:
-        Dictionary mapping metric names to output file paths
+        Dictionary mapping metric type to output file path
     """
-    if output_dir is None:
-        output_dir = OUTPUT_DIR
-
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    generated_files = {}
-
-    for metric_type in METRIC_COLUMNS:
-        logger.info(f"Processing metric: {metric_type}")
-
-        # Load data
-        df = load_metric_data(metric_type, data_dir)
-        if df is None:
-            logger.warning(f"Skipping {metric_type} - no data available")
+    if not FIGURE_DIR.exists():
+        FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created figure directory: {FIGURE_DIR}")
+    
+    results = {}
+    
+    for metric_type in METRIC_TYPES:
+        logger.info(f"Processing {metric_type}...")
+        human_df, codegen_df = load_metric_data(metric_type)
+        
+        if human_df is None or codegen_df is None:
+            logger.warning(f"Skipping {metric_type} due to missing data")
             continue
-
-        # Check if we have both human and LLM groups
-        if 'group' in df.columns:
-            unique_groups = df['group'].unique()
-            if len(unique_groups) < 2:
-                logger.warning(f"Skipping {metric_type} - only one group found: {unique_groups}")
-                continue
-
-        # Create output filename
-        output_filename = f"{metric_type}_boxplot.{FIGURE_FORMAT}"
-        output_path = output_dir / output_filename
-
-        # Generate the boxplot
+        
+        # Extract metric values (assuming column name matches metric_type)
+        if metric_type not in human_df.columns or metric_type not in codegen_df.columns:
+            # Try to find the actual column
+            available_cols_human = list(human_df.columns)
+            available_cols_codegen = list(codegen_df.columns)
+            logger.warning(f"Column '{metric_type}' not found. Human cols: {available_cols_human}, Codegen cols: {available_cols_codegen}")
+            continue
+        
+        human_data = human_df[metric_type].dropna().tolist()
+        codegen_data = codegen_df[metric_type].dropna().tolist()
+        
+        if len(human_data) < 3 or len(codegen_data) < 3:
+            logger.warning(f"Insufficient data for {metric_type}: human={len(human_data)}, codegen={len(codegen_data)}")
+            continue
+        
+        output_filename = f"boxplot_{metric_type}.png"
+        output_path = FIGURE_DIR / output_filename
+        
         success = create_boxplot(
-            df=df,
             metric_type=metric_type,
-            output_path=output_path,
-            title=f"{metric_type.replace('_', ' ').title()} Distribution Comparison"
+            human_data=human_data,
+            codegen_data=codegen_data,
+            output_path=output_path
         )
-
+        
         if success:
-            generated_files[metric_type] = str(output_path)
-            logger.info(f"Generated: {output_path}")
+            results[metric_type] = str(output_path)
+            logger.info(f"Successfully generated {output_filename}")
         else:
             logger.error(f"Failed to generate boxplot for {metric_type}")
+    
+    return results
 
-    return generated_files
-
-def update_state_with_figures(generated_files: Dict[str, str]):
+def update_state_with_figures(figures: Dict[str, str]):
     """
-    Update the project state file with references to generated figures.
-
+    Update the project state file with the generated figures.
+    
     Args:
-        generated_files: Dictionary mapping metric names to figure paths
+        figures: Dictionary mapping metric type to figure path
     """
+    if not figures:
+        logger.warning("No figures to register in state")
+        return
+    
+    state_path = Path("state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml")
+    if not state_path.exists():
+        logger.warning(f"State file not found: {state_path}")
+        return
+    
     try:
-        state = load_state_file(STATE_FILE_PATH)
-        if state is None:
-            logger.warning("State file not found, skipping update")
-            return
-
-        # Add figures to state
-        if 'artifacts' not in state:
-            state['artifacts'] = {}
-
-        state['artifacts']['visualization_figures'] = {
-            'generated_at': str(pd.Timestamp.now()),
-            'files': generated_files
-        }
-
-        save_state_file(STATE_FILE_PATH, state)
-        logger.info("Updated state file with figure references")
-
+        state = load_state_file(state_path)
+        
+        if "artifacts" not in state:
+            state["artifacts"] = {}
+        
+        if "figures" not in state["artifacts"]:
+            state["artifacts"]["figures"] = {}
+        
+        for metric_type, figure_path in figures.items():
+            state["artifacts"]["figures"][metric_type] = {
+                "path": figure_path,
+                "type": "boxplot",
+                "generated_at": str(pd.Timestamp.now())
+            }
+        
+        save_state_file(state_path, state)
+        logger.info(f"Updated state file with {len(figures)} figures")
     except Exception as e:
-        logger.error(f"Error updating state file: {e}")
+        logger.error(f"Error updating state with figures: {e}")
 
-def run_visualization_pipeline(
-    data_dir: Optional[Path] = None,
-    output_dir: Optional[Path] = None
-) -> Dict[str, str]:
+def run_visualization_pipeline() -> Dict[str, str]:
     """
-    Run the complete visualization pipeline.
-
-    Args:
-        data_dir: Directory containing aggregated metric data
-        output_dir: Directory to save generated figures
-
+    Run the complete visualization pipeline: load data, generate boxplots, update state.
+    
     Returns:
-        Dictionary of generated figure paths
+        Dictionary mapping metric type to output file path
     """
-    if data_dir is None:
-        data_dir = Path('data/metrics')
-
-    data_dir = Path(data_dir)
-    if not data_dir.exists():
-        logger.error(f"Data directory not found: {data_dir}")
-        return {}
-
-    logger.info(f"Starting visualization pipeline...")
-    logger.info(f"Data directory: {data_dir}")
-    logger.info(f"Output directory: {output_dir or OUTPUT_DIR}")
-
+    logger.info("Starting visualization pipeline...")
+    
     # Generate all boxplots
-    generated_files = generate_all_boxplots(data_dir, output_dir)
-
-    if not generated_files:
+    figures = generate_all_boxplots()
+    
+    if not figures:
         logger.warning("No figures were generated")
-        return generated_files
-
-    logger.info(f"Successfully generated {len(generated_files)} figures")
-
-    # Update state file
-    update_state_with_figures(generated_files)
-
-    return generated_files
+        return figures
+    
+    # Update state
+    update_state_with_figures(figures)
+    
+    logger.info(f"Visualization pipeline complete. Generated {len(figures)} figures.")
+    return figures
 
 def main():
-    """Main entry point for the visualization script."""
-    logger.info("=" * 60)
-    logger.info("Starting Boxplot Visualization Pipeline")
-    logger.info("=" * 60)
-
-    # Run the pipeline
-    generated_files = run_visualization_pipeline()
-
-    if generated_files:
-        logger.info("Generated figures:")
-        for metric, path in generated_files.items():
-            logger.info(f"  {metric}: {path}")
-    else:
-        logger.warning("No figures were generated. Check logs for details.")
-
-    logger.info("=" * 60)
-    logger.info("Visualization Pipeline Complete")
-    logger.info("=" * 60)
-
-    return generated_files
+    """Main entry point for the visualization module."""
+    logger.info("Running visualization module as main script...")
+    
+    try:
+        figures = run_visualization_pipeline()
+        
+        if figures:
+            logger.info("Generated figures:")
+            for metric, path in figures.items():
+                logger.info(f"  {metric}: {path}")
+        else:
+            logger.warning("No figures were generated. Check logs for errors.")
+            return 1
+        
+        return 0
+    except Exception as e:
+        logger.error(f"Fatal error in visualization pipeline: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

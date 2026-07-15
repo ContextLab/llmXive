@@ -136,6 +136,55 @@ def verify_artifact_integrity(artifact_key: str) -> bool:
     current_hash = compute_file_hash(artifact_path) if artifact_path.is_file() else compute_directory_hash(artifact_path)
     return current_hash == stored_info.get("hash")
 
+def update_state_after_stage(stage_name: str, stage_artifact_path: Optional[Union[str, Path]] = None) -> None:
+    """
+    Updates the state YAML with an 'updated_at' timestamp after a pipeline stage.
+    If an artifact path is provided, it also registers the artifact hash.
+    
+    Args:
+        stage_name: Name of the pipeline stage (e.g., 'ingestion', 'metrics', 'analysis').
+        stage_artifact_path: Optional path to the main output artifact of this stage.
+    """
+    state = load_state_file()
+    
+    # Update the global timestamp
+    state["updated_at"] = datetime.now().isoformat()
+    
+    # Log stage completion in the artifacts section if path provided
+    if stage_artifact_path:
+        artifact_path = Path(stage_artifact_path)
+        if artifact_path.exists():
+            if artifact_path.is_file():
+                file_hash = compute_file_hash(artifact_path)
+                artifact_key = str(artifact_path.relative_to(PROJECT_ROOT))
+            else:
+                file_hash = compute_directory_hash(artifact_path)
+                artifact_key = str(artifact_path.relative_to(PROJECT_ROOT))
+            
+            state["artifacts"][artifact_key] = {
+                "type": "stage_output",
+                "stage": stage_name,
+                "hash": file_hash,
+                "updated_at": state["updated_at"]
+            }
+        else:
+            # Log that the stage completed but artifact not found yet
+            state["stages"] = state.get("stages", {})
+            state["stages"][stage_name] = {
+                "status": "completed",
+                "updated_at": state["updated_at"],
+                "artifact_found": False
+            }
+    else:
+        # Just timestamp update for stages without a single main artifact
+        state["stages"] = state.get("stages", {})
+        state["stages"][stage_name] = {
+            "status": "completed",
+            "updated_at": state["updated_at"]
+        }
+    
+    save_state_file(state)
+
 def main():
     """Main entry point for state tracker operations."""
     print("State Tracker System")

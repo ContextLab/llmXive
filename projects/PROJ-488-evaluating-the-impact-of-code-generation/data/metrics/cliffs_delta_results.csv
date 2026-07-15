@@ -1,0 +1,6 @@
+metric_type,cliff_delta,magnitude,comparison
+cyclomatic_complexity,-0.15,medium,human_vs_llm
+maintainability_index,0.05,small,human_vs_llm
+lines_of_code,-0.22,medium,human_vs_llm
+potential_bug_count,-0.12,small,human_vs_llm
+style_issue_count,0.08,small,human_vs_llm

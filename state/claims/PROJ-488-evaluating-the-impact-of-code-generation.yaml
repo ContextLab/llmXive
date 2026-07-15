@@ -385,23 +385,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T13:53:52Z'
-- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: seed value 42 for numpy random and torch
-  claim_id: c_0e61afa4
-  context: T004 Implement seed management module in code/seeds.py with documented
-    seed value 42 for numpy, random, and (optional) torch.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses a documented seed value 42 for numpy, random, and (optional)
-    torch.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T13:56:39Z'
 - artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/docs/amendment-vi.md
   attempts: 1
   canonical: HumanEval benchmark has 164 samples and MBPP has 374 samples
@@ -1265,3 +1248,428 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T15:22:36Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: seed value 42 for numpy random and torch
+  claim_id: c_0e61afa4
+  context: T004 Implement seed management module in code/seeds.py with documented
+    seed value 42 for numpy, random, and (optional) torch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a documented seed value 42 for numpy, random, and (optional)
+    torch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:01:28Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval MBPP sample size n greater than or equal to 1000 for statistical
+    power
+  claim_id: c_e7bf6a5a
+  context: "T009 Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM-generated code source. Proposed text: Allow LLM-generated code from\
+    \ verified training corpora (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack\
+    \ sufficient sample size (n\u22651000) for statistical power."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HumanEval_MBPP_sample_size_n_greater_than_or_equal_to_1000_f
+  kind: magnitude
+  raw_text: "Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM-generated code source; include justification and impact analysis\
+    \ in docs/amendment-vi.md. Proposed text: Allow LLM-generated code from verified\
+    \ training corpora (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient\
+    \ sample size (n\u22651000) for statistical power."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:16Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: LLM inference runtime constraint 6 hours on 2-core CPU
+  claim_id: c_c35fbeed
+  context: "T010 Draft amendment PR to Principle VII permitting use of radon and pylint\
+    \ for metric extraction. Proposed text: Allow CPU-tractable static analysis tools\
+    \ (radon, pylint) with documented justification when lightweight LLM inference\
+    \ exceeds runtime constraints (\u22646h on 2-core CPU)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Draft amendment PR to Principle VII permitting use of radon and pylint\
+    \ for metric extraction; include CPU-feasibility argument in docs/amendment-vii.md.\
+    \ Proposed text: Allow CPU-tractable static analysis tools (radon, pylint) with\
+    \ documented justification when lightweight LLM inference exceeds runtime constraints\
+    \ (\u22646h on 2-core CPU)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:16Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: exponential backoff 3 retries 60 seconds intervals for CodeSearchNet
+    download
+  claim_id: c_ea01aca1
+  context: "T012 [US1] Implement HuggingFace download for CodeSearchNet in code/data_ingestion.py\
+    \ using datasets.load_dataset('code_search_net',...), with exponential backoff\
+    \ (\u22653 retries, 60 s intervals) and robust error handling."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement HuggingFace download for CodeSearchNet in code/data_ingestion.py\
+    \ using datasets.load_dataset('code_search_net',...), with exponential backoff\
+    \ (\u22653 retries, 60 s intervals) and robust error handling."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:16Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total snippets 10000 limit 14 GB disk
+  claim_id: c_fe2da69f
+  context: "T015 [US1] Implement streaming and sampling to ensure total snippets \u2264\
+    \ 10,000 to comply with 14 GB disk limit; use datasets.load_dataset(..., streaming=True)\
+    \ with [deferred] sample fraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement streaming and sampling to ensure total snippets \u2264 10,000\
+    \ to comply with 14 GB disk limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: median length difference 20 percent between groups max 5 iterations
+  claim_id: c_425cba72
+  context: "T017 [US1] Implement function-length filtering to achieve median length\
+    \ difference \u2264 20 % between groups (binary search algorithm, max 5 iterations,\
+    \ abort with error 103 after max attempts)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement function-length filtering to achieve median length difference\
+    \ \u2264 20 % between groups (binary search algorithm, max 5 iterations, abort\
+    \ with error 103 after max attempts)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: AST parsing successful rate 95 percent threshold
+  claim_id: c_146c53a1
+  context: "T018 [US1] Implement AST parsing validation: parse each snippet, log invalid\
+    \ IDs, require \u226595% successful parses; abort with error 102 if threshold\
+    \ not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement AST parsing validation: parse each snippet, log invalid IDs,\
+    \ require \u226595% successful parses; abort with error 102 if threshold not met."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: valid Python snippets 1000 per group
+  claim_id: c_7ef98e38
+  context: "T019 [US1] Verify snippet count: ensure \u2265 1000 valid Python snippets\
+    \ per group; abort with error 104 if not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify snippet count: ensure \u2265 1000 valid Python snippets per group;\
+    \ abort with error 104 if not met."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:18Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: extracted score failure rate 5 percent threshold
+  claim_id: c_45d15cd7
+  context: "T022 [US2] Validate extracted scores: detect NaN or out-of-range values;\
+    \ if \u22655% of snippets fail, abort with error 102 and generate diagnostic report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate extracted scores: detect NaN or out-of-range values; if \u2265\
+    5% of snippets fail, abort with error 102 and generate diagnostic report."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:18Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: statistical power 0.8 threshold
+  claim_id: c_113bec69
+  context: "T026 [US3] [SC-003] Implement power-analysis module in code/statistical_analysis.py\
+    \ to compute achieved power given observed effect size and sample size; enforce\
+    \ \u2265 0.8 power and log warnings otherwise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement power-analysis module in code/statistical_analysis.py to compute\
+    \ achieved power given observed effect size and sample size; enforce \u2265 0.8\
+    \ power and log warnings otherwise."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:18Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: significance thresholds 0.01 0.05 0.1 sensitivity analysis
+  claim_id: c_abe459e4
+  context: T033 [US3] Perform sensitivity analysis across significance thresholds
+    {0.01, 0.05, 0.1}; record how headline rates vary in results/sensitivity.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis across significance thresholds {0.01, 0.05,
+    0.1}; record how headline rates vary in results/sensitivity.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:02:58Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Draft amendment to Principle VI to permit CodeParrot/CodeGen usage
+  claim_id: c_732b2539
+  context: "T009 Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM\u2011generated code source; include justification and impact analysis\
+    \ in docs/amendment-vi.md."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Draft_amendment_to_Principle_VI_to_permit_CodeParrot/CodeGen
+  kind: entity_fact
+  raw_text: "Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM\u2011generated code source."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:17:16Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: LLM-generated code permitted if HumanEval/MBPP sample size < 1000
+  claim_id: c_c35bf571
+  context: "Proposed text: 'Allow LLM-generated code from verified training corpora\
+    \ (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient sample size (n\u2265\
+    1000) for statistical power.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Allow LLM-generated code from verified training corpora (e.g., CodeParrot/CodeGen)\
+    \ when HumanEval/MBPP lack sufficient sample size (n\u22651000) for statistical\
+    \ power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:17:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Draft amendment to Principle VII to permit radon and pylint usage
+  claim_id: c_62e46392
+  context: "T010 Draft amendment PR to Principle VII permitting use of radon and pylint\
+    \ for metric extraction; include CPU\u2011feasibility argument in docs/amendment-vii.md."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Draft_amendment_to_Principle_VII_to_permit_radon_and_pylint
+  kind: entity_fact
+  raw_text: Draft amendment PR to Principle VII permitting use of radon and pylint
+    for metric extraction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:04Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CPU-tractable tools allowed if LLM inference > 6 hours on 2-core CPU
+  claim_id: c_71b9f657
+  context: "Proposed text: 'Allow CPU-tractable static analysis tools (radon, pylint)\
+    \ with documented justification when lightweight LLM inference exceeds runtime\
+    \ constraints (\u22646h on 2-core CPU).'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Allow CPU-tractable static analysis tools (radon, pylint) with documented\
+    \ justification when lightweight LLM inference exceeds runtime constraints (\u2264\
+    6h on 2-core CPU)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:05Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Seed value 42 used for numpy random and torch
+  claim_id: c_c0d41416
+  context: T004 Implement seed management module in code/seeds.py with documented
+    seed value 42 for numpy, random, and (optional) torch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed value 42 for numpy, random, and (optional) torch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:43Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total snippets limit of 10000 for 14 GB disk limit
+  claim_id: c_f136f5ff
+  context: "T015 [US1] Implement streaming and sampling to ensure total snippets \u2264\
+    \ 10,000 to comply with 14 GB disk limit; use datasets.load_dataset(..., streaming=True)\
+    \ with [deferred] sample fraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total snippets \u2264 10,000 to comply with 14 GB disk limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:43Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: AST parse success rate requirement of 95 percent
+  claim_id: c_b512419c
+  context: "T018 [US1] Implement AST parsing validation: parse each snippet, log invalid\
+    \ IDs, require \u226595% successful parses; abort with error 102 if threshold\
+    \ not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Require \u226595% successful AST parses."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:43Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Minimum 1000 valid Python snippets per group
+  claim_id: c_358c3838
+  context: "T019 [US1] Verify snippet count: ensure \u2265 1000 valid Python snippets\
+    \ per group; abort with error 104 if not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure \u2265 1000 valid Python snippets per group."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:43Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical power requirement of 0.8
+  claim_id: c_198e40b0
+  context: "T026 [US3] [SC-003] Implement power\u2011analysis module in code/statistical_analysis.py\
+    \ to compute achieved power given observed effect size and sample size; enforce\
+    \ \u2265 0.8 power and log warnings otherwise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce \u2265 0.8 statistical power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:19:44Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Subsampling to one snippet per repository for independence
+  claim_id: c_77850df3
+  context: "T027 [US3] [SC-003] Implement independence mitigation: subsample to at\
+    \ most one snippet per original repository (using metadata) OR apply cluster\u2011\
+    robust standard errors..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampling_to_one_snippet_per_repository_for_independence
+  kind: magnitude
+  raw_text: Subsample to at most one snippet per original repository.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:20:48Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeReviewDataset from HuggingFace with sample size 50
+  claim_id: c_c67c82e6
+  context: "T034 [US3] Conduct pilot\u2011study validation OR cite peer\u2011reviewed\
+    \ source per FR\u2011011: (A) Load external human\u2011reviewed snippet set (CodeReviewDataset\
+    \ from HuggingFace, n\u226550), compute Pearson r between static metric and recorded\
+    \ review effort..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Load external human\u2011reviewed snippet set (CodeReviewDataset from\
+    \ HuggingFace, n\u226550)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:20:48Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Peer-reviewed source citation with title overlap 0.7
+  claim_id: c_ea8f2de6
+  context: "...OR (B) cite peer\u2011reviewed source establishing correlation, then\
+    \ run Reference\u2011Validator Agent verification per Constitution Principle II\
+    \ (title overlap \u22650.7)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cite peer\u2011reviewed source establishing correlation with title overlap\
+    \ \u22650.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T01:20:48Z'

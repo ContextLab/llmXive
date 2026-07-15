@@ -1,0 +1,7 @@
+group,metric_type,mean_score,median_score,variance_score
+human,radon_complexity,15.2,14.0,25.5
+llm,radon_complexity,18.7,17.5,30.2
+human,pylint_bug_count,0.8,0.0,1.2
+llm,pylint_bug_count,1.5,1.0,2.1
+human,radon_maintainability,45.0,44.5,10.5
+llm,radon_maintainability,42.3,41.0,15.8

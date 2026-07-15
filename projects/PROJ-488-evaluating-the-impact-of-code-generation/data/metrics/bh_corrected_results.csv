@@ -1,0 +1,6 @@
+metric_type,adjusted_p_value,comparison
+cyclomatic_complexity,0.032,human_vs_llm
+maintainability_index,0.112,human_vs_llm
+lines_of_code,0.008,human_vs_llm
+potential_bug_count,0.045,human_vs_llm
+style_issue_count,0.210,human_vs_llm

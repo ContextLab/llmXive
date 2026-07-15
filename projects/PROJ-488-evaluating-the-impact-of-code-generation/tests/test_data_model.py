@@ -1,110 +1,123 @@
 """
-Tests for the data model definitions in code/data_model.py.
+Tests for data model schema validation (T024).
 """
 import pytest
+import sys
+import os
 from datetime import datetime
-import statistics
 
-from code.data_model import CodeSnippet, MetricScore, DatasetGroup, MetricResult, validate_metric_result
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-class TestCodeSnippet:
-    def test_create_snippet(self):
-        snippet = CodeSnippet(
-            id="123",
-            source="test",
-            code="print('hi')",
-            length=10,
-            language="python"
+from data_model import MetricResult, validate_metric_result
+
+class TestMetricResultSchema:
+    """Test cases for MetricResult schema compliance."""
+
+    def test_valid_metric_result(self):
+        """Test that a valid MetricResult passes validation."""
+        result = MetricResult(
+            snippet_id="test-001",
+            group="human",
+            metric_name="cyclomatic_complexity",
+            value=5.5,
+            source_tool="radon"
         )
-        assert snippet.id == "123"
-        assert snippet.length == 10
-
-    def test_auto_length_calculation(self):
-        snippet = CodeSnippet(
-            id="124",
-            source="test",
-            code="x = 1",
-            length=None,
-            language="python"
-        )
-        assert snippet.length == 5
-
-    def test_to_dict(self):
-        snippet = CodeSnippet("1", "src", "code", 4, "py")
-        d = snippet.to_dict()
-        assert d['id'] == "1"
-        assert d['code'] == "code"
-
-    def test_from_dict(self):
-        data = {"id": "2", "source": "src", "code": "y=2", "length": 3, "language": "py"}
-        snippet = CodeSnippet.from_dict(data)
-        assert snippet.id == "2"
-        assert snippet.language == "py"
-
-class TestMetricScore:
-    def test_create_score(self):
-        score = MetricScore("1", "complexity", 5.5)
-        assert score.snippet_id == "1"
-        assert score.score == 5.5
-        assert isinstance(score.timestamp, datetime)
-
-    def test_serialization(self):
-        score = MetricScore("1", "complexity", 5.5)
-        d = score.to_dict()
-        assert isinstance(d['timestamp'], str)
-        assert d['metric_type'] == 'complexity'
-
-class TestDatasetGroup:
-    def test_add_snippet(self):
-        group = DatasetGroup("Human")
-        snippet = CodeSnippet("1", "src", "c", 1, "py")
-        group.add_snippet(snippet)
-        assert len(group.snippets) == 1
-
-    def test_compute_aggregates_empty(self):
-        group = DatasetGroup("Empty")
-        agg = group.compute_aggregates()
-        assert agg['count'] == 0
-        assert agg['avg_length'] == 0.0
-
-    def test_compute_aggregates_with_data(self):
-        group = DatasetGroup("Test")
-        group.add_snippet(CodeSnippet("1", "s", "a", 10, "p"))
-        group.add_snippet(CodeSnippet("2", "s", "bb", 20, "p"))
-        agg = group.compute_aggregates()
-        assert agg['count'] == 2
-        assert agg['avg_length'] == 15.0
-
-class TestMetricResult:
-    def test_calculate_from_scores(self):
-        scores = [1.0, 2.0, 3.0, 4.0, 5.0]
-        result = MetricResult.calculate_from_scores(scores, "GroupA", "metricX")
-        
-        assert result.group_label == "GroupA"
-        assert result.metric_type == "metricX"
-        assert result.count == 5
-        assert result.mean == 3.0
-        assert result.median == 3.0
-        assert result.min_val == 1.0
-        assert result.max_val == 5.0
-
-    def test_calculate_from_scores_empty(self):
-        result = MetricResult.calculate_from_scores([], "Empty", "metric")
-        assert result.count == 0
-        assert result.mean == 0.0
-
-    def test_schema_validation(self):
-        result = MetricResult.calculate_from_scores([1.0], "G", "M")
         assert validate_metric_result(result) is True
 
-        # Test invalid type manually constructed
-        from code.data_model import MetricResult
-        class BadResult:
-            def to_dict(self):
-                return {"group_label": "G", "metric_type": "M", "mean": "string", "median": 0, "variance": 0, "std_dev": 0, "count": 0, "min_val": 0, "max_val": 0}
-        
-        # This should fail validation because mean is string
-        assert validate_metric_result(BadResult()) is False
+    def test_valid_pylint_result(self):
+        """Test that a valid pylint result passes validation."""
+        result = MetricResult(
+            snippet_id="test-002",
+            group="llm",
+            metric_name="bug_count",
+            value=1.0,
+            source_tool="pylint"
+        )
+        assert validate_metric_result(result) is True
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_invalid_group(self):
+        """Test that an invalid group fails validation."""
+        result = MetricResult(
+            snippet_id="test-003",
+            group="invalid",
+            metric_name="test_metric",
+            value=1.0,
+            source_tool="radon"
+        )
+        assert validate_metric_result(result) is False
+
+    def test_invalid_tool(self):
+        """Test that an invalid tool fails validation."""
+        result = MetricResult(
+            snippet_id="test-004",
+            group="human",
+            metric_name="test_metric",
+            value=1.0,
+            source_tool="invalid_tool"
+        )
+        assert validate_metric_result(result) is False
+
+    def test_missing_snippet_id(self):
+        """Test that missing snippet_id fails validation."""
+        result = MetricResult(
+            snippet_id="",
+            group="human",
+            metric_name="test_metric",
+            value=1.0,
+            source_tool="radon"
+        )
+        assert validate_metric_result(result) is False
+
+    def test_invalid_value_type(self):
+        """Test that non-numeric value fails validation."""
+        result = MetricResult(
+            snippet_id="test-005",
+            group="human",
+            metric_name="test_metric",
+            value="not_a_number",
+            source_tool="radon"
+        )
+        assert validate_metric_result(result) is False
+
+    def test_to_dict_serialization(self):
+        """Test that to_dict produces expected keys."""
+        result = MetricResult(
+            snippet_id="test-006",
+            group="llm",
+            metric_name="maintainability_index",
+            value=10.0,
+            source_tool="radon"
+        )
+        d = result.to_dict()
+        assert 'snippet_id' in d
+        assert 'group' in d
+        assert 'metric_name' in d
+        assert 'value' in d
+        assert 'source_tool' in d
+        assert 'timestamp' in d
+
+    def test_from_dict_creation(self):
+        """Test that from_dict creates a valid instance."""
+        data = {
+            "snippet_id": "test-007",
+            "group": "human",
+            "metric_name": "test_metric",
+            "value": 3.0,
+            "source_tool": "pylint"
+        }
+        result = MetricResult.from_dict(data)
+        assert result.snippet_id == "test-007"
+        assert result.group == "human"
+        assert validate_metric_result(result) is True
+
+    def test_from_dict_missing_field(self):
+        """Test that from_dict raises error on missing field."""
+        data = {
+            "snippet_id": "test-008",
+            "group": "human",
+            "value": 3.0,
+            "source_tool": "pylint"
+        }
+        with pytest.raises(ValueError):
+            MetricResult.from_dict(data)
