@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 import logging
+import json
 from pathlib import Path
 from typing import Dict, Any, Tuple
 
@@ -15,7 +16,6 @@ from utils.logging import get_logger
 from modeling.train_primary import train_primary
 from modeling.train_alternative import train_alternative
 from modeling.importance import save_importance
-from modeling.persist_models import main as persist_main
 
 logger = get_logger(__name__)
 
@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_split_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_split_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """
     Load the preprocessed train and test datasets.
     Expects:
@@ -134,7 +134,6 @@ def run_training_pipeline(
         "alternative": alternative_metrics,
     }
     with open(metrics_path, "w") as f:
-        import json
         json.dump(metrics_data, f, indent=2)
 
     logger.info(f"Training complete. Models saved to {model_dir}")

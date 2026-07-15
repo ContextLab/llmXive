@@ -21,6 +21,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/data/extract_metrics.py -> rc=2
     usage: extract_metrics.py [-h] --input INPUT --output OUTPUT
                           [--extension EXTENSION] [--chunk-size CHUNK_SIZE]
+                          [--seed SEED]
 extract_metrics.py: error: the following arguments are required: --input, --output
 - python code/data/preprocess.py -> rc=2
     usage: preprocess.py [-h] --input INPUT --output OUTPUT
@@ -34,8 +35,8 @@ train.py: error: the following arguments are required: --data-dir
 - python code/modeling/evaluate.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 14, in <module>
-    import seaborn as sns
-ModuleNotFoundError: No module named 'seaborn'
+    from sklearn.metrics import (
+ImportError: cannot import name 'calibration_curve' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -45,5 +46,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/test_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/modeling/train.py`, `code/modeling/evaluate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/test_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/modeling/train.py`, `code/modeling/evaluate.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/modeling/evaluate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/test_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/modeling/evaluate.py`.
