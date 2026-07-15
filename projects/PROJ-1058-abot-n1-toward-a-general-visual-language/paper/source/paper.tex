@@ -1,0 +1,134 @@
+\documentclass[]{amap}
+
+\usepackage[toc,page,header]{appendix}
+\usepackage{minitoc}
+\usepackage{solarized-light}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{siunitx,array}
+\usepackage[table]{xcolor}
+\usepackage{makecell,array,booktabs}
+\usepackage{makecell}
+\usepackage{framed}
+\usepackage{amssymb}
+\usepackage{bbding}
+\usepackage{adjustbox}
+\usepackage{amsmath}
+\usepackage{placeins}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{longtable}
+\usepackage{hhline}
+\usepackage{fancyvrb}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{CJKutf8}
+\usepackage{multicol}
+\usepackage{tablefootnote}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{mdframed}
+\usepackage{subcaption}
+\usepackage[usestackEOL]{stackengine}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{amsthm}
+
+\normalem  % restore \emph{} to italic (ulem loaded by amap.cls overrides it to underline)
+\newcommand{\commentout}[1]{}
+\renewcommand{\paragraph}[1]{\noindent\textbf{#1}\hspace*{1em}}
+\setlist[itemize]{leftmargin=15pt}
+
+\sisetup{
+  table-number-alignment = center,
+  table-space-text-post  = \textsuperscript{*},
+  output-decimal-marker  = .
+}
+
+\RequirePackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} \def\wolog{w.l.o.g\onedot}
+\makeatother
+
+\newcommand{\MODEL}{ABot-N1\xspace}
+\renewcommand\lstlistingname{Algorithm}
+\setlength{\FrameSep}{2pt}
+
+% Figure search path: all figures are copied into figs/
+\graphicspath{{figs/}}
+
+%%%%%%%%%%%%%%%%%%%%
+
+\title{\MODEL: Toward a General Visual Language Navigation Foundation Model}
+
+% \author{AMAP CV Lab}
+
+%\contribution{See \hyperref[sec:contributions]{Contributions and Acknowledgments} section for a full author list.}
+\vspace{-10pt}
+
+\abstract{
+Visual Language Navigation foundation models aim to unify deep \textit{reasoning} for grounded spatial decisions with broad \textit{versatility} for diverse embodied tasks. 
+Current approaches typically achieve this integration via monolithic policies that map observations directly to actions, yet they often suffer from coordinate drift and poor handling of long-tail semantics. 
+Furthermore, these black-box mappings lack interpretability, hindering the simultaneous achievement of generality, robustness, and transparency. 
+We present \textbf{ABot-N1}, a step toward a general Visual Language Navigation foundation model, that addresses these challenges by decoupling cognition from control via a \textbf{slow-fast} architecture guided by dual visual-language signals.
+More specifically, a slow vision-language reasoner performs explicit Chain-of-Thought \textbf{reasoning} while producing a \textbf{pixel goal}. This compact set of image-space anchor points serves as a universal interface for diverse tasks, including \textit{point-goal}, \textit{object-goal}, \textit{poi-goal}, \textit{instruction-following}, and \textit{person-following}.
+Subsequently, a fast action expert leverages both the textual cues and the pixel guidance to generate continuous waypoints at the native control frequency. 
+By bridging high-level intents and low-level control through pixel-grounded anchors paired with explicit linguistic traces, our approach ensures robust, generalizable, and interpretable navigation across simulation and real-world benchmarks.
+ABot-N1 establishes new state-of-the-art records, delivering massive gains specifically in urban-scale navigation: \textbf{boosting POI arrival by 35.0\% (to 77.3\%) and achieving 95.4\%/92.9\% SR in complex indoor and outdoor scenes}. It also maintains superior robustness across object-reaching, person-following,  and instruction-following tasks. 
+New Point-Goal/POI-Goal benchmarks are released as open source to advance the field of urban-scale navigation.
+% \bigskip
+
+%\textbf{Correspondence:} ss
+
+\textbf{Project Page:} \url{https://amap-cvlab.github.io/ABot-Navigation/ABot-N1/}
+
+}
+
+
+\begin{document}
+\maketitle
+\vspace{-4pt}
+
+{%
+\vspace{-14pt}
+
+\centering
+% \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{figs/page_1.pdf}
+\includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{figs_jpg/page_1.jpg}
+
+%\captionsetup{type=figure}
+%\small
+% \captionof{figure}{\textbf{Data and performance overview of ABot-N1.} A single unified model trained across five navigation tasks, together with its state-of-the-art results on the five evaluation benchmarks.}
+%\label{fig:teaser}
+\par}
+\newpage
+\tableofcontents
+\newpage
+
+\input{sections/introduction}
+\input{sections/related}
+\input{sections/preliminaries}
+\input{sections/method}
+\input{sections/benchmark}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\clearpage
+\input{sections/contribution}
+\clearpage
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\end{document}

@@ -1,0 +1,47 @@
+
+% \\
+% \\
+% \section{Limitations \& Conclusion}
+\section{Conclusion}
+We presented ABot-AgentOS, a general-purpose robotic agent operating
+system that connects foundation VLM/VLA models with physical robot
+execution through a deliberative agent layer. Its modular Agent Harness separates
+reasoning, context management, skill execution, and verification, while
+its multi-modal memory system stores embodied experience as a typed,
+source-grounded graph for traceable retrieval. We also introduced
+EmbodiedWorldBench, an executable benchmark for long-horizon embodied
+tasks across indoor, outdoor, and hybrid scenarios with dynamic events,
+NPC interaction, and deterministic scoring.
+
+The results indicate that ABot-AgentOS is useful both as an online
+reasoning-execution layer and as a persistent learning substrate. The
+graph memory performs strongly across long-term conversational recall,
+embodied QA, multi-modal memory, video reasoning, and egocentric
+daily-life QA, while failure-driven self-evolution improves later splits
+through gated, trace-diagnosed evo-assets. Initial agent evaluations on
+an EmbodiedWorldBench subset further suggest that hierarchical control,
+task memory, skill feedback, and finish-time verification improve
+long-horizon execution. We also outline a deployment-oriented path for
+transferring ABot-AgentOS-style tool use to smaller agent models through
+sandboxed trajectory distillation, SFT/RL, and judge-guided
+optimization.
+
+Several limitations remain. Large-scale real-world validation is still
+needed under noisy perception, imperfect actuation, network latency,
+safety constraints, and heterogeneous robot embodiments. Although
+EmbodiedWorldBench covers diverse scenario types, its scene diversity,
+social interaction depth, and current agent evaluation coverage remain
+limited; future work will report the complete benchmark evaluation and
+release EmbodiedWorldBench for open research use. The memory and
+self-evolution pipeline also depends on structured traces and post-hoc
+feedback, and privacy-aware edge-cloud memory sharing requires stronger
+auditing, user control, access management, and failure analysis. Finally,
+the small-model training pipeline should move beyond text-state semantic
+sandboxes by incorporating visual observations, multi-modal feedback, and
+additional simulation platforms.
+
+Overall, ABot-AgentOS provides a unified foundation for physically
+grounded, memory-augmented, and continuously improving embodied agents
+that can perceive, remember, reason, act, verify, and adapt over
+long-term interaction with the physical world.
+\label{sec:conclusion}

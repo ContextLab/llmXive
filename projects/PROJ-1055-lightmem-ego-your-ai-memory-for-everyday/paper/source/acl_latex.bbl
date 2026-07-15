@@ -1,0 +1,159 @@
+\begin{thebibliography}{31}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Alam et~al.(2026)Alam, Siam, Proulx, Fort, Newcombe, Kim, and Zhang}]{SuperMemory-VQA}
+Samiul Alam, Shakhrul~Iman Siam, Michael~J Proulx, James Fort, Richard Newcombe, Hyo~Jin Kim, and Mi~Zhang. 2026.
+\newblock \href {https://arxiv.org/abs/2606.00825} {Supermemory-vqa: An egocentric visual question-answering benchmark for long-horizon memory}.
+\newblock \emph{arXiv preprint arXiv:2606.00825}.
+
+\bibitem[{Chhikara et~al.(2025)Chhikara, Khant, Aryan, Singh, and Yadav}]{Mem0}
+Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh, and Deshraj Yadav. 2025.
+\newblock \href {https://doi.org/10.3233/FAIA251160} {Mem0: Building production-ready {AI} agents with scalable long-term memory}.
+\newblock In \emph{{ECAI} 2025 - 28th European Conference on Artificial Intelligence, 25-30 October 2025, Bologna, Italy - Including 14th Conference on Prestigious Applications of Intelligent Systems {(PAIS} 2025)}, volume 413 of \emph{Frontiers in Artificial Intelligence and Applications}, pages 2993--3000. {IOS} Press.
+
+\bibitem[{Deng et~al.(2026)Deng, Xue, Chen, Mao, Zhong, Xu, Fang, Xu, Wu, Xu et~al.}]{MobileMem}
+Xinle Deng, Yida Xue, Yijun Chen, Mingjun Mao, Ruobin Zhong, Buqiang Xu, Jizhan Fang, Haoming Xu, Tingwei Wu, Yajing Xu, et~al. 2026.
+\newblock \href {https://iclr.cc/virtual/2026/10012468} {Mobilemem: Evaluating long-horizon memory for language agents in real-world mobile environments}.
+\newblock In \emph{ICLR 2026 Workshop on Lifelong Agents: Learning, Aligning, Evolving}.
+
+\bibitem[{Du(2026)}]{Memory_for_Autonomous_LLM_Agents}
+Pengfei Du. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2603.07670} {Memory for autonomous {LLM} agents:mechanisms, evaluation, and emerging frontiers}.
+\newblock \emph{CoRR}, abs/2603.07670.
+
+\bibitem[{Fan et~al.(2024)Fan, Ma, Wu, Du, Li, Gao, and Li}]{VideoAgent}
+Yue Fan, Xiaojian Ma, Rujie Wu, Yuntao Du, Jiaqi Li, Zhi Gao, and Qing Li. 2024.
+\newblock \href {https://doi.org/10.1007/978-3-031-72670-5\_5} {Videoagent: {A} memory-augmented multimodal agent for video understanding}.
+\newblock In \emph{Computer Vision - {ECCV} 2024 - 18th European Conference, Milan, Italy, September 29-October 4, 2024, Proceedings, Part {XXII}}, Lecture Notes in Computer Science, pages 75--92. Springer.
+
+\bibitem[{Fang et~al.(2025)Fang, Deng, Xu, Jiang, Tang, Xu, Deng, Yao, Wang, Qiao, Chen, and Zhang}]{LightMem}
+Jizhan Fang, Xinle Deng, Haoming Xu, Ziyan Jiang, Yuqi Tang, Ziwen Xu, Shumin Deng, Yunzhi Yao, Mengru Wang, Shuofei Qiao, Huajun Chen, and Ningyu Zhang. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2510.18866} {Lightmem: Lightweight and efficient memory-augmented generation}.
+\newblock \emph{CoRR}, abs/2510.18866.
+
+\bibitem[{Gao et~al.(2026)Gao, Zhang, Wang, Chen, Cao, Wang, Zhu, Min, Sun, Zhu, and Zhai}]{LifeEval}
+Hengjian Gao, Kaiwei Zhang, Shibo Wang, Mingjie Chen, Qihang Cao, Xianfeng Wang, Yucheng Zhu, Xiongkuo Min, Wei Sun, Dandan Zhu, and Guangtao Zhai. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2603.00490} {Lifeeval: {A} multimodal benchmark for assistive {AI} in egocentric daily life tasks}.
+\newblock \emph{CoRR}, abs/2603.00490.
+
+\bibitem[{{Gemini Team}(2025)}]{Gemini-2.5-pro}
+{Gemini Team}. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2507.06261} {Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities}.
+\newblock \emph{CoRR}, abs/2507.06261.
+
+\bibitem[{Huang et~al.(2025{\natexlab{a}})Huang, Xu, Pei, He, Chen, Zhang, Yang, Nie, Liu, Fan, Lin, Fang, Li, Yuan, Chen, Wang, Wang, Qiao, and Wang}]{Vinci_new}
+Yifei Huang, Jilan Xu, Baoqi Pei, Yuping He, Guo Chen, Mingfang Zhang, Lijin Yang, Zheng Nie, Jinyao Liu, Guoshun Fan, Dechen Lin, Fang Fang, Kunpeng Li, Chang Yuan, Xinyuan Chen, Yaohui Wang, Yali Wang, Yu~Qiao, and Limin Wang. 2025{\natexlab{a}}.
+\newblock \href {https://doi.org/10.48550/ARXIV.2503.04250} {An egocentric vision-language model based portable real-time smart assistant}.
+\newblock \emph{CoRR}, abs/2503.04250.
+
+\bibitem[{Huang et~al.(2025{\natexlab{b}})Huang, Xu, Pei, Yang, Zhang, He, Chen, Chen, Wang, Nie, Liu, Lin, Fang, Li, Yuan, Qiao, Wang, and Wang}]{Vinci}
+Yifei Huang, Jilan Xu, Baoqi Pei, Lijin Yang, Mingfang Zhang, Yuping He, Guo Chen, Xinyuan Chen, Yaohui Wang, Zheng Nie, Jinyao Liu, Dechen Lin, Fang Fang, Kunpeng Li, Chang Yuan, Yu~Qiao, Yali Wang, and Limin Wang. 2025{\natexlab{b}}.
+\newblock \href {https://doi.org/10.1145/3749513} {Vinci: {A} real-time smart assistant based on egocentric vision-language model for portable devices}.
+\newblock \emph{Proc. {ACM} Interact. Mob. Wearable Ubiquitous Technol.}, 9(3):88:1--88:33.
+
+\bibitem[{Jiang et~al.(2026)Jiang, Yuan, Qu, Lin, Liu, Fan, and Li}]{SUPERGLASSES}
+Zhuohang Jiang, Xu~Yuan, Haohao Qu, Shanru Lin, Kanglong Liu, Wenqi Fan, and Qing Li. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2602.22683} {{SUPERGLASSES:} benchmarking vision language models as intelligent agents for {AI} smart glasses}.
+\newblock \emph{CoRR}, abs/2602.22683.
+
+\bibitem[{Li et~al.(2025)Li, Song, Xi, Wang, Tang, Niu, Chen, Yang, Li, Yu, Zhao, Wang, Liu, Lin, Wang, Huo, Chen, Chen, Li, Tao, Ren, Lai, Wu, Tang, Wang, Fan, Zhang, Zhang, Yan, Yang, Xu, Xu, Chen, Wang, Yang, Zhang, Xu, Chen, and Xiong}]{MemOS}
+Zhiyu Li, Shichao Song, Chenyang Xi, Hanyu Wang, Chen Tang, Simin Niu, Ding Chen, Jiawei Yang, Chunyu Li, Qingchen Yu, Jihao Zhao, Yezhaohui Wang, Peng Liu, Zehao Lin, Pengyuan Wang, Jiahao Huo, Tianyi Chen, Kai Chen, Kehang Li, Zhen Tao, Junpeng Ren, Huayi Lai, Hao Wu, Bo~Tang, Zhenren Wang, Zhaoxin Fan, Ningyu Zhang, Linfeng Zhang, Junchi Yan, Mingchuan Yang, Tong Xu, Wei Xu, Huajun Chen, Haofeng Wang, Hongkang Yang, Wentao Zhang, Zhi{-}Qin~John Xu, Siheng Chen, and Feiyu Xiong. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2507.03724} {Memos: {A} memory {OS} for {AI} system}.
+\newblock \emph{CoRR}, abs/2507.03724.
+
+\bibitem[{Liu et~al.(2026)Liu, Lee, Gonzalez, Gonz{\'{a}}lez{-}Franco, and Suzuki}]{VisionClaw}
+Xiaoan Liu, Daeho Lee, Eric~J. Gonzalez, Mar Gonz{\'{a}}lez{-}Franco, and Ryo Suzuki. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2604.03486} {Visionclaw: Always-on {AI} agents through smart glasses}.
+\newblock \emph{CoRR}, abs/2604.03486.
+
+\bibitem[{Long et~al.(2025)Long, He, Ye, Pan, Lin, Li, Zhao, and Li}]{M3-Agent}
+Lin Long, Yichen He, Wentao Ye, Yiyuan Pan, Yuan Lin, Hang Li, Junbo Zhao, and Wei Li. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2508.09736} {Seeing, listening, remembering, and reasoning: {A} multimodal agent with long-term memory}.
+\newblock \emph{CoRR}, abs/2508.09736.
+
+\bibitem[{{Memories.ai}(2026)}]{MemoriesAI}
+{Memories.ai}. 2026.
+\newblock \href {https://memories.ai/} {Memories.ai: Ai video analysis and visual memory platform}.
+\newblock Accessed: 2026-07-11.
+
+\bibitem[{OpenAI(2024)}]{GPT-4o}
+OpenAI. 2024.
+\newblock \href {https://doi.org/10.48550/ARXIV.2410.21276} {Gpt-4o system card}.
+\newblock \emph{CoRR}, abs/2410.21276.
+
+\bibitem[{OpenAI(2026)}]{GPT-5}
+OpenAI. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2601.03267} {Openai {GPT-5} system card}.
+\newblock \emph{CoRR}, abs/2601.03267.
+
+\bibitem[{Packer et~al.(2023)Packer, Fang, Patil, Lin, Wooders, and Gonzalez}]{MemGPT}
+Charles Packer, Vivian Fang, Shishir~G. Patil, Kevin Lin, Sarah Wooders, and Joseph~E. Gonzalez. 2023.
+\newblock \href {https://doi.org/10.48550/ARXIV.2310.08560} {Memgpt: Towards llms as operating systems}.
+\newblock \emph{CoRR}, abs/2310.08560.
+
+\bibitem[{Pu et~al.(2025)Pu, Zhang, Sendhilnathan, Freitag, Sodhi, and Jonker}]{ProMemAssist}
+Kevin Pu, Ting Zhang, Naveen Sendhilnathan, Sebastian Freitag, Raj Sodhi, and Tanya~R. Jonker. 2025.
+\newblock \href {https://doi.org/10.1145/3746059.3747770} {Promemassist: Exploring timely proactive assistance through working memory modeling in multi-modal wearable devices}.
+\newblock In \emph{Proceedings of the 38th Annual {ACM} Symposium on User Interface Software and Technology, {UIST} 2025, Busan, Korea, 28 September 2025 - 1 October 2025}, pages 56:1--56:19. {ACM}.
+
+\bibitem[{Tang et~al.(2026)Tang, Zhang, Qin, Yu, Qiu, Gou, Xiong, Qingwei, Rajmohan, Zhang, and Wu}]{EgoMemory}
+Yuanmin Tang, Jue Zhang, Xiaoting Qin, Jing Yu, Meikang Qiu, Gaopeng Gou, Gang Xiong, Lin Qingwei, Saravan Rajmohan, Dongmei Zhang, and Qi~Wu. 2026.
+\newblock \href {https://www.microsoft.com/en-us/research/publication/egomemory-memory-augmented-personalized-retrieval-for-long-context-egocentric-video/} {Egomemory: Memory-augmented personalized retrieval for long-context egocentric video}.
+\newblock In \emph{ACL Findings}.
+
+\bibitem[{Tian et~al.(2025)Tian, Wang, Guo, Wu, Dong, Wang, Yang, Zhang, Zhu, and Liu}]{Ego-R1}
+Shulin Tian, Ruiqi Wang, Hongming Guo, Penghao Wu, Yuhao Dong, Xiuying Wang, Jingkang Yang, Hao Zhang, Hongyuan Zhu, and Ziwei Liu. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2506.13654} {Ego-r1: Chain-of-tool-thought for ultra-long egocentric video reasoning}.
+\newblock \emph{CoRR}, abs/2506.13654.
+
+\bibitem[{Tran et~al.(2025)Tran, Bailer, Dang{-}Nguyen, Healy, Hodges, J{\'{o}}nsson, Rossetto, Schoeffmann, Tran, Vadicamo, and Gurrin}]{Lifelong_Retrieval}
+Allie Tran, Werner Bailer, Duc{-}Tien Dang{-}Nguyen, Graham Healy, Steve Hodges, Bj{\"{o}}rn~{\TH}{\'{o}}r J{\'{o}}nsson, Luca Rossetto, Klaus Schoeffmann, Minh{-}Triet Tran, Lucia Vadicamo, and Cathal Gurrin. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2506.06743} {The state-of-the-art in lifelog retrieval: {A} review of progress at the {ACM} lifelog search challenge workshop 2022-24}.
+\newblock \emph{CoRR}, abs/2506.06743.
+
+\bibitem[{Tu et~al.(2026)Tu, Chen, Wang, Han, Wu, Chen, Ji, Xiong, Liu, Xia et~al.}]{VisualClaw}
+Haoqin Tu, Jianwen Chen, Zijun Wang, Siwei Han, Juncheng Wu, Hardy Chen, Haonian Ji, Kaiwen Xiong, Jiaqi Liu, Peng Xia, et~al. 2026.
+\newblock \href {https://arxiv.org/abs/2606.16295} {Visualclaw: A real-time, personalized agent for the physical world}.
+\newblock \emph{arXiv preprint arXiv:2606.16295}.
+
+\bibitem[{Wang et~al.(2026)Wang, Zhang, Yu, Zhang, Zhao, Yoon, Lee, Bertasius, and Bansal}]{EgoMemReason}
+Ziyang Wang, Yue Zhang, Shoubin Yu, Ce~Zhang, Zengqi Zhao, Jaehong Yoon, Hyunji Lee, Gedas Bertasius, and Mohit Bansal. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2605.09874} {Egomemreason: {A} memory-driven reasoning benchmark for long-horizon egocentric video understanding}.
+\newblock \emph{CoRR}, abs/2605.09874.
+
+\bibitem[{Xiao et~al.(2026)Xiao, Zhang, Zhu, and Yao}]{MyEgo}
+Junbin Xiao, Shenglang Zhang, Pengxiang Zhu, and Angela Yao. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2604.01966} {Ego-grounding for personalized question-answering in egocentric videos}.
+\newblock \emph{CoRR}, abs/2604.01966.
+
+\bibitem[{Xu et~al.(2026)Xu, Chen, Fang, Zhong, Yao, Zhu, Du, and Deng}]{StructMem}
+Buqiang Xu, Yijun Chen, Jizhan Fang, Ruobin Zhong, Yunzhi Yao, Yuqi Zhu, Lun Du, and Shumin Deng. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2604.21748} {Structmem: Structured memory for long-horizon behavior in llms}.
+\newblock \emph{CoRR}, abs/2604.21748.
+
+\bibitem[{Xu et~al.(2025)Xu, Zeng, Tong, Li, and Srivastava}]{AutoLife}
+Huatao Xu, Zilin Zeng, Panrong Tong, Mo~Li, and Mani~B. Srivastava. 2025.
+\newblock \href {https://doi.org/10.1145/3770683} {Autolife: Automatic life journaling with smartphones and llms}.
+\newblock \emph{Proc. {ACM} Interact. Mob. Wearable Ubiquitous Technol.}, 9(4):226:1--226:29.
+
+\bibitem[{Yang et~al.(2025)Yang, Liu, Guo, Dong, Zhang, Zhang, Wang, Zhou, Xie, Wang, Ouyang, Lin, Cominelli, Cai, Li, Zhang, Zhang, Hong, Widmer, Gringoli, Yang, and Liu}]{EgoLife}
+Jingkang Yang, Shuai Liu, Hongming Guo, Yuhao Dong, Xiamengwei Zhang, Sicheng Zhang, Pengyun Wang, Zitang Zhou, Binzhu Xie, Ziyue Wang, Bei Ouyang, Zhengyu Lin, Marco Cominelli, Zhongang Cai, Bo~Li, Yuanhan Zhang, Peiyuan Zhang, Fangzhou Hong, Joerg Widmer, Francesco Gringoli, Lei Yang, and Ziwei Liu. 2025.
+\newblock \href {https://doi.org/10.1109/CVPR52734.2025.02690} {Egolife: Towards egocentric life assistant}.
+\newblock In \emph{{IEEE/CVF} Conference on Computer Vision and Pattern Recognition, {CVPR} 2025, Nashville, TN, USA, June 11-15, 2025}, pages 28885--28900. Computer Vision Foundation / {IEEE}.
+
+\bibitem[{Yang et~al.(2026)Yang, Huang, Cai, Sun, Fang, He, Xie, Deng, Zhang, Song, and Zhang}]{Egocentric_Co-Pilot}
+Sicheng Yang, Yukai Huang, Weitong Cai, Shitong Sun, Fengyi Fang, You He, Yiqiao Xie, Jiankang Deng, Hang Zhang, Jifei Song, and Zhensong Zhang. 2026.
+\newblock \href {https://doi.org/10.1145/3774904.3792996} {Egocentric co-pilot: Web-native smart-glasses agents for assistive egocentric {AI}}.
+\newblock In \emph{Proceedings of the {ACM} Web Conference 2026, {WWW} 2026, Dubai, United Arab Emirates, originally scheduled for April 13-17, 2026, rescheduled for June 29 - July 3, 2026}, pages 8862--8873. {ACM}.
+
+\bibitem[{Yeo et~al.(2025)Yeo, Kim, Yoon, and Hwang}]{WorldMM}
+Woongyeong Yeo, Kangsan Kim, Jaehong Yoon, and Sung~Ju Hwang. 2025.
+\newblock \href {https://doi.org/10.48550/ARXIV.2512.02425} {Worldmm: Dynamic multimodal memory agent for long video reasoning}.
+\newblock \emph{CoRR}, abs/2512.02425.
+
+\bibitem[{Zhou et~al.(2026)Zhou, Zhou, Han, Xu, Li, Li, Xiong, and Wu}]{Are_we_ready}
+Wei Zhou, Xuanhe Zhou, Shaokun Han, Hongming Xu, Guoliang Li, Zhiyu Li, Feiyu Xiong, and Fan Wu. 2026.
+\newblock \href {https://doi.org/10.48550/ARXIV.2606.24775} {Are we ready for an agent-native memory system?}
+\newblock \emph{CoRR}, abs/2606.24775.
+
+\end{thebibliography}

@@ -1,0 +1,123 @@
+% ===========================================================
+% 2. RELATED WORKS
+% ===========================================================
+\section{Related Works}
+\label{sec:related}
+
+We organize prior work along three axes that are most relevant to ABot-N1:
+(i) general-purpose navigation foundation models that move from
+single-task specialists to unified policies, (ii) the emerging
+``brain--body'' decoupling represented by dual-system VLN architectures
+that separate deliberation from reactive control, and (iii) the rise of
+reasoning---both linguistic and visual---inside navigation, which we view
+as a stepping stone toward general embodied reasoning models. Comprehensive
+treatments of the broader VLN landscape can be found in recent
+surveys~\cite{gu2022vlnsurvey,hossain2026review,zhang2026llmvln}.
+
+\subsection{Generalist Navigation Foundation Models}
+\label{sec:rw-generalist}
+
+Classical VLN research is dominated by task-specific architectures that
+specialize either the goal interface or the policy backbone for a single
+benchmark, spanning \textit{instruction-following} on R2R/RxR-style
+graphs~\cite{anderson2018vln,ku2020rxr,chen2021topological,an2024etpnav,an2022rxrhabitat,chen2022weakly},
+open-vocabulary object goal
+search~\cite{yokoyama2024hmovon,batra2020objectnav}, and geometric
+\textit{point-goal} or \textit{person-following}
+controllers~\cite{savva2019habitat,wang2025trackvla}. These specialists
+rarely transfer across tasks and adopt disjoint goal interfaces that
+resist joint training.
+
+A recent line of work instead consolidates multiple navigation tasks
+under a single video-conditioned VLM-based
+policy~\cite{zhang2024navid,zhang2024uninavid,chiang2024mobilityvla},
+while larger-scale foundation models such as
+NavFoM~\cite{zhang2025navfom} and our prior
+ABot-N0~\cite{abotn0} push toward cross-embodiment, multi-task coverage,
+and training-free routes such as OpenFrontier~\cite{sun2026openfrontier}
+ground language to visual frontiers for open-world generalization.
+ABot-N1 inherits this commitment to a single, multi-task architecture
+but departs from prior generalists in two ways: it explicitly factorizes
+deliberation from control rather than emitting actions from a monolithic
+network, and it routes all tasks through a shared \emph{pixel-goal}
+interface that the fast controller can chase regardless of the original
+goal modality.
+
+\subsection{Brain-Body Decoupling: Dual-System VLN Architectures}
+\label{sec:rw-dualsystem}
+
+A central trend across robotics, autonomous driving, and humanoid control
+is the explicit separation of a high-capacity ``big brain'' that
+deliberates over multimodal context from a lightweight ``small brain''
+that executes high-frequency motor commands. This brain--body division
+of labor is motivated by the very different time constants and
+uncertainty profiles of cognition and control, and it is most often
+framed in the language of Kahneman's dual-process theory: a slow,
+deliberative System~2 paired with a fast, reactive System~1.
+
+The pattern has crystallized across domains: VLM-based deliberators paired
+with fast low-level controllers in autonomous
+driving~\cite{wen2024drivevlm}, hierarchical or asynchronously coupled
+VLAs in manipulation and humanoid
+control~\cite{shi2025hi,figureai2025helix,physicalintelligence2024pi05},
+and dedicated humanoid foundation models that make the System~1/System~2
+split explicit, most notably NVIDIA's GR00T~N1~\cite{nvidia2025groot}.
+Follow-up work refines the interface between the two systems with
+value-guided thinking, shared-representation execution, or unified
+embodied brains~\cite{song2025hume,chen2025fastinslow,baai2025robobrain2},
+and the same brain--body split has been imported into navigation for
+socially-aware behavior~\cite{chen2025socialnav}.
+
+ABot-N1 inherits this brain--body philosophy but specializes it for
+embodied navigation in two important respects. First, the interface
+between the two systems is \emph{not} an opaque latent vector or a free-form
+natural-language sub-goal, but a structured \emph{pixel goal} accompanied
+by a Chain-of-Thought explanation; this bottleneck is human-readable,
+imitation-friendly, and amenable to reinforcement learning at the
+reasoning level. Second, the slow system is post-trained with
+GRPO~\cite{deepseekai2025r1} so that its reasoning is supervised by
+downstream navigation outcomes rather than only by token-level targets.
+
+\subsection{Toward General Embodied Reasoning for Navigation}
+\label{sec:rw-reasoning}
+
+Orthogonal to the architectural question of how to split brain and body
+is the representational question of \emph{what} the deliberative side
+should reason about and how that reasoning should be expressed. Recent
+work has converged on two complementary answers: explicit linguistic
+CoT, and structured visual representations such as visual
+prompts and grounded spatial reasoning. We see ABot-N1's CoT-plus-pixel-goal
+output as an instance of this broader trend toward general embodied
+reasoning.
+
+On the linguistic side, CoT prompting and its
+reinforcement-learning descendants have shown that step-by-step textual
+reasoning markedly improves compositional decision
+making~\cite{wei2022cot,deepseekai2025r1}, and this idea has been
+instantiated inside navigation through navigational chain-of-thought
+training that disentangles reasoning from action
+prediction~\cite{zhou2024navgpt2,lin2025navcot,zuo2026fantasyvln}, with
+parallel embodied chain-of-thought recipes in
+manipulation~\cite{zawalski2024ecot,sun2025emmax}.
+
+On the visual side, a parallel thread argues that purely textual
+reasoning under-uses the structure of the scene and grounds reasoning in
+image-space artifacts---numbered action proposals, user-drawn goals,
+frontier marks, or predicted subgoal
+images~\cite{nasiriany2024pivot,feng2026vpn,sun2026openfrontier,zhao2025cotvla}.
+A complementary line invests in the spatial competence of the underlying
+VLM through quantitative and region-grounded 3D reasoning and unified
+embodied perception~\cite{chen2024spatialvlm,cheng2024spatialrgpt,baai2026robobrain25}.
+
+ABot-N1 unifies these two threads inside a single navigator. The slow
+system produces an explicit Chain-of-Thought in the spirit of NavCoT,
+NavGPT-2, ECoT, and FantasyVLN, but, in line with PIVOT, VPN, CoT-VLA,
+and SpatialVLM, the reasoning grounds out in image-space \emph{pixel
+goals} rather than text-only sub-goals or category embeddings. This
+generalizes visual prompting beyond user-drawn marks and beyond
+manipulation, and it makes the slow system's behavior directly
+amenable to outcome-driven post-training. We view this combination as a
+concrete step toward general embodied reasoning models, in which a
+shared deliberative core can be specialized into many physical tasks by
+what it points at on the image, while the fast controller solves the
+universal problem of ``follow the predicted pixels.''

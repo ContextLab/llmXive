@@ -1,0 +1,16 @@
+% ===========================================================================
+% Memory Module — Future Work items
+% Target location in main paper: \input{sections/2_4_memory_futurework}
+% ===========================================================================
+
+% \subsection*{Memory Module}
+% Scaling the memory subsystem to long-term, real-world deployment motivates several extensions:
+% \begin{itemize}
+%     \item \textbf{Temporal validity management:} maintaining a \texttt{last\_confirmed\_at} timestamp refreshed upon revisit, with time-decayed relevance weighting so that unconfirmed records are progressively down-ranked;
+%     \item \textbf{Error correction:} detecting and invalidating false-positive memories through cross-visit consistency checks (e.g., repeated non-observation at a previously recorded location);
+%     \item \textbf{Deduplication evaluation:} systematically evaluating receiver-side deduplication thresholds (embedding cosine similarity and keyword Jaccard overlap) across diverse scenarios to establish robust default values;
+%     \item \textbf{Multi-frame deduplication:} suppressing redundant entries across consecutive frames via temporal-aware embedding clustering;
+%     \item \textbf{Hazard lifecycle management:} transitioning hazard records from \emph{active} to \emph{resolved} based on re-observation evidence or configurable expiry;
+%     \item \textbf{Spatial-context sensitivity:} incorporating location semantics (public vs.\ private spaces) into the sensitivity model to complement entity-level attributes;
+%     \item \textbf{Spatial memory:} constructing lightweight map-as-memory from 2D bounding boxes to support regional queries and spatial reasoning.
+% \end{itemize}

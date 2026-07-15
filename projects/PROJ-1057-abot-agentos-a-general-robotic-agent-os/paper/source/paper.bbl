@@ -1,0 +1,633 @@
+\begin{thebibliography}{118}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ahn et~al.(2022)Ahn, Brohan, Brown, Chebotar, Cortes, David, Finn, Fu, Gopalakrishnan, Hausman, Herzog, Ho, Hsu, Ibarz, Ichter, Irpan, Jang, Ruano, Jeffrey, Jesmonth, Joshi, Julian, Kalashnikov, Kuang, Lee, Levine, Lu, Luu, Parada, Pastor, Quiambao, Rao, Rettinghouse, Reyes, Sermanet, Sievers, Tan, Toshev, Vanhoucke, Xia, Xiao, Xu, Xu, Yan, and Zeng]{ahn2022saycan}
+Michael Ahn, Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron David, Chelsea Finn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Daniel Ho, Jasmine Hsu, Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang, Rosario~Jauregui Ruano, Kyle Jeffrey, Sally Jesmonth, Nikhil~J. Joshi, Ryan Julian, Dmitry Kalashnikov, Yuheng Kuang, Kuang-Huei Lee, Sergey Levine, Yao Lu, Linda Luu, Carolina Parada, Peter Pastor, Jornell Quiambao, Kanishka Rao, Jarek Rettinghouse, Diego Reyes, Pierre Sermanet, Nicolas Sievers, Clayton Tan, Alexander Toshev, Vincent Vanhoucke, Fei Xia, Ted Xiao, Peng Xu, Sichun Xu, Mengyuan Yan, and Andy Zeng.
+\newblock Do as i can, not as i say: Grounding language in robotic affordances.
+\newblock \emph{arXiv preprint arXiv:2204.01691}, 2022.
+
+\bibitem[Ali et~al.(2025)Ali, Nair, Wong, Cui, and Chen]{ali2025graphpad}
+Muhammad~Qasim Ali, Saeejith Nair, Alexander Wong, Yuchen Cui, and Yuhao Chen.
+\newblock Graphpad: Inference-time 3d scene graph updates for embodied question answering.
+\newblock \emph{arXiv preprint arXiv:2506.01174}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2506.01174}.
+
+\bibitem[{Anthropic}(2024)]{anthropic2024computeruse}
+{Anthropic}.
+\newblock Introducing computer use, a new {Claude} 3.5 {Sonnet}, and {Claude} 3.5 {Haiku}.
+\newblock \url{https://www.anthropic.com/news/3-5-models-and-computer-use}, 2024.
+\newblock Accessed: 2026-06-26.
+
+\bibitem[{Anthropic}(2026)]{anthropic2026advisortool}
+{Anthropic}.
+\newblock Advisor tool.
+\newblock \url{https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool}, 2026.
+\newblock Accessed: 2026-06-26.
+
+\bibitem[Arai and Ichikawa(2026)]{eveagent}
+Yamato Arai and Yuma Ichikawa.
+\newblock Eve-agent: Evidence-verifiable self-evolving agents.
+\newblock \emph{arXiv preprint arXiv:2605.22905}, 2026.
+
+\bibitem[Bai et~al.(2023)Bai, Wang, and CHEN]{bai2023glance}
+Ziyi Bai, Ruiping Wang, and Xilin CHEN.
+\newblock Glance and focus: Memory prompting for multi-event video question answering.
+\newblock In \emph{Thirty-seventh Conference on Neural Information Processing Systems}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=J6Niv3yrMq}.
+
+\bibitem[Bei et~al.(2026)Bei, Wei, Ning, Zhao, Liu, Lin, Zhu, Hamann, He, and Tong]{memgallery}
+Yuanchen Bei, Tianxin Wei, Xuying Ning, Yanjun Zhao, Zhining Liu, Xiao Lin, Yada Zhu, Hendrik Hamann, Jingrui He, and Hanghang Tong.
+\newblock Mem-gallery: Benchmarking multimodal long-term conversational memory for mllm agents.
+\newblock \emph{arXiv preprint arXiv:2601.03515}, 2026.
+
+\bibitem[Buch et~al.(2022)Buch, Eyzaguirre, Gaidon, Wu, Fei-Fei, and Niebles]{buch2022revisiting}
+Shyamal Buch, Cristobal Eyzaguirre, Adrien Gaidon, Jiajun Wu, Li~Fei-Fei, and Juan~Carlos Niebles.
+\newblock {Revisiting the ``Video'' in Video-Language Understanding}.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Cao et~al.(2025)Cao, Deng, Yu, Zhou, Liu, Ding, and Zhao]{reme}
+Zouying Cao, Jiaji Deng, Li~Yu, Weikang Zhou, Zhaoyang Liu, Bolin Ding, and Hai Zhao.
+\newblock Remember me, refine me: A dynamic procedural memory framework for experience-driven agent evolution.
+\newblock \emph{arXiv preprint arXiv:2512.10696}, 2025.
+
+\bibitem[Chen et~al.(2025)Chen, Hu, Bai, Luo, Xue, Ren, Bai, Xie, Chen, Liu, et~al.]{chen2026astranavworldworldmodelforesight}
+Jintao Chen, Junjun Hu, Haochen Bai, Minghua Luo, Xinda Xue, Botao Ren, Chengyu Bai, Shichao Xie, Ziyi Chen, Fei Liu, et~al.
+\newblock Astranav-world: World model for foresight control and consistency, 2025.
+
+\bibitem[Chen et~al.(2024)Chen, Zaharia, and Zou]{chen2023frugalgpt}
+Lingjiao Chen, Matei Zaharia, and James Zou.
+\newblock {FrugalGPT}: How to use large language models while reducing cost and improving performance.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=cSimKw5p6R}.
+
+\bibitem[Chen et~al.(2022)Chen, Hu, Chen, Verga, and Cohen]{chen2022murag}
+Wenhu Chen, Hexiang Hu, Xi~Chen, Pat Verga, and William~W. Cohen.
+\newblock Murag: Multimodal retrieval-augmented generator for open question answering over images and text.
+\newblock In \emph{Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing}, pages 5558--5570. Association for Computational Linguistics, 2022.
+\newblock URL \url{https://aclanthology.org/2022.emnlp-main.375}.
+
+\bibitem[Chen et~al.(2026{\natexlab{a}})Chen, Xie, Gu, Jia, Luo, Liu, Chu, Shen, Wu, and Xu]{chen2026explorelikehumansautonomous}
+Xu~Chen, Shichao Xie, Zhining Gu, Lu~Jia, Minghua Luo, Fei Liu, Zedong Chu, Yanfen Shen, Xiaolong Wu, and Mu~Xu.
+\newblock Explore like humans: Autonomous exploration with online sg-memo construction for embodied agents, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2604.19034}.
+
+\bibitem[Chen et~al.(2026{\natexlab{b}})Chen, Guo, Chu, Luo, Shen, Sun, Hu, Xie, Kuan, Shi, et~al.]{Chen_2026_CVPR}
+Ziyi Chen, Yingnan Guo, Zedong Chu, Minghua Luo, Yanfen Shen, Mingchao Sun, Junjun Hu, Shichao Xie, Yang Kuan, Pei Shi, et~al.
+\newblock Socialnav: Training human-inspired foundation model for socially-aware embodied navigation.
+\newblock pages 28796--28806, 2026{\natexlab{b}}.
+
+\bibitem[Chhikara et~al.(2025)Chhikara, Khant, Aryan, Singh, and Yadav]{mem0}
+Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh, and Deshraj Yadav.
+\newblock Mem0: Building production-ready ai agents with scalable long-term memory.
+\newblock \emph{arXiv preprint arXiv:2504.19413}, 2025.
+
+\bibitem[Chu et~al.(2025)Chu, Li, and Chua]{GraphVideoAgent}
+Meng Chu, Yicong Li, and Tat-Seng Chua.
+\newblock Graphvideoagent: Enhancing long-form video understanding with entity relation graphs.
+\newblock In \emph{Proceedings of the 33rd ACM International Conference on Multimedia}, MM '25, page 4639–4648, New York, NY, USA, 2025. Association for Computing Machinery.
+\newblock ISBN 9798400720352.
+\newblock \doi{10.1145/3746027.3755537}.
+\newblock URL \url{https://doi.org/10.1145/3746027.3755537}.
+
+\bibitem[Chu et~al.(2026{\natexlab{a}})Chu, Xie, Wu, Shen, Luo, Wang, Liu, Leng, Hu, Yin, Lu, Guo, Yang, Han, Chen, Zhu, Zhao, Liu, Yang, He, Wang, Cai, Zhang, Gao, Liu, Sun, Jiang, Wang, Liu, Pan, Han, Gu, Yang, Zhang, Jing, Guan, Guo, Liu, Yang, Yang, Yang, Xing, Li, and Xu]{chu2026abotn0technicalreportvla}
+Zedong Chu, Shichao Xie, Xiaolong Wu, Yanfen Shen, Minghua Luo, Zhengbo Wang, Fei Liu, Xiaoxu Leng, Junjun Hu, Mingyang Yin, Jia Lu, Yingnan Guo, Kai Yang, Jiawei Han, Xu~Chen, Yanqing Zhu, Yuxiang Zhao, Xin Liu, Yirong Yang, Ye~He, Jiahang Wang, Yang Cai, Tianlin Zhang, Li~Gao, Liu Liu, Mingchao Sun, Fan Jiang, Chiyu Wang, Zhicheng Liu, Hongyu Pan, Honglin Han, Zhining Gu, Kuan Yang, Jianfang Zhang, Di~Jing, Zihao Guan, Wei Guo, Guoqing Liu, Di~Yang, Xiangpo Yang, Menglin Yang, Hongguang Xing, Weiguo Li, and Mu~Xu.
+\newblock Abot-n0: Technical report on the vla foundation model for versatile embodied navigation, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2602.11598}.
+
+\bibitem[Chu et~al.(2026{\natexlab{b}})Chu, Xie, Wu, Shen, Luo, Wang, Liu, Leng, Hu, Yin, et~al.]{chu2026abot}
+Zedong Chu, Shichao Xie, Xiaolong Wu, Yanfen Shen, Minghua Luo, Zhengbo Wang, Fei Liu, Xiaoxu Leng, Junjun Hu, Mingyang Yin, et~al.
+\newblock Abot-n0: Technical report on the vla foundation model for versatile embodied navigation.
+\newblock \emph{arXiv preprint arXiv:2602.11598}, 2026{\natexlab{b}}.
+
+\bibitem[Fan et~al.(2025)Fan, Ma, Wu, Du, Li, Gao, and Li]{fan2025videoagent}
+Yue Fan, Xiaojian Ma, Rujie Wu, Yuntao Du, Jiaqi Li, Zhi Gao, and Qing Li.
+\newblock Videoagent: A memory-augmented multimodal agent for video understanding.
+\newblock In \emph{European Conference on Computer Vision}, pages 75--92. Springer, 2025.
+
+\bibitem[Feng et~al.(2025)Feng, Xue, Liu, and An]{feng2025gigpo}
+Lang Feng, Zhenghai Xue, Tingcong Liu, and Bo~An.
+\newblock Group-in-group policy optimization for llm agent training.
+\newblock \emph{arXiv preprint arXiv:2505.10978}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2505.10978}.
+
+\bibitem[Fisher(2025)]{fisher2025ngm}
+Matthew Fisher.
+\newblock Neural graph memory: A structured approach to long-term memory in multimodal agents.
+\newblock Zenodo preprint, 2025.
+\newblock URL \url{https://zenodo.org/records/16809331}.
+
+\bibitem[Gao et~al.(2024)Gao, Zhao, Zhang, Mao, Zhang, Zheng, Man, Fang, Zhou, Cui, Chen, and Li]{gao2024embodiedcity}
+Chen Gao, Baining Zhao, Weichen Zhang, Jinzhu Mao, Jun Zhang, Zhiheng Zheng, Fanhang Man, Jianjie Fang, Zile Zhou, Jinqiang Cui, Xinlei Chen, and Yong Li.
+\newblock {EmbodiedCity}: A benchmark platform for embodied agent in real-world city environment.
+\newblock \emph{arXiv preprint arXiv:2410.09604}, 2024.
+
+\bibitem[Gao et~al.(2023{\natexlab{a}})Gao, Ji, Zhou, Lin, Chen, Fan, and Shou]{gao2023assistgptgeneralmultimodalassistant}
+Difei Gao, Lei Ji, Luowei Zhou, Kevin~Qinghong Lin, Joya Chen, Zihan Fan, and Mike~Zheng Shou.
+\newblock Assistgpt: A general multi-modal assistant that can plan, execute, inspect, and learn, 2023{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2306.08640}.
+
+\bibitem[Gao et~al.(2023{\natexlab{b}})Gao, Zhou, Ji, Zhu, Yang, and Shou]{MIST}
+Difei Gao, Luowei Zhou, Lei Ji, Linchao Zhu, Yi~Yang, and Mike~Zheng Shou.
+\newblock Mist : Multi-modal iterative spatial-temporal transformer for long-form video question answering.
+\newblock In \emph{2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pages 14773--14783, 2023{\natexlab{b}}.
+\newblock \doi{10.1109/CVPR52729.2023.01419}.
+
+\bibitem[Gao et~al.(2025{\natexlab{a}})Gao, Geng, Hua, Hu, Juan, Liu, Liu, Qiu, Qi, Wu, et~al.]{selfevolvingsurvey}
+Huan-ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu, Xinzhe Juan, Hongzhang Liu, Shilong Liu, Jiahao Qiu, Xuan Qi, Yiran Wu, et~al.
+\newblock A survey of self-evolving agents: What, when, how, and where to evolve on the path to artificial super intelligence.
+\newblock \emph{arXiv preprint arXiv:2507.21046}, 2025{\natexlab{a}}.
+
+\bibitem[Gao et~al.(2025{\natexlab{b}})Gao, Li, You, Liu, Li, Chen, Chen, Tang, Wang, Yang, et~al.]{gao2025openfly}
+Yunpeng Gao, Chenhui Li, Zhongrui You, Junli Liu, Zhen Li, Pengan Chen, Qizhi Chen, Zhonghan Tang, Liansheng Wang, Penghui Yang, et~al.
+\newblock Openfly: A comprehensive platform for aerial vision-language navigation.
+\newblock \emph{arXiv preprint arXiv:2502.18041}, 2025{\natexlab{b}}.
+
+\bibitem[Gong et~al.(2026)Gong, Zhang, Zhao, Sun, Shen, Chu, Gu, Guo, Cheng, Li, Niu, Zhu, Wu, Li, and Xu]{gong2026poinavbenchmarkingenhancingfinalmeters}
+Ruiyan Gong, Meisheng Zhang, Yuxiang Zhao, Mingchao Sun, Yanfen Shen, Zedong Chu, Zhining Gu, Wei Guo, Xiaolong Cheng, Qiming Li, Kangning Niu, Yanqing Zhu, Xiaolong Wu, Tianlun Li, and Mu~Xu.
+\newblock Poinav: Benchmarking and enhancing final-meters arrival in real-world vision-language navigation, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.28237}.
+
+\bibitem[Google(2025)]{gemini2_5pro}
+Google.
+\newblock Google gemini 2.5 pro.
+\newblock \url{https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-pro?hl=zh-cn}, 2025.
+\newblock Gemini Enterprise Agent Platform.
+
+\bibitem[{Google DeepMind}(2025)]{deepmind2025geminirobotics}
+{Google DeepMind}.
+\newblock {Gemini Robotics} brings {AI} into the physical world.
+\newblock \url{https://deepmind.google/blog/gemini-robotics-brings-ai-into-the-physical-world/}, 2025.
+\newblock Accessed: 2026-06-26.
+
+\bibitem[Han et~al.(2026)Han, Xie, Ma, et~al.]{han2026swetrace}
+Hao Han, Jin Xie, Xuehao Ma, et~al.
+\newblock Swe-trace: Optimizing long-horizon swe agents through rubric process reward models and heuristic test-time scaling.
+\newblock \emph{arXiv preprint arXiv:2604.14820}, 2026.
+
+\bibitem[He et~al.(2026)He, Wang, Du, Bai, Cao, Cheng, and Zheng]{he2026learning}
+Shan He, Runze Wang, Zhuoyun Du, Huiyu Bai, Zouying Cao, Yu~Cheng, and Bo~Zheng.
+\newblock Learning to evolve: A self-improving framework for multi-agent systems via textual parameter graph optimization.
+\newblock \emph{arXiv preprint arXiv:2604.20714}, 2026.
+
+\bibitem[Hong et~al.(2025)Hong, Sun, Li, Yao, Wu, Chien, Yin, Wu, Wang, and Chang]{hong2025embodiedweb}
+Yining Hong, Rui Sun, Bingxuan Li, Xingcheng Yao, Maxine Wu, Alexander Chien, Da~Yin, Ying~Nian Wu, Zhecan~James Wang, and Kai-Wei Chang.
+\newblock Embodied web agents: Bridging physical-digital realms for integrated agent intelligence.
+\newblock \emph{arXiv preprint arXiv:2506.15677}, 2025.
+
+\bibitem[Huang et~al.(2022)Huang, Xia, Xiao, Chan, Liang, Florence, Zeng, Tompson, Mordatch, Chebotar, Sermanet, Brown, Jackson, Luu, Levine, Hausman, and Ichter]{huang2022innermonologue}
+Wenlong Huang, Fei Xia, Ted Xiao, Harris Chan, Jacky Liang, Pete Florence, Andy Zeng, Jonathan Tompson, Igor Mordatch, Yevgen Chebotar, Pierre Sermanet, Noah Brown, Tomas Jackson, Linda Luu, Sergey Levine, Karol Hausman, and Brian Ichter.
+\newblock Inner monologue: Embodied reasoning through planning with language models.
+\newblock \emph{arXiv preprint arXiv:2207.05608}, 2022.
+
+\bibitem[Jain et~al.(2025)Jain, Maheshwari, Yu, Hwu, and Shi]{jain2025augustus}
+Jitesh Jain, Shubham Maheshwari, Ning Yu, Wen-mei Hwu, and Humphrey Shi.
+\newblock Augustus: An llm-driven multimodal agent system with contextualized user memory.
+\newblock \emph{arXiv preprint arXiv:2510.15261}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2510.15261}.
+
+\bibitem[Ji et~al.(2025)Ji, Tan, Shi, Hao, Zhang, Zhang, Wang, Zhao, Mu, An, et~al.]{ji2025robobrain}
+Yuheng Ji, Huajie Tan, Jiayu Shi, Xiaoshuai Hao, Yuan Zhang, Hengyuan Zhang, Pengwei Wang, Mengdi Zhao, Yao Mu, Pengju An, et~al.
+\newblock Robobrain: A unified brain model for robotic manipulation from abstract to concrete.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 1724--1734, 2025.
+
+\bibitem[Jiang et~al.(2025)Jiang, Yuan, Liu, Lu, Cui, Liu, Cheng, Gao, Xu, and Zhao]{jiang2025galaxea}
+Tao Jiang, Tianyuan Yuan, Yicheng Liu, Chenhao Lu, Jianning Cui, Xiao Liu, Shuiqi Cheng, Jiyang Gao, Huazhe Xu, and Hang Zhao.
+\newblock Galaxea open-world dataset and g0 dual-system vla model.
+\newblock \emph{arXiv preprint arXiv:2509.00576}, 2025.
+
+\bibitem[Jimenez et~al.(2023)Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan]{jimenez2023swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik Narasimhan.
+\newblock Swe-bench: Can language models resolve real-world github issues?
+\newblock \emph{arXiv preprint arXiv:2310.06770}, 2023.
+
+\bibitem[Kang et~al.(2025)Kang, Ji, Zhao, and Bai]{kang2025memoryos}
+Jiazheng Kang, Mingming Ji, Zhe Zhao, and Ting Bai.
+\newblock Memory os of ai agent.
+\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing}, pages 25961--25970. Association for Computational Linguistics, 2025.
+\newblock URL \url{https://aclanthology.org/2025.emnlp-main.1318}.
+
+\bibitem[Khattab et~al.(2023)Khattab, Singhvi, Maheshwari, Zhang, Santhanam, Vardhamanan, Haq, Sharma, Joshi, Moazam, et~al.]{khattab2023dspy}
+Omar Khattab, Arnav Singhvi, Paridhi Maheshwari, Zhiyuan Zhang, Keshav Santhanam, Sri Vardhamanan, Saiful Haq, Ashutosh Sharma, Thomas~T. Joshi, Hanna Moazam, et~al.
+\newblock Dspy: Compiling declarative language model calls into self-improving pipelines.
+\newblock \emph{arXiv preprint arXiv:2310.03714}, 2023.
+
+\bibitem[Kim et~al.(2023)Kim, Kim, Lee, and Seo]{kim2023semiparametricvideogroundedtextgeneration}
+Sungdong Kim, Jin-Hwa Kim, Jiyoung Lee, and Minjoon Seo.
+\newblock Semi-parametric video-grounded text generation, 2023.
+\newblock URL \url{https://arxiv.org/abs/2301.11507}.
+
+\bibitem[Kim et~al.(2026)Kim, Lee, Kim, Kim, Nam, Kwon, Wang, Choe, and Oh]{kim2026gaussexplorer}
+Yu-Ji Kim, Dahye Lee, Jun-Seong Kim, GeonU Kim, Hyeon-Woo Nam, Yongjin Kwon, Yu-Chiang~Frank Wang, Jaesung Choe, and Tae-Hyun Oh.
+\newblock Gaussexplorer: 3d gaussian splatting for embodied exploration and reasoning.
+\newblock \emph{arXiv preprint arXiv:2601.13132}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.13132}.
+
+\bibitem[Lee et~al.(2025)Lee, Miyanishi, Kurita, Sakamoto, Azuma, Matsuo, and Inoue]{lee2025citynav}
+Jungdae Lee, Taiki Miyanishi, Shuhei Kurita, Koya Sakamoto, Daichi Azuma, Yutaka Matsuo, and Nakamasa Inoue.
+\newblock Citynav: A large-scale dataset for real-world aerial navigation.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision}, pages 5912--5922, 2025.
+
+\bibitem[Lei et~al.(2025)Lei, Cai, Yang, Wu, Ren, Cui, Tan, Hong, Hu, Zhu, et~al.]{lei2025robomemory}
+Mingcong Lei, Honghao Cai, Yuyuan Yang, Yimou Wu, Jinke Ren, Zezhou Cui, Liangchen Tan, Junkun Hong, Gehan Hu, Shuangyu Zhu, et~al.
+\newblock Robomemory: A brain-inspired multi-memory agentic framework for interactive environmental learning in physical embodied systems.
+\newblock \emph{arXiv preprint arXiv:2508.01415}, 2025.
+
+\bibitem[Li et~al.(2023)Li, Zhang, Wong, Gokmen, Srivastava, Mart{\'\i}n-Mart{\'\i}n, Wang, Levine, Lingelbach, Sun, et~al.]{li2024behavior1k}
+Chengshu Li, Ruohan Zhang, Josiah Wong, Cem Gokmen, Sanjana Srivastava, Roberto Mart{\'\i}n-Mart{\'\i}n, Chen Wang, Gabrael Levine, Michael Lingelbach, Jiankai Sun, et~al.
+\newblock Behavior-1k: A benchmark for embodied ai with 1,000 everyday activities and realistic simulation.
+\newblock pages 80--93, 2023.
+
+\bibitem[Li et~al.(2025)Li, Mohamud, Sun, Wu, and Boulet]{li2025multiagent}
+Yuran Li, Jama~Hussein Mohamud, Chongren Sun, Di~Wu, and Benoit Boulet.
+\newblock Leveraging llms as meta-judges: A multi-agent framework for evaluating llm judgments.
+\newblock \emph{arXiv preprint arXiv:2504.17087}, 2025.
+
+\bibitem[Li et~al.(2026)Li, He, Zhang, and Gong]{evimem}
+Yuyang Li, Yime He, Zeyu Zhang, and Dong Gong.
+\newblock Evimem: Evidence-gap-driven iterative retrieval for long-term conversational memory.
+\newblock \emph{arXiv preprint arXiv:2604.27695}, 2026.
+
+\bibitem[Lin et~al.(2026)Lin, Zhang, Lu, Liu, Tang, He, Zhang, and Wang]{memma}
+Minhua Lin, Zhiwei Zhang, Hanqing Lu, Hui Liu, Xianfeng Tang, Qi~He, Xiang Zhang, and Suhang Wang.
+\newblock Memma: Coordinating the memory cycle through multi-agent reasoning and in-situ self-evolution.
+\newblock \emph{arXiv preprint arXiv:2603.18718}, 2026.
+
+\bibitem[Liu et~al.(2026{\natexlab{a}})Liu, Xie, Luo, Chu, Hu, Wu, and Xu]{Liu_2026_CVPR}
+Fei Liu, Shichao Xie, Minghua Luo, Zedong Chu, Junjun Hu, Xiaolong Wu, and Mu~Xu.
+\newblock Navforesee: A unified vision-language world model for hierarchical planning and dual-horizon navigation prediction.
+\newblock pages 32431--32440, 2026{\natexlab{a}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{b}})Liu, Su, Xia, Han, Zheng, Xie, Ding, and Yao]{simplemem}
+Jiaqi Liu, Yaofeng Su, Peng Xia, Siwei Han, Zeyu Zheng, Cihang Xie, Mingyu Ding, and Huaxiu Yao.
+\newblock Simplemem: Efficient lifelong memory for llm agents.
+\newblock \emph{arXiv preprint arXiv:2601.02553}, 2026{\natexlab{b}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{c}})Liu, Ye, Xia, Zheng, Xie, Ding, and Yao]{evolvemem}
+Jiaqi Liu, Xinyu Ye, Peng Xia, Zeyu Zheng, Cihang Xie, Mingyu Ding, and Huaxiu Yao.
+\newblock Evolvemem: Self-evolving memory architecture via autoresearch for llm agents.
+\newblock \emph{arXiv preprint arXiv:2605.13941}, 2026{\natexlab{c}}.
+
+\bibitem[Liu et~al.(2026{\natexlab{d}})Liu, Li, Deng, Chen, Zhang, Ma, Guo, Li, Zhang, and Feng]{liu2026wanderland}
+Xinhao Liu, Jiaqi Li, Youming Deng, Ruxin Chen, Yingjia Zhang, Yifei Ma, Li~Guo, Yiming Li, Jing Zhang, and Chen Feng.
+\newblock Wanderland: Geometrically grounded simulation for open-world embodied ai.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 1041--1052, 2026{\natexlab{d}}.
+
+\bibitem[Maharana et~al.(2024)Maharana, Lee, Tulyakov, Bansal, Barbieri, and Fang]{locomo}
+Adyasha Maharana, Dong-Ho Lee, Sergey Tulyakov, Mohit Bansal, Francesco Barbieri, and Yuwei Fang.
+\newblock Evaluating very long-term conversational memory of llm agents.
+\newblock \emph{arXiv preprint arXiv:2402.17753}, 2024.
+
+\bibitem[Majumdar et~al.(2024)Majumdar, Ajay, Zhang, Putta, Yenamandra, Henaff, Silwal, McVay, Maksymets, Arnaud, et~al.]{openeqa}
+Arjun Majumdar, Anurag Ajay, Xiaohan Zhang, Pranav Putta, Sriram Yenamandra, Mikael Henaff, Sneha Silwal, Paul McVay, Oleksandr Maksymets, Sergio Arnaud, et~al.
+\newblock Openeqa: Embodied question answering in the era of foundation models.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2024.
+
+\bibitem[Momeni et~al.(2023)Momeni, Caron, Nagrani, Zisserman, and Schmid]{VFC}
+Liliane Momeni, Mathilde Caron, Arsha Nagrani, Andrew Zisserman, and Cordelia Schmid.
+\newblock Verbs in action: Improving verb understanding in video-language models.
+\newblock In \emph{2023 IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 15533--15545, 2023.
+\newblock \doi{10.1109/ICCV51070.2023.01428}.
+
+\bibitem[Ong and Jang(2025)]{ong2025reqa}
+Hyobin Ong and Minsu Jang.
+\newblock R-eqa: Retrieval-augmented generation for embodied question answering, 2025.
+\newblock URL \url{https://embodied-ai.org/papers/2025/6_R_EQA_Retrieval_Augmented_Ge.pdf}.
+\newblock Embodied AI Workshop.
+
+\bibitem[Ong et~al.(2024)Ong, Almahairi, Wu, Chiang, Wu, Gonzalez, Kadous, and Stoica]{ong2024routellm}
+Isaac Ong, Amjad Almahairi, Vincent Wu, Wei-Lin Chiang, Tianhao Wu, Joseph~E. Gonzalez, M.~Waleed Kadous, and Ion Stoica.
+\newblock {RouteLLM}: Learning to route {LLMs} with preference data.
+\newblock \emph{arXiv preprint arXiv:2406.18665}, 2024.
+
+\bibitem[OpenAI(2025)]{gpt4_1}
+OpenAI.
+\newblock Openai gpt-4.1.
+\newblock \url{https://developers.openai.com/api/docs/models/gpt-4.1}, 2025.
+\newblock OpenAI Developers.
+
+\bibitem[{OpenAI}(2025{\natexlab{a}})]{openai2025chatgptagent}
+{OpenAI}.
+\newblock Introducing {ChatGPT} agent: Bridging research and action.
+\newblock \url{https://openai.com/index/introducing-chatgpt-agent/}, 2025{\natexlab{a}}.
+\newblock Accessed: 2026-06-26.
+
+\bibitem[{OpenAI}(2025{\natexlab{b}})]{openai2025operator}
+{OpenAI}.
+\newblock Introducing {Operator}.
+\newblock \url{https://openai.com/index/introducing-operator/}, 2025{\natexlab{b}}.
+\newblock Accessed: 2026-06-26.
+
+\bibitem[OpenAI(2026)]{gpt5_4mini}
+OpenAI.
+\newblock Openai gpt-5.4 mini.
+\newblock \url{https://developers.openai.com/api/docs/models/gpt-5.4-mini}, 2026.
+\newblock OpenAI Developers.
+
+\bibitem[Packer et~al.(2023)Packer, Wooders, Lin, Fang, Patil, Stoica, and Gonzalez]{packer2023memgpt}
+Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir~G. Patil, Ion Stoica, and Joseph~E. Gonzalez.
+\newblock Memgpt: Towards llms as operating systems.
+\newblock \emph{arXiv preprint arXiv:2310.08560}, 2023.
+
+\bibitem[Park et~al.(2023)Park, O'Brien, Cai, Morris, Liang, and Bernstein]{generativeagents}
+Joon~Sung Park, Joseph~C. O'Brien, Carrie~J. Cai, Meredith~Ringel Morris, Percy Liang, and Michael~S. Bernstein.
+\newblock Generative agents: Interactive simulacra of human behavior.
+\newblock In \emph{Proceedings of the 36th Annual ACM Symposium on User Interface Software and Technology}, 2023.
+
+\bibitem[Qin et~al.(2023)Qin, Liang, Ye, Zhu, Yan, Lu, Lin, Cong, Tang, Qian, Zhao, Hong, Tian, Xie, Zhou, Gerstein, Li, Liu, and Sun]{qin2023toolllm}
+Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan Yan, Yaxi Lu, Yankai Lin, Xin Cong, Xiangru Tang, Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian, Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li, Zhiyuan Liu, and Maosong Sun.
+\newblock Toolllm: Facilitating large language models to master 16000+ real-world apis.
+\newblock \emph{arXiv preprint arXiv:2307.16789}, 2023.
+
+\bibitem[Rege et~al.(2026)Rege, Sadhu, Li, Li, Vinayak, Chai, Lee, and Kim]{rege2026EGAgent}
+Aniket Rege, Arka Sadhu, Yuliang Li, Kejie Li, Ramya~Korlakai Vinayak, Yuning Chai, Yong~Jae Lee, and Hyo~Jin Kim.
+\newblock Agentic very long video understanding.
+\newblock \emph{arXiv preprint arXiv:2601.18157}, 2026.
+
+\bibitem[Salama et~al.(2025)Salama, Cai, Yuan, Currey, Sunkara, Zhang, and Benajiba]{salama2025meminsight}
+Rana Salama, Jason Cai, Michelle Yuan, Anna Currey, Monica Sunkara, Yi~Zhang, and Yassine Benajiba.
+\newblock Meminsight: Autonomous memory augmentation for llm agents.
+\newblock \emph{arXiv preprint arXiv:2503.21760}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.21760}.
+
+\bibitem[Schick et~al.(2023)Schick, Dwivedi-Yu, Dess{\`i}, Raileanu, Lomeli, Hambro, Zettlemoyer, Cancedda, and Scialom]{schick2023toolformer}
+Timo Schick, Jane Dwivedi-Yu, Roberto Dess{\`i}, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom.
+\newblock {Toolformer}: Language models can teach themselves to use tools.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+\newblock URL \url{https://proceedings.neurips.cc/paper_files/paper/2023/hash/d842425e4bf79ba039352da0f658a906-Abstract-Conference.html}.
+
+\bibitem[Shi et~al.(2025)Shi, Ichter, Equi, Ke, Pertsch, Vuong, Tanner, Walling, Wang, Fusai, et~al.]{shi2025hi}
+Lucy~Xiaoyang Shi, Brian Ichter, Michael Equi, Liyiming Ke, Karl Pertsch, Quan Vuong, James Tanner, Anna Walling, Haohuan Wang, Niccolo Fusai, et~al.
+\newblock Hi robot: Open-ended instruction following with hierarchical vision-language-action models.
+\newblock \emph{arXiv preprint arXiv:2502.19417}, 2025.
+
+\bibitem[Silva et~al.(2026)Silva, Mendes, and Oliveira]{silva2026metajudging}
+Hugo Silva, Mateus Mendes, and Hugo~Gonçalo Oliveira.
+\newblock Meta-judging with large language models: Concepts, methods, and challenges.
+\newblock \emph{arXiv preprint arXiv:2601.17312}, 2026.
+
+\bibitem[Song et~al.(2026)Song, Chang, Dong, Zhu, Dou, and Wen]{song2026envscaler}
+Xiaoshuai Song, Haofei Chang, Guanting Dong, Yutao Zhu, Zhicheng Dou, and Ji-Rong Wen.
+\newblock Envscaler: Scaling tool-interactive environments for llm agent via programmatic synthesis.
+\newblock \emph{arXiv preprint arXiv:2601.05808}, 2026.
+
+\bibitem[Sun et~al.(2025)Sun, Wu, Fu, Song, Shi, et~al.]{sun2025tongsim}
+Zhe Sun, Kunlun Wu, Chuanjian Fu, Zeming Song, Langyong Shi, et~al.
+\newblock {TongSIM}: A general platform for simulating intelligent machines.
+\newblock \emph{arXiv preprint arXiv:2512.20206}, 2025.
+
+\bibitem[Surís et~al.(2023)Surís, Menon, and Vondrick]{ViperGPT}
+Dídac Surís, Sachit Menon, and Carl Vondrick.
+\newblock Vipergpt: Visual inference via python execution for reasoning.
+\newblock In \emph{2023 IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 11854--11864, 2023.
+\newblock \doi{10.1109/ICCV51070.2023.01092}.
+
+\bibitem[Team et~al.(2025{\natexlab{a}})Team, Cao, Tan, Ji, Chen, Lin, Li, Cao, Wang, Zhou, et~al.]{team2025robobrain}
+BAAI~RoboBrain Team, Mingyu Cao, Huajie Tan, Yuheng Ji, Xiansheng Chen, Minglan Lin, Zhiyu Li, Zhou Cao, Pengwei Wang, Enshen Zhou, et~al.
+\newblock Robobrain 2.0 technical report.
+\newblock \emph{arXiv preprint arXiv:2507.02029}, 2025{\natexlab{a}}.
+
+\bibitem[Team et~al.(2025{\natexlab{b}})Team, Abdolmaleki, Abeyruwan, Ainslie, Alayrac, Arenas, Balakrishna, Batchelor, Bewley, Bingham, et~al.]{team2025gemini}
+Gemini~Robotics Team, Abbas Abdolmaleki, Saminda Abeyruwan, Joshua Ainslie, Jean-Baptiste Alayrac, Montserrat~Gonzalez Arenas, Ashwin Balakrishna, Nathan Batchelor, Alex Bewley, Jeff Bingham, et~al.
+\newblock Gemini robotics 1.5: Pushing the frontier of generalist robots with advanced embodied reasoning, thinking, and motion transfer.
+\newblock \emph{arXiv preprint arXiv:2510.03342}, 2025{\natexlab{b}}.
+
+\bibitem[Team(2026)]{team2026qwen3}
+Qwen Team.
+\newblock Qwen3.5-omni technical report.
+\newblock \emph{arXiv preprint arXiv:2604.15804}, 2026.
+
+\bibitem[Wang et~al.(2026)Wang, Liu, Liu, Tang, Wang, Gao, Zheng, Zhang, Yu, Liu, et~al.]{wang2026outcome}
+Binghai Wang, Yantao Liu, Yuxuan Liu, Tianyi Tang, Shenzhi Wang, Chang Gao, Chujie Zheng, Yichang Zhang, Le~Yu, Shixuan Liu, et~al.
+\newblock Outcome accuracy is not enough: Aligning the reasoning process of reward models.
+\newblock \emph{arXiv preprint arXiv:2602.04649}, 2026.
+
+\bibitem[Wang et~al.(2023)Wang, Xie, Jiang, Mandlekar, Xiao, Zhu, Fan, and Anandkumar]{wang2023voyager}
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, and Anima Anandkumar.
+\newblock {Voyager}: An open-ended embodied agent with large language models.
+\newblock \emph{arXiv preprint arXiv:2305.16291}, 2023.
+
+\bibitem[Wang et~al.(2025{\natexlab{a}})Wang, Liu, Chen, Da, Qian, Tram, and Soh]{wang2025genie}
+Jiaming Wang, Diwen Liu, Jizhuo Chen, Jiaxuan Da, Nuowen Qian, Minh~Man Tram, and Harold Soh.
+\newblock Genie: A generalizable navigation system for in-the-wild environments.
+\newblock \emph{IEEE Robotics and Automation Letters}, 2025{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2025{\natexlab{b}})Wang, Lu, Liu, Jiang, Li, Zhang, Zheng, Yu, Chen, and Shen]{wang2025odyssey}
+Kaijun Wang, Liqin Lu, Mingyu Liu, Jianuo Jiang, Zeju Li, Bolin Zhang, Wancai Zheng, Xinyi Yu, Hao Chen, and Chunhua Shen.
+\newblock {ODYSSEY}: Open-world quadrupeds exploration and manipulation for long-horizon tasks.
+\newblock \emph{arXiv preprint arXiv:2508.08240}, 2025{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2022)Wang, Li, Li, He, Huang, Zhao, Zhang, Xu, Liu, Wang, Xing, Chen, Pan, Yu, Wang, Wang, and Qiao]{wang2022internvideogeneralvideofoundation}
+Yi~Wang, Kunchang Li, Yizhuo Li, Yinan He, Bingkun Huang, Zhiyu Zhao, Hongjie Zhang, Jilan Xu, Yi~Liu, Zun Wang, Sen Xing, Guo Chen, Junting Pan, Jiashuo Yu, Yali Wang, Limin Wang, and Yu~Qiao.
+\newblock Internvideo: General video foundation models via generative and discriminative learning, 2022.
+\newblock URL \url{https://arxiv.org/abs/2212.03191}.
+
+\bibitem[Wang and Chen(2025)]{wang2025mirix}
+Yu~Wang and Xi~Chen.
+\newblock Mirix: Multi-agent memory system for llm-based agents.
+\newblock \emph{arXiv preprint arXiv:2507.07957}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2507.07957}.
+
+\bibitem[Wang et~al.(2025{\natexlab{c}})Wang, Wang, Wang, Zhang, Li, Yang, Yu, Nguyen, Liu, Gottlieb, Lam, Lu, Cho, Wu, Fei-Fei, Wang, Choi, and Li]{wang2025ragen}
+Zihan Wang, Kangrui Wang, Qineng Wang, Pingyue Zhang, Linjie Li, Zhengyuan Yang, Kefan Yu, Minh~Nhat Nguyen, Licheng Liu, Eli Gottlieb, Monica Lam, Yiping Lu, Kyunghyun Cho, Jiajun Wu, Li~Fei-Fei, Lijuan Wang, Yejin Choi, and Manling Li.
+\newblock Ragen: Understanding self-evolution in llm agents via multi-turn reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2504.20073}, 2025{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2504.20073}.
+
+\bibitem[Wei et~al.(2025{\natexlab{a}})Wei, Zeng, Li, et~al.]{wei2025reinforcing}
+Quan Wei, Siliang Zeng, Chenliang Li, et~al.
+\newblock Reinforcing multi-turn reasoning in llm agents via turn-level reward design.
+\newblock \emph{arXiv preprint arXiv:2505.11821}, 2025{\natexlab{a}}.
+
+\bibitem[Wei et~al.(2025{\natexlab{b}})Wei, Sachdeva, Coleman, He, Bei, Ning, Ai, Li, He, Chi, et~al.]{evomemory}
+Tianxin Wei, Noveen Sachdeva, Benjamin Coleman, Zhankui He, Yuanchen Bei, Xuying Ning, Mengting Ai, Yunzhe Li, Jingrui He, Ed~H. Chi, et~al.
+\newblock Evo-memory: Benchmarking llm agent test-time learning with self-evolving memory.
+\newblock \emph{arXiv preprint arXiv:2511.20857}, 2025{\natexlab{b}}.
+
+\bibitem[Wei et~al.(2025{\natexlab{c}})Wei, Yao, Liu, Zhang, Lu, Qiu, Yu, Xu, Zhang, Yin, Yun, and Li]{wei2025webagentr1}
+Zhepei Wei, Wenlin Yao, Yao Liu, Weizhi Zhang, Qin Lu, Liang Qiu, Changlong Yu, Puyang Xu, Chao Zhang, Bing Yin, Hyokun Yun, and Lihong Li.
+\newblock Webagent-r1: Training web agents via end-to-end multi-turn reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2505.16421}, 2025{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2505.16421}.
+
+\bibitem[Wu et~al.(2025)Wu, Wang, Yu, Zhang, Chang, and Yu]{wu2025longmemeval}
+Di~Wu, Hongwei Wang, Wenhao Yu, Yuwei Zhang, Kai-Wei Chang, and Dong Yu.
+\newblock Longmemeval: Benchmarking chat assistants on long-term interactive memory.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2410.10813}.
+
+\bibitem[Wu et~al.(2023)Wu, Bansal, Zhang, Wu, Li, Zhu, Jiang, Zhang, Zhang, Liu, Awadallah, White, Burger, and Wang]{wu2023autogen}
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu, Li~Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, Ahmed~Hassan Awadallah, Ryen~W. White, Doug Burger, and Chi Wang.
+\newblock {AutoGen}: Enabling next-gen {LLM} applications via multi-agent conversation.
+\newblock \emph{arXiv preprint arXiv:2308.08155}, 2023.
+
+\bibitem[Xiang et~al.(2025)Xiang, Zhang, Yang, Chu, Chu, Xie, Yuan, Sun, Gu, Wang, et~al.]{xiang2025navr2dualrelationreasoninggeneralizable}
+Wentao Xiang, Haokang Zhang, Tianhang Yang, Zedong Chu, Ruihang Chu, Shichao Xie, Yujian Yuan, Jian Sun, Zhining Gu, Junjie Wang, et~al.
+\newblock Nav-$r^2$ dual-relation reasoning for generalizable open-vocabulary object-goal navigation, 2025.
+
+\bibitem[Xiao et~al.(2021)Xiao, Shang, Yao, and Chua]{nextqa}
+Junbin Xiao, Xindi Shang, Angela Yao, and Tat-Seng Chua.
+\newblock Next-qa: Next phase of question-answering to explaining temporal actions.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, 2021.
+
+\bibitem[Xiao et~al.(2023)Xiao, Zhou, Yao, Li, Hong, Yan, and Chua]{covgt}
+Junbin Xiao, Pan Zhou, Angela Yao, Yicong Li, Richang Hong, Shuicheng Yan, and Tat-Seng Chua.
+\newblock Contrastive video question answering via video graph transformer.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence}, 45\penalty0 (11):\penalty0 13265--13280, 2023.
+\newblock \doi{10.1109/TPAMI.2023.3292266}.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin, Lei, Liu, Xu, Zhou, Savarese, Xiong, Zhong, and Yu]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao, Toh~Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu, Yiheng Xu, Shuyan Zhou, Silvio Savarese, Caiming Xiong, Victor Zhong, and Tao Yu.
+\newblock {OSWorld}: Benchmarking multimodal agents for open-ended tasks in real computer environments.
+\newblock \emph{arXiv preprint arXiv:2404.07972}, 2024.
+
+\bibitem[Xu et~al.(2025{\natexlab{a}})Xu, Hu, Gao, Zhu, Zhao, Li, and Yin]{xu2025geonav}
+Haotian Xu, Yue Hu, Chen Gao, Zhengqiu Zhu, Yong Zhao, Yong Li, and Quanjun Yin.
+\newblock {GeoNav}: Empowering {MLLMs} with dual-scale geospatial reasoning for language-goal aerial navigation.
+\newblock \emph{arXiv preprint arXiv:2504.09587}, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2504.09587}.
+
+\bibitem[Xu et~al.(2025{\natexlab{b}})Xu, Liang, Mei, Gao, Tan, and Zhang]{xu2025amem}
+Wujiang Xu, Zujie Liang, Kai Mei, Hang Gao, Juntao Tan, and Yongfeng Zhang.
+\newblock A-mem: Agentic memory for llm agents.
+\newblock \emph{arXiv preprint arXiv:2502.12110}, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2502.12110}.
+
+\bibitem[Xue et~al.(2025)Xue, Hu, Luo, Xie, Chen, Xie, Quan, Guo, Xu, and Chu]{xue2026omninavunifiedframeworkprospective}
+Xinda Xue, Junjun Hu, Minghua Luo, Shichao Xie, Jintao Chen, Zixun Xie, Kuichen Quan, Wei Guo, Mu~Xu, and Zedong Chu.
+\newblock Omninav: A unified framework for prospective exploration and visual-language navigation, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.25687}.
+
+\bibitem[Yang et~al.(2021)Yang, Miech, Sivic, Laptev, and Schmid]{yang2021justask}
+Antoine Yang, Antoine Miech, Josef Sivic, Ivan Laptev, and Cordelia Schmid.
+\newblock Just ask: Learning to answer questions from millions of narrated videos.
+\newblock In \emph{ICCV}, 2021.
+
+\bibitem[Yang et~al.(2024{\natexlab{a}})Yang, Wang, Lu, Liu, Le, Zhou, and Chen]{yang2024opro}
+Chengrun Yang, Xuezhi Wang, Yifeng Lu, Hanxiao Liu, Quoc~V. Le, Denny Zhou, and Xinyun Chen.
+\newblock Large language models as optimizers.
+\newblock In \emph{International Conference on Learning Representations}, 2024{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{a}})Yang, Liu, Guo, Dong, Zhang, Zhang, Wang, Zhou, Xie, Wang, et~al.]{egolife}
+Jingkang Yang, Shuai Liu, Hongming Guo, Yuhao Dong, Xiamengwei Zhang, Sicheng Zhang, Pengyun Wang, Zitang Zhou, Binzhu Xie, Ziyue Wang, et~al.
+\newblock Egolife: Towards egocentric life assistant.
+\newblock \emph{arXiv preprint arXiv:2503.03803}, 2025{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2024{\natexlab{b}})Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press]{yang2024sweagent}
+John Yang, Carlos~E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik Narasimhan, and Ofir Press.
+\newblock Swe-agent: Agent-computer interfaces enable automated software engineering.
+\newblock \emph{arXiv preprint arXiv:2405.15793}, 2024{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{b}})Yang, Zhang, Wang, Chu, Wu, Cai, and Xu]{yang2025cenavflowguidedreinforcementrefinement}
+Kai Yang, Tianlin Zhang, Zhengbo Wang, Zedong Chu, Xiaolong Wu, Yang Cai, and Mu~Xu.
+\newblock Ce-nav: Flow-guided reinforcement refinement for cross-embodiment local navigation, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2509.23203}.
+
+\bibitem[Yang et~al.(2026{\natexlab{a}})Yang, Chu, Guo, Wang, Xie, Shen, Wu, Li, and Xu]{yang2026asyncshieldplugandplayedgeadapter}
+Kai Yang, Zedong Chu, Yingnan Guo, Zhengbo Wang, Shichao Xie, Yanfen Shen, Xiaolong Wu, Xing Li, and Mu~Xu.
+\newblock Asyncshield: A plug-and-play edge adapter for asynchronous cloud-based vla navigation, 2026{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2604.24086}.
+
+\bibitem[Yang et~al.(2025{\natexlab{c}})]{yang2025embodiedbench}
+Rui Yang et~al.
+\newblock {EmbodiedBench}: Comprehensive benchmarking multi-modal large language models for vision-driven embodied agents.
+\newblock \emph{arXiv preprint arXiv:2502.09560}, 2025{\natexlab{c}}.
+
+\bibitem[Yang et~al.(2026{\natexlab{b}})Yang, Zeng, Lin, Chang, Qi, Xiao, Liu, Chen, Chen, Huo, et~al.]{yang2026abot}
+Yandan Yang, Shuang Zeng, Tong Lin, Xinyuan Chang, Dekang Qi, Junjin Xiao, Haoyun Liu, Ronghan Chen, Yuzhi Chen, Dongjie Huo, et~al.
+\newblock Abot-m0: Vla foundation model for robotic manipulation with action manifold learning.
+\newblock \emph{arXiv preprint arXiv:2602.11236}, 2026{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2025{\natexlab{d}})Yang, Yang, Zhou, Chen, Zhang, Du, and Gan]{yang2025threedmem}
+Yuncong Yang, Han Yang, Jiachen Zhou, Peihao Chen, Hongxin Zhang, Yilun Du, and Chuang Gan.
+\newblock 3d-mem: 3d scene memory for embodied exploration and reasoning.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}, pages 17294--17303, 2025{\natexlab{d}}.
+\newblock URL \url{https://arxiv.org/abs/2411.17735}.
+
+\bibitem[Yang et~al.(2025{\natexlab{e}})Yang, Chen, Zhou, Yan, Song, Liu, Li, Zhang, Zhou, Chen, et~al.]{yang2025agentic}
+Zhejian Yang, Yongchao Chen, Xueyang Zhou, Jiangyue Yan, Dingjie Song, Yinuo Liu, Yuting Li, Yu~Zhang, Pan Zhou, Hechang Chen, et~al.
+\newblock Agentic robot: A brain-inspired framework for vision-language-action models in embodied agents.
+\newblock \emph{arXiv preprint arXiv:2505.23450}, 2025{\natexlab{e}}.
+
+\bibitem[Yao et~al.(2022)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao]{yao2022react}
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao.
+\newblock React: Synergizing reasoning and acting in language models.
+\newblock \emph{arXiv preprint arXiv:2210.03629}, 2022.
+
+\bibitem[Yao et~al.(2024)Yao, Shinn, Razavi, and Narasimhan]{yao2024taubench}
+Shunyu Yao, Noah Shinn, Pedram Razavi, and Karthik Narasimhan.
+\newblock $\tau$-bench: A benchmark for tool-agent-user interaction in real-world domains.
+\newblock \emph{arXiv preprint arXiv:2406.12045}, 2024.
+
+\bibitem[Ye et~al.(2023)Ye, Xu, Yan, Xu, Qian, Zhang, and Huang]{HiTeA}
+Qinghao Ye, Guohai Xu, Ming Yan, Haiyang Xu, Qi~Qian, Ji~Zhang, and Fei Huang.
+\newblock Hitea: Hierarchical temporal-aware video-language pre-training.
+\newblock In \emph{2023 IEEE/CVF International Conference on Computer Vision (ICCV)}, pages 15359--15370, 2023.
+\newblock \doi{10.1109/ICCV51070.2023.01413}.
+
+\bibitem[Yeo et~al.(2025{\natexlab{a}})Yeo, Kim, Jeong, Baek, and Hwang]{yeo2025universalrag}
+Woongyeong Yeo, Kangsan Kim, Soyeong Jeong, Jinheon Baek, and Sung~Ju Hwang.
+\newblock Universalrag: Retrieval-augmented generation over corpora of diverse modalities and granularities.
+\newblock \emph{arXiv preprint arXiv:2504.20734}, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2504.20734}.
+
+\bibitem[Yeo et~al.(2025{\natexlab{b}})Yeo, Kim, Yoon, and Hwang]{worldmm}
+Woongyeong Yeo, Kangsan Kim, Jaehong Yoon, and Sung~Ju Hwang.
+\newblock Worldmm: Dynamic multimodal memory agent for long video reasoning.
+\newblock \emph{arXiv preprint arXiv:2512.02425}, 2025{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2023)Zhang, Lu, Islam, Wang, Yu, Bansal, and Bertasius]{zhang2023simple}
+Ce~Zhang, Taixi Lu, Md~Mohaiminul Islam, Ziyang Wang, Shoubin Yu, Mohit Bansal, and Gedas Bertasius.
+\newblock A simple llm framework for long-range video question-answering, 2023.
+
+\bibitem[Zhang et~al.(2025{\natexlab{a}})Zhang, Ren, Zhan, Zhou, Wang, Zhu, Zhou, and Yan]{memevolve}
+Guibin Zhang, Haotian Ren, Chong Zhan, Zhenhong Zhou, Junhao Wang, He~Zhu, Wangchunshu Zhou, and Shuicheng Yan.
+\newblock Memevolve: Meta-evolution of agent memory systems.
+\newblock \emph{arXiv preprint arXiv:2512.18746}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026)Zhang, Long, Bao, Feng, Zhang, Yue, and Wang]{memskill}
+Haozhen Zhang, Quanyu Long, Jianzhu Bao, Tao Feng, Weizhi Zhang, Haodong Yue, and Wenya Wang.
+\newblock Memskill: Learning and evolving memory skills for self-evolving agents.
+\newblock \emph{arXiv preprint arXiv:2602.02474}, 2026.
+
+\bibitem[Zhang et~al.(2025{\natexlab{b}})Zhang, Gao, Yu, Peng, Zhao, Zhang, Cui, Chen, and Li]{zhang2025citynavagent}
+Weichen Zhang, Chen Gao, Shiquan Yu, Ruiying Peng, Baining Zhao, Qian Zhang, Jinqiang Cui, Xinlei Chen, and Yong Li.
+\newblock Citynavagent: Aerial vision-and-language navigation with hierarchical semantic planning and global memory.
+\newblock In \emph{Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 31292--31309, 2025{\natexlab{b}}.
+
+\bibitem[Zhang(2026)]{autogenesis}
+Wentao Zhang.
+\newblock Autogenesis: A self-evolving agent protocol.
+\newblock \emph{arXiv preprint arXiv:2604.15034}, 2026.
+
+\bibitem[Zheng et~al.(2023)Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li, Li, Xing, et~al.]{zheng2023judging}
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi~Lin, Zhuohan Li, Dacheng Li, Eric~P. Xing, et~al.
+\newblock Judging llm-as-a-judge with mt-bench and chatbot arena.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Zhong et~al.(2023)Zhong, Guo, Gao, Ye, and Wang]{memorybank}
+Wanjun Zhong, Lianghong Guo, Qiqi Gao, He~Ye, and Yanlin Wang.
+\newblock Memorybank: Enhancing large language models with long-term memory.
+\newblock \emph{arXiv preprint arXiv:2305.10250}, 2023.
+
+\bibitem[Zhou et~al.(2023)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig]{zhou2023webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham Neubig.
+\newblock Webarena: A realistic web environment for building autonomous agents.
+\newblock \emph{arXiv preprint arXiv:2307.13854}, 2023.
+
+\bibitem[Zhou et~al.(2024)Zhou, Zanette, Pan, Levine, and Kumar]{zhou2024archer}
+Yifei Zhou, Andrea Zanette, Jiayi Pan, Sergey Levine, and Aviral Kumar.
+\newblock Archer: Training language model agents via hierarchical multi-turn rl.
+\newblock \emph{arXiv preprint arXiv:2402.19446}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.19446}.
+
+\bibitem[Zhu et~al.(2026)Zhu, Guo, Mei, Pang, Zhang, He, Ji, and Liu]{zhu2026robotchores}
+Zilin Zhu, Longteng Guo, Yanghong Mei, Bowen Pang, Zongxun Zhang, Xingjian He, Ruyi Ji, and Jing Liu.
+\newblock When robots do the chores: A benchmark and agent for long-horizon household task execution.
+\newblock \emph{arXiv preprint arXiv:2605.14504}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2605.14504}.
+
+\end{thebibliography}

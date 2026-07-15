@@ -1,0 +1,301 @@
+\section{Direct On-Policy Distillation}
+\label{sec:method}
+
+% \subsection{Motivation}
+% \label{sec:motivation}
+
+% We now formalize the policy-shift signal introduced above.
+% Standard on-policy distillation (OPD) copies the post-RL teacher's final
+% distribution, which mixes the useful change induced by RL with the weak
+% teacher's capacity limits. \method{} keeps the same on-policy interface but
+% changes the transferred object: it uses the teacher/reference policy shift as an
+% improvement signal for the student, rather than using the weak teacher's final
+% policy as an imitation target.
+
+\subsection{Preliminaries: On-Policy Distillation}
+\label{sec:preliminaries}
+
+We consider autoregressive language-model policies. Let $x\sim\mathcal{D}$ be a
+prompt and $y=(y_1,\ldots,y_T)$ a response, so that a policy $\pi$ factorizes as
+$\log\pi(y\mid x)=\sum_{t=1}^{T}\log\pi(y_t\mid s_t)$ over prefixes
+$s_t=(x,y_{<t})$. We distinguish four policies: the policy being trained
+$\pi_\theta$ and its initial checkpoint $\pi_S$; and a teacher pair consisting of
+a pre-RL reference $\pi_{T_{\mathrm{ref}}}$ and the corresponding post-RL teacher
+$\pi_T$. Our weak-to-strong setting is the regime in which $\pi_T$ may be smaller or weaker than the target student, yet the transition from $\pi_{T_{\mathrm{ref}}}$ to $\pi_T$ still encodes information worth transferring.
+
+On-policy distillation (OPD) supervises the student on trajectories it samples
+itself. Given a prompt $x$, the student draws $\hat y\sim\pi_\theta(\cdot\mid x)$,
+and at each visited prefix $s_t=(x,\hat y_{<t})$ we read off the student and
+teacher next-token distributions $p_t(v)=\pi_\theta(v\mid s_t)$ and
+$q_t(v)=\pi_T(v\mid s_t)$. Standard OPD minimizes the sequence-level KL to the
+teacher on these rollouts,
+\begin{equation}
+\mathcal{L}_{\mathrm{OPD}}(\theta)
+=\mathbb{E}_{x\sim\mathcal{D}}\big[\,
+D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\big\|\,\pi_T(\cdot\mid x)\big)\,\big],
+\end{equation}
+which factorizes exactly into dense, per-token supervision on the states the
+student actually visits,
+\begin{equation}
+\mathcal{L}_{\mathrm{OPD}}(\theta)
+=\mathbb{E}_{x\sim\mathcal{D},\,\hat y\sim\pi_\theta}\Big[\,
+\textstyle\sum_{t=1}^{T}D_{\mathrm{KL}}(p_t\,\|\,q_t)\,\Big].
+\end{equation}
+In practice the teacher is queried only on the student's top-$k$ support
+$S_t=\operatorname{TopK}_v p_t$, giving the local estimator
+\begin{equation}
+\mathcal{L}^{\text{top-}k}_{\mathrm{OPD}}(\theta)
+=\mathbb{E}_{x\sim\mathcal{D},\,\hat y\sim\pi_\theta}\Big[\,
+\textstyle\sum_{t=1}^{T}
+D_{\mathrm{KL}}\big(\bar p_t^{S_t}\,\big\|\,\bar q_t^{S_t}\big)\,\Big],
+\end{equation}
+where $\bar p_t^{S_t}$ and $\bar q_t^{S_t}$ renormalize $p_t$ and $q_t$ on
+$S_t$~\citep{li2026rethinkingopd}. This top-$k$ KL estimator produces a dense
+per-token training signal involving the teacher--student log-ratio
+$\log q_t(v)-\log p_t(v)$. \method{} inherits this on-policy, top-$k$ interface unchanged, and departs from OPD only in \textit{what signal is read from the teacher} 
+(Section~\ref{sec:reward}).
+
+\subsection{Policy Shifts as Implicit Rewards}
+\label{sec:reward}
+
+\textbf{Which signal to transfer.} Rather than imitating the teacher's absolute output distribution, \method{} transfers its RL-induced \textbf{policy shift}: the sequence-level log-ratio between the post-RL teacher $\pi_T$ and its pre-RL reference $\pi_{T_{\mathrm{ref}}}$,
+\begin{equation}
+    \Delta_T(y\mid x) = \log \pi_T(y\mid x) - \log \pi_{T_{\mathrm{ref}}}(y\mid x),
+    \label{eq:dopd-delta}
+\end{equation}
+which isolates the teacher's RL-induced \textit{direction} rather than its
+absolute final distribution. This shift is not an arbitrary heuristic: under
+the \textbf{policy-as-reward} view of KL-regularized RL, it can be interpreted
+as the teacher's implicit reward.
+
+For a reward $r$, reference policy $\pi_{\mathrm{ref}}$, and penalty $\beta>0$,
+the KL-regularized objective
+$\max_\pi\mathbb{E}_{y\sim\pi}\!\big[r(x,y)-\beta\log\tfrac{\pi(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)}\big]$
+admits the closed-form optimum $\pi^*\propto\pi_{\mathrm{ref}}\exp(r/\beta)$, hence
+\begin{equation}
+\log\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)}
+=\tfrac{1}{\beta}\,r(x,y)-\log Z(x).
+\end{equation}
+Since $\log Z(x)$ is constant across responses to the same prompt, the
+policy--reference log-ratio recovers the reward up to a positive scale and a
+per-prompt constant. This is the same identity that underlies Direct Preference
+Optimization, which fits a policy from preferences without a separately trained
+reward model~\citep{rafailov2023direct}. Here we use the identity in the
+opposite direction: we are already \textit{given} a post-RL teacher $\pi_T$ and
+its pre-RL reference $\pi_{T_{\mathrm{ref}}}$, and we read the reward-like signal
+back out of their policy ratio. Treating $\pi_T$ as the KL-regularized optimum of some latent reward $r_T$ anchored at $\pi_{T_{\mathrm{ref}}}$,
+\begin{equation}
+    \Delta_T(y\mid x) = \tfrac{1}{\beta}\, r_T(x,y) - \log Z_T(x),
+    \label{eq:dopd-implicit-reward}
+\end{equation}
+so the shift $\Delta_T$ can be interpreted as the teacher's \textbf{implicit
+reward}, up to a positive scale and a per-prompt constant. \method{} transfers
+this reward-like signal to the student.
+
+\subsection{The Direct-OPD Objective}
+\label{sec:dopd}
+
+\textbf{Idealized sequence-level objective.}
+We first write \method{} as a sequence-level objective. With the student
+initialized from $\pi_S$, \method{} optimizes the student against the
+teacher-shift signal $\Delta_T$ while regularizing the student toward its own
+initialization,
+\begin{equation}
+    J_{\text{\method}}(\theta) = \mathbb{E}_{x\sim\mathcal{D}} \left[
+    \mathbb{E}_{y\sim\pi_\theta(\cdot\mid x)} \big[ \Delta_T(y\mid x) \big]
+    - \alpha\, D_{\mathrm{KL}} \big( \pi_\theta(\cdot\mid x) \,\|\, \pi_S(\cdot\mid x) \big) \right],
+    \label{eq:dopd-obj}
+\end{equation}
+where $\alpha>0$ controls the KL penalty. In this idealized form, the objective
+is itself a KL-regularized RL objective on the student: its optimum is
+\begin{equation}
+    \pi^*(y\mid x) \propto \pi_S(y\mid x)\, \exp\!\big(\tfrac{1}{\alpha}\Delta_T(y\mid x)\big)
+    = \pi_S(y\mid x) \left( \frac{\pi_T(y\mid x)}{\pi_{T_{\mathrm{ref}}}(y\mid x)} \right)^{1/\alpha},
+    \label{eq:dopd-opt}
+\end{equation}
+and substituting the implicit-reward form of Eq.~\ref{eq:dopd-implicit-reward}
+gives $\pi^*\propto\pi_S\exp(r_T/\alpha\beta)$. The student is therefore
+optimized as if it were running KL-regularized RL with the small teacher's
+implicit reward, while using its own initialization $\pi_S$ as the reference.
+Crucially, it obtains this reward-like signal entirely from the checkpoint pair, without querying a verifiable reward or running sparse-reward RL on the target.
+
+\textbf{From sequence to token level.}
+Because both teachers factorize autoregressively over the same prefixes, the
+sequence shift decomposes exactly into a sum of token-level shifts,
+\begin{equation}
+    \Delta_T(y\mid x) = \sum_{t} r_t(y_t\mid s_t),
+    \qquad
+    r_t(v) = \log \pi_T(v\mid s_t) - \log \pi_{T_{\mathrm{ref}}}(v\mid s_t),
+    \label{eq:dopd-token-reward}
+\end{equation}
+so that $r_t(v)$ can be viewed as a \emph{dense immediate per-token reward}:
+$r_t(v)>0$ where the teacher's RL encouraged token $v$, and $r_t(v)<0$ where it
+suppressed it. In practice, we use the corresponding zero-discount token-level
+surrogate for Eq.~\ref{eq:dopd-obj}, crediting each candidate token by its
+immediate shift $r_t(v)$ rather than by a future return over later shifts. This
+reuses the on-policy, top-$k$ interface of Section~\ref{sec:preliminaries}.
+
+\textbf{Top-$k$ action-space restriction.}
+The implementation uses a local top-$k$ approximation to this zero-discount
+token-level surrogate. To keep the signal on actions the student actually
+considers, at each visited prefix we restrict to its top-$k$ support
+$S_t=\operatorname{TopK}_v \pi_\theta(v\mid s_t)$ and renormalize the student
+probabilities on it,
+\begin{equation}
+    \bar p_t(v) =
+    \frac{\pi_\theta(v\mid s_t)}
+    {\sum_{u\in S_t}\pi_\theta(u\mid s_t)},
+    \qquad v\in S_t,
+\end{equation}
+which is the renormalized student distribution $\bar p_t^{S_t}$ of
+Section~\ref{sec:preliminaries}.
+
+\textbf{Analytical top-$k$ policy gradient.}
+The immediate per-token reward $r_t(v)$ depends only on the teacher pair, so we
+use it directly as the local advantage. A single-sample, token-level policy
+gradient for the zero-discount surrogate would weight the log-likelihood of the
+\emph{sampled} token by its immediate reward,
+\begin{equation}
+    \nabla_\theta J_{\mathrm{MC}} =
+    \mathbb{E}_{x, y} \Big[
+    \textstyle\sum_t r_t(y_t)\,
+    \nabla_\theta \log \pi_\theta(y_t \mid s_t)
+    \Big],
+\end{equation}
+but estimating each step from one token is high-variance. Since we already have
+the full top-$k$ rewards and probabilities at every visited prefix, we replace
+the single-token estimate at each step by its expectation over the restricted
+distribution $\bar p_t$, i.e. we Rao--Blackwellize the per-step action while
+still sampling the trajectory $y\sim\pi_\theta$:
+\begin{equation}
+    \nabla_\theta J_{\mathrm{analytical}} =
+    \mathbb{E}_{x,\, y\sim\pi_\theta} \Big[
+    \sum_t \sum_{v \in S_t}
+    \underbrace{\textcolor{blue}{\bar p_t(v)}}_{\text{weight}} \,
+    \underbrace{\textcolor{red}{r_t(v)}}_{\text{reward}} \,
+    \nabla_\theta
+    \underbrace{\textcolor{magenta}{\log \pi_\theta(v \mid s_t)}}_{\text{log-likelihood}}
+    \Big].
+\end{equation}
+This gives a Rao--Blackwellized per-step estimator under the restricted top-$k$
+action distribution; it removes the token-sampling variance of
+$\nabla_\theta J_{\mathrm{MC}}$ while leaving the sampled trajectory distribution
+untouched.
+
+\textbf{Stop-gradient coefficient.}
+For this surrogate to match the policy-gradient form, the weight $\bar p_t(v)$
+must enter only as a scalar. It depends on $\theta$ through the student softmax,
+so differentiating it would inject extra Jacobian terms from the top-$k$
+distribution. We therefore detach the weighted reward into a static coefficient,
+\begin{equation}
+    A_t^{\mathrm{w}}(v) =
+    \operatorname{stop\_gradient}\!\big(
+    \textcolor{blue}{\bar p_t(v)} \cdot
+    \textcolor{red}{r_t(v)}
+    \big),
+\end{equation}
+giving the final local top-$k$ surrogate for the zero-discount objective,
+\begin{equation}
+    \nabla_\theta J_{\text{\method}} \approx
+    \mathbb{E}_{x \sim \mathcal{D},\, y \sim \pi_\theta} \Big[
+    \sum_t \sum_{v \in S_t}
+    A_t^{\mathrm{w}}(v)\,
+    \nabla_\theta
+    \textcolor{magenta}{\log \pi_\theta(v \mid s_t)}
+    \Big]
+    - \alpha\, \nabla_\theta
+    D_{\mathrm{KL}}\big(
+    \pi_\theta(\cdot\mid x) \,\|\, \pi_S(\cdot\mid x)
+    \big).
+\end{equation}
+In practice we do not differentiate the KL analytically; we use the standard
+KL-penalty implementation in \texttt{verl} to anchor $\pi_\theta$ to $\pi_S$.
+
+\subsection{Adaptive KL Control}
+\label{sec:method-adaptive-kl}
+
+The reward \method{} transfers carries a scale it does not get to choose. By
+Eq.~\ref{eq:dopd-implicit-reward}, $\Delta_T=\tfrac{1}{\beta}r_T-\log Z_T$: its magnitude is the teacher's reward divided by the teacher's KL budget $\beta$, both fixed when the teacher was trained and encoded in how far its RL pushed $\pi_T$ from $\pi_{T_{\mathrm{ref}}}$, yet neither is recoverable from the checkpoint pair.
+The per-token shift $r_t(v)=\log\pi_T(v\mid s_t)-\log\pi_{T_{\mathrm{ref}}}
+(v\mid s_t)$ is likewise a function of the teacher pair alone; the student enters
+only through \emph{where} the signal is read off---the prefixes its rollouts
+visit and the top-$k$ actions retained at each one.
+
+This scale mismatch makes a \emph{fixed} $\alpha$ unlikely to transfer robustly
+across settings. From the optimum in Eq.~\ref{eq:dopd-opt},
+$\pi^*\propto\pi_S\exp(\tfrac{1}{\alpha}\Delta_T)$, $\alpha$ is the temperature
+of an exponential tilt of $\pi_S$, and is meaningful only relative to the scale
+of $\Delta_T$. But $\Delta_T$ lives in the teacher's reward units
+($\tfrac1\beta r_T$) while $\alpha$ is a coefficient on the \emph{student's}
+KL---two scales with no a priori conversion, the teacher's being unobservable.
+A single $\alpha$ therefore cannot be calibrated in advance across teacher--student pairs, and we instead adopt a lightweight controller that adapts $\alpha$ to the running scale of the dense signal.
+
+Let $\alpha_m$ be the KL coefficient at training iteration $m$, and let
+$\bar r_m$ be the batch-level mean of the student-weighted shift
+$\bar p_t(v)\,r_t(v)$ over the visited prefixes and their top-$k$ candidates---the
+same dense reward the gradient optimizes. Before the actor update we set
+\begin{equation}
+    \alpha_{m+1}
+    =
+    \operatorname{clip}
+    \left(
+    \alpha_m
+    \left(1 + \epsilon\,\operatorname{sgn}(\bar r_m)\right),
+    \alpha_{\min},
+    \alpha_{\max}
+    \right),
+    \label{eq:adaptive-kl}
+\end{equation}
+with $\operatorname{sgn}(0)=0$; by default $\epsilon=0.01$ and
+$[\alpha_{\min},\alpha_{\max}]=[0.5,2.5]$. Here $\operatorname{sgn}(\bar r_m)$
+reports whether, on the prefixes the student currently visits, the teacher's RL
+on average raised or lowered the retained candidate tokens---a batch-level sign
+that the student-weighted shift carries directly.
+
+The controller is intended to keep the dense signal balanced. When the visited
+prefixes carry positive teacher shift on average, it \emph{raises} $\alpha$ to
+discourage over-amplifying that local signal; when the average shift is
+negative, it \emph{lowers} $\alpha$, weakening the anchor so the dense gradient
+can move probability away from tokens whose likelihood the teacher's RL reduced.
+This differs from the standard adaptive controller for an in-reward KL penalty,
+which steers toward a target KL value: here the update is driven by the
+\emph{sign of the \method{} dense reward} and acts on the explicit actor KL loss
+coefficient. We analyze KL-coefficient sensitivity in
+Section~\ref{sec:kl-coefficient}.
+
+% A central practical finding is that different teacher--student pairs require
+% different KL coefficients to reach their best performance. This sensitivity is
+% expected in \method{}: the scale of the teacher/reference log-ratio depends on the
+% teacher pair, the student, and the region of prefixes visited by the current
+% policy. We therefore use a simple adaptive controller for the actor KL loss
+% coefficient $\alpha$, which sets how far the student may move from its initial
+% policy.
+
+% Let $\alpha_m$ be the KL coefficient at training iteration $m$, and let
+% $\bar{A}_m$ be the batch-level mean of the valid candidate advantages
+% $A_t^{\text{w}}(v)$. Before the actor update, we set
+% \begin{equation}
+%     \alpha_{m+1}
+%     =
+%     \operatorname{clip}
+%     \left(
+%     \alpha_m
+%     \left(1 + \epsilon\,\operatorname{sgn}(\bar{A}_m)\right),
+%     \alpha_{\min},
+%     \alpha_{\max}
+%     \right),
+% \end{equation}
+% with $\operatorname{sgn}(0)=0$. In the implementation, the default $\epsilon=0.01$,
+% and the coefficient is clipped to $[\alpha_{\min},\alpha_{\max}]=[0.5,2.5]$.
+
+% This controller targets the balance point of the dense transfer signal rather
+% than a fixed KL divergence. If the sampled prefixes have positive teacher-shift
+% reward on average, the KL coefficient is increased to prevent the student from
+% over-amplifying that local signal; if the average reward is negative, the
+% coefficient is decreased, weakening the reference anchor so the dense reward
+% gradient can move the student away from tokens whose probability became lower
+% after teacher RL. This differs from the standard adaptive KL controller used for
+% an in-reward KL penalty: here the update is driven by the sign of the \method{}
+% dense reward and controls the explicit actor KL loss coefficient. We provide a
+% detailed analysis of KL-coefficient sensitivity in
+% Section~\ref{sec:kl-coefficient}.

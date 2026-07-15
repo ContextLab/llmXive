@@ -1,0 +1,765 @@
+% ===========================================================
+% 4. METHODS
+% ===========================================================
+\section{Methods}
+\label{sec:method}
+
+\subsection{Model Architecture}
+\label{sec:method-arch}
+
+\begin{figure*}[t]
+  \centering
+  % \includegraphics[width=\textwidth]{model.pdf}
+  \includegraphics[width=\textwidth]{figs_jpg/model.jpg}
+  
+  \caption{\textbf{The Slow-Fast Dual-System Architecture of ABot-N1.}
+    Navigation is decoupled into asynchronous cognition and high-frequency control.
+    Slow System (left): A vision-language reasoner processes historical frames
+    and task prompts at low frequency, producing explicit CoT reasoning
+    and visual anchors (Target Pixel and Affordance Pixel).
+    Dual Vision-Language Interface (middle): The language and visual outputs
+    form a unified bridge between the two systems.
+    Fast System (right): A lightweight-VLM-based action expert integrates the dual guidance
+    with real-time observations; a learnable action query attends to the output hidden states
+    via a QFormer module, and an MLP decodes the queries to predict continuous waypoints.
+    The system is trained with pretraining and GRPO, enabling complex reasoning without
+    blocking the reactive control loop.}
+  \label{fig:arch}
+\end{figure*}
+
+ABot-N1 decomposes the navigator of Eq.~\eqref{eq:nav-policy} into two
+asynchronously coupled sub-networks: a \textit{slow system} that performs
+deliberative reasoning and a \textit{fast system} that executes reactive
+control. The two systems share the same visual front-end but differ
+significantly in capacity, operating frequency, and responsibility.
+
+\paragraph{Slow System - Deliberative Reasoner.}
+The slow system is built on a 4B-parameter vision-language model
+(Qwen-3.5-4B). Let $n\in\{1,2,\ldots\}$ index its successive
+invocations.
+At the $n$-th invocation it receives four categories of input:
+(i)~a \textit{reference memory} $I^{\mathrm{ref,mem}}_{1:K}$---a short
+buffer of historical front-view frames that summarizes the trajectory up
+to the moment of this invocation;
+(ii)~the \textit{reference observation} $I^{\mathrm{ref}}_{\mathrm{tri}}$---the
+tri-view capture (left, front, right cameras) taken at this invocation;
+(iii)~the task specification~$g=\ell$ defined in
+\S\ref{sec:prelim-tasks}; and
+(iv)~the \textit{previous decision} $(\mathcal{C}_{n-1},\,\mathbf{p}_{n-1})$
+produced at invocation~$n{-}1$.
+Feedback of the prior decision enables temporal consistency: for
+tasks such as \textit{instruction-following} and \textit{person-following}, the model can
+condition on its earlier decision to avoid contradictory or oscillating
+behavior across successive inference cycles.
+Given these inputs the slow system produces two complementary outputs:
+\begin{equation}
+f_\text{slow}\!\bigl(I^{\mathrm{ref,mem}}_{1:K},\, I^{\mathrm{ref}}_{\mathrm{tri}},\, g,\,
+\mathcal{C}_{n-1},\,\mathbf{p}_{n-1}\bigr)
+\;=\;\bigl(\mathcal{C}_n,\;\mathbf{p}_n\bigr)
+\label{eq:slow}
+\end{equation}
+where $\mathcal{C}_n$ is an explicit natural-language Chain-of-Thought
+trace that decomposes intent, grounds linguistic and target references, and $\mathbf{p}_n$ is a set of \textit{pixel
+goals} projected onto the current tri-view images. The Chain-of-Thought
+is emitted only for the semantically demanding tasks---\textit{instruction-following}
+and \textit{object-goal}---whereas \textit{point-goal}, \textit{POI-goal}, and \textit{person-following}
+rely on the pixel goals alone. The pixel goals
+come in two semantic flavors, whose presence depends on the task and
+the current state:
+\begin{itemize}[nosep,leftmargin=1.2em]
+\item \textbf{Affordance Pixel} An image-space point denoting where
+  forward locomotion is currently afforded, i.e., the next safe,
+  traversable waypoint the agent should pursue (typically
+  $\sim$3\,m indoors or $\sim$5\,m outdoors ahead on the reachable
+  ground).
+\item \textbf{Target Pixel} An image-space point marking the final
+  goal itself (e.g., an object, a POI entrance, or the tracked person),
+  emitted only when the target becomes visible or the agent is within
+  the final approach distance.
+\end{itemize}
+Different tasks instantiate these two slots in slightly different ways.
+In \textit{point-goal}, the affordance pixel marks the next safe
+waypoint on the occupancy-aware traversable area; no target pixel is
+emitted (the metric coordinate goal is consumed by the slow system
+internally and does not need an image-space anchor). In \textit{instruction-following}, the
+affordance pixel corresponds to the near-future feasible waypoint along the
+ground-truth path, and the target pixel is activated near the route
+endpoint. In \textit{object-goal}, the affordance pixel guides exploration
+while the target pixel marks the discovered object once recognized. In
+\textit{POI-goal}, the affordance pixel follows the same convention as
+\textit{point-goal}---marking the next safe traversable waypoint toward the
+entrance---while the target pixel marks the physical entrance of the
+queried POI once it is localized. In \textit{person-following}, both pixels
+collapse to the bounding-box bottom center of the tracked person when
+visible, or the affordance pixel falls back to the first projectable future
+waypoint if the person temporarily exits the field of view.
+
+\paragraph{Fast System - Action Expert.}
+The fast system uses Qwen-3.5-2B as its backbone. It jointly encodes
+four input streams: (i)~the \textit{current memory}
+$I^{\mathrm{cur,mem}}_{1:K}$ and \textit{current observation}
+$I^{\mathrm{cur}}_{\mathrm{tri}}$---both captured in real time,
+(ii)~the slow system's CoT trace~$\mathcal{C}_n$ and pixel
+goals~$\mathbf{p}_n$, (iii)~the slow system's reference observation
+$I^{\mathrm{ref}}_{\mathrm{tri}}$---which anchors the pixel goals to their
+original visual context---and (iv)~the task specification~$g$. The backbone
+produces a fused hidden state
+\begin{equation}
+h_t = \mathrm{Enc}\!\bigl(
+  I^{\mathrm{cur,mem}}_{1:K},\, I^{\mathrm{cur}}_{\mathrm{tri}},\,
+  \mathcal{C}_n,\, \mathbf{p}_n,\, I^{\mathrm{ref}}_{\mathrm{tri}},\, g
+\bigr)
+\label{eq:fast-hidden}
+\end{equation}
+A set of learnable \textit{action queries} $q_{\mathrm{act}}$ then
+interact with $h_t$ via a QFormer-style cross-attention module,
+distilling navigation-relevant features into a compact query
+representation. A lightweight MLP head decodes this representation
+into the navigation output:
+\begin{equation}
+a_{t:t+H} = \mathrm{MLP}\!\bigl(\mathrm{QFormer}(q_{\mathrm{act}},\,h_t)\bigr)
+\label{eq:fast}
+\end{equation}
+where $a_{t:t+H}$ is a sequence of $H{=}5$ continuous SE(2) actions
+in the ego-centric frame (Eq.~\eqref{eq:waypoint}), each comprising
+a 2-D position $(x_i, y_i)$, a heading angle encoded as
+$(\sin\theta_i, \cos\theta_i)$, and a binary completion flag $c_i$,
+with adaptive step sizes that are larger outdoors and smaller
+indoors to balance efficiency and obstacle clearance.
+
+\paragraph{Asynchronous Inference.}
+The slow and fast systems operate at different cadences. The slow
+system runs at a low frequency, limited by the
+% (e.g., $\sim$1--2\,Hz)
+4B-parameter model's inference cost but sufficient for high-level
+reasoning that changes on the timescale of navigation decisions. The
+fast system runs at a higher rate, consuming the
+% (e.g., $\sim$10\,Hz)
+most recent slow-system context to produce smooth, responsive
+trajectories. Between successive slow-system updates, the fast system
+continues to execute using the last available $(\mathcal{C}_t,
+\mathbf{p}_t, I^{\mathrm{ref}}_{\mathrm{tri}})$, densely tracking the
+cached pixel goal to bridge the temporal gap between sparse
+deliberative updates. This asynchronous
+coupling allows the slow system to reason deeply without stalling the
+control loop, and lets the fast system compensate for the reasoning
+latency through visual closed-loop tracking of the provided pixel
+goals.
+
+\begin{figure}[!t]
+\centering
+% \includegraphics[width=\linewidth]{data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/data.jpg}
+
+\caption{\textbf{Data Pipeline and Composition.}
+The data engine (left) provides diverse indoor and outdoor simulation scenes; trajectory generation (middle) produces expert and Dagger rollouts; the resulting samples (right) span both stages---the five pre-training navigation tasks broken down by slow-system (high-level) and fast-system (low-level) counts, together with the post-training composition stratified into Safe, Critical, Danger, and discarded data.}
+\label{fig:data}
+\end{figure}
+
+
+\subsection{Pretraining}
+\label{sec:method-pretrain}
+
+Both the slow and fast systems are pre-trained via supervised
+imitation on a heterogeneous corpus that we curate to cover all five
+navigation tasks. Generalist behavior under Eq.~\eqref{eq:nav-policy} only
+emerges when the training distribution covers the diversity of real
+deployment; following recent navigation foundation
+models~\cite{zhang2025navfom,abotn0,physicalintelligence2024pi05}, our
+corpus spans photorealistic indoor simulation from Habitat-style scene
+banks~\cite{savva2019habitat,batra2020objectnav,krantz2020vlnce},
+outdoor driving and street-view trajectories, 
+and real-robot teleoperation. We reformat each episode into the
+$(g,\,I_{1:T},\,a_{1:T})$ tuple of Eq.~\eqref{eq:nav-policy} and
+enrich it with chain-of-thought rationales and pixel-goal annotations.
+The two systems are trained independently: the slow system learns to
+produce CoT traces and pixel goals, while the fast system learns the
+continuous-waypoint policy conditioned on slow-system outputs. We
+first describe the general training principles, then summarize
+task-specific characteristics.
+
+\subsubsection{Training Protocol}
+\label{sec:data-principles}
+
+We initialize both systems from their respective pre-trained
+Qwen-3.5 checkpoints. The slow system is supervised with a cross-entropy
+language-modeling loss for CoT tokens and pixel coordinates, while the
+fast system is supervised with a smooth-$L_1$ loss on position and
+heading angle together with a binary arriving loss.  In generic VLN settings, a smooth-$L_1$ regression objective is
+well known to induce \textit{mode collapse}: when the target
+distribution is multi-modal (e.g., go left vs.\ go right with
+comparable likelihood), the loss is minimized by the conditional
+mean, which often corresponds to an averaged trajectory that is
+invalid in either mode and causes severe performance degradation
+on the downstream task. This is the standard motivation for GMM
+heads, discretized action tokens, and flow- or diffusion-based
+action heads. We can nevertheless rely on smooth-$L_1$ in
+ABot-N1 because of the dual-system factorization: the slow
+system has already committed to a discrete decision through its
+CoT trace and pixel-goal output (target pixel + affordance
+pixel), which together sharply concentrate the future-waypoint
+distribution around a dominant mode. Conditioned on these
+slow-system outputs, the fast policy faces an approximately
+uni-modal regression problem, in which the conditional mean
+closely approximates the desired trajectory and smooth-$L_1$
+regression is both stable and sample-efficient. In other words,
+the slow system substantially reduces the modal-selection burden
+that would otherwise be handled by a heavier flow- or
+diffusion-based action head.
+ A shared design principle across
+tasks is \textit{robustness augmentation}: we feed both systems
+noise-injected inputs (perturbed target coordinates, noisy prior
+pixel predictions, or simulated asynchronous lag) so that they learn
+to tolerate imperfect upstream signals encountered during deployment.
+
+\subsubsection{Pretraining Data Recipe}
+\label{sec:data-tasks}
+
+Figure~\ref{fig:data} summarizes the overall data pipeline and
+composition across both training stages; here we focus on its
+pre-training portion, while the post-training composition is detailed
+in Section~\ref{sec:grpo-trainingdata}.
+
+Our data engine maintains a bank of high-fidelity simulation
+scenes spanning 800+ indoor and 22 outdoor environments reconstructed
+as 3D Gaussian Splatting. From these scenes, trajectory generation
+ produces two complementary types of rollouts: expert
+demonstrations that provide strictly correct supervision, and Dagger
+rollouts that introduce controlled errors and recoveries to build
+corrective capabilities.
+The resulting 30\,M pre-training samples  are distributed
+across five navigation tasks--- \textit{point-goal},
+\textit{object-goal}, \textit{POI-goal}, \textit{instruction-following}, and \textit{person-following}---organized into
+high-level data (13.3\,M) for the slow system and low-level data
+(16.4\,M) for the fast system. The low-level inputs come in three
+configurations:
+(1)~CoT + affordance pixel + target pixel for \textit{instruction-following}
+and \textit{object-goal},
+(2)~affordance pixel only for \textit{point-goal}, and
+(3)~affordance pixel + target pixel for \textit{POI-goal} and \textit{person-following}.
+Below we describe the data sources and construction pipeline for each task.
+
+\paragraph{Point-Goal.}
+Building upon the data engine of ABot-N0, we construct a unified scene bank of 800+ indoor and 22 outdoor scenes
+reconstructed as high-fidelity 3D Gaussian Splatting (3DGS)
+environments and manually annotate every scene with an occupancy map
+that delineates traversable from prohibited regions (sidewalks,
+crosswalks, building entrances vs.\ vehicle lanes, lawns, and static
+obstacles). Episodes are sampled along curated trajectories: for each
+starting pose we draw a target 5--50\,m away outdoors (3--20\,m
+indoors), and the ground-truth affordance pixel is obtained by
+selecting a safe traversable waypoint along the path (5\,m outdoors,
+3\,m indoors), running a \textit{safety check}, and projecting
+the resulting 3D point onto the current image plane. The safety check
+verifies that the line of sight from the viewpoint to the candidate
+point does not cross any non-traversable region; if it does, we
+backtrack along the trajectory until a valid point that is both
+unoccluded and traversable is found. From this shared
+episode pool, the slow and fast systems derive their respective
+training samples---often from the same trajectory sampling points but
+with different input and supervision content, as summarized below.
+
+\begin{figure*}[!t]
+\centering
+% \includegraphics[width=\linewidth]{point_data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/point_data.jpg}
+
+\caption{\textbf{Data Construction Pipeline for the Point-Goal Corpus.}
+Left: the data construction pipeline in two parts. The top half is the
+CoT data construction, which generates affordance pixels from the
+traversability and road-graph annotations and perturbs the target
+coordinate; the bottom half is the VLN data construction, comprising
+sub-optimal trajectory and OOD-correction trajectory synthesis. Right:
+an example structured sample with tri-view observations and affordance
+pixel annotation.}
+\label{fig:point-data}
+\end{figure*}
+
+\textbf{Slow System ($\sim$2.36\,M).}
+Its input consists of the tri-view observation, a noisy global
+target, and---in 50\% of the samples---recent history frames paired
+with the slow system's predictions on them as a temporal prior; the
+remaining 50\% drops history to keep the model robust when memory is
+absent.
+Because  \textit{point-goal} targets are ego-centric offsets relative to
+the robot's current pose, deviations arising from non-high-precision
+map routes and localization inaccuracies can shift the apparent target
+in the body frame---potentially placing it in a physically illegal
+region (vehicle lane, flower bed, or other non-walkable area) rather
+than on a valid pedestrian pathway.
+To robustify the policy against this real-world coordinate drift, we
+perturb the input target with a direction-aware non-uniform
+distribution (normal component up to 10\,m, tangential up to 2\,m)
+and reject perturbations whose angular deviation from the ground
+truth exceeds $30^\circ$ to prevent semantic ambiguity. The model
+learns to fall back on visual evidence and walkable-region semantics
+to locate a legally reachable arrival point
+whenever the input coordinate has drifted outside the traversable area.
+
+\textbf{Fast System ($\sim$6.20\,M).}
+Its input comprises the current tri-view frame, the current history,
+the slow system's most recent affordance result together with its
+reference views, and the global position target. The history channel
+compensates for the asynchronous inference gap: because the slow
+system runs at a lower rate than the fast system, recent reference
+frames fill the information vacuum between slow updates and damp
+control jitter. The supervision targets are the next 5 ego-centric
+relative waypoints, with adaptive step sizes that are larger outdoors
+and smaller indoors, trading off open-space throughput against
+fine-grained obstacle avoidance. These waypoint supervisions are
+drawn from both sub-optimal and OOD-correction trajectories, exposing
+the controller to off-optimal states and teaching it to steer back
+onto a valid path.
+Figure~\ref{fig:point-data} illustrates the end-to-end data construction pipeline for the  \textit{point-goal} corpus.
+
+
+\paragraph{Instruction-Following.}
+We assemble the \textit{instruction-following} corpus from four complementary
+streams curated in ABot-N0~\cite{abotn0}, all rendered in
+Habitat~\cite{savva2019habitat} and our proprietary simulator. The dominant stream is
+\textit{VLN-CE R2R/RxR}~\cite{krantz2020vlnce,ku2020rxr} on Matterport3D;
+three auxiliary streams over the InteriorGS scene bank inject
+short-horizon and grounding skills. Pixel supervision is
+constructed by a unified geometric pipeline shared across all four
+streams: along each reference trajectory, the affordance pixel is
+the projection of the next traversable waypoint at a fixed
+look-ahead horizon, and the target pixel is the projection of the
+route endpoint, emitted only once the agent enters the final
+approach segment to signal task termination. A VLM then validates each projected pixel, filtering out those that are not visible in the current view.
+
+\begin{figure}[!t]
+\centering
+% \includegraphics[width=\linewidth]{ins_data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/ins_data.jpg}
+
+\caption{\textbf{Data Construction Pipeline for the Instruction-Following Corpus.}
+Left: a three-stage pipeline that decomposes long natural-language instructions into short sub-instructions, aligns each sub-instruction to its corresponding frame range along the milestone path, and generates and verifies affordance and target pixels for CoT and VLN data. Right: an example structured sample showing tri-view observations with the language instruction and pixel-level annotations for affordance and target.}
+\label{fig:ins-data}
+\end{figure}
+
+\textbf{VLN-CE R2R/RxR (slow $\sim$2.25\,M, fast $\sim$2.10\,M).}
+We build the corpus from $\sim$30\,K reference trajectories. CoT
+labels are produced by a two-stage Qwen-3.5-27B annotator: Stage~1
+decomposes each long natural-language instruction into an ordered
+list of executable sub-instructions; Stage~2 aligns every
+sub-instruction to its corresponding trajectory frame range,
+yielding per-frame ``done / current'' progress annotations.
+Pixel labels follow the unified geometric pipeline above and are
+therefore decoupled from the instruction annotator (Figure~\ref{fig:ins-data}).
+
+\textbf{InteriorGS Auxiliaries (slow $\sim$2.86\,M, fast $\sim$2.57\,M).}
+Three InteriorGS-rendered streams sharpen specific competencies,
+each annotated for both systems via the unified pixel pipeline:
+(i) door-traversal clips (slow $\sim$0.44\,M, fast $\sim$0.38\,M)
+for narrow-passage maneuvers; (ii) an office-building
+\textit{instruction-following} set (slow $\sim$69\,K, fast $\sim$68\,K)
+purpose-built for commercial-tower interiors (corridors, lobbies,
+meeting rooms, and elevator halls), a domain that is severely
+underrepresented in residential-centric R2R/RxR but critical for
+real deployments such as last-mile indoor delivery;
+(iii) short-horizon primitives (slow $\sim$2.35\,M, fast
+$\sim$2.12\,M) covering atomic rotational, translational, and
+compound actions to regularize fine-grained execution. The slow
+count is consistently slightly larger than the fast count because
+the slow corpus applies stronger terminal-segment
+augmentation, where end-of-instruction frames are oversampled and
+perturbed more aggressively so that the slow system reliably
+recognizes the correct stopping point and emits the target pixel
+at the right moment.
+
+\textbf{CoT Supervision.}
+The slow system's CoT reasons about instruction progress---what
+sub-instruction has just been completed and what is currently being
+executed---following the schema established in
+ABot-N0. Combined with the unified affordance and target pixels,
+this cleanly separates long-horizon path tracking from terminal
+grounding.
+
+
+\paragraph{Object-Goal.}
+We construct the \textit{object-goal} corpus on the
+OVON~\cite{yokoyama2024hmovon} 145-scene
+Habitat~\cite{savva2019habitat} subset, complemented by proprietary
+InteriorGS-rendered scenes curated in ABot-N0~\cite{abotn0} for
+long-tail category coverage. Reference trajectories are produced
+by A$^{\!*}$ from each starting pose to the target object, and
+because the dual-system decomposition explicitly factors recognition
+and approach apart, we keep the slow- and fast-system corpora
+structurally distinct. Figure~\ref{fig:object-data-flow}
+illustrates the overall data generation pipeline.
+
+\begin{figure*}[!t]
+\centering
+% \includegraphics[width=\linewidth]{object_data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/object_data.jpg}
+
+\caption{\textbf{Data Construction Pipeline for the Object-Goal Corpus.}
+The left panel comprises two parts: the top half illustrates the
+iterative data flywheel that constructs the CoT rationales, scaling
+high-capacity VLM data seeds to 110\,K high-quality structured samples
+through A$^{\!*}$ consistency filtering and self-play harvesting; the
+bottom half depicts the VLN pipeline that produces the low-level
+supervision, including pixel annotation and OOD-correction trajectory
+generation. The right panel demonstrates the resulting structured
+tuple, featuring tri-view observations, explicit object and affordance
+pixel grounding, and detailed two-block CoT rationales.}
+\label{fig:object-data-flow}
+\end{figure*}
+
+\textbf{Slow System ($\sim$110\,K).}
+The slow system maps a tri-view observation plus an object name to
+three co-emitted outputs: a natural-language path plan, an affordance
+pixel, and an object pixel. The affordance pixel is the projection
+of the next A$^{\!*}$ corner waypoint along the current segment onto
+the camera image plane; the object pixel is the projection of the
+target object's 3D centroid, emitted only once the object is
+visible. CoT labels are produced through a data flywheel rather
+than a one-shot annotator dump: a high-capacity VLM first seeds
+$\sim$20\,K raw CoT samples spanning target visibility, spatial
+location with explicit landmark references, path narration, and the
+implied atomic actions; every seed is then scored by the consistency
+between its narrated atomic-action sequence and the A$^{\!*}$
+reference, and only high-consistency samples enter the cold-start
+set. We then launch a \textit{data flywheel}: the cold-start set
+is used to fine-tune a lightweight open-source VLM (Qwen-2.5-VL)
+rather than the slow system itself; this distilled annotator is
+replayed across the full trajectory pool to harvest fresh CoT at
+scale, the outputs are re-scored against A$^{\!*}$ consistency,
+and the filtered results are fed back to refine the annotator in
+the next iteration. The loop converges at $\sim$110\,K
+high-quality episodes, attenuating the seeding-VLM's
+hallucinations while entirely removing the dependency on the
+expensive high-capacity VLM at production time.
+
+\textbf{Fast System ($\sim$2.10\,M).}
+Inputs pair the current frame with a slow-system reference frame
+(either the current frame or a recent history frame) carrying the
+slow system's natural-language path plan, affordance pixel, and
+object pixel. To prevent the fast controller from over-relying on
+any single upstream signal, we randomly mask each of the three
+reference channels independently during training, so the controller
+learns to remain effective under partial slow-system guidance and
+degrades gracefully when individual signals are missing or stale.
+Outputs are 5 ego-centric relative waypoints at a fixed 0.3\,m/frame
+step size, supervised by both sub-optimal and OOD-correction
+trajectories so that the controller learns to recover from off-optimal
+poses and out-of-distribution deviations.
+
+\textbf{CoT Structure.}
+The CoT decomposes into two named blocks aligned with the
+dual-pixel output: \textit{Target Localization and Key Context}
+describes whether the target is currently visible and, if so, its
+spatial location relative to surrounding objects and the agent's
+pose; \textit{Path Planning} reasons about the next actions required
+to reach the target. The affordance pixel is always emitted to
+supervise locomotion; once the target enters the field of view, the
+\textit{object pixel} is emitted alongside it, providing explicit
+visual grounding for the approach phase.
+
+\begin{figure*}[!t]
+\centering
+% \includegraphics[width=\linewidth]{poi_data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/poi_data.jpg}
+
+\caption{\textbf{The Data Construction Pipeline for the POI-Goal Corpus}.
+Left: the three-stage construction flow---generating geometric seed
+annotations via monocular depth (Stage~1), scaling and filtering
+31\,M street-view pairs using a distilled VLM (Qwen-3.5-4B) to yield
+8\,M valid paths (Stage~2), and synthesizing tri-view episodes into
+positive and negative sample pairs that harden the system's rejection
+capability under missing-target conditions (Stage~3). Right: an
+example structured sample.}
+\label{fig:poi-pipeline}
+\end{figure*}
+
+\paragraph{POI-Goal.}
+No 3D simulator currently covers the commercial-street settings
+required for  \textit{POI-goal} navigation, so closed-loop rollout collection
+is infeasible. We therefore supervise only the slow system on static
+street-view annotations and let the fast system inherit its execution
+capability from \textit{point-goal} at inference time. To reach
+data-engine scale, we build a three-stage annotation pipeline
+(Figure~\ref{fig:poi-pipeline}).
+
+
+\textbf{Seed Annotation ($\sim$275\,K).}
+We collect tuples of (POI name, signage bbox, entrance bbox) from
+two sources: 55\,K human-annotated samples from BridgeNav with
+first-frame signage and entrance bounding boxes, and 220\,K samples
+from POINav with rule-plus-model pseudo-labels covering roughly
+70\,K distinct images (each image may host multiple POIs).
+We run MoGe-V2 \cite{wang2025moge} monocular depth on every image, derive an
+image-aligned occupancy map from surface normals, set the target
+pixel to the nearest ground point under the entrance-bbox bottom
+center, and trace a straight ground-line from the camera footprint
+to the target, sampling waypoints every 0.5\,m and truncating at
+the first obstacle.
+
+\textbf{VLM Annotator Scaling.}
+The MoGe-V2 pipeline is too slow to scale to tens of millions of
+images, so we distill it into a Qwen-3.5-4B annotator (full-LLM
+fine-tuning with the ViT and projector frozen). The annotator takes
+a POI name and a target affordance distance bucket
+($\{2,3,4,5\}$\,m) and emits a JSON record whose ordered fields
+(signage bbox $\rightarrow$ entrance bbox $\rightarrow$ target pixel
+$\rightarrow$ affordance pixel) act as an implicit chain of thought.
+Training covers three patterns: positives where a feasible
+affordance pixel exists, positives where the path is blocked
+(no feasible affordance pixel), and negatives where the queried POI
+is absent from the image, instilling an explicit
+``cannot-be-grounded'' rejection behavior. Applying this annotator
+to $\sim$31\,M collected street-view (POI name, image) pairs
+at the 3\,m bucket yields $\sim$8\,M valid positive labels.
+
+\textbf{N1 Slow-System Corpus ($\sim$3.0\,M).}
+Because N1 consumes a tri-view input but the upstream pipeline is
+monocular, we synthesize tri-views by stitching one positive image
+with two negative images (the queried POI absent from the two side
+views). The final slow-system corpus contains 2.5\,M positive
+tri-view episodes and 0.5\,M fully negative tri-view episodes (POI
+absent in all three views) to harden rejection capability under
+missing-target conditions. \textit{POI-goal} is a single-shot grounding task
+that does not benefit from temporal memory, so the slow system
+operates on the current observation only and history frames are
+omitted.
+
+\paragraph{Person-Following.}
+Following TrackVLA~\cite{wang2025trackvla}, we generate
+avatar-tracking sequences in Habitat~\cite{savva2019habitat}
+photorealistic indoor scenes by replaying TrackVLA's open-sourced
+humanoid motion trajectories and planning agent waypoints with
+A$^{\!*}$ at three following distances (1.2, 1.5, and 2.0\,m). Specific data generation procedures are illustrated in Figure~\ref{fig:person-data}.
+
+\begin{figure}[!t]
+\centering
+% \includegraphics[width=\linewidth]{person_data.pdf}
+\includegraphics[width=\linewidth]{figs_jpg/person_data.jpg}
+
+\caption{\textbf{Data Construction Pipeline for the Person-Following Corpus.}
+Left: the data construction pipeline covering both CoT and VLN data.
+The pixel (CoT) data derives affordance and target pixels from human
+avatar trajectories through A$^*$ waypoint planning, visibility
+detection, and stochastic prediction perturbation, while the VLN data
+comprises sub-optimal trajectory and OOD-correction trajectory
+synthesis. Right: an example structured sample showing tri-view
+observations with affordance and target pixel annotations, along with
+the language instruction specifying the target appearance.}
+\label{fig:person-data}
+\end{figure}
+
+\textbf{Scenario Composition.}
+For each following distance we synthesize three scenario categories
+that mirror TrackVLA's taxonomy:
+\textit{Single-Target Tracking} (STT) with a unique target,
+\textit{Distracted Tracking} (DT) with non-target distractor avatars,
+and \textit{Ambiguity Tracking} (AT) where multiple avatars share
+attributes with the target so that disambiguation must be resolved
+from the language query.
+
+\textbf{Slow System ($\sim$2.7\,M).}
+We draw samples from the 1.2\,m and 2.0\,m sets. When the target
+is visible, both the affordance and target pixels are anchored to
+the bottom-center of the target bounding box; once the target leaves
+the field of view, the target pixel is set to null and the
+affordance pixel falls back to the first projectable future
+waypoint, forcing the model to reason about occluded targets
+through the memory buffer.
+
+\textbf{Fast System ($\sim$3.4\,M).}
+We span all three distances and randomly pair the current frame
+with a reference frame sampled $0$--$4$ steps earlier so that the
+fast system learns to consume slightly stale slow-system
+predictions. In addition to the waypoint sequence the fast system
+also predicts per-step heading and a safety-clearance flag. The
+waypoint supervision is likewise built from sub-optimal and
+OOD-correction trajectories, training the controller to recover
+smoothly when the followed target drifts off the optimal path.
+
+\textbf{Asymmetric Noise Schedules.}
+Both systems are trained with task-specific perturbations over the
+prior pixel inputs. The slow system tolerates an aggressive
+schedule because its temporal context smooths out corrupted single
+frames; the fast system, far more sensitive to single-frame pixel
+perturbations, uses a conservative schedule. This asymmetry keeps
+both policies stable under imperfect upstream signals and
+transient detection failures at deployment.
+
+\subsection{Post-Training}
+\label{sec:method-posttraining}
+
+Supervised pre-training aligns the slow system's outputs with expert
+demonstrations, yet these demonstrations are inherently limited:
+reference trajectories produced by shortest-path planners often lack
+safety margins and ignore implicit social constraints. More
+fundamentally, token-level supervision does not directly optimize the
+downstream navigation outcome, leaving a gap between imitating
+individual decisions and maximizing episode-level success. To bridge
+this gap, we apply Group Relative Policy Optimization
+(GRPO)~\cite{deepseekai2025r1} to the slow system, casting its
+pixel-goal generation as a language-model policy whose outputs are
+rewarded by environment-grounded signals.
+
+\subsubsection{Formulation}
+\label{sec:grpo-formulation}
+
+For each state $s=(I^{\mathrm{mem}}, I^{\mathrm{cur}}_{\mathrm{tri}}, g)$
+we sample $G$ candidates $o^{(i)}{=}(\mathcal{C}^{(i)},\mathbf{p}^{(i)})\sim\pi_\theta$, score each with the composite reward $R^{(i)}$ defined
+below, and form group-relative advantages
+$A^{(i)}{=}(R^{(i)}{-}\mu_R)/(\sigma_R{+}\varepsilon)$ over the group.
+We then optimize
+\begin{equation}
+\mathcal{L}_{\mathrm{GRPO}}(\theta) \;=\;
+\mathbb{E}\!\left[\sum_{i,t}
+\min\!\bigl(\rho_t^{(i)} A^{(i)},\;
+\mathrm{clip}(\rho_t^{(i)},\,1{\pm}\epsilon)\,A^{(i)}\bigr)
+\right]
+\;-\;\beta\,\mathrm{KL}\!\bigl[\pi_\theta\,\Vert\,\pi_{\mathrm{ref}}\bigr],
+\label{eq:grpo}
+\end{equation}
+with $\rho_t^{(i)}$ the per-token importance ratio against the previous
+policy iterate. The KL anchor against the reference model
+$\pi_{\mathrm{ref}}$ is non-negotiable in our setting: aggressive
+exploration in the joint CoT$+$pixel output space quickly produces
+unparseable strings, on which every downstream reward becomes zero
+and the gradient collapses.
+
+
+\subsubsection{Reward Design}
+\label{sec:grpo-reward}
+
+The composite reward
+$R\!=\!w_f R_{\mathrm{format}}\!+\!w_t R_{\mathrm{target}}\!+\!w_o R_{\mathrm{safety}}$
+(weights summing to one) targets three orthogonal failure modes of
+the pretrained policy and is calibrated to a comparable scale so that
+within-group normalization remains informative.
+
+\paragraph{Format.}
+A binary indicator that the output respects the per-view JSON schema.
+We gate $R_{\mathrm{target}}$ and $R_{\mathrm{safety}}$ on
+$R_{\mathrm{format}}{=}1$, preventing the policy from drifting off
+the parseable manifold during early-stage exploration.
+
+\paragraph{Target Alignment.}
+% A Gaussian kernel
+% $R_{\mathrm{target}}\!=\!\exp\!\bigl(-\|\hat{\mathbf{p}}-\mathbf{p}^{\star}\|^2/2\sigma^{2}\bigr)$
+% delivers a distance-monotonic signal across the entire image plane;
+% the bandwidth $\sigma$ encodes a relax-far / tighten-near tolerance
+% schedule. A fixed penalty for missing or out-of-frame predictions,
+% together with a stop bonus at the goal, blocks the mode collapse
+% toward emitting a generic forward pixel.
+The target reward is computed as the average of per-view matching scores. Missing predictions in any view are treated as escape behaviors and incur a large penalty. When valid points are present across all views, the reward adopts an exponential decay of their L2 distance. The overall formulation is given by:
+\begin{equation}
+    R_{\mathrm{target}}\!=\!\sum_{\mathrm{frame}}\alpha_t\ {\exp\bigl(-\|\hat{\mathbf{p}}-\mathbf{p}^{\star}\|^2/\mathrm{scale}\bigr)}_{\mathrm{frame}}, \quad \mathrm{frame}\in\{\mathrm{front}, \mathrm{left}, \mathrm{right}\},
+\end{equation}
+where $\hat{\mathbf{p}},\mathbf{p}^{\star} \in \mathbb{R}^2$ denote the predicted and ground-truth target coordinates in each camera view, respectively; $\mathrm{scale}$ controls the spatial tolerance of the exponential kernel, determining how rapidly the reward decays with increasing prediction error; and $\alpha$ is a normalization weight that ensures balanced contributions across views when computing the final averaged reward. This design effectively constrains model outputs and mitigates knowledge forgetting during  pretraining.
+
+\paragraph{Safety Clearance.}
+We back-project $\hat{\mathbf{p}}$ to the world frame via the local
+depth map and camera intrinsics, take the worst-case clearance $d$
+across views, and apply
+\begin{equation}
+R_{\mathrm{safety}}(d) =
+\begin{cases}
+-\alpha_0, & d \ge d_{\mathrm{safe}},\\
+-\alpha_o\,\exp\!\bigl(\beta\,(d_{\mathrm{safe}}{-}d)\bigr), & d < d_{\mathrm{safe}}.
+\end{cases}
+\label{eq:obstacle}
+\end{equation}
+Here $d$ measures the distance to the nearest non-traversable region,
+which encompasses not only physical obstacles but also traffic-rule
+violations and illegal zones (e.g.\ vehicle lanes, restricted
+construction areas). The exponential profile is deliberately
+asymmetric: flat in safe zones, so legitimate close-quarters
+maneuvers (e.g.\ doorway traversal) are not penalized, but sharp
+inside the danger margin where behavioral correction is most urgent.
+Catastrophic outcomes (parse failure, full intrusion into prohibited
+regions) are clamped to a large negative floor so that they always
+receive the worst within-group advantage.
+
+
+\subsubsection{Balance Sampling for GRPO Training Dataset}
+\label{sec:grpo-trainingdata}
+
+% \begin{figure*}[!h]
+% \centering
+% \includegraphics[width=0.9\linewidth]{post_train_data.pdf}
+% \caption{\textbf{Post-training data pipeline and composition.}
+% The Point-Goal pretraining episodes are classified into Safe, Critical, and Danger zones based on proximity to non-traversable regions, with unstable samples ($d \le \bar{d}_{\min}$) discarded, yielding a balanced 2.1\,M post-training dataset.}
+% \label{fig:post-train-data}
+% \end{figure*}
+As shown in the post-training composition of Figure~\ref{fig:data}, we
+build the GRPO training set on top of the  \textit{point-goal} pretraining
+corpus: episodes are stratified by proximity to non-traversable
+regions into Safe, Critical, and Danger zones, unstable samples beyond
+the stability limit are discarded, and the remaining episodes are
+sampled according to a theoretically motivated ratio to ensure
+balanced gradient signals.
+
+% Figure~\ref{fig:post-train-data} summarizes the post-training data pipeline. We build the GRPO training set on top of the Point-Goal pretraining corpus: episodes are stratified by proximity to non-traversable regions into three zones, unstable samples beyond the stability limit are discarded, and the remaining 2.1\,M episodes are sampled according to a theoretically motivated ratio to ensure balanced gradient signals.
+To formalize this balancing strategy, we analyze the geometric properties of the sample distribution by examining the local variance of the composite reward. For a given prompt, the policy generates $K$ rollout trajectories within a group $G$; let $d$ denote the distance from the robot to the closest non-traversable region (including physical obstacles, illegal zones, and traffic-rule-violating areas) along each rollout. Due to policy stochasticity, these $K$ rollouts yield different trajectories and thus different $d$ values, with within-group mean $\bar{d}$ and variance $\sigma_d^2$. When the group mean penetrates the safety margin ($\bar{d} < d_{\mathrm{safe}}$), we apply a first-order Taylor expansion to the asymmetric exponential penalty $R_{\mathrm{safety}}(d) = -\alpha_o \exp\bigl(\beta(d_{\mathrm{safe}}-d)\bigr)$ around $\bar{d}$:
+\begin{equation}
+    R_{\mathrm{safety}}(d) \approx R_{\mathrm{safety}}(\bar{d}) + \alpha_o \beta \exp\bigl(\beta(d_{\mathrm{safe}}-\bar{d})\bigr) (d - \bar{d}).
+\end{equation}
+
+Since the model output remains valid in non-degenerate cases, we assume $\mathrm{Var}(R_{\mathrm{format}}) \approx 0$. Taking the non-zero covariance between the target alignment and safety clearance into account, the total within-group variance $\sigma_G^2$ (omitting the early-converged format term) is formulated as:
+\begin{equation}
+    \sigma_G^2 \approx w_t^2 \mathrm{Var}(R_{\mathrm{target}}) + w_o^2 \mathrm{Var}(R_{\mathrm{safety}}) + 2w_t w_o \mathrm{Cov}(R_{\mathrm{target}}, R_{\mathrm{safety}}),
+    \label{eq:total_var}
+\end{equation}
+where the local variance propagated by the safety term is approximated by:
+\begin{equation}
+    \mathrm{Var}(R_{\mathrm{safety}}) \approx \left[ \alpha_o \beta \exp\bigl(\beta(d_{\mathrm{safe}}-\bar{d})\bigr) \right]^2 \sigma_d^2.
+    \label{eq:obstacle_var}
+\end{equation}
+
+Due to the intrinsic task conflict in close-quarters maneuvers, these two objectives exhibit a strong negative correlation, i.e., $\mathrm{Cov}(R_{\mathrm{target}}, R_{\mathrm{safety}}) = -\rho \sigma_{\mathrm{target}}\sigma_{\mathrm{safety}}$ with $\rho > 0$. Although this negative covariance slightly dampens the aggregate variance locally, the squared derivative in Eq.~\eqref{eq:obstacle_var} still dictates that the safety reward variance grows exponentially with the intrusion depth $(d_{\mathrm{safe}}-\bar{d})$ at rate $2\beta$, even when $\sigma_d^2$ itself is small for deeply intruding prompts.
+
+To prevent this exploding variance from masking the target alignment gradients, the gradient isotropy condition dictates that the variance contribution of the target alignment reward must be bounded by a stability threshold $\gamma \in (0, 1)$, such that:
+\begin{equation}
+    w_t^2 \mathrm{Var}(R_{\mathrm{target}}) \geq \gamma\ \sigma_G^2.
+\end{equation}
+
+Substituting Eq.~\eqref{eq:total_var} into the current equation yields:
+\begin{equation}
+    w_o^2 \mathrm{Var}(R_{\mathrm{safety}}) - 2w_t w_o \rho \sigma_{\mathrm{target}}\sigma_{\mathrm{safety}} \le \frac{1-\gamma}{\gamma} w_t^2 \mathrm{Var}(R_{\mathrm{target}}).
+\end{equation}
+
+By solving this quadratic inequality with respect to $\sigma_{\mathrm{safety}}$, we can map out the minimum allowable average distance $\bar{d}_{\min}$ that defines the critical hazard boundary for a valid prompt. Prompts with $d \le \bar{d}_{\min}$ produce reward variance that exceeds the stability budget and are therefore discarded from the training set. Introducing a transition margin $\Delta d > 0$, we partition the remaining prompts into three categories:
+\textit{Safe Zone} ($d \ge d_{\mathrm{safe}}$): the exponential penalty is inactive, contributing negligible reward variance;
+\textit{Critical Zone} ($\bar{d}_{\min} + \Delta d < d < d_{\mathrm{safe}}$): the penalty is active but the resulting variance remains well within the stability budget;
+\textit{Danger Zone} ($\bar{d}_{\min} < d \le \bar{d}_{\min} + \Delta d$): the variance approaches the tolerable limit, yet the steep penalty slope produces the strongest directional gradient signal among all trainable prompts.
+
+% To curate a well-balanced training set, these scenarios must be mixed in a controlled ratio. Our objective is to ensure that the aggregate variance of the safety penalty and its cross-covariance remain within the same order of magnitude as the target alignment term, satisfying:
+% \begin{equation}
+%     \mathbb{E}_{\mathrm{Batch}}[\sigma_G^2] \approx 2 \cdot w_t^2 \mathrm{Var}(R_{\mathrm{target}}).
+% \end{equation}
+% This formulation implies that the proportion of Danger Zone prompts ($P_{\mathrm{danger}}$) and Safe Zone prompts ($P_{\mathrm{safe}}$) should approximately satisfy the variance equilibrium criteria:
+% \begin{equation}
+%     P_{\mathrm{danger}} \cdot \left( w_o^2 \sigma_{\mathrm{obstacle}}^2 - 2w_t w_o \rho \sigma_{\mathrm{target}}\sigma_{\mathrm{obstacle}} \right) \approx P_{\mathrm{safe}} \cdot w_t^2 \mathrm{Var}(R_{\mathrm{target}}),
+% \end{equation}
+% where $\sigma_{\mathrm{obstacle}}$ is evaluated at the critical intrusion boundary $d = d_{\mathrm{safe}} - \Delta d$. Since the exponential profile acts as a massive scaling factor, $P_{\mathrm{danger}}$ must be strictly constrained while $P_{\mathrm{safe}}$ maintains dominance to anchor the baseline. Empirically, we adopt a structured ratio of $3:5:2$ ($P_{\mathrm{danger}} : P_{\mathrm{safe}} : P_{\mathrm{crash}}$) to sample the Point Goal navigation dataset, constructing a well-calibrated training dataset that facilitates stable GRPO convergence.
+
+To curate a well-balanced training set, these scenarios must be mixed in a controlled ratio guided by the Gradient Signal-to-Noise Ratio (GSNR). In GRPO, training stability requires not only bounding the aggregate variance but also ensuring sufficient gradient magnitude across all critical regions. 
+These three zones exhibit fundamentally distinct gradient characteristics. Safe Zone prompts serve as high-GSNR anchors that stabilize the baseline target alignment gradient. Critical Zone prompts suffer from degraded GSNR due to exponential variance growth and negative target-safety covariance, yet they provide essential boundary refinement signals. Crucially, Danger Zone prompts produce the largest gradient magnitude among all trainable samples via the steep exponential penalty slope; although their per-sample GSNR is the lowest (variance grows faster than signal at rate $2\beta$ vs.\ $\beta$), batch averaging over $P_{\mathrm{danger}} \times B$ samples allows the consistent repulsive direction to accumulate while noise partially cancels. This directional signal is irreplaceable: without it, the policy risks converging to suboptimal solutions near the safety boundary, as the milder gradients from the Critical Zone alone are insufficient to enforce hard safety constraints.
+Therefore, the sampling proportions must satisfy a composite gradient sufficiency condition rather than a simple variance equality:
+\begin{equation}
+    P_{\mathrm{safe}} \cdot \mathcal{S}_{\mathrm{safe}} + P_{\mathrm{critical}} \cdot \mathcal{S}_{\mathrm{critical}} + P_{\mathrm{danger}} \cdot \mathcal{S}_{\mathrm{danger}} \geq \tau,
+    \label{eq:composite_gradient}
+\end{equation}
+where $\mathcal{S}_z = |\mu_{\nabla,z}|^2 / \sigma_{\nabla,z}^2$ denotes the per-sample GSNR of zone $z$ (expected gradient magnitude squared divided by gradient variance), and $\tau$ is a minimum threshold for stable policy improvement. 
+
+We summarize the principles guiding our sampling proportions as follows:
+\begin{itemize}
+    \item Safe Zones take up the largest share. They stabilize training by providing high‐GSNR signals that prevent model degradation.
+    \item Critical Zones are kept in check to avoid inflating batch‐variance with their moderate‐GSNR samples, yet—together with Danger Zones—they supply essential safety-compliance rewards.  
+    \item Danger Zones, although they exhibit the lowest per-sample GSNR, deliver a unique and irreplaceable gradient direction for hard-safety enforcement. To preserve overall training stability, they are assigned the smallest proportion.
+\end{itemize} 
+Empirically, we adopt a structured sampling ratio of $5:3:2$ ($P_{\mathrm{safe}} : P_{\mathrm{critical}} : P_{\mathrm{danger}}$). This ratio ensures that: (1) $P_{\mathrm{safe}} = 0.5$ provides dominant gradient stability; (2) $P_{\mathrm{critical}} = 0.3$ supplies adequate boundary learning without exceeding the variance budget; and (3) $P_{\mathrm{danger}} = 0.2$ delivers sufficient high-magnitude repulsive gradients to prevent unsafe convergence. This theoretically grounded composition enables stable GRPO training by balancing gradient fidelity, variance control, and safety enforcement simultaneously.
+
+
+\subsubsection{Training Dynamics and Generality}
+\label{sec:grpo-data}
+
+To prevent degradation of the capabilities acquired during the pretraining phase, we avoid biased preference sampling in GRPO data collection. We employ action-balanced batch sampling to ensure dataset unbiasedness. By balancing trivial states with challenging scenarios (e.g., near non-traversable regions), this strategy not only preserves the pretrained policy's generalization but also smooths within-group learning signals, thereby stabilizing training. We address two reward-hacking equilibria: \textit{target withholding} (avoiding goals to minimize safety penalty) and \textit{permanent inaction} (zero motion and progress). To mitigate these, we explicitly balance the magnitudes of $R_{\mathrm{target}}$ and $R_{\mathrm{safety}}$ to prevent disproportionate avoidance behavior, and impose a high-magnitude missing-prediction penalty within $R_{\mathrm{target}}$. This combination effectively breaks both inertial and evasive stalemates.
+
+The factorization is task-agnostic by construction: $R_{\mathrm{format}}$ depends only on the output schema and $R_{\mathrm{safety}}$ only on scene geometry and traversability rules, both shared across the five tasks. Extension to \textit{instruction-following}, \textit{object-goal}, or \textit{person-following} reduces to redefining $R_{\mathrm{target}}$ alone (route-endpoint distance, mask IoU, or bounding-box-center distance, respectively). We instantiate and validate the pipeline at scale on  \textit{point-goal} (0.5\,M episodes after zone classification and filtering, as shown in Figure~\ref{fig:data}) and view extension to the remaining tasks as a matter of metric design rather than algorithmic modification.

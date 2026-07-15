@@ -1,0 +1,297 @@
+\documentclass[]{amap}
+\usepackage{multirow}
+\usepackage[toc,page,header]{appendix}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{minitoc}
+\usepackage{solarized-light}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{siunitx,array}
+\usepackage[table]{xcolor}
+\usepackage{makecell,array,booktabs}
+\usepackage{makecell}
+\usepackage{framed}
+
+\usepackage{bbding}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{placeins}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{longtable}
+\usepackage{hhline}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{CJKutf8}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{cleveref}
+%\usepackage{xeCJK}
+\usepackage{tablefootnote}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{mdframed}
+\usepackage{subcaption}
+\usepackage[usestackEOL]{stackengine}
+\usepackage[numbers]{natbib}
+\newcommand{\commentout}[1]{}
+\renewcommand{\paragraph}[1]{\noindent\textbf{#1.}\hspace*{1em}}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlist[itemize]{leftmargin=15pt}
+\usepackage{siunitx,array}
+\usepackage{adjustbox}
+\usepackage{arydshln}
+\usepackage{pifont}
+\usepackage{bbding}
+\definecolor{ampblue}{rgb}{0.82, 0.88, 0.94}
+\usepackage[table]{xcolor} % 用于颜色
+\usepackage{array} 
+\usepackage[dvipsnames]{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{threeparttable}
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage{caption}
+
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\usepackage{xcolor}
+\usepackage{listings}
+% ============================================================
+
+\lstdefinestyle{promptstyle}{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{black!20},
+    backgroundcolor=\color{black!2},
+    xleftmargin=1em,
+    xrightmargin=1em,
+    aboveskip=4pt,
+    belowskip=6pt
+}
+
+\newcommand{\promptheading}[1]{%
+    \vspace{0.6em}
+    \noindent\textbf{#1}
+    \par\vspace{0.25em}
+}
+
+
+
+% Unified table note and group style for this section.
+\providecommand{\memtabnote}[1]{%
+\vspace{2pt}
+\begin{minipage}{0.96\linewidth}
+\footnotesize
+\emph{Notes.} #1
+\end{minipage}
+}
+
+\providecommand{\memgroup}[2]{%
+\midrule
+\multicolumn{#1}{c}{\textit{#2}}\\
+\midrule
+}
+
+\sisetup{
+table-number-alignment = center, % 若偏好小数点居中，改为 center
+table-space-text-post = \textsuperscript{*},
+output-decimal-marker = .
+}
+
+
+\RequirePackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{cf}\onedot} \def\Cf{\emph{Cf}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\iid{i.i.d\onedot} \def\wolog{w.l.o.g\onedot}
+\makeatother
+\newcommand{\VLAFM}{ABot-M0}
+\renewcommand\lstlistingname{Algorithm}
+\setlength{\FrameSep}{2pt}
+
+
+% 标题渐变色
+\usepackage{xcolor}
+
+% \newcommand{\ABotGrad}{%
+% {\color{blue}A}%
+% {\color{blue!75!orange}B}%
+% {\color{blue!55!orange}o}%
+% {\color{blue!35!orange}t}%
+% {\color{blue!20!orange}-}%
+% {\color{orange!30!blue}M}%
+% {\color{orange!10!blue}0}%
+% }
+
+% \definecolor{abot1}{HTML}{039BE5}
+% \definecolor{abot2}{HTML}{2D9BBF}
+% \definecolor{abot3}{HTML}{579A99}
+% \definecolor{abot4}{HTML}{819A72}
+% \definecolor{abot5}{HTML}{AB994C}
+% \definecolor{abot6}{HTML}{D59826}
+% \definecolor{abot7}{HTML}{FF9800}
+
+% \newcommand{\ABotMZero}{%
+% {\color{abot1}A}%
+% {\color{abot2}B}%
+% {\color{abot3}o}%
+% {\color{abot4}t}%
+% {\color{abot5}-}%
+% {\color{abot6}M}%
+% {\color{abot7}0}%
+% }
+
+
+\definecolor{abot1}{HTML}{0185FE}
+\definecolor{abot2}{HTML}{0185FE}
+\definecolor{abot3}{HTML}{0185FE}
+\definecolor{abot4}{HTML}{0185FE}
+\definecolor{abot5}{HTML}{FB8C00}
+\definecolor{abot6}{HTML}{FB8C00}
+\definecolor{abot7}{HTML}{FB8C00}
+
+\newcommand{\ABotMZero}{%
+{\color{abot1}A}%
+{\color{abot2}B}%
+{\color{abot3}o}%
+{\color{abot4}t}%
+{\color{abot5}-}%
+{\color{abot6}M}%
+{\color{abot7}0}%
+}
+
+%%%%%%%%%%%%%%%%%%%%
+
+% \title{ABot-AgentOS: }
+\title{ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory}
+
+\author{AMAP CV Lab}
+\vspace{-11pt}
+
+
+\contribution{See \hyperref[sec:contributions]{Contributions} section for a full author list.}
+
+\abstract{
+
+% Recent advances in vision-language models (VLMs) have opened the door to general-purpose embodied agents, yet existing PC-side agent frameworks such as OpenClaw and Hermes remain confined to the digital realm and lack the physical grounding required for real-world robotic deployment. In this paper, we present \textbf{ABot-AgentOS}, a general-purpose robotic agent operating system that serves as the Physical System 2 for embodied intelligence, capable of supporting a broad spectrum of robotic platforms including humanoids and quadruped robot dogs. Our work makes three principal contributions. First, we bridge VLMs and the physical world through a holistic agent design that unifies conversational interaction, locomotion, and manipulation within a single decision loop; new robot embodiments can be onboarded rapidly by simply registering body-specific motion and manipulation skills, without modifying the upper-level reasoning stack. Second, we introduce EmbodiedWorldBench, a comprehensive benchmark suite tailored to embodied agent capabilities, covering a diverse set of long-horizon and compositional tasks that jointly stress-test perception, planning, tool use, and physical execution. Third, in contrast to the text-only memory employed by prior PC-side agents, we design a unified multi-modal memory system that jointly records embodied human–robot dialogue, spatial object layouts, person identities, and their relations. The system organizes multi-modal experience into a compact, source-grounded memory graph rather than raw transcripts or raw visual payloads, enabling traceable retrieval over events, places, objects, people, images, and temporal relations. On top of this graph substrate, ABot-AgentOS supports online memory writing and retrieval during interaction, as well as an offline multi-agent self-evolution loop that diagnoses memory failures and compiles safe runtime assets for subsequent deployment. Extensive experiments on real and simulated robots, together with memory-heavy QA benchmarks, demonstrate that ABot-AgentOS provides a portable, extensible, and physically grounded foundation for lifelong embodied agents.
+
+Recent VLM and VLA systems have improved robotic perception and action prediction, yet long-horizon embodied agents still require a general runtime layer for reasoning, memory, tool use, verification, and cross-embodiment execution. We present \textbf{ABot-AgentOS}, a general robotic Agent Operating System that sits above low-level controllers and provides a deliberative agent layer for scene-conditioned planning, context-isolated skill execution, multi-stage verification, multi-modal memory, and edge-cloud collaboration. To evaluate such systems, we introduce \textbf{EmbodiedWorldBench}, an executable benchmark with 16 indoor, outdoor, and hybrid scenes, four difficulty levels, and over 200 tasks involving navigation, object search, NPC dialogue, dynamic events, and trace-grounded scoring.
+
+ABot-AgentOS further introduces \textbf{Universal Multi-modal Graph Memory}, a persistent source-grounded substrate that converts dialogue, visual observations, spatial context, temporal relations, and task traces into typed nodes and edges. A failure-driven self-evolution loop converts diagnosed memory failures into gated runtime evo-assets that are promoted only to later evaluation splits, preventing current-split ground-truth leakage while enabling continual improvement. On an initial EmbodiedWorldBench subset, ABot-AgentOS improves over a single-controller baseline in both task success and goal completion. Across memory benchmarks, ABot-AgentOS Static achieves 87.5 on LoCoMo, 59.9 on OpenEQA EM-EQA, 88.6 on Mem-Gallery, and 76.5 Acc@All on NExT-QA; self-evolution further improves LoCoMo to 88.7, OpenEQA to 60.4, and Mem-Gallery to 89.0. These results suggest that a general Agent OS layer can improve long-horizon embodied execution while providing persistent, auditable memory for continual interaction.
+
+
+
+\bigskip
+
+\textbf{Date:} July 10, 2026
+
+% \textbf{Correspondence:} .....@alibaba-inc.com
+
+\textbf{Project Page:} \url{https://amap-cvlab.github.io/ABot-AgentOS}
+
+
+}
+
+
+\begin{document}
+\maketitle
+\vspace{-4pt}
+
+% \begin{figure}[!h]
+%     \centering
+%     \vspace{-10pt}
+% \includegraphics[width=0.6\linewidth]{figure/bot5.png}
+%     % \caption{\textbf{xxx}.}
+%     \label{fig:model}
+% \end{figure} 
+
+% \begin{figure}[!h]
+%     \centering
+%     \vspace{-10pt}
+% \includegraphics[width=1.0\linewidth]{figure/teaser1.png}
+%     \caption{\textbf{\VLAFM{}}.}
+%     \label{fig:model}
+% \end{figure}
+
+
+% \begin{figure}[!h]
+%     \centering
+%     \vspace{-10pt}
+% \includegraphics[width=1.0\linewidth]{figure/teaser2.png}
+%     \caption{\textbf{\VLAFM{}}.}
+%     \label{fig:model}
+% \end{figure}
+
+% \begin{figure}[!h]
+%     \centering
+%     \vspace{-10pt}
+% \includegraphics[width=1.0\linewidth]{figure/白色背景.png}
+%     \caption{\textbf{\VLAFM{}}.}
+%     \label{fig:model}
+% \end{figure}
+
+
+\newpage
+\tableofcontents
+\newpage
+
+
+
+%\newpage
+
+\input{sections/sec1_introduction}
+\input{sections/2framework}
+% \input{sections/2_4_memory}
+\input{sections/3benchmark}
+\input{sections/4training}
+% \input{sections/5router}
+\input{sections/6experiments}
+% \input{sections/sec6_experiment}
+\input{sections/sec7_conclusion}
+\input{sections/2_4_memory_futurework}
+
+\clearpage
+\input{sections/contribution}
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+% \input{sections/contribution}
+% \clearpage
+\beginappendix
+
+\input{sections/appendix}
+% \let\clearpage\relax
+
+\end{document}

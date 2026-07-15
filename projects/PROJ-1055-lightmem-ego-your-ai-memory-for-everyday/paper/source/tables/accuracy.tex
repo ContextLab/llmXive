@@ -1,0 +1,24 @@
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcc@{}}
+\toprule
+\textbf{Scenario} & 
+\textbf{LLM-Judge} & 
+\textbf{Human Acc.} \\
+\midrule
+Object Finding       & 44.4 & 55.6 \\
+Conversation Recall  & 33.3 & 33.3 \\
+Life Summarization   & 77.8 & 77.8 \\
+\midrule
+\textbf{Overall}     & \textbf{51.9} & \textbf{55.6} \\
+\bottomrule
+\end{tabular*}
+\caption{
+Experience QA accuracy on daily scenarios.
+}
+\label{tab:qa_accuracy}
+\vspace{-3mm}
+\end{table}

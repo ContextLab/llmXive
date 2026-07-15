@@ -1,0 +1,111 @@
+\section{EmbodiedWorldBench}  
+\label{sec:benchmark}  
+
+Recent embodied AI benchmarks have advanced along two largely independent tracks.
+On the indoor side, BEHAVIOR-1K~\cite{li2024behavior1k} defines 1{,}000 everyday household activities,
+EmbodiedBench~\cite{yang2025embodiedbench} evaluates multi-modal LLM-driven agents across multiple indoor simulators,
+and LongAct~\cite{zhu2026robotchores} targets long-horizon domestic task execution---yet
+all are confined to bounded indoor environments and cannot assess large-scale spatial reasoning in open spaces.
+On the outdoor side, EmbodiedCity~\cite{gao2024embodiedcity} constructs a city-scale 3D simulation,
+CityNav~\cite{lee2025citynav} and OpenFly~\cite{gao2025openfly} provide large-scale aerial VLN datasets,
+CityNavAgent~\cite{zhang2025citynavagent} and GeoNav~\cite{xu2025geonav} advance LLM-powered aerial navigation planning,
+while GeNIE~\cite{wang2025genie} and ODYSSEY~\cite{wang2025odyssey} establish ground-level outdoor navigation and mobile manipulation benchmarks, respectively---yet
+these works predominantly focus on a single task modality (point-to-point navigation or isolated manipulation), lacking social interaction and multi-step reasoning.
+TongSIM~\cite{sun2025tongsim}, Wanderland~\cite{liu2026wanderland}, and Embodied Web Agents~\cite{hong2025embodiedweb} attempt to unify indoor and outdoor evaluation
+but still lack structured multi-difficulty task generation, strict information isolation, or dynamic NPC-driven events.
+Overall, existing benchmarks share three common limitations:
+(1)environmental fragmentation---indoor and outdoor scenes are evaluated in isolation;
+(2)task homogeneity---only a single capability dimension is tested;
+(3)static evaluation---the absence of dynamic events precludes assessment of adaptive replanning.
+
+To address these gaps, we propose a unified embodied evaluation framework spanning 16 executable scenes across indoor, outdoor, and hybrid settings, with tasks organized into four difficulty levels. Unlike existing work, each evaluation case is a complete executable scenario that jointly tests navigation, object search, NPC dialogue, dynamic instruction response, and state tracking. The framework enforces a strict information visibility boundary: the agent receives only a filtered semantic map and must rely on autonomous perception and reasoning to complete tasks. This work is the first to integrate cross-domain continuity, social dynamics, and engineering rigor into a single evaluation system.
+
+
+\subsection{Overview}
+\label{sec:overview}
+Our benchmark is designed to evaluate embodied agents in a structured, reproducible, and multi-dimensional manner. Unlike traditional static datasets, every evaluation case is a complete, runnable world—a self-contained scenario defined as:
+\begin{equation}
+    \text{Scenario} = \langle \mathcal{M}, \mathcal{S}_0, \mathcal{O}, \mathcal{N}, \mathcal{C} \rangle
+\end{equation}
+where $\mathcal{M}$ is the spatial map, $\mathcal{S}_0$ the initial state, $\mathcal{O}$ the observation rules, $\mathcal{N}$ the NPC behaviors, $\mathcal{C}$ the success criteria. 
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=1\linewidth]{figure/benchmark.png}
+    \caption{\textbf{Overview of EmbodiedWorldBench.} EmbodiedWorldBench evaluates embodied agents on compound tasks that span indoor and outdoor spaces and require tightly coupled navigation, NPC interaction, and environment perception across diverse scenes. The benchmark covers 16 scenes across four difficulty levels with over 200 tasks, revealing the challenges of achieving cross-scene generalization and adaptive replanning under dynamic events.}
+    \label{fig:overview}
+\end{figure}
+
+Figure~\ref{fig:overview} illustrates a representative scenario in a
+suburban neighborhood. Given a compound instruction, the agent must
+sequentially complete four sub-goals---checking a street, inspecting
+a backyard pool, verifying an indoor appliance state, and returning
+to report---with the task path traversing outdoor streets, a
+residential backyard, and an indoor living room within a single
+episode. This example demonstrates how each scenario jointly exercises
+cross-scene navigation, NPC interaction, environment perception, and
+information reporting, rather than isolating a single skill dimension.
+
+The benchmark is guided by four design principles. First, each case must be an executable scenario rather than a standalone query. Second, a single scenario should jointly test multiple embodied capabilities instead of isolating a single skill dimension. Third, all outcomes must be trace-grounded and auditable from the execution trace, thereby avoiding subjective human scoring during evaluation. Fourth, benchmark execution must be reproducible: under the same scenario configuration and model setup, the evaluation trajectory and final score should be stable and repeatable. Taken together, these principles position the benchmark as an end-to-end embodied evaluation suite rather than a prompt-collection benchmark.
+
+
+\subsection{Benchmark Construction}
+\label{sec:construction}
+
+\subsubsection{Environment and Semantic Map Annotation}
+\label{sec:env-semantic}
+
+We use UnrealZoo, a collection of photo-realistic 3D environments built on Unreal Engine 5. It provides NavMesh-based navigation, programmable object spawning, and a diverse set of scenes spanning indoor, outdoor, and residential settings. 
+
+
+To bridge the gap between raw engine-level objects and task-level semantics, we launch the UE5 scene and have annotators freely navigate the environment from a first-person perspective. They traverse all reachable areas, manually marking and naming key objects, points of interest (POIs), interaction targets, and typical navigation paths relevant to the evaluation agent, thereby constructing a structured semantic map. This map serves as the foundation for all subsequent task design and query generation.
+
+\subsubsection{Query Generation}
+\label{sec:query-gen}
+
+A \textit{query} is the natural-language instruction issued to the agent (e.g., \textit{``find the elderly person in a red down jacket and report her location''}), paired with formal success criteria, NPC configurations. To enable scalable construction of embodied tasks, we propose a task generation framework.
+
+\textbf{Semantic Map Normalization.} Through a normalization pipeline, raw annotated waypoints in the semantic map are structurally transformed into a unified representation comprising three layers: point, room, and polygon. The point layer records spatial coordinates, semantic types, floor and room associations, and object visual attributes. The room layer aggregates points within the same area to form a semantic topology. The polygon layer automatically generates enclosed spatial regions for point membership determination. The framework currently covers 16 executable scenes across indoor, outdoor, and hybrid settings, including hospitals, museums, supermarkets, and suburban neighborhoods, with over 300 annotated waypoints in total.
+
+% \textbf{Multi-difficulty Task Generation.} Based on the normalized semantic map, the framework automatically extracts a scene capability summary, including available regions, NPC spawn points, and key object inventories. This summary is fed into a large language model along with 8 predefined task families (covering navigation, object search, NPC dialogue, dynamic instruction response, state tracking, etc.), which simultaneously generates both task structures and natural language descriptions. To support stratified capability evaluation, generated tasks are organized into four difficulty levels. As difficulty increases, the required scene coverage, NPC interaction complexity, and reasoning depth increase accordingly. Considering differences in scene scale and task characteristics, the benchmark explicitly controls the distribution of task instances across scene and difficulty dimensions to ensure overall coverage and evaluation representativeness. The resulting distribution is summarized in Table~\ref{tab:task_distribution}.
+
+\textbf{Multi-difficulty Task Generation}. Based on the normalized semantic map, the framework automatically extracts a scene capability summary, including available regions, NPC spawn points, and key object inventories. For each scene, annotators first specify a set of feasible task types grounded in the scene's layout, objects, NPCs, and available interactions. This scene-specific task specification is then provided to a large language model, which generates both simple tasks and compound multi-stage tasks together with their natural-language descriptions and formal success criteria. Human annotators then review and refine the generated candidates to ensure executability, semantic clarity, evaluator consistency, and information isolation between agent-visible instructions and hidden scoring fields.
+
+To support stratified capability evaluation, queries are organized into four difficulty levels through human-in-the-loop calibration. Difficulty is treated as a property of the required embodied execution process rather than as a simple function of the number of scenes, NPCs, or objects. The calibration mainly considers the spatial exploration scope, procedural length, interaction complexity, evidence requirements, and need for dynamic adaptation. This design allows the same scene to support both simple localized tasks and compound long-horizon tasks while preserving comparable difficulty semantics across heterogeneous environments.
+
+
+\textbf{Visibility Isolation and Validation.} Each task defines a strict information visibility boundary: the agent receives only a filtered subset of the semantic map and natural language instructions, while internal fields such as NPC positions, evaluation signals, and expected trajectories are isolated, ensuring that the agent must rely on autonomous perception and reasoning to complete the task. All generated tasks undergo automated validation covering waypoint reference validity, information isolation integrity, and evaluation coverage, guaranteeing task consistency and reproducibility.
+
+\subsection{Evaluation Procedure and Metrics}
+\label{sec:evaluation}
+
+\subsubsection{Embodied Evaluation Workflow}
+\label{sec:sim-pipeline}
+
+Validated queries are executed in UnrealZoo as closed-loop embodied episodes. At the beginning of each episode, the environment is initialized with the task configuration, while the agent receives only the task instruction and the filtered semantic map. Hidden evaluator states, expected trajectories, and success signals are not exposed to the agent.
+
+The UE environment provides NavMesh-based autonomous navigation, which abstracts low-level path planning and movement control. This design allows the LLM-based agent to focus on high-level embodied decision making, including where to navigate, when to observe, what evidence to collect, and when to terminate, rather than on low-level locomotion control. Visual information is obtained through the agent's VLM-based observation tool, which converts first-person views into textual observation evidence for the LLM controller. Higher-difficulty scenarios may additionally include dynamic events such as NPC relocation or object-state changes, requiring the agent to update its plan during execution.
+
+Each episode produces a structured trajectory comprising navigation commands, visited-region traces, observation records, intermediate outputs, final responses, and optional video recordings. The evaluator uses this trace together with task-defined hidden criteria to perform deterministic checks and evidence-grounded judgment, enabling reproducible evaluation and fine-grained failure analysis.
+
+
+% ── 3.4 Evaluation Metrics ──
+\subsubsection{Evaluation Metrics}\label{sec:evaluation_metrics}
+
+A structured evaluator is employed to automatically assess agent execution results, monitoring key events during task execution, including target location arrival status, NPC dialogue completion status, and information acquisition correctness.
+
+The evaluation metrics include Task Success Rate (TSR) and Goal Completion Rate (GCR). TSR requires all subtask objectives and terminal conditions defined by the task to be satisfied for the trajectory to be considered successful, serving as the most stringent overall measure. GCR is defined as the proportion of satisfied subtask objectives to the total number of subtask objectives, providing a finer-grained reflection of the agent's partial completion across dimensions such as navigation, NPC dialogue interaction, and multi-stage reasoning. Together, the two metrics characterize the agent's task execution capability at both the holistic and granular levels.
+
+Subtask objectives are verified through a hybrid scoring scheme.
+Geometric conditions, such as target-location arrival and waypoint
+visitation, are checked programmatically by comparing recorded poses to
+task-defined reference points within a success radius. Semantic
+conditions, such as whether the agent has observed or inspected a target,
+are evaluated from run-derived evidence, including the agent's
+VLM-generated observation records, intermediate outputs, and final
+response. An LLM judge is used only to determine whether this evidence
+satisfies the semantic success criteria; it does not observe the
+environment directly or access hidden evaluator states beyond the
+task-level scoring rubric. Each judgment is emitted as a structured
+verdict, keeping semantic scoring auditable and consistent with the
+deterministic checks.

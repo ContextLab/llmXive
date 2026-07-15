@@ -1,0 +1,638 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+\documentclass[11pt]{article}
+\newcommand{\xkg}{\mathrm{\ours}}
+% \usepackage[table,xcdraw]{xcolor}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+
+\raggedbottom
+
+% === ATTENTION ===
+% IF WE NEED TO RESUBMIT TO ARR
+% PLEASE REMOVE ALL THE PERSONAL INFORMATION
+% ESPECIALLY IN APPENDIX
+% =================
+\usepackage[]{acl}
+% \usepackage[final]{acl}
+\usepackage{arydshln}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{wrapfig}   % 用于实现文字环绕图片
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mdframed}
+\usepackage{tcolorbox}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{array}
+\usepackage{chngcntr}
+\usepackage{ragged2e}
+\tcbuselibrary{breakable}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{caption}
+\usepackage{xcolor} % Added for color definitions
+\usepackage{pifont}  % For \ding{55} (a cross)
+\usepackage{longtable}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{amssymb}
+
+\usepackage{todonotes}
+
+\usepackage[table]{xcolor} % 用于表格颜色     % 用于单元格内换行
+\definecolor{lightgray}{gray}{0.9} % 定义一个浅灰色
+\tcbuselibrary{skins}
+\usepackage{diagbox}
+
+\usepackage{xstring}
+
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+\author{
+    Yijun Chen$^{1}$\thanks{ \ \ Equal contribution.}, 
+    Boyi Xiao$^{2}$\footnotemark[1], Yixian Zhao$^{1}$\footnotemark[1], Haoting Xia$^{3}$\footnotemark[1], Buqiang Xu$^{1}$, 
+    Jizhan Fang$^{1}$, \\
+    \textbf{Yanya Li}$^{1}$, \textbf{Yaqi Zheng}$^{1}$,
+    \textbf{Xuehai Wang}$^{1}$, \textbf{Zirui Xue}$^{1}$, 
+    \textbf{Liuxin Zhang}$^{4}$, \textbf{Hui Li}$^{4}$,
+    \textbf{Ningyu Zhang}$^{1}$\thanks{ \ \ Corresponding author.} \\
+    $^{1}$Zhejiang University \quad 
+    $^{2}$South China University of Technology\\
+    $^{3}$Central China Normal University \quad 
+    $^{4}$Lenovo Group Limited \\
+    \texttt{ie\_yijunchen@outlook.com, zhangningyu@zju.edu.cn}
+}
+
+
+\definecolor{myGreen}{RGB}{0, 150, 0}
+\definecolor{myRed}{RGB}{200, 0, 0}
+
+% 放在导言区
+\definecolor{myblue}{RGB}{30, 144, 255} % 纯正亮蓝，不发紫
+
+\usepackage{bm}
+% --- 修正后的 \perf 命令 ---
+% 在 \rlap 内部，用 $...$ 将包含下标 _ 的部分包裹起来，以进入数学模式
+\newcommand{\perf}[2]{%
+    #1%
+    \rlap{$
+        \,_{\IfBeginWith{#2}{-}%
+            {\color{myGreen}\text{\tiny{(#2)}}}%
+            {\color{myRed}\text{\tiny{(#2)}}}%
+        }
+    $}%
+}
+
+\tcbuselibrary{most} 
+
+% ============================================================
+% 定义 Definition Box (用于概念定义)
+%    这是一个普通的盒子，文字会正常渲染 LaTeX 格式
+% ============================================================
+\newtcolorbox{definitionbox}[1][]{%
+  enhanced,                % 启用高级绘图引擎
+  title={Definition},      % 默认标题
+  colback=blue!5,          % 内容背景色
+  colframe=blue!50!black,  % 边框颜色
+  coltitle=white,          % 标题文字颜色
+  colbacktitle=blue!60!black, % 标题背景色
+  boxrule=1.5pt,           % 边框粗细
+  arc=3mm,                 % 圆角大小 (统一设为 3mm 会比较好看)
+  fonttitle=\bfseries,     % 标题字体
+  
+  % 这一段是为了实现“独立标题块”的漂亮效果
+  attach boxed title to top left={yshift=-2mm,xshift=4mm}, 
+  boxed title style={
+    rounded corners,
+    boxrule=0pt,           % 标题框不要边框，看起来更干净
+  },
+  
+  breakable,               % 建议加上这个，防止长定义无法跨页
+  #1                       % 允许调用时覆盖参数
+}
+
+
+% ==================================================
+% Custom Insight Box Definition
+% ==================================================
+% \usepackage[T1]{fontenc}
+\usepackage{utfsym}
+\usepackage{stfloats}
+% 定义通用环境: insightbox
+% 参数 #1: 标题内容 (e.g., Discussion: ...)
+\newtcolorbox{insightbox}{
+    float*=!hb,            % 强制跨栏浮动到底部
+    width=\textwidth,    % 宽度占满整页
+    colback=myblue!5!white, % 极淡背景 (截图看起来像白底，你可以改成 white)
+    fontupper=\small\linespread{1.05}\selectfont,
+    colframe=black,         % 黑色细边框    
+    boxrule=0.5pt,          % 边框很细 (0.5pt)
+    arc=6pt,                % 圆角很小 (2pt)，看起来很锐利但有圆润感
+    left=8pt, right=8pt, top=4pt, bottom=4pt,
+    before skip=10pt,
+    after skip=10pt
+}
+
+
+% ============================================================
+% 定义 Prompt Box (用于 LLM Prompt/代码)
+%    这是一个 Listing 盒子，里面的内容会按“纯文本”处理
+% ============================================================
+\usepackage[scale=0.85]{FiraMono}
+\newtcolorbox{promptbox}[2][]{
+  enhanced,
+  title={#2},
+  colframe=myblue!50!gray,
+  colback=myblue!5!white,
+  colbacktitle=myblue!50!gray,
+  fonttitle=\bfseries\large,
+  fontupper=\ttfamily\small\linespread{1.1}\selectfont, % 稍微减小行距更紧凑
+  boxrule=1pt,
+  arc=2mm,
+  breakable,                % 允许跨页
+  top=10pt, bottom=10pt,    % 增加一点内边距，防止文字贴边
+  oversize,                 % 允许稍微突破栏宽（可选）
+  % 处理跨页时的边框样式：
+  % skin=enhancedlast,        % 优化跨页后的最后一部分渲染
+  #1
+}
+
+
+% =================================================================
+% CASE STUDY MACROS DEFINITION (Aligned Version)
+% =================================================================
+\tcbuselibrary{raster}
+\usepackage{fontawesome5}
+
+% 1. 外层大框架 (保持不变)
+\newtcolorbox{CaseStudyFrame}[2]{
+    enhanced, 
+    title={\large \textbf{#1}},
+    colback=white, colframe=gray!70!black, coltitle=white,
+    fonttitle=\bfseries,
+    width=\textwidth, 
+    boxrule=1pt,
+    arc=4pt,
+    label={#2}
+}
+
+% 2. 上下文说明条 (保持不变)
+\newcommand{\ContextBar}[1]{
+    \begin{tcolorbox}[
+        enhanced, colback=gray!10, colframe=gray!30, 
+        sharp corners, boxrule=0.5pt,
+        left=4pt, right=4pt, top=3pt, bottom=3pt
+    ]
+        \small #1 
+    \end{tcolorbox}
+    \vspace{0.3cm}
+}
+
+% 3. 解决方案列 (SolutionColumn) - 核心容器
+% 这里的 #4 是 Group ID，我们将复用它来对齐内部元素
+\newtcolorbox{SolutionColumn}[4]{
+    enhanced,
+    equal height group={#4}, % 外框等高
+    title={\textbf{#3}},
+    colframe=#1, colback=white, coltitle=white,
+    subtitle style={colback=#2, colupper=black},
+    drop shadow, 
+    width=\linewidth,
+    fonttitle=\small\bfseries,
+    left=3pt, right=3pt,
+    % 关键：让内部内容垂直分布，把多余空间撑开，但我们主要靠内部盒子对齐
+    valign=top 
+}
+
+
+\newtcolorbox{ReportFrame}[2]{
+    enhanced,
+    % breakable, % <--- 关键：允许自动跨页
+    title={\large \textbf{#1}}, % 标题
+    colback=white, 
+    colframe=gray!70!black, 
+    coltitle=white,
+    fonttitle=\bfseries,
+    width=\textwidth,
+    boxrule=1pt,
+    arc=4pt,
+    % 核心样式设置：打字机字体 + 小字号 + 紧凑行距
+    fontupper=\ttfamily\small\linespread{1.1}\selectfont, 
+    label={#2}
+}
+
+% -----------------------------------------------------------
+% [新增] 4. 对齐用的描述文本框 (AlignedDesc)
+% 用法：\begin{AlignedDesc}{GroupID} 文字... \end{AlignedDesc}
+% 作用：强制左右两栏的“描述文字区域”高度一致，对齐下方的 View 框
+% -----------------------------------------------------------
+\newtcolorbox{AlignedDesc}[1]{
+    enhanced,
+    frame hidden,      % 隐藏边框
+    colback=white,     % 背景透明/白
+    equal height group={#1_desc}, % 关键：使用后缀 _desc 自动分组
+    left=0pt, right=0pt, top=0pt, bottom=5pt, % 调整间距
+    nobeforeafter      % 防止不必要的换行干扰
+}
+
+% -----------------------------------------------------------
+% 5. 人类视角观点 (HumanView) - 修改版
+% 新增可选参数 #1，用于传入 GroupID 实现对齐
+% 用法：\HumanView[GroupID]{内容}{Verdict}
+% -----------------------------------------------------------
+\newcommand{\HumanView}[3][]{
+    \begin{tcolorbox}[
+        enhanced, 
+        % 如果传入了 ID，则启用等高分组，后缀 _view
+        code={\ifstrempty{#1}{}{\tcbset{equal height group={#1_view}}}},
+        colback=gray!5,       
+        colframe=gray!30,     
+        title={\footnotesize \faUserTie\ \textbf{Human Intuition}}, 
+        boxrule=1pt, 
+        left=3pt, right=3pt, top=3pt,
+        coltitle=black
+    ]
+        \small \textit{"#2"} 
+        \par\smallskip
+        \textbf{Verdict:} \textbf{#3}
+    \end{tcolorbox}
+}
+
+% -----------------------------------------------------------
+% 6. 世界模型视角 (WMView) - 修改版
+% 用法：\WMView[GroupID]{ModelName}{内容}{Verdict}
+% -----------------------------------------------------------
+\newcommand{\WMView}[4][]{
+    \begin{tcolorbox}[
+        enhanced, 
+        % 启用等高分组
+        code={\ifstrempty{#1}{}{\tcbset{equal height group={#1_view}}}},
+        colback=myblue!5,     
+        colframe=myblue!30,   
+        title={\footnotesize \faRobot\ \textbf{World Model #2}}, 
+        boxrule=1pt, 
+        left=3pt, right=3pt, top=3pt,
+        coltitle=black 
+    ]
+        \small \textit{"#3"} 
+        \par\smallskip
+        \textbf{Verdict:} \textbf{#4}
+    \end{tcolorbox}
+}
+
+% 7. 底部总结 (保持不变)
+\newcommand{\OutcomeFooter}[1]{
+    \vspace{0.5cm}
+    \hrule
+    \vspace{0.1cm}
+    \small 
+    \textbf{Outcome:} #1
+}
+
+
+% ============================================================
+% 定义 Case Raw Box
+%    这是一个 Listing 盒子，里面的内容会按“纯文本”处理
+% ============================================================
+\usepackage[scale=0.85]{FiraMono} % scale=0.85 防止字体过大
+
+% --- 修复版 caserawbox ---
+\newtcblisting{caserawbox}[2][]{
+  enhanced,
+  title={#2},
+  colback=white,
+  colframe=gray!70!black,
+  coltitle=white,
+  fonttitle=\bfseries\large,
+  boxrule=1pt,
+  arc=2mm,
+  breakable,
+  listing only,
+  listing options={
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    extendedchars=false, 
+    literate={ }{ {~} }1 {≈}{{$\approx$}}1, 
+    inputencoding=utf8,
+  },
+  #1
+}
+
+
+% ==================== Table Preamble ====================
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+% 定义背景色
+\definecolor{domainbg}{gray}{0.95}
+
+% 辅助命令：任务类型标签的小样式
+\newcommand{\tagbox}[1]{\texttt{\footnotesize #1}}
+
+\usepackage{xspace}
+\newcommand{\ours}{\textsc{ForeAgent}\xspace}
+
+
+\title{
+\texorpdfstring{%
+\raisebox{-0.32\height}{\includegraphics[height=2.3em]{figures/lightmem_ego_logo_crop.png}}%
+\hspace{0.38em}%
+LightMem-Ego: Your AI Memory for Everyday Life%
+}{LightMem-Ego: Your AI Memory for Everyday Life}
+}
+% \title{LightMem-Ego: Your AI Memory for Everyday Life}
+
+
+
+
+
+
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Personal AI assistants on mobile and wearable devices continuously perceive users' daily lives through visual and audio streams. However, answering queries about past experiences requires lightweight multimodal memory that can continuously accumulate, organize, and retrieve long-term experiences, which remains challenging. To address this challenge, we present \textbf{LightMem-Ego}, a lightweight streaming multimodal memory system for everyday-life assistance. The system continuously captures egocentric visual and audio streams, aligns them on a shared timeline, and organizes them into a hierarchical memory consisting of current, short-term, and long-term memory. Given a user query, LightMem-Ego dynamically routes retrieval to the appropriate memory level and generates answers grounded in multimodal evidence. The demonstration can be deployed on smartphones and AI glasses, supporting object finding, conversation recall, life summarization, routine discovery, and personalized assistance\footnote{\url{https://github.com/zjunlp/LightMem-Ego}.}.
+%LightMem-Ego demonstrates how lightweight long short-term multimodal memory enables personal AI assistants to move beyond one-shot perception toward continuous, experience-grounded interaction
+\end{abstract}
+  
+
+
+\begin{comment}
+sec1  Introduction
+
+1 生活记忆的价值   眼镜  手机
+
+2 挑战
+
+3 我们做了啥
+
+seC2  系统设计  
+
+讲  里面哪些模块
+
+sec3 应用场景   这里直接贴几个场景 按应用贴case
+
+sec4 定量实验   自己构造一些case 和其他app 对比
+
+sec5 总结展望
+
+
+
+
+
+
+
+
+提出：
+
+MemGlass。
+
+支持跨分钟、天、周级别记忆问答。
+
+2 Related Work
+Conversational Memory
+
+ChatGPT Memory
+
+MemGPT
+
+Mem0
+
+Wearable AI
+
+Meta Smart Glasses
+
+Humane
+
+Multimodal Memory
+
+Episodic Memory
+
+Experience Replay
+
+Life Logging
+
+3 MemGlass
+3.1 Multimodal Life Capture
+
+视频
+
+音频
+
+位置
+
+屏幕
+
+传感器
+
+3.2 Event Segmentation
+
+将连续生活流切分为：
+
+Meeting
+Walking
+Dining
+Shopping
+Conversation
+3.3 Hierarchical Memory
+
+短期记忆
+
+长期记忆
+
+语义记忆
+
+情景记忆
+
+3.4 Experience Retrieval
+
+时间感知检索
+
+人物感知检索
+
+地点感知检索
+
+事件感知检索
+
+3.5 Experience QA
+
+从记忆生成答案。
+
+4 Demonstration
+Demo A
+
+Lost Object Retrieval  我把钥匙放在哪里了？  1. 物品遗失与位置记忆
+
+我钥匙放哪了？
+我的耳机在哪里？
+我昨天把电脑充电器放哪了？
+我刚刚把手机放哪了？
+我上次用完之后放回原位了吗？  
+
+Demo B
+
+Meeting Recall     2. 人际交互回忆（会议 / 对话 / 社交）
+
+非常高频，尤其是工作场景。
+
+典型问题：
+开会记录 
+我刚刚和谁说过这件事？
+上周和老板讨论了什么？
+这个人我见过吗？
+我上次和他聊的项目是什么？
+他是不是让我改过proposal？
+我刚刚看到的那条信息是什么？
+刚才那个网页讲了什么？
+我刚刚刷到的视频在哪？
+上次那个PPT讲的关键点是什么？
+
+Weekly Life Summary  一周 
+
+
+5 Evaluation
+Memory Retrieval Accuracy
+
+Top-k Recall
+
+MRR
+
+Experience QA Accuracy
+
+GPT-4o Judge
+
+Human Evaluation
+
+Latency
+
+Mobile
+
+Phone
+
+Glasses
+
+6 Conclusion
+
+构建面向真实世界个人AI助手的长期多模态记忆系统，使AI从“理解语言”迈向“理解人生经历”。
+
+\end{comment}
+  
+
+
+
+\input{section/1_intro}
+
+\input{section/2_related_work}
+
+\input{section/3_system_design}
+
+\input{section/4_demonstration}
+
+\input{section/5_quantitative_evaluation}
+
+\input{section/6_conclusion}
+
+\input{section/limitations}
+
+\input{section/ethical_privacy}
+
+
+
+% \input{section/background}
+
+% \input{section/data_construction}
+
+% \input{section/experiment}
+
+% \input{section/analysis}
+
+% \input{section/agent}
+
+% \input{section/related_work}
+
+% \input{section/conclusion}
+
+% \clearpage
+
+% \input{section/limitation}
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+\bibliography{custom}
+% \nocite{*}
+
+\clearpage
+% \onecolumn
+
+\appendix
+% \section*{Appendix}
+
+% \input{section/appendix}
+
+
+
+
+\end{document}

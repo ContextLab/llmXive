@@ -1,0 +1,126 @@
+% Optional symbols
+\newcommand{\cmark}{\(\checkmark\)}
+\newcommand{\xmark}{---}
+\newcommand{\pmark}{\emph{Partial}}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}
+>{\raggedright\arraybackslash}p{0.18\textwidth}
+>{\raggedright\arraybackslash}p{0.20\textwidth}
+*{5}{>{\centering\arraybackslash}X}
+@{}}
+\toprule
+\textbf{System} &
+\textbf{Platform and Input} &
+\makecell{\textbf{Real-time}\\\textbf{Visual-Audio}\\\textbf{Stream}} &
+\makecell{\textbf{Current /}\\\textbf{Short-term}\\\textbf{MM Memory}} &
+\makecell{\textbf{Long-term}\\\textbf{MM Episodic}\\\textbf{Memory}} &
+\makecell{\textbf{Long-term}\\\textbf{Semantic}\\\textbf{Memory}} &
+\makecell{\textbf{Timestamped}\\\textbf{Evidence}\\\textbf{Retrieval}} \\
+\midrule
+
+ChatGPT Memory &
+Text chat &
+\xmark &
+\xmark &
+\xmark &
+\pmark &
+\xmark \\
+
+Mem0-style memory &
+Text and agent memory &
+\xmark &
+\pmark &
+\xmark &
+\cmark &
+\pmark \\
+
+Memories.ai &
+Video archives and visual memory platform &
+\pmark &
+\pmark &
+\cmark &
+\pmark &
+\pmark \\
+
+Gemini Live &
+Phone &
+\cmark &
+\pmark &
+\xmark &
+\xmark &
+\xmark \\
+
+Ray-Ban Meta AI Glasses &
+Glasses &
+\pmark &
+\pmark &
+\xmark &
+\xmark &
+\xmark \\
+
+Vinci &
+Phone or wearable camera &
+\cmark &
+\cmark &
+\pmark &
+\pmark &
+\pmark \\
+
+VisualClaw &
+Streaming video with agent workspace &
+\pmark &
+\pmark &
+\xmark &
+\pmark &
+\pmark \\
+
+VisionClaw &
+Smart glasses &
+\cmark &
+\pmark &
+\xmark &
+\xmark &
+\pmark \\
+
+Egocentric Co-Pilot &
+Smart glasses with web agents &
+\cmark &
+\cmark &
+\pmark &
+\pmark &
+\pmark \\
+
+EgoButler &
+AI-glasses egocentric video and audio &
+\pmark &
+\pmark &
+\pmark &
+\pmark &
+\cmark \\
+
+\textbf{LightMem-Ego} &
+\textbf{Phone and glasses-style client} &
+\cmark &
+\cmark &
+\cmark &
+\cmark &
+\cmark \\
+
+\bottomrule
+\end{tabularx}
+\vspace{-2mm}
+\caption{
+Capability comparison with representative commercial assistants, text-based memory systems, and egocentric multimodal assistants.
+The table compares publicly described system capabilities rather than experimentally measured performance.
+We mark a capability as supported only when it is implemented as an explicit first-class component.
+\emph{Partial} indicates limited, implicit, offline, session-level, or modality-restricted support;
+--- indicates that the capability is not explicitly supported or not publicly described.
+}
+\label{tab:capability_comparison}
+\vspace{-5mm}
+\end{table*}

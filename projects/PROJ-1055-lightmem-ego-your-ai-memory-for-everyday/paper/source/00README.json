@@ -1,0 +1,53 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "acl_latex.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl_latex.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "acl_natbib.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "anthology.bib.txt"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "custom.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/applications.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/case.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/glass_2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/glass_3.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/phone_1.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/phone_2.pdf"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

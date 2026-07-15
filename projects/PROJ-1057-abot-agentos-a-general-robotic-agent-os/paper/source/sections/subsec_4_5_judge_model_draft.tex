@@ -1,0 +1,94 @@
+This section introduces a self-evolving multi-tier reward engine for embodied agent evaluation and optimization. As shown in Figure, the engine converts embodied trajectories into dense reward signals, audits the reliability of those signals, and uses audit feedback to improve the reward prompt itself. The overall design is organized around three coupled components:
+\begin{itemize}
+    \item \textbf{LLM-as-Judge reward generation:} produces turn-level and episode-level reward signals from embodied trajectories.
+    \item \textbf{Meta-Judge reasoning-level audit:} checks whether the judge's score and reasoning trace are reliable.
+    \item \textbf{Multi-agent self-evolution:} converts low-quality judge cases into localized prompt updates with validation and rollback.
+\end{itemize}
+
+% \begin{figure}[!t]
+% \centering
+% \includegraphics[width=\linewidth]{figure/judge_system_overview_v9_cropped.pdf}
+% \vspace{-0.4em}
+% \caption{Overview of the self-evolving multi-tier reward engine. The system forms a closed loop that turns embodied trajectories into dense reward signals, audits the reliability of those rewards, and uses the audit results to improve the reward prompt. Module 1, LLM-as-Judge reward generation, decomposes each trajectory into turn-level rewards, episode-level rewards, and a final aggregated reward. Module 2, Meta-Judge audit, evaluates whether the judge's score and reasoning trace are supported by trajectory evidence and rubric constraints. Module 3, multi-agent self-evolution, clusters low-quality judge cases, analyzes prompt defects, refines local rubric components, and validates each update before acceptance or rollback.}
+% \label{fig:judge_overview_v9}
+% \end{figure}
+
+\subsubsection{Multi-Tier Reward Signals with LLM-as-Judge}
+\label{subsec:multi_tier_reward}
+
+The first component in Figure generates reward signals from embodied trajectories. Instead of assigning only one outcome-level score, the judge decomposes evaluation into turn-level and episode-level rewards. The episode-level component is the global reward consumed by GiGPO in Section~\ref{sec:rl}. This decomposition is important for long-horizon embodied tasks, where a final success or failure signal is too sparse to explain which intermediate action caused the outcome~\citep{wei2025reinforcing}. In our design, the two levels play complementary roles:
+\begin{itemize}
+    \item \textbf{Turn-level reward:} provides dense supervision and finer credit assignment for individual actions.
+    \item \textbf{Episode-level reward:} captures global execution quality that cannot be judged reliably from isolated turns alone.
+\end{itemize}
+
+At the turn level, the reward engine uses skill-aware routing to select the appropriate rubric for each action. This is necessary because embodied agents call heterogeneous skills, such as navigation, manipulation, visual question answering, and tool use, whose correctness criteria differ substantially. The turn-level judge therefore combines three mechanisms:
+\begin{itemize}
+    \item \textbf{Skill-aware routing:} routes each action to a skill-specific rubric instead of relying on a single generic rubric.
+    \item \textbf{Hybrid scoring:} combines semantic LLM judgment with verifiable checks, including invalid tools, illegal commands, and missing temporal preconditions.
+    \item \textbf{Action omission penalty:} detects actions that appear plausible locally but skip necessary causal steps.
+\end{itemize}
+
+At the episode level, the judge adds compact global signals for efficiency, consistency, and completeness~\citep{han2026swetrace}. These signals complement local turn rewards by discouraging trajectories that eventually succeed through inefficient, incoherent, or incomplete behavior:
+\begin{itemize}
+    \item \textbf{Efficiency:} penalizes redundant or repetitive execution.
+    \item \textbf{Consistency:} checks whether the agent remains aligned with the original task.
+    \item \textbf{Completeness:} measures whether required steps have been covered.
+\end{itemize}
+
+Given an embodied trajectory $\tau$ with $T$ evaluated action turns, the final reward is composed as:
+\begin{equation}
+R(\tau)=
+\sum_{t=1}^{T}\hat{r}_{t}
++ \lambda_{\mathrm{eff}} R_{\mathrm{eff}}(\tau)
++ \lambda_{\mathrm{cons}} R_{\mathrm{cons}}(\tau)
++ \lambda_{\mathrm{comp}} R_{\mathrm{comp}}(\tau),
+\label{eq:multi_tier_reward}
+\end{equation}
+where $\hat{r}_{t}$ is the effective turn-level reward after skill-aware routing, rule-based checks, LLM judgment, and omission penalties. $R_{\mathrm{eff}}$, $R_{\mathrm{cons}}$, and $R_{\mathrm{comp}}$ denote episode-level efficiency, consistency, and completeness rewards computed over the full trajectory. This formulation turns LLM-as-Judge from a static evaluator into a structured reward generator for embodied agent optimization~\citep{zheng2023judging}.
+
+\subsubsection{Meta-Judge for Reasoning-Level Reward Audit}
+\label{subsec:meta_judge_audit}
+
+The second component in Figure audits the reliability of the reward signal. In practice, LLM-as-Judge outputs can contain scoring mistakes, missed evidence, rubric misapplication, or plausible but unsupported rationales~\citep{silva2026metajudging}. This risk is amplified in embodied settings, where the judge must reason over physical preconditions, tool constraints, temporal order, and task-specific preferences.
+
+To address this issue, Meta-Judge does not directly judge whether the embodied agent acted correctly. Instead, it receives the first-order judge output, the highlighted turn, and the full trajectory context as audit evidence, and then asks whether the judge's score and reasoning are reliable under the relevant scoring rubric. For each audited turn, Meta-Judge scores judgment quality along five dimensions:
+\begin{itemize}
+    \item \textbf{Accuracy:} whether the assigned reward score is consistent with the skill-specific scoring rubric and supported by the audited trajectory evidence.
+    \item \textbf{Logical soundness:} whether the reasoning forms a valid chain from trajectory evidence, through rubric application, to the final reward decision, without unsupported jumps or contradictions.
+    \item \textbf{Completeness:} whether the judge covers the key embodied checks required for the audited turn, including tool choice, arguments, temporal preconditions, physical constraints, capability boundaries, and omitted or redundant actions.
+    \item \textbf{Clarity:} whether the explanation states the evidence, applied rule, and score rationale in a structured and unambiguous way.
+    \item \textbf{Feedback value:} whether the reasoning exposes sufficiently localized evidence and rule usage for downstream Meta-Judge filtering and prompt refinement, rather than providing only a generic score justification.
+\end{itemize}
+
+This reasoning-level audit is motivated by recent findings that LLM-as-Judge and generative reward models often expose judgment failures through their rationales: the reasoning trace can reveal unsupported evidence use, inconsistent rubric application, or other forms of rationale inconsistency~\citep{wang2026outcome}. Since human annotation for embodied trajectories is expensive, we use this rationale as a practical audit entry point: Meta-Judge checks whether the judge's explanation faithfully supports its reward decision before the output is trusted as a high-quality reward signal. These dimensions are aggregated into an overall quality score:
+\begin{equation}
+Q(x_t)=\sum_{k=1}^{5} w_k q_k,
+\label{eq:meta_quality}
+\end{equation}
+where $x_t$ denotes the audited judge output, $q_k$ is the score of the $k$-th audit dimension, and $w_k$ is its weight. A sample is marked as a low-quality judge case when:
+\begin{equation}
+\mathrm{LowQualityJudgeCase}(x_t)=\mathbb{I}[Q(x_t)<\theta].
+\label{eq:low_quality_case}
+\end{equation}
+
+These low-quality judge cases preserve diagnostic feedback rather than only binary error labels. They identify where the reward prompt is underspecified, ambiguous, or misaligned with embodied execution constraints, and provide the optimization signal for the next stage~\citep{li2025multiagent}.
+
+\subsubsection{Multi-Agent Self-Evolution from Judge Audit Signals}
+\label{subsec:structured_reward_optimization}
+
+The third component in Figure converts low-quality judge cases into localized prompt updates. The goal is to improve the reward engine itself rather than treating judge errors as fixed noise. Generic prompt optimization methods usually optimize a monolithic prompt with task-level feedback~\citep{yang2024opro,khattab2023dspy}. In our setting, however, the reward prompt contains skill-specific rubrics, temporal precondition rules, reasoning examples, and output constraints. A global rewrite can repair one failure while damaging another stable skill. We therefore treat the reward prompt as editable structured components, following the broader idea of modular textual parameters and localized textual modification from execution feedback~\citep{he2026learning}.
+
+The optimization loop is implemented as a multi-agent workflow. Each module handles one stage of the update process:
+\begin{itemize}
+    \item \textbf{Cluster:} groups low-quality judge cases by skill and failure type.
+    \item \textbf{Analyzer:} identifies the defective rubric component and produces a structured revision plan.
+    \item \textbf{Refiner:} applies localized edits to the relevant rubric or examples.
+    \item \textbf{Validator:} re-evaluates the revised prompt on the full validation set and accepts the update only when it improves overall quality.
+\end{itemize}
+
+If a candidate update hurts full-set performance, per-skill behavior, or Meta-Judge quality, the system rolls back to the previous prompt snapshot. This makes prompt self-evolution auditable and controlled: the structured revision plan records what should be changed and why, while validation prevents overfitting to isolated bad cases.
+
+Under the current validation setting, the initial Judge Model achieves roughly 60\% human alignment, while the Meta-Judge-driven self-evolution process improves alignment to above 90\%. This gain reflects the coupled effect of the full loop: LLM-as-Judge produces decomposed rewards, Meta-Judge turns unreliable judgments into diagnostic cases, and the multi-agent optimizer converts these cases into validated prompt updates.
+
+Overall, the proposed reward engine closes the loop around reward production. It not only generates dense multi-tier rewards for embodied trajectories, but also audits and improves the judging process that produces those rewards. This allows the evaluation system to remain reliable as embodied skills, task distributions, and agent behaviors evolve.

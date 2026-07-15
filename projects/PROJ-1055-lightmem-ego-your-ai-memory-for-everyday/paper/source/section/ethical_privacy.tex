@@ -1,0 +1,8 @@
+\section*{Ethical and Privacy Considerations}
+
+LightMem-Ego relies on egocentric visual and audio streams, which may contain sensitive information about users and nearby bystanders, including private conversations, faces, documents, locations, screens, and daily routines. 
+Because the system converts these streams into persistent and queryable memory, privacy risks can arise from both raw data and derived representations such as transcripts, event summaries, embeddings, and long-term semantic memories.
+
+The current prototype is intended as a research demonstration and has not yet implemented a complete privacy-preserving pipeline. 
+It does not automatically redact sensitive content, manage bystander consent, enforce fine-grained access control, or provide mature retention and deletion policies. 
+Future work will integrate privacy protection into the memory lifecycle, including on-device preprocessing, selective capture, sensitive-content filtering, encrypted storage, user-controlled memory editing and deletion, and privacy-aware consolidation that avoids promoting incidental sensitive information into long-term memory.

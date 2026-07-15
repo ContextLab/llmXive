@@ -1,0 +1,133 @@
+% ===========================================================================
+% Edge-Cloud Collaborative Memory Management
+% Usage: \input{section_memory_en} in your main document
+% Required packages (ensure loaded in preamble):
+%   \usepackage{booktabs, graphicx, amssymb, amsmath}
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta, positioning}
+% ===========================================================================
+
+% \subsection{Edge-Cloud Collaborative Memory Management}
+% \label{sec:memory-sync}
+
+% \subsubsection{Problem Statement}
+
+% During patrol, an on-device robot continuously acquires visual memories, each corresponding to a detected entity in the scene.
+% These memories exhibit two inherent dimensions of heterogeneity:
+
+% \begin{enumerate}
+%     \item \textbf{Task relevance varies.} Traffic cones and construction barriers should trigger rerouting alerts for other devices; fire hydrants serve as localization landmarks. An undifferentiated memory store cannot support task-aware retrieval.
+%     \item \textbf{Privacy sensitivity varies.} Faces and personal belongings are bound to specific individuals---disseminating them without sanitization violates privacy principles. In contrast, environmental information (road hazards, construction zones) is a public resource suitable for sharing.
+% \end{enumerate}
+
+% The core challenge is to automatically identify both dimensions at ingest time and enforce a ``never leak, rather under-share'' policy during cross-device synchronization.
+
+% % ---------------------------------------------------------------------------
+% \subsubsection{Method}
+% \label{subsec:method}
+
+% \paragraph{Two-Dimensional Classification}
+% Rather than deferring relevance and privacy decisions to computationally expensive vision-language models, we adopt a prior-knowledge-driven approach: a compact set of task-specific priors defines which entities merit storage (task relevance) and, among stored records, which may be shared across devices (privacy sensitivity).
+% This serves as a lightweight selective gating mechanism that eliminates model inference from the critical path while remaining extensible to model-assisted refinement.
+% Each memory record is accordingly annotated with two orthogonal attributes (Table~\ref{tab:dimensions}), determined by deterministic rules and keyword matching.
+
+% \begin{table}[ht]
+% \centering
+% \caption{Two-dimensional memory classification schema.}
+% \label{tab:dimensions}
+% \begin{tabular}{lll}
+% \toprule
+% Dimension & Values & Determination \\
+% \midrule
+% \texttt{sensitivity} & high / low & Whether bound to a specific individual \\
+% \texttt{nav\_category} & hazard / poi / landmark / person / object & Task relevance \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+% A record is shareable if and only if its sensitivity is low; only shareable records are eligible for promotion to common memory.
+
+% The open-vocabulary detector is configured with a task-specific keyword list that encodes task priors; only entities matching predefined categories (e.g., traffic cone $\mapsto$ hazard, fire hydrant $\mapsto$ landmark) are detected and enter the memory pipeline---front-gating irrelevant observations at perception time.
+% Because the detector operates on natural-language prompts, novel entity types can be incorporated by extending the keyword list without retraining or rule modification, yielding a degree of generalization within the prior-based framework.
+
+% The current instantiation applies three priority-ordered \textbf{sensitivity rules}.
+% A record is classified as \textit{high} sensitivity if any of the following conditions holds; otherwise it defaults to \textit{low}:
+% \begin{enumerate}
+%     \item The entity has a \texttt{belongs\_to} relation referencing a person entity;
+%     \item The entity category is \texttt{person}, or a face embedding is associated;
+%     \item The description text contains a known person name or matches a privacy keyword.
+% \end{enumerate}
+
+% % ---------------------------------------------------------------------------
+% \paragraph{Private--Common Memory Synchronization}
+% The system separates memories into \textit{private memory} (edge-local, per-device) and \textit{common memory} (cloud-hosted, shared across devices).
+% As shown in Figure~\ref{fig:sync-arch}, synchronization follows an offline-first protocol.
+
+% \begin{figure}[t]
+% \centering
+% \begin{tikzpicture}[
+%     node distance=0.8cm and 2.8cm,
+%     box/.style={draw, rounded corners, minimum width=3.0cm, minimum height=2.0cm, align=center, font=\small},
+%     arrow/.style={-{Stealth[length=3mm]}, thick},
+%     lbl/.style={font=\footnotesize, align=center}
+% ]
+%     % Nodes
+%     \node[box] (A) {Private Memory\\(Device A)\\[3pt]\footnotesize detect $\rightarrow$ classify\\[-2pt]\footnotesize $\rightarrow$ upload};
+%     \node[box, right=of A] (cloud) {Common Memory\\(Cloud)\\[3pt]\footnotesize store \&\\[-2pt]\footnotesize deduplicate};
+%     \node[box, right=of cloud] (B) {Private Memory\\(Device B)\\[3pt]\footnotesize download $\rightarrow$ dedup\\[-2pt]\footnotesize $\rightarrow$ merge};
+
+%     % Arrows
+%     \draw[arrow] (A) -- node[above, lbl] {upload\\(shareable only)} (cloud);
+%     \draw[arrow] (cloud) -- node[above, lbl] {query \& fetch} (B);
+% \end{tikzpicture}
+% \caption{Overview of private--common memory synchronization. Only low-sensitivity records are promoted to common memory; downloaded records are marked non-re-shareable to prevent uncontrolled propagation.}
+% \label{fig:sync-arch}
+% \end{figure}
+
+% Three design principles govern the architecture:
+% \begin{itemize}
+%     \item \textbf{Offline-first:} Private memory is the single source of truth; full functionality is preserved without network connectivity.
+%     \item \textbf{Private by default:} Memories remain in private storage unless explicitly classified as low-sensitivity and promoted to common memory.
+%     \item \textbf{No re-propagation:} Records downloaded from common memory are automatically marked as non-shareable.
+% \end{itemize}
+
+% % ---------------------------------------------------------------------------
+% \paragraph{Receiver-Side Deduplication}
+% The receiving device applies a two-strategy deduplication check (embedding cosine similarity and keyword Jaccard overlap, with configurable thresholds) on each incoming record to suppress redundant entries.
+% Records surviving both checks are merged into private memory as non-shareable.
+
+% % ---------------------------------------------------------------------------
+% \subsubsection{Functional Verification}
+
+% We verify the pipeline logic on two synthetic scenarios (4 frames each, generated via text-to-image synthesis) using an open-vocabulary detector for entity extraction.
+% A total of 29 memory records are extracted across 7 entity categories.
+% All records are classified consistently with the rule design: the 5 person-category records are correctly assigned high sensitivity and blocked from promotion to common memory, while all 24 environmental records receive low-sensitivity labels and pass the shareability gate.
+% Dynamic vocabulary extension enables detection of user-specified categories beyond the default set (e.g., bench, thermos), confirming that the prior-based classification accommodates novel entity types without rule modification.
+
+% % ---------------------------------------------------------------------------
+% \subsubsection{Summary}
+
+% This module implements automatic two-dimensional classification and privacy-safe cloud synchronization of visual memories.
+% The classified memory store provides a standardized query interface (category-filtered, location-aware) designed to support downstream navigation and planning modules with task-specific retrieval without exposing raw sensor data.
+
+
+\subsection{Edge--Cloud Collaborative Memory Management}
+\label{sec:memory-sync}
+
+Embodied agents continuously acquire heterogeneous memories during interaction with the physical world, including maps, semantic landmarks, obstacles, objects, and human-related observations. 
+While public environmental memories, such as roadblocks, construction areas, and navigational landmarks, can improve multi-agent collaboration when shared, privacy-sensitive memories, such as faces, personal belongings, or person-associated objects, must remain local. 
+To address this conflict, we design an edge--cloud collaborative memory system that separates private memory on the robot from common memory in the cloud.
+
+\paragraph{Memory Partition.}
+Each robot maintains a \emph{private memory} at the edge, which stores all locally perceived memories, including map memory, semantic memory, and multi-modal memory. 
+The cloud maintains a \emph{common memory} that only contains public, low-sensitivity memories useful for collective navigation and task execution. 
+This design follows a private-by-default principle: a memory item is never uploaded unless it is explicitly classified as shareable.
+
+\paragraph{Privacy-aware Memory Gating.}
+For each newly generated memory item, the system performs a privacy judgment before synchronization. 
+A memory is regarded as non-shareable if it contains or is associated with personally identifiable information, including persons, faces, names, personal objects, or ownership relations to a specific individual. 
+In contrast, public environmental information, such as maps, traffic cones, barriers, road damage, and static landmarks, is classified as shareable.
+
+
+To evaluate the reliability of the privacy protection mechanism, we constructed a dedicated dataset for privacy classification and upload-decision testing. Experimental results show that the system achieves over 99\% accuracy in identifying whether a memory item is suitable for cloud synchronization. This high-accuracy privacy judgment significantly reduces the risk of uploading sensitive user or environment-specific information, while still allowing non-sensitive public knowledge to be shared across robots. As a result, the proposed memory system balances two key requirements of embodied intelligence: preserving user privacy through edge-side private memory, and enhancing group-level collaboration through cloud-side common memory.
+

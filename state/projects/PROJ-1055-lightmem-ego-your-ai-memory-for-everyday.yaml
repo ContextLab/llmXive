@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-15T01:38:45.122975Z'
+current_stage: paper_ingested
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-1055-lightmem-ego-your-ai-memory-for-everyday
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'LightMem-Ego: Your AI Memory for Everyday Life'
+updated_at: '2026-07-15T01:38:46.132710Z'

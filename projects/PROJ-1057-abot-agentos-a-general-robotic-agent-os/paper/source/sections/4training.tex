@@ -1,0 +1,171 @@
+\section{Model Training}
+\label{sec:training}
+
+\subsection{Overview}
+\label{sec:training-overview}
+
+Our goal is to transfer ABot-AgentOS-style long-horizon planning and
+tool-use capabilities from large teacher models to a smaller deployable
+agent model.
+To this end, we design a closed-loop training pipeline that connects
+four stages: text-based environment construction, teacher trajectory
+distillation, supervised fine-tuning (SFT), and reinforcement learning
+(RL). The pipeline first builds controllable semantic sandboxes for
+embodied tool use, then uses strong teacher agents to produce
+tool-interaction trajectories, and finally trains a smaller student
+policy from these trajectories and from online rollouts evaluated by an
+LLM-as-a-Judge reward engine, as summarized in Figure~\ref{fig:trajectory_generation_engine}.
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figure/trajectory_generation_engine_panel_cropped.pdf}
+\vspace{-0.4em}
+\caption{Overview of the training pipeline for a deployable ABot-AgentOS student policy. The pipeline constructs controllable text-based environments, distills teacher trajectories for SFT initialization, and improves the policy through online RL with LLM-as-a-Judge rewards and GiGPO advantages.}
+\label{fig:trajectory_generation_engine}
+\end{figure}
+This design follows the recent trend that language agents should be
+trained in executable or stateful settings rather than only on static
+instruction-response pairs. Prior work on ReAct, tool-use data
+generation, interactive agent benchmarks, and synthesized
+tool-interactive environments shows that realistic agent behavior
+requires persistent state, multi-turn feedback, executable actions, and
+verifiable outcomes~\cite{yao2022react,qin2023toolllm,zhou2023webarena,jimenez2023swebench,yang2024sweagent,yao2024taubench,song2026envscaler}.
+Our pipeline adapts this principle to embodied robot tasks by building a
+text-based semantic sandbox around ABot-AgentOS skills, human
+assistance, and physical obstacles.
+
+The sandbox is not intended to replace a visual simulator. Instead, it
+provides a scalable semantic interface for generating and evaluating
+tool-use behavior under controlled state changes. The same trace format
+supports both stages of training: teacher rollouts can be filtered and
+converted into SFT examples, while student rollouts in the same sandbox
+provide trajectory evidence for LLM-as-a-Judge rewards during online RL.
+
+\subsection{Text-Based Environment and Task Construction}
+\label{sec:text-env}
+
+As shown in Figure~\ref{fig:trajectory_generation_engine}(a), each natural-language
+task instruction is converted into a stateful sandbox instance. The
+environment builder prompts a large language model to generate \textsc{Easy}, \textsc{Medium}, and \textsc{Hard} variants, each containing three structured components \texttt{env\_state} ,
+which specifies locations, reachability, object locations, and object
+states; \texttt{failure\_triggers} , which define physical or semantic obstacles; and \texttt{human\_persona} , which defines the human NPC's role, capabilities,
+and possible assistance.
+
+The resulting instance is an interactive task world rather than a static
+question. During execution, the agent receives feedback only through
+tool calls. The EnvController validates ABot-AgentOS skill calls against
+the current state and failure triggers, returning observations or
+failures accordingly, while the HumanAgent handles valid help requests
+and may perform actions that update \texttt{env\_state}. This design makes
+obstacle handling, help seeking, replanning, and state updates part of
+the training signal.
+
+% We use difficulty expansion to improve the diversity and curriculum structure of the data. In \textsc{Easy} scenarios, the path is typically unobstructed, so the model mainly learns task decomposition and basic skill selection. In \textsc{Medium} scenarios, one obstacle is introduced, requiring the model to recover from a failed observation through human assistance or replanning. In \textsc{Hard} scenarios, multiple or nested obstacles require multi-turn interaction, persistent goal tracking, and careful recovery from failures. This curriculum exposes the student model to both straightforward execution and complex exception handling while keeping the sandbox controllable enough for scalable data generation and online rollout.
+
+
+Difficulty expansion provides a simple curriculum. \textsc{Easy}
+scenarios emphasize task decomposition and basic skill selection;
+\textsc{Medium} scenarios introduce recoverable obstacles; and
+\textsc{Hard} scenarios require multi-turn interaction, persistent
+goal tracking, and recovery from multiple or nested failures. The
+curriculum increases behavioral diversity while keeping the sandbox
+controllable for scalable trajectory generation and online rollout.
+
+\subsection{Teacher Trajectory Distillation and SFT}
+\label{sec:trajectory-distillation}
+
+After environment construction, a strong teacher model controls an
+ABot-AgentOS-style agent in the sandbox, producing ReAct-style
+interaction traces that interleave reasoning, tool calls, observations,
+human responses when applicable, and final answers~\cite{yao2022react}.
+The teacher reuses the ABot-AgentOS system prompt and tool definitions,
+while the execution backend is replaced by the text-based sandbox. As a
+result, the collected trajectories capture not only successful
+executions, but also failed attempts, help-seeking behavior, retries, and
+recovery steps, which are essential for training a smaller model to act
+robustly under unexpected feedback.
+
+% In implementation, the teacher agent reuses the system prompt and tool definitions of the ABot-AgentOS agent, but the execution backend is replaced by the text-based sandbox described above. Calls to ABot-AgentOS skills are routed to the EnvController, speech actions are routed to the HumanAgent, and human physical actions are fed back to the EnvController to update the world state. Consequently, the collected trajectories include successful executions, failed attempts, help-seeking behavior, retries, and recovery steps. These behaviors are especially important for training smaller models, since robust embodied agents must learn how to react to unexpected observations rather than simply imitate ideal action sequences.
+
+% To ensure data quality, we apply an LLM-as-a-Judge filter to the distilled trajectories. The judge receives the original task, the initial environment, the tool-call sequence, observations, and the final response. It evaluates whether the trajectory completes the task, whether obstacles are handled correctly, whether the agent enters invalid loops, whether tool calls are physically feasible, and whether the behavior respects the robot dog's capability constraints. Only trajectories that are logically consistent and useful for training are retained. The detailed 
+
+
+To ensure data quality, we apply an LLM-as-a-Judge filter to the
+distilled trajectories. Given the task, initial environment, tool-call
+sequence, observations, and final response, the judge evaluates task
+completion, obstacle handling, loop avoidance, tool feasibility, and
+consistency with embodiment-specific capability constraints. Only
+logically consistent trajectories are retained. The same judge family is
+later used as the reward provider for online RL, with the self-evolving
+reward engine described in Section \ref{sec:judge}.
+
+
+% LLM-as-a-Judge has been widely used for scalable evaluation of open-ended model outputs. G-Eval\cite{liu2023geval} uses an LLM evaluator with explicit rubrics and structured scoring for natural language generation . MT-Bench and Chatbot Arena study the agreement and biases of LLM judges in conversational evaluation \cite{zheng2023judging}. In our setting, the judge is combined with structured environment state: the sandbox produces local observations, while the judge evaluates the global trajectory. This hybrid design keeps the evaluation scalable while reducing the risk that the judge ignores physical feasibility or task-specific constraints.  For detailed implementation of LLM-as-a-Judge, please refer to Sec \ref{sec:judge}.
+
+
+The retained trajectories are converted into tool-call SFT examples that
+preserve the interaction structure instead of flattening each episode
+into a single response. This trains the student model as an executable
+policy over ABot-AgentOS skills: it learns task decomposition, tool
+selection, recovery from failed observations, help seeking, goal
+maintenance across multiple turns, and avoidance of unsupported actions.
+The resulting SFT model provides the behavioral prior for online RL in
+the same sandbox interface.
+
+
+
+\iffalse
+\subsection{RL: Online Exploration with Judge Reward}
+\label{sec:rl}
+
+
+SFT teaches imitation---the small model learns to act \emph{like} the large model. However, at deployment time the small model encounters states beyond the SFT data distribution and must recover autonomously. RL training addresses this gap by rewarding successful exploration and penalizing stagnation.
+
+\subsubsection{Training Architecture}
+
+We build on the ROLL (Reinforcement Learning with Online Learning) framework:
+
+\begin{itemize}
+    \item \textbf{Policy (Actor):} The small LLM being trained, deployed via vLLM for efficient online generation.
+    \item \textbf{Environment:} \texttt{DogSimulatedEnv}, reusing the same GM and NPC infrastructure from the SFT phase.
+    \item \textbf{Reward:} Provided by a Judge Model (Section~\ref{sec:judge}).
+\end{itemize}
+
+A critical design principle: \emph{the policy model is not the simulator model}. The policy is the small LLM (trainable); the simulator is driven by a large LLM (frozen). The two are fully decoupled---the environment dynamics are fixed while only the policy receives gradient updates.
+
+\subsubsection{Reward Design}
+
+We employ a two-level reward signal:
+
+\begin{itemize}
+    \item \textbf{Turn-level reward:} After each action, the Judge Model scores the action's appropriateness given the current context, providing dense learning signal.
+    \item \textbf{Episode-level reward:} Upon task termination, the Judge Model evaluates overall task completion, penalizing incomplete objectives.
+\end{itemize}
+
+The final reward for each step combines both signals via the \texttt{step\_plus\_episode\_sum} merge strategy: per-step rewards are accumulated and augmented by the terminal episode reward.
+
+Additionally, \textbf{format rules} impose penalties on outputs that violate the action schema (e.g., calling non-existent tools or producing malformed arguments), shaping the model toward structurally valid outputs.
+
+\subsubsection{Training Algorithm}
+
+We adopt GiGPO (Group-relative Policy Optimization) for policy updates, with distributed rollout collection via Ray. The algorithm compares policy outputs within groups of trajectories for the same scenario, providing relative advantage estimates that are robust to reward scale variation across tasks.
+\fi
+\input{sections/subsec_4_5_rl_sandbox_simplified}
+\label{sec:rl}
+
+\iffalse
+\subsection{Judge Model}
+\label{sec:judge}
+
+
+The Judge Model serves as the reward oracle during RL training, evaluating both individual actions and overall task completion.
+
+\begin{itemize}
+    \item \textbf{Scope:} Turn-level scoring (action quality per step) and episode-level scoring (task completion assessment).
+    \item \textbf{Implementation:} Built on \texttt{TurnLevelJudge}, supporting both HTTP service mode (for distributed training) and in-process mode (\texttt{judge\_local}, for debugging).
+    \item \textbf{Format enforcement:} Includes configurable format-rule penalties that discourage structurally invalid outputs, complementing the semantic reward signal.
+\end{itemize}
+\fi
+
+\subsection{Self-Evolving Reward Engine}
+\label{sec:judge}
+\input{sections/subsec_4_6_self_evolving_reward_engine_v2}

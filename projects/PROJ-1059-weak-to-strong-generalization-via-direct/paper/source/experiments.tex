@@ -1,0 +1,270 @@
+\section{Experiments}
+
+In this section we answer the following research questions:
+\begin{itemize}
+    \item \textbf{RQ1.} Can a small teacher's RL-induced policy shift improve
+    students that already match or exceed the teacher's own ability, and does
+    this hold across different teacher pairs and student families?
+    (Section~\ref{sec:small-teacher-stronger})
+    \item \textbf{RQ2.} Under a fixed RL-step budget, does running RL on a small model
+    and transferring its policy shift with \method{} outperform running RL
+    directly on the large target---in both accuracy and compute?
+    (Section~\ref{sec:weak-to-strong-beats-rl})
+    \item \textbf{RQ3.} Can several independently learned policy shifts be
+    composed sequentially to accumulate their gains in a single student?
+    (Section~\ref{sec:sequential-composition})
+\end{itemize}
+
+\subsection{A small RL teacher improves much stronger students}
+\label{sec:small-teacher-stronger}
+
+Our first experiment asks whether an RL improvement learned by a small teacher can be used to improve students that are stronger than the post-RL teacher. We use R1-Distill-1.5B as the teacher reference and JustRL-1.5B as the post-RL teacher, then distill the policy shift from this pair into three target students: R1-Distill-7B, Qwen3-1.7B, and Qwen3-4B. In this setting, R1-Distill-7B and Qwen3-4B already outperform the post-RL JustRL teacher before Direct-OPD, making it a direct weak-to-strong transfer test.
+
+We further test a second teacher pair, Nemotron-1.5B → QuestA-Nemotron-1.5B, which comes from a different training pipeline and data source. This setting is not intended as a strict weaker-teacher-to-stronger-student comparison, since the post-RL QuestA teacher is already strong on AIME. Instead, it tests whether Direct-OPD can transfer a policy-shift signal beyond a single teacher family, training recipe, and data source. We transfer this policy shift into R1-Distill-7B and Qwen3-1.7B.
+
+Figure~\ref{fig:transfer-generalization} shows that the transferred policy shift improves students across these settings, including R1-Distill-7B and Qwen3-4B students whose starting accuracies already exceed the post-RL JustRL teacher. The QuestA results serve as an additional robustness check: they show that the effect is not specific to the JustRL teacher pair, and can also appear with a different teacher training pipeline, data source, and post-RL checkpoint. Taken together, these results suggest that Direct-OPD transfers a reusable policy-shift signal rather than simply imitating the post-RL teacher’s final policy.
+
+This result supports the interpretation that \method{} uses an RL-induced
+direction of improvement rather than the teacher's full policy.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.70\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{Results/4.1/justrl_transfer_grid.pdf}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.208\linewidth}
+\vspace{1.8em}
+\centering
+\includegraphics[width=\linewidth]{Results/5.1/questa_transfer_aime24_vertical.pdf}
+\end{minipage}
+\caption{\method{} transfers RL-induced policy shifts across teacher pairs and
+student families. \textbf{Left:} R1-Distill-1.5B $\rightarrow$ JustRL-1.5B
+transfer into R1-Distill-7B, Qwen3-1.7B, and Qwen3-4B, evaluated on AIME 2024
+and AIME 2025. \textbf{Right:} Nemotron-1.5B $\rightarrow$
+QuestA-Nemotron-1.5B transfer into R1-Distill-7B and Qwen3-1.7B on AIME 2024.
+The two teacher pairs come from different training data and pipelines, showing
+that \method{} is not specific to a single post-RL teacher.}
+\label{fig:transfer-generalization}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.07}
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\textbf{(a) JustRL policy-shift transfer}\\[-1pt]
+\begin{tabular}{lcc}
+\toprule
+Model & AIME24 & AIME25 \\
+\midrule
+Teacher ref & 28.5 & 24.0 \\
+Teacher RL~\citep{justrl} & 51.3 & 37.5 \\
+\midrule
+Qwen3-1.7B & 48.3 & 36.8 \\
+\rowcolor{cyan!12}
++ \method{} & \textbf{58.3} \gain{+10.0} & \textbf{43.2} \gain{+6.4} \\
+Qwen3-4B & 72.5 & 65.6 \\
+\rowcolor{cyan!12}
++ \method{} & \textbf{77.6} \gain{+5.1} & \textbf{68.8} \gain{+3.2} \\
+R1-Distill-7B & 56.7 & 40.5 \\
+\rowcolor{cyan!12}
++ \method{} & \textbf{63.1} \gain{+6.4} & \textbf{48.8} \gain{+8.3} \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.47\linewidth}
+\centering
+\textbf{(b) QuestA policy-shift transfer}\\[-1pt]
+\begin{tabular}{lcc}
+\toprule
+Model & AIME24 & AIME25 \\
+\midrule
+Teacher ref & 61.77 & 49.50 \\
+Teacher RL~\citep{questa} & 72.50 & 62.29 \\
+\midrule
+Qwen3-1.7B & 48.3 & 36.8 \\
+\rowcolor{cyan!12}
++ \method{} & \textbf{59.0} \gain{+10.7} & \textbf{43.1} \gain{+6.3} \\
+R1-Distill-7B & 56.3 & 39.5 \\
+\rowcolor{cyan!12}
++ \method{} & \textbf{61.2} \gain{+4.9} & \textbf{44.0} \gain{+4.5} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\caption{Score summaries for the different students and teacher pairs}
+\label{tab:transfer-score-summary}
+\end{table}
+
+
+\subsection{Weak-to-strong generalization beats RL}
+\label{sec:weak-to-strong-beats-rl}
+
+We next ask whether \method{} is only a way to reuse an already trained small
+teacher, or whether it can be a better training path than running RL directly
+on the larger target model. We compare two matched-step routes. The direct-RL
+route trains R1-Distill-7B with RL. The weak-to-strong route first trains the
+smaller R1-Distill-1.5B model with RL, then transfers the resulting
+RL/reference policy shift into R1-Distill-7B using \method{}.
+
+We test that for the same number of RL steps, a smaller model is a more efficient place to
+find a useful policy-improvement direction, and \method{} can then transfer that
+direction to the larger student. We trained R1-Distill-1.5B on DAPO dataset, and selected R1-Distill-1.5B RL checkpoints at
+steps 300, 600, 900, 1200, 1500. For each selected checkpoint, we construct a
+teacher pair using the base R1-Distill-1.5B model as
+$\pi_{T_{\mathrm{ref}}}$ and the selected RL checkpoint as $\pi_T$. We then
+train R1-Distill-7B with \method{} and compare the
+resulting validation score against direct R1-Distill-7B RL at the matched
+small-teacher RL step. In the figure, T300 denotes the route that first trains
+R1-Distill-1.5B with RL for 300 steps and then applies \method{} to
+R1-Distill-7B; T600--T1500 are defined analogously.
+
+We find that, for the same number of RL steps, running RL on the small model and
+then transferring the learned policy shift to the large model gives better
+R1-Distill-7B performance than running RL directly on R1-Distill-7B.
+
+This matched-step advantage also translates into a compute advantage. In our
+setup, a 1500-step RL run on R1-Distill-1.5B takes about 160 hours on
+32 A100 GPUs, while RL on R1-Distill-7B takes
+about 320 hours. After small-model RL, the \method{} transfer stage adds only about 4
+hours on 8 A100 GPUs, which is negligible compared with the RL cost.
+This low transfer cost comes from two factors: \method{} requires only a short
+training run, as discussed in Section~\ref{sec:training-length}, and the teacher models used for
+scoring are small enough that scoring is not the speed bottleneck.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{Results/4.2/weak_to_strong_figure3.pdf}
+\caption{\textbf{Running RL on a small model and transferring its policy shift
+with \method{} beats running RL directly on the large target under a shorter
+wall-clock training path.}
+We compare two routes to improving R1-Distill-7B: \emph{direct RL} on
+R1-Distill-7B, versus a \emph{weak-to-strong} route that runs RL on the smaller
+R1-Distill-1.5B and transfers the resulting policy shift into R1-Distill-7B with
+\method{}. T$N$ denotes the transfer that uses the R1-Distill-1.5B RL checkpoint
+at step $N$ as the post-RL teacher $\pi_T$, with the base model as
+$\pi_{T_{\mathrm{ref}}}$. \textbf{Left:} AIME 2025 accuracy against total
+wall-clock time; the wiggly curve is direct R1-Distill-7B RL, and each T$N$
+point sums the elapsed time for small-model RL and the short \method{} transfer.
+Later transfers (T600--T1500) sit above the direct-RL curve at comparable
+elapsed time. \textbf{Middle:} \method{} transfer trajectories into
+R1-Distill-7B from the five small-teacher checkpoints; the early T300 carries a
+weaker shift than T900--T1500. \textbf{Right:} the same recipe with Qwen3
+nonthinking models---transferring a Qwen3-1.7B RL shift into Qwen3-4B reaches the
+$0.635$ accuracy of direct Qwen3-4B RL (dashed) on AIME 2025.}
+\label{fig:r1-7b-small-teacher-transfer}
+\end{figure}
+
+Figure~\ref{fig:r1-7b-small-teacher-transfer} shows that the transferred
+signal depends on which small-teacher RL checkpoint is used. This dependence is
+expected: different points in the small-model RL trajectory encode different
+policy shifts, and not every shift is equally useful on the larger student's
+state distribution.
+
+This result changes the role of the small model. The small teacher is not used
+because its endpoint policy is stronger than R1-Distill-7B. Instead, the small
+model provides a cheaper environment in which RL discovers a direction of
+improvement. \method{} then transfers that direction to the larger model by
+evaluating the teacher/reference log-ratio on the larger student's own
+on-policy states. Direct RL on the large model must discover the same kind of
+direction through its own rollouts; weak-to-strong transfer reuses the
+direction already found by the small model.
+
+We observe the same pattern with Qwen3 nonthinking models. After a 100-step RL
+run on the 1.7B model, transferring the resulting policy shift to
+Qwen3-4B-nonthinking reaches the 0.635 direct-RL level on AIME 2025. This
+suggests that a small-model RL run can recover the useful RL direction even
+when the target is a stronger 4B model.
+
+\takeaway{Compared with running RL directly on the large model, first running RL
+on the small model and then transferring to the large model has two advantages:
+small-model RL is more stable, easier, and cheaper, while the following
+\method{} stage provides fast transfer to the large model while preserving the performance advantage.}
+
+
+% \subsection{\method{} as a Warm Start for RL}
+
+% We next evaluate whether the checkpoint produced by \method{} provides a useful
+% initialization for subsequent verifiable-reward RL. This question is important
+% because \method{} is optimized using a teacher/reference log-ratio rather than
+% terminal correctness rewards. Thus, even if \method{} improves validation
+% performance during the transfer stage, the resulting checkpoint could still be
+% poorly positioned for further RL if it merely optimizes a local teacher-derived
+% signal.
+
+% To test this, we start from the R1-Distill-7B checkpoint obtained after 300
+% steps of \method{} transfer and continue training it with the same RL recipe used
+% by the direct-RL baseline. For visualization, we align the continue-RL phase
+% after the initial 300 \method{} steps, so the x-axis reports the total training
+% path length.
+
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.82\linewidth]{Results/4.3/r1_7b_continue_rl_aime25.pdf}
+% \caption{Continue-RL from a \method{}-initialized R1-Distill-7B checkpoint on
+% AIME 2025. The first 300 global steps correspond to the \method{} warm-start
+% phase. The subsequent continue-RL phase is shifted by 300 steps and plotted
+% through global step 560, corresponding to continue-RL step 260.}
+% \label{fig:r1-7b-continue-rl-aime25}
+% \end{figure}
+
+% Figure~\ref{fig:r1-7b-continue-rl-aime25} shows that the \method{} checkpoint
+% does not exhaust the improvement available from subsequent RL. Instead, RL can
+% continue to make progress from the \method{}-initialized checkpoint, suggesting
+% that \method{} produces a useful warm start rather than a saturated endpoint.
+% This is also consistent with our observation in
+% Section~\ref{sec:cross-pattern} that the student maintains stable entropy during
+% \method{} training, which indicates that the checkpoint remains well positioned
+% for further reward-based optimization.
+ 
+\subsection{Sequential composition}
+\label{sec:sequential-composition}
+
+This experiment asks whether two independently learned policy shifts can be
+applied in sequence to the same student. The student is first trained with the
+R1-Distill-1.5B $\rightarrow$ JustRL-1.5B signal and then continued with the
+Nemotron-1.5B $\rightarrow$ QuestA-Nemotron-1.5B signal. Figure~\ref{fig:sequential-justrl-questa-qwen3-aime24}
+shows the AIME 2024 and AIME 2025 trajectories after aligning the second stage's local
+0--300 training steps to global steps 300--600. The first-stage endpoint and
+the second-stage starting point are evaluated from separate samples, so the
+small discontinuity at the stage boundary reflects evaluation variance.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.63\linewidth}
+\centering
+\includegraphics[width=\linewidth]{Results/4.5/justrl_then_questa_qwen3_1p7b_curves.pdf}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.33\linewidth}
+\centering
+\textbf{Score summary}\par\vspace{0.35em}
+\scriptsize
+\setlength{\tabcolsep}{2.3pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lcc}
+\toprule
+Stage & AIME24 & AIME25 \\
+\midrule
+Initial & 48.3 & 36.8 \\
+\rowcolor{cyan!12}
+After JustRL & \textbf{58.3} \gain{+10.0} & \textbf{43.2} \gain{+6.4} \\
+\rowcolor{cyan!12}
+After QuestA & \textbf{63.8} \gain{+15.5} & \textbf{46.8} \gain{+10.0} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\caption{Sequential policy-shift transfer into Qwen3-1.7B on AIME 2024 and
+AIME 2025. Left: trajectories after aligning the second stage to global
+steps 300--600. Right: endpoint scores on AIME 2024/2025. The first stage uses
+the R1-Distill-1.5B $\rightarrow$ JustRL-1.5B signal; the second stage continues
+from that checkpoint with the Nemotron-1.5B $\rightarrow$
+QuestA-Nemotron-1.5B signal.}
+\label{fig:sequential-justrl-questa-qwen3-aime24}
+\end{figure}
+
+\takeaway{Different RL training runs can learn different abilities, and
+\method{} can sequentially compose these abilities into the same student.}

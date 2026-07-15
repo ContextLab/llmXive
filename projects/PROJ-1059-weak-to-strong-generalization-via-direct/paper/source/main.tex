@@ -1,0 +1,196 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[]{gensi}
+
+\input{math_commands.tex}
+
+\usepackage{float}
+\usepackage{xurl}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage[toc,page,header]{appendix}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mdframed}
+\usepackage{siunitx}
+\usepackage{fix-cm}
+\usepackage{caption}
+
+\newcommand{\method}{Direct-OPD}
+\newcommand{\deltaopd}{Delta-OPD}
+\newcommand{\gain}[1]{\textcolor{green!55!black}{\scriptsize #1}}
+\newcommand{\takeaway}[1]{%
+  \begin{center}
+  \begingroup
+  \setlength{\fboxsep}{7pt}%
+  \fcolorbox{black!18}{blue!4}{%
+    \parbox{0.88\linewidth}{\textbf{Takeaway.} #1}%
+  }%
+  \endgroup
+  \end{center}
+}
+\newcommand{\missingfig}[1]{%
+  \begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][1.25in][c]{0.92\linewidth}
+  \centering \textcolor{red}{Missing figure: #1}
+  \end{minipage}}
+  \end{figure}
+}
+\newcommand{\hanlin}[1]{\textcolor{blue}{[Hanlin: #1 ]}}
+
+% \title{From Small RL to Strong Reasoners: Weak-to-Strong Generalization via Direct On-Policy Distillation}
+\title{Weak-to-Strong Generalization via Direct On-Policy Distillation}
+\author[1, 2, 4]{Shiyuan Feng\textsuperscript{*}}
+\author[1, 2, 3]{Huan-ang Gao\textsuperscript{*, $\ddagger$}}
+\author[1, 2, 3]{Haohan Chi\textsuperscript{*}}
+\author[1, 2]{Hanlin Wu}
+\author[1, 2]{Zhilong Zhang}
+\author[3]{Zheng Jiang}
+\author[3]{Bingxiang He}
+\author[1, 2]{Wei-Ying Ma}
+\author[1, 2]{Ya-Qin Zhang}
+\author[1, 2]{Hao Zhou\textsuperscript{$\dagger$}}
+
+\affiliation[1]{SIA-Lab of Tsinghua AIR and ByteDance Seed}
+\affiliation[2]{Institute for AI Industry Research (AIR), Tsinghua University}
+\affiliation[3]{Department of Computer Science and Technology, Tsinghua University}
+\affiliation[4]{Peking University}
+
+\date{\today}
+\correspondence{\url{zhouhao@air.tsinghua.edu.cn}}
+\projectpage{\url{https://bytedtsinghua-sia.github.io/Direct-OPD/}}
+
+\abstract{%
+Reinforcement learning with verifiable rewards (RLVR) is a powerful recipe for
+improving language-model reasoning, but it is expensive to repeat on every new
+strong model because the target model must generate many rollouts during
+training. As models scale, post-training itself becomes a bottleneck. We study a
+weak-to-strong alternative: run RL on a smaller model where rollouts are cheaper,
+then reuse what that RL run learned to improve a stronger target model. Directly
+distilling the post-RL weak teacher is not enough, because the teacher's final
+policy mixes useful RL gains with the limitations of the smaller model. We
+propose \textbf{Direct On-Policy Distillation} (\textbf{\method{}}), which
+transfers the teacher's RL-induced \textbf{policy shift} instead. \method{}
+compares the post-RL teacher with its own pre-RL reference and treats their
+log-ratio as a dense implicit reward for the student. In plain terms, the
+checkpoint pair tells us which actions RL made the weak model more or less likely
+to take, and \method{} applies that signal on the stronger student's own
+on-policy states. This directly reuses the weak model’s RL supervision signal without running sparse-reward RL on the target model. Empirically, \method{} consistently leverages weaker teachers to
+improve stronger target models; notably, it boosts Qwen3-1.7B \uline{from
+48.3\% to 58.3\% on AIME 2024 in just 4 hours on 8 A100 GPUs}. 
+% \hanlin{It would be good to add a direct efficiency comparison here: e.g. [from
+% 48.3\% to 58.3\% on AIME 2024 in just 4 hours on 8 A100 GPUs, while with the same GPU time, RL can only improve xx\%] We probably do not need to rerun it to get the result; a reasonable estimate based on previous experiments should be enough.} 
+It outperforms
+step-matched direct RL and enables the sequential composition of multiple policy
+shifts. Our results show that RL outcomes can be reused across model scales as
+implicit reward signals, not merely as final models to imitate.
+}
+
+\begin{document}
+
+\maketitle
+
+
+\begingroup
+\renewcommand{\thefootnote}{}
+\footnotetext{
+\textsuperscript{*}Equal contribution. \quad
+\textsuperscript{$\ddagger$}Project Lead. \quad
+\textsuperscript{$\dagger$}Corresponding author.
+}
+\endgroup
+
+\input{intro}
+\input{method}
+\input{experiments}
+\input{analysis}
+
+\section{Related Work}
+
+\paragraph{On-policy distillation of reasoning models.}
+Reinforcement learning with verifiable rewards now produces strong reasoning
+models~\citep{deepseekr1,shao2024deepseekmath,schulman2017ppo,k1p5,qwq,openreasonerzero,dapo,justrl,polaris,questa,he2025skywork,he2025deepmath,he2026far},
+a paradigm now standard in frontier
+systems~\citep{qwen3technicalreport,deepseekv4,glm52,openmathreasoning,guha2025openthoughts,li2024numinamath}.
+A standard way to spread such gains to other models is knowledge distillation,
+from classic and sequence-level distillation to its modern variants and scaling
+behavior~\citep{hinton2015distilling,skd,sanh2019distilbert,jiao2020tinybert,wang2020minilm,mirzadeh2020improved,cho2019efficacy,busbridge2025distillation},
+with a large body of work on divergences and estimators for distilling
+LLMs~\citep{minillm,wen2023fdistill,gu2024revisitkd,wu2024rethinkkl,ko2024distillm,ko2025distillm2,miniplm,zhou2024distillspec,xu2024speckd}.
+On-policy distillation (OPD), where the student is trained on its own sampled
+states under teacher supervision, has become the dominant variant for reasoning
+models and is the subject of rapid recent
+work~\citep{gkd,lu2025onpolicydistillation,li2026rethinkingopd,opdsurvey,fu2026revisiting,jin2026entropy,jang2026stable,li2026unifying,ye2026policy,ye2026online,zhao2026self,zhao2026selfdistillationmultitokenprediction,rlselfdistill,shenfeld2026self,zhang2026prefixopd,paced,ko2026scaling,ko2026scaling,kim2026does,zhang2025blackboxopd,xiao2026mimo},
+including hybrids that couple distillation with
+RL~\citep{rlkd,kdrl,rakd,aligndistil,rlselfdistill,yang2026self}.
+Analyses tie OPD success to teacher--student top-$k$ overlap on student-visited
+states~\citep{li2026rethinkingopd}, note that small students struggle to copy
+much stronger reasoners~\citep{li2025small}, and reinterpret OPD as dense
+KL-constrained RL that rescales the reward to extrapolate beyond the
+teacher~\citep{gopd}. All of these imitate, or push past, the teacher's final
+policy; when the teacher is a small post-RL model weaker than the target, this
+also imports its capacity ceiling. \method{} instead distills only the teacher's
+RL-induced \emph{policy shift}
+$\log\pi_T-\log\pi_{T_{\mathrm{ref}}}$, discarding the teacher's absolute policy.
+
+\paragraph{Weak-to-strong generalization.}
+Weak-to-strong generalization asks whether a weak supervisor can elicit
+capabilities from a stronger model~\citep{burns2023weakstrong,superalignment},
+building on a long line of learning from imperfect supervision---semi-supervised
+learning and learning from noisy
+labels~\citep{grandvalet2004semi,dai2015semi,laine2016temporal,athiwaratkun2018there,han2018co,berthelot2019mixmatch,li2020dividemix,chen2020big,chen2020self,chen2022debiased}.
+It is central to scalable oversight when reliable human or stronger-model
+supervision is scarce~\citep{christiano2018supervising,leike2018scalable,irving2018debate,bowman2022scalable,bowman2022alignment,bai2022constitutional},
+and is related to eliciting latent knowledge and to easy-to-hard
+generalization~\citep{christiano2022eliciting,burns2022discovering,schwarzschild2021can,schwarzschild2021datasets}.
+Recent work studies its theory and extends it to reasoning and automated
+alignment~\citep{survey_autoalign,bansal2025revisiting_w2s,w2s_fdivergence,guo2024improving_w2s,w2s_reasoning}.
+Most approaches still supervise with the weak model's \emph{labels or
+distribution}, which caps the student near the supervisor; self-rewarding schemes
+bootstrap a model with its own judgments~\citep{yuan2024self}, and, closest to
+us, weak-to-strong preference optimization reuses a weak aligned model's implicit
+reward to steer a stronger one~\citep{wspo}. We share the goal of eliciting
+rather than imitating, but our supervisor is a \emph{pair} of small RL
+checkpoints: we transfer the reward implied by their difference, and show it
+improves students that already exceed the post-RL teacher.
+
+\paragraph{Implicit rewards and reusing trained models.}
+\method{} rests on the policy-as-reward identity: under KL-regularized RL the
+policy/reference log-ratio recovers the reward up to a constant, which Direct
+Preference Optimization and its variants use to fit a policy directly from
+preferences without an explicit reward
+model~\citep{rafailov2023direct,azar2024ipo,ethayarajh2024kto,meng2024simpo}.
+We use this identity in reverse---reading a dense implicit reward off a post-RL
+checkpoint and its reference---which connects to dense and process rewards for
+reasoning~\citep{lightman2023let,mathshepherd,cui2025process} and to per-token
+credit assignment in RL~\citep{kazemnejad2024vineppo,creditassignsurvey}, while
+avoiding reward over-optimization from an explicit
+model~\citep{gao2023overopt}. A complementary line reuses trained models in
+\emph{weight} space---task arithmetic, model merging, and proxy
+tuning~\citep{ilharco2023task,wortsman2022soups,proxytuning}. \method{} differs
+on both counts: the signal is a behavioral log-ratio rather than a weight delta,
+and it is applied on the student's own on-policy states, so it transfers across
+model families and scales.
+
+\section{Conclusion and Limitations}
+
+\method{} shows that the policy shift learned by a small RL teacher is a useful
+dense reward for weak-to-strong generalization. The transferable object is not
+the post-RL teacher's policy, but its log-ratio against its own pre-RL reference,
+evaluated on student-visited tokens; this is why a smaller, weaker teacher can
+still improve stronger students. Empirically, this direction transfers across
+teacher pairs and student families, outperforms step-matched direct RL at a
+fraction of the compute, and composes across teachers. It reframes RL outcomes as
+reusable improvement signals rather than final models to imitate.
+\textbf{Limitations.} The signal is conditional: \method{} can fail when the
+teacher/reference improvement is not meaningful on student-visited states, and
+the best response length and KL strength remain teacher--student dependent.
+
+\newpage
+
+\bibliography{references}
+\bibliographystyle{unsrtnat}
+
+\newpage
+\input{appendix}
+\end{document}

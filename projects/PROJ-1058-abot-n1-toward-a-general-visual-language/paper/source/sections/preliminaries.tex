@@ -1,0 +1,101 @@
+% ===========================================================
+% 3. PRELIMINARIES
+% ===========================================================
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+Versatile embodied navigation requires a single agent to fulfill
+heterogeneous user goals---ranging from precise metric coordinates to
+abstract semantic descriptions---using only on-board visual observations
+and producing executable motion commands at the control rate. Before
+describing ABot-N1, we cast this requirement as a unified
+conditional sequential decision problem, specialize the goal
+specification to the five tasks considered in this work, and introduce
+the VLM-conditioned action-policy abstraction that subsequent sections
+build on.
+
+\subsection{Embodied Navigation As Goal-Conditioned Visual Control}
+\label{sec:prelim-formulation}
+
+We model an embodied navigator as a discrete-time agent acting in an
+unknown environment $\mathcal{E}$. At each step $t$, the agent receives
+an ego-centric RGB observation
+$I_t \in \mathbb{R}^{N\times H\times W\times 3}$ from $N$ cameras and an
+optional proprioceptive/odometry signal $q_t$, and is conditioned on a
+task specification $g$ that encodes the user's intent. Following recent
+navigation foundation
+models~\cite{zhang2025navfom,zhang2024uninavid,physicalintelligence2024pi05},
+we formulate the navigator as a goal-conditioned visual policy
+\begin{equation}
+\pi_\theta:\;\bigl(g,\,I_{1:t},\,q_{1:t}\bigr)\;\longmapsto\; a_{t:t+H}
+\label{eq:nav-policy}
+\end{equation}
+which predicts a chunk of $H$ future low-level commands
+$a_{t:t+H}=(a_t,a_{t+1},\ldots,a_{t+H-1})$ from the visual history
+$I_{1:t}$ and the goal condition $g$. Each command
+\begin{equation}
+a_i=\bigl(x_i,\,y_i,\,\sin\theta_i,\,\cos\theta_i,\,c_i\bigr)\in\mathbb{R}^4\times\{0,1\}
+\label{eq:waypoint}
+\end{equation}
+is a continuous $\mathrm{SE}(2)$ waypoint in the agent's local frame
+augmented with a binary completion flag $c_i$ that triggers the
+``arrive'' signal once the goal is reached. The agent rolls out
+$\pi_\theta$ in a closed loop, re-planning at every step from updated
+observations, until $c_i=1$ or a step budget is exhausted; an episode
+succeeds when the final pose lies within a task-specific tolerance of
+the true target. Crucially, this formulation is map-free: $\pi_\theta$
+is given neither a global metric map nor depth or semantic
+segmentation, and must extract all necessary geometry and semantics
+from the on-the-fly RGB stream alone, matching the constraints of
+real deployment on commodity
+sensors~\cite{zhang2024navid,zhang2024uninavid}.
+
+\subsection{Unifying FIVE Navigation Tasks in ONE Framework}
+\label{sec:prelim-tasks}
+
+The goal condition $g$ is realized as a natural-language instruction
+$g=\ell$, where $\ell$ is a free-form sentence that encodes the
+navigation intent. This single interface absorbs
+all five tasks studied in this report without per-task heads or
+bespoke encoders: in \textit{point-goal}, $\ell$ encodes a relative
+metric offset; in \textit{instruction-following}
+(R2R/RxR/VLN-CE-style episodes), $\ell$ is a step-by-step natural-language
+route description; in \textit{object-goal}, $\ell$ is an open-vocabulary
+category phrase such as ``find the nearest chair''; in \textit{POI-goal},
+$\ell$ names a point of interest characterized by a landmark or
+business identity; and in \textit{person-following}, $\ell$ describes
+the target person via attribute or identity clauses.
+Casting heterogeneous goal modalities into a unified language instruction
+$\ell$ lets a single policy $\pi_\theta$ share parameters and
+representations across tasks~\cite{zhang2025navfom,abotn0,zhang2024uninavid},
+which is a prerequisite for transferring semantic priors learned on one
+task to another.
+
+\subsection{VLM-Conditioned Policy and Continuous-Action Decoding}
+\label{sec:prelim-vlm}
+Realizing $\pi_\theta$ at the scale required for open-world
+generalization motivates initializing the policy from a pre-trained
+vision-language
+model~\cite{bai2023qwenvl,chen2024spatialvlm,physicalintelligence2024pi05}.
+A natural design factorizes the navigator into a \emph{VLM reasoner}
+$f_\phi$ and a lightweight \emph{action policy} $\psi_\xi$:
+\begin{align}
+s_t &= f_\phi\!\bigl(I_{1:t},\,\ell\bigr),
+\label{eq:vlm-reason}\\
+a_{t:t+H} &= \psi_\xi\!\bigl(s_t,\,I_{1:t},\ell,\,q_t\bigr)
+\label{eq:action-head}
+\end{align}
+where $s_t$ denotes an intermediate guidance signal produced by the
+reasoner--its concrete form (latent features, decoded language, visual
+anchors, or a combination thereof) is a design choice deferred to
+specific instantiations.
+This factorization brings two benefits.
+First, the broad linguistic and visual priors acquired during
+web-scale VLM pre-training transfer directly into navigation,
+providing open-vocabulary recognition, spatial-relation understanding,
+and instruction parsing without task-specific
+modules~\cite{bai2023qwenvl,chen2024spatialvlm,cheng2024spatialrgpt}.
+Second, decoupling the heavy reasoner from the reactive action policy
+allows them to operate at \emph{asymmetric computational
+budgets}---a principle that ABot-N1 materializes as a slow-fast
+dual-system architecture detailed in \S\ref{sec:method}.

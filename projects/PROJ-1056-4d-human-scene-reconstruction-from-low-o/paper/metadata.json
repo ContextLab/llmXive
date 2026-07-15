@@ -1,0 +1,48 @@
+{
+  "arxiv_id": "2607.09125",
+  "arxiv_url": "https://arxiv.org/abs/2607.09125",
+  "title": "4D Human-Scene Reconstruction from Low-Overlap Captures",
+  "authors": [
+    "Minhyuk Hwang",
+    "Sangmin Kim",
+    "Seunguk Do",
+    "Daneul Kim",
+    "Jaesik Park"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Existing volumetric capture of dynamic human performance achieves high fidelity with dense camera arrays. However, in real-world scenarios, only a handful of low-overlap cameras are available, which degrades the output quality and leaves large areas unobserved. Recent 4D reconstruction methods have focused on low-overlap settings, yet they still produce noticeable artifacts in under-observed regions. Video diffusion models have emerged as another option, but they show geometrically inconsistent results for humans. To address these limitations, we propose StudioRecon, a pipeline that reconstructs 4D human scenes from sparse, low-overlap cameras by decoupling background and humans. We densify background supervision by synthesizing hundreds of camera-controlled novel views with a video diffusion model. We also robustly initialize deformable Gaussian humans with cross-view identity association and triangulated multi-view keypoint fitting. Finally, our recursive enhancement module with motion-adaptive consistency injection harmonizes the composed output, thereby further avoiding remaining artifacts. We achieve state-of-the-art novel view synthesis across four real-world datasets and demonstrate applications such as novel trajectory rendering and human replacement.",
+  "submitted_via": "llmXive dashboard, GitHub issue #1127",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main_arxiv.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/application.pdf",
+    "assets/iterative_refinement_qual.pdf",
+    "assets/sensitivity_mask.pdf",
+    "assets/sensitivity_nlf.pdf",
+    "assets/enhancement_module_v4.pdf",
+    "assets/gen3c_comparison.pdf",
+    "assets/enhance_figure.pdf",
+    "assets/flow_diagram.pdf",
+    "assets/supple_limitations.pdf",
+    "assets/pipeline_v8.pdf",
+    "assets/qual_egoexo.pdf",
+    "assets/enhance_consistency.pdf",
+    "assets/supple_pose.pdf",
+    "assets/shadow.pdf",
+    "assets/iterative_refinement_trajectory.pdf",
+    "assets/schematic_diagram_v2.pdf",
+    "assets/crossview.pdf",
+    "assets/qual_360_main.pdf",
+    "assets/qual_figure.pdf",
+    "assets/teaser_v6.pdf",
+    "main_arxiv.tex",
+    "main.bib"
+  ]
+}

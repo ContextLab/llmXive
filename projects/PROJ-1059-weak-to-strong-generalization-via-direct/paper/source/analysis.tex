@@ -1,0 +1,258 @@
+
+\section{Analysis and Training Dynamics}
+
+The previous section showed \emph{that} \method{} transfers RL gains
+weak-to-strong; here we analyze \emph{when} and \emph{why} it works, examining
+three aspects of the transfer:
+\begin{itemize}
+    \item \textbf{What is transferred?} Whether \method{} needs the student to
+    imitate the teacher's high-probability tokens, or whether it transfers even
+    when teacher--student top-$k$ overlap stays low
+    (Section~\ref{sec:cross-pattern}).
+    \item \textbf{Does short-horizon training generalize?} Whether training on
+    short rollouts changes only the supervised prefixes or shifts behavior across
+    much longer responses (Section~\ref{sec:training-length}).
+    \item \textbf{Why adapt the KL coefficient?} How the KL coefficient affects
+    the reliability of the teacher-shift reward across teacher--student pairs
+    (Section~\ref{sec:kl-coefficient}).
+\end{itemize}
+
+\subsection{Cross-pattern transfer without token-overlap imitation}
+\label{sec:cross-pattern}
+
+Prior work on standard OPD argues that teacher-student thinking-pattern
+compatibility is a key success condition: successful OPD is reflected in
+progressive alignment on high-probability tokens at student-visited states, with
+a small shared top-$k$ token set carrying most of the probability
+mass~\citep{li2026rethinkingopd}. This requirement is natural for raw teacher
+imitation, because the student is asked to match the teacher's final
+distribution. In that setting, increasing top-$k$ overlap is both a diagnostic
+and a plausible carrier of the training signal.
+
+We compute top-$k$ overlap using the same set-overlap metric as prior OPD work.
+For a student policy $\pi_S$ and a comparison policy $\pi_C$ at state $s_t$, let
+\begin{align}
+    T_k^S(s_t) &= \operatorname{TopK}_{v}\ \pi_S(v\mid s_t), \\
+    T_k^C(s_t) &= \operatorname{TopK}_{v}\ \pi_C(v\mid s_t).
+\end{align}
+The per-state overlap ratio is
+\begin{align}
+    \operatorname{Overlap}_k(S,C;s_t)
+    =
+    \frac{\left|T_k^S(s_t)\cap T_k^C(s_t)\right|}{k}.
+\end{align}
+For \method{}, we report this metric against both the post-RL teacher
+($C=T$) and the teacher reference ($C=T_{\mathrm{ref}}$) on the same
+student-visited states.
+
+\method{} changes the object being transferred. Instead of matching the
+post-RL teacher distribution, it evaluates the teacher/reference log-ratio on
+student-visited candidate tokens. This signal can rank actions within the
+student's own support, so useful transfer need not require the student to enter
+the teacher's high-overlap token regime.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.49\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{Results/5.1/justrl_overlap_ratio_cross_pattern.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{Results/5.1/questa_overlap_ratio_cross_pattern.pdf}
+\end{minipage}
+\caption{Teacher--student top-$k$ overlap during \method{} training. Left:
+R1-Distill-1.5B $\rightarrow$ JustRL-1.5B teacher pair. Right:
+Nemotron-1.5B $\rightarrow$ QuestA-Nemotron-1.5B teacher pair. Solid curves
+measure overlap with the post-RL teacher, and dashed curves measure overlap
+with the teacher reference. The pattern-aligned R1-Distill transfer enters a
+higher-overlap regime, while the cross-pattern transfers remain lower and do
+not become imitation of the post-RL teacher.}
+\label{fig:justrl-overlap-cross-pattern}
+\label{fig:questa-overlap-cross-pattern}
+\end{figure}
+
+Figure~\ref{fig:justrl-overlap-cross-pattern} separates the pattern-aligned
+case from the cross-pattern cases. The aligned transfer follows the standard
+OPD intuition: the student moves into a higher-overlap regime with the post-RL
+teacher. The cross-pattern transfers behave differently. Their overlap with the
+post-RL teacher remains lower, and their overlap with the teacher reference does
+not show a compensating rise. Thus the gains in
+Figure~\ref{fig:transfer-generalization} are not explained by progressive
+imitation of either teacher checkpoint. They are better explained by using the
+RL-induced direction from reference to post-RL teacher on the student's own
+visited states.
+
+We next check whether this low-overlap transfer is a degenerate sharpening
+effect. If \method{} simply collapsed the actor or forced a trivial low-entropy
+distribution, the overlap diagnostic would be less informative.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{Results/5.1/qwen3_1p7b_entropy_grid.pdf}
+\caption{Entropy diagnostics for R1-Distill-1.5B $\rightarrow$ JustRL-1.5B
+policy-shift transfer. \textbf{Top row:} transfer into Qwen3-1.7B.
+\textbf{Bottom row:} transfer into R1-Distill-7B. Each row shows student
+entropy, post-RL teacher entropy, teacher-reference entropy, and teacher entropy
+minus reference entropy. Actor entropy does not collapse, while the
+teacher/reference entropy gap narrows over training.}
+\label{fig:qwen3-entropy}
+\end{figure}
+
+Figure~\ref{fig:qwen3-entropy} shows that the actor entropy remains controlled
+rather than collapsing. At the same time, the teacher/reference entropy gap
+narrows, indicating that training changes how the student samples regions where
+the teacher's RL-induced shift is evaluated. This supports the same mechanism
+as the overlap result: \method{} transfers a local policy-shift signal within
+the student's distribution, not a full teacher policy.
+
+\takeaway{\method{} does not require progressive token-overlap
+imitation. It can transfer the teacher's RL-induced direction on
+student-visited tokens while keeping the actor distribution controlled.}
+
+\subsection{Short-horizon training changes longer-rollout behavior}
+\label{sec:training-length}
+
+Recent work on on-policy prefix distillation shows that full-length supervision
+is not always necessary for reasoning transfer: student rollouts can be
+truncated to short prefixes, while the resulting model is still evaluated with
+long generations at test time~\citep{zhang2026prefixopd}. Following this view,
+we do not treat the training horizon merely as a finite rollout length. We
+deliberately use a short 2k-token response horizon for \method{} training, and
+ask whether the resulting policy change generalizes beyond the directly
+supervised prefix.
+
+A natural concern is that such short-horizon training may only change the early
+prefixes that receive direct supervision, leaving later reasoning behavior
+unchanged. We test this by evaluating trained actors on fixed long rollouts and
+measuring whether the actor's likely next tokens move toward the post-RL teacher
+relative to the teacher reference.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{Results/5.3/justrl_length_sweep_grid.pdf}
+\caption{Response-length sweep for R1-Distill-1.5B $\rightarrow$ JustRL-1.5B
+transfer with fixed KL coefficient $1$. We report the average of AIME 2024 and
+AIME 2025 validation accuracy (ave@32) during training for Qwen3-1.7B and
+R1-Distill-7B students. The 2k setting gives stable validation behavior across
+the two students, while shorter or longer rollouts do not consistently improve
+the validation curves.}
+\label{fig:justrl-length-sweep}
+\end{figure}
+
+For each response prefix
+$x_{\leq t}$, we take the actor's top-16 token set $K_t$ and compute the
+actor-probability-weighted teacher gap
+\begin{equation}
+g_t =
+\sum_{a \in K_t} \pi_{\mathrm{actor}}(a \mid x_{\leq t})
+\left[
+\log \pi_{\mathrm{JustRL}}(a \mid x_{\leq t})
+-
+\log \pi_{\mathrm{R1}}(a \mid x_{\leq t})
+\right].
+\end{equation}
+The plotted quantity is the prefix cumulative gap
+\begin{equation}
+G_T = \sum_{t=1}^{T} g_t .
+\end{equation}
+Larger $G_T$ means that, along the actor's own likely tokens, the JustRL teacher
+assigns higher weighted log-probability than the R1-Distill-1.5B teacher; smaller
+$G_T$ means that the actor remains closer to R1-Distill-1.5B.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{Results/5.3/response_length_prefix_gap.pdf}
+\caption{\textbf{Short-horizon \method{} training changes behavior beyond the
+supervised prefix.} On a fixed set of 64 long
+rollouts we track the cumulative gap $G_T=\sum_{t\le T} g_t$, where $g_t$
+weights, over the actor's top-16 tokens at position $t$, the log-probability the
+post-RL teacher (JustRL) assigns minus that of the reference (R1-Distill-1.5B);
+higher $G_T$ means the actor's likely tokens look more like the post-RL teacher, while lower means the actor remains closer to the reference.
+\textbf{Left:} the 64 per-rollout trajectories for the untrained Qwen3-1.7B
+actor all drift negative---its long rollouts are reference-like, and this is not
+driven by a single outlier. \textbf{Middle:} the mean $G_T$ for the base actor
+and for actors trained with 2k/4k/6k response length (40 steps, fixed
+KL${=}1$); every trained actor sits above the base across the full $\sim$16k
+positions, and the 2k actor shifts well past its 2k training horizon (dashed
+line). \textbf{Right:} AIME 2024/2025 (ave@32) at the same 40-step
+checkpoint---the 2k setting validates best.}
+\label{fig:response-length-prefix-gap}
+\end{figure}
+
+Figure~\ref{fig:response-length-prefix-gap} shows that the effect of short
+\method{} training is not confined to the supervised prefix range: after 40
+training steps with a 2k response length, the actor moves toward the
+teacher-shift direction across much longer fixed rollouts, so the short horizon
+already captures the transferable signal. Training with a 6k response length
+shifts the actor even further in this diagnostic (middle panel), yet it
+validates worst (right panel, $45.6$ versus $48.8$ for 2k). One plausible
+explanation is that the extra movement comes from late prefixes, where the
+small teacher pair is increasingly off-distribution and the teacher/reference
+log-ratio is large but unreliable
+(Section~\ref{sec:kl-coefficient}). A 6k horizon may over-drive the actor on
+this unreliable late-prefix signal without improving the answer, whereas a 2k
+horizon avoids ingesting it while still capturing---and generalizing---the
+reliable early-prefix direction.
+
+\takeaway{Short-horizon \method{} training can generalize changes in thinking patterns to
+longer rollouts. A moderate response length avoids the noise and instability of
+very long responses while capturing more useful signal than overly short
+training horizons.}
+
+\subsection{KL controls teacher-shift reward reliability}
+\label{sec:kl-coefficient}
+
+The teacher/reference log-ratio acts as a dense reward, but this reward is only
+reliable on states where the teacher shift is meaningful for the student. This
+makes KL more than a regularization coefficient: it controls which rollout
+states the student visits, and therefore whether the dense reward remains
+reliable. If KL is too weak, the student can drift into regions where both
+teacher and reference assign low probability and the log-ratio becomes a noisy
+training target. If KL is too strong, the student cannot follow the teacher's
+policy shift. We test this by sweeping fixed KL coefficients under the same
+2k-response setting and comparing them with an adaptive-KL run.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{Results/5.4/justrl_kl_sweep_score_critic_grid.pdf}
+\caption{\textbf{The best KL coefficient is pair-dependent, and adaptive KL
+pulls the dense token reward toward a balanced regime.} 2k-response runs
+across fixed KL coefficients, with adaptive KL as the black curve. \textbf{Top
+row:} AIME 2024/2025 validation accuracy (ave@32); \textbf{bottom row:} dense
+token reward. The best fixed coefficient differs across teacher-student
+pairs, and a larger reward does not imply better validation. Adaptive KL
+instead pulls the dense token reward toward zero after an initial correction, keeping
+the student from simply maximizing the dense teacher/reference reward.}
+\label{fig:justrl-kl-sweep-score-critic}
+\end{figure}
+
+Figure~\ref{fig:justrl-kl-sweep-score-critic} shows that the best fixed KL
+value is not universal: different teacher-student pairs prefer different
+constraint strengths. The dense token reward also does not provide a
+pair-independent rule; a larger positive value can coincide with worse
+validation in one setting but track the best validation curve in another. Thus
+the dense reward should not be treated as a scalar objective to maximize
+independently of the rollout distribution. The useful regime depends on the
+teacher-student pair and on where the student currently samples.
+
+The adaptive-KL runs provide a complementary diagnostic. After an initial
+correction phase, their dense token rewards move toward zero rather than
+remaining strongly positive or negative. This behavior is consistent with the
+intended role of adaptive KL: keep the student in a region where the
+teacher/reference comparison remains informative, instead of letting the student
+either ignore the teacher shift or exploit an unreliable local signal. A
+persistently large reward can indicate that the student is sampling tokens on
+which the post-RL teacher and its reference strongly disagree---often because it
+has drifted away from both models' support, where the log-ratio is large in
+magnitude but no longer a trustworthy improvement direction. A near-zero batch
+mean suggests a more balanced regime, where local per-token shifts can still
+rank actions without a global drift.
+
+\takeaway{The dense teacher/reference reward should be treated as
+rollout-distribution dependent rather than optimized in isolation. Fixed-KL
+sweeps show that the right constraint is pair-dependent, while adaptive KL
+empirically pulls the mean reward toward a more balanced regime.}

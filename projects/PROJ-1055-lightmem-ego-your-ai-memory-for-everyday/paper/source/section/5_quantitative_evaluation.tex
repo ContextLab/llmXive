@@ -1,0 +1,45 @@
+\section{Quantitative Evaluation}
+
+\subsection{Evaluation Setup}
+
+We evaluate LightMem-Ego on three daily memory scenarios:
+object finding, conversation recall, and life summarization. 
+For each scenario, we construct queries with manually annotated gold
+evidence. 
+We report retrieval performance with Recall@1/3/5 and
+MRR, QA performance with LLM- and human-judged accuracy, and
+interactive latency with P50 / P90 retrieval, generation, and
+end-to-end QA time on phone and glasses-style clients.
+
+\input{tables/recall}
+\subsection{Memory Retrieval Accuracy}
+Table~\ref{tab:retrieval_accuracy} summarizes retrieval accuracy in the three demonstration scenarios. 
+LightMem-Ego retrieves relevant memory evidence within the top-3 results for most queries, achieving 74.1 overall R@3 and 0.627 MRR. 
+The results suggest that the hierarchical memory store provides sufficiently accurate evidence selection for downstream experience QA in everyday object finding, conversation recall, and life summarization settings.
+
+\input{tables/accuracy}
+\subsection{Experience Question Answering Accuracy}
+Table~\ref{tab:qa_accuracy} reports QA accuracy against annotated
+experience evidence. 
+LightMem-Ego obtains 51.9 LLM-judged accuracy and 55.6 human-judged accuracy overall, with the best performance on life summarization.
+These results indicate that, when relevant evidence is retrieved, the system can produce usable memory-grounded answers for the demonstrated everyday QA scenarios, while fine-grained object finding and conversation recall remain more challenging in the current prototype.
+
+\input{tables/latency}
+\subsection{Latency on Mobile and Wearable Clients}
+Table~\ref{tab:latency} reports the runtime of LightMem-Ego on
+phone and glasses-style clients. 
+For short-term memory QA, the system achieves interactive response times, with P50 end-to-end latency of 5.86s on phone and 7.01s on the glasses-style client.
+Long-term memory QA requires additional retrieval and evidence
+aggregation, leading to higher P50 latency of 14.87s and 19.96s,
+respectively. 
+This latency profile is consistent with the intended usage of the demo: recent-memory queries support near-interactive assistance, while long-term queries remain practical for retrospective recall and life-summary interactions.
+
+\input{tables/capability_comparison}
+
+\subsection{Capability Comparison with Existing Assistants and Memory Systems}
+We further compare LightMem-Ego with representative commercial assistants, text-based memory systems, and recent egocentric multimodal assistants in terms of publicly described capabilities. 
+As shown in Table~\ref{tab:capability_comparison}, existing systems cover different parts of the design space: ChatGPT Memory and Mem0-style systems mainly focus on conversational or text-based agent memory, while Memories.ai explores long-term visual memory for searchable video archives~\cite{GPT-4o, GPT-5, Mem0, MemoriesAI}. Gemini Live and Ray-Ban Meta AI Glasses support real-time multimodal interaction, while recent egocentric assistants such as Vinci, VisualClaw, VisionClaw, Egocentric Co-Pilot, and EgoButler explore real-time perception, wearable assistance, tool use, or long-context egocentric QA~\cite{Vinci, VisualClaw, VisionClaw, Egocentric_Co-Pilot, EgoLife}.
+However, these systems generally do not expose an explicit hierarchy that jointly supports current multimodal memory, short-term event memory, long-term multimodal episodic memory, semantic routine memory, and timestamped evidence retrieval.
+
+In contrast, LightMem-Ego is designed specifically for everyday-life memory assistance over streaming visual-audio experience.
+Rather than emphasizing only in-the-moment perception, text-based personalization, or agentic task execution, it organizes user experience into current, short-term, and long-term memory stores, enabling both immediate assistance and retrospective experience QA such as object finding, conversation recall, life summarization, and routine discovery.

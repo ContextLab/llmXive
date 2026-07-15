@@ -1,0 +1,64 @@
+\section{Introduction}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{Results/4.1/intro_opd_vs_direct_and_transfer.pdf}
+\caption{\textbf{\method{} transfers the effect of small-model RL rather than
+imitating the small model.} (a) Starting from R1-Distill-7B, vanilla OPD toward
+the post-RL JustRL-1.5B teacher degrades performance, whereas \method{} transfers
+the JustRL-1.5B $-$ R1-Distill-1.5B policy shift and improves the student.
+(b) The same policy shift improves Qwen3-1.7B, Qwen3-4B, and R1-Distill-7B on
+AIME 2024, including students whose initial accuracy already exceeds the
+post-RL teacher.}
+\label{fig:intro-opd-transfer}
+\end{figure}
+
+Reinforcement learning with verifiable rewards (RLVR) has become a dominant
+post-training recipe for eliciting strong reasoning in large language
+models~\citep{deepseekr1,justrl}. Its cost, however, is tied to the
+model being trained: every update requires the current policy to generate
+rollouts, receive verifiable outcome scores, and update on those trajectories.
+Larger target models make each rollout slower and each RL iteration more
+expensive. Thus, as reasoning models continue to scale, re-running RLVR from scratch
+for every new strong model risks making post-training itself a bottleneck.
+
+In this paper, we propose \textbf{Direct On-Policy Distillation}
+(\textbf{\method{}}), a weak-to-strong post-training paradigm. The setting is
+simple: run RL where it is cheap, on a weak model, and use what that RL run
+learned to train a stronger target model.
+Crucially, the weak model is not assumed to be a better reasoner than the student; it is merely an inexpensive vehicle which ships the behavior the RL signal has already reshaped. \method{} transfers the improvement induced by weak-model RL, not the weak model itself.
+
+
+The central question is what exactly to transfer from the weak RL run. One candidate is the post-RL teacher's final policy: on-policy distillation (OPD) lets the student sample its own states and trains it to match the teacher there. Yet this is the wrong object for weak-to-strong transfer, because the final policy entangles the useful change induced by RL with the weak model's intrinsic capacity limits. When the student already surpasses the teacher, imitating that policy can overwrite stronger behavior. Figure~\ref{fig:intro-opd-transfer}(a) illustrates this failure: R1-Distill-7B~\citep{deepseekr1} begins at $56.7$, already above the post-RL JustRL-1.5B teacher~\citep{justrl} at $51.3$, yet vanilla OPD drags it down to roughly $50$. The weak RL run carries useful supervision, but its final policy is a poor carrier of that supervision.
+
+\method{} instead isolates the supervision by contrasting the weak model with itself, before and after RL. Let $\pi_{T_{\mathrm{ref}}}$ denote the weak model before RL and $\pi_T$ its post-RL counterpart. We define the teacher policy shift
+\begin{equation}
+    \Delta_T(y \mid x)
+    =
+    \log \pi_T(y \mid x)
+    -
+    \log \pi_{T_{\mathrm{ref}}}(y \mid x),
+\end{equation}
+which is positive on responses that RL made more likely and negative on those it suppressed. The subtraction discards what the weak model already preferred before RL and retains only what RL changed. More importantly, under the KL-regularized RL objective, this policy shift is mathematically equivalent to the reward that trained the weak model: optimizing against $\Delta_T$ recovers the same objective form as optimizing against that reward, as proved in Section~\ref{sec:reward}. A pair of weak-model checkpoints therefore stores the RL supervision signal directly in policy space. \method{} applies this signal on the student's own on-policy states, anchored to the student initialization by a KL term, without training an explicit reward model or running sparse-reward RL on the target.
+
+This mechanism converts weak-model RL into a transferable post-training signal. Figure~\ref{fig:intro-opd-transfer}(b) shows that the policy shift from R1-Distill-1.5B to JustRL-1.5B improves Qwen3-1.7B, Qwen3-4B~\citep{qwen3technicalreport}, and R1-Distill-7B alike, including students that already start above the post-RL teacher. The transfer is also inexpensive: with 8 A100 GPUs for about 4 hours, \method{} raises Qwen3-1.7B from $48.3$ to $58.3$ on AIME 2024, comparable to what Polaris attains by running RL directly on Qwen3-1.7B with 32 A100 GPUs for at least a week~\citep{polaris}.
+
+\paragraph{Contributions.}
+\begin{itemize}
+    \item \textbf{A weak-to-strong post-training paradigm.} We recast small-model RL as a cheap generator of an implicit reward for stronger models: rather than copying a weak teacher's final policy, we evaluate its RL-induced policy shift on the student's own on-policy states.
+    \item \textbf{Consistent gains across teacher pairs and students.} With
+    two teacher pairs (R1-Distill-1.5B $\rightarrow$ JustRL-1.5B and
+    Nemotron-1.5B $\rightarrow$ QuestA-Nemotron-1.5B) and three students from
+    two families (R1-Distill-7B, Qwen3-1.7B, and Qwen3-4B), \method{} improves every
+    student---including R1-Distill-7B and Qwen3-4B, which already start above the
+    post-RL teacher---and lifts Qwen3-1.7B from $48.3$ to $58.3$ on AIME 2024 in
+    about 4 hours on 8 A100 GPUs. 
+    \item \textbf{Cheaper than direct large-scale RL.} At matched RL steps,
+    running RL on a 1.5B model and transferring with \method{} outperforms
+    running RL directly on R1-Distill-7B in both accuracy and compute.
+    \item \textbf{Analysis of when the signal is reliable.} Unlike imitating the
+    teacher's final policy, \method{} does not require high teacher--student
+    top-$k$ overlap and transfers
+    across thinking patterns; we identify the response-length and KL conditions
+    under which the implicit reward stays aligned with validation accuracy.
+\end{itemize}

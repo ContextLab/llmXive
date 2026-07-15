@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-15T01:38:47.914642Z'
+current_stage: paper_ingested
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-1056-4d-human-scene-reconstruction-from-low-o
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 4D Human-Scene Reconstruction from Low-Overlap Captures
+updated_at: '2026-07-15T01:38:48.589651Z'

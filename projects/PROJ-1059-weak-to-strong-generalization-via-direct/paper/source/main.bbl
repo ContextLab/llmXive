@@ -1,0 +1,729 @@
+\begin{thebibliography}{105}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{DeepSeek-AI} et~al.(2025){DeepSeek-AI}, Guo, Yang, Zhang, Song, Wang,
+  Zhu, Xu, Zhang, Ma, Bi, et~al.]{deepseekr1}
+{DeepSeek-AI}, Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang,
+  Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, et~al.
+\newblock {DeepSeek-R1}: Incentivizing reasoning capability in {LLMs} via
+  reinforcement learning.
+\newblock \emph{Nature}, 645:\penalty0 633--638, 2025.
+
+\bibitem[He et~al.(2025{\natexlab{a}})He, Qu, Liu, Chen, Zuo, Qian, Zhang,
+  Chen, Xiao, Cui, Ding, and Liu]{justrl}
+Bingxiang He, Zekai Qu, Zeyuan Liu, Yinghao Chen, Yuxin Zuo, Cheng Qian, Kaiyan
+  Zhang, Weize Chen, Chaojun Xiao, Ganqu Cui, Ning Ding, and Zhiyuan Liu.
+\newblock {JustRL}: Scaling a 1.5{B} {LLM} with a simple {RL} recipe.
+\newblock \emph{arXiv preprint arXiv:2512.16649}, 2025{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2025)Yang, Li, Yang, Zhang, Hui, Zheng, Yu, Gao, Huang,
+  Lv, et~al.]{qwen3technicalreport}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen
+  Yu, Chang Gao, Chengen Huang, Chenxu Lv, et~al.
+\newblock {Qwen3} technical report.
+\newblock \emph{arXiv preprint arXiv:2505.09388}, 2025.
+
+\bibitem[An et~al.(2025)]{polaris}
+Chenxin An et~al.
+\newblock {POLARIS}: A post-training recipe for scaling reinforcement learning
+  on reasoning models.
+\newblock \url{https://github.com/ChenxinAn-fdu/POLARIS}, 2025.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})Li, Zuo, He, Zhang, Xiao, Qian, Yu, Gao,
+  Yang, Liu, and Ding]{li2026rethinkingopd}
+Yaxuan Li, Yuxin Zuo, Bingxiang He, Jinqian Zhang, Chaojun Xiao, Cheng Qian,
+  Tianyu Yu, Huan-ang Gao, Wenkai Yang, Zhiyuan Liu, and Ning Ding.
+\newblock Rethinking on-policy distillation of large language models:
+  Phenomenology, mechanism, and recipe.
+\newblock \emph{arXiv preprint arXiv:2604.13016}, 2026{\natexlab{a}}.
+
+\bibitem[Rafailov et~al.(2023)Rafailov, Sharma, Mitchell, Ermon, Manning, and
+  Finn]{rafailov2023direct}
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher~D.
+  Manning, and Chelsea Finn.
+\newblock Direct preference optimization: Your language model is secretly a
+  reward model.
+\newblock \emph{arXiv preprint arXiv:2305.18290}, 2023.
+
+\bibitem[Li et~al.(2025{\natexlab{a}})Li, Lin, Lu, Wen, Yang, Gao, Wu, and
+  Zhang]{questa}
+Jiazheng Li, Hongzhou Lin, Hong Lu, Kaiyue Wen, Zaiwen Yang, Jiaxuan Gao,
+  Yi~Wu, and Jingzhao Zhang.
+\newblock {QuestA}: Expanding reasoning capacity in {LLMs} via question
+  augmentation.
+\newblock \emph{arXiv preprint arXiv:2507.13266}, 2025{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{a}})Zhang, Yang, Janghorbani, Han,
+  Ressler~II, Qian, Lyng, Batra, and Tillman]{zhang2026prefixopd}
+Dongxu Zhang, Zhichao Yang, Sepehr Janghorbani, Jun Han, Andrew Ressler~II,
+  Qian Qian, Gregory~D. Lyng, Sanjit~Singh Batra, and Robert~E. Tillman.
+\newblock Fast and effective on-policy distillation from reasoning prefixes.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  ACL 2026}, pages 25553--25569, 2026{\natexlab{a}}.
+
+\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song, Bi, Zhang, Zhang, Li, Wu,
+  and Guo]{shao2024deepseekmath}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei
+  Zhang, Mingchuan Zhang, Y.~K. Li, Y.~Wu, and Daya Guo.
+\newblock {DeepSeekMath}: Pushing the limits of mathematical reasoning in open
+  language models.
+\newblock \emph{arXiv preprint arXiv:2402.03300}, 2024.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017ppo}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[{Kimi Team}(2025)]{k1p5}
+{Kimi Team}.
+\newblock Kimi k1.5: Scaling reinforcement learning with llms.
+\newblock \emph{arXiv preprint arXiv:2501.12599}, 2025.
+
+\bibitem[{Qwen Team}(2025)]{qwq}
+{Qwen Team}.
+\newblock {QwQ-32B}: Embracing the power of reinforcement learning.
+\newblock \url{https://qwenlm.github.io/blog/qwq-32b/}, 2025.
+
+\bibitem[Hu et~al.(2025)Hu, Zhang, Han, Jiang, Zhang, and
+  Shum]{openreasonerzero}
+Jingcheng Hu, Yinmin Zhang, Qi~Han, Daxin Jiang, Xiangyu Zhang, and Heung-Yeung
+  Shum.
+\newblock Open-reasoner-zero: An open source approach to scaling reinforcement
+  learning on the base model.
+\newblock \url{https://github.com/Open-Reasoner-Zero/Open-Reasoner-Zero}, 2025.
+
+\bibitem[Yu et~al.(2025)Yu, Zhang, Zhu, Yuan, Zuo, Yue, Fan, Liu, Liu, Liu,
+  et~al.]{dapo}
+Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu~Yue, Tiantian
+  Fan, Gaohong Liu, Lingjun Liu, Xin Liu, et~al.
+\newblock {DAPO}: An open-source llm reinforcement learning system at scale.
+\newblock \emph{arXiv preprint arXiv:2503.14476}, 2025.
+
+\bibitem[He et~al.(2025{\natexlab{b}})He, Liu, Liu, Yan, Wang, Cheng, Zhang,
+  Zhang, Xu, Shen, et~al.]{he2025skywork}
+Jujie He, Jiacai Liu, Chris~Yuhao Liu, Rui Yan, Chaojie Wang, Peng Cheng,
+  Xiaoyu Zhang, Fuxiang Zhang, Jiacheng Xu, Wei Shen, et~al.
+\newblock Skywork open reasoner 1 technical report.
+\newblock \emph{arXiv preprint arXiv:2505.22312}, 2025{\natexlab{b}}.
+
+\bibitem[He et~al.(2025{\natexlab{c}})He, Liang, Xu, Liu, Chen, Wang, Song, Yu,
+  Liang, Wang, et~al.]{he2025deepmath}
+Zhiwei He, Tian Liang, Jiahao Xu, Qiuzhi Liu, Xingyu Chen, Yue Wang, Linfeng
+  Song, Dian Yu, Zhenwen Liang, Wenxuan Wang, et~al.
+\newblock Deepmath-103k: A large-scale, challenging, decontaminated, and
+  verifiable mathematical dataset for advancing reasoning.
+\newblock \emph{arXiv preprint arXiv:2504.11456}, 2025{\natexlab{c}}.
+
+\bibitem[He et~al.(2026)He, Zuo, Liu, Zhao, Fu, Yang, Qian, Zhang, Fan, Cui,
+  et~al.]{he2026far}
+Bingxiang He, Yuxin Zuo, Zeyuan Liu, Shangziqi Zhao, Zixuan Fu, Junlin Yang,
+  Cheng Qian, Kaiyan Zhang, Yuchen Fan, Ganqu Cui, et~al.
+\newblock How far can unsupervised rlvr scale llm training?
+\newblock \emph{arXiv preprint arXiv:2603.08660}, 2026.
+
+\bibitem[{DeepSeek-AI}(2026)]{deepseekv4}
+{DeepSeek-AI}.
+\newblock {DeepSeek V4} preview release.
+\newblock \url{https://api-docs.deepseek.com/news/news260424}, 2026.
+
+\bibitem[{Z.ai}(2026)]{glm52}
+{Z.ai}.
+\newblock {GLM-5.2}: Built for long-horizon tasks.
+\newblock \url{https://z.ai/blog/glm-5.2}, 2026.
+
+\bibitem[Moshkov et~al.(2025)Moshkov, Hanley, Sorokin, Toshniwal, Henkel,
+  Schifferer, Du, and Gitman]{openmathreasoning}
+Ivan Moshkov, Darragh Hanley, Ivan Sorokin, Shubham Toshniwal, Christof Henkel,
+  Benedikt Schifferer, Wei Du, and Igor Gitman.
+\newblock {AIMO-2} winning solution: Building state-of-the-art mathematical
+  reasoning models with {OpenMathReasoning} dataset.
+\newblock \emph{arXiv preprint arXiv:2504.16891}, 2025.
+
+\bibitem[Guha et~al.(2025)Guha, Marten, Keh, Raoof, Smyrnis, Bansal, Nezhurina,
+  Mercat, Vu, Sprague, et~al.]{guha2025openthoughts}
+Etash Guha, Ryan Marten, Sedrick Keh, Negin Raoof, Georgios Smyrnis, Hritik
+  Bansal, Marianna Nezhurina, Jean Mercat, Trung Vu, Zayne Sprague, et~al.
+\newblock Openthoughts: Data recipes for reasoning models.
+\newblock \emph{arXiv preprint arXiv:2506.04178}, 2025.
+
+\bibitem[Li et~al.(2024)Li, Beeching, Tunstall, Lipkin, Soletskyi, Huang,
+  Rasul, Yu, Jiang, Shen, et~al.]{li2024numinamath}
+Jia Li, Edward Beeching, Lewis Tunstall, Ben Lipkin, Roman Soletskyi, Shengyi
+  Huang, Kashif Rasul, Longhui Yu, Albert~Q Jiang, Ziju Shen, et~al.
+\newblock Numinamath: The largest public dataset in ai4maths with 860k pairs of
+  competition math problems and solutions.
+\newblock 2024.
+
+\bibitem[Hinton et~al.(2015)Hinton, Vinyals, and Dean]{hinton2015distilling}
+Geoffrey Hinton, Oriol Vinyals, and Jeff Dean.
+\newblock Distilling the knowledge in a neural network.
+\newblock \emph{arXiv preprint arXiv:1503.02531}, 2015.
+
+\bibitem[Kim and Rush(2016)]{skd}
+Yoon Kim and Alexander~M Rush.
+\newblock Sequence-level knowledge distillation.
+\newblock In \emph{Proceedings of EMNLP}, 2016.
+
+\bibitem[Sanh et~al.(2019)Sanh, Debut, Chaumond, and Wolf]{sanh2019distilbert}
+Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf.
+\newblock Distilbert, a distilled version of bert: smaller, faster, cheaper and
+  lighter.
+\newblock \emph{arXiv preprint arXiv:1910.01108}, 2019.
+
+\bibitem[Jiao et~al.(2020)Jiao, Yin, Shang, Jiang, Chen, Li, Wang, and
+  Liu]{jiao2020tinybert}
+Xiaoqi Jiao, Yichun Yin, Lifeng Shang, Xin Jiang, Xiao Chen, Linlin Li, Fang
+  Wang, and Qun Liu.
+\newblock Tinybert: Distilling bert for natural language understanding.
+\newblock 2020.
+
+\bibitem[Wang et~al.(2020)Wang, Wei, Dong, Bao, Yang, and Zhou]{wang2020minilm}
+Wenhui Wang, Furu Wei, Li~Dong, Hangbo Bao, Nan Yang, and Ming Zhou.
+\newblock Minilm: Deep self-attention distillation for task-agnostic
+  compression of pre-trained transformers.
+\newblock 2020.
+
+\bibitem[Mirzadeh et~al.(2020)Mirzadeh, Farajtabar, Li, Levine, Matsukawa, and
+  Ghasemzadeh]{mirzadeh2020improved}
+Seyed~Iman Mirzadeh, Mehrdad Farajtabar, Ang Li, Nir Levine, Akihiro Matsukawa,
+  and Hassan Ghasemzadeh.
+\newblock Improved knowledge distillation via teacher assistant.
+\newblock 2020.
+
+\bibitem[Cho and Hariharan(2019)]{cho2019efficacy}
+Jang~Hyun Cho and Bharath Hariharan.
+\newblock On the efficacy of knowledge distillation.
+\newblock 2019.
+
+\bibitem[Busbridge et~al.(2025)Busbridge, Shidani, Weers, Ramapuram, Littwin,
+  and Webb]{busbridge2025distillation}
+Dan Busbridge, Amitis Shidani, Floris Weers, Jason Ramapuram, Etai Littwin, and
+  Russ Webb.
+\newblock Distillation scaling laws.
+\newblock \emph{arXiv preprint arXiv:2502.08606}, 2025.
+
+\bibitem[Gu et~al.(2023)Gu, Dong, Wei, and Huang]{minillm}
+Yuxian Gu, Li~Dong, Furu Wei, and Minlie Huang.
+\newblock {MiniLLM}: Knowledge distillation of large language models.
+\newblock \emph{arXiv preprint arXiv:2306.08543}, 2023.
+
+\bibitem[Wen et~al.(2023)Wen, Li, Du, and Mou]{wen2023fdistill}
+Yuqiao Wen, Zichao Li, Wenyu Du, and Lili Mou.
+\newblock {f-Divergence Minimization for Sequence-Level Knowledge
+  Distillation}.
+\newblock \emph{Proceedings of ACL}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2307.15190}.
+
+\bibitem[Zhong et~al.(2024)Zhong, Ding, Shen, Liu, Du, and
+  Tao]{gu2024revisitkd}
+Qihuang Zhong, Liang Ding, Li~Shen, Juhua Liu, Bo~Du, and Dacheng Tao.
+\newblock {Revisiting Knowledge Distillation for Autoregressive Language
+  Models}.
+\newblock \emph{Proceedings of ACL}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.11890}.
+
+\bibitem[Wu et~al.(2025)Wu, Tao, Wang, Yang, Zhao, and Wong]{wu2024rethinkkl}
+Taiqiang Wu, Chaofan Tao, Jiahao Wang, Runming Yang, Zhe Zhao, and Ngai Wong.
+\newblock {Rethinking Kullback-Leibler Divergence in Knowledge Distillation for
+  Large Language Models}.
+\newblock \emph{Proceedings of COLING}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2404.02657}.
+
+\bibitem[Ko et~al.(2024)Ko, Kim, Chen, and Yun]{ko2024distillm}
+Jongwoo Ko, Sungnyun Kim, Tianyi Chen, and Se-Young Yun.
+\newblock {DistiLLM: Towards Streamlined Distillation for Large Language
+  Models}.
+\newblock \emph{Proceedings of ICML}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.03898}.
+
+\bibitem[Ko et~al.(2025)Ko, Chen, Kim, Ding, Liang, Zharkov, and
+  Yun]{ko2025distillm2}
+Jongwoo Ko, Tianyi Chen, Sungnyun Kim, Tianyu Ding, Luming Liang, Ilya Zharkov,
+  and Se-Young Yun.
+\newblock {DistiLLM-2: A Contrastive Approach Boosts the Distillation of LLMs}.
+\newblock In \emph{Proceedings of ICML}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.07067}.
+
+\bibitem[Gu et~al.(2025)Gu, Zhou, Meng, Zhou, and Huang]{miniplm}
+Yuxian Gu, Hao Zhou, Fandong Meng, Jie Zhou, and Minlie Huang.
+\newblock {MiniPLM: Knowledge Distillation for Pre-Training Language Models}.
+\newblock \emph{Proceedings of ICLR}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2410.17215}.
+
+\bibitem[Zhou et~al.(2024)Zhou, Lyu, Rawat, Menon, Rostamizadeh, Kumar, Kagy,
+  and Agarwal]{zhou2024distillspec}
+Yongchao Zhou, Kaifeng Lyu, Ankit~Singh Rawat, Aditya~Krishna Menon, Afshin
+  Rostamizadeh, Sanjiv Kumar, Jean-Fran\c{c}ois Kagy, and Rishabh Agarwal.
+\newblock {DistillSpec: Improving Speculative Decoding via Knowledge
+  Distillation}.
+\newblock \emph{Proceedings of ICLR}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.08461}.
+
+\bibitem[Xu et~al.(2025{\natexlab{a}})Xu, Han, Wang, Le, Madeka, Li, Wang,
+  Agarwal, Lee, and Pfister]{xu2024speckd}
+Wenda Xu, Rujun Han, Zifeng Wang, Long~T. Le, Dhruv Madeka, Lei Li,
+  William~Yang Wang, Rishabh Agarwal, Chen-Yu Lee, and Tomas Pfister.
+\newblock {Speculative Knowledge Distillation: Bridging the Teacher-Student Gap
+  Through Interleaved Sampling}.
+\newblock \emph{Proceedings of ICLR}, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2410.11325}.
+
+\bibitem[Agarwal et~al.(2023)Agarwal, Vieillard, Zhou, Stanczyk, Ramos, Geist,
+  and Bachem]{gkd}
+Rishabh Agarwal, Nino Vieillard, Yongchao Zhou, Piotr Stanczyk, Sabela Ramos,
+  Matthieu Geist, and Olivier Bachem.
+\newblock On-policy distillation of language models: Learning from
+  self-generated mistakes.
+\newblock \emph{arXiv preprint arXiv:2306.13649}, 2023.
+
+\bibitem[Lu and Lab(2025)]{lu2025onpolicydistillation}
+Kevin Lu and Thinking~Machines Lab.
+\newblock On-policy distillation.
+\newblock 2025.
+
+\bibitem[Song and Zheng(2026)]{opdsurvey}
+Mingyang Song and Mao Zheng.
+\newblock A survey of on-policy distillation for large language models.
+\newblock \emph{arXiv preprint arXiv:2604.00626}, 2026.
+
+\bibitem[Fu et~al.(2026)Fu, Huang, Jiang, Zhu, and Zhao]{fu2026revisiting}
+Yuqian Fu, Haohuan Huang, Kaiwen Jiang, Yuanheng Zhu, and Dongbin Zhao.
+\newblock Revisiting on-policy distillation: Empirical failure modes and simple
+  fixes.
+\newblock \emph{arXiv preprint arXiv:2603.25562}, 2026.
+
+\bibitem[Jin et~al.(2026)Jin, Min, Yang, Kadhe, Zhou, Wei, Baracaldo, and
+  Lee]{jin2026entropy}
+Woogyeol Jin, Taywon Min, Yongjin Yang, Swanand~Ravindra Kadhe, Yi~Zhou, Dennis
+  Wei, Nathalie Baracaldo, and Kimin Lee.
+\newblock Entropy-aware on-policy distillation of language models.
+\newblock \emph{arXiv preprint arXiv:2603.07079}, 2026.
+
+\bibitem[Jang et~al.(2026)Jang, Yeom, Yeo, Lim, and Kim]{jang2026stable}
+Ijun Jang, Jewon Yeom, Juan Yeo, Hyunggu Lim, and Taesup Kim.
+\newblock Stable on-policy distillation through adaptive target reformulation.
+\newblock \emph{arXiv preprint arXiv:2601.07155}, 2026.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Yang, Fang, Song, Zheng, Guo, Zhang,
+  Wang, and Chua]{li2026unifying}
+Gengsheng Li, Tianyu Yang, Junfeng Fang, Mingyang Song, Mao Zheng, Haiyun Guo,
+  Dan Zhang, Jinqiao Wang, and Tat-Seng Chua.
+\newblock Unifying group-relative and self-distillation policy optimization via
+  sample routing.
+\newblock \emph{arXiv preprint arXiv:2604.02288}, 2026{\natexlab{b}}.
+
+\bibitem[Ye et~al.(2026{\natexlab{a}})Ye, Dong, Wu, Huang, and
+  Wei]{ye2026policy}
+Tianzhu Ye, Li~Dong, Xun Wu, Shaohan Huang, and Furu Wei.
+\newblock On-policy context distillation for language models.
+\newblock \emph{arXiv preprint arXiv:2602.12275}, 2026{\natexlab{a}}.
+
+\bibitem[Ye et~al.(2026{\natexlab{b}})Ye, Dong, Dong, Wu, Huang, and
+  Wei]{ye2026online}
+Tianzhu Ye, Li~Dong, Qingxiu Dong, Xun Wu, Shaohan Huang, and Furu Wei.
+\newblock Online experiential learning for language models.
+\newblock \emph{arXiv preprint arXiv:2603.16856}, 2026{\natexlab{b}}.
+
+\bibitem[Zhao et~al.(2026{\natexlab{a}})Zhao, Xie, Liu, Huang, Pang, Chen, and
+  Grover]{zhao2026self}
+Siyan Zhao, Zhihui Xie, Mengchen Liu, Jing Huang, Guan Pang, Feiyu Chen, and
+  Aditya Grover.
+\newblock Self-distilled reasoner: On-policy self-distillation for large
+  language models.
+\newblock \emph{arXiv preprint arXiv:2601.18734}, 2026{\natexlab{a}}.
+
+\bibitem[Zhao et~al.(2026{\natexlab{b}})Zhao, Xie, Wang, Li, Xie, and
+  Sun]{zhao2026selfdistillationmultitokenprediction}
+Guoliang Zhao, Ruobing Xie, An~Wang, Shuaipeng Li, Huaibing Xie, and Xingwu
+  Sun.
+\newblock Self-distillation for multi-token prediction, 2026.
+\newblock \emph{arXiv preprint arXiv:2603.23911}, 2026{\natexlab{b}}.
+
+\bibitem[H{\"u}botter et~al.(2026)H{\"u}botter, L{\"u}beck, Behric, Baumann,
+  Bagatella, Marta, Hakimi, Shenfeld, Buening, Guestrin, and
+  Krause]{rlselfdistill}
+Jonas H{\"u}botter, Frederike L{\"u}beck, Lejs Behric, Anton Baumann, Marco
+  Bagatella, Daniel Marta, Ido Hakimi, Idan Shenfeld, Thomas~Kleine Buening,
+  Carlos Guestrin, and Andreas Krause.
+\newblock {Reinforcement Learning via Self-Distillation}.
+\newblock \emph{arXiv preprint arXiv:2601.20802}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.20802}.
+
+\bibitem[Shenfeld et~al.(2026)Shenfeld, Damani, H\"ubotter, and
+  Agrawal]{shenfeld2026self}
+Idan Shenfeld, Mehul Damani, Jonas H\"ubotter, and Pulkit Agrawal.
+\newblock Self-distillation enables continual learning.
+\newblock \emph{arXiv preprint arXiv:2601.19897}, 2026.
+
+\bibitem[Xu et~al.(2026)Xu, Sang, Zhou, He, and Wang]{paced}
+Yuanda Xu, Hejian Sang, Zhengze Zhou, Ran He, and Zhipeng Wang.
+\newblock {PACED: Distillation and On-Policy Self-Distillation at the Frontier
+  of Student Competence}.
+\newblock \emph{arXiv preprint arXiv:2603.11178}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2603.11178}.
+
+\bibitem[Ko et~al.(2026)Ko, Abdali, Kim, Chen, and Cameron]{ko2026scaling}
+Jongwoo Ko, Sara Abdali, Young~Jin Kim, Tianyi Chen, and Pashmina Cameron.
+\newblock Scaling reasoning efficiently via relaxed on-policy distillation.
+\newblock \emph{arXiv preprint arXiv:2603.11137}, 2026.
+
+\bibitem[Kim et~al.(2026)Kim, Luo, Kim, Lee, Kim, Jeon, Li, and
+  Yang]{kim2026does}
+Jeonghye Kim, Xufang Luo, Minbeom Kim, Sangmook Lee, Dohyung Kim, Jiwon Jeon,
+  Dongsheng Li, and Yuqing Yang.
+\newblock Why does self-distillation (sometimes) degrade the reasoning
+  capability of llms?
+\newblock \emph{arXiv preprint arXiv:2603.24472}, 2026.
+
+\bibitem[Ye et~al.(2025)Ye, Dong, Chi, Wu, Huang, and
+  Wei]{zhang2025blackboxopd}
+Tianzhu Ye, Li~Dong, Zewen Chi, Xun Wu, Shaohan Huang, and Furu Wei.
+\newblock {Black-Box On-Policy Distillation of Large Language Models}.
+\newblock \emph{arXiv preprint arXiv:2511.10643}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2511.10643}.
+
+\bibitem[Xiao et~al.(2026)Xiao, Xia, Yang, Gao, Shen, Zhang, He, Lou, Luo,
+  Wang, et~al.]{xiao2026mimo}
+Bangjun Xiao, Bingquan Xia, Bo~Yang, Bofei Gao, Bowen Shen, Chen Zhang,
+  Chenhong He, Chiheng Lou, Fuli Luo, Gang Wang, et~al.
+\newblock Mimo-v2-flash technical report.
+\newblock \emph{arXiv preprint arXiv:2601.02780}, 2026.
+
+\bibitem[Xu et~al.(2025{\natexlab{b}})Xu, Pang, Zhu, Gu, Wei, Deng, Pan, Shen,
+  and Cheng]{rlkd}
+Shicheng Xu, Liang Pang, Yunchang Zhu, Jia Gu, Zihao Wei, Jingcheng Deng,
+  Feiyang Pan, Huawei Shen, and Xueqi Cheng.
+\newblock {RLKD: Distilling LLMs' Reasoning via Reinforcement Learning}.
+\newblock \emph{arXiv preprint arXiv:2505.16142}, 2025{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2505.16142}.
+
+\bibitem[Xu et~al.(2025{\natexlab{c}})Xu, Zhu, Deng, Li, Hou, Wang, Shang, Xu,
+  and Mi]{kdrl}
+Hongling Xu, Qi~Zhu, Heyuan Deng, Jinpeng Li, Lu~Hou, Yasheng Wang, Lifeng
+  Shang, Ruifeng Xu, and Fei Mi.
+\newblock {KDRL: Post-Training Reasoning LLMs via Unified Knowledge
+  Distillation and Reinforcement Learning}.
+\newblock \emph{arXiv preprint arXiv:2506.02208}, 2025{\natexlab{c}}.
+\newblock URL \url{https://arxiv.org/abs/2506.02208}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{b}})Zhang, Jiang, Shen, Zhang, Ram, Yang,
+  Tu, Xia, and Soatto]{rakd}
+Zhaoyang Zhang, Shuli Jiang, Yantao Shen, Yuting Zhang, Dhananjay Ram, Shuo
+  Yang, Zhuowen Tu, Wei Xia, and Stefano Soatto.
+\newblock {Reinforcement-aware Knowledge Distillation for LLM Reasoning}.
+\newblock \emph{arXiv preprint arXiv:2602.22495}, 2026{\natexlab{b}}.
+\newblock URL \url{https://arxiv.org/abs/2602.22495}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Zhang, Zhang, Hu, Chen, and Xu]{aligndistil}
+Songming Zhang, Xue Zhang, Tong Zhang, Bojie Hu, Yufeng Chen, and Jinan Xu.
+\newblock {AlignDistil: Token-Level Language Model Alignment as Adaptive Policy
+  Distillation}.
+\newblock In \emph{Proceedings of ACL}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2503.02832}.
+
+\bibitem[Yang et~al.(2026{\natexlab{a}})Yang, Qin, Si, Chen, Gu, Yao, Lin,
+  Wang, Wang, and Duan]{yang2026self}
+Chenxu Yang, Chuanyu Qin, Qingyi Si, Minghui Chen, Naibin Gu, Dingyu Yao, Zheng
+  Lin, Weiping Wang, Jiaqi Wang, and Nan Duan.
+\newblock Self-distilled rlvr.
+\newblock \emph{arXiv preprint arXiv:2604.03128}, 2026{\natexlab{a}}.
+
+\bibitem[Li et~al.(2025{\natexlab{b}})Li, Yue, Xu, Jiang, Niu, Lin,
+  Ramasubramanian, and Poovendran]{li2025small}
+Yuetai Li, Xiang Yue, Zhangchen Xu, Fengqing Jiang, Luyao Niu, Bill~Yuchen Lin,
+  Bhaskar Ramasubramanian, and Radha Poovendran.
+\newblock Small models struggle to learn from strong reasoners.
+\newblock 2025{\natexlab{b}}.
+
+\bibitem[Yang et~al.(2026{\natexlab{b}})Yang, Liu, Xie, Yang, Yang, and
+  Lin]{gopd}
+Wenkai Yang, Weijie Liu, Ruobing Xie, Kai Yang, Saiyong Yang, and Yankai Lin.
+\newblock Learning beyond teacher: Generalized on-policy distillation with
+  reward extrapolation.
+\newblock \emph{arXiv preprint arXiv:2602.12125}, 2026{\natexlab{b}}.
+
+\bibitem[Burns et~al.(2023)Burns, Izmailov, Kirchner, Baker, Gao,
+  Aschenbrenner, Chen, Ecoffet, Joglekar, Leike, Sutskever, and
+  Wu]{burns2023weakstrong}
+Collin Burns, Pavel Izmailov, Jan~Hendrik Kirchner, Bowen Baker, Leo Gao,
+  Leopold Aschenbrenner, Yining Chen, Adrien Ecoffet, Manas Joglekar, Jan
+  Leike, Ilya Sutskever, and Jeff Wu.
+\newblock Weak-to-strong generalization: Eliciting strong capabilities with
+  weak supervision.
+\newblock \emph{arXiv preprint arXiv:2312.09390}, 2023.
+
+\bibitem[Leike and Sutskever(2023)]{superalignment}
+Jan Leike and Ilya Sutskever.
+\newblock {Introducing Superalignment}.
+\newblock \emph{OpenAI Blog}, 2023.
+
+\bibitem[Grandvalet and Bengio(2004)]{grandvalet2004semi}
+Yves Grandvalet and Yoshua Bengio.
+\newblock {Semi-supervised learning by entropy minimization}.
+\newblock \emph{Advances in neural information processing systems}, 17, 2004.
+
+\bibitem[Dai and Le(2015)]{dai2015semi}
+Andrew~M Dai and Quoc~V Le.
+\newblock {Semi-supervised sequence learning}.
+\newblock \emph{Advances in neural information processing systems}, 28, 2015.
+
+\bibitem[Laine and Aila(2016)]{laine2016temporal}
+Samuli Laine and Timo Aila.
+\newblock {Temporal ensembling for semi-supervised learning}.
+\newblock \emph{arXiv preprint arXiv:1610.02242}, 2016.
+
+\bibitem[Athiwaratkun et~al.(2018)Athiwaratkun, Finzi, Izmailov, and
+  Wilson]{athiwaratkun2018there}
+Ben Athiwaratkun, Marc Finzi, Pavel Izmailov, and Andrew~Gordon Wilson.
+\newblock {There are many consistent explanations of unlabeled data: Why you
+  should average}.
+\newblock \emph{arXiv preprint arXiv:1806.05594}, 2018.
+
+\bibitem[Han et~al.(2018)Han, Yao, Yu, Niu, Xu, Hu, Tsang, and
+  Sugiyama]{han2018co}
+Bo~Han, Quanming Yao, Xingrui Yu, Gang Niu, Miao Xu, Weihua Hu, Ivor Tsang, and
+  Masashi Sugiyama.
+\newblock {Co-teaching: Robust training of deep neural networks with extremely
+  noisy labels}.
+\newblock \emph{Advances in neural information processing systems}, 31, 2018.
+
+\bibitem[Berthelot et~al.(2019)Berthelot, Carlini, Goodfellow, Papernot,
+  Oliver, and Raffel]{berthelot2019mixmatch}
+David Berthelot, Nicholas Carlini, Ian Goodfellow, Nicolas Papernot, Avital
+  Oliver, and Colin~A Raffel.
+\newblock {Mixmatch: A holistic approach to semi-supervised learning}.
+\newblock \emph{Advances in neural information processing systems}, 32, 2019.
+
+\bibitem[Li et~al.(2020)Li, Socher, and Hoi]{li2020dividemix}
+Junnan Li, Richard Socher, and Steven~CH Hoi.
+\newblock {Dividemix: Learning with noisy labels as semi-supervised learning}.
+\newblock \emph{arXiv preprint arXiv:2002.07394}, 2020.
+
+\bibitem[Chen et~al.(2020{\natexlab{a}})Chen, Kornblith, Swersky, Norouzi, and
+  Hinton]{chen2020big}
+Ting Chen, Simon Kornblith, Kevin Swersky, Mohammad Norouzi, and Geoffrey
+  Hinton.
+\newblock {Big self-supervised models are strong semi-supervised learners}.
+\newblock \emph{Advances in neural information processing systems},
+  33:\penalty0 22243--22255, 2020{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2020{\natexlab{b}})Chen, Wei, Kumar, and Ma]{chen2020self}
+Yining Chen, Colin Wei, Ananya Kumar, and Tengyu Ma.
+\newblock {Self-training avoids using spurious features under domain shift}.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  33:\penalty0 21061--21071, 2020{\natexlab{b}}.
+
+\bibitem[Chen et~al.(2022)Chen, Jiang, Wang, Wan, Wang, and
+  Long]{chen2022debiased}
+Baixu Chen, Junguang Jiang, Ximei Wang, Pengfei Wan, Jianmin Wang, and
+  Mingsheng Long.
+\newblock {Debiased self-training for semi-supervised learning}.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  35:\penalty0 32424--32437, 2022.
+
+\bibitem[Christiano et~al.(2018)Christiano, Shlegeris, and
+  Amodei]{christiano2018supervising}
+Paul Christiano, Buck Shlegeris, and Dario Amodei.
+\newblock {Supervising strong learners by amplifying weak experts}.
+\newblock \emph{arXiv preprint arXiv:1810.08575}, 2018.
+
+\bibitem[Leike et~al.(2018)Leike, Krueger, Everitt, Martic, Maini, and
+  Legg]{leike2018scalable}
+Jan Leike, David Krueger, Tom Everitt, Miljan Martic, Vishal Maini, and Shane
+  Legg.
+\newblock Scalable agent alignment via reward modeling: a research direction.
+\newblock \emph{arXiv preprint arXiv:1811.07871}, 2018.
+
+\bibitem[Irving et~al.(2018)Irving, Christiano, and Amodei]{irving2018debate}
+Geoffrey Irving, Paul Christiano, and Dario Amodei.
+\newblock {AI} safety via debate.
+\newblock \emph{arXiv preprint arXiv:1805.00899}, 2018.
+
+\bibitem[Bowman et~al.(2022)Bowman, Hyun, Perez, Chen, Pettit, Heiner,
+  Lukosuite, Askell, Jones, Chen, et~al.]{bowman2022scalable}
+Samuel~R Bowman, Jeeyoon Hyun, Ethan Perez, Edwin Chen, Craig Pettit, Scott
+  Heiner, Kamile Lukosuite, Amanda Askell, Andy Jones, Anna Chen, et~al.
+\newblock Measuring progress on scalable oversight for large language models.
+\newblock \emph{arXiv preprint arXiv:2211.03540}, 2022.
+
+\bibitem[Bowman(2022)]{bowman2022alignment}
+Sam Bowman.
+\newblock {Artificial Sandwiching: When can we test scalable alignment
+  protocols without humans?}
+\newblock \emph{AI Alignment Forum}, 2022.
+
+\bibitem[Bai et~al.(2022)Bai, Kadavath, Kundu, Askell, Kernion, Jones, Chen,
+  Goldie, Mirhoseini, McKinnon, et~al.]{bai2022constitutional}
+Yuntao Bai, Saurav Kadavath, Sandipan Kundu, Amanda Askell, Jackson Kernion,
+  Andy Jones, Anna Chen, Anna Goldie, Azalia Mirhoseini, Cameron McKinnon,
+  et~al.
+\newblock Constitutional {AI}: Harmlessness from {AI} feedback.
+\newblock \emph{arXiv preprint arXiv:2212.08073}, 2022.
+
+\bibitem[Christiano et~al.(2022)Christiano, Cotra, and
+  Xu]{christiano2022eliciting}
+Paul Christiano, Ajeya Cotra, and Mark Xu.
+\newblock {Eliciting latent knowledge}.
+\newblock Technical report, Alignment Research Center (ARC), 2022.
+
+\bibitem[Burns et~al.(2022)Burns, Ye, Klein, and
+  Steinhardt]{burns2022discovering}
+Collin Burns, Haotian Ye, Dan Klein, and Jacob Steinhardt.
+\newblock {Discovering latent knowledge in language models without
+  supervision}.
+\newblock \emph{arXiv preprint arXiv:2212.03827}, 2022.
+
+\bibitem[Schwarzschild et~al.(2021{\natexlab{a}})Schwarzschild, Borgnia, Gupta,
+  Huang, Vishkin, Goldblum, and Goldstein]{schwarzschild2021can}
+Avi Schwarzschild, Eitan Borgnia, Arjun Gupta, Furong Huang, Uzi Vishkin, Micah
+  Goldblum, and Tom Goldstein.
+\newblock {Can you learn an algorithm? generalizing from easy to hard problems
+  with recurrent networks}.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  34:\penalty0 6695--6706, 2021{\natexlab{a}}.
+
+\bibitem[Schwarzschild et~al.(2021{\natexlab{b}})Schwarzschild, Borgnia, Gupta,
+  Bansal, Emam, Huang, Goldblum, and Goldstein]{schwarzschild2021datasets}
+Avi Schwarzschild, Eitan Borgnia, Arjun Gupta, Arpit Bansal, Zeyad Emam, Furong
+  Huang, Micah Goldblum, and Tom Goldstein.
+\newblock {Datasets for studying generalization from easy to hard examples}.
+\newblock \emph{arXiv preprint arXiv:2108.06011}, 2021{\natexlab{b}}.
+
+\bibitem[Cao et~al.(2024)Cao, Lu, Lu, Chen, Ren, Xiang, Liu, Lu, He, Han, Sun,
+  Lin, et~al.]{survey_autoalign}
+Boxi Cao, Keming Lu, Xinyu Lu, Jiawei Chen, Mengjie Ren, Hao Xiang, Peilin Liu,
+  Yaojie Lu, Ben He, Xianpei Han, Le~Sun, Hongyu Lin, et~al.
+\newblock Towards scalable automated alignment of llms: A survey.
+\newblock \emph{arXiv preprint arXiv:2406.01252}, 2024.
+
+\bibitem[Yao et~al.(2025{\natexlab{a}})Yao, Yang, Wang, Lin, and
+  Liu]{bansal2025revisiting_w2s}
+Wei Yao, Wenkai Yang, Ziqiao Wang, Yankai Lin, and Yong Liu.
+\newblock Revisiting weak-to-strong generalization in theory and practice:
+  Reverse kl vs. forward kl.
+\newblock \emph{arXiv preprint arXiv:2502.11107}, 2025{\natexlab{a}}.
+
+\bibitem[Yao et~al.(2025{\natexlab{b}})Yao, Xu, Tang, Yang, Di, Wang, and
+  Liu]{w2s_fdivergence}
+Wei Yao, Gengze Xu, Huayi Tang, Wenkai Yang, Donglin Di, Ziqiao Wang, and Yong
+  Liu.
+\newblock On weak-to-strong generalization and f-divergence.
+\newblock \emph{arXiv preprint arXiv:2506.03109}, 2025{\natexlab{b}}.
+
+\bibitem[Sang et~al.(2024)Sang, Wang, Zhang, Zhu, Kong, Ye, Wei, and
+  Xiao]{guo2024improving_w2s}
+Jitao Sang, Yuhang Wang, Jing Zhang, Yanxu Zhu, Chao Kong, Junhong Ye, Shuyu
+  Wei, and Jinlin Xiao.
+\newblock Improving weak-to-strong generalization with scalable oversight and
+  ensemble learning.
+\newblock \emph{arXiv preprint arXiv:2402.00667}, 2024.
+
+\bibitem[Yuan et~al.(2025)Yuan, Xiao, Tao, Wang, Gao, Ding, and
+  Xu]{w2s_reasoning}
+Yige Yuan, Teng Xiao, Shuchang Tao, Xue Wang, Jinyang Gao, Bolin Ding, and
+  Bingbing Xu.
+\newblock Incentivizing strong reasoning from weak supervision.
+\newblock \emph{arXiv preprint arXiv:2505.20072}, 2025.
+
+\bibitem[Yuan et~al.(2024)Yuan, Pang, Cho, Sukhbaatar, Xu, and
+  Weston]{yuan2024self}
+Weizhe Yuan, Richard~Yuanzhe Pang, Kyunghyun Cho, Sainbayar Sukhbaatar, Jing
+  Xu, and Jason Weston.
+\newblock Self-rewarding language models.
+\newblock \emph{arXiv preprint arXiv:2401.10020}, 2024.
+
+\bibitem[Zhu et~al.(2025)Zhu, He, Wang, Liu, and Wang]{wspo}
+Wenhong Zhu, Zhiwei He, Xiaofeng Wang, Pengfei Liu, and Rui Wang.
+\newblock Weak-to-strong preference optimization: Stealing reward from weak
+  aligned model.
+\newblock \emph{arXiv preprint arXiv:2410.18640}, 2025.
+
+\bibitem[Azar et~al.(2024)Azar, Rowland, Piot, Guo, Calandriello, Valko, and
+  Munos]{azar2024ipo}
+Mohammad~Gheshlaghi Azar, Mark Rowland, Bilal Piot, Daniel Guo, Daniele
+  Calandriello, Michal Valko, and R{\'e}mi Munos.
+\newblock A general theoretical paradigm to understand learning from human
+  preferences.
+\newblock \emph{AISTATS}, 2024.
+
+\bibitem[Ethayarajh et~al.(2024)Ethayarajh, Xu, Muennighoff, Jurafsky, and
+  Kiela]{ethayarajh2024kto}
+Kawin Ethayarajh, Winnie Xu, Niklas Muennighoff, Dan Jurafsky, and Douwe Kiela.
+\newblock {KTO}: Model alignment as prospect theoretic optimization.
+\newblock \emph{arXiv preprint arXiv:2402.01306}, 2024.
+
+\bibitem[Meng et~al.(2024)Meng, Xia, and Chen]{meng2024simpo}
+Yu~Meng, Mengzhou Xia, and Danqi Chen.
+\newblock {SimPO}: Simple preference optimization with a reference-free reward.
+\newblock \emph{NeurIPS}, 2024.
+
+\bibitem[Lightman et~al.(2023)Lightman, Kosaraju, Burda, Edwards, Baker, Lee,
+  Leike, Schulman, Sutskever, and Cobbe]{lightman2023let}
+Hunter Lightman, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy
+  Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe.
+\newblock Let's verify step by step.
+\newblock \emph{arXiv preprint arXiv:2305.20050}, 2023.
+
+\bibitem[Wang et~al.(2023)Wang, Li, Shao, Xu, Dai, Li, Chen, Wu, and
+  Sui]{mathshepherd}
+Peiyi Wang, Lei Li, Zhihong Shao, RX~Xu, Damai Dai, Yifei Li, Deli Chen, Y~Wu,
+  and Zhifang Sui.
+\newblock Math-shepherd: A label-free step-by-step verifier for {LLMs} in
+  mathematical reasoning.
+\newblock \emph{arXiv preprint arXiv:2312.08935}, 2023.
+
+\bibitem[Cui et~al.(2025)Cui, Yuan, Wang, Wang, Li, He, Fan, Yu, Xu, Chen,
+  et~al.]{cui2025process}
+Ganqu Cui, Lifan Yuan, Zefan Wang, Hanbin Wang, Wendi Li, Bingxiang He, Yuchen
+  Fan, Tianyu Yu, Qixin Xu, Weize Chen, et~al.
+\newblock Process reinforcement through implicit rewards.
+\newblock \emph{arXiv preprint arXiv:2502.01456}, 2025.
+
+\bibitem[Kazemnejad et~al.(2024)Kazemnejad, Aghajohari, Portelance, Sordoni,
+  Reddy, Courville, and Le~Roux]{kazemnejad2024vineppo}
+Amirhossein Kazemnejad, Milad Aghajohari, Eva Portelance, Alessandro Sordoni,
+  Siva Reddy, Aaron Courville, and Nicolas Le~Roux.
+\newblock {VinePPO}: Unlocking rl potential for llm reasoning through refined
+  credit assignment.
+\newblock \emph{arXiv preprint arXiv:2410.01679}, 2024.
+
+\bibitem[Zhang et~al.(2026{\natexlab{c}})]{creditassignsurvey}
+Chenchen Zhang et~al.
+\newblock From reasoning to agentic: Credit assignment in reinforcement
+  learning for large language models.
+\newblock \emph{arXiv preprint arXiv:2604.09459}, 2026{\natexlab{c}}.
+
+\bibitem[Gao et~al.(2023)Gao, Schulman, and Hilton]{gao2023overopt}
+Leo Gao, John Schulman, and Jacob Hilton.
+\newblock Scaling laws for reward model overoptimization.
+\newblock \emph{ICML}, 2023.
+
+\bibitem[Ilharco et~al.(2023)Ilharco, Ribeiro, Wortsman, Schmidt, Hajishirzi,
+  and Farhadi]{ilharco2023task}
+Gabriel Ilharco, Marco~Tulio Ribeiro, Mitchell Wortsman, Ludwig Schmidt,
+  Hannaneh Hajishirzi, and Ali Farhadi.
+\newblock Editing models with task arithmetic.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Wortsman et~al.(2022)Wortsman, Ilharco, Gadre, Roelofs, Gontijo-Lopes,
+  Morcos, Namkoong, Farhadi, Carmon, Kornblith, et~al.]{wortsman2022soups}
+Mitchell Wortsman, Gabriel Ilharco, Samir~Yitzhak Gadre, Rebecca Roelofs,
+  Raphael Gontijo-Lopes, Ari~S Morcos, Hongseok Namkoong, Ali Farhadi, Yair
+  Carmon, Simon Kornblith, et~al.
+\newblock Model soups: Averaging weights of multiple fine-tuned models improves
+  accuracy without increasing inference time.
+\newblock In \emph{ICML}, 2022.
+
+\bibitem[Liu et~al.(2024)Liu, Han, Wang, Tsvetkov, Choi, and
+  Smith]{proxytuning}
+Alisa Liu, Xiaochuang Han, Yizhong Wang, Yulia Tsvetkov, Yejin Choi, and
+  Noah~A. Smith.
+\newblock Tuning language models by proxy.
+\newblock \emph{arXiv preprint arXiv:2401.08565}, 2024.
+
+\end{thebibliography}

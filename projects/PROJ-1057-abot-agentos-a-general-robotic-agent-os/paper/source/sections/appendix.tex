@@ -1,0 +1,298 @@
+
+
+
+\section{Memory Benchmark Judge Prompts}
+\label{app:memory_judge_prompts}
+
+This appendix reports the judge prompts used for the three LLM-judged memory benchmarks.
+Each benchmark uses a separate prompt matched to its answer format and scoring protocol.
+
+\subsection{OpenEQA Judge Prompt}
+\label{app:judge_openeqa}
+
+\promptheading{OpenEQA LLM-Match Judge}
+
+\begin{lstlisting}[style=promptstyle]
+You are an evaluator for OpenEQA question answering.
+
+Given a question, a reference answer, and a predicted answer, score whether the prediction answers the question correctly.
+
+Use a 5-point score:
+- 5: fully correct and complete.
+- 4: mostly correct; minor omission or wording difference.
+- 3: partially correct; captures the main idea but misses important details.
+- 2: weakly related; some relevant information but mostly incomplete or vague.
+- 1: incorrect, unsupported, contradictory, or missing.
+
+Guidelines:
+- Accept semantically equivalent answers.
+- For location questions, accept equivalent room/place descriptions if they identify the same target.
+- For object-state questions, polarity must match.
+- For count questions, the number must match unless the reference itself is approximate.
+- Do not reward hallucinated details that contradict the reference.
+
+Return only valid JSON:
+{
+  "score": 1,
+  "llm_match": false,
+  "reason": "brief explanation"
+}
+\end{lstlisting}
+
+\subsection{Mem-Gallery Judge Prompt}
+\label{app:judge_memgallery}
+
+\promptheading{Mem-Gallery LLM-Judge}
+
+\begin{lstlisting}[style=promptstyle]
+You are an impartial judge evaluating the memory capabilities of an AI assistant with a question-answering task.
+
+Compare the assistant answer against the ground truth for the given question.
+
+Allowed scores are exactly 0, 0.25, 0.5, 0.75, or 1.
+The strict parser preserves these five levels. The optional official-style parser buckets them to the public evaluator scale: below 0.25 -> 0, below 0.75 -> 0.5, otherwise -> 1.
+
+Scoring rubric:
+- 0: incorrect or missing; contradicts the ground truth or gives unrelated information.
+- 0.25: weakly related but mostly incorrect.
+- 0.5: partially correct but missing important information.
+- 0.75: mostly correct with minor omission or wording issue.
+- 1: correct or semantically equivalent.
+
+Return only valid JSON:
+{
+  "score": 1,
+  "reasoning": "short explanation"
+}
+
+Question:
+{question}
+
+Ground truth:
+{ground_truth}
+
+Assistant answer:
+{prediction}
+\end{lstlisting}
+
+\subsection{LoCoMo Judge Prompt}
+\label{app:judge_locomo}
+
+\promptheading{LoCoMo Memory-Recall Judge}
+
+\begin{lstlisting}[style=promptstyle]
+System:
+You are evaluating conversational AI memory recall. Return JSON only with the format requested.
+
+User:
+Label the generated answer as CORRECT or WRONG.
+
+Rules:
+
+1. PARTIAL CREDIT:
+If the generated answer includes at least one correct item from the gold answer's list, mark CORRECT. Getting 1 out of 2, 2 out of 4, etc. is acceptable. Only mark WRONG if none of the gold answer items appear.
+
+2. PARAPHRASES COUNT:
+Same concept in different words is CORRECT. Emotions and sentiments in the same positive/negative family count as paraphrases. Judge semantic meaning, not exact wording.
+
+3. EXTRA DETAIL IS FINE:
+A longer answer that includes the gold answer's key facts plus additional information is CORRECT. Do not penalize for being more detailed or specific.
+
+4. DATE TOLERANCE:
+Dates within 14 days of each other are CORRECT. Durations within 50% are CORRECT, e.g. "5 months" matches "six months" and "19 days" matches "two weeks". Relative dates such as "few days before November" match specific dates in the same window. A specific date that is consistent with a vague reference is CORRECT. Converting "last year" to the actual year relative to the conversation year is CORRECT.
+
+5. SEMANTIC OVERLAP:
+Judge whether the generated answer addresses the same topic and captures the core idea of the gold answer. For emotions and feelings questions, answers expressing sentiments in the same valence about the same event are CORRECT.
+
+6. SAME REFERENT:
+If the generated answer mentions or references the same named entity, character, person, or concept as the gold answer, mark CORRECT even if the generated answer provides a different physical description or additional detail.
+
+7. FOCUS ON KNOWLEDGE, NOT WORDING:
+The goal is to assess whether the system recalled the right fact. Minor differences in specificity, phrasing, or scope should not result in WRONG.
+
+Optional evidence variant:
+If actual conversation evidence is supplied and corroborates the generated answer, mark CORRECT even when the generated answer diverges from the gold answer. Use evidence only to accept answers, never to reject them more strictly.
+
+Only mark WRONG if:
+- The generated answer contains zero correct items from the gold answer.
+- The answer addresses a completely different topic.
+
+Return JSON with:
+{
+  "reasoning": "one sentence",
+  "label": "CORRECT | WRONG"
+}
+\end{lstlisting}
+
+\section{Lifelong Self-Evolution Process Example}
+\label{app:self_evo_process_example}
+
+This appendix example summarizes one OpenEQA lifelong self-evolution run.
+The run used fixed data splits and did not modify the dataset schema.
+Self-evolution produced auditable JSON DSL runtime assets rather than question-specific answer patches.
+
+\paragraph{Procedure}
+For each split, the system executes the following loop.
+\begin{enumerate}
+    \item \textbf{Incumbent evaluation.} Run the current incumbent memory system on the split.
+    \item \textbf{Diagnosis.} The Diagnoser inspects failed QA rows, retrieval traces, and graph evidence, and clusters failures by memory root cause.
+    \item \textbf{Hypothesis generation.} The HypothesisGenerator proposes generic JSON DSL candidate assets for writer, retriever, answerer, or frame-policy layers. Candidate metadata can record target failures for audit, but runtime behavior is controlled by generic activation conditions and evidence requirements.
+    \item \textbf{Compilation and safety review.} The CompilerCritic narrows candidates into safe runtime policies, rejects executable code, schema migration, direct answer resolvers, fixed answer tables, and qid/gold-answer rules.
+    \item \textbf{Gate analysis.} The GateAnalyst adds protected-category constraints, activation guards, cost/lifecycle constraints, and regression risks.
+    \item \textbf{Candidate evaluation.} Each materialized asset is evaluated against the current incumbent. Candidate acceptance requires target improvement, no global regression, no low-score-count increase, and no protected-category regression.
+    \item \textbf{Stack confirmation.} All accepted assets for the round are evaluated together. Only assets whose combined stack beats the incumbent are carried forward; otherwise newly accepted assets from that round are deprecated.
+\end{enumerate}
+
+\paragraph{Representative split example}
+The clearest accepted example is \texttt{split\_00}.
+The Diagnoser identified a \textit{derived-fact missing / adapter-to-graph materialization} failure:
+\begin{itemize}
+    \item upstream scene evidence contained an object observation, such as a throw blanket on a bed;
+    \item the graph did not expose a corresponding typed object node or directed object-room/object-object relation;
+    \item retrieval returned unrelated object records instead of the target object evidence;
+    \item the answerer therefore produced an unsupported or missing answer.
+\end{itemize}
+This diagnosis points to a memory-system failure, not a direct answer-format patch.
+
+\paragraph{Proposed candidates}
+The HypothesisGenerator proposed three generic runtime assets, shown in Table~\ref{tab:split00_self_evo_candidates}.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{p{0.25\linewidth} p{0.12\linewidth} p{0.54\linewidth}}
+\hline
+\textbf{Candidate} & \textbf{Layer} & \textbf{Proposed evolution} \\
+\hline
+Writer materialization
+& Writer
+& Promote adapter keyframe object mentions into typed object observations with aliases, attributes, observed state facts, room/place linkage, last-seen evidence, source reference, frame evidence, confidence, and provenance. \\
+Retriever room-anchor/last-seen focus
+& Retriever
+& Prefer observed object memories using room/place anchors, last-seen evidence, object identity, and directed spatial grounding rather than broad scene-level lexical similarity. \\
+Writer directed support relations
+& Writer
+& Write directed spatial support relations only when both endpoints and relation direction are explicitly grounded by observation evidence. \\
+\hline
+\end{tabular}
+\caption{Candidate assets proposed for the representative OpenEQA self-evolution split.}
+\label{tab:split00_self_evo_candidates}
+\end{table}
+
+\paragraph{Safety constraints}
+CompilerCritic and GateAnalyst narrowed the candidates with generic guards:
+\begin{itemize}
+    \item do not write objects from question text, room priors, or scene summaries alone;
+    \item do not infer object state, affordance, or relation unless visually or observationally grounded;
+    \item do not reverse spatial relation direction;
+    \item do not suppress exact object identity matches from another room if they are the only grounded evidence;
+    \item preserve source reference, frame path when available, confidence, and last-seen evidence for audit;
+    \item protect object localization, object state recognition, and last-seen categories from regression.
+\end{itemize}
+
+\paragraph{Gate outcomes}
+The gate outcomes for \texttt{split\_00} are shown in Table~\ref{tab:split00_self_evo_gate}.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{p{0.27\linewidth} p{0.16\linewidth} p{0.49\linewidth}}
+\hline
+\textbf{Candidate} & \textbf{Gate result} & \textbf{Main reason} \\
+\hline
+Writer materialization
+& Rejected
+& Although target and global score improved, protected object-state recognition regressed slightly beyond the configured tolerance. \\
+Retriever room-anchor/last-seen focus
+& Accepted
+& Target delta was $+0.800$, global delta was $+0.044$, and low-score count decreased by $10$. \\
+Writer directed support relations
+& Rejected
+& Target delta was negative and protected object-state recognition regressed. \\
+\hline
+\end{tabular}
+\caption{Candidate-level gate outcomes for \texttt{split\_00}.}
+\label{tab:split00_self_evo_gate}
+\end{table}
+
+\paragraph{Stack confirmation}
+The stack containing the accepted retriever asset passed confirmation:
+\begin{itemize}
+    \item normalized baseline mean: $0.6053$;
+    \item normalized stack mean: $0.6545$;
+    \item stack delta: $+0.0492$;
+    \item low-score count changed from $91$ to $77$;
+    \item protected object-state recognition did not regress;
+    \item protected object-localization improved by approximately $+0.073$.
+\end{itemize}
+The accepted asset was then written to the global evolution log as a provisional retriever asset.
+
+\paragraph{Resulting runtime policy.}
+The accepted retriever policy can be summarized as follows:
+\begin{quote}
+\small
+\ttfamily
+When an OpenEQA retrieval query contains an object anchor, room/place cue, or spatial phrase, rank observation-grounded object memories ahead of broad scene summaries. Prefer records with matching room/place, explicit last\_seen, source\_ref/frame evidence, object identity, and directed spatial relation evidence. Do not infer room priors, reverse relation direction, or use ungrounded scene summaries as object evidence.
+\end{quote}
+This is a generic retrieval policy. It does not contain gold answers, manual answer rules, or question-specific shortcuts.
+
+
+
+\paragraph{Eight-split evolution trace.}
+
+
+
+Table~\ref{tab:eight_split_self_evo_trace} summarizes what each split proposed and whether the changes survived stack confirmation.
+
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\begin{tabular}{p{0.08\textwidth} p{0.36\textwidth} p{0.25\textwidth} p{0.22\textwidth}}
+\hline
+\textbf{Split} & \textbf{Main proposed evolution} & \textbf{Candidate gate outcome} & \textbf{Stack outcome} \\
+\hline
+\texttt{split\_00}
+& Writer materialization of observed adapter objects; retriever room-anchor/last-seen focus; writer directed support relations.
+& Retriever room-anchor/last-seen policy accepted; two writer policies rejected.
+& Accepted and carried forward. \\
+\texttt{split\_01}
+& Retriever anchor-transition trace ranking; writer grounded room-transition facts.
+& Both rejected due target/global regression and protected-category risk.
+& No new asset promoted. \\
+\texttt{split\_02}
+& Retriever last-seen/state conflict tracing; retriever directed spatial relation guard; writer observation/state alias completion.
+& All rejected due insufficient target gain or global/protected regression.
+& No new asset promoted. \\
+\texttt{split\_03}
+& Retriever grounded spatial/recency/object ranking; writer last-seen completeness; writer identity/alias preservation.
+& Retriever candidate passed candidate gate; writer candidates rejected.
+& Stack failed; newly accepted retriever asset deprecated. \\
+\texttt{split\_04}
+& Retriever recency/directional evidence reranking; writer object-observation provenance completion.
+& Both rejected due target/global regression.
+& No new asset promoted. \\
+\texttt{split\_05}
+& Writer keyframe object promotion; retriever last-seen/directed spatial ranking.
+& Writer candidate accepted by global-rescue gate; retriever rejected.
+& Stack failed; newly accepted writer asset deprecated. \\
+\texttt{split\_06}
+& Retriever anchor-directed same-room binding; writer typed object observation exposure.
+& Both rejected due insufficient target gain or global regression.
+& No new asset promoted. \\
+\texttt{split\_07}
+& Retriever directed spatial relation first; writer object/state/last-seen consolidation.
+& Retriever candidate passed candidate gate; writer rejected.
+& Stack failed; newly accepted retriever asset deprecated. \\
+\hline
+\end{tabular}
+\caption{Eight-split trace of the OpenEQA lifelong self-evolution run. Candidate-level acceptance is not sufficient for lifelong acceptance; new assets are retained only if the full stack passes confirmation.}
+\label{tab:eight_split_self_evo_trace}
+\end{table*}
+
+
+
+\paragraph{Takeaway}
+The successful evolution was not an answer patch.
+It changed the retriever policy so that evidence already present in graph memory is ranked and exposed more reliably.
+Most proposed writer policies were rejected because they risked object-state or localization regressions, and candidate-level wins were not enough unless the full evolved stack also passed confirmation.

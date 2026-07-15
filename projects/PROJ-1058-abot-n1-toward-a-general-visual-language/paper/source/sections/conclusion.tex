@@ -1,0 +1,7 @@
+% ===========================================================
+% 7. CONCLUSION
+% ===========================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented ABot-N1, a general visual-language navigation foundation model whose fast--slow architecture factorizes high-level cognition from low-level control: a slow vision-language reasoner produces Chain-of-Thought traces and pixel-level grounding, while a fast action expert converts these into reactive  waypoints. The dual visual-language guidance through affordance and target pixels serves as a universal action interface that accommodates five navigation tasks---\textit{point-goal}, \textit{instruction-following}, \textit{object-goal}, \textit{POI-goal}, and \textit{person-following}---from a single multi-task checkpoint, enabling strong cross-task transfer without task-specific modifications. ABot-N1 achieves state-of-the-art results on all five benchmarks (70.89\% SR on R2R-CE, 92.9\% SR on outdoor \textit{point-goal}, 77.3\% on \textit{POI-goal}, 84.9\% on \textit{object-goal}, and 90.1\% on \textit{person-following}), with the multi-task model consistently matching or exceeding single-task specialists. Real-world deployment on a quadrupedal robot further confirms generalization from simulation to diverse physical environments, demonstrating a viable path toward embodied navigation agents that are simultaneously robust, versatile, and interpretable.

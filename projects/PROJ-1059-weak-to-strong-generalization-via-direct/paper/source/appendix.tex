@@ -1,0 +1,251 @@
+\appendix
+\renewcommand{\thesection}{\Alph{section}}
+\titleformat{\section}
+  {\sectionfont\sffamily\bfseries\gensicolor}
+  {\thesection.}
+  {0.5em}
+  {}
+
+\section{Experimental Details}
+
+% All \method{} experiments use the student's on-policy rollouts and evaluate the
+% teacher/reference log-ratio on the student's top-$k$ candidate tokens. Unless a
+% section states otherwise, reported validation curves use AIME 2024 and AIME
+% 2025 with the same evaluation protocol within each comparison, so the main
+% comparisons isolate the transferred policy shift, teacher pair, response
+% length, or KL coefficient rather than the benchmark protocol.
+
+% \paragraph{Teacher pairs.}
+% The main experiments use two teacher/reference pairs:
+% R1-Distill-1.5B $\rightarrow$ JustRL-1.5B and Nemotron-1.5B $\rightarrow$
+% QuestA-Nemotron-1.5B. In each case, \method{} transfers the policy shift from
+% the reference model to the post-RL teacher rather than the endpoint teacher
+% distribution.
+
+\paragraph{Direct-OPD data and prompt.}
+For the final \method{} runs, we use the math subset of Skywork-OR1-RL-Data,
+released with Skywork-OR1~\citep{he2025skywork}, and apply the following
+DAPO-style math prompt template.
+
+\begin{mdframed}[
+  skipabove=0.45em,
+  skipbelow=0.45em,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]
+\footnotesize\ttfamily
+Solve the following math problem step by step.\\
+The last line of your response should be of the form\\
+Answer: \$Answer (without quotes) where \$Answer is the answer to the problem.\\
+\\
+\{Question\}\\
+\\
+Remember to put your answer on its own line after "Answer:".
+\end{mdframed}
+We use this template for \method{} training rollouts and evaluation prompts.
+This template differs from the boxed-answer prompt used during teacher RL; in
+our runs, the DAPO-style prompt gives slightly better transfer. Since prompt
+template divergence is not the focus of this paper, we use this setting
+throughout. We also observe similar transfer trends when replacing the Skywork
+training dataset with DAPO-Math-17K while keeping the same prompt format,
+suggesting that the result is not specific to a single training dataset.
+
+\paragraph{Evaluation.}
+Table~\ref{tab:eval-settings} summarizes the evaluation protocol used for all
+reported AIME results unless otherwise specified.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lc}
+\toprule
+Evaluation setting & Value \\
+\midrule
+Benchmarks & AIME 2024, AIME 2025 \\
+Samples per problem & 32 \\
+Sampling temperature & 0.7 \\
+Top-$p$ & 0.95 \\
+Maximum generation length & 31,744 \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation protocol for AIME validation.}
+\label{tab:eval-settings}
+\end{table}
+
+Table~\ref{tab:dopd-training-hyperparams} lists the default \method{} training
+hyperparameters used with the data and prompt format above.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lc}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Training framework & \texttt{verl} \\
+Global batch size & 64 \\
+Mini batch size & 64 \\
+Rollout $n$ & 4 \\
+Maximum prompt length & 1,024 \\
+Maximum response length & 2,048 \\
+Sampling temperature & 1.0 \\
+Top-$p$ & 1.0 \\
+Learning rate & $1\times10^{-6}$ \\
+Training steps & 300 \\
+KL coefficient & $[0.8, 2]$ for different student--teacher pairs if not using adaptive KL \\
+Student top-$k$ support & 16 \\
+Top-$k$ strategy & Student top-$k$ \\
+\bottomrule
+\end{tabular}
+\caption{Training hyperparameters for \method{} unless otherwise specified.}
+\label{tab:dopd-training-hyperparams}
+\end{table}
+
+Table~\ref{tab:rl-training-settings} reports the GRPO settings used to train
+RL teachers and direct-RL baselines.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.06}
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\textbf{R1-Distill-1.5B RL}\\[3pt]
+\begin{tabular}{lc}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Algorithm & GRPO \\
+Train batch size & 512 \\
+PPO mini batch size & 128 \\
+Rollout $n$ & 8 \\
+Maximum prompt length & 2,048 \\
+Maximum response length & 16,384 \\
+Temperature & 1.0 \\
+Learning rate & $1\times10^{-6}$ \\
+KL coefficient & 0.0 \\
+Clip high & 0.28 \\
+Clip low & 0.2 \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\textbf{R1-Distill-7B RL}\\[3pt]
+\begin{tabular}{lc}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Algorithm & GRPO \\
+Train batch size & 512 \\
+PPO mini batch size & 128 \\
+Rollout $n$ & 8 \\
+Maximum prompt length & 2,048 \\
+Maximum response length & 16,384 \\
+Temperature & 1.0 \\
+Learning rate & $1\times10^{-6}$ \\
+KL coefficient & 0.0 \\
+Clip high & 0.28 \\
+Clip low & 0.2 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+
+\vspace{0.8em}
+
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\textbf{Qwen3-1.7B-nonthinking RL}\\[3pt]
+\begin{tabular}{lc}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Algorithm & GRPO \\
+Train batch size & 128 \\
+PPO mini batch size & 128 \\
+Rollout $n$ & 8 \\
+Maximum prompt length & 2,048 \\
+Maximum response length & 16,384 \\
+Temperature & 1.0 \\
+Learning rate & $1\times10^{-6}$ \\
+KL coefficient & 0.0 \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\textbf{Qwen3-4B-nonthinking RL}\\[3pt]
+\begin{tabular}{lc}
+\toprule
+Hyperparameter & Value \\
+\midrule
+Algorithm & GRPO \\
+Train batch size & 128 \\
+PPO mini batch size & 128 \\
+Rollout $n$ & 8 \\
+Maximum prompt length & 2,048 \\
+Maximum response length & 16,384 \\
+Temperature & 1.0 \\
+Learning rate & $1\times10^{-6}$ \\
+KL coefficient & 0.0 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\caption{RL training settings for teacher construction and direct-RL
+baselines. We follow the math GRPO setting of \citet{gopd}, using train batch
+size 512 for R1-Distill runs, train batch size 128 for Qwen3-nonthinking runs,
+and PPO mini batch size 128 throughout.}
+\label{tab:rl-training-settings}
+\end{table}
+
+% \appendixsection{Additional Sweep Figures}
+%
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.48\linewidth]{Results/Sweep-7B-aime24-heatmap.png}
+% \includegraphics[width=0.48\linewidth]{Results/Sweep-7B-aime25-heatmap.png}
+% \caption{Sweep-7B AIME 2024 and AIME 2025 heatmaps. These grids provide the
+% full sweep context behind the response-length and KL sensitivity discussed in
+% Section~\ref{sec:training-length} and Section~\ref{sec:kl-coefficient}.}
+% \label{fig:sweep-7b-detail}
+% \end{figure}
+%
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.48\linewidth]{Results/Sweep-1.7B-aime24-heatmap.png}
+% \includegraphics[width=0.48\linewidth]{Results/Sweep-1.7B-aime25-heatmap.png}
+% \caption{Sweep-1.7B AIME 2024 and AIME 2025 heatmaps. The supplementary grids
+% show that the preferred response length and KL range are pair-dependent rather
+% than universal constants.}
+% \label{fig:sweep-17b-detail}
+% \end{figure}
+
+\section{Additional Entropy Diagnostics}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{Results/5.1/questa_qwen3_1p7b_entropy_appendix.pdf}
+\caption{Entropy diagnostics for QuestA-Nemotron into Qwen3-1.7B.
+The panels show student entropy, post-RL teacher entropy, teacher-reference
+entropy, and teacher entropy minus reference entropy. Together with
+Figure~\ref{fig:qwen3-entropy}, this shows that the non-collapse pattern is not
+specific to the JustRL teacher pair.}
+\label{fig:questa-qwen3-entropy-appendix}
+\end{figure}
+
+\section{Additional Results}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\linewidth]{Results/5.1/questa_transfer_aime25.pdf}
+\caption{QuestA transfer curves on AIME 2025 for the cross-pattern transfer
+setting. The main text reports the corresponding AIME 2024 curves.}
+\label{fig:questa-transfer-aime25-appendix}
+\end{figure}

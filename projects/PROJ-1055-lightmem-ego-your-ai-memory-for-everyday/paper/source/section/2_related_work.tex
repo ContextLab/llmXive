@@ -1,0 +1,44 @@
+\section{Related Work}
+
+\paragraph{Conversational Memory.}
+Conversational memory extends LLM-based assistants from stateless, single-session interaction to persistent agents that can retain, update, and retrieve user-specific information over time \cite{Memory_for_Autonomous_LLM_Agents, MemOS, LightMem, Mem0}. 
+Product systems such as ChatGPT Memory and research systems such as MemGPT and Mem0 demonstrate complementary designs: the former emphasizes personalized continuity, while the latter study explicit memory management through hierarchical context, external storage, consolidation, and retrieval~\cite{GPT-4o, GPT-5, Mem0, MemGPT}. 
+These systems motivate LightMem-Ego's use of persistent, queryable memory, but they mainly focus on language-centric interaction rather than streaming egocentric multimodal experience.
+
+\paragraph{Wearable and Mobile AI Assistants.}
+Wearable and mobile AI assistants place multimodal interaction in the user's physical environment. 
+Wearable systems and smart-glasses agents use egocentric perception for real-time situated assistance \cite{Vinci, Vinci_new, EgoLife, Egocentric_Co-Pilot, Are_we_ready}. 
+Related benchmarks and prototypes further evaluate glasses-style agents and connect visual understanding with physical-world actions \cite{SUPERGLASSES, VisualClaw, VisionClaw, ProMemAssist, EgoLife}. 
+On smartphones, multimodal assistants increasingly combine language, vision, voice, and on-screen understanding \cite{GPT-4o, Gemini-2.5-pro}. 
+However, most systems still focus on current-context perception and response, rather than explicit long-horizon memory of everyday experience.
+
+\paragraph{Multimodal Personal Memory.}
+Multimodal personal memory studies how daily experience can be captured, organized, and queried over time. 
+Memory-augmented video agents build intermediate representations for temporally grounded reasoning over long videos \cite{VideoAgent, M3-Agent, WorldMM, Ego-R1}. 
+Personalized egocentric retrieval and VQA recover user-specific events from long-context recordings \cite{EgoMemory, MyEgo, EgoMemReason, SuperMemory-VQA}. 
+Lifelogging and egocentric-life systems organize daily archives for retrieval and assistance \cite{Lifelong_Retrieval, EgoLife}, while life-journaling systems move toward semantic activity summarization from mobile sensing and language models \cite{AutoLife}. 
+These works motivate LightMem-Ego's streaming hierarchical memory design.
+
+% \paragraph{Conversational Memory.}
+% Conversational memory has emerged as an important direction for extending large language models beyond stateless, single-session interaction \cite{Memory_for_Autonomous_LLM_Agents, MemOS, LightMem, Mem0}. 
+% Product-level systems such as ChatGPT Memory enable assistants to retain useful user-specific information across conversations, thereby supporting more personalized and continuous interactions \cite{GPT-4o, GPT-5}. 
+% In parallel, research systems have explored more explicit memory architectures for long-horizon dialogue. 
+% MemGPT formulates memory management as a virtual context problem and introduces a hierarchical memory design that moves information between limited in-context memory and larger external storage, enabling agents to better maintain coherence over extended interactions \cite{MemGPT}. 
+% More recently, Mem0 frames memory as a scalable memory layer for AI agents, focusing on the extraction, consolidation, and retrieval of salient information from ongoing conversations, with further extensions to graph-based memory representations for modeling richer relational structure \cite{Mem0}. 
+% Collectively, these studies show a broader shift from stateless chat systems toward persistent conversational agents that can preserve user information, maintain cross-session continuity, and support more context-aware interaction \cite{MemMachine, Memora, MemORAI, StructMem, TokenPilot}.
+
+% \paragraph{Wearable and Mobile AI Assistants.}
+% Wearable and mobile AI assistants have recently emerged as an important direction for situated multimodal interaction \cite{Vinci, EgoLife, Egocentric_Co-Pilot, SUPERGLASSES}. 
+% In the wearable setting, commercial systems such as Ray-Ban Meta and Oakley Meta integrate cameras, microphones, open-ear audio, and voice-triggered assistants to support hands-free photo and video capture, messaging, reminders, translation, and in-the-moment question answering, reflecting a broader shift toward embodied assistants that operate directly in the user’s physical environment. 
+% Earlier commercial explorations, such as Humane’s AI Pin, likewise framed wearable AI as a screen-light or screenless computing paradigm embedded into daily life. 
+% In parallel, research prototypes have begun to move beyond simple question answering toward always-on wearable agents that combine egocentric perception with downstream task execution \cite{VisualClaw, Vinci, Egocentric_Co-Pilot, VisionClaw, ProMemAssist, EgoLife}. 
+% A similar trend is visible on mobile devices, where smartphone-native assistants such as Gemini and Apple Intelligence/Siri provide conversational, multimodal, and context-aware assistance through text, voice, images, camera input, personal context, and on-screen understanding \cite{GPT-4o, Gemini-2.5-pro}.
+% Taken together, these studies show that wearable and mobile AI assistants are evolving from conventional voice interfaces toward persistent multimodal systems that operate in the user’s physical environment, making them a natural foundation for everyday-life memory and assistance.
+
+% \paragraph{Multimodal Personal Memory.}
+% Multimodal personal memory has been studied across several closely related lines of work, including episodic memory for past events, personalized retrieval from egocentric recordings, and lifelogging systems that organize daily experiences into searchable archives \cite{EgoMemory,Lifelong_Retrieval,EgoLife}. 
+% In multimodal video understanding, recent memory-augmented methods move beyond flat frame or caption retrieval by constructing structured memories over long videos, enabling temporally grounded reasoning over events, objects, and interactions \cite{VideoAgent,M3-Agent,WorldMM,Ego-R1}. 
+% Closely related to everyday memory, another line of work studies personalized retrieval from long-context egocentric video, where the goal is to recover user-specific past experiences by leveraging contextualized personal memory rather than generic video matching \cite{EgoMemory,MyEgo,EgoMemReason,SuperMemory-VQA}. 
+% In parallel, lifelogging research has long explored how wearable and mobile devices can continuously capture daily life and support interactive retrieval over large personal archives, with recent systems increasingly combining multimodal representations, embedding-based retrieval, and language interfaces \cite{Lifelong_Retrieval}. 
+% More recently, life-journaling systems extend this direction from retrieval to semantic summarization, using mobile sensing and language models to automatically produce structured descriptions of daily activities \cite{AutoLife}. 
+% This literature forms a foundation for multimodal personal memory by illustrating how personal experience can be continuously captured, structured, retrieved, and abstracted over time.

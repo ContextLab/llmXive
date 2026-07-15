@@ -1,0 +1,7 @@
+\section*{Limitations}
+
+LightMem-Ego remains constrained by several system-level factors. Its current implementation relies on upstream API calls for speech recognition, visual understanding, language generation, and retrieval-based question answering, making both accuracy and latency sensitive to external model reliability, runtime variation, and rate limits. 
+Errors in transcripts, visual descriptions, or timestamp alignment may further propagate into memory construction and affect answer faithfulness. 
+In addition, maintaining multimodal memory over continuous egocentric streams still incurs non-trivial overhead, as the system repeatedly performs segmentation, summarization, embedding, indexing, and storage.
+The memory update mechanism is also preliminary: it lacks a principled policy for revising, merging, forgetting, or promoting memories. 
+Future work will improve efficiency, robustness, and adaptive memory lifecycle management for longer and more diverse deployments.

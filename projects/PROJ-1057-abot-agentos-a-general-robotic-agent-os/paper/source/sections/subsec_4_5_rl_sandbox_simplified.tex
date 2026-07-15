@@ -1,0 +1,57 @@
+\subsection{RL: Online Exploration with LLM-as-a-Judge Reward}
+\label{sec:rl}
+
+% \subsubsection{Online RL Framework}
+
+% After SFT, the student policy is further trained through online RL in the same text-based sandbox used for trajectory generation.  As shown in Figure~\ref{fig:trajectory_generation_engine}(b), this stage changes the role of the model interacting with the sandbox: instead of a teacher agent producing filtered demonstrations, the SFT-initialized student policy samples actions online, receives EnvController/NPC feedback, and updates from reward-guided policy optimization. This follows recent multi-turn agent RL systems that move beyond static imitation toward interaction-based improvement~\citep{zhou2024archer,wei2025webagentr1,wang2025ragen}.
+
+After SFT, the student policy is further trained through online RL in
+the same text-based sandbox used for trajectory generation. Instead of
+imitating teacher demonstrations, the SFT-initialized student policy
+samples actions online, receives EnvController and NPC feedback, and
+updates from reward-guided policy optimization. This follows recent
+multi-turn agent RL systems that move beyond static imitation toward
+interaction-based improvement~\cite{zhou2024archer,wei2025webagentr1,wang2025ragen}.
+
+% The RL loop has four roles. The policy is the only trainable component. The EnvController executes tool calls against the current sandbox state and returns environment feedback. The NPC module provides human-assistance responses when the policy asks for help. The frozen LLM-as-a-Judge reward provider reads rollout evidence and assigns rewards. This separation keeps online RL focused on improving the small policy, while sandbox dynamics, NPC behavior, and judge rewards remain fixed feedback.
+
+
+The RL loop has four roles. The policy is the only trainable component.
+The EnvController executes tool calls against the current sandbox state
+and returns environment feedback. The NPC module provides
+human-assistance responses when the policy asks for help. The frozen
+LLM-as-a-Judge reward provider reads rollout evidence and assigns
+rewards. This separation keeps online RL focused on improving the small
+policy, while sandbox dynamics, NPC behavior, and judge rewards remain
+fixed feedback. Rewards are supplied by the LLM-as-a-Judge reward engine
+described in Section~\ref{sec:judge}, which provides turn-level feedback for local
+action quality and episode-level feedback for global task completion.
+
+
+We use GiGPO~\cite{feng2025gigpo} to convert these rewards into relative
+advantages rather than using raw scores directly. For each scenario,
+multiple rollouts are sampled from the same initial sandbox state. GiGPO
+compares their merged returns to form an episode relative advantage,
+which identifies which complete rollout solves the same task better. It
+also compares turn-level rewards at aligned or comparable decision steps
+to form a step relative advantage, so local recovery choices can be
+reinforced when the policy reaches similar situations, such as the same
+blocked passage, nearby NPC, or candidate target. The final advantage
+combines episode-level and step-level relative comparisons, so policy
+updates favor both better complete rollouts and better local actions.
+
+% \subsubsection{From Judge Rewards to GiGPO Advantages}
+
+% The reward comes from the LLM-as-a-Judge in Section~\ref{sec:judge}. It provides two complementary signals: turn-level rewards for local action quality and episode-level rewards for global task completion. Turn-level rewards evaluate whether the current action is appropriate under the task goal, tool constraints, physical preconditions, latest observation, and output-format requirements; they also include format penalties for malformed tool calls and invalid arguments. Episode-level rewards evaluate whether the completed rollout solves the task efficiently, consistently, and completely.
+
+% For each rollout, the turn-level rewards are merged with the terminal episode-level reward:
+% \begin{equation}
+% R_i
+% =
+% \sum_{t=1}^{T_i} r_{i,t}^{\mathrm{turn}}
+% +
+% r_i^{\mathrm{episode}}.
+% \end{equation}
+% Here, $r_{i,t}^{\mathrm{turn}}$ denotes the turn-level reward for step $t$, including semantic judgment and format penalty, and $r_i^{\mathrm{episode}}$ denotes the global reward assigned after the rollout terminates. The merged return incorporates dense local feedback while preserving the long-horizon requirement that the robot dog must complete the task coherently.
+
+% We use GiGPO~\citep{feng2025gigpo} to convert these rewards into relative advantages rather than using raw scores directly. For each scenario, multiple rollouts are sampled from the same initial sandbox state. GiGPO compares their merged returns to form an episode relative advantage, which identifies which complete rollout solves the same task better. It also compares turn-level rewards at aligned or comparable decision steps to form a step relative advantage, so local recovery choices can be reinforced when the policy reaches similar situations, such as the same blocked passage, nearby NPC, or candidate target. The final advantage combines episode-level and step-level relative comparisons, so policy updates favor both better complete rollouts and better local actions.

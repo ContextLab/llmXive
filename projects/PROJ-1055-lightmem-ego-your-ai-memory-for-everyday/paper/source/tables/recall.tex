@@ -1,0 +1,27 @@
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+\textbf{Scenario} & 
+\textbf{R@1} & 
+\textbf{R@3} & 
+\textbf{R@5} & 
+\textbf{MRR} \\
+\midrule
+Object Finding       & 22.2 & 66.7 & 77.8 & 0.454 \\
+Conversation Recall  & 44.4 & 55.6 & 55.6 & 0.481 \\
+Life Summarization   & 88.9 & 100.0 & 100.0 & 0.944 \\
+\midrule
+\textbf{Overall}     & \textbf{51.9} & \textbf{74.1} & \textbf{77.8} & \textbf{0.627} \\
+\bottomrule
+\end{tabular*}
+\caption{
+Memory retrieval accuracy across everyday-life scenarios.
+R@k denotes Recall@k, and MRR measures the reciprocal rank of the first relevant memory entry.
+}
+\label{tab:retrieval_accuracy}
+\vspace{-3mm}
+\end{table}

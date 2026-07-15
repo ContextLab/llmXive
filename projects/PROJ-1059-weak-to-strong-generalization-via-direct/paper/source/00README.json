@@ -1,0 +1,45 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sora-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Sora-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fancyhdr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "natbib.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "references.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sora.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "soramedium.tfm"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

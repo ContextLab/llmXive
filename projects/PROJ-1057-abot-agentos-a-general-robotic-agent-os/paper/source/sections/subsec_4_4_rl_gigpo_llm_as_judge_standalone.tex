@@ -1,0 +1,135 @@
+% Standalone Section 4.4 draft.
+% Usage: copy this file into the target LaTeX project and include it with \input{...}.
+% Required citation keys:
+%   - zhou2024archer
+%   - wei2025webagentr1
+%   - wang2025ragen
+%   - feng2025gigpo
+
+\subsection{RL: Online Exploration with LLM-as-Judge Reward}
+\label{sec:rl}
+
+SFT gives the small policy a warm start from expert demonstrations. We then use online RL to improve recovery from its own mistakes through interaction. This follows recent multi-turn agent RL systems that move beyond static imitation~\citep{zhou2024archer,wei2025webagentr1,wang2025ragen}. This stage is challenging because embodied trajectories contain many tool calls, observations, and NPC responses. A terminal success signal is therefore too sparse for reliable credit assignment~\citep{wang2025ragen}. We use a frozen LLM-as-Judge reward provider to convert each rollout into turn-level and episode-level reward signals. During RL, the simulator remains fixed and only the small policy is updated.
+
+\subsubsection{Training Architecture}
+
+We build on the ROLL (Reinforcement Learning with Online Learning) framework:
+
+\begin{itemize}
+    \item \textbf{Policy (Actor):} the small LLM being trained. It is served by vLLM for efficient online generation and produces reasoning traces and structured tool calls.
+    \item \textbf{Environment:} \texttt{DogSimulatedEnv}, an online RL wrapper around the GM/NPC-driven simulator introduced in the benchmark and SFT stages. It receives the policy's action, updates the simulated world state, and returns observations or execution feedback.
+    \item \textbf{Reward Provider:} a frozen LLM-as-Judge evaluator. It reads the trajectory context, the current action, and the environment feedback, then produces turn-level and episode-level reward signals.
+\end{itemize}
+
+A critical design principle is role separation. The policy model is not the simulator model. The policy is the trainable small LLM, while the simulator is driven by a frozen large model. The LLM-as-Judge is also separated from policy optimization. It supplies reward signals but does not receive gradient updates during RL. This separation keeps the environment dynamics and reward landscape stable while the policy improves. The reward provider is fixed within each RL run; prompt self-evolution is performed outside the policy update loop and produces the next audited reward-provider snapshot.
+
+The rollout sequence is an interleaved agent-environment trace. Policy-generated tokens and tool calls are optimized. In contrast, environment feedback, simulator messages, and LLM-as-Judge outputs are treated as context and masked out from the policy loss. This prevents the policy from being trained to imitate observations or reward explanations. The update therefore focuses on the model's own decisions.
+
+\subsubsection{Reward Design}
+
+The LLM-as-Judge provides two complementary reward signals for RL. The turn-level signal gives dense local feedback, while the episode-level signal evaluates global task completion. Section~\ref{sec:judge} introduces the self-evolving multi-tier reward engine that generates, audits, and refines these reward signals. Here, we focus on how the fixed reward outputs are consumed by policy optimization.
+
+\paragraph{Turn-level reward.}
+After each action, the frozen LLM-as-Judge assigns a turn-level reward:
+\begin{equation}
+r_{i,t}^{\mathrm{turn}}
+=
+J_{\mathrm{turn}}(s_{i,t},a_{i,t},o_{i,t+1}),
+\end{equation}
+Here, $s_{i,t}$ is the current decision context, and $a_{i,t}$ is the policy action. The term $o_{i,t+1}$ denotes the resulting observation or execution feedback. This reward evaluates whether the action fits the current embodied context, tool constraints, physical preconditions, task goal, and output-format requirements. Invalid tool names, malformed arguments, schema violations, and incomplete tool calls are incorporated as format penalties:
+\begin{equation}
+\hat r_{i,t}
+=
+r_{i,t}^{\mathrm{turn}}
++
+r_{i,t}^{\mathrm{format}}.
+\end{equation}
+This signal provides dense local feedback: it tells the policy which intermediate actions are useful, redundant, unsafe, malformed, or inconsistent with the current context.
+
+\paragraph{Episode-level reward and aggregation.}
+After the trajectory terminates, the LLM-as-Judge assigns an episode-level reward:
+\begin{equation}
+r_i^{\mathrm{episode}}
+=
+J_{\mathrm{episode}}(\tau_i),
+\end{equation}
+which evaluates global task completion, efficiency, consistency, and completeness. This signal discourages locally plausible actions that fail to complete the overall task. We use the existing \texttt{step\_plus\_episode\_sum} merge strategy to form the trajectory return:
+\begin{equation}
+R_i
+=
+\sum_{t=1}^{T_i}\hat r_{i,t}
++
+r_i^{\mathrm{episode}}.
+\end{equation}
+Thus, the return used by GiGPO contains both accumulated effective turn-level rewards and the terminal episode-level reward. Turn-level rewards address local credit assignment. Episode-level rewards preserve the long-horizon objective: the policy must still complete the task efficiently and coherently.
+
+\subsubsection{Training Algorithm}
+
+We adopt GiGPO (Group-in-Group Policy Optimization) for policy updates, with distributed rollout collection via Ray~\citep{feng2025gigpo}. GiGPO is well aligned with our robot-dog RL setting. Each training scenario defines a complete runnable world. Different rollouts from the same scenario can still diverge at both the trajectory level and the local decision level. We therefore use GiGPO in two complementary comparisons:
+\begin{enumerate}
+    \item \textbf{Trajectory-group comparison:} compares which rollout solves the same scenario better.
+    \item \textbf{Anchor-state action comparison:} compares decisions made under comparable local states.
+\end{enumerate}
+
+\paragraph{Trajectory-group comparison.}
+For each scenario, we initialize a group of parallel environments from the same initial state and sample multiple trajectories:
+\begin{equation}
+\mathcal{G}^{E}
+=
+\{\tau_1,\tau_2,\ldots,\tau_G\},
+\quad
+\tau_i
+=
+\{(s_{i,t},a_{i,t},o_{i,t+1})\}_{t=1}^{T_i}.
+\end{equation}
+
+Each scenario contains the task instruction, initial dog position, scene map, NPC configuration, obstacle layout, dynamic events, success criteria, and step budget. After each trajectory receives its merged return $R_i$, we compare trajectories within the same scenario:
+\begin{equation}
+A_i^{E}
+=
+\frac{
+R_i-\mathrm{mean}(\{R_j\}_{j=1}^{G})
+}{
+\mathrm{std}(\{R_j\}_{j=1}^{G})+\epsilon
+}.
+\end{equation}
+This trajectory-group advantage answers which complete trajectory is better under the same task and initial condition. In robot-dog tasks, local plausibility does not guarantee global success. Two rollouts may both move toward plausible regions. However, only one may ask the necessary NPC, trigger the correct door event, reject misleading clues, and report the correct destination within the step budget. The trajectory-group advantage therefore handles global credit assignment over the full embodied execution path.
+
+\paragraph{Anchor-state action comparison.}
+Beyond complete trajectories, robot-dog tasks also create repeated local decision contexts across rollouts. The policy may arrive at the same door, face the same blocked passage, or approach the same NPC. It may also observe the same candidate target or stand near the same destination region. When multiple trajectories reach the same or similar decision context, their actions form a step-level anchor-state group:
+\begin{equation}
+\mathcal{G}^{S}(c)
+=
+\{(j,u)\mid c_{j,u}\sim c\}.
+\end{equation}
+Here $c_{i,t}$ can include the current task goal, location or scene state, latest observation, and available tools. It can also include previous key actions, unresolved obstacles, and relevant social context. The social context may include the nearby NPC and its prior responses. This anchor-state group allows GiGPO to compare competing actions in similar embodied situations. Examples include asking an NPC for clarification versus leaving, speaking a door keyword versus rerouting, and verifying a candidate target versus prematurely reporting. For each action in such a group, we compute an anchor-state advantage from the effective turn-level reward:
+\begin{equation}
+A_{i,t}^{S}
+=
+\frac{
+\hat r_{i,t}
+-
+\mathrm{mean}(\{\hat r_{j,u}:(j,u)\in \mathcal{G}^{S}(c_{i,t})\})
+}{
+\mathrm{std}(\{\hat r_{j,u}:(j,u)\in \mathcal{G}^{S}(c_{i,t})\})+\epsilon
+}.
+\end{equation}
+
+\paragraph{Combined advantage.}
+The final GiGPO advantage combines the trajectory-group advantage and the anchor-state advantage:
+\begin{equation}
+A_{i,t}^{\mathrm{GiGPO}}
+=
+A_i^{E}
++
+\alpha A_{i,t}^{S}.
+\end{equation}
+If no comparable anchor-state group exists for a turn, we set $A_{i,t}^{S}=0$, so the update falls back to the trajectory-group advantage:
+\begin{equation}
+A_{i,t}^{\mathrm{GiGPO}}
+=
+A_i^{E}.
+\end{equation}
+This fallback is important because some embodied states are unique within a rollout group, such as one-off dynamic events or rare observation histories. In those cases, GiGPO avoids fabricating a local comparison and relies only on the trajectory-group advantage.
+
+Overall, GiGPO converts LLM-as-Judge rewards into hierarchical relative advantages instead of using raw reward scores directly. The trajectory-group advantage handles global credit assignment over complete embodied trajectories. The anchor-state advantage handles local credit assignment over comparable robot-dog states. The resulting policy loss updates only the small policy model. Simulator outputs, environment feedback, and LLM-as-Judge outputs remain fixed and masked. Section~\ref{sec:judge} further describes this reward engine outside the RL update loop: LLM-as-Judge reward generation, Meta-Judge audit, and multi-agent self-evolution of the reward prompt.

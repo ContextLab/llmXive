@@ -1,0 +1,38 @@
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+\multirow{2}{*}{\textbf{Stage}} &
+\multicolumn{2}{c}{\textbf{Phone}} &
+\multicolumn{2}{c}{\textbf{Glasses-style}} \\
+\cmidrule(lr){2-3}
+\cmidrule(lr){4-5}
+&
+\textbf{P50} & \textbf{P90} &
+\textbf{P50} & \textbf{P90} \\
+\midrule
+
+\multicolumn{5}{@{}l}{\textit{\textbf{Short-term memory QA}}} \\
+Retrieval       & 13 ms & 15 ms & 14 ms & 29 ms \\
+Answer gen.     & 5.77 s  & 10.38 s  & 6.10 s  & 9.79 s  \\
+End-to-end QA   & 5.86 s  & 10.95 s  & 7.01 s  & 9.96 s  \\
+
+\midrule
+
+\multicolumn{5}{@{}l}{\textit{\textbf{Long-term memory QA}}} \\
+Retrieval       & 4.09 s & 15.39 s & 10.39 s  & 28.93 s  \\
+Answer gen.     & 9.00 s & 22.40 s & 9.25 s  & 22.62 s  \\
+End-to-end QA   & 14.87 s & 35.15 s & 19.96 s  & 42.70 s  \\
+
+\bottomrule
+\end{tabular*}
+\caption{
+Latency breakdown by memory scope and client.
+P50 / P90 are 50th / 90th percentile latencies.
+}
+\label{tab:latency}
+\vspace{-3mm}
+\end{table}

@@ -1,0 +1,226 @@
+% \section{LightMem-Ego}
+% LightMem-Ego is a streaming multimodal memory system for everyday-life assistance. 
+% It is designed for mobile and wearable settings in which visual and acoustic observations arrive continuously, are incrementally organized into memory, and are later queried through natural language. 
+% At a high level, the system contains three stages: multimodal life capture, hierarchical memory formation, and memory-grounded question answering.
+% The memory layer combines online updates for current and short-term memory with asynchronous consolidation into long-term semantic and episodic stores. 
+% The capture layer standardizes heterogeneous device inputs into a unified temporal stream; the memory layer transforms the stream into current, short-term, and long-term memory representations; and the query layer retrieves the appropriate evidence for answer generation. 
+% This design allows LightMem-Ego to support both immediate questions about the ongoing scene and retrospective questions about past experiences within the same backend.
+
+% \subsection{Multimodal Life Capture}
+
+% We represent everyday experience as a temporally ordered multimodal stream:
+% \begin{equation}
+% \mathcal{X}=\{x_t\}_{t=1}^{T}, \qquad x_t=(v_t,a_t,m_t),
+% \end{equation}
+% where \(v_t\), \(a_t\), and \(m_t\) denote visual observations, audio observations, and auxiliary metadata, respectively. 
+% The capture layer of LightMem-Ego is lightweight: it collects, normalizes, and timestamps raw inputs from smartphones or wearable devices before forwarding them to the backend memory pipeline.
+
+% The backend supports video upload and streaming, with online interaction primarily handled through a unified frame--audio interface.
+% Under this design, a mobile phone can serve as a capture device, a wearable connector, or a relay for AI-glasses input without changing the downstream memory pipeline. 
+% To align heterogeneous inputs, all modalities are placed on a shared session timeline. 
+% Let \(t_0\) be the client-side stream start time. 
+% For each uploaded frame or audio chunk with timestamp \(t\), we compute the relative time \(\tau=t-t_0\), which is preserved throughout the pipeline for multimodal alignment, short-term event building, transcript backfilling, and retrieval.
+
+% The visual channel captures egocentric observations from cameras or uploaded videos, while the audio channel receives short audio chunks accumulated into rolling ASR windows. 
+% In addition, LightMem-Ego maintains an extensible metadata channel \(m_t\) for session context such as stream identifiers, source tags, timestamps, and deployment metadata, and can incorporate side-channel signals such as coarse location, screen activity, or lightweight sensor cues. 
+% Overall, the capture layer converts heterogeneous observations into a unified timestamp-aligned stream representation for downstream memory construction and consolidation.
+
+% \subsection{Event Segmentation}
+
+% Given the captured life stream \(\mathcal{X}=\{x_t\}_{t=1}^{T}\), LightMem-Ego incrementally partitions it into a sequence of short event segments \(\mathcal{E}=\{e_i\}_{i=1}^{N}\), where each segment \(e_i=(s_i,\,t_i^{\text{start}},\,t_i^{\text{end}})\) corresponds to a contiguous interval on the shared session timeline. 
+% Rather than assuming that the stream is already organized into high-level activities, the system first constructs lightweight micro-events under streaming conditions and defers richer semantic interpretation to later memory refinement.
+
+% In the current backend, event segmentation is driven by temporal continuity and cross-frame change signals from the incoming frame--audio stream. 
+% Intuitively, a new event is opened when the system observes sufficient evidence of transition in the ongoing egocentric context, and an event is closed when the segment becomes stable enough to be committed to short-term memory. 
+% This design allows segmentation to remain responsive during online capture while avoiding expensive semantic reasoning on every incoming frame.
+
+% Each event segment is initially represented as a compact container for recent multimodal evidence, including its temporal span, representative frames, provisional visual description, and aligned or pending audio context. 
+% Because audio transcription may arrive later than visual updates, LightMem-Ego supports asynchronous backfilling: transcripts and refined descriptions can be attached to an existing segment after its initial creation. This makes segmentation robust to the natural asynchrony of streaming visual and audio input.
+
+% The resulting segments serve as the basic units for downstream memory construction. 
+% Depending on the accumulated multimodal evidence, they can later be interpreted as everyday experiences such as meetings, walking episodes, dining activities, shopping moments, or conversations. 
+% In this way, event segmentation provides a lightweight online interface between raw life capture and higher-level memory organization.
+
+% \subsection{Hierarchical Memory}
+
+% LightMem-Ego organizes captured life streams into a hierarchical memory system that balances immediate responsiveness with longer-term accumulation. 
+% Concretely, we maintain
+% \begin{equation}
+% \mathcal{M}=\{\mathcal{M}_{cur},\mathcal{M}_{st},\mathcal{M}_{lt}\},
+% \end{equation}
+% where \(\mathcal{M}_{cur}\) is the current memory, \(\mathcal{M}_{st}\) is the short-term memory, and \(\mathcal{M}_{lt}\) is the long-term memory. 
+% This hierarchy separates fast online updates from slower memory consolidation, which is important for streaming everyday-life assistance.
+
+% \(\mathcal{M}_{cur}\) stores the most recent multimodal observations in a lightweight working-memory form. 
+% It maintains the latest frames, recent audio-derived context, and the currently active event state, enabling the system to answer questions about the ongoing scene without waiting for full memory construction.
+% On top of this, \(\mathcal{M}_{st}\) stores recent event segments produced from the life stream. 
+% Each short-term memory item is a compact micro-event with its temporal span, representative visual evidence, provisional or refined descriptions, and aligned transcript context when available. 
+% Since visual updates often arrive earlier than transcription results, short-term memory supports asynchronous refinement and backfilling.
+
+% Long-term memory is constructed by consolidating stable short-term events into more persistent experience units. 
+% We write this as \(\mathcal{M}_{lt}=\{\mathcal{M}_{epi},\mathcal{M}_{sem}\}\), where \(\mathcal{M}_{epi}\) denotes episodic memory and \(\mathcal{M}_{sem}\) denotes semantic memory. 
+% Episodic memory preserves event-centric records of past experiences, including their temporal boundaries, multimodal evidence, and cross-event relations. 
+% Semantic memory stores higher-level regularities abstracted from repeated experiences, such as routines, preferences and relationships. 
+% In this way, episodic memory answers questions about \emph{what happened}, while semantic memory supports questions about \emph{what usually happens}.
+
+% This hierarchy allows LightMem-Ego to couple streaming interaction with persistent personal memory. 
+% Current and short-term memories are updated online, while long-term episodic and semantic memories are consolidated asynchronously from accumulated evidence. 
+% As a result, the system can support both immediate scene understanding and retrospective reasoning over longer personal experience.
+
+% \subsection{Experience Retrieval and QA}
+
+% Given a user query \(q\), LightMem-Ego performs memory-grounded question answering by first selecting the appropriate memory sources and then generating an answer from retrieved evidence. 
+% Formally, the retrieval stage maps a query to a set of evidence items:
+% \begin{equation}
+%     \mathcal{R}(q) \subseteq \mathcal{M}_{cur} \cup \mathcal{M}_{st} \cup \mathcal{M}_{lt},
+% \end{equation}
+% where \(\mathcal{M}_{cur}\), \(\mathcal{M}_{st}\), and \(\mathcal{M}_{lt}\) denote current, short-term, and long-term memory, respectively. 
+% Rather than querying all memory layers uniformly, the system first performs lightweight routing based on the temporal scope and semantic intent of the query.
+
+% This routing naturally supports several common retrieval patterns in everyday-life assistance. 
+% Time-aware retrieval is triggered by questions about the present, the recent past, or recurring routines, and accordingly prioritizes current memory, short-term event memory, or long-term semantic memory. 
+% Person-aware retrieval emphasizes memory items associated with recurring identities, interlocutors, or human-centered interactions. 
+% Place-aware retrieval favors events and summaries linked to spatial context when such metadata is available. 
+% Event-aware retrieval focuses on previously segmented experiences and their multimodal evidence, enabling the system to recover past episodes such as meetings, conversations, shopping moments, or dining activities. 
+% In practice, these retrieval cues are not handled by separate pipelines; instead, they are integrated within a unified retrieval process over the hierarchical memory.
+
+% After routing, LightMem-Ego gathers compact evidence from the selected memories, including recent observations, short-term event records, long-term episodic entries, and semantic summaries. 
+% Retrieved evidence may contain timestamps, representative frames, provisional or refined event descriptions, transcript snippets, and higher-level semantic facts. 
+% These heterogeneous pieces are then fused into a query-specific evidence view \(E_q\), which serves as the context for answer generation.
+
+% The final answer is generated by conditioning the language model on both the query and the retrieved evidence \(\hat{y}=f(q,E_q)\). 
+% This design keeps retrieval explicit and memory-grounded: instead of relying solely on the implicit parametric memory of the language model, LightMem-Ego answers questions by first recovering relevant personal experience and then generating a response from that evidence. 
+% As a result, the system can support both immediate questions such as what is happening now and retrospective questions about who, where, when, and what happened in the user’s past experience.
+
+
+
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/Fig 11.pdf}
+%     \caption{Application scenarios of LightMem-Ego, including immediate assistance, conversation recall, life summarization, and routine discovery.}
+%     \label{fig:applications}
+% \end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \captionsetup[subfigure]{font=footnotesize,skip=2pt}
+    \newlength{\demopanelheight}
+    \setlength{\demopanelheight}{0.205\textheight}
+
+    \begin{subfigure}[t]{0.52\textwidth}
+        \centering
+        \includegraphics[
+            height=\demopanelheight,
+            max width=\linewidth,
+            keepaspectratio,
+            valign=t
+        ]{figures/phone_3.pdf}
+        \caption{Web client.}
+        \label{fig:system-interface-web}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.27\textwidth}
+        \centering
+        \includegraphics[
+            height=\demopanelheight,
+            max width=\linewidth,
+            keepaspectratio,
+            valign=t
+        ]{figures/glass_1.pdf}
+        \caption{Glasses app UI.}
+        \label{fig:system-interface-glass-app}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.19\textwidth}
+        \centering
+        \includegraphics[
+            height=\demopanelheight,
+            max width=\linewidth,
+            keepaspectratio,
+            valign=t
+        ]{figures/glass_4.pdf}
+        \caption{First-person overlay.}
+        \label{fig:system-interface-glass-view}
+    \end{subfigure}
+
+    \vspace{-0.5em}
+    \caption{
+    Interfaces of \textbf{LightMem-Ego} across web and wearable deployments. 
+    The web client visualizes live multimodal capture and retrieved evidence; 
+    the glasses client app provides a lightweight interaction surface; 
+    and the first-person overlay illustrates how memory-grounded responses are presented in the user's egocentric view.
+    }
+    \label{fig:system_interfaces}
+    \vspace{-1.2em}
+\end{figure*}
+
+\section{LightMem-Ego}
+
+LightMem-Ego is a streaming multimodal memory system for everyday-life assistance. 
+It connects smartphones or wearable devices with a backend that captures multimodal life streams, organizes them into hierarchical memory, and answers user questions through explicit memory retrieval.
+The system combines online updates for current and short-term memory with asynchronous consolidation into long-term episodic and semantic stores, allowing it to support both immediate scene understanding and retrospective reasoning over past experience.
+Figure~\ref{fig:system_interfaces} shows the deployed interfaces of 
+LightMem-Ego across web, glasses-client, and first-person wearable views.
+
+\subsection{Multimodal Life Capture}
+
+We represent everyday experience as a temporally ordered multimodal stream:
+\begin{equation}
+\mathcal{X}=\{x_t\}_{t=1}^{T}, \qquad x_t=(v_t,a_t,m_t),
+\end{equation}
+where \(v_t\), \(a_t\), and \(m_t\) denote visual observations, audio observations, and auxiliary metadata, respectively. 
+The capture layer is lightweight: it collects, normalizes, and timestamps raw inputs from smartphones or wearable devices, and forwards them to the backend without heavy client-side reasoning. 
+In online deployment, the primary interface is a unified frame--audio stream, in which image frames and short audio chunks are uploaded to the same session. 
+All modalities are aligned on a shared session timeline using the relative timestamp \(\tau=t-t_0\), which is preserved for downstream event building, transcript backfilling, and retrieval. 
+Beyond video and audio, the same interface can incorporate side-channel context such as coarse location, screen activity, or lightweight sensor cues.
+
+\subsection{Event Segmentation}
+
+Given the captured stream \(\mathcal{X}\), LightMem-Ego incrementally partitions it into short event segments 
+\(\mathcal{E}=\{e_i\}_{i=1}^{N}\), where each segment corresponds to a contiguous interval on the shared timeline. 
+Segmentation is driven by temporal continuity and cross-frame change signals, enabling lightweight micro-event construction under streaming conditions without semantic parsing of every frame. 
+Each segment stores its temporal span, representative frames, provisional visual description, and aligned or pending audio context. 
+As more evidence arrives, transcripts and refined descriptions are asynchronously attached to existing segments. 
+These segments form the basic units for downstream memory construction and can represent everyday experiences such as meetings, walking episodes, shopping moments, or conversations.
+
+\subsection{Hierarchical Memory}
+
+LightMem-Ego organizes captured experience into a hierarchical memory system:
+\begin{equation}
+\mathcal{M}=\{\mathcal{M}_{cur},\mathcal{M}_{st},\mathcal{M}_{lt}\},
+\end{equation}
+where \(\mathcal{M}_{cur}\), \(\mathcal{M}_{st}\), and \(\mathcal{M}_{lt}\) denote current, short-term, and long-term memory, respectively. 
+\(\mathcal{M}_{cur}\) acts as a lightweight working memory over the most recent multimodal observations and active event state, enabling immediate responses about the ongoing scene. 
+\(\mathcal{M}_{st}\) stores recent event segments together with representative visual evidence, provisional or refined descriptions, and transcript context when available. 
+Stable short-term events are then consolidated into long-term memory \(\mathcal{M}_{lt}\), which contains episodic memory \(\mathcal{M}_{epi}\) for event-centered past experiences and semantic memory \(\mathcal{M}_{sem}\) for higher-level regularities such as routines, preferences, and relationships. 
+This hierarchy separates fast online interaction from slower memory consolidation while preserving both event-specific and abstract personal knowledge.
+
+\subsection{Edge-Oriented Efficiency}
+
+LightMem-Ego targets mobile and AI-glasses deployment by keeping edge processing lightweight and shifting memory construction to the backend.
+The client samples, compresses, timestamps, and uploads low-rate frames and short audio chunks, avoiding heavy VLM or LLM inference on resource-constrained devices.
+The online backend path updates \(\mathcal{M}_{cur}\) as a rolling buffer and builds \(\mathcal{M}_{st}\) from temporal continuity and cross-frame changes, while costly operations such as ASR backfilling, event refinement, indexing, and semantic extraction run asynchronously.
+
+Query-time cost is also reduced.
+Stable events are consolidated into a event-centric long-term memory, where multimodal evidence is pre-aligned under event anchors.
+User-facing inference therefore retrieves compact event records rather than raw streams or fragmented modality-specific evidence.
+A query router selects the cheapest sufficient source: \(\mathcal{M}_{cur}\) for current-scene queries, \(\mathcal{M}_{st}\) for recent recall, and \(\mathcal{M}_{lt}\) for retrospective or routine-level questions.
+This keeps wearable interaction responsive while slower memory updates run in the background.
+% \subsection{Edge-Oriented Efficiency}
+
+% LightMem-Ego is optimized for mobile and AI-glasses deployment by separating lightweight edge capture from asynchronous backend memory construction. 
+% On the device side, the client only samples, compresses, timestamps, and uploads multimodal observations, such as low-rate JPEG/WebP frames and short audio chunks, avoiding heavy VLM or LLM inference on resource-constrained devices. 
+% On the backend side, the online path remains lightweight: \(\mathcal{M}_{cur}\) is updated as a rolling buffer, while \(\mathcal{M}_{st}\) uses temporal continuity and cross-frame change signals to form micro-events without semantic parsing of every frame. 
+% Costly operations, including ASR backfilling, event refinement, graph updates, visual indexing, and semantic fact extraction, are executed asynchronously after provisional events are available.
+
+% This design also reduces query-time cost. 
+% Stable short-term events are consolidated into an EM$^2$Mem-style long-term memory, where multimodal evidence is pre-aligned under event anchors during construction. 
+% Thus, user-facing inference retrieves compact event records rather than reasoning over raw streams or fragmented modality-specific evidence. 
+% A query router further selects the cheapest sufficient memory source: current-scene questions use \(\mathcal{M}_{cur}\), recent-recall questions use \(\mathcal{M}_{st}\), and retrospective or routine-level questions use \(\mathcal{M}_{lt}\). 
+% As a result, LightMem-Ego keeps wearable interaction responsive while allowing slower memory updates to run silently in the background.
+
+\subsection{Experience Retrieval and QA}
+
+Given a user query \(q\), LightMem-Ego first routes the query to appropriate memory sources and then generates an answer from retrieved evidence. 
+Formally, retrieval produces a query-specific evidence set \(\mathcal{R}(q)\subseteq \mathcal{M}_{cur}\cup\mathcal{M}_{st}\cup\mathcal{M}_{lt}\). 
+The routing process is guided by the temporal scope and semantic intent of the query, naturally supporting time-aware, person-aware, place-aware, and event-aware retrieval. Retrieved evidence may include recent observations, short-term event records, episodic entries, semantic summaries, timestamps, representative frames, and transcript snippets.
+These heterogeneous signals are fused into a compact evidence view \(E_q\), and the final answer is generated as \(\hat{y}=f(q,E_q)\). 
+By making retrieval explicit and memory-grounded, LightMem-Ego supports both immediate questions about the present scene and retrospective questions about who, where, when, and what happened in the user’s past experience.

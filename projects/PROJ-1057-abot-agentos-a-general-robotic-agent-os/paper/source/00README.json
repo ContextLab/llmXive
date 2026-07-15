@@ -1,0 +1,77 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amapmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figure/judge_system_overview_v9_cropped.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figure/trajectory_generation_engine_panel.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "paper.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/2_4_memory.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/5router.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/intro-save.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/intro_new.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/subsec_4_4_rl_gigpo_llm_as_judge_standalone.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/subsec_4_5_judge_model_draft.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sparkvla_m1.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "subsec_4_5_judge_model_draft.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

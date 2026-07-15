@@ -1,0 +1,33 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amap.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "amap/amapmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}
