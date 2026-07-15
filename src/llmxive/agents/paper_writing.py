@@ -55,6 +55,13 @@ class PaperWritingAgent(Agent):
         paper_constitution = _read_optional(constitution)
         results_summary = _read_optional(project_dir / "results.md")
         existing = _read_optional(target_path) if target_path else ""
+        # Residual WRITING-level reviewer action items carried forward when the
+        # project advanced to research_accepted on the two-tier writing-only
+        # exhaustion path (advancement._carry_forward_writing_residue). These were
+        # judged minor (not science-blocking) but the paper-writing stage MUST
+        # still address them — thread the note forward so it is not a dead-end
+        # (issue #1139 anti-pattern 1: persist-and-forget -> persist-and-consume).
+        writing_residue = _read_optional(project_dir / "paper_writing_residue.md")
 
         system = render_prompt(
             "agents/prompts/paper_writing.md",
@@ -72,7 +79,11 @@ class PaperWritingAgent(Agent):
             f"# Paper plan.md\n\n{paper_plan_text}\n\n"
             f"# Paper constitution\n\n{paper_constitution}\n\n"
             f"# Research-stage results summary\n\n{results_summary}\n\n"
-            f"# Existing section text\n\n{existing}\n\n"
+            + (
+                f"# Residual reviewer notes to address (carried forward)\n\n"
+                f"{writing_residue}\n\n" if writing_residue.strip() else ""
+            )
+            + f"# Existing section text\n\n{existing}\n\n"
             "# Task\n\nReturn the YAML document per the contract."
         )
         return [

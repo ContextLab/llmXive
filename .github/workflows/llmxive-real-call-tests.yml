@@ -94,6 +94,13 @@ jobs:
       - name: Backend reachability check (Dartmouth + HF list_models())
         run: python -m llmxive.checks.backends
 
+      # issue #1139 anti-pattern 1: every fixed-name state artifact a non-test
+      # source module writes under state/ or .specify/memory/ must have a non-test
+      # reader (a persist-and-forget dead-end like the old resolved_datasets.yaml
+      # fails here).
+      - name: State-artifact reader check (no persist-and-forget dead-ends)
+        run: python -m llmxive.checks.state_readers
+
       # The contract suite validates every schema in contracts/.
       - name: Contract tests
         run: pytest tests/contract -v
