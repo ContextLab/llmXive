@@ -23,10 +23,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1
-    Starting pipeline for 2023-01-01 to 2023-01-03
-Fetching OMNI Solar Wind data...
-
-Pipeline failed: Failed to fetch OMNI data: OMNIWeb API fetch is not implemented in this environment. Please configure API access.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py", line 14, in <module>
+    from data.ingest import fetch_omni_sw, fetch_themis_ey
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/data/__init__.py", line 3, in <module>
+    from .lag import calculate_physics_lag, apply_lag_shift
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py", line 9, in <module>
+    from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
+ImportError: attempted relative import beyond top-level package
 
 ## Declared deliverables still missing
 

@@ -1,6 +1,5 @@
 """
-Lag calculation and application module.
-Implements FR-012: Physics-based lag calculation and time series shifting.
+Physics-based lag calculation and time series shifting module.
 File: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
 """
 import numpy as np
@@ -11,48 +10,68 @@ from ..config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE, K_PROPAGATION
 
 def calculate_physics_lag(vsw_mean: float) -> float:
     """
-    Calculate physics-based propagation lag in minutes.
+    Calculate the physics-based propagation lag in minutes.
     
-    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM) / Vsw_mean * (1/60)
-    Where Vsw is in km/s, result is in minutes.
-    The factor 60 converts seconds to minutes.
+    Formula: L_phys = (K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE) / (vsw_mean * 60)
+    - Converts distance (km) to time (minutes) given velocity (km/s).
+    - Distance = K_PROPAGATION * Earth Radius * Tail Distance (in Re).
     
     Args:
         vsw_mean: Mean solar wind speed in km/s.
     
     Returns:
         Lag time in minutes.
+    
+    Raises:
+        ValueError: If vsw_mean is zero or negative.
     """
     if vsw_mean <= 0:
-        raise ValueError("Vsw_mean must be positive to calculate lag.")
+        raise ValueError("Solar wind speed must be positive to calculate lag.")
     
-    # Distance = K * Earth Radius (in km)
-    # Time (seconds) = Distance / Speed (km/s)
-    # Time (minutes) = Time (seconds) / 60
-    distance_km = K_PROPAGATION * EARTH_RADIUS_KM
-    time_minutes = (distance_km / vsw_mean) / 60.0
+    # Total distance in km: K * R_earth * Tail_Dist_Re
+    # Note: Tail distance is usually in Re (Earth Radii), so we multiply by R_earth
+    total_distance_km = K_PROPAGATION * EARTH_RADIUS_KM * TAIL_DISTANCE_RE
+    
+    # Time in seconds = distance / speed
+    time_seconds = total_distance_km / vsw_mean
+    
+    # Convert to minutes
+    time_minutes = time_seconds / 60.0
     
     return time_minutes
 
-def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, target_col: str) -> pd.DataFrame:
+def apply_lag_shift(df: pd.DataFrame, lag_minutes: float, time_col: str = 'timestamp') -> pd.DataFrame:
     """
-    Apply a time shift to a DataFrame based on lag minutes.
+    Apply a time shift to a DataFrame based on a lag in minutes.
+    
+    This shifts the data forward in time (simulating propagation delay)
+    by reindexing or shifting the index.
     
     Args:
-        df: DataFrame with 'timestamp' column.
-        lag_minutes: Lag to apply in minutes (positive shifts data back in time).
-        target_col: Column to shift (or all numeric columns if None).
+        df: DataFrame with a datetime index or time_col.
+        lag_minutes: Lag to apply in minutes.
+        time_col: Name of the time column if not using index (default 'timestamp').
     
     Returns:
-        DataFrame with shifted timestamps.
+        Shifted DataFrame.
     """
-    df_shifted = df.copy()
+    df = df.copy()
     
-    # Shift the timestamp index by the lag duration
-    # If lag is positive, we shift the series "back" in time relative to the event
-    # In pandas, shifting timestamps forward means the data point at t now belongs to t + lag
-    # For correlation, we want to align the cause (solar wind) with the effect (tail)
-    # So we shift the solar wind timestamps forward by the lag amount.
-    df_shifted['timestamp'] = df_shifted['timestamp'] + pd.to_timedelta(lag_minutes, unit='m')
+    # Ensure index is datetime
+    if not isinstance(df.index, pd.DatetimeIndex):
+        if time_col in df.columns:
+            df = df.set_index(time_col)
+            df.index = pd.to_datetime(df.index)
+        else:
+            raise ValueError("DataFrame must have a datetime index or specified time_col.")
+    
+    # Shift the index forward by lag_minutes
+    # We create a new index that is shifted
+    shifted_index = df.index + pd.Timedelta(minutes=lag_minutes)
+    
+    # Create a new DataFrame with the shifted index
+    # We keep the original values but associate them with the new time
+    df_shifted = df.copy()
+    df_shifted.index = shifted_index
     
     return df_shifted

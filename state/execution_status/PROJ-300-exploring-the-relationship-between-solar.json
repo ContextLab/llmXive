@@ -4,11 +4,11 @@
   "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026vity analysis on real or synthetic data and output results. This\u2026\u201d; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026oints=5000):     \"\"\"     Generate synthetic data that mimics the str\u2026\u201d; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# For this task, we generate synthetic data to ensure the scrip\u2026\u201d; 1 command(s) failed: python code/main.py --start 2023-01-01 --end 2023-01-03 (rc=1); 1 declared deliverable(s) absent: data/processed/quality_log.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1\n    Starting pipeline for 2023-01-01 to 2023-01-03\nFetching OMNI Solar Wind data...\n\nPipeline failed: Failed to fetch OMNI data: OMNIWeb API fetch is not implemented in this environment. Please configure API access."
+    "python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py\", line 14, in <module>\n    from data.ingest import fetch_omni_sw, fetch_themis_ey\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/data/__init__.py\", line 3, in <module>\n    from .lag import calculate_physics_lag, apply_lag_shift\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-s"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T07:07:50Z"
+  "updated_at": "2026-07-15T08:40:24Z"
 }
