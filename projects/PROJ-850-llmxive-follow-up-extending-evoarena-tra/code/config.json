@@ -1,0 +1,17 @@
+{
+  "runner_time_limit_seconds": 3600,
+  "experiment_config": "full",
+  "dataset_path": "data/raw/terminal_bench_evo.jsonl",
+  "log_output_path": "data/logs/full_run.csv",
+  "models": {
+    "conflict_detector": "distilbert-base-uncased"
+  },
+  "agents": {
+    "baseline": "EvoMemAll",
+    "experimental": "EvoMemConflict"
+  },
+  "constraints": {
+    "max_context_tokens": 4096,
+    "cpu_only": true
+  }
+}

@@ -1,0 +1,8 @@
+thresholds:
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 0.95
+input_data: data/raw/synthetic_pairs.json
+output_data: data/processed/sensitivity_analysis_thresholds.csv
