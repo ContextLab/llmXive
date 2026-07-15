@@ -1,90 +1,162 @@
 import pytest
 import pandas as pd
 import numpy as np
-from code.collinearity import calculate_vif, run_collinearity_diagnostics
+import json
+import os
+import tempfile
+from pathlib import Path
+
+# Import the function to test
+from collinearity import calculate_vif, run_collinearity_diagnostics
 
 class TestCalculateVIF:
-    def test_vif_no_collinearity(self):
-        """Test VIF when features are uncorrelated."""
+    def test_vif_low_collinearity(self):
+        """Test VIF calculation on uncorrelated data."""
         np.random.seed(42)
+        n = 100
         df = pd.DataFrame({
-            'x1': np.random.randn(100),
-            'x2': np.random.randn(100),
-            'x3': np.random.randn(100)
+            'feature1': np.random.randn(n),
+            'feature2': np.random.randn(n),
+            'feature3': np.random.randn(n)
         })
-        vif_values = calculate_vif(df, ['x1', 'x2', 'x3'])
         
-        # VIF should be close to 1 for uncorrelated features
-        for vif in vif_values.values():
-            assert 0.9 <= vif <= 1.5, f"VIF {vif} is unexpectedly high for uncorrelated data"
+        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        
+        assert 'feature' in vif_df.columns
+        assert 'vif' in vif_df.columns
+        assert len(vif_df) == 3
+        
+        # With uncorrelated data, VIF should be close to 1
+        assert all(vif_df['vif'] < 2.0), "VIF should be low for uncorrelated data"
 
-    def test_vif_perfect_collinearity(self):
-        """Test VIF when features are perfectly correlated."""
+    def test_vif_high_collinearity(self):
+        """Test VIF calculation on highly correlated data."""
+        np.random.seed(42)
+        n = 100
+        base = np.random.randn(n)
         df = pd.DataFrame({
-            'x1': [1, 2, 3, 4, 5],
-            'x2': [2, 4, 6, 8, 10]  # Perfectly correlated (x2 = 2*x1)
+            'feature1': base,
+            'feature2': base * 2 + np.random.randn(n) * 0.1,  # Highly correlated
+            'feature3': np.random.randn(n)
         })
-        vif_values = calculate_vif(df, ['x1', 'x2'])
         
-        # VIF should be infinite or very large
-        for vif in vif_values.values():
-            assert vif == float('inf') or vif > 100, f"VIF {vif} should be very high for perfect collinearity"
+        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        
+        # feature1 and feature2 should have high VIF
+        high_vif_features = vif_df[vif_df['vif'] > 5]['feature'].tolist()
+        assert 'feature1' in high_vif_features or 'feature2' in high_vif_features, \
+            "At least one of the correlated features should have high VIF"
 
-    def test_vif_single_feature(self):
-        """Test VIF for a single feature."""
+    def test_vif_constant_column(self):
+        """Test VIF handling of constant columns."""
         df = pd.DataFrame({
-            'x1': [1, 2, 3, 4, 5]
+            'feature1': [1.0] * 100,  # Constant
+            'feature2': np.random.randn(100),
+            'feature3': np.random.randn(100)
         })
-        vif_values = calculate_vif(df, ['x1'])
         
-        assert vif_values['x1'] == 1.0, "VIF for single feature should be 1.0"
+        # Should handle constant column gracefully (drop it)
+        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        
+        # feature1 should be excluded
+        assert 'feature1' not in vif_df['feature'].tolist()
+        assert len(vif_df) == 2
+
+    def test_vif_insufficient_features(self):
+        """Test VIF with less than 2 features."""
+        df = pd.DataFrame({
+            'feature1': np.random.randn(100)
+        })
+        
+        vif_df = calculate_vif(df, ['feature1'])
+        
+        assert len(vif_df) == 0
 
 class TestRunCollinearityDiagnostics:
-    def test_diagnostics_skipped_no_data(self, tmp_path):
-        """Test that diagnostics are skipped when no raw data is available."""
-        # Create a mock results dataframe
-        results_df = pd.DataFrame({
-            'channel': ['Fz', 'Cz'],
-            'metric_type': ['lzc', 'lzc'],
-            'correlation': [0.5, 0.6],
-            'p_value': [0.01, 0.02]
-        })
-        
-        # Mock file paths that don't exist
-        diagnostics = run_collinearity_diagnostics(results_df, threshold=5.0)
-        
-        assert diagnostics['status'] == 'skipped'
-        assert 'No raw metric files found' in diagnostics['reason']
+    def test_run_diagnostics_success(self):
+        """Test successful run of collinearity diagnostics."""
+        # Create temporary files
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create mock processed metrics
+            lzc_path = Path(tmpdir) / 'lzc_metrics.csv'
+            pe_path = Path(tmpdir) / 'pe_metrics.csv'
+            report_path = Path(tmpdir) / 'collinearity_report.json'
+            
+            # Generate mock data
+            n = 50
+            df_lzc = pd.DataFrame({
+                'participant_id': range(n),
+                'lzc_fz': np.random.randn(n),
+                'lzc_cz': np.random.randn(n)
+            })
+            df_pe = pd.DataFrame({
+                'participant_id': range(n),
+                'pe_fz': np.random.randn(n),
+                'pe_cz': np.random.randn(n)
+            })
+            
+            df_lzc.to_csv(lzc_path, index=False)
+            df_pe.to_csv(pe_path, index=False)
+            
+            # Create a minimal config
+            config_path = Path(tmpdir) / 'config.yaml'
+            with open(config_path, 'w') as f:
+                f.write("pipeline:\n  random_seed: 42\n")
+            
+            # Run diagnostics
+            result = run_collinearity_diagnostics(
+                results_path=Path(tmpdir) / 'nonexistent.json', # Will be ignored if files exist
+                config_path=str(config_path),
+                vif_threshold=5.0,
+                output_path=str(report_path)
+            )
+            
+            # Verify report was created
+            assert os.path.exists(report_path)
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+            
+            assert 'status' in report
+            assert 'vif_results' in report
+            assert 'max_vif' in report
 
-    def test_diagnostics_passed(self, tmp_path):
-        """Test successful diagnostics with uncorrelated data."""
-        # Create temporary files for raw metrics
-        lzc_df = pd.DataFrame({
-            'participant_id': [f'P{i}' for i in range(100)],
-            'channel': ['Fz'] * 100,
-            'lzc_value': np.random.randn(100)
-        })
-        pe_df = pd.DataFrame({
-            'participant_id': [f'P{i}' for i in range(100)],
-            'channel': ['Fz'] * 100,
-            'pe_value': np.random.randn(100)  # Uncorrelated with lzc
-        })
-        
-        # Save to temp directory (simulating data/processed)
-        lzc_path = tmp_path / "lzc_metrics.csv"
-        pe_path = tmp_path / "pe_metrics.csv"
-        lzc_df.to_csv(lzc_path, index=False)
-        pe_df.to_csv(pe_path, index=False)
-        
-        # Mock the file paths by patching or using a custom function
-        # For this test, we'll just verify the logic structure
-        results_df = pd.DataFrame({
-            'channel': ['Fz'],
-            'metric_type': ['lzc'],
-            'correlation': [0.5],
-            'p_value': [0.01]
-        })
-        
-        # Note: This test would need path mocking to work fully in isolation
-        # The actual logic is tested in calculate_vif
-        assert True  # Placeholder - full integration test requires file mocking
+    def test_run_diagnostics_failed_threshold(self):
+        """Test diagnostics when VIF exceeds threshold."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lzc_path = Path(tmpdir) / 'lzc_metrics.csv'
+            pe_path = Path(tmpdir) / 'pe_metrics.csv'
+            report_path = Path(tmpdir) / 'collinearity_report.json'
+            
+            # Create highly correlated data
+            n = 50
+            base = np.random.randn(n)
+            df_lzc = pd.DataFrame({
+                'participant_id': range(n),
+                'lzc_fz': base,
+                'lzc_cz': base * 2 + np.random.randn(n) * 0.1
+            })
+            df_pe = pd.DataFrame({
+                'participant_id': range(n),
+                'pe_fz': np.random.randn(n),
+                'pe_cz': np.random.randn(n)
+            })
+            
+            df_lzc.to_csv(lzc_path, index=False)
+            df_pe.to_csv(pe_path, index=False)
+            
+            config_path = Path(tmpdir) / 'config.yaml'
+            with open(config_path, 'w') as f:
+                f.write("pipeline:\n  random_seed: 42\n")
+            
+            result = run_collinearity_diagnostics(
+                results_path=Path(tmpdir) / 'nonexistent.json',
+                config_path=str(config_path),
+                vif_threshold=2.0, # Low threshold to trigger failure
+                output_path=str(report_path)
+            )
+            
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+            
+            assert report['status'] == 'failed'
+            assert report['max_vif'] > 2.0

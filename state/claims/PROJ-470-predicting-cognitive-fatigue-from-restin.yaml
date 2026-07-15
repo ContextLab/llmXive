@@ -469,3 +469,596 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T05:22:45Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF database contains 153 subjects
+  claim_id: c_5e466d71
+  context: The Sleep-EDF database contains overnight polysomnography recordings from
+    153 subjects (SC and ST subsets).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Sleep-EDF database contains overnight polysomnography recordings from
+    153 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:18:36Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF includes pre-sleep and post-sleep KSS ratings
+  claim_id: c_d2b82231
+  context: 'The Sleep-EDF dataset includes Karolinska Sleepiness Scale (KSS) ratings:
+    Pre-sleep KSS: Collected before bedtime, Post-sleep KSS: Collected upon awakening.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_includes_pre-sleep_and_post-sleep_KSS_ratings
+  kind: entity_fact
+  raw_text: The Sleep-EDF dataset includes Karolinska Sleepiness Scale (KSS) ratings
+    collected before bedtime and upon awakening.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:20:49Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: KSS scale ranges from 1 to 9
+  claim_id: c_044cc64a
+  context: 'Scale: 1 (very alert) to 9 (very sleepy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Karolinska Sleepiness Scale ranges from 1 (very alert) to 9 (very
+    sleepy).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:22:06Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF sampling rate is 100 Hz
+  claim_id: c_0b7880f1
+  context: Data records at 100 Hz sampling rate
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep-EDF data records are sampled at 100 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:22:32Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: SHHS ESS scale ranges from 0 to 24
+  claim_id: c_99e3cda2
+  context: 'ESS Score: Self-reported daytime sleepiness, Scale: 0-24 (higher = more
+    sleepy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Sleep Heart Health Study (SHHS) includes Epworth Sleepiness Scale
+    (ESS) ratings on a scale of 0-24.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:04Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: SHHS sampling rate is 250 Hz
+  claim_id: c_0944853a
+  context: "Sampling rate \u2248 250 Hz (SHHS uses higher sampling rate)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHHS data records are sampled at 250 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:27Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Artifact rejection rate is 10-30% of epochs
+  claim_id: c_f730a3d9
+  context: 'Typical rejection rate: 10-30% of epochs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Typical artifact rejection reduces the effective sample size by 10-30%
+    of epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:23:48Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF storage requirement is 1 GB per subject
+  claim_id: c_1842cbdf
+  context: 'Sleep-EDF: ~1 GB per subject (raw EDF files)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep-EDF raw EDF files require approximately 1 GB of storage per subject.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:24:01Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: SHHS storage requirement is 2 GB per subject
+  claim_id: c_200394a8
+  context: 'SHHS: ~2 GB per subject (higher sampling rate)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHHS raw data requires approximately 2 GB of storage per subject.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:24:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Processed data storage requirement is 100 MB per subject
+  claim_id: c_d21f1b0e
+  context: 'Processed data: ~100 MB per subject (after filtering and downsampling)'
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Processed data from the pipeline requires approximately 100 MB of storage
+    per subject.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T06:24:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/README.md
+  attempts: 1
+  canonical: Sleep-EDF dataset contains 153 subjects with EEG recordings and fatigue
+    ratings
+  claim_id: c_16e34ab1
+  context: '### Primary: Sleep-EDF (PhysioNet) ... Content: 153 subjects with EEG
+    recordings and fatigue ratings'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Content: 153 subjects with EEG recordings and fatigue ratings'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:31:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/README.md
+  attempts: 1
+  canonical: Permutation Entropy range is typically 0.0 to 1.5 for order 3
+  claim_id: c_fb3cf25e
+  context: '### Permutation Entropy (PE) ... Range: 0.0 to log2(order!) (typically
+    0.0 to ~1.5 for order=3)'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: typically 0.0 to ~1.5 for order=3
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T06:31:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: 'Cohen''s d benchmarks: 0.2 small, 0.5 medium, 0.8 large'
+  claim_id: c_e636f4f7
+  context: The document lists specific numerical benchmarks for interpreting effect
+    sizes using Cohen's d.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d effect size benchmarks are defined as 0.2 for small, 0.5 for
+    medium, and 0.8 for large.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:33:42Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: "Primary significance threshold p \u2264 0.05 FDR corrected"
+  claim_id: c_d3d16e8b
+  context: Significance thresholds are outlined with the primary standard set for
+    discovery purposes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Primary significance threshold is set at p \u2264 0.05 with FDR correction."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:33:43Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: "Secondary significance threshold p \u2264 0.01 FDR corrected"
+  claim_id: c_cb6e44a7
+  context: The document specifies a stricter threshold for robust findings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Secondary significance threshold is set at p \u2264 0.01 with FDR correction\
+    \ for robust findings."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:33:43Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: EEG studies typically use 19 to 64+ channels
+  claim_id: c_eb93f5a6
+  context: When discussing multiple comparisons correction, the text notes the typical
+    channel count in EEG.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The EEG data were acquired using a Refa 2048\u2009Hz EEG system and\
+        \ an appropriately sized 64-"
+      source_id: '2403.09707'
+      url: https://arxiv.org/abs/2403.09707
+      value: '64'
+    filled: true
+  kind: numeric
+  raw_text: EEG studies typically involve 19 to 64 or more channels.
+  resolved_value: '64'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T06:34:15Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: FDR corrected p=0.05 implies 5% false positives
+  claim_id: c_34779afa
+  context: The interpretation section for Benjamini-Hochberg explains the meaning
+    of the corrected p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A corrected p-value of 0.05 in Benjamini-Hochberg FDR implies 5% of significant
+    findings are expected to be false positives.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:35:38Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: "Adaptive simplification characterized by d \u2248 0.5"
+  claim_id: c_f55772ca
+  context: In the section distinguishing adaptive vs. degenerative changes, adaptive
+    simplification is linked to moderate effect sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Adaptive simplification is characterized by moderate effect sizes around\
+    \ d \u2248 0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:37:35Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: Degenerative noise characterized by d > 0.8
+  claim_id: c_92906613
+  context: In the section distinguishing adaptive vs. degenerative changes, degenerative
+    noise is linked to large effect sizes.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Degenerative_noise_characterized_by_d_%3E_0.8
+  kind: magnitude
+  raw_text: Degenerative noise is characterized by large effect sizes greater than
+    d > 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:37:49Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: Example LZC correlation r=-0.42 p=0.003
+  claim_id: c_9806f0db
+  context: The Practical Example section presents specific statistical results for
+    LZC from a scenario with 45 participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the practical example, LZC showed a correlation of r = -0.42 with a
+    p-value of 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:38:09Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: Example PE correlation r=-0.38 p=0.008
+  claim_id: c_c976374a
+  context: The Practical Example section presents specific statistical results for
+    PE from a scenario with 45 participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the practical example, PE showed a correlation of r = -0.38 with a
+    p-value of 0.008.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:39:13Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: Practical example involved 45 participants
+  claim_id: c_bb66a345
+  context: The scenario description in the Practical Example section specifies the
+    sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The practical example involved 45 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:39:54Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/interpretation_guide.md
+  attempts: 1
+  canonical: Practical example analyzed Fz channel data
+  claim_id: c_6fdd4051
+  context: The scenario description in the Practical Example section specifies the
+    EEG channel used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Practical_example_analyzed_Fz_channel_data
+  kind: entity_fact
+  raw_text: The practical example analyzed data from the Fz channel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:40:18Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/parameters.md
+  attempts: 1
+  canonical: "Typical resting-state EEG amplitudes are 10-50 \xB5V"
+  claim_id: c_a1be3e71
+  context: "\xB1100 \xB5V: Standard threshold for rejecting eye blinks, muscle artifacts,\
+    \ and electrode pops - Balances artifact removal with data retention - Typical\
+    \ resting-state EEG amplitudes: 10-50 \xB5V"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Typical resting-state EEG amplitudes: 10-50 \xB5V"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:41:07Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/parameters.md
+  attempts: 1
+  canonical: Sleep-EDF dataset contains 153 subjects with EEG and fatigue ratings
+  claim_id: c_fc4f659c
+  context: 'Primary (Sleep-EDF): 153 subjects with EEG and fatigue ratings - Validated
+    dataset with clear protocol - Matches study requirements for paired pre/post measures'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Primary (Sleep-EDF): 153 subjects with EEG and fatigue ratings'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:41:23Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/parameters.md
+  attempts: 1
+  canonical: SHHS dataset has a sample size of approximately 5000
+  claim_id: c_c9def8c8
+  context: 'Primary (Sleep-EDF): 153 subjects with EEG and fatigue ratings - Validated
+    dataset with clear protocol - Matches study requirements for paired pre/post measures
+    - Fallback (SHHS): Larger sample (~5,000) but may lack specific fatigue measures'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fallback (SHHS): Larger sample (~5,000) but may lack specific fatigue
+    measures'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:41:42Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF dataset is primary source from PhysioNet
+  claim_id: c_f8394b6a
+  context: The primary source is the Sleep-EDF dataset from PhysioNet, with the Sleep
+    Heart Health Study (SHHS) as a fallback option.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "available benchmark database, Physionet Sleep-EDF [extended] SC \u2217\
+        \ (SC ="
+      source_id: '1803.01710'
+      url: https://arxiv.org/abs/1803.01710
+      value: Physionet Sleep-EDF
+    filled: true
+  kind: entity_fact
+  raw_text: The primary source is the Sleep-EDF dataset from PhysioNet.
+  resolved_value: Physionet Sleep-EDF
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T06:43:10Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF dataset size is 4 GB compressed
+  claim_id: c_38e814fa
+  context: 'License: Creative Commons Attribution 4.0 International; Size: ~4 GB (compressed)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep-EDF Database Expanded size is ~4 GB (compressed).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:26Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: SHHS dataset size is 50 GB compressed
+  claim_id: c_ee6dd67f
+  context: 'License: Creative Commons Attribution 4.0 International; Size: ~50 GB
+    (compressed)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep Heart Health Study (SHHS) size is ~50 GB (compressed).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:43:39Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: SHHS has 5000 participants
+  claim_id: c_bbbf43a0
+  context: 'Advantages: Large sample: ~5,000 participants; Diverse population: Includes
+    sleep-disordered breathing patients'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep Heart Health Study has a large sample of ~5,000 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:44:05Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Sleep-EDF has 2 to 4 EEG channels
+  claim_id: c_d283df9c
+  context: 'Known Limitations: Channel count: Limited EEG channels (typically 2-4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sleep-EDF typically has limited EEG channels (typically 2-4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:44:24Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Kemp 2000 IEEE Trans Biomed Eng 47 1185-1194
+  claim_id: c_c6045ba6
+  context: 'Citation: Kemp, B., Zwinderman, A., Tuk, B., Kamphuisen, H., & Oberye,
+    J. (2000). Analysis of a sleep-dependent neuronal feedback loop: the slow-wave
+    microcontinuity of the EEG. IEEE Transactions on Biomedical Engineering, 47(9),
+    1185-1194.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kemp et al. (2000) published ''Analysis of a sleep-dependent neuronal
+    feedback loop: the slow-wave microcontinuity of the EEG'' in IEEE Transactions
+    on Biomedical Engineering, 47(9), 1185-1194.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:44:39Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Quan 1997 Sleep 20 1077-1085
+  claim_id: c_d23eface
+  context: 'Citation: Quan, S. F., et al. (1997). The Sleep Heart Health Study: design,
+    rationale, and methods. Sleep, 20(12), 1077-1085.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Quan, S. F., et al. (1997) published ''The Sleep Heart Health Study:
+    design, rationale, and methods'' in Sleep, 20(12), 1077-1085.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:45:03Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md
+  attempts: 1
+  canonical: Goldberger 2000 Circulation 101 e215-e220
+  claim_id: c_2388109b
+  context: 'Citation: Goldberger, A. L., et al. (2000). PhysioBank, PhysioToolkit,
+    and PhysioNet: components of a new research resource for complex physiologic signals.
+    Circulation, 101(23), e215-e220.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Goldberger, A. L., et al. (2000) published ''PhysioBank, PhysioToolkit,
+    and PhysioNet: components of a new research resource for complex physiologic signals''
+    in Circulation, 101(23), e215-e220.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T06:45:17Z'

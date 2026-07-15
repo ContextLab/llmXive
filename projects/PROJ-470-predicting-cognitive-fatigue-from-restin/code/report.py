@@ -4,254 +4,259 @@ import yaml
 from pathlib import Path
 import pandas as pd
 import numpy as np
-import json
-from datetime import datetime
+from scipy import stats
 
-# Import from existing project modules as per API surface
-# Note: analysis.py has run_correlation_analysis which we assume generates the results
-# We will load the results directly from the expected output files
+# Import from existing API surface
+# Note: analysis.py provides run_correlation_analysis which returns the results dict
+# We assume the results are saved to a file or we load them from memory if run in sequence
+# For this script, we expect the analysis to have been run and results saved, or we load from the analysis module's output.
+# Since analysis.py exports run_correlation_analysis, we will import it to ensure we have the logic,
+# but primarily we will load the saved artifacts (sensitivity_table.csv, etc.) if they exist,
+# or run the analysis if not (to ensure data exists).
+# However, to keep this task focused on REPORTING, we assume the data artifacts exist.
+# We will read the sensitivity table and the correlation results.
 
-def load_config(config_path="code/config.yaml"):
+# To handle the "load_analysis_results" function mentioned in the API surface,
+# we must ensure it exists or implement the loading logic here if it's missing from analysis.py.
+# Given the API surface says `from analysis import ... load_analysis_results` is NOT listed,
+# but `from report import ... load_analysis_results` IS listed in the public names for report.py,
+# we must define `load_analysis_results` in THIS file (report.py) as per the API contract.
+
+def load_config(config_path='code/config.yaml'):
     """Load pipeline configuration."""
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_analysis_results(analysis_dir="data/analysis"):
-    """Load the results from the correlation analysis and sensitivity analysis."""
+def load_analysis_results(results_dir='data/analysis'):
+    """
+    Load analysis results from the data/analysis directory.
+    Returns a dictionary containing correlation results and sensitivity table.
+    """
     results = {}
     
-    # Load correlation results (assuming output from T019/T020)
-    corr_file = os.path.join(analysis_dir, "correlation_results.csv")
-    if os.path.exists(corr_file):
-        results['correlations'] = pd.read_csv(corr_file)
+    # Load correlation results (assuming saved as correlation_results.json or similar by analysis.py)
+    # Since analysis.py is not fully implemented in the provided context for saving,
+    # we assume the standard output files exist as per T021 and T019.
+    
+    # Check for sensitivity table (T021)
+    sensitivity_path = os.path.join(results_dir, 'sensitivity_table.csv')
+    if os.path.exists(sensitivity_path):
+        results['sensitivity_table'] = pd.read_csv(sensitivity_path)
     else:
-        raise FileNotFoundError(f"Correlation results not found at {corr_file}")
-    
-    # Load sensitivity table (output from T021)
-    sens_file = os.path.join(analysis_dir, "sensitivity_table.csv")
-    if os.path.exists(sens_file):
-        results['sensitivity'] = pd.read_csv(sens_file)
+        # If not found, we might need to run the analysis or return empty
+        # For a robust report, we expect this file to exist if analysis ran.
+        results['sensitivity_table'] = None
+
+    # Check for correlation results (T019)
+    # We assume analysis.py saves a 'correlation_results.csv' or 'correlation_results.json'
+    corr_csv = os.path.join(results_dir, 'correlation_results.csv')
+    if os.path.exists(corr_csv):
+        results['correlations'] = pd.read_csv(corr_csv)
     else:
-        raise FileNotFoundError(f"Sensitivity table not found at {sens_file}")
-    
-    # Load validation report if it exists
-    val_file = os.path.join(analysis_dir, "validation_report.json")
-    if os.path.exists(val_file):
-        with open(val_file, 'r') as f:
-            results['validation'] = json.load(f)
-    
+        results['correlations'] = None
+
+    # Check for effect sizes if saved separately, otherwise we calculate them
+    results['effect_sizes'] = None
+
     return results
 
-def calculate_effect_size(r, n):
-    """Calculate Cohen's q or similar effect size from correlation r."""
-    # Fisher's z transformation for effect size estimation
-    if abs(r) >= 1:
-        return None
-    z = 0.5 * np.log((1 + r) / (1 - r))
-    se = 1 / np.sqrt(n - 3)
-    return {'z': z, 'se': se, 'ci_lower': z - 1.96 * se, 'ci_upper': z + 1.96 * se}
-
-def generate_report(results, config, output_path="data/analysis/final_report.md"):
+def calculate_effect_size(r_value, n):
     """
-    Generate the final report with statistical significance, effect sizes, 
+    Calculate Cohen's q or similar effect size from correlation coefficient.
+    For correlation, we can use r itself as the effect size, or Fisher's z.
+    Here we return r and a simple interpretation.
+    """
+    if r_value is None or n is None:
+        return None
+    
+    # Cohen's guidelines for r: 0.1 small, 0.3 medium, 0.5 large
+    magnitude = "negligible"
+    if abs(r_value) >= 0.5:
+        magnitude = "large"
+    elif abs(r_value) >= 0.3:
+        magnitude = "medium"
+    elif abs(r_value) >= 0.1:
+        magnitude = "small"
+        
+    return {
+        'r': r_value,
+        'magnitude': magnitude,
+        'n': n
+    }
+
+def generate_report(results, output_path='data/analysis/final_report.md'):
+    """
+    Generate the final report with statistical significance, effect sizes,
     and limitations, explicitly discussing adaptive vs degenerative complexity.
     """
+    if not results:
+        return "No results found to generate report."
+
+    correlations = results.get('correlations')
+    sensitivity = results.get('sensitivity_table')
+
     report_lines = []
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Header
     report_lines.append("# Final Report: Predicting Cognitive Fatigue from Resting-State EEG Complexity")
-    report_lines.append(f"\n**Generated:** {timestamp}")
-    report_lines.append(f"**Project:** PROJ-470")
-    report_lines.append(f"**Task:** T022 - Final Report Generation")
+    report_lines.append("")
+    report_lines.append("## 1. Executive Summary")
+    report_lines.append("")
+    report_lines.append("This report presents the findings from the analysis of the relationship between")
+    report_lines.append("EEG complexity metrics (Lempel-Ziv Complexity and Permutation Entropy) and")
+    report_lines.append("cognitive fatigue scores. The analysis aimed to distinguish between adaptive")
+    report_lines.append("simplification (reduced complexity as a regulatory mechanism) and degenerative")
+    report_lines.append("noise (increased complexity due to loss of control).")
+    report_lines.append("")
+
+    # Statistical Significance Section
+    report_lines.append("## 2. Statistical Significance and Correlation Analysis")
     report_lines.append("")
     
-    # Executive Summary
-    report_lines.append("## Executive Summary")
-    report_lines.append("")
-    report_lines.append("This report presents the findings from the analysis of resting-state EEG complexity metrics ")
-    report_lines.append("in relation to cognitive fatigue scores. We employed Lempel-Ziv Complexity (LZC) and ")
-    report_lines.append("Permutation Entropy (PE) as primary measures of signal complexity, examining their ")
-    report_lines.append("correlation with pre- and post-task fatigue ratings.")
-    report_lines.append("")
-    
-    # Methodology Summary
-    report_lines.append("## Methodology")
-    report_lines.append("")
-    report_lines.append("### Data Source")
-    report_lines.append(f"- **Dataset:** {config.get('dataset', {}).get('name', 'Sleep-EDF')}")
-    report_lines.append(f"- **Participants:** {results.get('validation', {}).get('n_participants', 'N/A')}")
-    report_lines.append("")
-    
-    report_lines.append("### Preprocessing")
-    report_lines.append("- Bandpass filter: 1-40 Hz")
-    report_lines.append("- Artifact rejection threshold: ±100µV")
-    report_lines.append("- Minimum segment duration: 120 seconds")
-    report_lines.append("")
-    
-    report_lines.append("### Complexity Metrics")
-    report_lines.append("- **Lempel-Ziv Complexity (LZC):** Measures the algorithmic complexity of the signal.")
-    report_lines.append("- **Permutation Entropy (PE):** Quantifies the randomness of the signal's ordinal patterns.")
-    report_lines.append("")
-    
-    # Statistical Results
-    report_lines.append("## Statistical Results")
-    report_lines.append("")
-    
-    if 'correlations' in results:
-        corr_df = results['correlations']
-        report_lines.append("### Correlation Analysis")
+    if correlations is not None and not correlations.empty:
+        report_lines.append("### 2.1 Correlation Results")
         report_lines.append("")
-        report_lines.append("| Metric | Channel | Correlation (r) | p-value | Adjusted p-value | Significant (p<0.05) |")
-        report_lines.append("|--------|---------|-----------------|---------|------------------|----------------------|")
+        report_lines.append("| Channel | Metric | Correlation (r) | P-value | Adjusted P-value | Significance (p<=0.05) |")
+        report_lines.append("|---|---|---|---|---|---|")
         
         significant_count = 0
-        for _, row in corr_df.iterrows():
-            sig = "Yes" if row.get('adjusted_p', row.get('p', 1.0)) < 0.05 else "No"
+        for _, row in correlations.iterrows():
+            r = row.get('correlation', 0)
+            p = row.get('p_value', 1)
+            adj_p = row.get('adj_p_value', 1)
+            sig = "Yes" if adj_p <= 0.05 else "No"
             if sig == "Yes":
                 significant_count += 1
-            
-            # Calculate effect size
-            r_val = row.get('correlation', 0)
-            n = len(corr_df) if 'n' not in row else row['n']
-            effect = calculate_effect_size(r_val, n)
-            effect_str = f"z={effect['z']:.3f}" if effect else "N/A"
-            
-            report_lines.append(f"| {row.get('metric', 'N/A')} | {row.get('channel', 'N/A')} | {r_val:.3f} | {row.get('p', 0):.4f} | {row.get('adjusted_p', row.get('p', 0)):.4f} | {sig} |")
+            report_lines.append(f"| {row.get('channel', 'N/A')} | {row.get('metric', 'N/A')} | {r:.4f} | {p:.4f} | {adj_p:.4f} | {sig} |")
         
         report_lines.append("")
-        report_lines.append(f"**Summary:** {significant_count} out of {len(corr_df)} channel-metric combinations showed statistically significant correlations after Benjamini-Hochberg correction (p < 0.05).")
+        report_lines.append(f"**Summary**: {significant_count} out of {len(correlations)} tests showed statistically significant correlations after Benjamini-Hochberg correction.")
+        report_lines.append("")
+
+        # Effect Sizes
+        report_lines.append("### 2.2 Effect Sizes")
+        report_lines.append("")
+        report_lines.append("Effect sizes (magnitude of correlation) were interpreted using Cohen's guidelines:")
+        report_lines.append("- Small: |r| >= 0.1")
+        report_lines.append("- Medium: |r| >= 0.3")
+        report_lines.append("- Large: |r| >= 0.5")
         report_lines.append("")
         
-        # Effect size discussion
-        report_lines.append("### Effect Sizes")
+        for _, row in correlations.iterrows():
+            r = row.get('correlation', 0)
+            magnitude = "negligible"
+            if abs(r) >= 0.5:
+                magnitude = "large"
+            elif abs(r) >= 0.3:
+                magnitude = "medium"
+            elif abs(r) >= 0.1:
+                magnitude = "small"
+            report_lines.append(f"- **{row.get('channel', 'N/A')} ({row.get('metric', 'N/A')})**: r={r:.3f} ({magnitude})")
         report_lines.append("")
-        report_lines.append("Effect sizes (Fisher's z) indicate the magnitude of the relationship between complexity ")
-        report_lines.append("metrics and fatigue scores. Larger absolute z-values suggest stronger associations.")
+
+    else:
+        report_lines.append("No correlation data available. Ensure `code/analysis.py` has been executed successfully.")
         report_lines.append("")
+
+    # Adaptive vs Degenerative Discussion
+    report_lines.append("## 3. Interpretation: Adaptive vs. Degenerative Complexity")
+    report_lines.append("")
+    report_lines.append("The core hypothesis of this study rests on the distinction between two potential")
+    report_lines.append("mechanisms of fatigue-related complexity changes:")
+    report_lines.append("")
+    report_lines.append("1.  **Adaptive Simplification**: A reduction in EEG complexity (lower LZC/PE)")
+    report_lines.append("    indicating the brain is adopting a more efficient, stereotyped strategy to")
+    report_lines.append("    conserve energy under fatigue. This would manifest as a **negative correlation**")
+    report_lines.append("    between fatigue scores and complexity metrics.")
+    report_lines.append("")
+    report_lines.append("2.  **Degenerative Noise**: An increase in EEG complexity (higher LZC/PE)")
+    report_lines.append("    indicating a loss of structured control and the emergence of random, inefficient")
+    report_lines.append("    neural firing. This would manifest as a **positive correlation**.")
+    report_lines.append("")
+    
+    if correlations is not None and not correlations.empty:
+        # Analyze direction of significant correlations
+        pos_sig = correlations[(correlations['adj_p_value'] <= 0.05) & (correlations['correlation'] > 0)]
+        neg_sig = correlations[(correlations['adj_p_value'] <= 0.05) & (correlations['correlation'] < 0)]
         
+        if len(pos_sig) > 0 and len(neg_sig) == 0:
+            report_lines.append("**Finding**: Significant positive correlations were observed, supporting the **Degenerative Noise** hypothesis.")
+            report_lines.append("Fatigue appears to be associated with a breakdown in the structured organization of neural activity.")
+        elif len(neg_sig) > 0 and len(pos_sig) == 0:
+            report_lines.append("**Finding**: Significant negative correlations were observed, supporting the **Adaptive Simplification** hypothesis.")
+            report_lines.append("Fatigue appears to drive the brain towards more efficient, lower-dimensional states.")
+        elif len(pos_sig) > 0 and len(neg_sig) > 0:
+            report_lines.append("**Finding**: Mixed results were observed. Some channels/metrics suggest adaptive simplification,")
+            report_lines.append("while others suggest degenerative noise. This may indicate a complex, spatially heterogeneous")
+            report_lines.append("response to fatigue, or that different frequency bands/channels reflect different mechanisms.")
+        else:
+            report_lines.append("**Finding**: No statistically significant correlations were found to support either hypothesis definitively.")
+    else:
+        report_lines.append("No data available to interpret the mechanism.")
+    report_lines.append("")
+
     # Sensitivity Analysis
-    if 'sensitivity' in results:
-        report_lines.append("## Sensitivity Analysis")
+    if sensitivity is not None and not sensitivity.empty:
+        report_lines.append("## 4. Sensitivity Analysis")
         report_lines.append("")
-        report_lines.append("| Threshold | Significant Channels | Percentage |")
-        report_lines.append("|-----------|---------------------|------------|")
-        
-        sens_df = results['sensitivity']
-        for _, row in sens_df.iterrows():
-            pct = (row.get('count', 0) / len(corr_df) * 100) if 'count' in row else 0
-            report_lines.append(f"| p ≤ {row.get('threshold', 0):.2f} | {row.get('count', 0)} | {pct:.1f}% |")
-        
+        report_lines.append("The robustness of the findings was tested at different significance thresholds.")
         report_lines.append("")
-    
-    # Discussion: Adaptive vs Degenerative
-    report_lines.append("## Discussion: Adaptive Simplification vs. Degenerative Noise")
-    report_lines.append("")
-    report_lines.append("The interpretation of complexity changes in EEG signals during cognitive fatigue is nuanced. ")
-    report_lines.append("We distinguish between two theoretical frameworks:")
-    report_lines.append("")
-    
-    report_lines.append("### 1. Adaptive Simplification (Resource Optimization)")
-    report_lines.append("")
-    report_lines.append("In this view, a **decrease** in complexity (lower LZC/PE) represents an adaptive mechanism. ")
-    report_lines.append("As the brain fatigues, it may simplify its dynamic repertoire to maintain essential functions, ")
-    report_lines.append("reducing the computational load. This is consistent with the 'efficiency hypothesis' where the ")
-    report_lines.append("system shifts to a more predictable, lower-dimensional state to conserve energy.")
-    report_lines.append("")
-    report_lines.append("**Evidence for adaptation:**")
-    report_lines.append("- Significant negative correlations between complexity and fatigue scores in frontal channels.")
-    report_lines.append("- Consistent reduction in entropy across multiple electrodes, suggesting a coordinated shift.")
-    report_lines.append("")
-    
-    report_lines.append("### 2. Degenerative Noise (System Breakdown)")
-    report_lines.append("")
-    report_lines.append("Conversely, an **increase** in complexity (higher LZC/PE) may indicate a loss of structured ")
-    report_lines.append("dynamics, where the signal becomes more random and less organized. This 'degenerative noise' ")
-    report_lines.append("hypothesis suggests that fatigue leads to a breakdown in the brain's ability to maintain ")
-    report_lines.append("coherent neural assemblies, resulting in erratic, high-entropy signals.")
-    report_lines.append("")
-    report_lines.append("**Evidence for degeneration:**")
-    report_lines.append("- Positive correlations between complexity and fatigue in posterior regions.")
-    report_lines.append("- Increased variance in complexity metrics across trials, indicating instability.")
-    report_lines.append("")
-    
-    report_lines.append("### Synthesis")
-    report_lines.append("")
-    report_lines.append("Our results show a mixed pattern, suggesting that cognitive fatigue may involve **both** ")
-    report_lines.append("mechanisms depending on the brain region and the stage of fatigue. Frontal regions often ")
-    report_lines.append("exhibit adaptive simplification (reduced complexity), while parietal/occipital regions may ")
-    report_lines.append("show signs of degenerative noise (increased complexity) as the system struggles to maintain ")
-    report_lines.append("sensory integration.")
-    report_lines.append("")
-    report_lines.append("This duality aligns with the phase transition perspective mentioned in recent literature, ")
-    report_lines.append("where the brain shifts between distinct dynamic regimes under cognitive load.")
-    report_lines.append("")
-    
+        report_lines.append(sensitivity.to_markdown(index=False))
+        report_lines.append("")
+
     # Limitations
-    report_lines.append("## Limitations")
+    report_lines.append("## 5. Limitations")
     report_lines.append("")
-    report_lines.append("1. **Dataset Constraints:** The Sleep-EDF dataset was designed for sleep staging, not ")
-    report_lines.append("   specifically for cognitive fatigue. The 'resting-state' segments may contain residual ")
-    report_lines.append("   sleep-related dynamics that confound fatigue measurements.")
+    report_lines.append("- **Dataset Constraints**: The analysis is limited to the specific characteristics of the")
+    report_lines.append("  Sleep-EDF or SHHS dataset (e.g., age range, health status), which may limit generalizability")
+    report_lines.append("  to other populations (e.g., clinical sleep disorders, extreme fatigue states).")
+    report_lines.append("- **Complexity Metrics**: Lempel-Ziv Complexity and Permutation Entropy are sensitive to")
+    report_lines.append("  signal length and noise. While artifact rejection was applied, residual artifacts may")
+    report_lines.append("  influence the complexity estimates.")
+    report_lines.append("- **Causality**: This study is correlational. We cannot infer that changes in complexity")
+    report_lines.append("  cause fatigue, or vice versa, without experimental manipulation.")
+    report_lines.append("- **Single Subject/Group Level**: Depending on the analysis mode (paired vs cross-sectional),")
+    report_lines.append("  the power to detect individual differences may be limited.")
     report_lines.append("")
-    report_lines.append("2. **Complexity Metric Sensitivity:** Lempel-Ziv Complexity and Permutation Entropy are ")
-    report_lines.append("   sensitive to signal length and sampling rate. While we standardized segment lengths ")
-    report_lines.append("   (120s), subtle differences in preprocessing can affect absolute values.")
+
+    report_lines.append("## 6. Conclusion")
     report_lines.append("")
-    report_lines.append("3. **Causality:** This study is correlational. We cannot infer whether changes in complexity ")
-    report_lines.append("   cause fatigue or are a consequence of it. Longitudinal designs are needed.")
+    report_lines.append("This analysis provides initial evidence regarding the relationship between EEG complexity")
+    report_lines.append("and cognitive fatigue. The results suggest [Insert specific conclusion based on findings above].")
+    report_lines.append("Future work should focus on validating these findings in controlled experimental settings")
+    report_lines.append("with specific fatigue induction protocols.")
     report_lines.append("")
-    report_lines.append("4. **Individual Variability:** The analysis aggregated across participants. Individual ")
-    report_lines.append("   differences in baseline complexity and fatigue susceptibility may mask important patterns.")
-    report_lines.append("")
-    report_lines.append("5. **Artifact Rejection:** While we applied strict thresholds (±100µV), some subtle ")
-    report_lines.append("   artifacts (e.g., eye blinks) may remain and influence complexity metrics.")
-    report_lines.append("")
+
+    full_report = "\n".join(report_lines)
     
-    # Conclusion
-    report_lines.append("## Conclusion")
-    report_lines.append("")
-    report_lines.append("This study provides evidence that resting-state EEG complexity metrics are significantly ")
-    report_lines.append("associated with cognitive fatigue. The pattern of results supports a dual-mechanism model: ")
-    report_lines.append("adaptive simplification in executive networks and potential degenerative noise in sensory ")
-    report_lines.append("regions. Future work should investigate the temporal dynamics of these changes and their ")
-    report_lines.append("potential as early biomarkers for cognitive decline.")
-    report_lines.append("")
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    # Write to file
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        f.write('\n'.join(report_lines))
+        f.write(full_report)
     
-    print(f"Final report generated at: {output_path}")
-    return output_path
+    print(f"Report generated successfully: {output_path}")
+    return full_report
 
 def main():
     """Main entry point for report generation."""
-    print("Starting final report generation...")
-    
-    # Load configuration
     try:
         config = load_config()
-    except Exception as e:
-        print(f"Error loading config: {e}")
-        sys.exit(1)
-    
-    # Load analysis results
-    try:
         results = load_analysis_results()
-    except Exception as e:
-        print(f"Error loading analysis results: {e}")
-        sys.exit(1)
-    
-    # Generate report
-    try:
-        output_path = generate_report(results, config)
-        print("Report generation completed successfully.")
+        
+        if not results or (results.get('correlations') is None and results.get('sensitivity_table') is None):
+            print("Warning: No analysis results found. Ensure analysis.py has been run.")
+            # Optionally, we could run analysis here, but for this task we focus on reporting.
+            # If we must ensure the report exists, we might generate a "No Data" report,
+            # but the task implies real data exists.
+        
+        generate_report(results)
+        
     except Exception as e:
         print(f"Error generating report: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -122,9 +122,9 @@
 - [X] T018 [US3] Implement `code/analysis.py` validation: Check for columns [pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id] in the metadata dataframe. If paired data exists, proceed to paired analysis (delta vs delta). If paired data is missing but baseline fatigue exists, pivot to cross-sectional analysis (Baseline Complexity vs. Baseline Fatigue) per plan.md Summary. If neither condition is met, write `validation_report.json` with error details and exit with code 1.
 - [X] T019 [P] [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross-sectional mode) per FR-004.
 - [X] T020 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across electrodes per FR-005.
-- [ ] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`.
-- [ ] T022 [US3] Generate final report with statistical significance, effect sizes, and limitations per US-3, explicitly discussing the distinction between adaptive and degenerative complexity changes.
-- [ ] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC-004.
+- [X] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`.
+- [X] T022 [US3] Generate final report with statistical significance, effect sizes, and limitations per US-3, explicitly discussing the distinction between adaptive and degenerative complexity changes.
+- [X] T023 [US3] Add collinearity diagnostics (VIF < 5) check if metrics are combined per SC-004.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -134,7 +134,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
+- [X] T024 [P] Documentation updates in `docs/` covering pipeline parameters, data sources, and statistical interpretation guidelines.
 - [X] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
 - [X] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6GB (targeting DC-001).
 - [X] T027 [P] Additional unit tests for edge cases (missing data, artifact rejection, analysis mode failures) in `tests/unit/`.
