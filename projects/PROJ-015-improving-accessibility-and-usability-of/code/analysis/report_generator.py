@@ -1,9 +1,3 @@
-"""
-Report Generator Module for PROJ-015.
-
-Generates the final summary report (data/processed/report_summary.txt)
-containing actual N, power limitation flags, and exclusion reasons.
-"""
 import os
 import pandas as pd
 from pathlib import Path
@@ -14,159 +8,195 @@ from config.settings import get_settings
 logger = get_logger(__name__)
 
 class ReportGenerator:
-    """Generates summary reports based on analysis results and raw data logs."""
+    """
+    Generates the final summary report text file including:
+    1. Actual N achieved
+    2. Power limitation flags for underpowered subgroups
+    3. Exclusion reasons for incomplete sessions
+    """
 
-    def __init__(self, settings: Optional[Dict[str, Any]] = None):
-        self.settings = settings or get_settings()
-        self.project_root = Path(self.settings.get("PROJECT_ROOT", "."))
-        self.raw_data_dir = self.project_root / "data" / "raw"
-        self.processed_data_dir = self.project_root / "data" / "processed"
-        self.metrics_summary_path = self.processed_data_dir / "metrics_summary.csv"
-        self.output_path = self.processed_data_dir / "report_summary.txt"
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.settings = get_settings()
+        self.config = config or {}
+        self.project_root = Path(self.settings.project_root)
+        self.data_raw_dir = self.project_root / self.settings.data_raw_dir
+        self.data_processed_dir = self.project_root / self.settings.data_processed_dir
+
+        # Ensure processed directory exists
+        self.data_processed_dir.mkdir(parents=True, exist_ok=True)
+
+        logger.info(f"ReportGenerator initialized. Raw data: {self.data_raw_dir}, Processed: {self.data_processed_dir}")
 
     def _load_raw_sessions(self) -> List[Dict[str, Any]]:
-        """Load all session JSON files from data/raw/."""
+        """Load all raw session JSON files."""
         sessions = []
-        if not self.raw_data_dir.exists():
-            logger.warning(f"Raw data directory not found: {self.raw_data_dir}")
+        pattern = self.data_raw_dir / "session_*.json"
+        files = list(self.data_raw_dir.glob(pattern.name))
+        
+        if not files:
+            logger.warning(f"No session files found in {self.data_raw_dir}")
             return sessions
 
-        for json_file in self.raw_data_dir.glob("session_*.json"):
+        for file_path in files:
             try:
-                with open(json_file, 'r', encoding='utf-8') as f:
+                with open(file_path, 'r') as f:
                     data = json.load(f)
                     sessions.append(data)
-            except (json.JSONDecodeError, IOError) as e:
-                logger.error(f"Failed to load {json_file}: {e}")
+            except Exception as e:
+                logger.error(f"Failed to load session file {file_path}: {e}")
+        
         return sessions
 
-    def _calculate_power_flags(self, n_total: int, n_subgroups: Dict[str, int]) -> List[str]:
+    def _calculate_statistics(self, sessions: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Determine power limitation flags.
-        Standard threshold for adequate power in this context is n >= 30 for the total,
-        and n >= 15 (or similar heuristic) for subgroups to ensure stability.
-        Returns a list of flag strings.
+        Calculate N, exclusion reasons, and power flags.
         """
-        flags = []
+        total_sessions = len(sessions)
+        completed_sessions = [s for s in sessions if s.get('status') == 'complete']
+        incomplete_sessions = [s for s in sessions if s.get('status') != 'complete']
         
-        # Check total N
-        if n_total < 30:
-            flags.append(f"WARNING: Total sample size (N={n_total}) is below recommended threshold (N>=30) for robust statistical power.")
-        
-        # Check subgroups
-        for group_name, count in n_subgroups.items():
-            if count < 15:
-                flags.append(f"WARNING: Subgroup '{group_name}' (N={count}) is underpowered for reliable subgroup analysis.")
-            
-        return flags
+        n_total = total_sessions
+        n_completed = len(completed_sessions)
+        n_incomplete = len(incomplete_sessions)
 
-    def generate_report(self) -> Path:
+        exclusion_reasons = []
+        for s in incomplete_sessions:
+            reason = s.get('dropout_reason', 'Unknown')
+            exclusion_reasons.append({
+                'session_id': s.get('session_id', 'N/A'),
+                'reason': reason,
+                'participant_id': s.get('participant_id', 'N/A')
+            })
+
+        # Power analysis logic
+        # Assuming a standard power analysis for a medium effect size (Cohen's d = 0.5)
+        # with alpha = 0.05, power = 0.80 requires N ~ 34 per group for independent,
+        # or fewer for repeated measures (e.g., ~17-20 depending on correlation).
+        # We flag if N < 20 per interface type (conservative for repeated measures).
+        
+        interface_counts = {}
+        for s in completed_sessions:
+            # Assuming interface_variant is stored in the session or derived from sequence
+            # In our data model, sequence is stored, so we check the sequence for the interface type
+            # But for simplicity, let's assume 'interface_variant' is a field or we infer from 'sequence'
+            # Looking at T014/T019, 'interface_variant' might be logged. 
+            # Let's check for 'sequence' which contains the order (e.g., ['Traditional', 'Explainable'])
+            sequence = s.get('sequence', [])
+            for iface in sequence:
+                interface_counts[iface] = interface_counts.get(iface, 0) + 1
+
+        power_flags = []
+        min_power_n = 20  # Threshold for power flagging (adjust based on actual power calc if available)
+        
+        for iface, count in interface_counts.items():
+            if count < min_power_n:
+                power_flags.append({
+                    'interface': iface,
+                    'n': count,
+                    'threshold': min_power_n,
+                    'message': f"Underpowered: N={count} < {min_power_n} for interface '{iface}'"
+                })
+
+        return {
+            'n_total': n_total,
+            'n_completed': n_completed,
+            'n_incomplete': n_incomplete,
+            'exclusion_reasons': exclusion_reasons,
+            'power_flags': power_flags,
+            'interface_counts': interface_counts
+        }
+
+    def generate_report(self, output_path: Optional[str] = None) -> str:
         """
-        Generate the summary report file.
-        
-        The report includes:
-        1. Actual N achieved (total and by subgroup if available).
-        2. Power limitation flags.
-        3. Exclusion reasons for incomplete sessions.
-        
+        Generate the summary report and write to disk.
         Returns the path to the generated report.
         """
-        # Ensure output directory exists
-        self.processed_data_dir.mkdir(parents=True, exist_ok=True)
-
-        # Load raw sessions to determine N and exclusions
+        logger.info("Starting report generation...")
+        
         sessions = self._load_raw_sessions()
-        
-        total_sessions = len(sessions)
-        excluded_sessions = [s for s in sessions if s.get('status') == 'incomplete']
-        included_sessions = [s for s in sessions if s.get('status') != 'incomplete']
-        
-        actual_n = len(included_sessions)
-        
-        # Analyze subgroups based on disability_type if present
-        # Assuming 'Participant' data is nested in 'participant' or similar
-        subgroup_counts: Dict[str, int] = {}
-        for s in included_sessions:
-            # Try to find disability type in participant data
-            participant = s.get('participant', {})
-            if not participant:
-                # Fallback if structure is flat
-                participant = s
-            
-            dtype = participant.get('disability_type', 'Unknown')
-            subgroup_counts[dtype] = subgroup_counts.get(dtype, 0) + 1
+        stats = self._calculate_statistics(sessions)
 
-        # Calculate power flags
-        power_flags = self._calculate_power_flags(actual_n, subgroup_counts)
-
-        # Collect exclusion reasons
-        exclusion_reasons = []
-        for s in excluded_sessions:
-            reason = s.get('dropout_reason', 'Unknown reason')
-            session_id = s.get('session_id', 'N/A')
-            exclusion_reasons.append(f"- Session {session_id}: {reason}")
-        
-        if not exclusion_reasons:
-            exclusion_reasons.append("- None (all sessions completed)")
-
-        # Construct report content
         report_lines = [
             "=" * 60,
             "RESEARCH STUDY SUMMARY REPORT",
-            "Project: Improving Accessibility and Usability of Complex Systems",
             "=" * 60,
             "",
-            "1. SAMPLE SIZE STATISTICS",
+            "1. PARTICIPANT & SESSION STATISTICS",
             "-" * 40,
-            f"Total Sessions Logged: {total_sessions}",
-            f"Excluded Sessions: {len(excluded_sessions)}",
-            f"Actual N (Included): {actual_n}",
-            ""
+            f"Total Sessions Initiated: {stats['n_total']}",
+            f"Completed Sessions: {stats['n_completed']}",
+            f"Incomplete/Excluded Sessions: {stats['n_incomplete']}",
+            "",
+            "2. EXCLUSION REASONS (Incomplete Sessions)",
+            "-" * 40,
         ]
 
-        if subgroup_counts:
-            report_lines.append("Subgroup Breakdown (Included):")
-            for group, count in sorted(subgroup_counts.items()):
-                report_lines.append(f"  - {group}: {count}")
-            report_lines.append("")
-
-        report_lines.append("2. POWER LIMITATION FLAGS",)
-        report_lines.append("-" * 40)
-        if power_flags:
-            for flag in power_flags:
-                report_lines.append(flag)
+        if stats['exclusion_reasons']:
+            for reason in stats['exclusion_reasons']:
+                report_lines.append(
+                    f"  - Session {reason['session_id']} (Participant {reason['participant_id']}): {reason['reason']}"
+                )
         else:
-            report_lines.append("No power limitations detected based on current thresholds.")
-        report_lines.append("")
+            report_lines.append("  No incomplete sessions recorded.")
 
-        report_lines.append("3. EXCLUSION REASONS",)
-        report_lines.append("-" * 40)
-        for reason in exclusion_reasons:
-            report_lines.append(reason)
-        report_lines.append("")
-        report_lines.append("=" * 60)
-        report_lines.append("END OF REPORT")
-        report_lines.append("=" * 60)
+        report_lines.extend([
+            "",
+            "3. POWER ANALYSIS & LIMITATIONS",
+            "-" * 40,
+        ])
 
-        report_content = "\n".join(report_lines)
+        if stats['power_flags']:
+            report_lines.append("  ⚠️ POWER LIMITATIONS DETECTED:")
+            for flag in stats['power_flags']:
+                report_lines.append(f"    - {flag['message']}")
+            report_lines.append("")
+            report_lines.append("  Note: Small sample sizes may reduce statistical power to detect medium effects.")
+        else:
+            report_lines.append("  ✓ Sample sizes appear sufficient for power analysis (N >= 20 per interface).")
 
-        # Write to file
-        with open(self.output_path, 'w', encoding='utf-8') as f:
-            f.write(report_content)
+        report_lines.extend([
+            "",
+            "4. INTERFACE DISTRIBUTION (Completed Sessions)",
+            "-" * 40,
+        ])
 
-        logger.info(f"Report generated successfully at: {self.output_path}")
-        return self.output_path
+        for iface, count in sorted(stats['interface_counts'].items()):
+            report_lines.append(f"  - {iface}: {count} sessions")
 
-def main():
-    """Entry point for the report generator script."""
-    logger.info("Starting Report Generation (T030)...")
-    generator = ReportGenerator()
-    try:
-        output_file = generator.generate_report()
-        print(f"Report generated: {output_file}")
-    except Exception as e:
-        logger.error(f"Failed to generate report: {e}")
-        raise
+        report_lines.extend([
+            "",
+            "=" * 60,
+            f"Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "=" * 60,
+        ])
+
+        report_text = "\n".join(report_lines)
+
+        # Determine output path
+        if output_path is None:
+            output_path = self.data_processed_dir / "report_summary.txt"
+        else:
+            output_path = Path(output_path)
+            if not output_path.parent.exists():
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w') as f:
+            f.write(report_text)
+
+        logger.info(f"Report generated successfully at: {output_path}")
+        return str(output_path)
+
+    def main():
+        """CLI entry point."""
+        generator = ReportGenerator()
+        try:
+            report_path = generator.generate_report()
+            print(f"Report generated: {report_path}")
+            return 0
+        except Exception as e:
+            logger.error(f"Failed to generate report: {e}")
+            return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(ReportGenerator.main())

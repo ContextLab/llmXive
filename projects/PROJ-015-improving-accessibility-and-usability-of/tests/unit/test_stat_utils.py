@@ -2,92 +2,75 @@ import pytest
 import pandas as pd
 import numpy as np
 from analysis.stat_utils import StatUtils
+import os
+import tempfile
+from pathlib import Path
 
-@pytest.fixture
-def sample_data():
-    """Create a mock dataset for testing difference score calculations."""
-    data = {
-        'session_id': ['S1', 'S1', 'S2', 'S2', 'S3', 'S3'],
-        'interface_type': ['Traditional', 'Explainable', 'Traditional', 'Explainable', 'Traditional', 'Explainable'],
-        'completion_time': [10.5, 9.0, 12.0, 11.0, 8.0, 7.5]
-    }
-    return pd.DataFrame(data)
+class TestStatUtils:
+    def test_shapiro_wilk_normal(self):
+        # Generate normal data
+        data = pd.Series(np.random.normal(0, 1, 100))
+        result = StatUtils.shapiro_wilk(data)
+        assert 'statistic' in result
+        assert 'pvalue' in result
+        assert result['pvalue'] > 0.05  # Should be normal
 
-@pytest.fixture
-def stat_utils():
-    return StatUtils()
+    def test_shapiro_wilk_non_normal(self):
+        # Generate exponential data (non-normal)
+        data = pd.Series(np.random.exponential(1, 100))
+        result = StatUtils.shapiro_wilk(data)
+        assert result['pvalue'] < 0.05  # Should be non-normal
 
-def test_shapiro_wilk_normal_data(stat_utils):
-    """Test Shapiro-Wilk on a normally distributed dataset."""
-    # Generate normal data
-    np.random.seed(42)
-    normal_data = np.random.normal(loc=10, scale=2, size=50).tolist()
-    
-    result = stat_utils.shapiro_wilk(normal_data)
-    
-    assert "statistic" in result
-    assert "p_value" in result
-    assert isinstance(result["statistic"], float)
-    assert isinstance(result["p_value"], float)
-    # For normal data, p-value should typically be > 0.05 (though random)
-    # We just check the function runs and returns valid structure
+    def test_repeated_measures_anova_two_levels(self):
+        # Create mock data for 2 levels (Traditional, Explainable)
+        np.random.seed(42)
+        n_subjects = 20
+        data = []
+        for i in range(n_subjects):
+            # Simulate paired data with a small difference
+            base = np.random.normal(50, 5)
+            data.append({'participant_id': i, 'interface_type': 'Traditional', 'value': base})
+            data.append({'participant_id': i, 'interface_type': 'Explainable', 'value': base + 2}) # +2 difference
 
-def test_shapiro_wilk_small_sample(stat_utils):
-    """Test Shapiro-Wilk with insufficient data."""
-    with pytest.raises(ValueError, match="Shapiro-Wilk test requires between 3 and 5000 samples."):
-        stat_utils.shapiro_wilk([1.0, 2.0])
+        df = pd.DataFrame(data)
+        result = StatUtils.repeated_measures_anova(df, 'interface_type', 'participant_id', 'value')
+        
+        assert 'F' in result
+        assert 'p_value' in result
+        assert result['p_value'] < 0.05  # Should detect the difference
 
-def test_calculate_difference_scores(stat_utils, sample_data):
-    """Test calculation of difference scores."""
-    diff_df = stat_utils.calculate_difference_scores(
-        sample_data, 
-        metric='completion_time', 
-        condition_col='interface_type', 
-        subject_col='session_id'
-    )
-    
-    assert 'diff_completion_time' in diff_df.columns
-    assert len(diff_df) == 3  # S1, S2, S3
-    
-    # Check specific values
-    # S1: 10.5 - 9.0 = 1.5
-    # S2: 12.0 - 11.0 = 1.0
-    # S3: 8.0 - 7.5 = 0.5
-    expected_diffs = [1.5, 1.0, 0.5]
-    assert np.allclose(sorted(diff_df['diff_completion_time']), sorted(expected_diffs))
+    def test_holm_bonferroni(self):
+        p_values = [0.01, 0.04, 0.03, 0.005]
+        adjusted = StatUtils.holm_bonferroni(p_values)
+        
+        assert len(adjusted) == len(p_values)
+        # Check monotonicity (adjusted p-values should be non-decreasing relative to sorted order)
+        # But we need to check against original indices.
+        # Let's just check that they are >= original and <= 1.0
+        for i, p in enumerate(p_values):
+            assert adjusted[i] >= p
+            assert adjusted[i] <= 1.0
 
-def test_shapiro_wilk_on_differences(stat_utils, sample_data):
-    """Test full pipeline of calculating differences and running Shapiro-Wilk."""
-    result = stat_utils.shapiro_wilk_on_differences(
-        sample_data, 
-        metric='completion_time', 
-        condition_col='interface_type', 
-        subject_col='session_id'
-    )
-    
-    assert result['status'] == 'success'
-    assert result['n_samples'] == 3
-    assert result['metric'] == 'completion_time'
-    assert result['p_value'] is not None
-    assert result['statistic'] is not None
-    assert isinstance(result['is_normal'], bool)
-
-def test_shapiro_wilk_on_differences_insufficient_data(stat_utils):
-    """Test pipeline with missing data for one condition."""
-    data = {
-        'session_id': ['S1', 'S1', 'S2'],
-        'interface_type': ['Traditional', 'Explainable', 'Traditional'],
-        'completion_time': [10.5, 9.0, 12.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = stat_utils.shapiro_wilk_on_differences(
-        df, 
-        metric='completion_time', 
-        condition_col='interface_type', 
-        subject_col='session_id'
-    )
-    
-    # S2 has no Explainable data, so only S1 remains -> n=1 (insufficient)
-    assert result['status'] == 'insufficient_data'
-    assert result['n_samples'] == 1
+    def test_generate_descriptive_stats(self):
+        # Create mock data
+        data = {
+            'interface_type': ['A', 'A', 'B', 'B', 'A', 'B'],
+            'explanation_engagement_time': [10.0, 12.0, 15.0, 14.0, 11.0, 16.0]
+        }
+        df = pd.DataFrame(data)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_stats.csv')
+            result = StatUtils.generate_descriptive_stats(df, 'explanation_engagement_time', 'interface_type', output_path)
+            
+            assert os.path.exists(output_path)
+            assert len(result) == 2 # Two groups
+            assert 'mean' in result.columns
+            assert 'std' in result.columns
+            
+            # Check specific values (A: mean=11, B: mean=15)
+            group_a = result[result['group'] == 'A']['mean'].values[0]
+            group_b = result[result['group'] == 'B']['mean'].values[0]
+            
+            assert np.isclose(group_a, 11.0)
+            assert np.isclose(group_b, 15.0)

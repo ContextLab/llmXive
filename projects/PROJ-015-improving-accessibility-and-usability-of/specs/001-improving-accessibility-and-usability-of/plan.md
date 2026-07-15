@@ -14,7 +14,7 @@ This project implements a reproducible research pipeline to evaluate the impact 
 **Primary Dependencies**: `scipy` (statistics), `matplotlib` (visualization), `pandas` (data manipulation), `jupyter` (reproducibility), `streamlit` (simulator interface - lightweight CPU option)
 **Storage**: Local CSV/JSON files under `data/` (checksummed)
 **Testing**: `pytest` (unit tests for statistical logic), manual verification of notebook execution
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)
 **Project Type**: Research Pipeline / Web-based Simulator
 **Performance Goals**: Analysis of ~1000 rows in < 5 minutes; Simulator response < 200ms
 **Constraints**: No GPU; No heavy LLM inference in the loop; Data must fit in < 7GB RAM; All random seeds pinned.

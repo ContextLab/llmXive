@@ -1,71 +1,111 @@
 # PROJ-015: Improving Accessibility and Usability of Complex Computer Systems for People with Disabilities
 
 ## Overview
-This project implements a research pipeline to evaluate the effectiveness of Explainable AI (XAI) interfaces versus traditional interfaces for users with disabilities. The system supports randomized controlled trials, data collection, statistical analysis, and reproducible reporting.
+This project implements a research pipeline to evaluate the efficacy of Explainable AI (XAI) interfaces versus traditional interfaces for users with disabilities. The system supports a standardized usability testing protocol, data collection, statistical analysis, and reproducible reporting.
 
 ## Features
-- **Simulator**: Streamlit-based interface for running usability tests with Traditional and Explainable AI variants.
-- **Data Collection**: Automated logging of completion time, error counts, SUS scores, and engagement metrics.
-- **Statistical Analysis**: Pipeline for normality testing, ANOVA, and Holm-Bonferroni correction using `scipy`.
-- **Visualization**: Publication-quality plots generated via `matplotlib`.
-- **Reproducibility**: Single Jupyter notebook (`code/analysis.ipynb`) to reproduce all results from raw data.
+- **Simulator**: Renders Traditional and Explainable interface variants with configurable XAI overlays.
+- **Data Collection**: Captures completion time, error counts, SUS scores, and explanation engagement time.
+- **Counterbalancing**: Implements Latin Square design for interface sequence assignment.
+- **Statistical Analysis**: Performs Shapiro-Wilk, Repeated Measures ANOVA, and Holm-Bonferroni corrections.
+- **Visualization**: Generates publication-quality box plots and summary reports.
 
-## Prerequisites
-- Python 3.11+
-- pip
+## Project Structure
+```
+PROJ-015-improving-accessibility-and-usability-of/
+├── code/
+│ ├── analysis/ # Statistical analysis, visualization, reporting
+│ ├── config/ # Environment and study configuration
+│ ├── models/ # Data models (Participant, Session, Metric)
+│ ├── setup/ # Project initialization utilities
+│ ├── simulator/ # Interface renderers, data collection, session logging
+│ ├── utils/ # Checksum, logging, seeding, performance optimization
+│ └── validation/ # Quickstart validation scripts
+├── data/
+│ ├── raw/ # Immutable raw session logs (JSON)
+│ └── processed/ # Aggregated metrics, descriptive stats, reports
+├── docs/
+│ ├── user_guide.md # User guide for the simulator and analysis pipeline
+│ └── api_reference.md # API reference for core modules
+├── tests/ # Unit and integration tests
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
 
 ## Installation
-1. Clone the repository and navigate to the project directory.
+1. Ensure Python 3.11+ is installed.
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
-3. Ensure the data directories exist:
+3. (Optional) Set up linting and formatting:
  ```bash
- mkdir -p data/raw data/processed figures
+ python code/setup/configure_linting.py
  ```
 
 ## Usage
 
 ### Running the Simulator
-Launch the Streamlit application to conduct usability sessions:
+Launch the Streamlit application to conduct usability tests:
 ```bash
 streamlit run code/simulator/app.py
 ```
+The simulator supports:
+- Participant registration with disability type and interface sequence.
+- Task execution on Traditional and Explainable interfaces.
+- Real-time metric collection (time, errors, SUS, engagement).
+- Session logging to `data/raw/session_{id}.json` with checksums.
 
 ### Running the Analysis Pipeline
-Execute the full analysis pipeline from raw data to report generation:
+After data collection, run the analysis pipeline:
 ```bash
 python code/analysis/run_analysis.py
 ```
+This script:
+1. Cleans raw data (filters incomplete sessions, imputes SUS).
+2. Computes descriptive statistics.
+3. Performs statistical tests (ANOVA, Shapiro-Wilk).
+4. Generates visualizations and summary reports.
+5. Outputs results to `data/processed/`.
 
-### Running the Report Notebook
-Open and execute the Jupyter notebook for interactive analysis:
+### Reproducible Reporting
+Execute the master Jupyter notebook for end-to-end reproducibility:
 ```bash
 jupyter notebook code/analysis.ipynb
 ```
-
-## Project Structure
-```
-.
-├── code/
-│ ├── analysis/ # Statistical analysis and visualization modules
-│ ├── config/ # Configuration and settings management
-│ ├── models/ # Data models (Participant, Session, Metric)
-│ ├── simulator/ # Streamlit app and interface logic
-│ ├── setup/ # Project initialization scripts
-│ └── utils/ # Logging, checksum, and seed utilities
-├── data/
-│ ├── raw/ # Immutable raw session logs (JSON)
-│ └── processed/ # Cleaned data and analysis outputs
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation
-├── requirements.txt # Python dependencies
-└── README.md
-```
+The notebook covers data loading, cleaning, analysis, visualization, and reporting.
 
 ## Configuration
-Settings are managed via `code/config/settings.py`. Environment variables can override defaults.
+Study parameters are managed via `code/config/settings.py`. Key settings include:
+- `STUDY_SEED`: Random seed for reproducibility.
+- `DATA_DIR`: Base directory for data storage.
+- `INTERFACE_VARIANTS`: List of interface types to test.
+- `SUS_IMPUTATION_THRESHOLD`: Maximum missing items allowed for SUS imputation.
+
+## Data Schema
+- **Raw Sessions**: `data/raw/session_{id}.json` containing participant details, interface sequence, and per-task metrics.
+- **Processed Metrics**: `data/processed/metrics_summary.csv` with statistical test results.
+- **Descriptive Stats**: `data/processed/descriptive_stats.csv` with means and standard deviations.
+- **Reports**: `data/processed/report_summary.txt` summarizing N, power flags, and exclusion reasons.
+
+## Testing
+Run unit tests for statistical functions:
+```bash
+python -m pytest tests/unit/test_stat_utils.py -v
+```
+Validate the quickstart workflow:
+```bash
+python code/validation/validate_quickstart.py
+```
+
+## Contributing
+1. Fork the repository.
+2. Create a feature branch.
+3. Ensure all tests pass and linting/formatting checks are satisfied.
+4. Submit a pull request.
 
 ## License
-[Insert License Information]
+[Insert License Here]
+
+## Acknowledgments
+This project implements research protocols for accessibility and usability studies, adhering to best practices in statistical analysis and reproducible research.
