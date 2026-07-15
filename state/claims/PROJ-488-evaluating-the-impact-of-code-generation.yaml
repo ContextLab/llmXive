@@ -2517,3 +2517,165 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T03:08:14Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: "HumanEval/MBPP lack sufficient sample size (n\u22651000) for statistical\
+    \ power"
+  claim_id: c_a73f5e09
+  context: "T009 Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM-generated code source; include justification and impact analysis\
+    \ in docs/amendment-vi.md. Proposed text: 'Allow LLM-generated code from verified\
+    \ training corpora (e.g. CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient\
+    \ sample size (n\u22651000) for statistical power.' BLOCKS Phase 3-5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Draft amendment PR to Principle VI permitting use of CodeParrot/CodeGen\
+    \ as the LLM-generated code source; include justification and impact analysis\
+    \ in docs/amendment-vi.md. Proposed text: 'Allow LLM-generated code from verified\
+    \ training corpora (e.g. CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient\
+    \ sample size (n\u22651000) for statistical power.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:17:08Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: "lightweight LLM inference exceeds runtime constraints (\u22646h on 2-core\
+    \ CPU)"
+  claim_id: c_b3d175a9
+  context: "T010 Draft amendment PR to Principle VII permitting use of radon and pylint\
+    \ for metric extraction; include CPU-feasibility argument in docs/amendment-vii.md.\
+    \ Proposed text: 'Allow CPU-tractable static analysis tools (radon, pylint) with\
+    \ documented justification when lightweight LLM inference exceeds runtime constraints\
+    \ (\u22646h on 2-core CPU).' BLOCKS Phase 3-5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Draft amendment PR to Principle VII permitting use of radon and pylint\
+    \ for metric extraction; include CPU-feasibility argument in docs/amendment-vii.md.\
+    \ Proposed text: 'Allow CPU-tractable static analysis tools (radon, pylint) with\
+    \ documented justification when lightweight LLM inference exceeds runtime constraints\
+    \ (\u22646h on 2-core CPU).'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:17:09Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total snippets limited to 10,000 to comply with 14 GB disk limit
+  claim_id: c_7f1e696c
+  context: "T015 [US1] Implement streaming and sampling to ensure total snippets \u2264\
+    \ 10,000 to comply with 14 GB disk limit; use datasets.load_dataset(..., streaming=True)\
+    \ with [deferred] sample fraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement streaming and sampling to ensure total snippets \u2264 10,000\
+    \ to comply with 14 GB disk limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:17:09Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Median length difference between groups limited to 20%
+  claim_id: c_c59cbd89
+  context: "T017 [US1] Implement function-length filtering to achieve median length\
+    \ difference \u2264 20 % between groups (binary search algorithm, max 5 iterations,\
+    \ abort with error 103 after max attempts)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement function-length filtering to achieve median length difference\
+    \ \u2264 20 % between groups (binary search algorithm, max 5 iterations, abort\
+    \ with error 103 after max attempts)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:17:10Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: AST parsing validation requires at least 95% successful parses
+  claim_id: c_c6e053be
+  context: "T018 [US1] Implement AST parsing validation: parse each snippet, log invalid\
+    \ IDs, require \u226595% successful parses; abort with error 102 if threshold\
+    \ not met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AST_parsing_validation_requires_at_least_95%25_successful_pars
+  kind: magnitude
+  raw_text: "Implement AST parsing validation: parse each snippet, log invalid IDs,\
+    \ require \u226595% successful parses; abort with error 102 if threshold not met"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:17:42Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Require at least 1000 valid Python snippets per group
+  claim_id: c_ccdcb061
+  context: "T019 [US1] Verify snippet count: ensure \u2265 1000 valid Python snippets\
+    \ per group; abort with error 104 if not met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_1000_valid_Python_snippets_per_group
+  kind: magnitude
+  raw_text: "Verify snippet count: ensure \u2265 1000 valid Python snippets per group;\
+    \ abort with error 104 if not met"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:18:27Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Abort if 5% or more of snippets fail extracted score validation
+  claim_id: c_6caf04d4
+  context: "T022 [US2] Validate extracted scores: detect NaN or out-of-range values;\
+    \ if \u22655% of snippets fail, abort with error 102 and generate diagnostic report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate extracted scores: detect NaN or out-of-range values; if \u2265\
+    5% of snippets fail, abort with error 102 and generate diagnostic report"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:18:27Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis enforces at least 0.8 achieved power
+  claim_id: c_87feb579
+  context: "T026 [US3] [SC-003] Implement power-analysis module in code/statistical_analysis.py\
+    \ to compute achieved power given observed effect size and sample size; enforce\
+    \ \u2265 0.8 power and log warnings otherwise."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_enforces_at_least_0.8_achieved_po
+  kind: magnitude
+  raw_text: "Implement power-analysis module in code/statistical_analysis.py to compute\
+    \ achieved power given observed effect size and sample size; enforce \u2265 0.8\
+    \ power and log warnings otherwise"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T04:18:59Z'

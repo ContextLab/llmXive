@@ -6,11 +6,11 @@
     "data/metrics/statistical_analysis_results.json"
   ],
   "failures": [
-    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 16, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'"
+    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 13, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 7,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T03:05:19Z"
+  "updated_at": "2026-07-15T04:24:44Z"
 }
