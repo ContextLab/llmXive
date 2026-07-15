@@ -1,3 +1,12 @@
+"""
+Metric Extraction Module (T020, T021)
+
+Implements extraction of:
+- Radon metrics: Cyclomatic Complexity, LOC, Maintainability Index
+- Pylint metrics: Bug indicators, style issues
+
+Outputs are written to data/metrics/ as CSVs conforming to MetricResult schema.
+"""
 import os
 import sys
 import logging
@@ -6,301 +15,354 @@ import tempfile
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import asdict, dataclass
+from datetime import datetime
 
-# Radon imports - fixed to use correct module structure
-from radon.complexity import cc_visit
-from radon.raw import analyze as raw_analyze
-from radon.mi import mi_visit
+# Radon imports
+try:
+    from radon.complexity import cc_visit
+    from radon.raw import analyze as radon_analyze_raw
+    from radon.mi import mi_visit
+except ImportError:
+    raise ImportError(
+        "ERROR: radon library is not installed. Please install it via pip install radon."
+    )
 
 # Pylint imports
-from pylint.lint import Run
-from pylint.reporters.text import TextReporter
-from io import StringIO
+try:
+    from pylint.lint import Run
+    from pylint.reporters.text import TextReporter
+    from pylint.checkers import BaseChecker
+except ImportError:
+    raise ImportError(
+        "ERROR: pylint library is not installed. Please install it via pip install pylint."
+    )
 
-# Project imports
-from data_model import MetricResult, CodeSnippet
+from data_model import MetricResult
 from logging_config import get_logger
 from state_tracker import update_state_with_artifact
+from cpu_guard import enforce_cpu_only
+
+# Ensure we are on CPU only (T025)
+enforce_cpu_only()
 
 logger = get_logger(__name__)
 
+@dataclass
 class RadonMetrics:
-    """Container for radon-computed metrics."""
-    def __init__(self, snippet_id: str, complexity: int, loc: int, 
-                 maintainability: float, raw_loc: int, raw_sloc: int, 
-                 raw_comments: int, raw_strings: int):
-        self.snippet_id = snippet_id
-        self.complexity = complexity
-        self.loc = loc
-        self.maintainability = maintainability
-        self.raw_loc = raw_loc
-        self.raw_sloc = raw_sloc
-        self.raw_comments = raw_comments
-        self.raw_strings = raw_strings
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "snippet_id": self.snippet_id,
-            "metric_type": "radon",
-            "cyclomatic_complexity": self.complexity,
-            "loc": self.loc,
-            "maintainability_index": self.maintainability,
-            "raw_loc": self.raw_loc,
-            "raw_sloc": self.raw_sloc,
-            "raw_comments": self.raw_comments,
-            "raw_strings": self.raw_strings
-        }
-
+    """Container for Radon analysis results."""
+    snippet_id: str
+    cyclomatic_complexity: float
+    loc: int
+    maintainability_index: float
+    source: str
+    
+@dataclass
 class PylintMetrics:
-    """Container for pylint-computed metrics."""
-    def __init__(self, snippet_id: str, bug_count: int, convention_count: int,
-                 refactor_count: int, info_count: int, error_count: int):
-        self.snippet_id = snippet_id
-        self.bug_count = bug_count
-        self.convention_count = convention_count
-        self.refactor_count = refactor_count
-        self.info_count = info_count
-        self.error_count = error_count
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "snippet_id": self.snippet_id,
-            "metric_type": "pylint",
-            "bug_count": self.bug_count,
-            "convention_count": self.convention_count,
-            "refactor_count": self.refactor_count,
-            "info_count": self.info_count,
-            "error_count": self.error_count
-        }
-
-def extract_radon_metrics(snippet_id: str, code: str) -> Optional[RadonMetrics]:
+    """Container for Pylint analysis results."""
+    snippet_id: str
+    bug_count: int
+    style_count: int
+    convention_count: int
+    refactoring_count: int
+    total_issue_count: int
+    source: str
+    
+def extract_radon_metrics(code_snippet: str, snippet_id: str) -> Optional[RadonMetrics]:
     """
-    Extract radon metrics (complexity, LOC, maintainability) from a code snippet.
-    Returns None if extraction fails.
+    Extracts cyclomatic complexity, LOC, and maintainability index from a code snippet.
+    
+    Args:
+        code_snippet: The Python code string.
+        snippet_id: Unique identifier for the snippet.
+        
+    Returns:
+        RadonMetrics object or None if parsing fails.
     """
+    if not code_snippet or not code_snippet.strip():
+        logger.warning(f"Empty snippet for ID {snippet_id}, skipping radon analysis.")
+        return None
+        
     try:
-        # Calculate Cyclomatic Complexity
-        complexity_results = cc_visit(code)
-        total_complexity = sum(node.cc for node in complexity_results)
-        
-        # Calculate Raw Metrics (LOC, etc.)
-        raw_analysis = raw_analyze(code)
-        
-        # Calculate Maintainability Index (0-100 scale)
-        # mi_visit returns a list of (score, raw) tuples for each function/class
-        # We aggregate to a single score for the snippet
-        mi_results = mi_visit(code, multi=True)
-        if mi_results:
-            # mi_visit returns [(mi, raw), ...] for each node
-            # We take the average or the first valid value
-            maintainability = sum(m[0] for m in mi_results) / len(mi_results)
+        # 1. Cyclomatic Complexity (CC)
+        # cc_visit returns a list of complexity results for each function/class
+        complexity_results = cc_visit(code_snippet)
+        if not complexity_results:
+            # If no functions/classes found, treat as 1 (single block) or 0? 
+            # Standard is often 1 for the module itself if empty, but let's use 1 for safety if no functions
+            total_cc = 1 
         else:
-            maintainability = 0.0
-
+            # Sum of complexities of all functions/classes found
+            total_cc = sum(res.complexity for res in complexity_results)
+        
+        # 2. Raw Metrics (LOC, etc.)
+        raw_results = radon_analyze_raw(code_snippet)
+        loc = raw_results.loc
+        
+        # 3. Maintainability Index (MI)
+        # mi_visit returns a list of MI values for each function/class
+        mi_results = mi_visit(code_snippet, multi=True)
+        if not mi_results:
+            # If no functions, calculate for the whole module? 
+            # mi_visit without args calculates for the whole file if passed as string
+            mi_results = mi_visit(code_snippet, multi=False)
+            mi = mi_results if mi_results else 0.0
+        else:
+            # Average MI of all functions/classes
+            mi = sum(mi_results) / len(mi_results) if mi_results else 0.0
+            
+        # Ensure MI is within valid range (0-171 usually, but can be negative for very complex code)
+        # We clamp to a reasonable range for visualization if needed, but store raw
+        
         return RadonMetrics(
             snippet_id=snippet_id,
-            complexity=total_complexity,
-            loc=raw_analysis.loc,
-            maintainability=maintainability,
-            raw_loc=raw_analysis.loc,
-            raw_sloc=raw_analysis.sloc,
-            raw_comments=raw_analysis.comments,
-            raw_strings=raw_analysis.strings
+            cyclomatic_complexity=float(total_cc),
+            loc=int(loc),
+            maintainability_index=float(mi),
+            source="radon"
         )
+    except SyntaxError as e:
+        logger.error(f"SyntaxError in radon analysis for {snippet_id}: {e}")
+        return None
     except Exception as e:
-        logger.error(f"Failed to extract radon metrics for {snippet_id}: {e}")
+        logger.error(f"Unexpected error in radon analysis for {snippet_id}: {e}")
         return None
 
-def extract_pylint_metrics(snippet_id: str, code: str) -> Optional[PylintMetrics]:
+def extract_pylint_metrics(code_snippet: str, snippet_id: str) -> Optional[PylintMetrics]:
     """
-    Extract pylint metrics (bug indicators, style issues) from a code snippet.
-    Returns None if extraction fails.
+    Extracts bug indicators and style issues from a code snippet using Pylint.
+    
+    Args:
+        code_snippet: The Python code string.
+        snippet_id: Unique identifier for the snippet.
+        
+    Returns:
+        PylintMetrics object or None if analysis fails.
     """
+    if not code_snippet or not code_snippet.strip():
+        logger.warning(f"Empty snippet for ID {snippet_id}, skipping pylint analysis.")
+        return None
+        
     try:
         # Create a temporary file for pylint to analyze
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            temp_path = f.name
-
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as tmp_file:
+            tmp_file.write(code_snippet)
+            tmp_path = tmp_file.name
+        
         try:
-            # Capture output
-            output = StringIO()
-            reporter = TextReporter(output)
+            # Run pylint
+            # We capture output in a TextReporter
+            reporter = TextReporter()
+            # Disable specific checks that might be noisy or irrelevant for snippets (e.g., missing docstring)
+            # But we want bug and style checks
+            # --disable=all --enable=bugger,style,convention,refactoring
+            # Actually, let's just run standard and count by message type
             
-            # Run pylint with minimal configuration to focus on bugs and style
-            # Disable specific checks that might be too noisy for this context
+            # We need to parse the output to count issues
+            # Using Run with reporter
             Run(
-                [temp_path, 
-                 '--disable=missing-docstring,invalid-name,too-many-arguments,too-many-locals',
-                 '--reports=no',
-                 '--output-format=text'],
+                [tmp_path, '--disable=all', '--enable=bugger,style,convention,refactoring,error,warning', '--output-format=text'],
                 reporter=reporter,
                 exit=False
             )
             
-            # Parse output to count message types
-            lines = output.getvalue().split('\n')
+            output = reporter.out.getvalue()
+            
+            # Parse output to count categories
+            # Format: filename:line:col: [message_type] message
             bug_count = 0
+            style_count = 0
             convention_count = 0
-            refactor_count = 0
-            info_count = 0
-            error_count = 0
-
-            for line in lines:
-                if '[E' in line: # Error
-                    error_count += 1
-                elif '[R' in line: # Refactor
-                    refactor_count += 1
-                elif '[C' in line: # Convention
+            refactoring_count = 0
+            
+            for line in output.splitlines():
+                if 'bugger' in line.lower() or 'error' in line.lower():
+                    # Pylint 'bug' messages are often categorized under 'bugger' or specific error codes
+                    # We'll count lines that indicate a bug or error
+                    if 'bugger' in line.lower():
+                        bug_count += 1
+                    elif 'error' in line.lower() and 'bugger' not in line.lower():
+                        # Sometimes errors are separate
+                        # Let's be conservative: only count explicit bugger or specific error codes if we can parse them
+                        # For now, let's rely on the message type if available
+                        pass
+                elif 'style' in line.lower():
+                    style_count += 1
+                elif 'convention' in line.lower():
                     convention_count += 1
-                elif '[I' in line: # Info
-                    info_count += 1
-                elif '[F' in line: # Fatal (treat as bug)
+                elif 'refactor' in line.lower():
+                    refactoring_count += 1
+                    
+                # A more robust way is to check the message type in the output if available
+                # But standard text output is hard to parse reliably without a structured reporter.
+                # Let's use a simpler heuristic based on the message type string if present.
+                # Re-running with a custom approach:
+                pass
+                
+            # Since parsing text output is brittle, let's try a different approach:
+            # Use the Message object if we can access the internal state, but that's private.
+            # Let's stick to the text parsing but be more specific about the prefix.
+            # Pylint output: "filename:line: [type] message"
+            
+            # Reset and parse again more carefully
+            bug_count = 0
+            style_count = 0
+            convention_count = 0
+            refactoring_count = 0
+            
+            for line in output.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                # Look for the pattern [type]
+                if '[bugger]' in line.lower():
                     bug_count += 1
-                elif 'bug' in line.lower() and '[' not in line:
-                    bug_count += 1
-
+                elif '[style]' in line.lower():
+                    style_count += 1
+                elif '[convention]' in line.lower():
+                    convention_count += 1
+                elif '[refactor]' in line.lower():
+                    refactoring_count += 1
+                # Sometimes errors are [error] or [fatal]
+                elif '[error]' in line.lower():
+                    bug_count += 1 # Treat errors as bugs
+                    
+            total_issues = bug_count + style_count + convention_count + refactoring_count
+            
             return PylintMetrics(
                 snippet_id=snippet_id,
                 bug_count=bug_count,
+                style_count=style_count,
                 convention_count=convention_count,
-                refactor_count=refactor_count,
-                info_count=info_count,
-                error_count=error_count
+                refactoring_count=refactoring_count,
+                total_issue_count=total_issues,
+                source="pylint"
             )
         finally:
-            os.unlink(temp_path)
+            # Clean up temp file
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+                
     except Exception as e:
-        logger.error(f"Failed to extract pylint metrics for {snippet_id}: {e}")
+        logger.error(f"Unexpected error in pylint analysis for {snippet_id}: {e}")
         return None
 
-def process_snippets_for_metrics(snippets: List[Dict[str, Any]], metric_type: str = "all") -> List[Dict[str, Any]]:
+def process_snippets_for_metrics(snippets: List[Dict[str, Any]]) -> Tuple[List[RadonMetrics], List[PylintMetrics]]:
     """
-    Process a list of snippets and extract metrics.
-    Returns a list of metric dictionaries.
+    Processes a list of code snippets and extracts metrics.
+    
+    Args:
+        snippets: List of dicts with keys: 'id', 'code', 'source' (from data_ingestion)
+        
+    Returns:
+        Tuple of (list of RadonMetrics, list of PylintMetrics)
     """
-    results = []
-    for snippet in snippets:
+    radon_results = []
+    pylint_results = []
+    
+    logger.info(f"Starting metric extraction for {len(snippets)} snippets.")
+    
+    for i, snippet in enumerate(snippets):
         snippet_id = snippet.get('id')
         code = snippet.get('code')
+        source = snippet.get('source', 'unknown')
+        
         if not snippet_id or not code:
-            logger.warning(f"Skipping snippet with missing id or code")
+            logger.warning(f"Skipping snippet {i}: missing id or code.")
             continue
+            
+        # Radon
+        radon_metric = extract_radon_metrics(code, snippet_id)
+        if radon_metric:
+            radon_results.append(radon_metric)
+            
+        # Pylint
+        pylint_metric = extract_pylint_metrics(code, snippet_id)
+        if pylint_metric:
+            pylint_results.append(pylint_metric)
+            
+        if (i + 1) % 100 == 0:
+            logger.info(f"Processed {i+1}/{len(snippets)} snippets.")
+            
+    logger.info(f"Extraction complete. Radon: {len(radon_results)}, Pylint: {len(pylint_results)}")
+    return radon_results, pylint_results
 
-        if metric_type in ["all", "radon"]:
-            radon_res = extract_radon_metrics(snippet_id, code)
-            if radon_res:
-                results.append(radon_res.to_dict())
-
-        if metric_type in ["all", "pylint"]:
-            pylint_res = extract_pylint_metrics(snippet_id, code)
-            if pylint_res:
-                results.append(pylint_res.to_dict())
-
-    return results
-
-def write_metrics_to_csv(metrics: List[Dict[str, Any]], output_path: str):
+def write_metrics_to_csv(radon_metrics: List[RadonMetrics], pylint_metrics: List[PylintMetrics], output_dir: Path):
     """
-    Write extracted metrics to a CSV file.
+    Writes extracted metrics to CSV files in the specified output directory.
+    
+    Args:
+        radon_metrics: List of RadonMetrics objects.
+        pylint_metrics: List of PylintMetrics objects.
+        output_dir: Directory to write CSV files.
     """
-    if not metrics:
-        logger.warning("No metrics to write.")
-        # Still create an empty file with headers to satisfy "file exists" checks
-        headers = ["snippet_id", "metric_type", "cyclomatic_complexity", "loc", 
-                   "maintainability_index", "raw_loc", "raw_sloc", "raw_comments", 
-                   "raw_strings", "bug_count", "convention_count", "refactor_count", 
-                   "info_count", "error_count"]
-        with open(output_path, 'w') as f:
-            f.write(','.join(headers) + '\n')
-        return
-
-    import pandas as pd
-    df = pd.DataFrame(metrics)
-    # Ensure consistent columns even if some metric types are missing
-    all_cols = ["snippet_id", "metric_type", "cyclomatic_complexity", "loc", 
-                "maintainability_index", "raw_loc", "raw_sloc", "raw_comments", 
-                "raw_strings", "bug_count", "convention_count", "refactor_count", 
-                "info_count", "error_count"]
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Reindex to ensure all columns exist, filling missing with 0 or NaN as appropriate
-    # For numeric columns, fill with 0. For ID/Type, keep as is.
-    numeric_cols = ["cyclomatic_complexity", "loc", "maintainability_index", "raw_loc", 
-                    "raw_sloc", "raw_comments", "raw_strings", "bug_count", 
-                    "convention_count", "refactor_count", "info_count", "error_count"]
-    
-    for col in numeric_cols:
-        if col not in df.columns:
-            df[col] = 0
-        else:
-            df[col] = df[col].fillna(0)
-    
-    # Reorder
-    df = df[[c for c in all_cols if c in df.columns]]
-    
-    # Create directory if needed
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote {len(metrics)} metric records to {output_path}")
+    # Write Radon metrics
+    if radon_metrics:
+        radon_path = output_dir / "radon_metrics.csv"
+        with open(radon_path, 'w') as f:
+            f.write("snippet_id,cyclomatic_complexity,loc,maintainability_index,source\n")
+            for m in radon_metrics:
+                f.write(f"{m.snippet_id},{m.cyclomatic_complexity},{m.loc},{m.maintainability_index},{m.source}\n")
+        logger.info(f"Radon metrics written to {radon_path}")
+        
+        # Update state
+        update_state_with_artifact(str(radon_path), "radon_metrics")
+    else:
+        logger.warning("No Radon metrics to write.")
+        
+    # Write Pylint metrics
+    if pylint_metrics:
+        pylint_path = output_dir / "pylint_metrics.csv"
+        with open(pylint_path, 'w') as f:
+            f.write("snippet_id,bug_count,style_count,convention_count,refactoring_count,total_issue_count,source\n")
+            for m in pylint_metrics:
+                f.write(f"{m.snippet_id},{m.bug_count},{m.style_count},{m.convention_count},{m.refactoring_count},{m.total_issue_count},{m.source}\n")
+        logger.info(f"Pylint metrics written to {pylint_path}")
+        
+        # Update state
+        update_state_with_artifact(str(pylint_path), "pylint_metrics")
+    else:
+        logger.warning("No Pylint metrics to write.")
 
 def run_metric_extraction(input_path: str, output_dir: str):
     """
-    Main entry point for metric extraction.
-    Loads processed snippets, extracts metrics, and writes to CSV.
-    """
-    logger.info(f"Starting metric extraction from {input_path}")
+    Main entry point for running metric extraction.
     
-    # Load snippets
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(101)
-
+    Args:
+        input_path: Path to the processed snippets JSON file.
+        output_dir: Path to the output directory for CSVs.
+    """
+    input_path = Path(input_path)
+    output_dir = Path(output_dir)
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+    logger.info(f"Loading snippets from {input_path}")
     with open(input_path, 'r') as f:
         snippets = json.load(f)
-
+        
     if not isinstance(snippets, list):
-        snippets = [snippets]
-
-    logger.info(f"Loaded {len(snippets)} snippets for metric extraction")
-
-    # Extract metrics
-    metrics = process_snippets_for_metrics(snippets)
-    logger.info(f"Extracted {len(metrics)} metric records")
-
-    if len(metrics) == 0:
-        logger.warning("No metrics were extracted. Check input data.")
-    
-    # Write outputs
-    radon_output = os.path.join(output_dir, "radon_metrics.csv")
-    pylint_output = os.path.join(output_dir, "pylint_metrics.csv")
-    combined_output = os.path.join(output_dir, "all_metrics.csv")
-
-    # Separate for specific files if needed, but combined is often easier for downstream
-    # The task asks for "one file per metric type" in T023, but we write all here
-    # and T023 will aggregate. We'll write the combined set here.
-    write_metrics_to_csv(metrics, combined_output)
-    
-    # Also write separate files for clarity
-    radon_metrics = [m for m in metrics if m.get('metric_type') == 'radon']
-    pylint_metrics = [m for m in metrics if m.get('metric_type') == 'pylint']
-    
-    write_metrics_to_csv(radon_metrics, radon_output)
-    write_metrics_to_csv(pylint_metrics, pylint_output)
-
-    # Update state
-    update_state_with_artifact(combined_output)
-    logger.info("Metric extraction completed successfully")
+        raise ValueError("Input JSON must be a list of snippets.")
+        
+    radon_metrics, pylint_metrics = process_snippets_for_metrics(snippets)
+    write_metrics_to_csv(radon_metrics, pylint_metrics, output_dir)
 
 def main():
     """CLI entry point."""
     import argparse
-    parser = argparse.ArgumentParser(description="Extract metrics from code snippets")
-    parser.add_argument("--input", default="data/processed/filtered_snippets.json",
-                        help="Path to filtered snippets JSON")
-    parser.add_argument("--output-dir", default="data/metrics",
-                        help="Directory to write metrics CSVs")
+    
+    parser = argparse.ArgumentParser(description="Extract metrics from code snippets.")
+    parser.add_argument("--input", type=str, default="data/processed/processed_snippets.json",
+                        help="Path to processed snippets JSON.")
+    parser.add_argument("--output", type=str, default="data/metrics",
+                        help="Path to output directory.")
+                        
     args = parser.parse_args()
-
-    run_metric_extraction(args.input, args.output_dir)
+    
+    run_metric_extraction(args.input, args.output)
 
 if __name__ == "__main__":
     main()

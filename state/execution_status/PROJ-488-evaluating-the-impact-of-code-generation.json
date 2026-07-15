@@ -1,16 +1,17 @@
 {
   "project_id": "PROJ-488-evaluating-the-impact-of-code-generation",
   "ok": false,
-  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/metrics/statistical_analysis_results.json: EVERY metric is null/NaN ([0].power_analysis.power, [0].power_analysis.effect_size, [0].power_analysis.sample_size, [0].power_analysis.threshold_met\u2026) \u2014 nothing was computed; 1 command(s) failed: python code/metric_extraction.py (rc=1)",
+  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/metrics/statistical_analysis_results.json: EVERY metric is null/NaN ([0].power_analysis.power, [0].power_analysis.effect_size, [0].power_analysis.sample_size, [0].power_analysis.threshold_met\u2026) \u2014 nothing was computed; 2 command(s) failed: python code/data_ingestion.py (rc=1); python code/metric_extraction.py (rc=1)",
   "artifacts": [
     "data/metrics/statistical_analysis_results.json"
   ],
   "failures": [
-    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 13, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'"
+    "python code/data_ingestion.py -> rc=1\n    port Dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py\", line 67, in <module>\n    from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/datasets/arrow_writer.py\", line 27, in <module>\n    from .features import Features, Image, Value\n  File \"/home/runner/work/llmXive/llmXive/projects/",
+    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 25, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 27, in <module>\n    raise ImportError(\nImportErro"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 10,
   "model_tier": 0,
-  "total_attempts": 7,
+  "total_attempts": 10,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T04:24:44Z"
+  "updated_at": "2026-07-15T13:09:34Z"
 }
