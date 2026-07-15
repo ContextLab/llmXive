@@ -1,3 +1,3 @@
 """
-llmXive Automated Science Pipeline - Code Base
+llmXive Research Pipeline - Code Module
 """

@@ -1,33 +1,6 @@
-? T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py`
-  (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against
-  AlloyRecord schema from T007 ensuring `measurement_method` field is present; save
-  to `data/raw/nist_aluminum.json`)
-: 1
-? 'T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py`
-  (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against
-  AlloyRecord schema from T007 ensuring `measurement_method` field is present; save
-  to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified -->'
-: 1
-? 'T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py`
-  (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against
-  AlloyRecord schema from T007 ensuring `measurement_method` field is present; save
-  to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  -->'
-: 1
-? 'T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py`
-  (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against
-  AlloyRecord schema from T007 ensuring `measurement_method` field is present; save
-  to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified -->'
-: 1
-? T012 [US1] Implement unit normalization in `code/data_cleaning.py` (convert elastic
-  constants to GPa, calculate atomic fractions summing to unity) (runs AFTER T014/T014b)
-: 2
-? T013 [US1] Implement exclusion logic in `code/data_cleaning.py` for entries where
-  major element sum < 0.95 (log warning, drop row)
-: 2
-? T016 [US1] Implement main orchestration for data pipeline in `code/main.py` (run
-  extraction -> cleaning -> save `data/processed/filtered_alloys.csv`); INCLUDE validation
-  to HALT with a clear error message if valid entries < 50 (per spec.md Edge Cases);
-  do not proceed to modeling if threshold not met
-: 1
+T010: 1
+T012: 1
+T013: 1
+T016: 1
+T018: 1
+T019: 1

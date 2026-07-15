@@ -96,7 +96,7 @@
 - [~] T016 [US1] Implement edge case handling in `full_context.py` for single-node graphs and depth=0. **Set `context_reduction_pct` to the string marker '[deferred]' and `status` to 'edge_case' in the execution log** for these instances.
 - [~] T017 [US1] Implement filter for "invalid workflows" (impossible even with full context) to exclude from error calculations
  - **Mechanism**: Add an `is_valid` boolean field to the ExecutionLog schema; set to `false` for invalid workflows and filter based on this flag during analysis.
-- [ ] T018 [US1] **Update state registry** (`state/projects/PROJ-866-...yaml`) with checksums of generated workflows in `data/raw/` immediately after generation (Constitution Principle V).
+- [~] T018 [US1] **Update state registry** (`state/projects/PROJ-866-...yaml`) with checksums of generated workflows in `data/raw/` immediately after generation (Constitution Principle V). <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,17 +110,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Integration test: Compare Full vs. Compressed logs for 10 workflows in `tests/integration/test_compression.py`
-- [ ] T020 [P] [US2] Contract test for execution log JSON in `tests/contract/test_execution_log_schema.py`
+- [~] T019 [P] [US2] Integration test: Compare Full vs. Compressed logs for 10 workflows in `tests/integration/test_compression.py`
+- [~] T020 [P] [US2] Contract test for execution log JSON in `tests/contract/test_execution_log_schema.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/engines/compressed_context.py` (FR-003)
+- [~] T021 [P] [US2] Implement `code/engines/compressed_context.py` (FR-003)
  - Uses constrained BFS/DFS to extract minimal policy subgraphs.
  - Configurable traversal depth parameter.
-- [ ] T022 [US2] Integrate `code/utils/token_counter.py` into `compressed_context.py` to count actual tokens (FR-004, FR-009)
+- [~] T022 [US2] Integrate `code/utils/token_counter.py` into `compressed_context.py` to count actual tokens (FR-004, FR-009)
  - Do NOT use node count as a proxy.
-- [ ] T023 [US2] Implement batch execution logic in `main.py` to run a substantial number of workflows across multiple compression levels
+- [~] T023 [US2] Implement batch execution logic in `main.py` to run a substantial number of workflows across multiple compression levels
  - **Dependency**: Requires updated orchestrator logic from T015 and completed Compressed Engine from T021.
 - [ ] T024 [US2] Log policy violations specifically when truncation cuts off required nodes (e.g., data sovereignty rules)
 - [ ] T025 [US2] Save processed execution logs to `data/processed/` with compression level, token count, and violation flags

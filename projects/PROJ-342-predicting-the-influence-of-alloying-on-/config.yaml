@@ -1,27 +1,29 @@
-# Configuration for Metallic Glass Tg Prediction Pipeline
-# This file contains non-secret parameters (seeds, limits, paths)
+# Project Configuration
+# Defines reproducible seeds, resource limits, and model hyperparameters.
+# This file is committed to version control to ensure reproducibility.
 
-zenodo:
-  # DOIs are typically loaded from .env for security, but defaults provided here
-  primary_doi: "10.5281/zenodo.10043838"
-  fallback_doi: "10.5281/zenodo.11023456"
+# Random Seed for all stochastic processes (numpy, sklearn, etc.)
+random_seed: 42
 
-training:
-  random_seed: 42
-  cv_folds: 5
-  max_grid_search_combos: 10
-  # Model parameters can be overridden here
-  model_type: "GradientBoostingRegressor"
+# Resource Limits (FR-005)
+# Maximum runtime and memory usage allowed for the pipeline
+resource_limits:
+  max_time_hours: 6
+  max_memory_gb: 7
 
-limits:
-  max_runtime_hours: 6
-  max_ram_gb: 7
-  max_cpu_time_seconds: 21600
+# Model Hyperparameters (Defaults, can be overridden by training scripts)
+model_params:
+  gradient_boosting:
+    n_estimators: 100
+    max_depth: 4
+    learning_rate: 0.1
+    min_samples_split: 5
+    min_samples_leaf: 2
+  grid_search:
+    max_combinations: 10
 
-paths:
-  # Relative to project root
-  data_raw: "data/raw"
-  data_processed: "data/processed"
-  models: "artifacts/models"
-  metrics: "artifacts/metrics"
-  reports: "artifacts/reports"
+# Analysis Parameters
+analysis:
+  fdr_alpha: 0.05
+  vif_threshold: 5.0
+  bootstrap_resamples: 1000

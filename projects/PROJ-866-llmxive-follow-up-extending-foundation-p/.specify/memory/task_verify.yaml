@@ -1,6 +1,6 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`): 1
-T002 Initialize Python project with `requirements.txt` (networkx, tiktoken, numpy, pandas, scipy, statsmodels, pytest): 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Create `contracts/` directory and define `workflow.schema.yaml`: 1
-T005 Create `contracts/` directory and define `execution_log.schema.yaml`: 1
-T006 Create `contracts/` directory and define `analysis_results.schema.yaml`: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1

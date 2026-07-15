@@ -1,3 +1,12 @@
+"""
+Environment configuration management for the Metallic Glasses project.
+
+Handles loading of:
+- .env files for sensitive data (DOIs, API keys)
+- config.yaml for reproducible seeds, limits, and hyperparameters
+
+Satisfies T007: Setup environment configuration management.
+"""
 import os
 import sys
 import logging
@@ -5,128 +14,168 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import yaml
 
+# Attempt to import python-dotenv; if missing, warn but don't fail the import
+# The main() function will handle the actual loading if the package is installed.
+try:
+    from dotenv import load_dotenv
+    DOTENV_AVAILABLE = True
+except ImportError:
+    DOTENV_AVAILABLE = False
+
+# Define project root based on the established structure (code/ is root for imports)
+# The project root is the parent of 'code'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ENV_FILE_PATH = PROJECT_ROOT / ".env"
+CONFIG_YAML_PATH = PROJECT_ROOT / "config.yaml"
+
+logger = logging.getLogger(__name__)
+
+
 class ConfigError(Exception):
     """Custom exception for configuration errors."""
     pass
 
-class Config:
-    """Configuration management class."""
-    
-    def __init__(self, config_path: Optional[str] = None):
-        """
-        Initialize configuration.
-        
-        Args:
-            config_path: Path to the config.yaml file. If None, uses default locations.
-        """
-        self.config_path = config_path or self._find_config_path()
-        self._config = self._load_config()
-        
-        # Load environment variables
-        self._load_env()
-        
-    def _find_config_path(self) -> str:
-        """Find the config.yaml file."""
-        possible_paths = [
-            "code/config/config.yaml",
-            "config.yaml",
-            "code/config.yaml"
-        ]
-        
-        for path in possible_paths:
-            if os.path.exists(path):
-                return path
-        
-        # Create default config if not found
-        return self._create_default_config()
-        
-    def _create_default_config(self) -> str:
-        """Create a default config.yaml file."""
-        default_config = {
-            'output_dir': 'data/processed',
-            'seed': 42,
-            'max_runtime_hours': 6,
-            'max_ram_gb': 7,
-            'primary_doi': '10.5281/zenodo.10043838',
-            'fallback_doi': '10.5281/zenodo.11023456'
-        }
-        
-        config_path = "code/config/config.yaml"
-        os.makedirs(os.path.dirname(config_path), exist_ok=True)
-        
-        with open(config_path, 'w') as f:
-            yaml.dump(default_config, f, default_flow_style=False)
-        
-        logging.info(f"Created default config at {config_path}")
-        return config_path
-        
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from YAML file."""
-        try:
-            with open(self.config_path, 'r') as f:
-                config = yaml.safe_load(f)
-            return config if config else {}
-        except Exception as e:
-            raise ConfigError(f"Failed to load config from {self.config_path}: {str(e)}")
-            
-    def _load_env(self):
-        """Load environment variables, overriding config if present."""
-        env_vars = ['PRIMARY_DOI', 'FALLBACK_DOI', 'OUTPUT_DIR']
-        
-        for var in env_vars:
-            if var in os.environ:
-                env_key = var.lower()
-                if var == 'PRIMARY_DOI':
-                    self._config['primary_doi'] = os.environ[var]
-                elif var == 'FALLBACK_DOI':
-                    self._config['fallback_doi'] = os.environ[var]
-                elif var == 'OUTPUT_DIR':
-                    self._config['output_dir'] = os.environ[var]
-                    
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        Get a configuration value.
-        
-        Args:
-            key: The configuration key.
-            default: Default value if key not found.
-            
-        Returns:
-            The configuration value or default.
-        """
-        return self._config.get(key, default)
-        
-    def __getitem__(self, key: str) -> Any:
-        """Get configuration value using dictionary syntax."""
-        if key not in self._config:
-            raise KeyError(f"Configuration key '{key}' not found")
-        return self._config[key]
-        
-    def __contains__(self, key: str) -> bool:
-        """Check if key exists in configuration."""
-        return key in self._config
 
-_config_instance: Optional[Config] = None
+class Config:
+    """
+    Central configuration manager.
+    
+    Loads environment variables from .env and structured config from config.yaml.
+    """
+    
+    def __init__(self, env_path: Optional[Path] = None, yaml_path: Optional[Path] = None):
+        self.env_path = env_path or ENV_FILE_PATH
+        self.yaml_path = yaml_path or CONFIG_YAML_PATH
+        self._env_vars: Dict[str, str] = {}
+        self._yaml_config: Dict[str, Any] = {}
+        self._loaded = False
+    
+    def load(self) -> None:
+        """
+        Load configuration from .env and config.yaml.
+        
+        Raises:
+            ConfigError: If required configuration is missing or files are invalid.
+        """
+        if self._loaded:
+            return
+        
+        # 1. Load .env
+        if self.env_path.exists():
+            if DOTENV_AVAILABLE:
+                load_dotenv(self.env_path)
+                logger.info(f"Loaded environment variables from {self.env_path}")
+            else:
+                logger.warning(
+                    f"Found {self.env_path} but 'python-dotenv' is not installed. "
+                    "Install it to load environment variables automatically."
+                )
+            # Fallback: manually read if dotenv not available (basic support)
+            if not DOTENV_AVAILABLE:
+                with open(self.env_path, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, _, value = line.partition('=')
+                            os.environ[key.strip()] = value.strip().strip('"').strip("'")
+        else:
+            logger.warning(f"Environment file not found at {self.env_path}. "
+                         "Ensure DOIs are set in environment or file.")
+        
+        # 2. Load config.yaml
+        if self.yaml_path.exists():
+            with open(self.yaml_path, 'r') as f:
+                self._yaml_config = yaml.safe_load(f) or {}
+            logger.info(f"Loaded configuration from {self.yaml_path}")
+        else:
+            logger.warning(f"Configuration file not found at {self.yaml_path}. "
+                         "Using defaults where possible.")
+        
+        self._loaded = True
+    
+    def get_zenodo_dois(self) -> Dict[str, str]:
+        """Retrieve Zenodo DOIs from environment variables."""
+        self.load()
+        primary = os.getenv("ZENODO_PRIMARY_DOI")
+        fallback = os.getenv("ZENODO_FALLBACK_DOI")
+        
+        if not primary:
+            # Hardcode the specific DOIs required by the project spec if not in env
+            # This ensures the system works even if .env is missing, though it's preferred to have it.
+            primary = "10.5281/zenodo.10043838"
+            logger.warning("ZENODO_PRIMARY_DOI not set in environment. Using default: 10.5281/zenodo.10043838")
+        
+        if not fallback:
+            fallback = "10.5281/zenodo.11023456"
+            logger.warning("ZENODO_FALLBACK_DOI not set in environment. Using default: 10.5281/zenodo.11023456")
+        
+        return {
+            "primary": primary,
+            "fallback": fallback
+        }
+    
+    def get_seed(self) -> int:
+        """Get random seed for reproducibility."""
+        self.load()
+        return self._yaml_config.get("random_seed", 42)
+    
+    def get_limits(self) -> Dict[str, Any]:
+        """Get resource limits (time, memory)."""
+        self.load()
+        return self._yaml_config.get("resource_limits", {
+            "max_time_hours": 6,
+            "max_memory_gb": 7
+        })
+    
+    def get_model_params(self) -> Dict[str, Any]:
+        """Get model-specific hyperparameters."""
+        self.load()
+        return self._yaml_config.get("model_params", {})
+    
+    def get_all(self) -> Dict[str, Any]:
+        """Return the full configuration dictionary."""
+        self.load()
+        return {
+            "zenodo_dois": self.get_zenodo_dois(),
+            "random_seed": self.get_seed(),
+            "resource_limits": self.get_limits(),
+            "model_params": self.get_model_params(),
+            "env_vars": dict(os.environ) # Be careful not to log secrets in production
+        }
+
 
 def get_config() -> Config:
-    """
-    Get the singleton configuration instance.
-    
-    Returns:
-        The Config instance.
-    """
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance
+    """Factory function to retrieve the singleton Config instance."""
+    return Config()
 
-def main():
-    """Main function for testing configuration."""
-    config = get_config()
-    print("Configuration loaded:")
-    for key, value in config._config.items():
-        print(f"  {key}: {value}")
-    return config
+
+def main() -> None:
+    """
+    CLI entry point to validate and print configuration.
+    
+    Usage: python -m code.config.config
+    """
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    
+    try:
+        config = get_config()
+        config.load()
+        
+        print("Configuration Loaded Successfully:")
+        print("-" * 30)
+        dois = config.get_zenodo_dois()
+        print(f"Primary DOI: {dois['primary']}")
+        print(f"Fallback DOI: {dois['fallback']}")
+        print(f"Random Seed: {config.get_seed()}")
+        print(f"Time Limit (h): {config.get_limits()['max_time_hours']}")
+        print(f"Memory Limit (GB): {config.get_limits()['max_memory_gb']}")
+        print("-" * 30)
+        print("Config validation passed.")
+        
+    except Exception as e:
+        logger.error(f"Configuration loading failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

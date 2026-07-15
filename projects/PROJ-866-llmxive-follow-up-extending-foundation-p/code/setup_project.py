@@ -1,50 +1,72 @@
 """
-Script to initialize the project directory structure.
-Creates the required folders and empty __init__.py files.
+Project structure initialization script.
+Creates the required directory hierarchy for the llmXive research pipeline.
 """
 import os
 import sys
+from pathlib import Path
 
 def create_structure():
-    """Create the project directory structure."""
-    root_dirs = [
-        "code",
-        "data",
-        "tests",
-        "state",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "specs",
-        "contracts"
+    """
+    Creates the core project directories: code, data, tests, state, contracts.
+    Also creates subdirectories for data organization.
+    """
+    root = Path(__file__).parent.parent
+    
+    # Core directories
+    dirs = [
+        root / "code",
+        root / "data",
+        root / "tests",
+        root / "state",
+        root / "contracts",
+        root / "docs",
+        root / "figures",
+        
+        # Data subdirectories
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "results",
+        
+        # Test subdirectories
+        root / "tests" / "unit",
+        root / "tests" / "integration",
+        root / "tests" / "contract",
+        
+        # Code subdirectories
+        root / "code" / "generators",
+        root / "code" / "engines",
+        root / "code" / "analysis",
+        root / "code" / "utils",
+        
+        # State subdirectories
+        root / "state" / "projects",
     ]
-
+    
     created = []
-    for directory in root_dirs:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            created.append(directory)
-            print(f"Created directory: {directory}")
-        else:
-            print(f"Directory exists: {directory}")
-
-    # Ensure __init__.py files exist for Python packages
-    init_dirs = ["code", "data", "tests", "state"]
-    for directory in init_dirs:
-        init_path = os.path.join(directory, "__init__.py")
-        if not os.path.exists(init_path):
-            with open(init_path, "w") as f:
-                f.write('"""\n' + directory.title() + ' module\n"""\n')
-            created.append(init_path)
-            print(f"Created package init: {init_path}")
-
+    for dir_path in dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path.relative_to(root)))
+        
+        # Ensure __init__.py exists in Python packages
+        if dir_path.name == "code" or "code" in str(dir_path):
+            init_file = dir_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+                created.append(f"{dir_path.relative_to(root)}/__init__.py")
+    
+    print(f"Created {len(created)} directories/files:")
+    for item in sorted(created):
+        print(f"  - {item}")
+    
     return created
 
-if __name__ == "__main__":
+def main():
+    """Entry point for script execution."""
     print("Initializing llmXive project structure...")
-    created_items = create_structure()
-    if created_items:
-        print(f"\nSuccess. Created {len(created_items)} items.")
-    else:
-        print("\nNo new items created (structure already exists).")
-        sys.exit(0)
+    create_structure()
+    print("Project structure initialization complete.")
+
+if __name__ == "__main__":
+    main()

@@ -2,9 +2,9 @@ import json
 import pytest
 from pathlib import Path
 import yaml
+import sys
 
 # Add parent directory to path for imports
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from engines.full_context import FullContextEngine

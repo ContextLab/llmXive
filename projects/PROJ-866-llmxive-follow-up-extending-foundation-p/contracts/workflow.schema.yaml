@@ -1,89 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Synthetic Workflow Definition"
-description: "Schema for a single synthetic workflow DAG used in the llmXive pipeline."
-type: object
+title: "Workflow"
+type: "object"
 required:
-  - workflow_id
+  - id
   - nodes
   - edges
-  - metadata
-  - depth
 properties:
-  workflow_id:
-    type: string
-    description: "Unique identifier for the workflow (e.g., UUID or hash)."
-    pattern: "^[a-zA-Z0-9_-]+$"
+  id:
+    type: "string"
+    description: "Unique identifier for the workflow"
+  depth:
+    type: "integer"
+    minimum: 1
+    maximum: 20
+    description: "Maximum depth of the workflow DAG"
+  complexity:
+    type: "integer"
+    minimum: 1
+    maximum: 10
+    description: "Complexity score of the workflow"
+  budget_cap:
+    type: "number"
+    description: "Maximum allowed token budget"
   nodes:
-    type: array
-    description: "List of nodes in the DAG."
+    type: "array"
     items:
-      type: object
+      type: "object"
       required:
-        - node_id
-        - node_type
-        - cost_estimate
+        - id
+        - type
+        - policy
       properties:
-        node_id:
-          type: string
-          description: "Unique ID for the node within this workflow."
-        node_type:
-          type: string
-          description: "Type of operation (e.g., 'extract', 'transform', 'load', 'decision')."
-          enum:
-            - extract
-            - transform
-            - load
-            - decision
-            - merge
-            - split
-        cost_estimate:
-          type: number
-          minimum: 0
-          description: "Estimated token cost or computational cost for this node."
-        metadata:
-          type: object
-          description: "Optional arbitrary metadata for the node."
+        id:
+          type: "string"
+        type:
+          type: "string"
+          enum: ["start", "process", "end"]
+        policy:
+          type: "object"
           additionalProperties: true
   edges:
-    type: array
-    description: "List of directed edges defining the workflow graph."
+    type: "array"
     items:
-      type: object
+      type: "object"
       required:
         - source
         - target
       properties:
         source:
-          type: string
-          description: "Source node_id."
+          type: "string"
         target:
-          type: string
-          description: "Target node_id."
-  metadata:
-    type: object
-    required:
-      - generation_seed
-      - complexity
-      - depth
-    properties:
-      generation_seed:
-        type: integer
-        description: "The random seed used to generate this workflow."
-      complexity:
-        type: integer
-        minimum: 1
-        description: "Complexity score (e.g., node count or edge density)."
-      depth:
-        type: integer
-        minimum: 1
-        description: "Maximum path length (depth) of the DAG."
-      tags:
-        type: array
-        items:
-          type: string
-        description: "Optional tags for categorization."
-  is_valid:
-    type: boolean
-    default: true
-    description: "Flag indicating if the workflow is structurally valid (no cycles, connected)."
-additionalProperties: false
+          type: "string"

@@ -845,3 +845,312 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T15:03:09Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: effective sample size formula Neff equals N times 1 minus rho_1 over
+    1 plus rho_1
+  claim_id: c_4bef252a
+  context: T017 MUST use formula N_{eff} = N \frac{1-\rho_1}{1+\rho_1} with synthetic
+    data
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Neff = N * (1 - rho_1) / (1 + rho_1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:17Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction uses global divisor of 30
+  claim_id: c_9911e650
+  context: T018 Verify alpha_adj = 0.05/30 (fixed global divisor)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction divisor is 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:39Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Bonferroni divisor 30 derived from 3 parameters 2 indices and 5 lags
+  claim_id: c_83237c73
+  context: "T023 MUST derive the divisor 30 dynamically from configuration (3 params\
+    \ \xD7 2 indices \xD7 5 lags)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The divisor 30 is derived from 3 params \xD7 2 indices \xD7 5 lags"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:02:59Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: validation period spans 2018 to 2020
+  claim_id: c_4c653547
+  context: T031 Implement code/viz/report.py to split data into Train (1998-2017)
+    and Test (2018-2020)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validation period is 2018-2020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:18Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: training period spans 1998 to 2017
+  claim_id: c_3fc345f6
+  context: T031 Implement code/viz/report.py to split data into Train (1998-2017)
+    and Test (2018-2020)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training period is 1998-2017
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:03:41Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: visualization PNG file size limit is 5MB
+  claim_id: c_ce58b43e
+  context: "T026 MUST use assert os.path.getsize(filepath) <= 5*1024*1024 to verify\
+    \ PNG generation \u2264 5MB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visualization_PNG_file_size_limit_is_5MB
+  kind: magnitude
+  raw_text: PNG generation must be less than or equal to 5MB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:04:08Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: correlation pairs exceeding absolute r greater than 0.5 are reported
+  claim_id: c_19133897
+  context: T033 Generate Markdown report stating if Helium-Dst exceeds |r| > 0.5
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: C-JPM 0.72
+      source_id: '1105.6272'
+      url: https://arxiv.org/abs/1105.6272
+      value: '0.72'
+    filled: true
+  kind: magnitude
+  raw_text: Correlation pairs exceeding |r| > 0.5 are reported in the test set
+  resolved_value: '0.72'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-15T13:04:39Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: linear interpolation fills gaps of 6 hours or less
+  claim_id: c_82be1f71
+  context: "T009 Verify gap \u2264 6h fills, > 6h warns"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_fills_gaps_of_6_hours_or_less
+  kind: magnitude
+  raw_text: Interpolation fills gaps less than or equal to 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:01Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: Pyper and Peterman method published in late 1990s
+  claim_id: c_fb34041b
+  context: T021 MUST use the method of Pyper & Peterman (late 1990s)
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: late 1990s
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Pyper_and_Peterman_method_published_in_late_1990s
+    source_value: https://en.wikipedia.org/wiki/Pyper_and_Peterman_method_published_in_late_1990s
+    subject: Pyper and Peterman method
+  kind: relational
+  raw_text: Pyper & Peterman method was used in the late 1990s
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:15Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires Python 3.11
+  claim_id: c_9ceb7584
+  context: T002 Initialize Python 3.11 project
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python version 3.11 is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:26Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires pandas version 2.0 or higher
+  claim_id: c_2b244a78
+  context: T002 Create code/requirements.txt with pandas>=2.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pandas version 2.0 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:45Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires numpy version 1.24 or higher
+  claim_id: c_cfc4fb98
+  context: T002 Create code/requirements.txt with numpy>=1.24
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NumPy version 1.24 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:05:57Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires scipy version 1.11 or higher
+  claim_id: c_e55019b1
+  context: T002 Create code/requirements.txt with scipy>=1.11
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SciPy version 1.11 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:17Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires statsmodels version 0.14 or higher
+  claim_id: c_e4a469e3
+  context: T002 Create code/requirements.txt with statsmodels>=0.14
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statsmodels version 0.14 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:35Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires matplotlib version 3.8 or higher
+  claim_id: c_b15d665b
+  context: T002 Create code/requirements.txt with matplotlib>=3.8
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Matplotlib version 3.8 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:06:57Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires requests version 2.31 or higher
+  claim_id: c_5be0658e
+  context: T002 Create code/requirements.txt with requests>=2.31
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Requests version 2.31 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:07:10Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires pyyaml version 6.0 or higher
+  claim_id: c_e7e24b35
+  context: T002 Create code/requirements.txt with pyyaml>=6.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PyYAML version 6.0 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:07:28Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires pytest version 7.4 or higher
+  claim_id: c_c7cb2127
+  context: T002 Create code/requirements.txt with pytest>=7.4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pytest version 7.4 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:07:40Z'
+- artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
+  attempts: 1
+  canonical: project requires tqdm version 4.66 or higher
+  claim_id: c_d385fb4b
+  context: T002 Create code/requirements.txt with tqdm>=4.66
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tqdm version 4.66 or higher is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-15T13:07:50Z'

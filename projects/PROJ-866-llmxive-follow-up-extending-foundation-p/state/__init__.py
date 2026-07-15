@@ -1,3 +1,3 @@
 """
-State management and registry
+llmXive Research Pipeline - State Module
 """

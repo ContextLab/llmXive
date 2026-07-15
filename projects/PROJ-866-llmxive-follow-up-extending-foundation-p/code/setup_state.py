@@ -1,58 +1,77 @@
+"""
+State directory initialization script.
+Creates state management structure and initial project state files.
+"""
 import os
+import sys
+from pathlib import Path
 import yaml
 from datetime import datetime
 
-PROJECT_ID = "PROJ-866-llmxive-follow-up-extending-foundation-p"
-
-def create_state_directory(root_dir: str = ".") -> str:
+def create_state_directory():
     """
-    Creates the state directory structure if it doesn't exist.
-    Returns the path to the state directory.
+    Creates the state directory structure.
     """
-    state_dir = os.path.join(root_dir, "state", "projects")
-    os.makedirs(state_dir, exist_ok=True)
-    return state_dir
-
-def create_initial_project_state(state_dir: str, project_id: str) -> str:
-    """
-    Creates an initial project state YAML file.
-    Returns the path to the created file.
-    """
-    filepath = os.path.join(state_dir, f"{project_id}.yaml")
+    root = Path(__file__).parent.parent
+    state_root = root / "state"
     
-    state_data = {
+    subdirs = [
+        "projects"
+    ]
+    
+    created = []
+    for subdir in subdirs:
+        dir_path = state_root / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path.relative_to(root)))
+    
+    print(f"Created {len(created)} state subdirectories:")
+    for item in sorted(created):
+        print(f"  - {item}")
+    
+    return created
+
+def create_initial_project_state(project_id: str):
+    """
+    Creates an initial state file for a specific project.
+    """
+    root = Path(__file__).parent.parent
+    state_file = root / "state" / "projects" / f"{project_id}.yaml"
+    
+    if state_file.exists():
+        print(f"State file already exists: {state_file}")
+        return str(state_file.relative_to(root))
+    
+    initial_state = {
         "project_id": project_id,
-        "created_at": datetime.utcnow().isoformat() + "Z",
-        "updated_at": datetime.utcnow().isoformat() + "Z",
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
         "status": "initialized",
-        "phase": "Foundational",
-        "completed_tasks": [],
-        "artifacts": {
-            "data_raw": [],
-            "data_processed": [],
-            "data_results": [],
-            "figures": []
-        },
+        "artifacts": {},
+        "checksums": {},
         "metadata": {
-            "description": "llmXive follow-up: extending Foundation Protocol",
-            "spec_reference": "/specs/001-policy-compression-tradeoff/",
-            "version": "0.1.0"
+            "pipeline_version": "1.0.0",
+            "implementation_phase": "setup"
         }
     }
     
-    with open(filepath, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    with open(state_file, 'w') as f:
+        yaml.dump(initial_state, f, default_flow_style=False, sort_keys=False)
     
-    return filepath
+    print(f"Created initial state file: {state_file}")
+    return str(state_file.relative_to(root))
 
 def main():
-    """
-    Main entry point to initialize the state directory and project state file.
-    """
-    root_dir = "."
-    state_dir = create_state_directory(root_dir)
-    project_path = create_initial_project_state(state_dir, PROJECT_ID)
-    print(f"Initialized project state at: {project_path}")
+    """Entry point for script execution."""
+    print("Initializing state directory...")
+    create_state_directory()
+    
+    # Create initial state for the current project
+    project_id = "PROJ-866-llmxive-follow-up-extending-foundation-p"
+    create_initial_project_state(project_id)
+    
+    print("State directory initialization complete.")
 
 if __name__ == "__main__":
     main()

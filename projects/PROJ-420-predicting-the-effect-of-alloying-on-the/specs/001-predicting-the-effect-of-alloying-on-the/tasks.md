@@ -74,14 +74,14 @@
 ### Implementation for User Story 1
 
 - [X] T009 [US1] Implement data extraction for Materials Project in `code/data_extraction.py` (fetch aluminum alloys via `GET https://next-gen.materialsproject.org/api/v2/materials/` with query params `elements=Al` and filtering for `elastic_properties` in response; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/mp_aluminum.json`)
-- [ ] T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py` (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py` (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement positive verification and exclusion logic in `code/data_cleaning.py` for FR-009: query the `measurement_method` field for each entry; explicitly EXCLUDE entries where the method is 'calculated', 'derived', 'derived_from_Youngs_modulus', OR missing/unknown (as independence cannot be verified); log the specific exclusion reason for each dropped entry; ensure the output dataset includes a `measurement_source` field confirming the verified method
 - [X] T014b [US1] Implement computational independence check in `code/data_cleaning.py`: if `measurement_method` is missing but Young's Modulus and Bulk Modulus are available, calculate derived Poisson's ratio; if the derived value matches the reported value within 1% tolerance, EXCLUDE the entry as dependent; if Bulk Modulus is missing, exclude the entry; log the exclusion reason
 - [X] T011 [US1] Implement filtering logic in `code/data_cleaning.py` to select monolithic alloys with non-missing Poisson's ratio, Young's modulus, and Cu/Mg/Si/Zn/Mn composition (runs AFTER T014/T014b)
 - [ ] T012 [US1] Implement unit normalization in `code/data_cleaning.py` (convert elastic constants to GPa, calculate atomic fractions summing to unity) (runs AFTER T014/T014b)
 - [ ] T013 [US1] Implement exclusion logic in `code/data_cleaning.py` for entries where major element sum < 0.95 (log warning, drop row)
 - [ ] T016 [US1] Implement main orchestration for data pipeline in `code/main.py` (run extraction -> cleaning -> save `data/processed/filtered_alloys.csv`); INCLUDE validation to HALT with a clear error message if valid entries < 50 (per spec.md Edge Cases); do not proceed to modeling if threshold not met
-- [~] T018 [US1] [DEPRECATED - logic moved to T016]
+- [ ] T018 [US1] [DEPRECATED - logic moved to T016]
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,11 +95,11 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement ILR transformation in `code/data_cleaning.py` using the `compositional` package for Cu, Mg, Si, Zn, Mn atomic fractions (DEPENDS ON T012/T013 completion; operates on `data/processed/filtered_alloys.csv` produced by T016)
-- [X] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
-- [X] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
-- [X] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
-- [X] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
+- [ ] T019 [US2] Implement ILR transformation in `code/data_cleaning.py` using the `compositional` package for Cu, Mg, Si, Zn, Mn atomic fractions (DEPENDS ON T012/T013 completion; operates on `data/processed/filtered_alloys.csv` produced by T016)
+- [~] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
+- [~] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
+- [~] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
+- [~] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
 - [~] T024 [US2] Implement model serialization in `code/modeling.py` (save trained model to `models/rf_model.pkl`)
 - [~] T025 [US2] Implement results logging in `code/modeling.py` (save ModelMetrics to `docs/outputs/model_metrics.json`)
 

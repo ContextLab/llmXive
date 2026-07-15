@@ -1,201 +1,143 @@
 """
-Setup script to configure linting (ruff) and formatting (black) tools.
-This script generates the necessary configuration files for the project.
+Setup script for linting (Ruff) and formatting (Black) tools.
+Creates configuration files in the project root and updates .gitignore.
 """
 import os
 import sys
+from pathlib import Path
+from typing import List
 
-def create_linting_config():
+def create_linting_config() -> Path:
     """Create ruff.toml configuration file."""
-    config_content = """[lint]
+    content = """# Ruff configuration
+[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
+    "E501", # line-too-long (handled by Black)
     "B008", # do not perform function calls in argument defaults
 ]
 
 [lint.isort]
-known-first-party = ["code", "tests", "data"]
-known-third-party = ["numpy", "pandas", "networkx", "tiktoken", "scipy", "statsmodels", "pytest"]
+known-first-party = ["code"]
+force-single-line = true
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
 """
-    os.makedirs("code", exist_ok=True)
-    with open("code/ruff.toml", "w") as f:
-        f.write(config_content)
-    print("Created code/ruff.toml")
+    path = Path("ruff.toml")
+    path.write_text(content)
+    return path
 
-def create_formatting_config():
-    """Create pyproject.toml section for black configuration."""
+def create_formatting_config() -> Path:
+    """Create pyproject.toml with Black configuration."""
     # Check if pyproject.toml exists
-    if os.path.exists("pyproject.toml"):
-        with open("pyproject.toml", "r") as f:
-            content = f.read()
-        
-        # Check if [tool.black] section already exists
-        if "[tool.black]" not in content:
-            content += """
-[tool.black]
+    pyproject_path = Path("pyproject.toml")
+    
+    black_config = """[tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39']
 include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
 """
-            with open("pyproject.toml", "w") as f:
-                f.write(content)
-            print("Updated pyproject.toml with black configuration")
-        else:
-            print("Black configuration already exists in pyproject.toml")
+    
+    if pyproject_path.exists():
+        existing = pyproject_path.read_text()
+        if "[tool.black]" not in existing:
+            # Append to existing file
+            pyproject_path.write_text(existing + "\n" + black_config)
+        return pyproject_path
     else:
-        # Create new pyproject.toml
-        pyproject_content = """[project]
-name = "llmXive"
-version = "0.1.0"
-description = "Automated science pipeline for agentic society coordination"
-requires-python = ">=3.10"
-dependencies = [
-    "networkx>=3.0",
-    "tiktoken>=0.5.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.10.0",
-    "statsmodels>=0.14.0",
-    "pytest>=7.0.0",
-]
+        # Create new file
+        pyproject_path.write_text(black_config)
+        return pyproject_path
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-]
-
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.black]
-line-length = 88
-target-version = ['py310']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-"""
-        with open("pyproject.toml", "w") as f:
-            f.write(pyproject_content)
-        print("Created pyproject.toml with black configuration")
-
-def create_ruffignore():
+def create_ruffignore() -> Path:
     """Create .ruffignore file."""
-    ignore_content = """__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env
-venv
-.venv
-pip-wheel-metadata
-.eggs
-*.egg-info
-.git
-.mypy_cache
-.tox
-.build
+    content = """# Directories to ignore for Ruff
+__pycache__/
+.venv/
+venv/
+.env/
+.git/
 """
-    with open(".ruffignore", "w") as f:
-        f.write(ignore_content)
-    print("Created .ruffignore")
+    path = Path(".ruffignore")
+    path.write_text(content)
+    return path
 
-def create_gitignore_update():
-    """Ensure black and ruff artifacts are in .gitignore."""
-    gitignore_content = """# Python
+def create_gitignore_update() -> Path:
+    """Update .gitignore with linting/formatting artifacts if not present."""
+    gitignore_path = Path(".gitignore")
+    new_entries = """
+# Linting and Formatting
+.ruff_cache/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-.venv/
-*.egg-info/
-dist/
 build/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Ruff/Black
-.ruff_cache/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 """
     
-    if os.path.exists(".gitignore"):
-        with open(".gitignore", "r") as f:
-            existing = f.read()
+    if gitignore_path.exists():
+        existing = gitignore_path.read_text()
         if ".ruff_cache/" not in existing:
-            with open(".gitignore", "a") as f:
-                f.write("\n# Ruff\n.ruff_cache/\n")
-            print("Updated .gitignore with ruff cache")
-        else:
-            print(".gitignore already contains ruff cache entry")
+            gitignore_path.write_text(existing + new_entries)
     else:
-        with open(".gitignore", "w") as f:
-            f.write(gitignore_content)
-        print("Created .gitignore with linting artifacts")
+        gitignore_path.write_text(new_entries)
+    
+    return gitignore_path
 
-def main():
-    """Main entry point for linting setup."""
+def main() -> int:
+    """Main entry point for setup script."""
     print("Setting up linting and formatting tools...")
-    create_linting_config()
-    create_formatting_config()
-    create_ruffignore()
-    create_gitignore_update()
-    print("Linting and formatting configuration complete!")
-    print("\nTo run linter: ruff check .")
-    print("To run formatter: black .")
-    print("To check formatting: black --check .")
+    
+    try:
+        # Create Ruff config
+        ruff_path = create_linting_config()
+        print(f"Created: {ruff_path}")
+        
+        # Create Black config
+        black_path = create_formatting_config()
+        print(f"Created/Updated: {black_path}")
+        
+        # Create Ruff ignore
+        ruffignore_path = create_ruffignore()
+        print(f"Created: {ruffignore_path}")
+        
+        # Update .gitignore
+        gitignore_path = create_gitignore_update()
+        print(f"Updated: {gitignore_path}")
+        
+        print("\nLinting and formatting tools configured successfully!")
+        print("To run Ruff: ruff check .")
+        print("To run Black: black .")
+        print("To format and check: ruff check . && black .")
+        
+        return 0
+    except Exception as e:
+        print(f"Error during setup: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -2,43 +2,78 @@ type: object
 required:
   - workflow_id
   - execution_status
-  - timestamp
   - is_valid
+  - node_count
+  - depth
+  - complexity
+  - policy_violations
+  - metadata
 properties:
   workflow_id:
     type: string
-    description: Unique identifier for the workflow
+    description: Unique identifier of the executed workflow
   execution_status:
     type: string
-    enum: [success, failed, edge_case, policy_violation]
-    description: Final status of the execution
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of execution completion
+    enum:
+      - success
+      - failed
+      - edge_case
+      - partial
+    description: Final status of the workflow execution
   is_valid:
     type: boolean
-    description: True if the workflow is logically possible to execute; False if impossible even with full context (e.g., circular dependencies, missing mandatory nodes)
-  context_reduction_pct:
-    type: string
-    description: Percentage of context reduced, or '[deferred]' for edge cases
+    description: Whether the workflow structure is logically valid (no cycles, etc.)
   node_count:
     type: integer
-    description: Number of nodes in the workflow
+    description: Total number of nodes in the workflow graph
   depth:
     type: integer
-    description: Depth of the workflow graph
+    description: Maximum depth of the workflow graph
   complexity:
     type: integer
-    description: Complexity score of the workflow
+    description: Complexity metric of the workflow
+  context_reduction_pct:
+    oneOf:
+      - type: number
+        minimum: 0
+        maximum: 100
+      - type: string
+        const: "[deferred]"
+    description: Percentage of context reduced due to compression, or '[deferred]' for edge cases
   policy_violations:
     type: array
     items:
-      type: string
-    description: List of specific policy violation messages
-  error_message:
-    type: string
-    description: Error message if execution failed
+      type: object
+      properties:
+        node_id:
+          type: string
+        violation_type:
+          type: string
+        message:
+          type: string
+    description: List of policy violations encountered during execution
+  token_count:
+    type: integer
+    description: Number of tokens used in the context (if compressed)
+  execution_time_ms:
+    type: integer
+    description: Time taken to execute the workflow in milliseconds
   metadata:
     type: object
     description: Additional metadata about the execution
+    properties:
+      engine_version:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+      compression_strategy:
+        type: string
+        enum:
+          - none
+          - bfs
+          - dfs
+          - random
+      context_size:
+        type: integer
+        description: Size of the context passed to the engine

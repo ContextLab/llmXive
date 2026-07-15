@@ -1,6 +1,33 @@
-output_dir: data/processed
+# Configuration for Metallic Glass Tg Prediction Pipeline
+# T007: Environment configuration management
+
+# Random seeds for reproducibility
 seed: 42
+
+# Resource limits (FR-005)
 max_runtime_hours: 6
 max_ram_gb: 7
-primary_doi: 10.5281/zenodo.10043838
-fallback_doi: 10.5281/zenodo.11023456
+
+# Data paths
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  input_file: "cleaned_mg.csv"
+  
+# Model training parameters
+training:
+  cv_folds: "LOFO"  # Leave-One-Family-Out
+  n_estimators_range: [50, 100, 150, 200]
+  max_depth_range: [3, 4, 5]
+  learning_rate_range: [0.05, 0.1]
+  
+# Output paths
+artifacts:
+  models_dir: "artifacts/models"
+  metrics_dir: "artifacts/metrics"
+  reports_dir: "artifacts/reports"
+  
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -1,27 +1,5 @@
-? "T009 [P] [US1] Unit test for interpolation logic in `code/tests/test_align.py`.\
-  \ **Function name**: `test_align_interpolates_small_gaps_warns_large`. Verify gap\
-  \ \u2264 6h fills, > 6h warns."
-: 1
-? 'T010 [US1] **Write** Integration test for full month download in `code/tests/test_pipeline.py`.
-  **Function name**: `test_pipeline_monthly_sync`. **MUST use a real (small) subset
-  of the actual NOAA/ACE data download (not mocked)** to verify `data/processed/synced.csv`
-  structure. Verify `data/processed/synced.csv` conforms to `contracts/dataset.schema.yaml`.
-  **Note**: This task is for WRITING the test code. The test is **executed** only
-  after T013 (align.py) is complete.'
-: 1
-? 'T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing
-  stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement**
-  `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use
-  verified URLs**: ACE ({{claim:c_b55181bd}}) and NOAA ({{claim:c_50896016}}).'
-: 1
-? 'T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`,
-  `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual
-  headers of the downloaded file against the hardcoded list and abort if they don''t
-  match**. **MUST verify source file column names against ACE Level 2 names (''N_p'',
-  ''T_p'', ''He2+_ratio'') BEFORE mapping**. **MUST log the specific missing variable
-  name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002.
-  **MUST raise** `ValueError` with the exact message format defined in T007.'
-: 1
-? T013 [US1] Implement `code/data/align.py` to resample to 1-hour UTC grid. **MUST**
-  read from `data/raw/` and write to `data/processed/synced.csv`.
-: 1
+T010: 1
+T011: 1
+T012: 1
+T013: 1
+T014: 1
