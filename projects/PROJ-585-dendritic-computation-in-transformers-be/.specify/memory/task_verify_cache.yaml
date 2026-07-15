@@ -1,0 +1,9 @@
+T018:
+  c: false
+  h: f6a1b496f943f7d65a2a7bdf0722d9971dc511f999eb631028886529e177f9d4
+  r: "The `train.py` file does not show any code that registers the `signal_handler`\
+    \ with `signal.SIGALRM` nor reads a `cpu_timeout` value from `code/config/config.yaml`\
+    \ to set an alarm; the file is truncated before any such logic could appear. Moreover,\
+    \ the required `code/config/config.yaml` file is absent from the repository. Consequently,\
+    \ the task\u2019s requirement of a functional timeout mechanism driven by a config\
+    \ value is not satisfied."

@@ -1,0 +1,22 @@
+learning_rate: 0.0001
+batch_size: 32
+dendritic_thresholds:
+  - 0.1
+  - 0.5
+  - 0.9
+cpu_timeout: 21600
+num_seeds: 3
+model:
+  hidden_dim: 256
+  num_layers: 4
+  num_heads: 4
+  dropout: 0.1
+data:
+  dataset_name: glue
+  dataset_config: sst2
+  max_length: 128
+paths:
+  data_dir: data/raw
+  checkpoint_dir: artifacts/checkpoints
+  results_dir: artifacts/results
+  log_dir: artifacts/logs

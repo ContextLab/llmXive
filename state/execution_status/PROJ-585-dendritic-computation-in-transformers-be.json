@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-585-dendritic-computation-in-transformers-be",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/utils/download_data.py (rc=1); python code/experiments/train.py --config config.yaml (rc=1); python code/experiments/probe.py --input-dir data/experiments/ (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/utils/download_data.py -> rc=1\n    44:22,955 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/glue/resolve/main/README.md \"HTTP/1.1 307 Temporary Redirect\"\n2026-07-15 22:44:22,975 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/nyu-mll/glue/resolve/main/README.md \"HTTP/1.1 307 Temporary Redirect\"\n2026-07-15 22:44:22,981 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/nyu-mll/glue/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c/README.md \"HTTP/1.1 200 OK\"\n2026-07-15 22:44:23,002 - INFO - HTTP Request: HEAD https://huggingface.co/datasets",
+    "python code/experiments/train.py --config config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py\", line 26, in <module>\n    from models.transformer_base import TransformerBaseline\nModuleNotFoundError: No module named 'models'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py\", line 31, ",
+    "python code/experiments/probe.py --input-dir data/experiments/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/train.py\", line 26, in <module>\n    from models.transformer_base import TransformerBaseline\nModuleNotFoundError: No module named 'models'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/experiments/probe.py\", ",
+    "python code/experiments/analyze.py -> rc=2\n    usage: analyze.py [-h] --input-dir INPUT_DIR [--output-dir OUTPUT_DIR]\n                  [--config CONFIG] [--use-wilcoxon] [--use-t-test]\nanalyze.py: error: the following arguments are required: --input-dir",
+    "python code/tests/test_architecture_match.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-585-dendritic-computation-in-transformers-be/code/tests/test_architecture_match.py\", line 26, in <module>\n    from models.transformer_base import TransformerBaseline\nModuleNotFoundError: No module named 'models'"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/utils/download_data.py"
+  ],
+  "updated_at": "2026-07-15T22:44:36Z"
+}
