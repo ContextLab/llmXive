@@ -1,31 +1,45 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Pair Schema"
-description: "Schema for the processed question pairs derived from BigBench."
-type: "object"
-properties:
-  pair_id:
-    type: "string"
-    description: "Unique identifier for the question pair."
-  task_type:
-    type: "string"
-    description: "The BigBench task category."
-  question_a:
-    type: "string"
-    description: "Text of the first question."
-  question_b:
-    type: "string"
-    description: "Text of the second question."
-  expected_answer_a:
-    type: "string"
-    description: "Ground truth answer for question A."
-  expected_answer_b:
-    type: "string"
-    description: "Ground truth answer for question B."
+$schema: http://json-schema.org/draft-07/schema#
+title: Reasoning Dataset Schema
+description: >
+  Schema for the raw and processed reasoning dataset used in the
+  llmXive noise injection pipeline. Ensures presence of critical
+  fields like 'expected_answer' and 'PairID'.
+type: object
 required:
-  - pair_id
+  - PairID
+  - question
   - task_type
-  - question_a
-  - question_b
-  - expected_answer_a
-  - expected_answer_b
-additionalProperties: false
+  - expected_answer
+  - input_ids
+  - thought_token_pos
+properties:
+  PairID:
+    type: integer
+    description: Unique identifier for a paired question set.
+  question:
+    type: string
+    description: The raw question text.
+  task_type:
+    type: string
+    description: Category of the reasoning task (e.g., 'math', 'logic').
+  expected_answer:
+    type: string
+    description: The ground truth answer. REQUIRED for validity checks.
+  input_ids:
+    type: array
+    items:
+      type: integer
+    description: Tokenized input IDs from the model tokenizer.
+  thought_token_pos:
+    type: integer
+    description: Position index of the 'thought' token in input_ids.
+  perturbed_input_ids:
+    type: array
+    items:
+      type: integer
+    description: Optional. Token IDs after noise injection and projection.
+  sigma_applied:
+    type: number
+    format: float
+    description: Optional. The noise standard deviation applied.
+additionalProperties: true

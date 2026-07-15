@@ -1,57 +1,79 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Result Schema"
-description: "Schema for the final statistical analysis results."
-type: "object"
-properties:
-  task_type:
-    type: "string"
-    description: "The task category being analyzed."
-  sigma:
-    type: "number"
-    description: "The noise magnitude tested."
-  n_valid:
-    type: "integer"
-    description: "Number of pairs passing validity checks."
-  mean_similarity_baseline:
-    type: "number"
-    description: "Mean cosine similarity for baseline pairs."
-  mean_similarity_perturbed:
-    type: "number"
-    description: "Mean cosine similarity for perturbed pairs."
-  difference:
-    type: "number"
-    description: "Mean difference (perturbed - baseline)."
-  test_type:
-    type: "string"
-    enum:
-      - "t-test"
-      - "wilcoxon"
-    description: "Statistical test used."
-  p_value:
-    type: "number"
-    description: "Raw p-value."
-  p_value_corrected:
-    type: "number"
-    description: "P-value after family-wise error correction."
-  effect_size:
-    type: "number"
-    description: "Effect size (Cohen's d or rank-biserial)."
-  significance:
-    type: "string"
-    enum:
-      - "significant"
-      - "not_significant"
-    description: "Final significance flag."
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Analysis Result Schema
+description: >
+  Schema for the output of the hypothesis testing and sensitivity analysis.
+  Includes p-values, test types, and validity collapse points.
+type: object
 required:
   - task_type
-  - sigma
-  - n_valid
-  - mean_similarity_baseline
-  - mean_similarity_perturbed
-  - difference
   - test_type
   - p_value
-  - p_value_corrected
-  - effect_size
+  - corrected_p_value
   - significance
+  - validity_collapse_point
+  - trade_off_curve
+properties:
+  task_type:
+    type: string
+    description: The task category analyzed.
+  test_type:
+    type: string
+    enum:
+      - paired_t_test
+      - wilcoxon_signed_rank
+    description: The statistical test selected based on normality.
+  baseline_stats:
+    type: object
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      n:
+        type: integer
+  perturbed_stats:
+    type: object
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      n:
+        type: integer
+  p_value:
+    type: number
+    format: float
+    description: Raw p-value from the test.
+  corrected_p_value:
+    type: number
+    format: float
+    description: P-value after family-wise error correction (Bonferroni/Holm).
+  significance:
+    type: boolean
+    description: True if corrected_p_value < 0.05.
+  validity_collapse_point:
+    type: object
+    description: The sigma value where >90% of pairs failed validity.
+    properties:
+      sigma:
+        type: number
+        format: float
+      pass_rate:
+        type: number
+        format: float
+  trade_off_curve:
+    type: array
+    items:
+      type: object
+      properties:
+        sigma:
+          type: number
+          format: float
+        pass_rate:
+          type: number
+          format: float
+        mean_separability:
+          type: number
+          format: float
+    description: List of (sigma, pass_rate, separability) points.
 additionalProperties: false

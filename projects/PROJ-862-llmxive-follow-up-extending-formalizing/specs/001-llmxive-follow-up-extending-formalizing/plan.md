@@ -17,7 +17,7 @@ This feature implements a computational experiment to test the "Input Neighborho
 **Project Type**: Computational Research / Data Pipeline.  
 **Performance Goals**: Peak RSS ≤ 7GB; Total Runtime ≤ 6h.  
 **Constraints**: No GPU/CUDA; No 8-bit quantization (requires CUDA); Strict memory batching; No new requirements invented.  
-**Scale/Scope**: ~23 task types; Noise sweep $\sigma \in [0.01, 0.20]$; ~10k-50k pairs (estimated, subject to dataset availability).
+**Scale/Scope**: ~23 task types; Noise sweep $\sigma \in [0.01, 0.20]$; A substantial number of pairs (estimated, subject to dataset availability).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

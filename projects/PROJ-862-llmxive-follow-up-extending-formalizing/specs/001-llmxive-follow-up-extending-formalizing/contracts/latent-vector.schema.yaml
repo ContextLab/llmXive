@@ -1,30 +1,39 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Latent Vector Schema"
-description: "Schema for extracted hidden state vectors."
-type: "object"
-properties:
-  pair_id:
-    type: "string"
-    description: "Reference to the question pair."
-  condition:
-    type: "string"
-    enum:
-      - "baseline"
-      - "perturbed"
-    description: "Whether the vector is from the baseline or noisy input."
-  sigma:
-    type: "number"
-    description: "Noise magnitude (0.0 for baseline)."
-  token_index:
-    type: "integer"
-    description: "Index of the 'thought' token in the sequence."
-  vector_json:
-    type: "string"
-    description: "JSON string representation of the normalized float vector."
+$schema: http://json-schema.org/draft-07/schema#
+title: Latent Vector Schema
+description: >
+  Schema for extracted hidden state vectors (baseline and perturbed).
+  Vectors must be L2-normalized and match the model's hidden dimension.
+type: object
 required:
-  - pair_id
-  - condition
-  - sigma
-  - token_index
-  - vector_json
+  - PairID
+  - sigma_applied
+  - vector_type
+  - vector_data
+  - dimension
+properties:
+  PairID:
+    type: integer
+    description: Links vector to the specific question pair.
+  sigma_applied:
+    type: number
+    format: float
+    description: The noise level (0.0 for baseline).
+  vector_type:
+    type: string
+    enum:
+      - baseline
+      - perturbed
+    description: Type of vector extraction.
+  vector_data:
+    type: array
+    items:
+      type: number
+      format: float
+    description: The flattened L2-normalized hidden state vector.
+  dimension:
+    type: integer
+    description: The dimensionality of the vector (should match model hidden size).
+  extraction_step:
+    type: integer
+    description: Position in the sequence where the vector was extracted.
 additionalProperties: false

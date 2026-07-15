@@ -1,35 +1,44 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Validity Log Schema"
-description: "Schema for validity check results per pair and noise level."
-type: "object"
-properties:
-  pair_id:
-    type: "string"
-    description: "Reference to the question pair."
-  sigma:
-    type: "number"
-    description: "Noise magnitude."
-  input_drift_score:
-    type: "number"
-    description: "SBERT cosine similarity (input)."
-  output_bertscore:
-    type: "number"
-    description: "BERTScore F1 (output)."
-  output_perplexity_ratio:
-    type: "number"
-    description: "Ratio of output perplexity to baseline."
-  exact_match:
-    type: "boolean"
-    description: "Whether exact token match was found."
-  is_valid:
-    type: "boolean"
-    description: "True if all validity checks passed."
+$schema: http://json-schema.org/draft-07/schema#
+title: Validity Log Schema
+description: >
+  Schema for the log tracking which pairs passed or failed input drift
+  and output validity checks.
+type: object
 required:
-  - pair_id
-  - sigma
-  - input_drift_score
-  - output_bertscore
-  - output_perplexity_ratio
-  - exact_match
-  - is_valid
+  - PairID
+  - task_type
+  - sigma_applied
+  - input_drift_passed
+  - output_validity_passed
+  - overall_passed
+  - failure_reasons
+properties:
+  PairID:
+    type: integer
+    description: Unique identifier for the pair.
+  task_type:
+    type: string
+    description: Category of the task.
+  sigma_applied:
+    type: number
+    format: float
+    description: Noise level applied.
+  input_drift_passed:
+    type: boolean
+    description: True if cosine similarity (SBERT) >= 0.95.
+  output_validity_passed:
+    type: boolean
+    description: True if BERTScore F1 >= 0.85 and perplexity bound met.
+  overall_passed:
+    type: boolean
+    description: True only if both input and output checks passed.
+  failure_reasons:
+    type: array
+    items:
+      type: string
+    description: List of reasons for failure (e.g., 'input_drift_low', 'bertscore_low').
+  metrics_snapshot:
+    type: object
+    description: Optional snapshot of raw metrics (similarity scores, etc.).
+    additionalProperties: true
 additionalProperties: false
