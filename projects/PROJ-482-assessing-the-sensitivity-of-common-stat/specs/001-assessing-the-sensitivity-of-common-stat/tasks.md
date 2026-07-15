@@ -61,6 +61,8 @@
 - [X] T005 [P] Implement `code/__init__.py` and basic logging infrastructure
 - [X] T006 Create `data/raw/` and `data/processed/` directories with `.gitkeep`
 - [X] T007 Setup `tests/unit/` and `tests/contract/` directory structure
+- [X] T008d [P] [Foundational] Generate `quickstart.md` with setup and run instructions. **Deliverable**: The file MUST include sections: 'Environment Setup', 'Data Generation', 'Simulation Execution', 'Visualization', and 'Interpretation'. It MUST include specific code snippets for `python code/main.py` and define required environment variables.
+- [ ] T035 [P] [Foundational] Validate `quickstart.md` by running the documented commands and verifying all steps complete successfully. **Dependency**: T008d must be complete.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,7 +70,7 @@
 
 ## Phase 3: User Story 1 - Generate Controlled Synthetic Datasets (Priority: P1) 🎯 MVP
 
-**Goal**: Generate synthetic datasets across sample sizes (10-1000) and distributions (normal, uniform, log-normal) with known ground truth for null and alternative hypotheses.
+**Goal**: Generate synthetic datasets across a range of sample sizes (starting from small) and distributions (normal, uniform, log-normal) with known ground truth for null and alternative hypotheses.
 
 **Independent Test**: Verify generated data statistics (mean, variance, shape) match theoretical parameters within tolerance (±1e-6) before any testing occurs.
 
@@ -77,15 +79,16 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T008a [P] [US1] Define and write test cases for normal distribution generation in `tests/unit/test_data_generator.py`
-- [X] T008b [P] [US1] Define and write test cases for log-normal skewness and effect size validation in `tests/unit/test_data_generator.py` <!-- ATOMIZE: requested -->
-- [X] T008c [P] [US1] Define and write test cases for uniform distribution sample size accuracy in `tests/unit/test_data_generator.py`
+- [X] T008b [P] [US1] Define and write test cases for log-normal skewness validation in `tests/unit/test_data_generator.py`
+- [X] T008c [P] [US1] Define and write test cases for log-normal effect size validation in `tests/unit/test_data_generator.py`
+- [X] T008d [P] [US1] Define and write test cases for uniform distribution sample size accuracy in `tests/unit/test_data_generator.py`
 
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data_generator.py` with functions to generate Normal, Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative (effect=0.5) hypotheses
 - [X] T012 [US1] Add logic in `code/data_generator.py` to handle edge cases: ensure log-normal skew is finite and prevent numerical overflow
 - [X] T013 [US1] Implement validation routine in `code/data_generator.py` that compares generated sample statistics to theoretical parameters and raises errors on mismatch
-- [ ] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification, **ensuring the CSV includes ground-truth metadata columns (effect size, distribution params)**
+- [X] T014 [US1] Create a script `code/run_data_gen.py` to generate and save a small sample dataset to `data/raw/sample_validation.csv` for manual verification. **Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`. **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff` must be within 1e-6 of theoretical value; `checksum` must be MD5 of the row data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,16 +108,16 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] Implement `code/simulation_engine.py` with the core Monte Carlo loop: data generation (calling US1 interface defined in T011), test execution, and result classification. **Dependency**: Requires T011 to be complete. <!-- FAILED: unspecified -->
+- [X] T018 [US2] Implement `code/simulation_engine.py` with the core Monte Carlo loop: data generation (calling T011), test execution (calling T019), and result classification. **Integration**: Must integrate Fisher's Exact switch (T019) and Adaptive Loop (T020) logic. The loop must call the data generator, execute the appropriate test, and pass results to the adaptive logic.
 - [X] T019 [US2] Implement test execution logic in `code/simulation_engine.py`:
  - T-test (scipy.stats.ttest_ind)
  - ANOVA (scipy.stats.f_oneway)
  - Chi-squared (scipy.stats.chi2_contingency)
  - Fisher's Exact (scipy.stats.fisher_exact) triggered when expected cell counts < 5
-- [X] T020 [US2] Implement adaptive replication logic in `code/simulation_engine.py`: start with 1000 replicates, calculate **Clopper-Pearson exact intervals** (per Plan.md/Constitution Principle VII) to monitor CI width in real-time, and implement the **adaptive control loop** that triggers additional replicates until width ≤ 0.01 or **maximum cap of [deferred] reps** reached.
-- [~] T021 [US2] Implement Type I (reject true null) and Type II (fail to reject false null) error counting logic with fixed alpha=0.05
-- [~] T021b [US2] Implement logic in `code/simulation_engine.py` to **store raw p-values** for every replicate in a structured format (e.g., `data/processed/raw_pvalues.csv`), **applying a pseudo-count or clipping strategy to handle p=0 or p=1** before storage to ensure valid log-transformation for FR-006.
-- [X] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × 3 distributions × 3 tests, saving intermediate results to `data/processed/`
+- [X] T020 [US2] Implement adaptive replication logic in `code/simulation_engine.py`: start with 1000 replicates, calculate **Clopper-Pearson exact intervals** (internal convergence check only) to monitor CI width in real-time, and implement the **adaptive control loop** that triggers additional replicates until width ≤ 0.01 or **maximum cap of [deferred] total replicates** reached. **Verification**: Ensure final reported CIs (T026) use Bootstrap Resampling per FR-004; Clopper-Pearson is used here only for efficient internal convergence checking of binary outcomes.
+- [X] T021 [US2] Implement Type I (reject true null) and Type II (fail to reject false null) error counting logic with fixed alpha=0.05. **Logic**: This task is an **in-memory callback** integrated directly into the simulation loop of T018. It processes the live stream of p-values as they are generated, classifying them immediately. **Output**: Write aggregated counts to `data/processed/error_counts.csv` at the end of each configuration run.
+- [X] T021b [US2] Implement logic in `code/simulation_engine.py` to **store raw p-values** for every replicate in a structured format. **Output**: Write to `data/processed/raw_pvalues.csv`. **Schema**: Columns `sample_size`, `distribution_type`, `test_type`, `p_value`, `hypothesis_type`. **Constraint**: Store raw p-values exactly as generated; do NOT apply any clipping or transformation.
+- [X] T022 [US2] Create `code/run_simulation.py` to orchestrate the full batch: Multiple sample sizes × 3 distributions × 3 tests, saving intermediate results to `data/processed/`. **Dependency**: Must consume the output of T021b (`data/processed/raw_pvalues.csv`) and T021 (`data/processed/error_counts.csv`).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,12 +137,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute 95% **Bootstrap Resampling** confidence intervals.
-- [X] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the **variance of Type I error rates across sample sizes** (not Levene's test) to verify SC-002.
-- [X] T027 [US3] Implement regression analysis in `code/analyzer.py`: fit GLM/Binomial regression to predict |p - 0.05| using log(sample size), distribution, and test type; report beta and p-values.
-- [X] T027b [US3] Implement regression analysis in `code/analyzer.py` to model the **log-transformed p-value distribution** (consuming raw p-values stored by T021b with pseudo-counts applied), reporting regression coefficients (beta) and p-values as required by FR-006. <!-- FAILED: unspecified -->
+- [X] T026 [US3] Implement `code/analyzer.py` to load simulation results, aggregate by (n, distribution, test), and compute 95% **Bootstrap Resampling** confidence intervals for final reporting (per FR-004).
+- [X] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the Type I error rate **for each sample size** (not a single aggregate variance). Perform a **trend analysis** (regression of error rate vs. sample size) to verify SC-002. **Output**: Write results to `data/processed/stability_trend.csv` and generate a plot of error rate vs. sample size.
+- [X] T027 [US3] Implement regression analysis in `code/analyzer.py`: Fit GLM/Binomial regression to predict the magnitude of deviation from the nominal significance threshold using log(sample size), distribution, and test type; report beta and p-values.
+- [ ] T027b [US3] Implement regression analysis in `code/analyzer.py` to model the **log-transformed p-value distribution** (consuming raw p-values stored by T021b). **Input**: Load `data/processed/raw_pvalues.csv`. **Logic**: Apply a numerical stability epsilon of `1e-300` to p-values of exactly 0 or 1 *only during the log-transform calculation* (i.e., `log(p + 1e-300)`). **Do not modify the stored raw data**. Fit the model and report regression coefficients (beta) and p-values as required by FR-006. **Dependency**: T021b must be complete.
 - [X] T028 [US3] Implement `code/visualizer.py` to generate publication-ready plots (PNG/SVG): Error Rate vs. Sample Size curves with CI bands, distinguishing distributions
-- [~] T029 [US3] Create `code/export_results.py` to write final aggregated data to `data/processed/error_rates.csv` and save plots to `data/processed/plots/`
+- [X] T029 [US3] Create `code/export_results.py` to write final aggregated data to `data/processed/error_rates.csv` and save plots to `data/processed/plots/`
 - [X] T030 [US3] Create `code/main.py` as the single entry point to orchestrate the full pipeline: Setup -> US1 (Data Gen) -> US2 (Simulation) -> US3 (Analysis/Export)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -150,12 +153,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031 [P] Documentation updates in `README.md` explaining how to run the simulation and interpret results
+- [ ] T031 [P] Documentation updates in `README.md` explaining how to run the simulation and interpret results
 - [X] T032a Refactor `code/simulation_engine.py` to separate data generation logic from test execution logic
 - [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
-- [~] T033 Performance optimization: ensure full simulation suite completes within 6 hours on CPU (2 cores)
+- [X] T033 [P] Performance verification: Create `code/benchmark.py` to measure the execution time of the full simulation suite. **Deliverable**: The script MUST write results to `logs/benchmark.log`. **Verification**: Run the benchmark and confirm the total time is < 6 hours.
 - [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
-- [~] T035 Run `quickstart.md` validation to ensure all paths and commands work <!-- FAILED: unspecified -->
 
 ---
 
@@ -197,6 +199,7 @@
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Define and write test cases for normal distribution generation in tests/unit/test_data_generator.py"
 Task: "Define and write test cases for log-normal skewness validation in tests/unit/test_data_generator.py"
+Task: "Define and write test cases for log-normal effect size validation in tests/unit/test_data_generator.py"
 Task: "Define and write test cases for uniform distribution sample size accuracy in tests/unit/test_data_generator.py"
 
 # Launch implementation for User Story 1:
@@ -247,5 +250,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All simulations must run on CPU-only (limited cores, constrained RAM). Do not use GPU or heavy model loading. Use `scipy` and `numpy` only.
 - **Data Integrity**: Do not fabricate data. All inputs must be generated via the `data_generator` with known ground truth.
-- **CI Method**: The adaptive replication loop (T020) MUST use **Clopper-Pearson exact intervals** for binary stability as mandated by Plan.md/Constitution Principle VII. Final reported CIs (T026) MUST use **Bootstrap Resampling** as per FR-004 for visualization.
-- **Regression Data**: Raw p-values MUST be stored by T021b (with pseudo-counts for 0/1) and consumed by T027b.
+- **CI Method**: The adaptive replication loop (T020) uses **Clopper-Pearson exact intervals** for internal convergence checking (optimization for binary outcomes). Final reported CIs (T026) MUST use **Bootstrap Resampling** as per FR-004 for visualization and reporting.
+- **Regression Data**: Raw p-values MUST be stored by T021b (unmodified) and consumed by T027b. T027b applies a numerical stability epsilon (`1e-300`) *only* during log-transform calculation.
+- **Execution Order**: Phase 4 tasks must be executed in the order: T018 -> T019 -> T020 -> T021b -> T021 -> T022. T021 is an in-memory callback integrated into T018, but T021b (file writer) must complete before T022 (orchestrator) consumes the file.

@@ -62,11 +62,15 @@ def main():
     
     if not os.path.exists(input_path):
         logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run the simulation first.")
-        return
+        logger.error("Please run the simulation first to generate raw_pvalues.csv")
+        raise FileNotFoundError(f"Required input file missing: {input_path}")
     
     logger.info(f"Loading and aggregating results from {input_path}")
     raw_df = load_simulation_results(input_path)
+    
+    if raw_df.empty:
+        logger.warning("Loaded raw data is empty. Proceeding with empty aggregation.")
+    
     aggregated_df = aggregate_results(raw_df)
     
     logger.info(f"Exporting aggregated results to {csv_output_path}")

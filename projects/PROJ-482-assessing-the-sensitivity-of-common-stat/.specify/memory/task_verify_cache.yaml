@@ -1,0 +1,47 @@
+T014:
+  c: false
+  h: 3b24f3ffd3f24e7d8aed0d2d5c5112d5811268857da5a033d72cc36b4803131f
+  r: The repository contains `code/run_data_gen.py`, but the file is truncated and
+    does not show code that actually writes the CSV, and the required output `data/raw/sample_validation.csv`
+    is absent. Consequently the required dataset with the specified schema and validation
+    checks is not present. The implementer must provide a complete script that generates
+    the CSV and include the generated `sample_validation.csv` file.
+T021b:
+  c: false
+  h: fcc5164582cbca30438ed49200cdb3b00d46a4639acfeab843efb49778c42ded
+  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
+    \ the `code/simulation_engine.py` source is truncated (e.g., the `generate_data`\
+    \ function is incomplete and there is no visible logic that writes raw p\u2011\
+    values to a CSV with the specified schema). Consequently the task\u2019s output\
+    \ and storage requirements are not met."
+T026b:
+  c: false
+  h: 535e35ba6462a38d511e43046bb4083700beb5be6c369b3e3f07d6956140ba19
+  r: "The `code/analyzer.py` only contains placeholder functions (`analyze_stability_trend`\
+    \ is empty) and a variance calculator, not the required per\u2011sample\u2011\
+    size Type\u202FI error computation, regression trend analysis, CSV export, or\
+    \ plot generation. Moreover, the expected output file `data/processed/stability_trend.csv`\
+    \ does not exist."
+T027b:
+  c: false
+  h: 59dc1e61c222562f7439b5228e569de90abebb8f91152a0b7f927d0316af3d6c
+  r: "The repository contains a new `analyze_log_pvalue_regression` stub in `code/analyzer.py`,\
+    \ but the required input file `data/processed/raw_pvalues.csv` is absent, so the\
+    \ function cannot be exercised. Moreover, the posted code is truncated before\
+    \ showing the epsilon\u2011adjusted log\u2011transform, model fitting, and reporting\
+    \ of regression coefficients, indicating the implementation is incomplete. The\
+    \ missing CSV and incomplete function must be provided to satisfy T027b."
+T029:
+  c: true
+  h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023
+  r: "The `code/export_results.py` file exists, is non\u2011empty, and its `main`\
+    \ function writes the aggregated DataFrame to `data/processed/error_rates.csv`\
+    \ and generates plots in `data/processed/plots/` as specified. The required output\
+    \ files will be created when the script is executed."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md content was provided; the claim of updated documentation cannot\
+    \ be verified because the required artifact is missing. The next implementer must\
+    \ add a non\u2011empty README.md that clearly explains how to execute the simulation\
+    \ and how to interpret its output."

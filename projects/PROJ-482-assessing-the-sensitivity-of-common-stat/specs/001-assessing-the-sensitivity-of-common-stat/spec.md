@@ -25,7 +25,7 @@ The system must generate synthetic datasets across a defined range of sample siz
 
 ### User Story 2 - Execute Monte Carlo Simulations for Error Rate Quantification (Priority: P2)
 
-The system must perform an adaptive number of Monte Carlo replicates for each combination of test type (t-test, ANOVA, chi-squared), sample size, and distribution, starting with a minimum of 1000 replicates and extending until the 95% confidence interval width is ≤ 0.01. Results are classified as Type I or Type II errors based on a nominal alpha of 0.05 applied to the resulting p-value (regardless of whether the test is standard, continuity-corrected, or Fisher's Exact).
+The system must perform an adaptive number of Monte Carlo replicates for each combination of test type (t-test, ANOVA, chi-squared), sample size, and distribution, starting with a minimum of 1000 replicates and extending until the 95% confidence interval width is ≤ 0.01. Results are classified as Type I or Type II errors based on a nominal alpha threshold applied to the resulting p-value. (regardless of whether the test is standard, continuity-corrected, or Fisher's Exact).
 
 **Why this priority**: This executes the core methodology to quantify the sensitivity. It transforms raw data into the specific metrics (error rates) required to answer the research question.
 
@@ -41,7 +41,7 @@ The system must perform an adaptive number of Monte Carlo replicates for each co
 
 ### User Story 3 - Aggregate Results and Generate Visualizations for Interpretation (Priority: P3)
 
-The system must aggregate the error rates by sample size, distribution, and test type, compute 95% confidence intervals via bootstrap, and export publication-ready visualizations (PNG/SVG) and CSV data. Additionally, it must fit regression models to analyze the magnitude of deviation from nominal alpha.
+The system must aggregate the error rates by sample size, distribution, and test type, compute confidence intervals via bootstrap, and export publication-ready visualizations (PNG/SVG) and CSV data. Additionally, it must fit regression models to analyze the magnitude of deviation from nominal alpha.
 
 **Why this priority**: This delivers the final value to the user (researchers/practitioners) by making the empirical mapping between sample size, distribution, and test reliability interpretable and usable.
 
@@ -65,10 +65,10 @@ The system must aggregate the error rates by sample size, distribution, and test
 
 - **FR-001**: System MUST generate synthetic datasets for three distributions (normal, uniform, log-normal) across 20 specific sample sizes (n=10 to n=1000) with known ground truth parameters for null and alternative hypotheses. (See US-1)
 - **FR-002**: System MUST execute Monte Carlo replicates for each combination of test type (t-test, ANOVA, chi-squared), sample size, and distribution. The system MUST start with 1000 replicates and automatically extend the run with additional replicates until the 95% confidence interval width for the error rate is ≤ 0.01. For chi-squared tests where expected cell counts < 5, the system MUST use Fisher's Exact Test. (See US-2)
-- **FR-003**: System MUST classify simulation outcomes as Type I errors (rejecting true null) or Type II errors (failing to reject false null) using a fixed nominal alpha threshold of 0.05 applied to the resulting p-value from the selected test (standard, Fisher's Exact, or ANOVA). (See US-2)
-- **FR-004**: System MUST compute 95% confidence intervals for all error rate estimates using bootstrap resampling methods. If the computed 95% CI width exceeds 0.01, the system MUST trigger additional replicates until the width is ≤ 0.01. (See US-3)
+- **FR-003**: System MUST classify simulation outcomes as Type I errors (rejecting true null) or Type II errors (failing to reject false null) using a predetermined nominal alpha threshold applied to the resulting p-value from the selected test (standard, Fisher's Exact, or ANOVA). (See US-2)
+- **FR-004**: System MUST compute confidence intervals for all error rate estimates using bootstrap resampling methods. If the computed 95% CI width exceeds 0.01, the system MUST trigger additional replicates until the width is ≤ 0.01. (See US-3)
 - **FR-005**: System MUST export results to a CSV file containing sample size, distribution type, test type, error rate, and confidence interval bounds, and generate publication-ready PNG/SVG visualizations. (See US-3)
-- **FR-006**: System MUST fit regression models to predict the magnitude of deviation from nominal alpha (|p - 0.05|) and the log-transformed p-value distribution based on log-transformed sample size, distribution type, and test type, reporting regression coefficients (beta) and their significance (p-values). (See US-3)
+- **FR-006**: System MUST fit regression models to predict the magnitude of deviation from nominal alpha (|p - α|) and the log-transformed p-value distribution based on log-transformed sample size, distribution type, and test type, reporting regression coefficients (beta) and their significance (p-values). (See US-3)
 
 ### Key Entities
 
@@ -84,16 +84,16 @@ The system must aggregate the error rates by sample size, distribution, and test
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The observed Type I error rate for t-tests on normal data (null true) is measured against the theoretical nominal alpha level of 0.05 to validate the simulation engine. (See US-2)
+- **SC-001**: The observed Type I error rate for t-tests on normal data (null true) is measured against the theoretical nominal alpha level to validate the simulation engine. (See US-2)
 - **SC-002**: The stability of Type I error rates for t-tests and ANOVA under normal distributions is measured across the full range of sample sizes (n=10 to n=1000) to confirm robustness. (See US-3)
 - **SC-003**: The inflation of Type I error rates for tests under skewed distributions at small sample sizes (n<30) is measured against the nominal alpha of 0.05 to quantify the degree of deviation. (See US-3)
-- **SC-004**: The reduction rate of Type II error rates (increase in power) is measured as a function of increasing sample size for each test type, where success is defined as the observed power curve matching the theoretical power curve within a mean absolute error of 0.02. (See US-3)
+- **SC-004**: The reduction rate of Type II error rates (increase in power) is measured as a function of increasing sample size for each test type, where success is defined as the observed power curve matching the theoretical power curve within a negligible mean absolute error. (See US-3)
 - **SC-005**: The impact of distribution type on error rates is measured via regression analysis, where success is defined as the model achieving a McFadden pseudo-R² > 0.1. (See US-3)
 
 ## Assumptions
 
 - **Assumption about data generation**: The project assumes that Python's `numpy` and `scipy` libraries are sufficient to generate the required synthetic distributions (normal, uniform, log-normal) with the specified parameters and that these libraries run efficiently on CPU-only environments.
-- **Assumption about compute constraints**: The project assumes that the total computational load (20 sample sizes × 3 distributions × 3 tests × adaptive replicates) fits within the 6-hour time limit and 7 GB RAM constraint of the GitHub Actions free-tier runner when executed sequentially or with limited parallelism.
-- **Assumption about statistical validity**: The project assumes that the nominal alpha level of 0.05 is the standard threshold for classification and that the Monte Carlo approach provides a valid approximation of the true error rates for the defined distributions.
+- **Assumption about compute constraints**: The project assumes that the total computational load (multiple sample sizes × multiple distributions × multiple tests × adaptive replicates) fits within the 6-hour time limit and 7 GB RAM constraint of the GitHub Actions free-tier runner when executed sequentially or with limited parallelism.
+- **Assumption about statistical validity**: The project assumes that a nominal alpha level serves as the standard threshold for classification and that the Monte Carlo approach provides a valid approximation of the true error rates for the defined distributions.
 - **Assumption about collinearity**: Since the predictors (sample size, distribution type) are distinct and not definitionally related, no collinearity diagnostics are required for the regression model.
-- **Assumption about threshold justification**: The alpha threshold of 0.05 is a community-standard default for hypothesis testing; therefore, no sensitivity analysis sweeping the alpha value is required for this specific study, though the results are explicitly tied to this value.
+- **Assumption about threshold justification**: The alpha threshold is a community-standard default for hypothesis testing.; therefore, no sensitivity analysis sweeping the alpha value is required for this specific study, though the results are explicitly tied to this value.

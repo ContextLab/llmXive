@@ -13,7 +13,7 @@ This project investigates how Type I and Type II error rates of common statistic
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `scikit-learn` (for regression), `pytest`
 **Storage**: Local file system (`data/` for CSV outputs, `code/` for scripts). No external database.
 **Testing**: `pytest` with unit tests for data generation validity and integration tests for simulation loops.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).
 **Project Type**: Computational research simulation / CLI tool.
 **Performance Goals**: Complete full simulation suite (20 sizes × 3 dists × 3 tests × adaptive reps) within 6 hours on CPU.
 **Constraints**: No GPU; must fit within 7 GB RAM; adaptive replication must not exceed time limits (fallback to fixed max reps if CI width < 0.01 is not reached within 10,000 reps).
