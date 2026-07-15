@@ -1,0 +1,227 @@
+# Model Output Schema for Chemical Reaction Yield/Energy Prediction
+# Defines the structure of model predictions and evaluation metrics.
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: >
+  Schema for model output including predictions, attention weights, and evaluation metrics.
+
+required:
+  - metadata
+  - predictions
+  - metrics
+
+properties:
+  metadata:
+    type: object
+    description: Metadata about the model and prediction run
+    required:
+      - model_id
+      - model_type
+      - checkpoint_path
+      - config_hash
+      - created_at
+      - target_variable
+    properties:
+      model_id:
+        type: string
+        description: Unique identifier for the model instance
+      model_type:
+        type: string
+        description: Type of model architecture
+        enum:
+          - attention_net
+          - fingerprint_baseline
+          - spectrum_baseline
+          - condition_baseline
+      checkpoint_path:
+        type: string
+        description: Relative path to the model checkpoint file
+      config_hash:
+        type: string
+        description: Hash of the configuration used for training
+        pattern: "^[a-f0-9]{64}$"
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of prediction run
+      target_variable:
+        type: string
+        description: Target variable predicted
+        const: "normalized_dft_total_molecular_energy"
+      seed:
+        type: integer
+        description: Random seed used for reproducibility
+      epochs_trained:
+        type: integer
+        description: Number of epochs trained
+      best_val_loss:
+        type: number
+        description: Best validation loss achieved
+
+  predictions:
+    type: array
+    description: List of prediction results for each sample
+    items:
+      type: object
+      required:
+        - sample_id
+        - true_value
+        - predicted_value
+        - residual
+        - attention_weights
+      properties:
+        sample_id:
+          type: string
+          description: Unique identifier for the sample
+        true_value:
+          type: number
+          description: Ground truth normalized DFT energy
+        predicted_value:
+          type: number
+          description: Model predicted normalized DFT energy
+        residual:
+          type: number
+          description: Absolute error (true - predicted)
+        relative_error:
+          type: number
+          description: Relative error percentage
+        attention_weights:
+          type: object
+          description: Attention weights from the model
+          properties:
+            ir_attention:
+              type: array
+              items:
+                type: number
+              description: Attention weights for IR spectrum
+            raman_attention:
+              type: array
+              items:
+                type: number
+              description: Attention weights for Raman spectrum
+            nmr_attention:
+              type: array
+              items:
+                type: number
+              description: Attention weights for NMR spectrum
+            condition_attention:
+              type: array
+              items:
+                type: number
+              description: Attention weights for reaction conditions
+            fingerprint_attention:
+              type: array
+              items:
+                type: number
+              description: Attention weights for fingerprint bits
+
+  metrics:
+    type: object
+    description: Aggregated evaluation metrics
+    required:
+      - rmse
+      - mae
+      - r_squared
+      - samples_count
+    properties:
+      rmse:
+        type: number
+        description: Root Mean Squared Error
+      mae:
+        type: number
+        description: Mean Absolute Error
+      r_squared:
+        type: number
+        description: R-squared (coefficient of determination)
+      samples_count:
+        type: integer
+        description: Number of samples evaluated
+      mean_true_value:
+        type: number
+        description: Mean of true values
+      mean_predicted_value:
+        type: number
+        description: Mean of predicted values
+      std_residual:
+        type: number
+        description: Standard deviation of residuals
+      max_residual:
+        type: number
+        description: Maximum absolute residual
+      min_residual:
+        type: number
+        description: Minimum absolute residual
+      correlation_true_pred:
+        type: number
+        description: Pearson correlation between true and predicted
+
+  statistical_tests:
+    type: object
+    description: Results of statistical tests comparing against baselines
+    properties:
+      paired_ttest:
+        type: object
+        description: Paired t-test results vs best baseline
+        properties:
+          t_statistic:
+            type: number
+          p_value:
+            type: number
+          is_significant:
+            type: boolean
+          confidence_level:
+            type: number
+      bonferroni_adjusted_p:
+        type: number
+        description: Bonferroni corrected p-value
+
+  interpretability_analysis:
+    type: object
+    description: Results of attention weight analysis
+    properties:
+      attention_heatmap_paths:
+        type: array
+        items:
+          type: string
+        description: Paths to generated attention heatmap images
+      correlation_attention_residual:
+        type: object
+        description: Correlation between attention weights and residuals
+        properties:
+          ir_correlation:
+            type: number
+          raman_correlation:
+            type: number
+          nmr_correlation:
+            type: number
+          condition_correlation:
+            type: number
+      literature_alignment:
+        type: object
+        description: Alignment of attention peaks with literature values
+        properties:
+          functional_group_matches:
+            type: integer
+          total_peaks_analyzed:
+            type: integer
+          match_percentage:
+            type: number
+            minimum: 0
+            maximum: 100
+          mean_deviation_cm1:
+            type: number
+
+  permutation_test:
+    type: object
+    description: Results of permutation test to verify model validity
+    properties:
+      r_squared_shuffled:
+        type: number
+        description: R-squared on shuffled target labels
+      is_valid:
+        type: boolean
+        description: True if R² < 0.05 (model is not fitting noise)
+      iterations:
+        type: integer
+        description: Number of permutation iterations

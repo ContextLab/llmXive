@@ -13,7 +13,7 @@
 
 **Why this priority**: Without a robust, leakage-free data pipeline that accounts for reaction conditions and validates against independent data, no model training or validation is possible. This is the foundational step that enables all subsequent analysis and determines the validity of the research question.
 
-**Independent Test**: The pipeline can be executed on a subset of the USPTO-50k or ZINC data, producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits, and verifying that reaction conditions are encoded as features.
+**Independent Test**: The pipeline can be executed on a subset of the USPTO or ZINC data, producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits, and verifying that reaction conditions are encoded as features.
 
 **Acceptance Scenarios**:
 
@@ -65,7 +65,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (400–4000 cm⁻¹ for IR/Raman, 0–10 ppm for NMR), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
+- **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (typical IR/Raman ranges, 0–10 ppm for NMR), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
 - **FR-002**: System MUST split the dataset into training ([deferred]), validation ([deferred]), and test ([deferred]) sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits (See US-1).
 - **FR-003**: System MUST implement a multi-head self-attention neural network that accepts concatenated spectral tensors, ECFP4 fingerprint vectors, and reaction condition embeddings as input (See US-2).
 - **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of 1e-3 and batch size of 32, running for a maximum of 10 epochs with early stopping on validation RMSE (See US-2).
@@ -73,7 +73,7 @@
 - **FR-006**: System MUST perform a paired t-test on the absolute errors of the attention model versus the best baseline to determine statistical significance (See US-3).
 - **FR-007**: System MUST generate attention weight visualizations mapping the spectral axis to highlight regions with the highest predictive contribution (See US-3).
 - **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled to verify the model is not learning spurious correlations or structural priors alone (See US-3).
-- **FR-009**: System MUST define the attention visualization threshold as the top 10% of weights by default, and perform a sensitivity analysis over thresholds of {5%, 10%, 15%} to ensure robustness of identified regions (See US-3).
+- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over a range of thresholds to ensure robustness of identified regions. (See US-3).
 - **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (if available) to prevent circular validation and confirm generalizability (See US-1).
 - **FR-011**: System MUST explicitly encode reaction conditions (solvent, catalyst, temperature) as input features to prevent confounding by reaction environment when splitting by template (See US-1).
 
@@ -93,12 +93,12 @@
 - **SC-002**: The statistical significance of the performance improvement is measured against a null hypothesis of no difference using a paired t-test on per-sample errors (See FR-006).
 - **SC-003**: The interpretability of the model is measured by the correlation between attention-weighted spectral features and yield residuals (after controlling for fingerprints), requiring a statistically significant correlation (p < 0.05) and that ≥80% of the top 5 attention peaks fall within ±50 cm⁻¹ of literature values for known functional group frequencies (See FR-007).
 - **SC-004**: The robustness of the model against overfitting is measured by the performance drop in the permutation test where yield labels are shuffled, requiring R² < 0.05 (See FR-008).
-- **SC-005**: The computational feasibility is measured by the total execution time on a CPU-only runner, ensuring it completes within the 6-hour limit (See US-2).
+- **SC-005**: The computational feasibility is measured by the total execution time on a CPU-only runner, ensuring it completes within a predefined time limit. (See US-2).
 
 ## Assumptions
 
-- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired experimental or high-fidelity simulated (DFT) spectra can be assembled from USPTO, NIST, ZINC, or MolSpectra within the 14 GB disk limit. If experimental data is insufficient, the project will pivot to simulated data with a clear limitation note.
-- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
+- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired experimental or high-fidelity simulated (DFT) spectra can be assembled from USPTO, NIST, ZINC, or MolSpectra within a feasible disk storage limit. If experimental data is insufficient, the project will pivot to simulated data with a clear limitation note.
+- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
 - **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments or simulation methods) for model ingestion.
 - **Reaction Yield Definition**: It is assumed that the "yield" values in the source datasets are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
 - **Template Leakage Prevention**: It is assumed that splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, effectively prevents data leakage and ensures the model generalizes to new reaction types.

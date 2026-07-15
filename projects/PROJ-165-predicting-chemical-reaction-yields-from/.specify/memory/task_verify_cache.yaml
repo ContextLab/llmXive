@@ -1,0 +1,19 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/`, `data/`, `tests/`, `state/`)
+    is provided; the implementer did not supply any artifact showing the project structure
+    exists.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff
+    settings, `.flake8`, or CI workflow steps) were presented, nor any evidence that
+    these tools have been set up and run. The required artifacts to prove the task
+    are missing.
+T010:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required artifact `tests/unit/test_preprocessing.py` does not exist, so\
+    \ no unit test for the spectral resampling logic is present. The task\u2019s core\
+    \ deliverable is missing and therefore not satisfied."

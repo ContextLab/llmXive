@@ -32,7 +32,7 @@ This project implements a multi-head self-attention neural network to predict **
 - **Principle III (Data Hygiene)**: The plan includes a `data/` directory structure where raw data is preserved, checksums are recorded in `state/`, and all transformations produce new files (no in-place modification).
 - **Principle IV (Single Source of Truth)**: The `data-model.md` defines the **AnalysisTrace** entity and linkage mechanism that links every figure/statistic to a specific data row and code block hash. The `AnalysisTrace` entity includes `statistic_id`, `data_row_ids`, `code_block_hash`, `artifact_path`, and `description`.
 - **Principle V (Versioning)**: Artifacts will carry content hashes. The plan mandates running `python -m src.cli.main --update-state` after any change to update the `updated_at` timestamp in the project state file. The `src/utils/state_manager.py` module performs this update.
-- **Principle VI (Spectral Preprocessing)**: The data pipeline (Phase 0) explicitly implements resampling to fixed grids (typical IR ranges, –10 ppm for NMR) and unit variance normalization as required.
+- **Principle VI (Spectral Preprocessing)**: The data pipeline (Phase) explicitly implements resampling to fixed grids (typical IR ranges, –10 ppm for NMR) and unit variance normalization as required.
 - **Principle VII (Structural Baseline & Interpretability)**: The evaluation phase (Phase 2) mandates training a **Fingerprint-Only Baseline** as a prerequisite for the interpretability analysis required by SC-003. The baseline isolates the signal contributed by spectra. The attention visualization is compared against the baseline to identify regions where the spectrum adds value.
 
 ## Project Structure

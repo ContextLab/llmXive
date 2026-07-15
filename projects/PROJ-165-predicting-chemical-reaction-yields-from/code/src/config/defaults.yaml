@@ -1,0 +1,75 @@
+# Default Hyperparameters for Reaction Yield/Energy Prediction Pipeline
+# Generated for Task T006
+#
+# Note: Per the project pivot (Spec vs Plan), the target variable is 
+# "normalized DFT total molecular energy", not experimental yield.
+# These parameters are tuned for the attention-based regression model.
+
+# ------------------------------------------------------------------
+# Training Hyperparameters
+# ------------------------------------------------------------------
+training:
+  learning_rate: 0.001          # 1e-3, Adam optimizer default
+  batch_size: 32
+  epochs: 10
+  early_stopping:
+    enabled: true
+    patience: 3                 # Stop if val_loss doesn't improve for 3 epochs
+    min_delta: 0.0001           # Minimum change to qualify as an improvement
+    restore_best_weights: true
+
+# ------------------------------------------------------------------
+# Model Architecture Defaults
+# ------------------------------------------------------------------
+model:
+  attention:
+    num_heads: 4
+    d_model: 256                # Embedding dimension
+    d_ff: 512                   # Feed-forward dimension
+    dropout: 0.1
+    num_layers: 2
+  embedding:
+    fingerprint_dim: 2048       # ECFP4 standard size
+    condition_embedding_dim: 64 # For one-hot/encoded conditions
+    spectrum_embedding_dim: 128 # Projection dim for spectral input
+
+# ------------------------------------------------------------------
+# Data Processing Defaults
+# ------------------------------------------------------------------
+data:
+  spectral:
+    ir_range: [400, 4000]       # Wavenumbers (cm^-1)
+    raman_range: [100, 3500]    # Wavenumbers (cm^-1)
+    nmr_range: [-10, 15]        # ppm
+    fixed_grid_size: 1024       # Resample all spectra to this length
+  normalization:
+    method: "unit_variance"     # Options: "unit_variance", "min_max"
+    target_variable: "normalized_dft_energy" # Per Plan Pivot
+
+# ------------------------------------------------------------------
+# Optimization & Regularization
+# ------------------------------------------------------------------
+optimization:
+  optimizer: "adam"
+  weight_decay: 0.0001
+  scheduler:
+    type: "reduce_lr_on_plateau"
+    factor: 0.5
+    patience: 2
+    verbose: true
+
+# ------------------------------------------------------------------
+# Random Seed Management
+# ------------------------------------------------------------------
+seeds:
+  global_seed: 42
+  deterministic: true           # Enable CuDNN deterministic behavior if available
+
+# ------------------------------------------------------------------
+# Logging & Output
+# ------------------------------------------------------------------
+logging:
+  level: "INFO"
+  log_dir: "data/artifacts/logs"
+  checkpoint_dir: "data/artifacts/checkpoints"
+  report_dir: "data/artifacts/reports"

@@ -1,0 +1,251 @@
+# Dataset Schema for Chemical Reaction Yield/Energy Prediction
+# Based on data-model.md and project pivot to "Normalized DFT Total Molecular Energy"
+# This schema defines the structure of the processed dataset used for training/validation/testing.
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: >
+  Schema for the processed dataset containing spectroscopic data, molecular fingerprints,
+  reaction conditions, and the target variable (normalized DFT total molecular energy).
+
+required:
+  - metadata
+  - samples
+
+properties:
+  metadata:
+    type: object
+    description: Metadata about the dataset generation process
+    required:
+      - version
+      - created_at
+      - source
+      - split_strategy
+      - target_variable
+      - preprocessing_params
+    properties:
+      version:
+        type: string
+        description: Schema version
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      source:
+        type: string
+        description: Original data source (e.g., 'MolSpectra', 'NIST', 'simulated')
+      split_strategy:
+        type: string
+        description: Strategy used for data splitting
+        enum:
+          - scaffold_split
+          - random_split
+          - temporal_split
+      target_variable:
+        type: string
+        description: Name of the target variable
+        const: "normalized_dft_total_molecular_energy"
+      preprocessing_params:
+        type: object
+        description: Parameters used during preprocessing
+        required:
+          - ir_wavenumber_range
+          - raman_wavenumber_range
+          - nmr_ppm_range
+          - normalization_method
+        properties:
+          ir_wavenumber_range:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+            description: [min_wavenumber, max_wavenumber] in cm^-1
+          raman_wavenumber_range:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+            description: [min_wavenumber, max_wavenumber] in cm^-1
+          nmr_ppm_range:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+            description: [min_ppm, max_ppm]
+          normalization_method:
+            type: string
+            description: Normalization method applied
+            enum:
+              - unit_variance
+              - min_max
+              - z_score
+  
+  samples:
+    type: array
+    description: List of processed reaction samples
+    items:
+      type: object
+      required:
+        - sample_id
+        - reaction_smiles
+        - scaffold_hash
+        - spectra
+        - fingerprint
+        - conditions
+        - target
+        - metadata
+      properties:
+        sample_id:
+          type: string
+          description: Unique identifier for the sample
+          pattern: "^[a-zA-Z0-9_-]+$"
+        reaction_smiles:
+          type: string
+          description: Reaction SMILES string
+          minLength: 1
+        scaffold_hash:
+          type: string
+          description: MD5 hash of the molecular scaffold for splitting
+          pattern: "^[a-f0-9]{32}$"
+        spectra:
+          type: object
+          description: Spectroscopic data channels
+          required:
+            - ir
+            - raman
+            - nmr
+          properties:
+            ir:
+              type: object
+              required:
+                - wavenumbers
+                - intensities
+                - is_present
+              properties:
+                wavenumbers:
+                  type: array
+                  items:
+                    type: number
+                  description: Wavenumber grid (cm^-1)
+                intensities:
+                  type: array
+                  items:
+                    type: number
+                  description: Normalized intensity values
+                is_present:
+                  type: boolean
+                  description: Whether IR data is available
+            raman:
+              type: object
+              required:
+                - wavenumbers
+                - intensities
+                - is_present
+              properties:
+                wavenumbers:
+                  type: array
+                  items:
+                    type: number
+                  description: Wavenumber grid (cm^-1)
+                intensities:
+                  type: array
+                  items:
+                    type: number
+                  description: Normalized intensity values
+                is_present:
+                  type: boolean
+                  description: Whether Raman data is available
+            nmr:
+              type: object
+              required:
+                - ppm
+                - intensities
+                - is_present
+              properties:
+                ppm:
+                  type: array
+                  items:
+                    type: number
+                  description: Chemical shift grid (ppm)
+                intensities:
+                  type: array
+                  items:
+                    type: number
+                  description: Normalized intensity values
+                is_present:
+                  type: boolean
+                  description: Whether NMR data is available
+        fingerprint:
+          type: object
+          description: Molecular fingerprint (ECFP4)
+          required:
+            - type
+            - bits
+            - values
+          properties:
+            type:
+              type: string
+              const: "ECFP4"
+            bits:
+              type: integer
+              description: Number of bits in the fingerprint
+              minimum: 1
+            values:
+              type: array
+              items:
+                type: integer
+                enum: [0, 1]
+              description: Binary fingerprint vector
+        conditions:
+          type: object
+          description: Reaction conditions (one-hot encoded or embeddings)
+          required:
+            - solvent
+            - catalyst
+            - temperature
+          properties:
+            solvent:
+              type: array
+              items:
+                type: integer
+              description: One-hot encoded solvent vector
+            catalyst:
+              type: array
+              items:
+                type: integer
+              description: One-hot encoded catalyst vector
+            temperature:
+              type: number
+              description: Temperature in Kelvin (normalized)
+        target:
+          type: object
+          description: Target variable (normalized DFT total molecular energy)
+          required:
+            - value
+            - unit
+          properties:
+            value:
+              type: number
+              description: Normalized energy value
+            unit:
+              type: string
+              const: "hartree_normalized"
+        metadata:
+          type: object
+          description: Additional sample metadata
+          properties:
+            original_source_id:
+              type: string
+              description: Original ID from source dataset
+            reaction_center:
+              type: string
+              description: Reaction template or reaction center SMILES
+            quality_score:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Data quality score (if available)

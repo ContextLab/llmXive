@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T19:28:31.706769Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-165-predicting-chemical-reaction-yields-from
-last_run_id: 5e1a8dca-4c23-49ee-a183-766cf44326c4
+last_run_id: 40279bf9-2cc6-4cb7-b16c-895f777964bc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-165-predicting-chemical-reaction-yields-from/specs/001-predicting-chemical-reaction-yields-from
 title: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention
   Mechanisms
-updated_at: '2026-07-14T01:49:00.045683Z'
+updated_at: '2026-07-15T14:52:03.127914Z'
