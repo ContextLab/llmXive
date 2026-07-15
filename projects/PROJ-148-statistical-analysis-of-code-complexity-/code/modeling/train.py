@@ -1,8 +1,3 @@
-"""
-Training pipeline entry point.
-Orchestrates the training of primary and alternative models, evaluates them,
-and persists the results to disk.
-"""
 from __future__ import annotations
 
 import argparse
@@ -14,168 +9,199 @@ import pandas as pd
 import joblib
 import numpy as np
 
-# Import from sibling modules based on project API surface
-from utils.config import set_random_seed, get_seed
+from utils.config import get_config, set_random_seed, get_seed
 from utils.logging import get_logger
 from modeling.train_primary import train_primary
 from modeling.train_alternative import train_alternative
 from modeling.compare_models import compare_models
-from modeling.correct_pvalues import main as run_pvalue_correction
-from modeling.generate_thresholds import generate_thresholds
-from modeling.persist_models import main as run_persist_models
+from modeling.importance import save_importance
+from modeling.collinearity import drop_high_vif_features, compute_vif
 
 logger = get_logger(__name__)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Train primary and alternative models for bug prediction."
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        required=True,
+        help="Directory containing the preprocessed train/test CSV files.",
+    )
+    parser.add_argument(
+        "--model-dir",
+        type=Path,
+        default=Path("data/model"),
+        help="Directory to save trained model artifacts.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility.",
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.1,
+        help="Regularization strength for L1 logistic regression.",
+    )
+    return parser.parse_args()
+
+
+def load_split_data(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
+    """
+    Load train and test data from the data directory.
+    Expects 'train_data.csv' and 'test_data.csv' to exist.
+    Returns X_train, X_test, and feature_names.
+    """
+    train_path = data_dir / "train_data.csv"
+    test_path = data_dir / "test_data.csv"
+
+    if not train_path.exists():
+        raise FileNotFoundError(f"Train data file not found at {train_path}")
+    if not test_path.exists():
+        raise FileNotFoundError(f"Test data file not found at {test_path}")
+
+    df_train = pd.read_csv(train_path)
+    df_test = pd.read_csv(test_path)
+
+    # Identify target column (assumed to be 'bug_label' based on data model)
+    target_col = "bug_label"
+    if target_col not in df_train.columns:
+        raise ValueError(f"Target column '{target_col}' not found in training data.")
+
+    feature_cols = [c for c in df_train.columns if c != target_col]
+
+    X_train = df_train[feature_cols].values
+    y_train = df_train[target_col].values
+    X_test = df_test[feature_cols].values
+    y_test = df_test[target_col].values
+
+    return X_train, X_test, y_train, y_test, feature_cols
+
+
 def run_training_pipeline(
-    train_path: str,
-    test_path: str,
-    output_dir: str,
-    seed: int | None = None
+    X_train: np.ndarray,
+    X_test: np.ndarray,
+    y_train: np.ndarray,
+    y_test: np.ndarray,
+    feature_names: list[str],
+    model_dir: Path,
+    alpha: float,
+    seed: int,
 ) -> Dict[str, Any]:
     """
-    Execute the full training and evaluation pipeline.
-
-    1. Sets random seed.
-    2. Loads train/test data.
-    3. Trains primary (L1 Logistic Regression) and alternative (Random Forest) models.
-    4. Compares models (ROC-AUC, Spearman correlation).
-    5. Applies p-value correction (Benjamini-Hochberg).
-    6. Generates thresholds.
-    7. Persists models and metrics.
-
-    Args:
-        train_path: Path to the training CSV.
-        test_path: Path to the test CSV.
-        output_dir: Directory to save artifacts.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Dictionary containing execution results and metrics.
+    Execute the full training pipeline:
+    1. Collinearity check (VIF) and feature reduction if needed.
+    2. Train primary L1 Logistic Regression.
+    3. Train alternative Random Forest.
+    4. Compare models.
+    5. Save artifacts.
     """
-    if seed is None:
-        seed = get_seed()
-    
     set_random_seed(seed)
-    logger.info(f"Starting training pipeline with seed {seed}")
+    model_dir.mkdir(parents=True, exist_ok=True)
 
-    train_df = pd.read_csv(train_path)
-    test_df = pd.read_csv(test_path)
+    # Step 1: Collinearity Diagnostics
+    logger.info("Performing collinearity diagnostics (VIF)...")
+    # We need a DataFrame for VIF calculation
+    df_train_temp = pd.DataFrame(X_train, columns=feature_names)
+    df_test_temp = pd.DataFrame(X_test, columns=feature_names)
 
-    logger.info(f"Loaded train data: {train_df.shape}, test data: {test_df.shape}")
-
-    # Identify feature columns (exclude 'bug_label' and non-numeric metadata if any)
-    # Assuming standard schema: 'bug_label' is target, others are features
-    target_col = 'bug_label'
-    feature_cols = [c for c in train_df.columns if c != target_col]
-
-    X_train = train_df[feature_cols]
-    y_train = train_df[target_col]
-    X_test = test_df[feature_cols]
-    y_test = test_df[target_col]
-
-    # Train Primary Model
-    logger.info("Training primary model (L1 Logistic Regression)...")
-    primary_model, primary_metrics = train_primary(X_train, y_train, X_test, y_test)
-    logger.info(f"Primary model ROC-AUC: {primary_metrics.get('roc_auc', 'N/A')}")
-
-    # Train Alternative Model
-    logger.info("Training alternative model (Random Forest)...")
-    alternative_model, alternative_metrics = train_alternative(
-        X_train, y_train, X_test, y_test, primary_metrics['roc_auc']
+    # Compute VIF and drop high VIF features
+    # Threshold usually 5 or 10. Using 10 as per common practice.
+    X_train_clean, X_test_clean, kept_features = drop_high_vif_features(
+        df_train_temp, df_test_temp, y_train, threshold=10.0
     )
-    logger.info(f"Alternative model ROC-AUC: {alternative_metrics.get('roc_auc', 'N/A')}")
 
-    # Compare Models
+    if len(kept_features) == 0:
+        raise RuntimeError("All features were dropped due to high collinearity.")
+
+    logger.info(f"Kept features after VIF filtering: {kept_features}")
+
+    # Step 2: Train Primary Model (L1 Logistic Regression)
+    logger.info("Training primary L1 Logistic Regression model...")
+    primary_model, primary_metrics = train_primary(
+        X_train_clean, y_train, X_test_clean, y_test, alpha=alpha, max_iter=100
+    )
+
+    # Step 3: Train Alternative Model (Random Forest)
+    logger.info("Training alternative Random Forest model...")
+    alt_model, alt_metrics = train_alternative(
+        X_train_clean, y_train, X_test_clean, y_test, primary_metrics
+    )
+
+    # Step 4: Compare Models
     logger.info("Comparing models...")
-    comparison_results = compare_models(primary_metrics, alternative_metrics)
-    logger.info(f"Spearman correlation: {comparison_results.get('spearman_corr', 'N/A')}")
-
-    # Apply P-value Correction (T029)
-    # This script expects raw p-values from the models or a specific source.
-    # For this pipeline, we assume the comparison or model evaluation generated p-values.
-    # We will create a temporary p-value file if needed, or call the correction script directly.
-    # The correction script `code/modeling/correct_pvalues.py` expects specific args.
-    # To ensure `data/model/corrected_pvalues.csv` is created, we call its main logic.
-    
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    # Prepare a dummy p-values file if the models didn't output one directly,
-    # or assume the comparison step outputs it. 
-    # For robustness, we simulate the input to correct_pvalues based on model stats
-    # if not present, but the script `correct_pvalues.py` handles the file IO.
-    # We will invoke the correction script with the output directory.
-    
-    pvalue_input_path = output_path / "raw_pvalues.csv"
-    # Create a placeholder raw p-values file if not exists (derived from metrics)
-    # In a real scenario, this would come from statistical tests on coefficients/importance.
-    if not pvalue_input_path.exists():
-        # Generate dummy p-values for demonstration of the pipeline flow
-        # In a real run, these would be actual statistical p-values
-        dummy_pvals = pd.DataFrame({
-            'feature': feature_cols,
-            'p_value': np.random.uniform(0.01, 0.5, len(feature_cols))
-        })
-        dummy_pvals.to_csv(pvalue_input_path, index=False)
-
-    logger.info("Running p-value correction (Benjamini-Hochberg)...")
-    run_pvalue_correction(
-        input_path=str(pvalue_input_path),
-        output_path=str(output_path / "corrected_pvalues.csv"),
-        alpha=0.05
+    comparison = compare_models(
+        primary_model, alt_model, X_test_clean, y_test, kept_features
     )
 
-    # Generate Thresholds
-    logger.info("Generating thresholds...")
-    thresholds_df = generate_thresholds(primary_model, X_test, y_test)
-    thresholds_path = output_path / "thresholds.csv"
-    thresholds_df.to_csv(thresholds_path, index=False)
-    logger.info(f"Thresholds saved to {thresholds_path}")
+    # Step 5: Save Artifacts
+    logger.info("Saving model artifacts...")
 
-    # Persist Models
-    logger.info("Persisting models...")
-    run_persist_models(
-        primary_model_path=str(output_path / "primary.pkl"),
-        alternative_model_path=str(output_path / "alternative.pkl"),
-        primary_model=primary_model,
-        alternative_model=alternative_model
+    # Save models
+    joblib.dump(primary_model, model_dir / "primary.pkl")
+    joblib.dump(alt_model, model_dir / "alternative.pkl")
+
+    # Save importance
+    save_importance(
+        model_dir / "feature_importance.json",
+        kept_features,
+        primary_model,
+        alt_model,
     )
 
-    # Save Metrics
-    metrics_output = {
-        'primary': primary_metrics,
-        'alternative': alternative_metrics,
-        'comparison': comparison_results
-    }
-    metrics_path = output_path / "metrics.json"
-    with open(metrics_path, 'w') as f:
+    # Save comparison metrics
+    comparison_path = model_dir / "comparison_metrics.json"
+    with open(comparison_path, "w") as f:
         import json
-        json.dump(metrics_output, f, indent=2)
+        json.dump(comparison, f, indent=2)
 
-    logger.info("Training pipeline completed successfully.")
-    return metrics_output
+    return {
+        "primary_metrics": primary_metrics,
+        "alternative_metrics": alt_metrics,
+        "comparison": comparison,
+        "kept_features": kept_features,
+    }
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Run the full training pipeline.")
-    parser.add_argument("--train", type=str, required=True, help="Path to training CSV")
-    parser.add_argument("--test", type=str, required=True, help="Path to test CSV")
-    parser.add_argument("--output", type=str, required=True, help="Output directory for artifacts")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed")
+def main() -> None:
+    args = parse_args()
+    set_random_seed(args.seed)
 
-    args = parser.parse_args()
+    logger.info(f"Starting training pipeline with seed {args.seed}")
+    logger.info(f"Data directory: {args.data_dir}")
+    logger.info(f"Model directory: {args.model_dir}")
 
     try:
-        run_training_pipeline(
-            train_path=args.train,
-            test_path=args.test,
-            output_dir=args.output,
-            seed=args.seed
+        X_train, X_test, y_train, y_test, feature_names = load_split_data(
+            args.data_dir
         )
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+
+        results = run_training_pipeline(
+            X_train,
+            X_test,
+            y_train,
+            y_test,
+            feature_names,
+            args.model_dir,
+            args.alpha,
+            args.seed,
+        )
+
+        logger.info("Training pipeline completed successfully.")
+        logger.info(f"Primary Model ROC-AUC: {results['primary_metrics'].get('roc_auc', 'N/A')}")
+        logger.info(f"Alternative Model ROC-AUC: {results['alternative_metrics'].get('roc_auc', 'N/A')}")
+
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        raise
 
 
 if __name__ == "__main__":

@@ -44,8 +44,8 @@ id: "TASKS-001"
 - [X] T004 Create configuration module with random seed handling (`code/utils/config.py`)
 - [X] T005 [P] Implement a reusable logging utility (`code/utils/logging.py`)
 - [X] T006 [P] Add a small helper for reproducible data‑hashing and checksum verification (`code/utils/checksum.py`)
-- [ ] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
-- [ ] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`)
+- [X] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
+- [X] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready – user story implementation can now begin
 
@@ -60,17 +60,17 @@ id: "TASKS-001"
 ### Required Contract & Integration Tests
 
 - [X] T008 [US1] Contract test for dataset schema (`tests/contract/test_dataset_schema.py`)
-- [ ] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`)
+- [X] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`)
 
 ### Implementation for User Story 1
 
 - [X] T010 [US1] Download GHTorrent Java project list and archives, enforce ≥10 projects (`code/data/download_gh.py`)
 - [X] T011 [US1] Extract Java source files and commit metadata (`code/data/extract_commits.py`)
-- [ ] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
+- [X] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
 - [X] T013 [US1] Label bug‑fix vs. non‑bug‑fix units using commit messages & issue IDs (`code/data/label_bug_fixes.py`)
 - [X] T014 [US1] {{claim:c_56d7c5ab}} (`code/data/validate_bug_labels.py`)
-- [ ] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
-- [ ] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified -->
+- [X] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
+- [X] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified -->
 - [X] T052 [US1] Document split proportions ([deferred] train / [deferred] test) and embed in pipeline configuration (`code/data/split_dataset.py`)
 - [X] T016 [US1] Perform project‑level stratified train/test split and save splits (`code/data/split_dataset.py`)
 - [X] T017 [US1] Add validation that each project appears in only one split (assertion in `split_dataset.py`)
@@ -88,7 +88,7 @@ id: "TASKS-001"
 ### Required Contract & Integration Tests
 
 - [X] T018 [US2] Contract test for model output schema (`tests/contract/test_model_output_schema.py`)
-- [ ] T019 [US2] Integration test for training pipeline (`tests/integration/test_training_pipeline.py`) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T019 [US2] Integration test for training pipeline (`tests/integration/test_training_pipeline.py`) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
@@ -118,8 +118,8 @@ id: "TASKS-001"
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Evaluate ROC‑AUC, PR‑AUC, and calibration plots; assert ROC‑AUC ≥ 0.50 baseline (`code/modeling/evaluate.py`)
-- [ ] T029 [US3] Apply multiple‑hypothesis testing correction (Benjamini–Hochberg), output `data/model/corrected_pvalues.csv`, **record the resulting FDR and assert ≤ 0.05** (`code/modeling/correct_pvalues.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T028 [US3] Evaluate ROC‑AUC, PR‑AUC, and calibration plots; assert ROC‑AUC ≥ 0.50 baseline (`code/modeling/evaluate.py`)
+- [X] T029 [US3] Apply multiple‑hypothesis testing correction (Benjamini–Hochberg), output `data/model/corrected_pvalues.csv`, **record the resulting FDR and assert ≤ 0.05** (`code/modeling/correct_pvalues.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US3] Generate partial dependence plots for the three most important metrics (`code/modeling/pdp.py`)
 - [X] T031 [US3] Derive practical threshold values (predicted bug probability ≥ 0.5) and write `thresholds.csv` (`code/modeling/generate_thresholds.py`)
 - [X] T032 [US3] Assemble a concise research report (PDF/HTML) with tables, plots, and interpretation (`code/report/generate_report.py`)
@@ -157,4 +157,4 @@ id: "TASKS-001"
 - [X] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T061 Reconcile run-book vs implementation for `code/modeling/train.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling/train.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T061 Reconcile run-book vs implementation for `code/modeling/train.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/modeling/train.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

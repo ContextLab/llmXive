@@ -1,64 +1,49 @@
 # Quickstart Guide
 
-This guide describes how to run the full research pipeline for the Statistical Analysis of Code Complexity project.
+This guide provides the commands to run the full analysis pipeline end-to-end.
 
 ## Prerequisites
 
 - Python 3.11+
-- Install dependencies:
+- Install dependencies: `pip install -r requirements.txt`
+
+## Run the Pipeline
+
+The pipeline consists of several stages. Execute them in order:
+
+1. **Data Download and Extraction**
  ```bash
- pip install -r requirements.txt
+ python code/data/download_gh.py --output data/raw
+ python code/data/extract_commits.py --input data/raw --output data/commits
+ python code/data/extract_metrics.py --input data/commits --output data/metrics.csv
+ python code/data/label_bug_fixes.py --input data/metrics.csv --output data/labeled.csv
+ python code/data/validate_bug_labels.py --input data/labeled.csv
+ python code/data/preprocess.py --input data/labeled.csv --output data/preprocessed.csv --ground-truth data/labeled.csv --min-precision 0.85
+ python code/data/split_dataset.py --input data/preprocessed.csv --output data/split
  ```
 
-## Data Preparation
-
-1. **Download Data**: Fetch Java projects from GHTorrent.
+2. **Modeling and Evaluation**
  ```bash
- python code/data/download_gh.py --output data/raw/gh_projects
- ```
-2. **Extract Metrics**: Compute complexity metrics using Lizard.
- ```bash
- python code/data/extract_metrics.py --input data/raw/gh_projects --output data/processed/metrics.csv
- ```
-3. **Label Bug Fixes**: Identify bug-fix commits.
- ```bash
- python code/data/label_bug_fixes.py --input data/processed/metrics.csv --output data/processed/labeled_metrics.csv
- ```
-4. **Preprocess**: Clean and transform data.
- ```bash
- python code/data/preprocess.py --input data/processed/labeled_metrics.csv --output data/processed/preprocessed_data.csv
- ```
-5. **Split Dataset**: Create train/test splits.
- ```bash
- python code/data/split_dataset.py --input data/processed/preprocessed_data.csv --output data/splits/
+ python code/modeling/train.py --data-dir data/split --model-dir data/model --seed 42
+ python code/modeling/correct_pvalues.py --input data/model/raw_pvalues.csv --output data/model/corrected_pvalues.csv
+ python code/modeling/pdp.py --model-dir data/model --output-dir figures/pdp
+ python code/report/generate_report.py --model-dir data/model --output reports/analysis_report.html
  ```
 
-## Modeling & Evaluation
-
-6. **Train Models**: Run the full training pipeline (Primary & Alternative models, evaluation, p-value correction, thresholds).
+3. **Testing and Validation**
  ```bash
- python code/modeling/train.py \
- --train data/splits/train.csv \
- --test data/splits/test.csv \
- --output data/model/
+ pytest tests/
  ```
 
-## Reporting
+## Output Artifacts
 
-7. **Generate Report**: Create the final research report.
- ```bash
- python code/report/generate_report.py --input data/model/ --output reports/final_report.html
- ```
-
-## Testing
-
-Run the full test suite:
-```bash
-python code/run_tests.py
-```
+- `data/model/corrected_pvalues.csv`: Benjamini-Hochberg corrected p-values.
+- `data/model/thresholds.csv`: Practical threshold values for developers.
+- `figures/pdp/`: Partial dependence plots for top 3 metrics.
+- `reports/analysis_report.html`: Final research report.
 
 ## Notes
 
-- All paths are relative to the project root.
-- Ensure `data/` directory exists or is created by the scripts.
-- The `train.py` script orchestrates the modeling phase and produces `data/model/corrected_pvalues.csv` and `data/model/thresholds.csv`.
+- Ensure all data files are present in the `data/` directory before running the modeling stage.
+- The `correct_pvalues.py` script must be run after `train.py` to generate the corrected p-values file.
+- If any step fails, check the logs for detailed error messages.
