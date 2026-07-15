@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+type: object
+required:
+  - snippet_id
+  - ast_depth
+  - node_count
+  - cyclomatic_complexity
+  - taint_api_count
+  - sanitization_present
+  - embedding_similarity_score
+properties:
+  snippet_id:
+    type: string
+    description: "UUID of the CodeSnippet."
+  ast_depth:
+    type: integer
+    minimum: 0
+    description: "Maximum depth of the AST."
+  node_count:
+    type: integer
+    minimum: 0
+    description: "Total number of AST nodes."
+  cyclomatic_complexity:
+    type: integer
+    minimum: 0
+    description: "Cyclomatic complexity of the snippet."
+  taint_api_count:
+    type: integer
+    minimum: 0
+    description: "Count of known taint‑source API calls."
+  sanitization_present:
+    type: boolean
+    description: "Whether any sanitization function was detected."
+  embedding_similarity_score:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Average cosine similarity to top-5 nearest neighbors in the external CWE corpus (CWE-Code-Snippets repository). This metric is computed using an external, independent corpus to prevent data leakage."

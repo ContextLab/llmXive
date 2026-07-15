@@ -13,7 +13,7 @@ The system MUST ingest a dataset of code snippets (C, Python, JavaScript), run t
 
 **Why this priority**: This is the core empirical engine of the research. Without a functioning pipeline that can execute inference and align predictions with ground truth, no statistical analysis of feature-performance relationships is possible. It delivers the primary dataset (predictions vs. labels) required for the study.
 
-**Independent Test**: Can be fully tested by processing a small, fixed subset of 50 known vulnerable and 50 known safe snippets, verifying that the system outputs a JSON record for each with a predicted label, a confidence score (if available), and a match/mismatch flag against the ground truth.
+**Independent Test**: Can be fully tested by processing a small, fixed subset of known vulnerable and known safe snippets, verifying that the system outputs a JSON record for each with a predicted label, a confidence score (if available), and a match/mismatch flag against the ground truth.
 
 **Acceptance Scenarios**:
 
@@ -51,7 +51,7 @@ The system MUST compute precision, recall, F1-scores, and ROC-AUC per vulnerabil
 
 1. **Given** a dataset of 100 samples with extracted features and binary `is_correct` labels, **When** the analysis script runs, **Then** it must output a Pearson correlation coefficient (r) and p-value for every feature against the `is_correct` outcome.
 2. **Given** the full feature set and `is_correct` outcomes, **When** the regression model is fitted, **Then** the system must report the adjusted R² and the significance (p < 0.05) of at least one predictor variable.
-3. **Given** multiple hypothesis tests are performed (e.g., correlations for 10 features per category), **When** the analysis completes, **Then** the system must apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to the family of tests for each category and report adjusted p-values.
+3. **Given** multiple hypothesis tests are performed (e.g., correlations for a representative set of features per category), **When** the analysis completes, **Then** the system must apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to the family of tests for each category and report adjusted p-values.
 4. **Given** LLM predictions and static analyzer predictions on the same set of samples, **When** the analysis runs, **Then** the system must compute and report McNemar's test statistic and p-value to determine if the difference in performance is significant.
 
 ---
@@ -117,8 +117,8 @@ The system MUST execute standard static analysis tools (Bandit for Python, cppch
 ## Assumptions
 
 - The VulDeePecker dataset and Juliet test suite are publicly available and can be downloaded via `wget` or `git clone` within the CI environment without authentication.
-- The selected open-source LLMs (CodeLlamaB, StarCoder-Base, distilled Llama-2) can be loaded and run in 4-bit or default precision on a CPU-only environment without exceeding 7 GB RAM, assuming the model weights are quantized or the implementation uses `bitsandbytes` in a CPU-compatible mode (if available) or a smaller distilled variant.
-- The `tree-sitter` parser supports the C, Python, and JavaScript languages required by the datasets and can run within the 2-core CPU limit without significant overhead.
+- The selected open-source LLMs (CodeLlamaB, StarCoder-Base, distilled Llama-2) can be loaded and run in 4-bit or default precision on a CPU-only environment without exceeding a reasonable amount of RAM, assuming the model weights are quantized or the implementation uses `bitsandbytes` in a CPU-compatible mode (if available) or a smaller distilled variant.
+- The `tree-sitter` parser supports the C, Python, and JavaScript languages required by the datasets and can run within a multi-core CPU limit without significant overhead.
 - The "ground truth" labels provided by the datasets are treated as the primary reference for the purpose of this study, acknowledging that community-curated datasets may contain labeling noise. A sensitivity analysis (FR-011) is conducted to assess the impact of this noise.
 - The "zero-shot" prompt format ("Identify any security vulnerability...") is sufficient to elicit a structured response that can be parsed into a category label without few-shot examples.
 - The dataset size is small enough to fit entirely in memory after feature extraction., or can be processed in chunks without losing statistical power for the regression analysis.

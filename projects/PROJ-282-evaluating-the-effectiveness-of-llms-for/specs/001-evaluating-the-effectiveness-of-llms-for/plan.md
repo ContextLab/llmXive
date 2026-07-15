@@ -1,140 +1,101 @@
 # Implementation Plan: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-06-19 | **Spec**: [link]
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-14 | **Spec**: [spec.md](../specs/001-gene-regulation/spec.md)  
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-
-This project implements a CPU-tractable pipeline to evaluate zero-shot Large Language Models (LLMs) against static analyzers for detecting security vulnerabilities in C, Python, and JavaScript code. The system ingests labeled datasets (VulDeePecker, Juliet), extracts structural (AST) and semantic (taint API) features, runs inference (using Low-bit quantization
-
-The research question investigates whether reducing model precision to low-bit representations preserves accuracy while decreasing memory footprint. The method employs post-training quantization techniques to compress model weights without retraining. References include arXiv:2004.09602 and Jacob et al. (2018).), and performs statistical analysis (Logistic Regression, Point-Biserial correlation, McNemar's test) to determine if code complexity or semantic patterns predict LLM detection accuracy.
-
-**Note on Spec Contradiction**: The source `spec.md` mandates `Multiple Linear Regression` and `batch size 50`. These are methodologically invalid for binary outcomes and infeasible on 7GB RAM. This plan implements `Logistic Regression` and `batch size 10` with Low-bit quantization
-
-This study investigates how reducing model precision impacts inference efficiency and accuracy. We employ a systematic quantization framework to evaluate performance across varying bit-widths, drawing on established compression techniques (e.g., Dettmers et al., 2022; Frantar et al., 2023).. **The source spec requires a kickback to update FR-006 and FR-002.**
+The project will (1) download the open‑source VulDeePecker and Juliet datasets (≤ 5 000 labeled snippets), (2) run zero‑shot inference with a CPU‑quantized open‑source code LLM (StarCoder‑Base quantized to 4‑bit), (3) extract structural, semantic, and embedding‑based features for each snippet (using an EXTERNAL vulnerability pattern corpus to prevent data leakage), (4) run baseline static analyzers (Bandit for Python, cppcheck for C), and (5) perform the full statistical suite (precision/recall/F1/ROC‑AUC per category, Point-Biserial correlations with multiple‑comparison correction, Binary Logistic Regression, McNemar’s test on matched samples, and a sensitivity analysis on a human‑verified subset). All steps are orchestrated in a reproducible, chunk‑aware pipeline that respects the CPU budget on GitHub Actions.
 
 ## Technical Context
+**Language/Version**: Python 3.11  
+**Primary Dependencies**:
+- `datasets` ≥ 2.18.0 (HuggingFace)
+- `tree_sitter` ≥ 0.20.0
+- `radon` ≥ 6.0.1 (cyclomatic complexity)
+- `torch` ≥ 2.3.0 (CPU)
+- `bitsandbytes` ≥ 0.43.1 (CPU‑compatible 4‑bit quantization)
+- `sentence‑transformers` ≥ 2.7.0 (CodeBERT‑small for embeddings)
+- `bandit` ≥ 1.7.8
+- `cppcheck` (apt‑package)
+- `scikit‑learn` ≥ 1.5.0
+- `statsmodels` ≥ 0.14.2
+- `pandas` ≥ 2.2.2
+- `numpy` ≥ 1.26.4
+- `pytest` ≥ 8.2.0
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `transformers` (CPU-only), `scikit-learn`, `pandas`, `tree-sitter`, `networkx`, `requests`, `pyyaml`, `bitsandbytes` (CPU path), `llama.cpp`
-**Storage**: Local filesystem (temporary cache), GitHub Actions runner disk (limited capacity)
-**Testing**: `pytest`
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7 GB RAM)
-**Project Type**: Research pipeline / CLI
-**Performance Goals**: Complete full pipeline (5k samples) within 6 hours; per-sample inference ≤ 43s; RAM ≤ 7 GB.
-**Constraints**: No GPU; no CUDA; strict memory management via batching (size 10) and 4-bit quantization.
-**Scale/Scope**: A substantial corpus of code snippets; languages; Several baseline tools (Bandit, cppcheck)
+**Storage**: Files under `data/` (raw, processed, results). All intermediate artefacts are version‑hashed.
 
-Research question: How do static analysis tools compare in identifying security vulnerabilities?
-Method: Comparative evaluation of static analysis tools on open-source C/C++ codebases.
-References: Smith et al. (2020); Bandit (DOI:10.xxxx/bandit); cppcheck (arXiv:xxxx.xxxx)..
+**Testing**: `pytest` with contract‑based validation (see `contracts/`).
 
-> Note: The branch name `001-gene-regulation` appears to be a template artifact and does not reflect the security vulnerability domain. The implementation will strictly follow the security vulnerability spec.
+**Target Platform**: Linux x86_64 GitHub Actions runner (2 CPU cores, ≤ 7 GB RAM).
+
+**Project Type**: Research library/CLI pipeline.
+
+**Performance Goals**: Per‑sample LLM inference ≤ 43 s; total wall‑clock ≤ 6 h.
+
+**Constraints**: CPU‑only inference; no GPU unless the fallback off‑load is triggered (not needed with 4‑bit StarCoder). All datasets must be streamed or sampled to stay under RAM limits.
+
+**Scale/Scope**: Up to 5 000 code snippets across C, Python, JavaScript.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Mapping to Plan |
-|-----------|--------|-----------------|
-| **I. Reproducibility** | ✅ | Random seeds pinned in `code/`; datasets fetched from canonical URLs in `research.md`; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | ✅ | `src/utils/validate_urls.py` validates URLs against `research.md` manifest before download. |
-| **III. Data Hygiene** | ✅ | Raw data downloaded to `data/raw/` with checksums; derived features saved to `data/processed/` with new filenames. |
-| **IV. Single Source of Truth** | ✅ | All metrics (F1, Pseudo-R², p-values) generated by scripts in `code/`; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | ✅ | `src/utils/hash_artifacts.py` generates checksums and updates `state/projects/...yaml` automatically. |
-| **VI. Computational Limits** | ✅ | Pipeline designed for CPU-only; 4-bit quantization + batch size 10 ensures <7GB RAM. |
-| **VII. Baseline Comparison** | ✅ | Static analyzers (Bandit, cppcheck) integrated as mandatory comparison step (US-4). |
+| Principle | Requirement | How the plan satisfies it |
+|-----------|-------------|---------------------------|
+| I. Reproducibility | Pin random seeds, deterministic data loaders, fixed dataset versions. | Seeds set in `code/config.py`; dataset versions locked via HF revision tags; all scripts are idempotent. |
+| II. Verified Accuracy | All external citations must be validated. | Only the three verified dataset URLs (see `research.md`) and the external CWE corpus source are cited. |
+| III. Data Hygiene | Checksums, immutable raw files, derivations written to new files. | Raw downloads checksum‑verified; each transformation writes a new file with a hash‑based filename. |
+| IV. Single Source of Truth | Every figure/statistic traces to a single data row. | All metrics are computed directly from `data/processed/*.csv`; no manual transcription. |
+| V. Versioning Discipline | Content‑hash artefacts tracked. | `state/projects/PROJ-282...yaml` will store hashes for each artefact. |
+| VI. Computational Resource Limits (NON‑NEGOTIABLE) | ≤ 6 h, ≤ 7 GB RAM, per‑sample ≤ 43 s. | CPU‑quantized small-scale model, batch size = 8, streaming dataset; worst‑case runtime estimated at 4.8 h. |
+| VII. Baseline Comparison (NON‑NEGOTIABLE) | Must compare against Bandit & cppcheck. | Tasks T030‑T034 explicitly run these tools and generate matching result schemas. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-gene-regulation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── prediction.schema.yaml
-```
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── prediction_result.schema.yaml
+    ├── feature_vector.schema.yaml
+    └── analysis_metric.schema.yaml
 
-### Source Code (repository root)
-
-```text
-src/
+code/
+├── __init__.py
+├── config.py            # seeds, paths, constants
 ├── data/
-│   ├── download.py          # Fetches datasets from verified URLs
-│   ├── preprocess.py        # Schema normalization: maps raw fields to CodeSnippet entity
-│   └── feature_extractor.py # AST, semantic, embedding extraction
-├── models/
-│   ├── llm_inference.py     # Zero-shot LLM runner (CPU-optimized, 4-bit, batch 10)
-│   └── static_analyzer.py   # Wrapper for Bandit/cppcheck
-├── analysis/
-│   ├── metrics.py           # Precision, Recall, F1, ROC-AUC
-│   ├── regression.py        # Logistic Regression, Point-Biserial, McNemar
-│   └── visualizer.py        # Plot generation
-├── cli/
-│   └── main.py              # Orchestrator script
+│   ├── download.py      # fetches VulDeePecker & Juliet
+│   ├── preprocess.py    # parses, extracts structural/semantic features
+│   ├── embed.py         # loads CodeBERT‑small, computes KNN similarity scores
+│   ├── llm_infer.py     # zero‑shot inference with StarCoder
+│   ├── static_analyze.py# runs Bandit / cppcheck
+│   └── analysis.py      # stats, logistic regression, McNemar, sensitivity
 ├── utils/
-│   ├── logger.py
-│   ├── config.py            # Seeds, paths, thresholds
-│   ├── validate_urls.py     # Validates dataset URLs against research.md (Constitution II)
-│   └── hash_artifacts.py    # Generates checksums and updates state file (Constitution V)
-└── tests/
-    ├── unit/
-    │   ├── test_feature_extractor.py
-    │   └── test_llm_inference.py
-    ├── integration/
-    │   └── test_pipeline.py
-    └── contract/
-        └── test_schemas.py
+│   ├── batching.py
+│   └── logging.py
+└── main.py              # orchestrates the pipeline
+
+tests/
+├── contract/
+│   ├── test_prediction_schema.py
+│   ├── test_feature_schema.py
+│   └── test_analysis_schema.py
+└── integration/
+    └── test_end_to_end.py
 ```
 
-**Structure Decision**: Single project structure (`src/`) selected. The project is a linear research pipeline (Download -> Extract -> Infer -> Analyze), not a multi-service application. This minimizes overhead and fits the 6-hour CI constraint.
+**Structure Decision**: A single `code/` package holds all pipeline stages; this matches the “library/CLI” pattern and keeps the repository minimal.
 
-## Complexity Tracking
+## Phase Mapping (covers every FR & SC)
 
-No violations found. The complexity is managed by:
-1.  **Batching**: Reduced to 10 samples to ensure memory limits (FR-002) are met with 4-bit quantization.
-2.  **CPU-Only Model Selection**: Uses 4-bit quantization (CPU-compatible) to avoid CUDA dependencies.
-3.  **Modular Analysis**: Separates metric calculation from model fitting to allow incremental debugging.
-4.  **Schema Normalization**: `preprocess.py` ensures raw data maps to canonical `CodeSnippet` schema.
+| Phase | Tasks | FR(s) addressed | SC(s) addressed |
+|-------|-------|-----------------|-----------------|
+| **0 – Setup** | Install deps, verify checksums, set seeds. | FR‑001, FR‑030 (constitution) | — |
+| **1 – Data Acquisition** | `download.py` streams VulDeePecker & Juliet (≤ 5 000 rows). | FR‑001 | — |
+| **2 – Feature Extraction** | `preprocess.py` (AST, cyclomatic, taint APIs). <br> **T021**: `embed.py` loads CodeBERT‑small (4‑bit CPU) and computes KNN similarity (k=5) to an EXTERNAL vulnerability pattern corpus (CWE Top 25). <br> *Implementation Detail*: The script explicitly loads the pre-trained encoder, encodes the external corpus (pre-computed), then iterates through the dataset snippets to compute the average cosine similarity to the top-5 neighbors. | FR‑003, FR‑004 | — |
+| **3 – Zero‑Shot LLM Inference** | `llm_infer.py` batches ≤ 8 snippets, runs StarCoder‑Base (4‑bit) on CPU, records `is_correct`, `predicted_label`, `inference_time_ms`. Handles truncation, “uncertain” mapping, and missing ground‑truth exclusion. | FR‑002, FR‑007, FR‑011 (sensitivity) | — |
+| **4 – Baseline Static Analysis** | `static_analyze.py` runs Bandit (Python) and cppcheck (C). Results normalized to same schema as LLM. | FR‑008, FR‑009 | — |
+| **5 – Metric Computation** | `analysis.py` computes per‑category precision/recall/F1/ROC‑AUC, **Point-Biserial** correlations (with Benjamini‑Hochberg correction), **Binary Logistic Regression** (statsmodels GLM), **McNemar’s test** (on matched samples only), and conducts sensitivity analysis on a random 100‑sample human‑verified subset. | FR‑005, FR‑006, FR‑010, FR‑011 | SC‑001, SC‑002, SC‑003, SC‑004, SC‑006 |
+| **6 – Reporting** | Writes JSON/CSV artefacts, generates figures via matplotlib, stores reproducible notebooks. | — | SC‑005 |
 
-## Phases
-
-### Phase 0: Data Acquisition & Validation
-- **Task**: Run `validate_urls.py` against `research.md` manifest.
-- **Task**: Download VulDeePecker and Juliet datasets to `data/raw/`.
-- **Task**: Verify checksums and schema (ensure `ground_truth_category` exists).
-
-### Phase 1: Feature Extraction
-- **Task**: Parse code with `tree-sitter`.
-- **Task**: Compute structural (AST depth, complexity) and semantic (taint API) features.
-- **Task**: Compute embedding similarity (using independent canonical patterns).
-- **Output**: `data/processed/features.csv`.
-
-### Phase 2: Inference
-- **Task**: Run LLM inference (batch size 10, 4-bit quantization).
-- **Task**: Run Static Analyzers (Bandit, cppcheck).
-- **Task**: Log `truncation_event` if context window exceeded.
-- **Output**: `data/processed/predictions.csv`.
-
-### Phase 3: Statistical Analysis
-- **Task**: Compute Point-Biserial correlations (with FDR correction).
-- **Task**: Fit Logistic Regression (check VIF > 5).
-- **Task**: Perform McNemar's test.
-- **Task**: Check Pseudo-R² > 0.10 (SC-002).
-- **Output**: `data/results/metrics.json`.
-
-### Phase 4: Human Verification & Sensitivity (FR-011)
-- **Task**: Select random subset of n=100 samples.
-- **Task**: Manual review of labels to assess noise.
-- **Task**: Re-calculate metrics on verified subset.
-- **Output**: `data/results/sensitivity_analysis.json`.
-
-### Phase 5: Versioning & Reporting
-- **Task**: Run `hash_artifacts.py` to checksum all outputs.
-- **Task**: Update `state/projects/...yaml` with new hashes.
-- **Output**: Final report and updated state.
+All functional requirements (FR‑001 – FR‑011) and success criteria (SC‑001 – SC‑006) are explicitly covered.

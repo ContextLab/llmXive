@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T15:18:06.654526+00:00'
+resolved_at: '2026-07-15T05:36:44.444863+00:00'
 datasets:
 - intent: JavaScript
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://drs.britishmuseum.org/articles/media/Fence_builders_providing_verbal_consent/32874098
+  - url: https://tandf.figshare.com/articles/journal_contribution/Machine-learning_molecular_dynamics_and_DFT_analysis_of_CoFe_sub_2_sub_O_sub_4_sub_spinel_stability_and_hydrogen_recombination_energetics_for_high-temperature_thermochemical_hydrogen_production/32989980
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/media/Verbal_consent/32874095
+  - url: https://figshare.mq.edu.au/articles/thesis/The_Bankruptcy_Amendment_Act_1991_and_the_Bankruptcy_Legislation_Amendment_Act_1996_and_their_effect_on_consumer_bankrupts/32989862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/The_S32_amino_acid_deletion_in_the_GP5_protein_modulates_the_infectivity_of_porcine_reproductive_and_respiratory_syndrome_virus/32896466
+  - url: https://acs.figshare.com/articles/journal_contribution/Identifying_Disordered_Intermediates_in_the_Reaction_of_Cu_sub_3_x_sub_P_and_Dibenzyl_Diselenide_to_form_Cu_sub_3_sub_PSe_sub_4_sub_Nanoparticles/32989977
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/conference_contribution/Ports_for_floating_substation_construction/32896025
+  - url: https://acs.figshare.com/articles/journal_contribution/NMR-Based_Approach_to_Quantify_the_Relative_Oil_Mobility_in_Shale_Reservoirs/32989974
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Fungal_OTUs_abundance_taxonomic_and_guild_annotation_across_27_mature_beech_forest_plots/32896442
+  - url: https://acs.figshare.com/articles/journal_contribution/Phase_Change_Microcapsules_Loaded_in_Polyurethane_Foam_for_Dual-Purpose_Thermal_and_Acoustic_Insulation/32989971
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -73,35 +73,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17661943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10901259
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2541616
+  - url: https://zenodo.org/records/14289370
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/fvkcn/
+  - url: https://zenodo.org/records/10889919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.12524
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21163699
+  - url: https://arxiv.org/abs/2607.12308
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21163699
+  - url: https://zenodo.org/records/21363227
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21162028
+  - url: https://zenodo.org/records/21363227
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21162028
+  - url: https://figshare.com/articles/dataset/Original_data_and_analysis_code_to_Widespread_mangrove_dieback_induced_by_anomalously_low_sea_level_along_the_Pacific_Rim_/29570732
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,23 +142,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874230
+  - url: https://tandf.figshare.com/articles/journal_contribution/Machine-learning_molecular_dynamics_and_DFT_analysis_of_CoFe_sub_2_sub_O_sub_4_sub_spinel_stability_and_hydrogen_recombination_energetics_for_high-temperature_thermochemical_hydrogen_production/32989980
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874227
+  - url: https://figshare.mq.edu.au/articles/thesis/The_Bankruptcy_Amendment_Act_1991_and_the_Bankruptcy_Legislation_Amendment_Act_1996_and_their_effect_on_consumer_bankrupts/32989862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874224
+  - url: https://acs.figshare.com/articles/journal_contribution/Identifying_Disordered_Intermediates_in_the_Reaction_of_Cu_sub_3_x_sub_P_and_Dibenzyl_Diselenide_to_form_Cu_sub_3_sub_PSe_sub_4_sub_Nanoparticles/32989977
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874218
+  - url: https://acs.figshare.com/articles/journal_contribution/NMR-Based_Approach_to_Quantify_the_Relative_Oil_Mobility_in_Shale_Reservoirs/32989974
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874215
+  - url: https://acs.figshare.com/articles/journal_contribution/Phase_Change_Microcapsules_Loaded_in_Polyurethane_Foam_for_Dual-Purpose_Thermal_and_Acoustic_Insulation/32989971
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -177,7 +177,7 @@ datasets:
   - url: https://www.ijeat.org/portfolio-item/D458814040425/
     source: zenodo
     status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20471207
     source: zenodo
     status: wrong_format
@@ -206,23 +206,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874380
+  - url: https://tandf.figshare.com/articles/journal_contribution/Machine-learning_molecular_dynamics_and_DFT_analysis_of_CoFe_sub_2_sub_O_sub_4_sub_spinel_stability_and_hydrogen_recombination_energetics_for_high-temperature_thermochemical_hydrogen_production/32989980
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874374
+  - url: https://figshare.mq.edu.au/articles/thesis/The_Bankruptcy_Amendment_Act_1991_and_the_Bankruptcy_Legislation_Amendment_Act_1996_and_their_effect_on_consumer_bankrupts/32989862
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_List_of_species_were_identified_to_species_level_and_deposited_at_the_Instituto_Nacional_de_Pesquisas_da_Amaz_nia_INPA_and_Cole_o_Ictiol_gica_do_Acervo_Biol_gico_da_Amaz_nia_Meridional_ABAM-I_at_Laborat_rio_de_Ictiologia_Tropical_UFMT_b_/32896433
+  - url: https://acs.figshare.com/articles/journal_contribution/Identifying_Disordered_Intermediates_in_the_Reaction_of_Cu_sub_3_x_sub_P_and_Dibenzyl_Diselenide_to_form_Cu_sub_3_sub_PSe_sub_4_sub_Nanoparticles/32989977
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874368
+  - url: https://acs.figshare.com/articles/journal_contribution/NMR-Based_Approach_to_Quantify_the_Relative_Oil_Mobility_in_Shale_Reservoirs/32989974
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874365
+  - url: https://acs.figshare.com/articles/journal_contribution/Phase_Change_Microcapsules_Loaded_in_Polyurethane_Foam_for_Dual-Purpose_Thermal_and_Acoustic_Insulation/32989971
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -230,11 +230,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6610410
+  - url: https://zenodo.org/records/10966608
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10966608
+  - url: https://zenodo.org/records/6610410
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -246,23 +246,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21168858
+  - url: https://zenodo.org/records/21367387
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21168858
+  - url: https://zenodo.org/records/21367387
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21166269
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/D912QB
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21166269
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_relationship_between_the_non_high-density_lipoprotein_cholesterol_to_high-density_lipoprotein_cholesterol_ratio_and_tubular_atrophy_interstitial_fibrosis_in_patients_with_IgA_nephropathy/32989290/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21165784
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_relationship_between_the_non_high-density_lipoprotein_cholesterol_to_high-density_lipoprotein_cholesterol_ratio_and_tubular_atrophy_interstitial_fibrosis_in_patients_with_IgA_nephropathy/32989290
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

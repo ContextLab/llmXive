@@ -1,73 +1,61 @@
-# Quickstart: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities
+# Quickstart: Evaluating LLM Vulnerability Detection
 
-## Prerequisites
-- Python 3.11+
-- `git`
-- 14 GB disk space (for datasets and cache)
-- 7 GB+ RAM (recommended)
+The following steps assume a fresh GitHub Actions runner or a local Linux environment with Python 3.11.
 
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins `transformers`, `scikit-learn`, `pandas`, `tree-sitter`, `torch` (CPU version), and `bitsandbytes` (CPU path).*
-
-## Running the Pipeline
-
-The pipeline is executed via the CLI entry point.
-
-### Step 1: Download & Validate Data
+## 1. Clone the repository
 ```bash
-python -m src.cli.main download --dataset vuldeepecker
+git clone
+cd llm-vuln-eval
 ```
-*This fetches data from the verified URLs, validates them against `research.md`, and stores it in `data/raw/` with checksums.*
 
-### Step 2: Extract Features
+## 2. Create the Python environment
 ```bash
-python -m src.cli.main extract --input data/raw/vuldeepecker.parquet --output data/processed/features.csv
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
 ```
-*Computes AST, complexity, and embedding features. Handles malformed code gracefully.*
 
-### Step 3: Run Inference (LLM & Baseline)
+## 3. Install system dependencies (static analyzers)
 ```bash
-python -m src.cli.main infer --features data/processed/features.csv --batch-size 10
+# Bandit is a pip package, already installed via requirements.txt
+sudo apt-get update && sudo apt-get install -y cppcheck
 ```
-*Runs zero-shot LLM inference (CPU, 4-bit quantization) and static analyzers (Bandit/cppcheck). Outputs `data/processed/predictions.csv`. Logs truncation events.*
 
-### Step 4: Statistical Analysis
+## 4. Run the full pipeline (single command)
 ```bash
-python -m src.cli.main analyze --predictions data/processed/predictions.csv --features data/processed/features.csv
+python -m code.main \
+ --max-snippets 5000 \
+ --batch-size 8 \
+ --seed 42 \
+ --output-dir data/processed
 ```
-*Generates Point-Biserial correlation matrices, Logistic Regression summaries, and McNemar's test results. Outputs `data/results/metrics.json`.*
+- The script will:
+ 1. Stream the three verified datasets.
+ 2. Parse and extract all features (including **KNN-based embedding similarity** to external corpus).
+ 3. Perform zero‑shot inference with the CPU‑quantized StarCoder model.
+ 4. Run Bandit and cppcheck on the same snippets.
+ 5. Compute all metrics, **Logistic Regression**, McNemar’s test (on matched samples), and the sensitivity analysis.
+ 6. Write JSON/CSV artefacts and generate PNG figures under `results/`.
 
-### Step 5: Human Verification (Optional)
+## 5. Inspect results
 ```bash
-python -m src.cli.main verify --subset-size 100
+# Summary JSON
+cat results/summary.json | jq.
+
+# Example metric table
+python -c "import pandas as pd; print(pd.read_parquet('data/processed/analysis_metrics.parquet').head())"
 ```
-*Selects a random subset for manual review to assess label noise (FR-011).*
 
-## Verifying Results
-Check `data/results/metrics.json` for:
-- `nagelkerke_r2`: Should be reported with p-values.
-- `mcnemar_p`: P-value for LLM vs. Baseline comparison.
-- `correlations`: List of feature correlations with FDR-adjusted p-values.
-- `r2_threshold_check`: Pass/Fail against SC-002 (pseudo-R² > 0.10).
+## 6. Run the test suite (contract validation)
+```bash
+pytest -q
+```
+All contracts in `contracts/` must pass; failures indicate a breach of the data model or missing fields.
 
-## Troubleshooting
-- **OOM Error**: Reduce `--batch-size` to 5 or 2.
-- **Parsing Error**: Check `logs/parse_errors.log` for malformed snippets.
-- **Model Load Fail**: Ensure `torch` is installed for CPU (not CUDA) and `bitsandbytes` is configured for CPU.
+## 7. Re‑run with a different LLM (optional)
+```bash
+python -m code.main --model starcoder-base-4bit --max-snippets 2000
+```
+Replace `--model` with any model supported by `code/llm_infer.py` that can be loaded in CPU‑only mode.
+
+---

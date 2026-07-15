@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisMetric"
+type: object
+required:
+  - metric_name
+  - value
+properties:
+  metric_name:
+    type: string
+    description: "Human‑readable name (e.g., 'precision', 'point_biserial_r', 'logit_pseudo_r2')."
+  feature_name:
+    type: string
+    description: "Name of the feature if metric is feature‑specific."
+  category:
+    type: string
+    description: "Vulnerability category (CWE) if applicable."
+  value:
+    type: number
+    description: "Metric point estimate."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p‑value (if applicable)."
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "p‑value after multiple‑comparison correction."
+  notes:
+    type: string
+    description: "Optional free‑form commentary."
