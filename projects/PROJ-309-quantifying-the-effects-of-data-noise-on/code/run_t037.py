@@ -1,8 +1,8 @@
 """
-Runner script for Task T037: Add timing logic to verify pipeline completes within 2-hour CPU budget.
+Task T037: Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010).
 
-This script demonstrates the timing monitor by running a simulated pipeline 
-with multiple phases and verifying it stays within the 2-hour budget.
+This script implements the timing logic required to monitor the pipeline execution
+and verify it stays within the 2-hour (7200 seconds) CPU budget.
 """
 import os
 import sys
@@ -11,13 +11,17 @@ import json
 import logging
 import argparse
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from code.timing_monitor import PipelineTimer, PIPELINE_TIME_LIMIT_SECONDS
-from code.main import run_full_pipeline
+# Import the timing utilities from the existing API
+from timing import (
+    TimingReport,
+    timed_pipeline,
+    check_budget_usage,
+    write_timing_report,
+    verify_pipeline_budget
+)
+from main import run_full_pipeline
 
 # Configure logging
 logging.basicConfig(
@@ -26,142 +30,179 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+BUDGET_SECONDS = 7200  # 2 hours
+OUTPUT_DIR = Path("data/results")
+TIMING_REPORT_FILE = OUTPUT_DIR / "timing_report.json"
 
-def run_simulated_pipeline(timer: PipelineTimer) -> None:
+def run_simulated_pipeline() -> Dict[str, Any]:
     """
-    Run a simulated pipeline with multiple phases for demonstration.
+    Run a simulated (partial) pipeline to test timing logic without full execution.
+    This is useful for verifying the timing infrastructure works correctly.
     
-    In a real scenario, this would call the actual pipeline phases.
-    For T037, we simulate phases to demonstrate timing monitoring.
+    Returns:
+        Dict containing timing results and budget status
+    """
+    logger.info("Starting simulated pipeline timing test...")
     
-    Args:
-        timer: The PipelineTimer instance to use for timing.
-    """
-    # Simulate data generation phase (T012-T017)
-    with timer.measure_phase("data_generation"):
-        logger.info("Simulating clean trajectory generation...")
-        time.sleep(0.5)  # Simulate computation time
-        logger.info("Clean trajectories generated successfully.")
-
-    # Simulate noise injection phase (T020-T024)
-    with timer.measure_phase("noise_injection"):
-        logger.info("Simulating noise injection across SNR levels...")
-        time.sleep(0.8)  # Simulate computation time
-        logger.info("Noisy trajectories generated successfully.")
-
-    # Simulate metrics computation phase (T027-T029)
-    with timer.measure_phase("metrics_computation"):
-        logger.info("Simulating metric computation (Correlation Dimension, Lyapunov, FNN)...")
-        time.sleep(1.2)  # Simulate computation time
-        logger.info("Metrics computed successfully.")
-
-    # Simulate error analysis phase (T030-T031)
-    with timer.measure_phase("error_analysis"):
-        logger.info("Simulating error calculation and threshold identification...")
-        time.sleep(0.6)  # Simulate computation time
-        logger.info("Error analysis completed.")
-
-    # Simulate visualization and export phase (T034-T036)
-    with timer.measure_phase("visualization_export"):
-        logger.info("Simulating plot generation and CSV export...")
-        time.sleep(0.4)  # Simulate computation time
-        logger.info("Visualization and export completed.")
-
-
-def run_real_pipeline(timer: PipelineTimer) -> None:
-    """
-    Run the actual pipeline with timing monitoring.
+    # Simulate a pipeline that takes a small fraction of the budget
+    start_time = time.time()
     
-    Args:
-        timer: The PipelineTimer instance to use for timing.
+    # Simulate pipeline stages
+    stages = [
+        ("data_generation", 5.0),
+        ("noise_injection", 3.0),
+        ("metrics_computation", 10.0),
+        ("analysis", 2.0),
+        ("visualization", 1.0)
+    ]
+    
+    for stage_name, duration in stages:
+        logger.info(f"Simulating {stage_name} stage...")
+        time.sleep(duration)
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    
+    # Create timing report
+    timing_report = TimingReport(
+        total_time_seconds=total_time,
+        budget_seconds=BUDGET_SECONDS,
+        stages=[
+            {"name": name, "duration": dur} for name, dur in stages
+        ],
+        status="completed" if total_time < BUDGET_SECONDS else "exceeded"
+    )
+    
+    # Verify budget
+    budget_ok = verify_pipeline_budget(timing_report)
+    
+    logger.info(f"Simulated pipeline completed in {total_time:.2f}s")
+    logger.info(f"Budget status: {'PASS' if budget_ok else 'FAIL'}")
+    
+    return {
+        "timing_report": timing_report,
+        "budget_ok": budget_ok,
+        "total_time": total_time
+    }
+
+def run_real_pipeline() -> Dict[str, Any]:
     """
+    Run the actual full pipeline with timing monitoring.
+    This executes the complete data generation, noise injection,
+    metrics computation, analysis, and visualization pipeline.
+    
+    Returns:
+        Dict containing timing results and budget status
+    """
+    logger.info("Starting real pipeline with timing monitoring...")
+    
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Run the pipeline with timing
+    start_time = time.time()
+    
     try:
-        # Run the full pipeline with timing phases
-        with timer.measure_phase("pipeline_execution"):
-            run_full_pipeline()
+        # Execute the full pipeline
+        # This will generate clean data, inject noise, compute metrics,
+        # perform analysis, and generate visualizations
+        pipeline_result = run_full_pipeline()
+        
+        end_time = time.time()
+        total_time = end_time - start_time
+        
+        # Create timing report
+        timing_report = TimingReport(
+            total_time_seconds=total_time,
+            budget_seconds=BUDGET_SECONDS,
+            stages=[],  # Would be populated with actual stage timings in a more detailed implementation
+            status="completed" if total_time < BUDGET_SECONDS else "exceeded"
+        )
+        
+        # Verify budget
+        budget_ok = verify_pipeline_budget(timing_report)
+        
+        # Write timing report to file
+        write_timing_report(timing_report, TIMING_REPORT_FILE)
+        
+        logger.info(f"Real pipeline completed in {total_time:.2f}s")
+        logger.info(f"Budget status: {'PASS' if budget_ok else 'FAIL'}")
+        logger.info(f"Timing report written to {TIMING_REPORT_FILE}")
+        
+        return {
+            "timing_report": timing_report,
+            "budget_ok": budget_ok,
+            "total_time": total_time,
+            "pipeline_result": pipeline_result
+        }
+        
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}")
-        raise
+        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
+        
+        # Create error timing report
+        end_time = time.time()
+        total_time = end_time - start_time
+        
+        timing_report = TimingReport(
+            total_time_seconds=total_time,
+            budget_seconds=BUDGET_SECONDS,
+            stages=[],
+            status="failed",
+            error=str(e)
+        )
+        
+        write_timing_report(timing_report, TIMING_REPORT_FILE)
+        
+        return {
+            "timing_report": timing_report,
+            "budget_ok": False,
+            "total_time": total_time,
+            "error": str(e)
+        }
 
-
-def main(args=None):
-    """
-    Main entry point for T037 timing verification.
-    
-    Args:
-        args: Command line arguments (optional).
-    """
+def main():
+    """Main entry point for T037 timing verification."""
     parser = argparse.ArgumentParser(
-        description="Task T037: Verify pipeline execution time is within 2-hour budget"
+        description="Task T037: Verify pipeline timing within 2-hour budget"
     )
     parser.add_argument(
         "--simulate",
         action="store_true",
-        help="Run simulated pipeline phases for demonstration"
+        help="Run simulated pipeline instead of real execution"
     )
     parser.add_argument(
-        "--real",
-        action="store_true",
-        help="Run the actual pipeline (default if no flag provided)"
-    )
-    parser.add_argument(
-        "--report-dir",
+        "--output",
         type=str,
-        default="data/results",
-        help="Directory to store timing reports"
+        default=str(TIMING_REPORT_FILE),
+        help="Output path for timing report JSON"
     )
-
-    parsed_args = parser.parse_args(args) if args else argparse.Namespace(simulate=False, real=False)
-
-    # Default to simulated if neither flag is set
-    if not parsed_args.simulate and not parsed_args.real:
-        parsed_args.simulate = True
-
-    logger.info("=" * 60)
-    logger.info("Starting Task T037: Pipeline Timing Verification")
-    logger.info(f"Time limit: {PIPELINE_TIME_LIMIT_SECONDS / 3600:.1f} hours")
-    logger.info("=" * 60)
-
-    # Initialize timer
-    timer = PipelineTimer(report_dir=parsed_args.report_dir)
-    timer.start()
-
-    try:
-        if parsed_args.simulate:
-            logger.info("Running SIMULATED pipeline phases...")
-            run_simulated_pipeline(timer)
-        else:
-            logger.info("Running REAL pipeline...")
-            run_real_pipeline(timer)
-
-        # Stop timer
-        timer.stop()
-
-        # Check budget
-        within_budget = timer.check_budget()
-
-        # Generate and save report
-        report_path = timer.save_report()
-
-        # Final status
-        if within_budget:
-            logger.info("SUCCESS: Pipeline completed within the 2-hour budget.")
-            logger.info(f"Total time: {timer.elapsed_seconds:.2f} seconds")
-            logger.info(f"Report saved to: {report_path}")
-            return 0
-        else:
-            logger.error("FAILURE: Pipeline exceeded the 2-hour budget.")
-            logger.error(f"Total time: {timer.elapsed_seconds:.2f} seconds")
-            logger.error(f"Report saved to: {report_path}")
-            return 1
-
-    except Exception as e:
-        logger.error(f"Pipeline execution failed with error: {e}")
-        if timer.start_time:
-            timer.stop()
-            timer.save_report()
-        return 2
-
+    
+    args = parser.parse_args()
+    
+    if args.simulate:
+        logger.info("Running simulated pipeline timing test...")
+        result = run_simulated_pipeline()
+    else:
+        logger.info("Running real pipeline with timing monitoring...")
+        result = run_real_pipeline()
+    
+    # Print summary
+    print("\n" + "="*60)
+    print("T037 TIMING VERIFICATION SUMMARY")
+    print("="*60)
+    print(f"Total Time: {result['total_time']:.2f} seconds")
+    print(f"Budget: {BUDGET_SECONDS} seconds (2 hours)")
+    print(f"Status: {'PASS' if result['budget_ok'] else 'FAIL'}")
+    
+    if 'error' in result:
+        print(f"Error: {result['error']}")
+        
+    print(f"Timing Report: {args.output}")
+    print("="*60 + "\n")
+    
+    # Exit with appropriate code
+    sys.exit(0 if result['budget_ok'] else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

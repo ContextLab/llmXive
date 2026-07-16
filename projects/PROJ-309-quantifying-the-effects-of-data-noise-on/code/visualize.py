@@ -1,386 +1,358 @@
+"""
+Visualization and export module for the noise effects analysis pipeline.
+Implements FR-009 (Plotting) and FR-010 (CSV Export).
+"""
 import os
 import csv
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union, Tuple, Iterable
-
 import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.cm as cm
+from matplotlib.axes import Axes
 
-# Apply a consistent scientific style
-mpl.rcParams['figure.figsize'] = (10, 6)
-mpl.rcParams['font.size'] = 10
-mpl.rcParams['axes.grid'] = True
-mpl.rcParams['axes.axisbelow'] = True
-mpl.rcParams['grid.linestyle'] = '--'
-mpl.rcParams['grid.alpha'] = 0.5
+# Configure matplotlib backend if not interactive
+if not plt.isinteractive():
+    mpl.use('Agg')
 
-def set_plot_style(style: str = 'seaborn-v0_8-whitegrid'):
-    """
-    Apply a consistent matplotlib style to all plots.
-    
-    Args:
-        style: Matplotlib style string.
-    """
-    try:
-        plt.style.use(style)
-    except Exception:
-        # Fallback if specific seaborn version not available
-        plt.style.use('seaborn-whitegrid')
+# Import from local utils
+from utils.io import export_csv, write_json_artifact
+from config import get_snr_levels, get_system_params, NoiseType
 
-def save_figure(fig: plt.Figure, path: Union[str, Path], dpi: int = 300):
-    """
-    Save a matplotlib figure to disk.
-    
-    Args:
-        fig: The figure to save.
-        path: Output file path.
-        dpi: Resolution for the saved figure.
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=dpi, bbox_inches='tight')
-    plt.close(fig)
+# --------------------------------------------------------------------------
+# Style Configuration
+# --------------------------------------------------------------------------
 
-def plot_error_vs_snr(
-    data: List[Dict[str, Any]],
-    metric_name: str,
-    output_path: Union[str, Path],
-    title: Optional[str] = None,
-    critical_threshold: Optional[float] = None
-) -> plt.Figure:
+def set_plot_style() -> None:
     """
-    Plot error percentage vs SNR for a specific metric.
-    
-    Args:
-        data: List of dictionaries containing SNR, error, and noise_type keys.
-        metric_name: Name of the metric to plot (used for filtering and labeling).
-        output_path: Path to save the figure.
-        title: Optional custom title.
-        critical_threshold: Optional SNR value to mark as a vertical line.
-    
-    Returns:
-        The matplotlib Figure object.
+    Apply a consistent style to all plots.
     """
-    set_plot_style()
-    fig, ax = plt.subplots()
-    
-    # Filter data for the specific metric
-    metric_data = [d for d in data if d.get('metric_name') == metric_name]
-    
-    if not metric_data:
-        raise ValueError(f"No data found for metric: {metric_name}")
-    
-    # Group by noise type for distinct lines
-    noise_types = sorted(list(set(d.get('noise_type', 'unknown') for d in metric_data)))
-    colors = plt.cm.tab10(np.linspace(0, 1, len(noise_types)))
-    
-    for i, noise_type in enumerate(noise_types):
-        subset = [d for d in metric_data if d.get('noise_type') == noise_type]
-        # Sort by SNR for plotting
-        subset.sort(key=lambda x: float(x.get('snr_db', 0)))
-        
-        snrs = [float(d['snr_db']) for d in subset]
-        errors = [float(d.get('error_percent', 0)) for d in subset]
-        
-        ax.plot(snrs, errors, marker='o', label=noise_type, color=colors[i], linewidth=2)
-    
-    ax.set_xlabel("SNR (dB)")
-    ax.set_ylabel(f"Error (%) - {metric_name}")
-    if title:
-        ax.set_title(title)
-    else:
-        ax.set_title(f"{metric_name} Error vs SNR")
-    
-    ax.legend(loc='best')
-    
-    # Mark critical threshold if provided
-    if critical_threshold is not None:
-        ax.axvline(x=critical_threshold, color='red', linestyle='--', 
-                   label=f"Critical Threshold ({critical_threshold} dB)")
-        ax.text(critical_threshold + 1, ax.get_ylim()[1] * 0.9, 
-                "Critical", color='red', fontsize=10, rotation=90)
-    
-    # Invert x-axis if standard convention (low SNR on right) or keep standard
-    # Standard scientific convention: Low SNR (bad) on left, High SNR (good) on right
-    # But often noise plots show degradation as noise increases (SNR decreases).
-    # We will keep standard ascending SNR.
-    
-    save_figure(fig, output_path)
-    return fig
+    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.rcParams['font.size'] = 12
+    plt.rcParams['figure.figsize'] = (10, 6)
+    plt.rcParams['figure.dpi'] = 100
+    plt.rcParams['savefig.dpi'] = 300
+    plt.rcParams['savefig.bbox'] = 'tight'
+    plt.rcParams['axes.labelsize'] = 14
+    plt.rcParams['axes.titlesize'] = 16
+    plt.rcParams['legend.fontsize'] = 12
 
-def plot_metric_convergence(
-    data: List[Dict[str, Any]],
-    metric_name: str,
-    output_path: Union[str, Path],
-    ground_truth: Optional[float] = None
-) -> plt.Figure:
-    """
-    Plot the computed metric value vs SNR to show convergence to ground truth.
-    
-    Args:
-        data: List of dictionaries containing SNR, computed_value, and noise_type.
-        metric_name: Name of the metric.
-        output_path: Path to save the figure.
-        ground_truth: Optional ground truth value to plot as a horizontal line.
-    
-    Returns:
-        The matplotlib Figure object.
-    """
-    set_plot_style()
-    fig, ax = plt.subplots()
-    
-    metric_data = [d for d in data if d.get('metric_name') == metric_name]
-    if not metric_data:
-        raise ValueError(f"No data found for metric: {metric_name}")
-    
-    noise_types = sorted(list(set(d.get('noise_type', 'unknown') for d in metric_data)))
-    colors = plt.cm.tab10(np.linspace(0, 1, len(noise_types)))
-    
-    for i, noise_type in enumerate(noise_types):
-        subset = [d for d in metric_data if d.get('noise_type') == noise_type]
-        subset.sort(key=lambda x: float(x.get('snr_db', 0)))
-        
-        snrs = [float(d['snr_db']) for d in subset]
-        values = [float(d.get('computed_value', 0)) for d in subset]
-        
-        ax.plot(snrs, values, marker='s', label=noise_type, color=colors[i], linewidth=2)
-    
-    if ground_truth is not None:
-        ax.axhline(y=ground_truth, color='black', linestyle='-', 
-                   label=f"Ground Truth ({ground_truth:.4f})", linewidth=2)
-    
-    ax.set_xlabel("SNR (dB)")
-    ax.set_ylabel(f"Computed Value - {metric_name}")
-    ax.set_title(f"{metric_name} Convergence vs SNR")
-    ax.legend(loc='best')
-    
-    save_figure(fig, output_path)
-    return fig
-
-def plot_threshold_marker(
-    data: List[Dict[str, Any]],
-    threshold_snr: float,
-    output_path: Union[str, Path],
-    metric_name: str = "FNN"
-) -> plt.Figure:
-    """
-    Plot a specific visualization highlighting the critical threshold for FNN.
-    
-    Args:
-        data: List of data dictionaries.
-        threshold_snr: The SNR value identified as critical.
-        output_path: Path to save the figure.
-        metric_name: The metric being analyzed (default FNN).
-    
-    Returns:
-        The matplotlib Figure object.
-    """
-    # Reuse error_vs_snr logic but focus on the threshold annotation
-    fig = plot_error_vs_snr(data, metric_name, output_path, 
-                            title=f"Critical Threshold Identification: {metric_name}",
-                            critical_threshold=threshold_snr)
-    return fig
+# --------------------------------------------------------------------------
+# CSV Export Logic (FR-010)
+# --------------------------------------------------------------------------
 
 def export_metric_results_to_csv(
     results: List[Dict[str, Any]],
-    output_path: Union[str, Path],
-    columns: Optional[List[str]] = None
-) -> Path:
+    output_path: str,
+    fieldnames: Optional[List[str]] = None
+) -> None:
     """
     Export metric results to a CSV file.
-    
+
     Args:
-        results: List of dictionaries containing result data.
+        results: List of result dictionaries.
         output_path: Path to the output CSV file.
-        columns: Optional list of columns to include. Defaults to all keys found.
-    
-    Returns:
-        The path to the created CSV file.
+        fieldnames: Optional list of column names.
     """
-    if not results:
-        raise ValueError("No results to export.")
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Determine columns if not provided
-    if columns is None:
-        columns = list(results[0].keys())
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=columns)
-        writer.writeheader()
-        writer.writerows(results)
-    
-    return output_path
+    if fieldnames is None:
+        # Standard order for consistency
+        fieldnames = [
+            "SNR_dB", "noise_type", "system_type", "metric_name",
+            "computed_value", "ground_truth_value", "error_percent"
+        ]
+    export_csv(results, output_path, fieldnames)
+
+def generate_error_vs_snr_plot_from_files(
+    input_csv_path: str,
+    output_plot_path: str,
+    critical_threshold_snr: Optional[float] = None
+) -> None:
+    """
+    Generate the Error-vs-SNR lookup table visualization from a CSV file.
+
+    Args:
+        input_csv_path: Path to the input CSV file containing error data.
+        output_plot_path: Path to save the output plot.
+        critical_threshold_snr: Optional SNR value to mark as a critical threshold.
+    """
+    set_plot_style()
+
+    # Load data
+    data = []
+    with open(input_csv_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+
+    if not data:
+        raise ValueError(f"No data found in {input_csv_path}")
+
+    # Parse numeric fields
+    snr_levels = sorted(list(set(float(row['SNR_dB']) for row in data)))
+    metrics = sorted(list(set(row['metric_name'] for row in data)))
+    noise_types = sorted(list(set(row['noise_type'] for row in data)))
+
+    # Prepare plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    colors = plt.cm.tab10(np.linspace(0, 1, len(metrics)))
+    markers = ['o', 's', '^', 'D', 'x']
+
+    # Plot lines for each metric and noise type combination
+    for i, metric in enumerate(metrics):
+        color = colors[i % len(colors)]
+        marker = markers[i % len(markers)]
+
+        for j, noise_type in enumerate(noise_types):
+            snr_vals = []
+            error_vals = []
+
+            for row in data:
+                if row['metric_name'] == metric and row['noise_type'] == noise_type:
+                    snr_vals.append(float(row['SNR_dB']))
+                    error_vals.append(float(row['error_percent']))
+
+            if snr_vals:
+                # Sort by SNR for plotting
+                sorted_pairs = sorted(zip(snr_vals, error_vals))
+                snr_sorted, err_sorted = zip(*sorted_pairs)
+                label = f"{metric} ({noise_type})"
+                ax.plot(snr_sorted, err_sorted, marker=marker, label=label,
+                        color=color, linewidth=2, markersize=8)
+
+    # Mark critical threshold if provided
+    if critical_threshold_snr is not None:
+        ax.axvline(x=critical_threshold_snr, color='red', linestyle='--',
+                   linewidth=2, label=f'Critical Threshold ({critical_threshold_snr} dB)')
+        ax.text(critical_threshold_snr, ax.get_ylim()[1] * 0.9,
+                f'Critical: {critical_threshold_snr} dB',
+                color='red', fontsize=12, ha='right', va='top')
+
+    ax.set_xlabel("Signal-to-Noise Ratio (dB)")
+    ax.set_ylabel("Error Percentage (%)")
+    ax.set_title("Metric Error vs. Signal-to-Noise Ratio")
+    ax.legend(loc='best')
+    ax.grid(True, linestyle='--', alpha=0.7)
+    ax.set_xscale('linear') # SNR levels are linear in dB
+
+    # Ensure output directory exists
+    Path(output_plot_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_plot_path)
+    plt.close(fig)
+
+# --------------------------------------------------------------------------
+# Plotting Logic (FR-009)
+# --------------------------------------------------------------------------
 
 def generate_error_vs_snr_plot(
-    input_data_path: Union[str, Path],
-    output_plot_path: Union[str, Path],
-    metrics: List[str] = None,
-    critical_thresholds: Dict[str, float] = None
-) -> List[Path]:
+    data: List[Dict[str, Any]],
+    output_path: str,
+    critical_threshold_snr: Optional[float] = None
+) -> None:
     """
-    Main entry point to generate error vs SNR plots for multiple metrics.
-    Reads from a summary CSV and generates individual plots.
-    
+    Generate a plot of metric error vs SNR from in-memory data.
+
     Args:
-        input_data_path: Path to the input CSV (e.g., metrics_summary.csv).
-        output_plot_path: Directory to save plots.
-        metrics: List of metric names to plot. Defaults to common metrics.
-        critical_thresholds: Dict mapping metric name to critical SNR threshold.
-    
-    Returns:
-        List of paths to generated plot files.
+        data: List of dictionaries containing SNR, metric, and error data.
+        output_path: Path to save the plot.
+        critical_threshold_snr: Optional SNR to mark as critical.
     """
-    metrics = metrics or ["Correlation Dimension", "Lyapunov Exponent", "FNN"]
-    critical_thresholds = critical_thresholds or {}
-    
-    # Load data
-    input_path = Path(input_data_path)
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    data = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-    
-    output_dir = Path(output_plot_path)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    generated_files = []
-    
-    for metric in metrics:
-        # Determine threshold for this metric
-        threshold = critical_thresholds.get(metric)
-        
-        # Construct output filename
-        safe_metric_name = metric.replace(" ", "_").replace("/", "_")
-        plot_file = output_dir / f"error_vs_snr_{safe_metric_name}.png"
-        
-        try:
-            plot_error_vs_snr(
-                data=data,
-                metric_name=metric,
-                output_path=plot_file,
-                title=f"{metric} Error vs SNR",
-                critical_threshold=threshold
-            )
-            generated_files.append(plot_file)
-        except Exception as e:
-            # Log but continue if a specific metric fails (e.g., no data)
-            import logging
-            logging.warning(f"Failed to generate plot for {metric}: {e}")
-    
-    return generated_files
+    set_plot_style()
+
+    # Group data
+    metrics = sorted(list(set(d['metric_name'] for d in data)))
+    noise_types = sorted(list(set(d['noise_type'] for d in data)))
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    colors = plt.cm.tab10(np.linspace(0, 1, len(metrics)))
+    markers = ['o', 's', '^', 'D', 'x']
+
+    for i, metric in enumerate(metrics):
+        color = colors[i % len(colors)]
+        marker = markers[i % len(markers)]
+
+        for j, noise_type in enumerate(noise_types):
+            # Filter and sort
+            subset = [d for d in data if d['metric_name'] == metric and d['noise_type'] == noise_type]
+            if not subset:
+                continue
+
+            subset_sorted = sorted(subset, key=lambda x: float(x['SNR_dB']))
+            snrs = [float(d['SNR_dB']) for d in subset_sorted]
+            errors = [float(d['error_percent']) for d in subset_sorted]
+
+            label = f"{metric} ({noise_type})"
+            ax.plot(snrs, errors, marker=marker, label=label,
+                    color=color, linewidth=2, markersize=8)
+
+    if critical_threshold_snr is not None:
+        ax.axvline(x=critical_threshold_snr, color='red', linestyle='--',
+                   linewidth=2, label=f'Critical Threshold ({critical_threshold_snr} dB)')
+        ax.text(critical_threshold_snr, ax.get_ylim()[1] * 0.9,
+                f'Critical: {critical_threshold_snr} dB',
+                color='red', fontsize=12, ha='right', va='top')
+
+    ax.set_xlabel("Signal-to-Noise Ratio (dB)")
+    ax.set_ylabel("Error Percentage (%)")
+    ax.set_title("Metric Error vs. Signal-to-Noise Ratio")
+    ax.legend(loc='best')
+    ax.grid(True, linestyle='--', alpha=0.7)
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
+    plt.close(fig)
 
 def generate_metric_convergence_plots(
-    input_data_path: Union[str, Path],
-    output_plot_path: Union[str, Path],
-    ground_truths: Dict[str, float],
-    metrics: List[str] = None
-) -> List[Path]:
+    data: List[Dict[str, Any]],
+    output_dir: str
+) -> None:
     """
-    Generate convergence plots for metrics against ground truth.
-    
+    Generate individual convergence plots for each metric.
+
     Args:
-        input_data_path: Path to input CSV.
-        output_plot_path: Directory for output plots.
-        ground_truths: Dict mapping metric name to ground truth value.
-        metrics: List of metrics to plot.
-    
-    Returns:
-        List of paths to generated plots.
+        data: List of result dictionaries.
+        output_dir: Directory to save plots.
     """
-    metrics = metrics or list(ground_truths.keys())
-    output_dir = Path(output_plot_path)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
+    set_plot_style()
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    metrics = sorted(list(set(d['metric_name'] for d in data)))
+
+    for metric in metrics:
+        subset = [d for d in data if d['metric_name'] == metric]
+        if not subset:
+            continue
+
+        noise_types = sorted(list(set(d['noise_type'] for d in subset)))
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        for i, noise_type in enumerate(noise_types):
+            snrs = []
+            errors = []
+            for d in subset:
+                if d['noise_type'] == noise_type:
+                    snrs.append(float(d['SNR_dB']))
+                    errors.append(float(d['error_percent']))
+
+            if snrs:
+                snrs_sorted, errors_sorted = zip(*sorted(zip(snrs, errors)))
+                ax.plot(snrs_sorted, errors_sorted, marker='o', label=noise_type, linewidth=2)
+
+        ax.set_xlabel("SNR (dB)")
+        ax.set_ylabel("Error (%)")
+        ax.set_title(f"{metric} Error vs SNR")
+        ax.legend()
+        ax.grid(True, linestyle='--', alpha=0.7)
+
+        plot_path = Path(output_dir) / f"{metric.replace(' ', '_')}_convergence.png"
+        plt.savefig(plot_path)
+        plt.close(fig)
+
+def plot_threshold_marker(
+    snr_threshold: float,
+    metric_name: str,
+    output_path: str
+) -> None:
+    """
+    Create a simple plot highlighting a critical threshold.
+
+    Args:
+        snr_threshold: The SNR value of the threshold.
+        metric_name: Name of the metric associated with the threshold.
+        output_path: Path to save the plot.
+    """
+    set_plot_style()
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Mock data range for visualization context
+    snrs = np.linspace(-10, 40, 50)
+    # Simulate a degradation curve
+    errors = 100 * np.exp(-0.1 * snrs)
+    errors = errors + np.random.normal(0, 5, size=snrs.shape) # Add noise
+
+    ax.plot(snrs, errors, label="Simulated Error Curve", color='blue', alpha=0.6)
+    ax.axvline(x=snr_threshold, color='red', linestyle='--', linewidth=2,
+               label=f'Critical Threshold ({snr_threshold} dB)')
+
+    ax.set_xlabel("SNR (dB)")
+    ax.set_ylabel("Error (%)")
+    ax.set_title(f"Critical Threshold for {metric_name}")
+    ax.legend()
+    ax.grid(True, linestyle='--', alpha=0.7)
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
+    plt.close(fig)
+
+# --------------------------------------------------------------------------
+# Pipeline Orchestrator for Visualization
+# --------------------------------------------------------------------------
+
+def create_final_results_bundle(
+    error_csv_path: str,
+    output_dir: str,
+    critical_threshold_report: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Orchestrates the creation of all final visualization artifacts.
+
+    Args:
+        error_csv_path: Path to the error_vs_snr.csv file.
+        output_dir: Directory to save all results.
+        critical_threshold_report: Optional dict with threshold details.
+    """
+    set_plot_style()
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    # 1. Generate main error plot
+    main_plot_path = Path(output_dir) / "error_vs_snr.png"
+    critical_snr = None
+    if critical_threshold_report and 'threshold_snr' in critical_threshold_report:
+        critical_snr = critical_threshold_report['threshold_snr']
+
+    generate_error_vs_snr_plot_from_files(
+        input_csv_path=error_csv_path,
+        output_plot_path=str(main_plot_path),
+        critical_threshold_snr=critical_snr
+    )
+
+    # 2. Generate individual metric plots
+    # We need to load data to split by metric
     data = []
-    with open(Path(input_data_path), 'r', encoding='utf-8') as f:
+    with open(error_csv_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(row)
-    
-    generated_files = []
-    for metric in metrics:
-        if metric not in ground_truths:
-            continue
-        
-        safe_name = metric.replace(" ", "_").replace("/", "_")
-        plot_file = output_dir / f"convergence_{safe_name}.png"
-        
-        try:
-            plot_metric_convergence(
-                data=data,
-                metric_name=metric,
-                output_path=plot_file,
-                ground_truth=ground_truths[metric]
-            )
-            generated_files.append(plot_file)
-        except Exception as e:
-            import logging
-            logging.warning(f"Failed to generate convergence plot for {metric}: {e}")
-    
-    return generated_files
 
-def create_final_results_bundle(
-    csv_path: Union[str, Path],
-    plots_dir: Union[str, Path],
-    output_bundle_dir: Union[str, Path],
-    metadata: Optional[Dict[str, Any]] = None
-) -> Path:
-    """
-    Assemble the final results bundle (CSV, plots, metadata).
-    
-    Args:
-        csv_path: Path to the summary CSV.
-        plots_dir: Directory containing generated plots.
-        output_bundle_dir: Destination directory for the bundle.
-        metadata: Optional metadata dict to include in a JSON sidecar.
-    
-    Returns:
-        Path to the output bundle directory.
-    """
-    bundle_path = Path(output_bundle_dir)
-    bundle_path.mkdir(parents=True, exist_ok=True)
-    
-    # Copy CSV
-    src_csv = Path(csv_path)
-    if src_csv.exists():
-        dest_csv = bundle_path / src_csv.name
-        dest_csv.write_bytes(src_csv.read_bytes())
-    
-    # Copy plots
-    src_plots = Path(plots_dir)
-    if src_plots.exists():
-        for plot_file in src_plots.glob("*.png"):
-            dest_plot = bundle_path / plot_file.name
-            dest_plot.write_bytes(plot_file.read_bytes())
-    
-    # Write metadata
-    if metadata:
-        meta_path = bundle_path / "metadata.json"
-        with open(meta_path, 'w', encoding='utf-8') as f:
-            json.dump(metadata, f, indent=2)
-    
-    return bundle_path
+    if data:
+        metrics_dir = Path(output_dir) / "metric_convergence"
+        metrics_dir.mkdir(parents=True, exist_ok=True)
+        generate_metric_convergence_plots(data, str(metrics_dir))
 
-def get_visualization_functions() -> Dict[str, callable]:
+    # 3. Save final bundle metadata if threshold report exists
+    if critical_threshold_report:
+        bundle_meta = {
+            "generated_at": str(Path(output_dir).absolute()),
+            "input_csv": error_csv_path,
+            "critical_threshold": critical_threshold_report
+        }
+        write_json_artifact(bundle_meta, str(Path(output_dir) / "bundle_metadata.json"))
+
+def get_visualization_functions() -> List[str]:
     """
-    Returns a dictionary of public visualization functions for external use.
+    Returns a list of public function names in this module.
     """
-    return {
-        'plot_error_vs_snr': plot_error_vs_snr,
-        'plot_metric_convergence': plot_metric_convergence,
-        'export_metric_results_to_csv': export_metric_results_to_csv,
-        'generate_error_vs_snr_plot': generate_error_vs_snr_plot,
-        'generate_metric_convergence_plots': generate_metric_convergence_plots,
-        'create_final_results_bundle': create_final_results_bundle,
-        'save_figure': save_figure
-    }
+    return [
+        "set_plot_style",
+        "export_metric_results_to_csv",
+        "generate_error_vs_snr_plot",
+        "generate_metric_convergence_plots",
+        "plot_threshold_marker",
+        "generate_error_vs_snr_plot_from_files",
+        "create_final_results_bundle"
+    ]

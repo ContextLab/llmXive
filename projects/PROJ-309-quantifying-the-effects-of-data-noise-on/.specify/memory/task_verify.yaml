@@ -1,9 +1,2 @@
-T001 Create project structure per implementation plan in `code/` and `tests/`: 1
-T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, pyyaml, nolds, pytest): 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`: 1
-T006 [P] Implement `code/utils/plotting.py` with base plot styles and error-bar visualization helpers: 1
-T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).: 1
-T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).: 1
-T010 [P] [US1] Contract test for trajectory schema in `tests/contract/test_trajectory.py`: 1
-T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).: 2
-T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).: 2
+T037: 2
+T038: 2

@@ -11,9 +11,23 @@ def lorenz_system(t, state, sigma=10.0, rho=28.0, beta=8.0/3.0):
     """
     Computes the derivatives for the Lorenz system.
 
-    dx/dt = sigma * (y - x)
-    dy/dt = x * (rho - z) - y
-    dz/dt = x * y - beta * z
+    Parameters:
+    -----------
+    t : float
+        Current time (unused, but required by solve_ivp).
+    state : array_like
+        Current state [x, y, z].
+    sigma : float
+        Prandtl number.
+    rho : float
+        Rayleigh number.
+    beta : float
+        Geometric factor.
+
+    Returns:
+    --------
+    list
+        Derivatives [dx/dt, dy/dt, dz/dt].
     """
     x, y, z = state
     dxdt = sigma * (y - x)
@@ -25,9 +39,23 @@ def rossler_system(t, state, a=0.2, b=0.2, c=5.7):
     """
     Computes the derivatives for the Rössler system.
 
-    dx/dt = -y - z
-    dy/dt = x + a * y
-    dz/dt = b + z * (x - c)
+    Parameters:
+    -----------
+    t : float
+        Current time (unused, but required by solve_ivp).
+    state : array_like
+        Current state [x, y, z].
+    a : float
+        System parameter a.
+    b : float
+        System parameter b.
+    c : float
+        System parameter c.
+
+    Returns:
+    --------
+    list
+        Derivatives [dx/dt, dy/dt, dz/dt].
     """
     x, y, z = state
     dxdt = -y - z
@@ -35,169 +63,218 @@ def rossler_system(t, state, a=0.2, b=0.2, c=5.7):
     dzdt = b + z * (x - c)
     return [dxdt, dydt, dzdt]
 
-def integrate_system(
-    system_func,
-    initial_state: np.ndarray,
-    t_span: Tuple[float, float],
-    dt: float = 0.01,
-    params: Optional[Dict[str, float]] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+def integrate_system(system_func, initial_state, t_span, dt=0.01, **params):
     """
     Integrates a dynamical system using scipy.integrate.solve_ivp.
 
-    Args:
-        system_func: Function defining the system derivatives.
-        initial_state: Initial condition vector.
-        t_span: Tuple (t_start, t_end).
-        dt: Time step for output sampling.
-        params: Optional dictionary of parameters to pass to system_func.
+    Parameters:
+    -----------
+    system_func : callable
+        The system function (e.g., lorenz_system).
+    initial_state : array_like
+        Initial conditions [x0, y0, z0].
+    t_span : tuple
+        Time interval (t_start, t_end).
+    dt : float
+        Time step for output points.
+    **params : dict
+        Additional parameters for the system function.
 
     Returns:
-        Tuple of (time_array, state_array).
+    --------
+    Trajectory
+        A Trajectory object containing time, state, and metadata.
     """
     t_eval = np.arange(t_span[0], t_span[1], dt)
-    args = tuple(params.values()) if params else ()
-
-    sol = solve_ivp(
-        system_func,
-        t_span,
-        initial_state,
-        t_eval=t_eval,
-        args=args,
-        method='RK45',
-        rtol=1e-9,
-        atol=1e-9
-    )
+    
+    try:
+        sol = solve_ivp(
+            system_func,
+            t_span,
+            initial_state,
+            t_eval=t_eval,
+            args=tuple(params.values()) if params else (),
+            method='RK45',
+            rtol=1e-9,
+            atol=1e-9
+        )
+    except Exception as e:
+        logger.error(f"Integration failed for system {system_func.__name__}: {e}")
+        raise
 
     if not sol.success:
-        logger.warning(f"Integration failed: {sol.message}")
-        raise RuntimeError(f"Integration failed: {sol.message}")
+        msg = f"Integration overflow or failure: {sol.message}"
+        logger.warning(msg)
+        # Log detailed metadata about the failure context
+        logger.warning(f"Integration metadata: t_span={t_span}, initial_state={initial_state}, params={params}")
+        # Raise an error to ensure the pipeline fails loudly rather than returning garbage
+        raise RuntimeError(msg)
 
-    return sol.t, sol.y.T
+    if len(sol.t) < 10:
+        msg = "Integration produced too few points (< 10). Likely overflow or instability."
+        logger.warning(msg)
+        logger.warning(f"Integration metadata: t_span={t_span}, initial_state={initial_state}")
+        raise RuntimeError(msg)
+
+    logger.info(f"Integration successful: {len(sol.t)} points generated.")
+    logger.info(f"Trajectory bounds: t=[{sol.t[0]:.2f}, {sol.t[-1]:.2f}], "
+                f"state_range=[{sol.y.min():.4f}, {sol.y.max():.4f}]")
+
+    return Trajectory(
+        time=sol.t,
+        state=sol.y.T,
+        metadata={
+            'system_name': system_func.__name__,
+            't_start': t_span[0],
+            't_end': t_span[1],
+            'dt': dt,
+            'n_points': len(sol.t),
+            'params': params,
+            'initial_state': initial_state,
+            'success': True
+        }
+    )
 
 def validate_trajectory(trajectory: Trajectory, min_length: int = 1000) -> bool:
     """
-    Validates a trajectory object.
+    Validates a trajectory for NaNs, infinities, and minimum length.
 
-    Checks:
-        - No NaN or Inf values.
-        - Minimum length threshold.
-
-    Args:
-        trajectory: The trajectory to validate.
-        min_length: Minimum required number of time steps.
+    Parameters:
+    -----------
+    trajectory : Trajectory
+        The trajectory to validate.
+    min_length : int
+        Minimum required number of time points.
 
     Returns:
+    --------
+    bool
         True if valid, raises ValueError otherwise.
     """
-    if np.any(np.isnan(trajectory.state)) or np.any(np.isinf(trajectory.state)):
-        raise ValueError("Trajectory contains NaN or Inf values.")
-    if len(trajectory.t) < min_length:
-        raise ValueError(f"Trajectory length ({len(trajectory.t)}) is below minimum ({min_length}).")
+    if np.any(np.isnan(trajectory.state)):
+        msg = "Trajectory contains NaN values."
+        logger.error(msg)
+        logger.error(f"Validation metadata: shape={trajectory.state.shape}, t_span={trajectory.time[0]}-{trajectory.time[-1]}")
+        raise ValueError(msg)
+
+    if np.any(np.isinf(trajectory.state)):
+        msg = "Trajectory contains Inf values."
+        logger.error(msg)
+        logger.error(f"Validation metadata: shape={trajectory.state.shape}, t_span={trajectory.time[0]}-{trajectory.time[-1]}")
+        raise ValueError(msg)
+
+    if len(trajectory.time) < min_length:
+        msg = f"Trajectory too short: {len(trajectory.time)} < {min_length}."
+        logger.error(msg)
+        logger.error(f"Validation metadata: shape={trajectory.state.shape}")
+        raise ValueError(msg)
+
+    logger.info("Trajectory validation passed.")
     return True
 
-def generate_lorenz_trajectory(
-    seed: int,
-    t_end: float = 100.0,
-    dt: float = 0.01,
-    initial_state: Optional[np.ndarray] = None,
-    params: Optional[Dict[str, float]] = None
-) -> Trajectory:
+def generate_lorenz_trajectory(initial_state=None, t_span=(0.0, 100.0), dt=0.01, seed=None) -> Trajectory:
     """
-    Generates a clean Lorenz attractor trajectory.
+    Generates a Lorenz attractor trajectory.
 
-    Args:
-        seed: Random seed for reproducibility (used for initial state if not provided).
-        t_end: End time of integration.
-        dt: Time step.
-        initial_state: Optional initial state. Defaults to random small perturbation.
-        params: Optional system parameters (sigma, rho, beta).
+    Parameters:
+    -----------
+    initial_state : array_like, optional
+        Initial conditions. Defaults to [1.0, 1.0, 1.0].
+    t_span : tuple
+        Time interval.
+    dt : float
+        Time step.
+    seed : int, optional
+        Random seed for reproducibility (mostly for initial state if generated).
 
     Returns:
-        Trajectory object.
+    --------
+    Trajectory
+        The generated trajectory.
     """
-    np.random.seed(seed)
+    if seed is not None:
+        np.random.seed(seed)
+    
+    params = get_system_params('lorenz')
+    sigma = params.get('sigma', 10.0)
+    rho = params.get('rho', 28.0)
+    beta = params.get('beta', 8.0/3.0)
+
     if initial_state is None:
-        initial_state = np.random.rand(3) * 0.1
-    else:
-        initial_state = np.array(initial_state)
+        initial_state = [1.0, 1.0, 1.0]
 
-    default_params = get_system_params('lorenz')
-    if params:
-        default_params.update(params)
-
-    t, state = integrate_system(
+    logger.info(f"Generating Lorenz trajectory with seed={seed}, t_span={t_span}, dt={dt}")
+    logger.info(f"System params: sigma={sigma}, rho={rho}, beta={beta}")
+    
+    trajectory = integrate_system(
         lorenz_system,
         initial_state,
-        (0, t_end),
-        dt,
-        params=default_params
+        t_span,
+        dt=dt,
+        sigma=sigma,
+        rho=rho,
+        beta=beta
     )
-
-    trajectory = Trajectory(
-        system_type='lorenz',
-        seed=seed,
-        t=t,
-        state=state,
-        params=default_params
-    )
-
+    
     validate_trajectory(trajectory)
-    logger.info(f"Generated Lorenz trajectory (seed={seed}, length={len(t)})")
     return trajectory
 
-def generate_rossler_trajectory(
-    seed: int,
-    t_end: float = 100.0,
-    dt: float = 0.01,
-    initial_state: Optional[np.ndarray] = None,
-    params: Optional[Dict[str, float]] = None
-) -> Trajectory:
+def generate_rossler_trajectory(initial_state=None, t_span=(0.0, 100.0), dt=0.01, seed=None) -> Trajectory:
     """
-    Generates a clean Rössler attractor trajectory.
+    Generates a Rössler attractor trajectory.
 
-    Args:
-        seed: Random seed for reproducibility.
-        t_end: End time of integration.
-        dt: Time step.
-        initial_state: Optional initial state.
-        params: Optional system parameters (a, b, c).
+    Parameters:
+    -----------
+    initial_state : array_like, optional
+        Initial conditions. Defaults to [1.0, 1.0, 1.0].
+    t_span : tuple
+        Time interval.
+    dt : float
+        Time step.
+    seed : int, optional
+        Random seed for reproducibility.
 
     Returns:
-        Trajectory object.
+    --------
+    Trajectory
+        The generated trajectory.
     """
-    np.random.seed(seed)
+    if seed is not None:
+        np.random.seed(seed)
+
+    params = get_system_params('rossler')
+    a = params.get('a', 0.2)
+    b = params.get('b', 0.2)
+    c = params.get('c', 5.7)
+
     if initial_state is None:
-        initial_state = np.random.rand(3) * 0.1
-    else:
-        initial_state = np.array(initial_state)
+        initial_state = [1.0, 1.0, 1.0]
 
-    default_params = get_system_params('rossler')
-    if params:
-        default_params.update(params)
+    logger.info(f"Generating Rössler trajectory with seed={seed}, t_span={t_span}, dt={dt}")
+    logger.info(f"System params: a={a}, b={b}, c={c}")
 
-    t, state = integrate_system(
+    trajectory = integrate_system(
         rossler_system,
         initial_state,
-        (0, t_end),
-        dt,
-        params=default_params
-    )
-
-    trajectory = Trajectory(
-        system_type='rossler',
-        seed=seed,
-        t=t,
-        state=state,
-        params=default_params
+        t_span,
+        dt=dt,
+        a=a,
+        b=b,
+        c=c
     )
 
     validate_trajectory(trajectory)
-    logger.info(f"Generated Rössler trajectory (seed={seed}, length={len(t)})")
     return trajectory
 
 def get_generation_functions() -> Dict[str, callable]:
-    """Returns a mapping of system names to their generation functions."""
+    """
+    Returns a dictionary of available generation functions.
+
+    Returns:
+    --------
+    dict
+        Mapping of system name to generation function.
+    """
     return {
         'lorenz': generate_lorenz_trajectory,
         'rossler': generate_rossler_trajectory

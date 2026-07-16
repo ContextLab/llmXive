@@ -4,34 +4,36 @@ import numpy as np
 from enum import Enum
 
 class NoiseType(Enum):
-    GAUSSIAN = "gaussian"
-    QUANTIZATION = "quantization"
+    GAUSSIAN = "Gaussian"
+    UNIFORM_QUANTIZATION = "Uniform Quantization"
 
 @dataclass
 class Trajectory:
-    """Represents a clean trajectory from a dynamical system."""
     system_type: str
     seed: int
-    t: np.ndarray
-    state: np.ndarray
-    params: Dict[str, float]
+    time: np.ndarray
+    x: np.ndarray
+    y: np.ndarray
+    z: np.ndarray
 
 @dataclass
 class NoisyTrajectory:
-    """Represents a trajectory with injected noise."""
     system_type: str
     seed: int
-    noise_type: NoiseType
+    time: np.ndarray
+    x: np.ndarray
+    y: np.ndarray
+    z: np.ndarray
+    noise_x: np.ndarray
+    noise_y: np.ndarray
+    noise_z: np.ndarray
     snr_db: float
-    t: np.ndarray
-    state: np.ndarray
-    clean_state: np.ndarray
-    params: Dict[str, float]
+    noise_type: NoiseType
+    checksum: Optional[str] = None
 
 @dataclass
 class MetricResult:
-    """Represents a computed metric result."""
     metric_name: str
     value: float
-    uncertainty: Optional[float] = None
-    parameters: Optional[Dict[str, Any]] = None
+    error_percent: Optional[float] = None
+    parameters: Dict[str, Any] = field(default_factory=dict)

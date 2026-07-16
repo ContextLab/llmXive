@@ -1,0 +1,13 @@
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or documentation showing that timing logic was added\
+    \ to the pipeline or that the pipeline\u2019s runtime is measured against a 2\u2011\
+    hour CPU budget is present. The required artifact (timing implementation and verification\
+    \ evidence) is missing, so the task is not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required files (`data/results/error_vs_snr.png`, `data/results/final_lookup.csv`,\
+    \ `data/results/critical_threshold_report.json`) was provided; the artifact list\
+    \ is empty, so the task\u2019s deliverables are missing."

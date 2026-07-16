@@ -1,4 +1,4 @@
-3|lorenz parameter system:
+'|attractor integration lorenz parameter standard use':
   quote: "In contrast, for other parameter ranges, the system becomes chaotic. With\
     \ the well-known parameters \u03C3 = 10, \u03C1 = 28, and \u03B2 = \u20608/3\u2060\
     , the solutions never settle down but instead trace out the butterfly-shaped Lorenz\
@@ -6,11 +6,3 @@
   source_id: Lorenz system
   url: https://en.wikipedia.org/wiki/Lorenz_system
   value: 8/3
-'|lorenz parameter system':
-  quote: "In contrast, for other parameter ranges, the system becomes chaotic. With\
-    \ the well-known parameters \u03C3 = 10, \u03C1 = 28, and \u03B2 = \u20608/3\u2060\
-    , the solutions never settle down but instead trace out the butterfly-shaped Lorenz\
-    \ attractor. In this regime, small differences in initial conditions grow exponentially."
-  source_id: Lorenz system
-  url: https://en.wikipedia.org/wiki/Lorenz_system
-  value: '10'

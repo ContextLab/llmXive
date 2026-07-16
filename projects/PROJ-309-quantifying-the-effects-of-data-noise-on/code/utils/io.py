@@ -3,66 +3,62 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-def compute_file_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
+def compute_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
     """
     Compute a checksum for a file.
 
     Args:
-        file_path: Path to the file.
-        algorithm: Hash algorithm to use (e.g., 'sha256', 'md5').
+        file_path: Path to the file to checksum.
+        algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
         Hex digest of the file checksum.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
     hash_func = hashlib.new(algorithm)
-    with open(path, "rb") as f:
+    with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
-def write_json_artifact(data: Any, file_path: Union[str, Path], indent: int = 2) -> None:
+def write_json_artifact(data: Any, file_path: str, indent: int = 2) -> None:
     """
-    Write data to a JSON file.
+    Write a JSON artifact to disk.
 
     Args:
         data: Data to serialize to JSON.
-        file_path: Destination file path.
-        indent: Indentation level for pretty-printing.
+        file_path: Path to write the JSON file.
+        indent: Indentation level for pretty printing.
     """
     path = Path(file_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=indent)
+        json.dump(data, f, indent=indent, default=str)
 
-def export_csv(
-    data: Union[list[Dict[str, Any]], list[list[Any]]],
-    file_path: Union[str, Path],
-    fieldnames: Optional[list[str]] = None
-) -> None:
+def export_csv(data: List[Dict[str, Any]], file_path: str, fieldnames: Optional[List[str]] = None) -> None:
     """
-    Export data to a CSV file.
+    Export a list of dictionaries to a CSV file.
 
     Args:
-        data: List of dictionaries or list of lists.
-        file_path: Destination file path.
-        fieldnames: Column headers if data is a list of dicts.
+        data: List of dictionaries to export.
+        file_path: Path to the output CSV file.
+        fieldnames: Optional list of column names. If None, keys from the first
+                    dictionary are used.
     """
     path = Path(file_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    if not data:
+        # Write empty file if no data
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            pass
+        return
+
+    if fieldnames is None:
+        fieldnames = list(data[0].keys())
+
     with open(path, "w", newline="", encoding="utf-8") as f:
-        if isinstance(data, list) and data and isinstance(data[0], dict):
-            if not fieldnames:
-                fieldnames = list(data[0].keys())
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(data)
-        else:
-            writer = csv.writer(f)
-            writer.writerows(data)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        writer.writerows(data)

@@ -1,0 +1,13 @@
+status: none
+intent: "Python package download Lorenz and R\xF6ssler attractor time series dataset\
+  \ python package dataset"
+required_fields:
+- time
+- x
+- y
+- z
+- system
+- parameters
+cache_key: df92c3b437d4b2f5aaee903627966e879703f9a3a731f8a1695756220977d1a6
+searched_at: '2026-07-16T08:55:38.900444+00:00'
+retry_count: 1

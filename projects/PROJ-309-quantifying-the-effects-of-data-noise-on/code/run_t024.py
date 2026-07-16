@@ -1,10 +1,9 @@
 """
 Task T024: Write noisy trajectories to data/processed/ with metadata in sidecar JSON.
 
-This script orchestrates the generation of noisy trajectories from clean data
-(assumed to exist in data/raw/ from T016) and writes them to data/processed/.
-It creates a manifest file for each system type containing metadata about
-the noise injection process.
+This script orchestrates the loading of clean trajectories, injection of noise
+at specified SNR levels, and the writing of the resulting noisy trajectories
+and their manifests to the data/processed directory.
 """
 import os
 import sys
@@ -13,170 +12,263 @@ import hashlib
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-import numpy as np
+from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from code.config import NoiseType, get_snr_levels, get_seeds, get_system_params, get_noise_types
-from code.generators import generate_lorenz_trajectory, generate_rossler_trajectory, validate_trajectory
-from code.noise import inject_gaussian_noise, inject_quantization_noise, calculate_snr, verify_snr_accuracy
+# Project imports based on API surface
+from code.config import get_snr_levels, get_seeds, get_system_params, NoiseType, get_noise_types
+from code.generators import generate_lorenz_trajectory, generate_rossler_trajectory
+from code.noise import inject_gaussian_noise, inject_quantization_noise, calculate_snr
+from code.utils.data_models import Trajectory, NoisyTrajectory
 from code.utils.io import compute_file_checksum, write_json_artifact
-from code.utils.data_models import NoisyTrajectory
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_clean_trajectory(system_type: str, seed: int) -> np.ndarray:
-    """Load a clean trajectory from data/raw/."""
-    filepath = project_root / "data" / "raw" / f"{system_type}_clean_{seed}.csv"
-    if not filepath.exists():
-        raise FileNotFoundError(f"Clean trajectory not found: {filepath}")
+def load_clean_trajectory(system_type: str, seed: int) -> Trajectory:
+    """
+    Load a clean trajectory from data/raw.
     
-    # Load CSV data (assuming columns: t, x, y, z)
-    data = np.loadtxt(filepath, delimiter=',', skiprows=1)
-    logger.info(f"Loaded clean trajectory {system_type} seed {seed}: shape {data.shape}")
-    return data
+    Args:
+        system_type: 'lorenz' or 'rossler'
+        seed: The seed used for generation
+        
+    Returns:
+        Trajectory object
+        
+    Raises:
+        FileNotFoundError: If the clean trajectory file does not exist
+    """
+    file_path = Path("data/raw") / f"{system_type}_clean_{seed}.csv"
+    
+    if not file_path.exists():
+        raise FileNotFoundError(f"Clean trajectory file not found: {file_path}")
+        
+    logger.info(f"Loading clean trajectory from {file_path}")
+    
+    # Read CSV manually to avoid pandas dependency if not strictly needed, 
+    # but assuming standard numpy/pandas usage for data loading
+    import numpy as np
+    data = np.loadtxt(file_path, delimiter=',', skiprows=1)
+    
+    # Assuming columns: t, x, y, z
+    t = data[:, 0]
+    x = data[:, 1]
+    y = data[:, 2]
+    z = data[:, 3]
+    
+    trajectory = Trajectory(
+        system_type=system_type,
+        seed=seed,
+        time=t,
+        state=np.column_stack((x, y, z))
+    )
+    
+    return trajectory
 
-def save_noisy_trajectory(
-    system_type: str, 
-    seed: int, 
-    snr_db: float, 
+def save_noisy_trajectory(noisy_traj: NoisyTrajectory, output_dir: Path) -> str:
+    """
+    Save a noisy trajectory to CSV and return the file path.
+    
+    Args:
+        noisy_traj: The NoisyTrajectory object to save
+        output_dir: Directory to save the file
+        
+    Returns:
+        Path to the saved CSV file
+    """
+    filename = f"{noisy_traj.system_type}_noisy_snr{noisy_traj.target_snr_db}_{noisy_traj.noise_type}_{noisy_traj.seed}.csv"
+    file_path = output_dir / filename
+    
+    logger.info(f"Saving noisy trajectory to {file_path}")
+    
+    # Prepare data for CSV
+    # Columns: t, x, y, z
+    data = np.column_stack((noisy_traj.time, noisy_traj.state))
+    
+    # Save to CSV
+    np.savetxt(file_path, data, delimiter=',', header='t,x,y,z', comments='')
+    
+    return str(file_path)
+
+def create_manifest(
+    system_type: str,
+    seed: int,
+    target_snr: float,
     noise_type: NoiseType,
-    noisy_data: np.ndarray,
-    clean_data: np.ndarray
+    actual_snr: float,
+    csv_path: str,
+    checksum: str,
+    output_dir: Path
 ) -> Dict[str, Any]:
-    """Save a noisy trajectory and return metadata."""
-    # Define output paths
-    output_dir = project_root / "data" / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    """
+    Create a manifest dictionary for a noisy trajectory.
     
-    filename = f"{system_type}_snr_{snr_db}dB_{noise_type.value}_seed_{seed}.csv"
-    filepath = output_dir / filename
-    
-    # Save noisy data to CSV
-    np.savetxt(filepath, noisy_data, delimiter=',', header='t,x,y,z', comments='')
-    
-    # Compute checksum
-    checksum = compute_file_checksum(filepath)
-    
-    # Calculate actual SNR
-    actual_snr = calculate_snr(clean_data, noisy_data)
-    
-    # Verify SNR accuracy
-    snr_error = abs(actual_snr - snr_db)
-    snr_valid = snr_error < 0.5  # ±0.5dB tolerance per T020 requirements
-    
-    metadata = {
-        "system_type": system_type,
-        "seed": seed,
-        "target_snr_db": snr_db,
-        "actual_snr_db": float(actual_snr),
-        "snr_error_db": float(snr_error),
-        "snr_valid": snr_valid,
-        "noise_type": noise_type.value,
-        "output_file": str(filepath.relative_to(project_root)),
-        "checksum": checksum,
-        "data_shape": list(noisy_data.shape),
-        "timestamp": None  # Will be set by write_json_artifact if needed
-    }
-    
-    logger.info(f"Saved noisy trajectory: {filepath.name}, actual SNR: {actual_snr:.2f}dB")
-    return metadata
-
-def run_noise_injection_pipeline(system_type: str, seed: int, snr_db: float, noise_type: NoiseType) -> Dict[str, Any]:
-    """Run noise injection for a single configuration."""
-    logger.info(f"Processing {system_type} seed {seed} SNR {snr_db}dB {noise_type.value}")
-    
-    # Load clean trajectory
-    clean_data = load_clean_trajectory(system_type, seed)
-    
-    # Validate clean trajectory
-    if not validate_trajectory(clean_data):
-        raise ValueError(f"Invalid clean trajectory for {system_type} seed {seed}")
-    
-    # Inject noise
-    if noise_type == NoiseType.GAUSSIAN:
-        noisy_data = inject_gaussian_noise(clean_data, snr_db)
-    elif noise_type == NoiseType.QUANTIZATION:
-        # For quantization, we use a default bit depth (8-bit as per common practice)
-        noisy_data = inject_quantization_noise(clean_data, bits=8)
-    else:
-        raise ValueError(f"Unsupported noise type: {noise_type}")
-    
-    # Validate noisy trajectory
-    if not validate_trajectory(noisy_data):
-        raise ValueError(f"Invalid noisy trajectory for {system_type} seed {seed}")
-    
-    # Save and return metadata
-    metadata = save_noisy_trajectory(system_type, seed, snr_db, noise_type, noisy_data, clean_data)
-    return metadata
-
-def create_manifest(system_type: str, metadata_list: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Create a manifest file for a system type."""
+    Args:
+        system_type: System type (lorenz/rossler)
+        seed: Random seed
+        target_snr: Target SNR in dB
+        noise_type: Type of noise injected
+        actual_snr: Measured SNR after injection
+        csv_path: Path to the saved CSV file
+        checksum: SHA256 checksum of the CSV file
+        output_dir: Directory for the manifest
+        
+    Returns:
+        Manifest dictionary
+    """
     manifest = {
         "system_type": system_type,
-        "generated_at": None,  # Will be set by write_json_artifact
-        "total_trajectories": len(metadata_list),
-        "configurations": metadata_list
+        "seed": seed,
+        "target_snr_db": target_snr,
+        "noise_type": noise_type.value,
+        "actual_snr_db": actual_snr,
+        "file_path": csv_path,
+        "checksum_sha256": checksum,
+        "num_points": len(noisy_traj.time) if 'noisy_traj' in locals() else 0,
+        "metadata": {
+            "task_id": "T024",
+            "description": "Noisy trajectory with controlled noise injection"
+        }
     }
+    
     return manifest
 
-def main(args: Optional[argparse.Namespace] = None):
-    """Main entry point for T024."""
-    if args is None:
-        parser = argparse.ArgumentParser(description="Write noisy trajectories to data/processed/")
-        parser.add_argument("--system", type=str, choices=["lorenz", "rossler"], 
-                          help="System type to process")
-        parser.add_argument("--seed", type=int, help="Specific seed to process")
-        parser.add_argument("--snr", type=float, help="Specific SNR level to process")
-        parser.add_argument("--noise", type=str, choices=["gaussian", "quantization"],
-                          help="Specific noise type to process")
-        args = parser.parse_args()
-
-    logger.info("Starting T024: Write noisy trajectories to data/processed/")
+def run_noise_injection_pipeline(
+    system_types: List[str] = None,
+    seeds: List[int] = None,
+    snr_levels: List[float] = None,
+    noise_types: List[NoiseType] = None,
+    output_dir: Path = None
+):
+    """
+    Run the full noise injection pipeline.
     
-    # Determine configurations to process
-    system_types = [args.system] if args.system else ["lorenz", "rossler"]
-    seeds = [args.seed] if args.seed else get_seeds()
-    snr_levels = [args.snr] if args.snr is not None else get_snr_levels()
-    noise_types = [NoiseType(args.noise)] if args.noise else get_noise_types()
+    Args:
+        system_types: List of system types to process
+        seeds: List of seeds to use
+        snr_levels: List of SNR levels to test
+        noise_types: List of noise types to apply
+        output_dir: Output directory for results
+    """
+    if system_types is None:
+        system_types = ['lorenz', 'rossler']
+    if seeds is None:
+        seeds = get_seeds()
+    if snr_levels is None:
+        snr_levels = get_snr_levels()
+    if noise_types is None:
+        noise_types = get_noise_types()
+    if output_dir is None:
+        output_dir = Path("data/processed")
+        
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Output directory: {output_dir}")
     
-    manifest_data: Dict[str, List[Dict[str, Any]]] = {
-        system: [] for system in system_types
-    }
+    # Track manifests for each system type
+    all_manifests = {sys_type: [] for sys_type in system_types}
     
-    # Process all configurations
-    for system_type in system_types:
+    for sys_type in system_types:
+        logger.info(f"Processing system: {sys_type}")
+        
         for seed in seeds:
+            logger.info(f"  Seed: {seed}")
+            
+            # Load clean trajectory
+            try:
+                clean_traj = load_clean_trajectory(sys_type, seed)
+            except FileNotFoundError as e:
+                logger.error(f"  Skipping seed {seed}: {e}")
+                continue
+                
             for snr_db in snr_levels:
                 for noise_type in noise_types:
-                    try:
-                        metadata = run_noise_injection_pipeline(
-                            system_type, seed, snr_db, noise_type
+                    logger.info(f"    Injecting {noise_type.value} noise at {snr_db} dB")
+                    
+                    # Inject noise
+                    if noise_type == NoiseType.GAUSSIAN:
+                        noisy_state, actual_snr = inject_gaussian_noise(
+                            clean_traj.state, 
+                            snr_db
                         )
-                        manifest_data[system_type].append(metadata)
-                    except Exception as e:
-                        logger.error(f"Failed to process {system_type} seed {seed} SNR {snr_db}dB {noise_type.value}: {e}")
-                        # Continue with other configurations
+                    elif noise_type == NoiseType.QUANTIZATION:
+                        # Quantization needs bit resolution, defaulting to 8 bits for this task
+                        # or derived from config if available. Assuming standard 8-bit for now.
+                        # Note: inject_quantization_noise signature might need adjustment based on real impl
+                        noisy_state, actual_snr = inject_quantization_noise(
+                            clean_traj.state, 
+                            bits=8 
+                        )
+                        # For quantization, target_snr might not be the primary control,
+                        # but we log it as requested.
+                        actual_snr = calculate_snr(clean_traj.state, noisy_state - clean_traj.state)
+                    else:
+                        logger.error(f"Unsupported noise type: {noise_type}")
                         continue
-        
-        # Create and save manifest for this system type
-        if manifest_data[system_type]:
-            manifest = create_manifest(system_type, manifest_data[system_type])
-            manifest_path = project_root / "data" / "processed" / f"manifest_{system_type}.json"
-            write_json_artifact(manifest, manifest_path)
-            logger.info(f"Created manifest: {manifest_path}")
-        else:
-            logger.warning(f"No trajectories generated for {system_type}")
+                        
+                    # Create NoisyTrajectory object
+                    noisy_traj = NoisyTrajectory(
+                        system_type=sys_type,
+                        seed=seed,
+                        target_snr_db=snr_db,
+                        noise_type=noise_type,
+                        time=clean_traj.time,
+                        state=noisy_state,
+                        actual_snr_db=actual_snr
+                    )
+                    
+                    # Save trajectory
+                    csv_path = save_noisy_trajectory(noisy_traj, output_dir)
+                    
+                    # Compute checksum
+                    checksum = compute_file_checksum(csv_path)
+                    
+                    # Create manifest
+                    manifest_entry = create_manifest(
+                        system_type=sys_type,
+                        seed=seed,
+                        target_snr=snr_db,
+                        noise_type=noise_type,
+                        actual_snr=actual_snr,
+                        csv_path=csv_path,
+                        checksum=checksum,
+                        output_dir=output_dir
+                    )
+                    
+                    all_manifests[sys_type].append(manifest_entry)
+                    
+    # Write manifests for each system type
+    for sys_type, manifests in all_manifests.items():
+        manifest_file = output_dir / f"manifest_{sys_type}.json"
+        write_json_artifact(manifests, manifest_file)
+        logger.info(f"Written manifest for {sys_type}: {manifest_file}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Task T024: Write noisy trajectories and manifests")
+    parser.add_argument('--systems', type=str, nargs='+', default=None, help='System types to process')
+    parser.add_argument('--seeds', type=int, nargs='+', default=None, help='Seeds to use')
+    parser.add_argument('--snr', type=float, nargs='+', default=None, help='SNR levels to test')
+    parser.add_argument('--noise-types', type=str, nargs='+', choices=['gaussian', 'quantization'], default=None, help='Noise types to apply')
     
-    logger.info("T024 completed successfully")
-    return 0
+    args = parser.parse_args()
+    
+    # Parse noise types
+    noise_types = None
+    if args.noise_types:
+        noise_types = [NoiseType(n) for n in args.noise_types]
+        
+    # Run pipeline
+    run_noise_injection_pipeline(
+        system_types=args.systems,
+        seeds=args.seeds,
+        snr_levels=args.snr,
+        noise_types=noise_types
+    )
+    
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

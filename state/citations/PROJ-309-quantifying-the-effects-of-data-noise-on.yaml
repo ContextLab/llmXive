@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 3a50f70791caaa2745e629230176d2808a23fc0c4c5955f7b48a17367a25e541
+  artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Lorenz system - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Lorenz_system
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Lorenz_system
+  verified_at: '2026-07-16T09:05:57.217040Z'
