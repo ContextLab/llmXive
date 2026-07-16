@@ -231,3 +231,94 @@ def test_b3_script_missing_selfheal_is_self_owning(tmp_path: Path) -> None:
         "self-heal must not append a duplicate reconciliation task each round"
     )
     assert second == 0, "a converged self-heal reopens nothing new on the next round"
+
+
+# ---------------------------------------------------------------------------
+# F3 — RNG-metric detector uses identifier TOKENS, not substrings
+# ---------------------------------------------------------------------------
+
+from llmxive.execution.fabrication_guard import (  # noqa: E402
+    _scan_code_rng_metrics,
+    _synthetic_data_authorized,
+    find_synthetic_data_use,
+)
+
+
+def test_f3_rng_metric_name_is_token_matched_not_substring() -> None:
+    """`_METRIC_NAME_RE` matched 'ratio' as a SUBSTRING, so 'concentration',
+    'duration', 'iteration' (all contain 'ratio') were wrongly flagged as
+    fabricated METRICS when assigned from an RNG — but those are simulated INPUT
+    quantities, not reported metrics (live PROJ-475 'concentration'). Token
+    matching flags the real metric names and stops the substring false positives.
+    """
+    # FALSE-POSITIVE names (contain a metric word as a substring only) — NOT flagged.
+    for name in ("concentration", "duration", "iteration", "moderation"):
+        code = f"import numpy as np\n{name} = np.random.normal(0, 1, 100)\n"
+        assert _scan_code_rng_metrics(code, source="sim.py") == [], (
+            f"{name!r} is a simulated input, not a fabricated metric"
+        )
+    # TRUE-POSITIVE metric names — still flagged (detection preserved).
+    for name in ("speedup", "throughput_ratio", "accuracy", "mem_usage"):
+        code = f"import random\n{name} = random.uniform(1.5, 2.0)\n"
+        findings = _scan_code_rng_metrics(code, source="bench.py")
+        assert findings, f"{name!r} assigned from an RNG draw must still be flagged"
+
+
+def test_f3_preserves_proj604_fabricator_pattern() -> None:
+    """The PROJ-604 true positive (a fabricator function returning a bare RNG draw,
+    whose result is assigned to a metric) MUST still fire."""
+    code = (
+        "import random\n"
+        "def simulate_gemm_throughput(n):\n"
+        "    return random.uniform(100, 200)\n"
+        "speedup = simulate_gemm_throughput(4)\n"
+    )
+    findings = _scan_code_rng_metrics(code, source="quant.py")
+    assert any("simulate_gemm_throughput" in f for f in findings)
+    assert any("speedup" in f for f in findings)
+
+
+# ---------------------------------------------------------------------------
+# F2 — simulation-methodology studies are AUTHORIZED to generate their own data
+# ---------------------------------------------------------------------------
+
+
+def _mk_idea(tmp_path: Path, pid: str, idea_text: str) -> Path:
+    proj = tmp_path / "projects" / pid
+    (proj / "idea").mkdir(parents=True, exist_ok=True)
+    (proj / "idea" / "idea.md").write_text(idea_text, encoding="utf-8")
+    return proj
+
+
+def test_f2_authorizes_simulation_methodology_vocab(tmp_path: Path) -> None:
+    """A statistical simulation study legitimately GENERATES its own data as the
+    METHOD. Its idea describes a Monte-Carlo / power / Type-I-error design without
+    the literal 'synthetic data' noun phrase, so the narrow authorizer failed and
+    the study was wrongly fabrication-blocked (live PROJ-427). The expanded
+    authorizer recognises simulation-methodology intent."""
+    for vocab in (
+        "We run a Monte Carlo simulation to establish Type I error rates.",
+        "A power analysis via simulation under the null hypothesis.",
+        "Each simulation batch generates datasets with known ground truth.",
+        "This is a simulation study of estimator bias across 10,000 simulated datasets.",
+    ):
+        proj = _mk_idea(tmp_path, "PROJ-SIM-" + str(abs(hash(vocab)) % 9999), vocab)
+        assert _synthetic_data_authorized(proj) is True, f"should authorize: {vocab!r}"
+
+
+def test_f2_does_not_authorize_realworld_idea(tmp_path: Path) -> None:
+    """A real-world-insight project (no simulation-methodology intent) is NOT
+    authorized to substitute synthetic data — fabrication detection preserved."""
+    proj = _mk_idea(
+        tmp_path, "PROJ-REAL-1",
+        "Predict cognitive decline from resting-state fMRI connectivity in the "
+        "HCP dataset using a regularized regression.",
+    )
+    assert _synthetic_data_authorized(proj) is False
+    # And synthetic input in its code is still surfaced as a finding.
+    (proj / "code").mkdir(exist_ok=True)
+    (proj / "code" / "load.py").write_text(
+        "def load():\n    return make_synthetic_data()  # synthetic data fallback\n",
+        encoding="utf-8",
+    )
+    assert find_synthetic_data_use(proj), "unauthorized synthetic input must still flag"
