@@ -40,3 +40,11 @@ def test_runtime_snapshot_real_composite() -> None:
         assert c.effective_cap == pytest.approx(c.budget_fraction * c.max_budget)
         assert c.available_headroom == max(0.0, c.effective_cap - c.spend)
     assert snap.digest  # non-empty full-snapshot digest
+
+    # every component records provenance (source + true age); a live fetch is age 0
+    assert set(snap.sources) == {"catalog", "local", "credit"}
+    for prov in snap.sources.values():
+        assert prov.source in ("live", "last_known_good", "unavailable")
+        assert prov.age_s >= 0.0
+        if prov.source == "live":
+            assert prov.age_s == 0.0 and prov.observed_at == snap.observed_at

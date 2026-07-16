@@ -60,6 +60,29 @@ class ModelPricing:
 
 
 @dataclass(frozen=True)
+class SnapshotProvenance:
+    """Per-component acquisition provenance: which source the data came from,
+    WHEN it was actually observed, and how stale it is relative to the snapshot.
+
+    FR-004/FR-007 require every decision to record BOTH the source AND the age of
+    each component (catalog / local / credit-guard), so the pure selector can
+    enforce ``max_catalog_age_s`` for high-stakes calls without touching a clock.
+
+    - ``live``: freshly fetched → ``observed_at`` is the snapshot's ``observed_at``
+      and ``age_s == 0.0``.
+    - ``last_known_good``: served from the LKG store after a fetch failure →
+      ``observed_at`` is the ORIGINAL observation time and ``age_s`` its true age.
+    - ``unavailable``: no live fetch and no LKG (cold start) → there is no data,
+      so ``age_s`` is meaningless; ``source`` is authoritative and MUST be checked
+      first (the selector fails closed on ``unavailable`` before reading age).
+    """
+
+    source: SnapshotSource
+    observed_at: datetime
+    age_s: float
+
+
+@dataclass(frozen=True)
 class CreditGuardSnapshot:
     """The credit guard's REAL cap at observation time (mirrors ``credits.py``).
 
@@ -142,10 +165,15 @@ class RuntimeSnapshot:
 
     models: tuple[ModelRef, ...]
     pricing: dict[str, ModelPricing]  # keyed by model_id
+    # ADVISORY only (v1): a freshly-assembled snapshot cannot observe per-backend-
+    # instance breaker state, so ``select`` does NOT rank on health (the tie-break
+    # health rung is inactive; ``execute`` consults live breakers as it walks the
+    # chain). Kept because the approved spec includes it; a shared observable
+    # health registry would later make this authoritative and re-activate the rung.
     health: dict[str, str]  # model_id -> health hint ("ok" | "breaker_open" | ...)
     credit: CreditGuardSnapshot
     observed_at: datetime
-    sources: dict[str, SnapshotSource]  # component -> source ("catalog","credit","local")
+    sources: dict[str, SnapshotProvenance]  # component ("catalog"/"local"/"credit") -> provenance
     digest: str = ""
 
 
@@ -163,12 +191,15 @@ class Candidate:
 class ModelChain:
     """The ordered decision + provenance. Carries the ``call_budget`` it was
     priced against so ``execute`` can enforce it; ``snapshot_digest`` binds the
-    FULL canonical snapshot (not just the catalog)."""
+    FULL canonical snapshot (not just the catalog). ``resolved_at`` is DERIVED
+    from the snapshot (``= snapshot.observed_at``), never a clock call inside the
+    pure ``select`` — preserving determinism + byte-identity (SC-001)."""
 
     candidates: tuple[Candidate, ...]
+    resolved_at: datetime
     call_budget: CallBudget
     snapshot_digest: str
-    snapshot_provenance: dict[str, SnapshotSource]
+    snapshot_provenance: dict[str, SnapshotProvenance]
     selection_policy_version: int
     explanation: tuple[str, ...] = ()
 

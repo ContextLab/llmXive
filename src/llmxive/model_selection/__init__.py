@@ -27,6 +27,7 @@ from llmxive.model_selection.types import (
     ModelRequirement,
     ModelUnavailable,
     RuntimeSnapshot,
+    SnapshotProvenance,
 )
 
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     "ModelRequirement",
     "ModelUnavailable",
     "RuntimeSnapshot",
+    "SnapshotProvenance",
     "runtime_snapshot",
 ]
 

@@ -245,6 +245,10 @@ state/run-log/*/in-progress/
 state/run-log/*/.invalid/
 state/grounding-cache/
 .specify/cache/
+# Model-selection last-known-good cache (spec 026): machine-local runtime cache,
+# rebuilt from live backends each snapshot; its credit component records account
+# balance/spend, which must never be committed.
+state/model_selection/
 
 # Multi-secret env variants used by Dartmouth + HF
 .env.*

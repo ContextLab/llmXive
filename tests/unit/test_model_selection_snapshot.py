@@ -66,26 +66,64 @@ def test_input_and_output_rates_applied_separately() -> None:
     assert worst_case_credits(p, CallBudget(1000, 9999)) == pytest.approx(2.0)
 
 
-def test_runtime_snapshot_is_injectable_now(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Snapshot assembly is deterministic given fixed component fetches (the
-    test seam) — no network required."""
+def _live_credit(now: datetime):
+    from llmxive.model_selection.types import CreditGuardSnapshot
+
+    return CreditGuardSnapshot(
+        balance=100.0, spend=10.0, max_budget=200.0, paid_opt_in=True,
+        budget_fraction=0.75, effective_cap=150.0, available_headroom=140.0,
+        budget_reset_at="2026-07-17T03:45:00Z", observed_at=now, source="live",
+    )
+
+
+def test_runtime_snapshot_is_deterministic_and_provenanced(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """Snapshot assembly is deterministic given fixed live fetches (the test seam)
+    — no network — and every component carries live provenance (source+age)."""
     import llmxive.model_selection.snapshot as snap_mod
-    from llmxive.model_selection.types import CreditGuardSnapshot, ModelRef
+    from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import ModelRef
 
     ref = ModelRef("dartmouth", "https://x", "qwen.qwen3.5-122b", "qwen3.5", "qwen")
     price = {"qwen.qwen3.5-122b": ModelPricing(0.0, 0.0)}
     fixed_now = datetime(2026, 7, 16, tzinfo=UTC)
-    monkeypatch.setattr(snap_mod, "_dartmouth_component", lambda: ([ref], price, "live"))
-    monkeypatch.setattr(snap_mod, "_local_component", lambda: ([], {}, "unavailable"))
-    monkeypatch.setattr(
-        snap_mod,
-        "_credit_component",
-        lambda *, now: CreditGuardSnapshot(
-            0.0, 0.0, 0.0, False, 0.75, 0.0, 0.0, "", now, "unavailable"
-        ),
-    )
-    a = snap_mod.runtime_snapshot(now=fixed_now)
-    b = snap_mod.runtime_snapshot(now=fixed_now)
+    monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
+    monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
+    monkeypatch.setattr(snap_mod, "_fetch_credit", lambda *, now: _live_credit(now))
+
+    store = LKGStore(tmp_path / "lkg.json")
+    a = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
+    b = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
     assert a.digest == b.digest  # same inputs -> same digest
-    assert a.sources == {"catalog": "live", "local": "unavailable", "credit": "unavailable"}
+    assert {k: p.source for k, p in a.sources.items()} == {
+        "catalog": "live", "local": "live", "credit": "live"
+    }
+    assert all(p.age_s == 0.0 and p.observed_at == fixed_now for p in a.sources.values())
     assert a.models[0].model_id == "qwen.qwen3.5-122b"
+    assert a.credit.source == "live"
+
+
+def test_digest_reflects_component_source(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    """Identical model data but a different component source (live vs
+    last_known_good) yields a DIFFERENT digest — the source affects what select
+    admits (FR-007), so it must bind the decision identity."""
+    import llmxive.model_selection.snapshot as snap_mod
+    from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import ModelRef
+
+    ref = ModelRef("dartmouth", "https://x", "qwen.qwen3.5-122b", "qwen3.5", "qwen")
+    price = {"qwen.qwen3.5-122b": ModelPricing(0.0, 0.0)}
+    t0 = datetime(2026, 7, 16, tzinfo=UTC)
+    monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
+    monkeypatch.setattr(snap_mod, "_fetch_credit", lambda *, now: _live_credit(now))
+
+    store = LKGStore(tmp_path / "lkg.json")
+    monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
+    live = snap_mod.runtime_snapshot(now=t0, lkg_store=store)
+    # catalog now fails -> served from LKG (same models, source flips to lkg)
+    monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: None)
+    from_lkg = snap_mod.runtime_snapshot(now=t0, lkg_store=store)
+    assert from_lkg.sources["catalog"].source == "last_known_good"
+    assert {m.model_id for m in from_lkg.models} == {m.model_id for m in live.models}
+    assert live.digest != from_lkg.digest
