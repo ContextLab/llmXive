@@ -162,3 +162,108 @@
   source_type: external
   status: verified
   updated_at: '2026-07-02T11:50:54Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: NIST SN1 dataset ingestion success rate is at least 95%
+  claim_id: c_bbb876cc
+  context: "Independent Test: Running the ingestion script on a known subset of the\
+    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
+    \ with \u226595% success rate and proper stratification."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/NIST_SN1_dataset_ingestion_success_rate_is_at_least_95%25
+  kind: magnitude
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T15:56:10Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN training job completes within 6 hours on 2-core CPU
+  claim_id: c_a4b5ed92
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner, saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training job completes within 6 hours on a 2-core CPU runner, saves\
+    \ model weights, and outputs R\xB2/MAE metrics comparing MPNN to linear regression\
+    \ with statistical significance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:56:55Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Project plan substitutes Gasteiger charges for PM7 due to CPU constraints
+  claim_id: c_9d8b496a
+  context: 'Note on Constitution VI: The Plan explicitly substitutes Gasteiger charges
+    for PM7 to satisfy CPU constraints. This deviation is documented in the Plan''s
+    Constitution Check and is the approved implementation path for this project.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_plan_substitutes_Gasteiger_charges_for_PM7_due_to_CP
+  kind: entity_fact
+  raw_text: The plan explicitly substitutes Gasteiger charges for PM7 to satisfy CPU
+    constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T15:57:15Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/quickstart.md
+  attempts: 1
+  canonical: SN1 kinetic data source is HuggingFace dataset chemistry/dts-sn1
+  claim_id: c_ce41cc75
+  context: This stage fetches real SN1 kinetic data from the HuggingFace dataset chemistry/dts-sn1,
+    canonicalizes SMILES, computes molecular descriptors...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SN1_kinetic_data_source_is_HuggingFace_dataset_chemistry/dts
+  kind: entity_fact
+  raw_text: The pipeline fetches real SN1 kinetic data from the HuggingFace dataset
+    chemistry/dts-sn1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:01:20Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/quickstart.md
+  attempts: 1
+  canonical: Data filtering retains at least 95% of original rows
+  claim_id: c_a549da61
+  context: Run python -m pytest tests/contract/test_dataset_schema.py to verify schema
+    compliance. Check that data/processed/cleaned_sn1.csv contains at least 95% of
+    the original rows after filtering.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_filtering_retains_at_least_95%25_of_original_rows
+  kind: magnitude
+  raw_text: Check that data/processed/cleaned_sn1.csv contains at least 95% of the
+    original rows after filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:01:53Z'

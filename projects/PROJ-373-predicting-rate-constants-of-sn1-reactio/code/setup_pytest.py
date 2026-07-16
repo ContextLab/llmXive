@@ -1,49 +1,65 @@
-"""
-Script to verify pytest installation and configuration.
-Can be run to ensure the test environment is ready.
-"""
 import subprocess
 import sys
 from pathlib import Path
 
 def main():
-    print("Verifying pytest installation...")
+    """
+    Setup pytest configuration and verify installation.
+    This script ensures pytest is installed and creates a basic pytest.ini
+    if it doesn't exist, then runs a quick discovery to verify configuration.
+    """
+    print("Setting up pytest environment...")
+
+    # Ensure pytest is installed
     try:
+        import pytest
+        print(f"pytest version {pytest.__version__} found.")
+    except ImportError:
+        print("Installing pytest...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest", "pytest-cov"])
+        import pytest
+        print(f"pytest version {pytest.__version__} installed.")
+
+    # Create pytest.ini if it doesn't exist
+    root_dir = Path(__file__).resolve().parent.parent
+    pytest_ini = root_dir / "pytest.ini"
+
+    if not pytest_ini.exists():
+        print(f"Creating {pytest_ini}...")
+        content = """[pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+addopts = -v --tb=short
+filterwarnings =
+    ignore::DeprecationWarning
+    ignore::UserWarning
+"""
+        pytest_ini.write_text(content)
+        print(f"Created {pytest_ini}")
+    else:
+        print(f"{pytest_ini} already exists.")
+
+    # Verify configuration by running a dry-run collection
+    print("Verifying pytest configuration...")
+    try:
+        # Run pytest --collect-only to check config without executing tests
         result = subprocess.run(
-            [sys.executable, "-m", "pytest", "--version"],
+            [sys.executable, "-m", "pytest", "--collect-only", "-q"],
+            cwd=root_dir,
             capture_output=True,
-            text=True,
-            check=True
+            text=True
         )
-        print(f"Pytest version: {result.stdout.strip()}")
-    except subprocess.CalledProcessError:
-        print("ERROR: pytest is not installed or not in PATH.")
-        print("Please install it via: pip install pytest jsonschema")
-        return 1
-
-    # Verify schema dependencies
-    try:
-        import jsonschema
-        import yaml
-        print("Dependencies (jsonschema, pyyaml) found.")
-    except ImportError as e:
-        print(f"ERROR: Missing dependency: {e}")
-        return 1
-
-    # Check schema files exist
-    schema_dir = Path("specs/001-predict-sn1-rate-constants/contracts")
-    if not schema_dir.exists():
-        print(f"ERROR: Schema directory not found at {schema_dir}")
-        return 1
-
-    schemas = ["dataset.schema.yaml", "model_output.schema.yaml", "exclusion_report.schema.yaml"]
-    for s in schemas:
-        if not (schema_dir / s).exists():
-            print(f"ERROR: Missing schema file: {schema_dir / s}")
-            return 1
-
-    print("All checks passed. Run 'pytest' to execute tests.")
-    return 0
+        # We don't fail if no tests are found yet, just check for config errors
+        if "ERROR" in result.stderr or "INTERNALERROR" in result.stderr:
+            print(f"Configuration Error:\n{result.stderr}")
+            sys.exit(1)
+        else:
+            print("pytest configuration verified successfully.")
+    except Exception as e:
+        print(f"Error verifying configuration: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

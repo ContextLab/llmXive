@@ -4,49 +4,49 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 
-def stratified_split(df: pd.DataFrame, test_size: float = 0.2, val_size: float = 0.1) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Perform stratified split by substrate class."""
-    if "substrate_class" not in df.columns:
-        raise ValueError("DataFrame must contain 'substrate_class' column")
+# Ensure imports work
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    # First split: train+val vs test
-    train_val, test = train_test_split(
-        df, test_size=test_size, stratify=df["substrate_class"], random_state=42
-    )
+from config import ensure_dirs
+from utils.logger import get_logger
 
-    # Second split: train vs val
-    val_ratio = val_size / (1 - test_size)
-    train, val = train_test_split(
-        train_val, test_size=val_ratio, stratify=train_val["substrate_class"], random_state=42
-    )
+logger = get_logger(__name__)
 
+def stratified_split(df: pd.DataFrame, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Perform stratified split by substrate class.
+    """
+    if 'substrate_class' not in df.columns:
+        # If no substrate class, random split
+        return train_test_split(df, train_ratio, val_ratio, test_ratio)
+    
+    from sklearn.model_selection import train_test_split
+    
+    train, temp = train_test_split(df, train_size=train_ratio, stratify=df['substrate_class'])
+    val, test = train_test_split(temp, train_size=val_ratio/(val_ratio+test_ratio), stratify=temp['substrate_class'])
+    
     return train, val, test
 
-def save_split_datasets(train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame, output_dir: Path):
-    """Save split datasets to CSV files."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    train.to_csv(output_dir / "train.csv", index=False)
-    val.to_csv(output_dir / "val.csv", index=False)
-    test.to_csv(output_dir / "test.csv", index=False)
+def save_split_datasets(train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame):
+    """
+    Save split datasets.
+    """
+    train.to_csv("data/processed/train.csv", index=False)
+    val.to_csv("data/processed/val.csv", index=False)
+    test.to_csv("data/processed/test.csv", index=False)
+    logger.info("Split datasets saved")
 
 def main():
-    """Main entry point for data splitting."""
-    base_dir = Path(__file__).parent.parent.parent
-    processed_dir = base_dir / "data" / "processed"
-    split_dir = base_dir / "data" / "split"
+    parser = argparse.ArgumentParser(description="Split SN1 data")
+    parser.add_argument("--input", type=str, default="data/processed/cleaned_sn1_descriptors.csv")
+    args = parser.parse_args()
 
-    input_path = processed_dir / "cleaned_sn1.csv"
-    if not input_path.exists():
-        print(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    df = pd.read_csv(input_path)
+    ensure_dirs()
+    
+    df = pd.read_csv(args.input)
     train, val, test = stratified_split(df)
-
-    save_split_datasets(train, val, test, split_dir)
-    print(f"Data split saved to {split_dir}")
+    save_split_datasets(train, val, test)
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,10 @@
 rdkit
-torch-cpu
+torch
 scikit-learn
 shap
 pandas
 pyyaml
 datasets
-pytest
 jsonschema
-pytest-json-report
+pytest
+pytest-cov

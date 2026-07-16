@@ -25,8 +25,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `specs/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, torch-cpu, scikit-learn, shap, pandas, pyyaml, datasets)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, torch, scikit-learn, shap, pandas, pyyaml, datasets)
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T007A [P] Create `pytest.ini` configuration file in project root to enable test discovery and coverage reporting. **Deliverable**: `pytest.ini` with `[pytest]` section defining test paths and markers.
 
 ---
 
@@ -109,7 +110,7 @@
  original_smiles:
  type: string
  ```
-- [ ] T007 [P] Configure `pytest` with contract tests against YAML schemas
+- [ ] T007B [P] Implement contract test harness in `tests/contract/`. **Deliverable**: Create `tests/contract/__init__.py` and a base test runner that loads YAML schemas from `contracts/` and validates JSON/CSV data against them. **DEPENDS ON**: T006, T007A.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -123,18 +124,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006)
+- [X] T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006, T007B)
 - [X] T009 [P] [US1] Unit test for SMILES parsing and descriptor calculation in `tests/unit/test_descriptors.py`
 - [X] T010 [P] [US1] Unit test for substrate filtering logic (SN2 removal) in `tests/unit/test_filtering.py`
 
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data/ingest.py` to fetch verified SN1 data. **Primary Source**: HuggingFace dataset `chemistry/dts-sn1`. **Fallback**: UCI `ucimlrepo` SN subset. **Column Mapping**: Map `smiles` -> SMILES, `rate` -> rate_constant, `substrate` -> substrate_class. **Logic**: If HuggingFace columns differ, apply transformation: `rate_constant = abs(row['rate'])`, `substrate_class = row['substrate'].lower()`. Handle missing values by logging to exclusion report.
-- [X] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES and filter primary alkyl halides. **Filtering Rule**: Calculate `steric_index = CalcNumRotatableBonds + steric_component(CalcCrippenDescriptors)`. Filter row if `steric_index > 2.0` OR if substrate class is explicitly 'primary'. Handle missing values.
 - [X] T013 [US1] Implement `code/data/descriptors.py` to compute Gasteiger partial charges and topological indices using RDKit (CPU-only, approved alternative to PM7 per Constitution Amendment).
-- [X] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class (secondary/tertiary) into training, validation, and test sets with a majority portion allocated to training.
-- [ ] T015 [US1] Generate exclusion report for invalid rows and save to `data/processed/exclusion_report.csv` (DEPENDS ON COMPLETION OF BOTH T012 AND T013)
-- [ ] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum
+- [ ] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES and filter primary alkyl halides. **Filtering Rule**: Calculate `steric_hindrance_index = (CalcNumRotatableBonds + CalcMolMR) / MolecularWeight`. Filter row if `steric_hindrance_index > 2.0` OR if substrate class is explicitly 'primary'. **Justification**: This formula is the RDKit-compliant proxy for the spec's "steric hindrance index" requirement, normalized to ensure dimensional consistency with the threshold 2.0. Log all exclusions with reason. **DEPENDS ON**: T011, T013.
+- [ ] T015 [US1] Generate exclusion report for invalid rows and save to `data/processed/exclusion_report.csv`. **Logic**: Aggregate exclusion logs from T012 (filtering) and T013 (descriptor calculation failures) into a single CSV with columns `row_index`, `reason`, `original_smiles`. Ensure the report matches `exclusion_report.schema.yaml`. **DEPENDS ON**: T011, T012, T013.
+- [ ] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum. **DEPENDS ON**: T015.
+- [X] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class (secondary/tertiary) into training, validation, and test sets with a majority portion allocated to training. **DEPENDS ON**: T016.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -148,11 +149,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture. **Constraint**: Layer count MUST be >= 1 and <= 4. **Rationale**: The spec typo 'MPNN with -4 layers' is interpreted as '≤4 layers'; the lower bound >=1 is enforced to prevent a degenerate 0-layer model which would fail the intent of an MPNN. Enforce this via config validation.
+- [X] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture. **Constraint**: Layer count MUST be configurable via `config.py` but bounded between 1 and 4 layers. **Rationale**: The spec requires "configurable" layers, but the plan justifies the 1-4 bound as a CPU-tractable deviation. The code MUST allow configuration within these bounds. Enforce this via config validation.
 - [X] T020 [US2] Implement `code/models/train.py` with random search hyperparameter optimization (≤50 configurations).
 - [X] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and MAE, and perform bootstrap comparison with a sufficient number of resamples against linear regression baseline.
-- [~] T022 [US2] Save best model weights to `artifacts/best_model.pt` and metrics to `artifacts/metrics.json` (DEPENDS ON T016)
-- [~] T023 [US2] Log top hyperparameter configurations and their validation scores to `artifacts/hyperparameter_search.log` (DEPENDS ON T016)
+- [ ] T022 [US2] Save best model weights to `artifacts/best_model.pt` and metrics to `artifacts/metrics.json`. **Selection Logic**: Select the configuration with the highest validation R² from T021's output. **Schema**: `metrics.json` must conform to `model_output.schema.yaml`. **DEPENDS ON**: T016, T020, T021.
+- [ ] T023 [US2] Log top hyperparameter configurations and their validation scores to `artifacts/hyperparameter_search.log`. **Logic**: Identify top 10 configurations based on validation R² from T021. **DEPENDS ON**: T020, T021.
 
 ### Tests for User Story 2
 
@@ -171,12 +172,13 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values, rank the most salient structural features, and create summary plots (DEPENDS ON T022) <!-- ATOMIZE: requested -->
-- [X] T027 [US3] Implement `code/analysis/sensitivity.py` to sweep descriptor inclusion cutoffs over a range of values for BOTH Gasteiger charge magnitude AND topological index thresholds, reporting R²/MAE variance. (DEPENDS ON T022)
-- [ ] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF, flag pairs > 5, and perform PCA if necessary (DEPENDS ON T022)
-- [X] T029 [US3] Implement perturbation study in `code/analysis/interpret.py`. **Method**: Identify top SHAP-ranked descriptors. For each, create a perturbed dataset by **zeroing out the corresponding node features** in the graph input (graph masking), re-run inference, and measure the drop in R². **Constraint**: Do NOT remove columns from feature matrix; use graph masking to align with MPNN architecture. (DEPENDS ON T022)
-- [~] T030 [US3] Generate `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv` (DEPENDS ON T026, T027, T029)
-- [X] T035 [US3] Implement Power Analysis logic in `code/analysis/power.py` to calculate Minimum Detectable Effect (MDE) and sample size requirements based on observed variance, generating `artifacts/power_analysis_report.csv` to satisfy SC-006 (Plan Requirement) (DEPENDS ON T022)
+- [X] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values, rank the most salient structural features, and create summary plots for a single model. **DEPENDS ON**: T020, T021.
+- [ ] T035 [US3] Implement `code/analysis/consistency.py` to re-run training with 5 different random seeds (from `config.py`), generate SHAP rankings for each, and compute the consistency metric (Kendall's Tau) across seeds. **Deliverable**: `artifacts/shap_consistency_report.md` confirming stability. **DEPENDS ON**: T020, T021, T026.
+- [ ] T036 [US3] Implement `code/analysis/sensitivity_runner.py` to orchestrate the re-training of models with different feature subsets for sensitivity analysis. **Logic**: For each threshold in {0.01, 0.02, 0.05, 0.1, 0.2}, filter descriptors based on variance < threshold, re-train the model (using T020 logic), and evaluate. **DEPENDS ON**: T020, T021.
+- [ ] T027 [US3] Implement `code/analysis/sensitivity.py` to aggregate results from T036 and generate the sensitivity report. **Logic**: Sweep thresholds for descriptor inclusion (variance < threshold) over a range of low-to-moderate values. Report resulting R² and MAE variance. **Constraint**: Do NOT modify descriptor magnitudes; only filter which descriptors are included in the model input. **DEPENDS ON**: T036.
+- [X] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF, flag pairs > 5, and perform PCA if necessary (DEPENDS ON T020, T021)
+- [ ] T029 [US3] Implement perturbation study in `code/analysis/interpret.py`. **Method**: Identify top SHAP-ranked descriptors. **Mapping**: Map these global feature indices to the corresponding node feature indices in the graph input tensor. For each, create a perturbed dataset by **zeroing out the corresponding node features** (graph masking), re-run inference, and measure the drop in R². **Justification**: Graph masking is the approved implementation of "feature removal" for MPNNs, satisfying the semantic requirement of FR-008. **Constraint**: Do NOT remove columns from feature matrix; use graph masking to align with MPNN architecture. (DEPENDS ON T020, T021, T026)
+- [ ] T030 [US3] Generate `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv`. **Format**: `sensitivity_report.csv` columns: `cutoff`, `r2`, `mae` (comma-delimited). `perturbation_results.csv` columns: `feature_id`, `original_r2`, `perturbed_r2`, `delta` (comma-delimited). **DEPENDS ON**: T026, T027, T029.
 
 ### Tests for User Story 3
 
@@ -192,8 +194,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T031 [P] Documentation updates in `specs/001-predict-sn1-rate-constants/quickstart.md`
-- [ ] T032 Code cleanup and refactoring of `code/main.py` orchestration script
-- [ ] T033 [P] Run full pipeline integration test on small subset to verify end-to-end flow
+- [X] T032 Code cleanup and refactoring of `code/main.py` orchestration script
+- [ ] T033 [P] Run full pipeline integration test on small subset to verify end-to-end flow. **Dependencies**: T016 (Data), T022 (Model). **Deliverable**: `artifacts/integration_test_report.md` confirming all phases execute without error. **DEPENDS ON**: T016, T022.
 - [ ] T034 [P] Validate `quickstart.md` against actual execution
 
 ---
@@ -213,7 +215,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Strictly depends on T016 (cleaned dataset)**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Strictly depends on T022 (model output)**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Strictly depends on T020/T021 (Training/Evaluation)**
 
 ### Within Each User Story
 
@@ -235,16 +237,16 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (IF T006 is complete):
-# Note: T008 depends on T006, so T006 must finish first.
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py" (DEPENDS ON T006)
+# Launch all tests for User Story 1 together (IF T006, T007B are complete):
+# Note: T008 depends on T006, T007B, so those must finish first.
+Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py" (DEPENDS ON T006, T007B)
 Task: "Unit test for SMILES parsing and descriptor calculation in tests/unit/test_descriptors.py"
 Task: "Unit test for substrate filtering logic in tests/unit/test_filtering.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement code/data/ingest.py to fetch verified SN1 data"
-Task: "Implement code/data/clean.py to canonicalize SMILES and filter"
 Task: "Implement code/data/descriptors.py to compute Gasteiger charges"
+Task: "Implement code/data/clean.py to canonicalize SMILES and filter"
 ```
 
 ---

@@ -1,2 +1,1 @@
-T007 [P] Configure `pytest` with contract tests against YAML schemas: 2
-T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006): 2
+T034: 2

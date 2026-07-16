@@ -4,109 +4,124 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
-from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
 
-def calculate_steric_index(mol: Chem.Mol) -> float:
-    """Calculate steric index for a molecule."""
-    if mol is None:
-        return float('inf')
-    rotatable = rdMolDescriptors.CalcNumRotatableBonds(mol)
-    # Crippen descriptor for steric component (approximation)
+# Ensure imports work
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import ensure_dirs
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+def calculate_steric_index(smiles: str) -> float:
+    """
+    Calculate steric index based on rotatable bonds and Crippen descriptors.
+    """
     try:
-        crippen = Descriptors.MolLogP(mol)  # Using LogP as proxy for steric
-    except:
-        crippen = 0.0
-    return rotatable + abs(crippen)
+        from rdkit import Chem
+        from rdkit.Chem import Descriptors
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return 999.0 # Invalid molecule
+        
+        rotatable = Descriptors.NumRotatableBonds(mol)
+        # Crippen descriptors (LogP, MR) - using MR as a proxy for size/sterics
+        # Note: CalcCrippenDescriptors returns (LogP, MR)
+        crippen = Descriptors.Crippen.MR(mol)
+        
+        # Simple heuristic: steric_index = rotatable + (MR / 10)
+        steric = rotatable + (crippen / 10.0)
+        return steric
+    except Exception as e:
+        logger.warning(f"Error calculating steric index for {smiles}: {e}")
+        return 999.0
 
 def canonicalize_smiles(smiles: str) -> Optional[str]:
-    """Canonicalize a SMILES string."""
+    """
+    Canonicalize SMILES string.
+    """
     try:
+        from rdkit import Chem
         mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            return Chem.MolToSmiles(mol, isomericSmiles=True)
-        return None
-    except:
-        return None
-
-def is_primary_substrate(mol: Chem.Mol) -> bool:
-    """Check if molecule is a primary alkyl halide."""
-    if mol is None:
-        return False
-    # Simple heuristic: count heavy atoms attached to halogen
-    for atom in mol.GetAtoms():
-        if atom.GetAtomicNum() in [9, 17, 35, 53]:  # F, Cl, Br, I
-            neighbors = atom.GetNeighbors()
-            if len(neighbors) == 1 and neighbors[0].GetAtomicNum() == 6:
-                # Check if that carbon is attached to only 1 other carbon
-                carbon = neighbors[0]
-                carbon_neighbors = [n for n in carbon.GetNeighbors() if n.GetAtomicNum() == 6]
-                if len(carbon_neighbors) == 0:
-                    return True
-    return False
-
-def clean_and_filter_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
-    """Clean SMILES and filter primary alkyl halides."""
-    exclusions = []
-    cleaned_rows = []
-
-    for idx, row in df.iterrows():
-        smiles = row.get("smiles", "")
-        if not smiles:
-            exclusions.append({"row_index": idx, "reason": "parsing_error", "original_smiles": ""})
-            continue
-
-        canonical = canonicalize_smiles(smiles)
-        if canonical is None:
-            exclusions.append({"row_index": idx, "reason": "parsing_error", "original_smiles": smiles})
-            continue
-
-        mol = Chem.MolFromSmiles(canonical)
         if mol is None:
-            exclusions.append({"row_index": idx, "reason": "parsing_error", "original_smiles": smiles})
-            continue
+            return None
+        return Chem.MolToSmiles(mol)
+    except Exception:
+        return None
 
-        # Check substrate class
-        substrate_class = row.get("substrate_class", "").lower()
-        if substrate_class == "primary":
-            exclusions.append({"row_index": idx, "reason": "invalid_substrate", "original_smiles": smiles})
-            continue
+def is_primary_substrate(substrate_class: str) -> bool:
+    """
+    Check if substrate is primary.
+    """
+    return substrate_class.lower() == 'primary'
 
-        # Calculate steric index
-        steric = calculate_steric_index(mol)
+def clean_and_filter_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
+    """
+    Clean SMILES and filter primary alkyl halides.
+    """
+    exclusions = []
+    valid_rows = []
+    
+    for idx, row in df.iterrows():
+        smiles = row['smiles']
+        canonical = canonicalize_smiles(smiles)
+        
+        if canonical is None:
+            exclusions.append({
+                'row_index': idx,
+                'reason': 'parsing_error',
+                'original_smiles': smiles
+            })
+            continue
+        
+        # Filter primary
+        if is_primary_substrate(row.get('substrate_class', '')):
+            exclusions.append({
+                'row_index': idx,
+                'reason': 'invalid_substrate',
+                'original_smiles': smiles
+            })
+            continue
+        
+        # Filter by steric index
+        steric = calculate_steric_index(canonical)
         if steric > 2.0:
-            exclusions.append({"row_index": idx, "reason": "invalid_substrate", "original_smiles": smiles})
+            # Depending on spec, this might be a filter or just a descriptor
+            # T012 says: "Filter row if steric_index > 2.0"
+            exclusions.append({
+                'row_index': idx,
+                'reason': 'invalid_substrate', # Using this as a catch-all for steric
+                'original_smiles': smiles
+            })
             continue
-
-        row["smiles"] = canonical
-        cleaned_rows.append(row)
-
-    cleaned_df = pd.DataFrame(cleaned_rows)
-    return cleaned_df, exclusions
+        
+        valid_rows.append({
+            'smiles': canonical,
+            'rate_constant': row['rate_constant'],
+            'substrate_class': row.get('substrate_class', 'tertiary')
+        })
+    
+    return pd.DataFrame(valid_rows), exclusions
 
 def main():
-    """Main entry point for data cleaning."""
-    base_dir = Path(__file__).parent.parent.parent
-    data_dir = base_dir / "data" / "raw"
-    processed_dir = base_dir / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Clean and filter SN1 data")
+    parser.add_argument("--input", type=str, default="data/raw/sn1_raw.csv")
+    parser.add_argument("--output", type=str, default="data/processed/cleaned_sn1.csv")
+    parser.add_argument("--exclusion-output", type=str, default="data/processed/exclusion_report_clean.csv")
+    args = parser.parse_args()
 
-    input_path = data_dir / "raw_sn1_data.csv"
-    if not input_path.exists():
-        print(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    df = pd.read_csv(input_path)
+    ensure_dirs()
+    
+    df = pd.read_csv(args.input)
     cleaned_df, exclusions = clean_and_filter_data(df)
-
-    output_path = processed_dir / "cleaned_sn1_step1.csv"
-    cleaned_df.to_csv(output_path, index=False)
-
-    exclusion_path = processed_dir / "exclusion_report_step1.csv"
-    pd.DataFrame(exclusions).to_csv(exclusion_path, index=False)
-
-    print(f"Cleaned data saved to {output_path}")
-    print(f"Exclusions saved to {exclusion_path}")
+    
+    cleaned_df.to_csv(args.output, index=False)
+    logger.info(f"Cleaned data saved to {args.output} ({len(cleaned_df)} rows)")
+    
+    if exclusions:
+        pd.DataFrame(exclusions).to_csv(args.exclusion_output, index=False)
+        logger.info(f"Exclusion report saved to {args.exclusion_output}")
 
 if __name__ == "__main__":
     main()

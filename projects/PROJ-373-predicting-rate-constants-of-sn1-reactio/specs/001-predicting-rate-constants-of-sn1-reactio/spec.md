@@ -81,7 +81,7 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 
 - **SC-001**: The predictive accuracy (R²) of the MPNN on the held-out test set is measured against the linear regression baseline and a random baseline (See US-2).
 - **SC-002**: The computational feasibility (total runtime) is measured against the CI limit for a standard 2-core CPU environment (See US-2).
-- **SC-003**: The robustness of the model is measured by the variance in R² across the sensitivity sweep of key thresholds over the set {0.01, 0.02, 0.05, 0.1, 0.2} (See US-3).
+- **SC-003**: The robustness of the model is measured by the variance in R² across the sensitivity sweep of key thresholds over a range of small magnitudes. (See US-3).
 - **SC-004**: The validity of structural determinants is measured by the consistency of SHAP feature rankings across different random seeds and the magnitude of performance drop in the perturbation study (See US-3).
 - **SC-005**: The data quality is measured by the percentage of rows successfully processed without exclusion due to parsing or calculation errors, with success defined as ≥ 95% (See US-1).
 
@@ -93,4 +93,4 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 - The dataset size is sufficient to train a shallow MPNN without severe overfitting., or regularization techniques (dropout) will be sufficient to mitigate overfitting.
 - The SN1 reaction mechanism is the dominant pathway for the majority of the dataset entries; entries with competing mechanisms (e.g., SN2) will be filtered or flagged during preprocessing using independent chemical rules.
 - The NIST Reaction Database and Reaxys open subsets provide rate constants in a consistent unit system (e.g., s⁻¹ or M⁻¹s⁻¹) that can be standardized without loss of information.
-- PM7 calculations are out of scope for the initial MVP due to computational constraints but may be added as an optional feature in future iterations if hardware allows.
+- Semi-empirical quantum chemical calculations are out of scope for the initial MVP due to computational constraints but may be added as an optional feature in future iterations if hardware allows.

@@ -1,0 +1,7 @@
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a report, script output, or updated `quickstart.md` showing
+    that the steps run successfully) was provided; the implementer gave no evidence
+    that the quickstart guide was executed and validated. The required validation
+    is therefore missing.
