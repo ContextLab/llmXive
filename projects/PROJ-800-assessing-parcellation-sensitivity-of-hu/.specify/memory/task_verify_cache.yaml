@@ -1,0 +1,8 @@
+T024:
+  c: false
+  h: b4f14c78cb8b1da4b7c32b60d0bb6c70cf7b693ef6c516dac27d73a57fb7ad67
+  r: "The required output file `data/processed/mapping_schaefer_to_aal.npy` does not\
+    \ exist, and the implementation in `code/overlap.py` is incomplete (truncated\
+    \ function, no code that actually generates and saves the mapping). The task\u2019\
+    s core deliverable\u2014a functional mapping function that writes the lookup table\u2014\
+    is missing."

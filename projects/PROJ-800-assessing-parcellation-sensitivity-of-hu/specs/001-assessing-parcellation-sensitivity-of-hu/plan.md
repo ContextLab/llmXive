@@ -4,11 +4,11 @@
 
 ## Summary
 
-This project implements a reproducible pipeline to assess how the identification of "hub" nodes in healthy brain connectomes varies across three distinct parcellation resolutions: AAL-90, Schaefer-200, and Schaefer-400. The system downloads raw fMRI time-series data for a cohort of healthy adults, generates adjacency matrices for each resolution, computes degree and betweenness centrality, defines hubs via a top-10% threshold, and quantifies resilience using **cardinality-normalized** Jaccard/Dice overlap indices (Excess Overlap), Spearman rank correlations (post-spatial alignment), and a Spatial Spin Test for statistical significance. The implementation strictly adheres to CPU-only constraints for GitHub Actions CI.
+This project implements a reproducible pipeline to assess how the identification of "hub" nodes in healthy brain connectomes varies across three distinct parcellation resolutions: AAL, Schaefer-200, and Schaefer-400. The system downloads raw fMRI time-series data for a cohort of healthy adults, generates adjacency matrices for each resolution, computes degree and betweenness centrality, defines hubs via a top-10% threshold, and quantifies resilience using **cardinality-normalized** Jaccard/Dice overlap indices (Excess Overlap), Spearman rank correlations (post-spatial alignment), and a Spatial Spin Test for statistical significance. The implementation strictly adheres to CPU-only constraints for GitHub Actions CI.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `requests`, `scipy`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`); no external DB.  
 **Testing**: `pytest` (unit tests for centrality logic, integration tests for pipeline flow).  
@@ -99,14 +99,14 @@ projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/
   - Generate adjacency matrices for AAL-90, Schaefer-200, Schaefer-400.
 - **Phase 1: Centrality & Hub Definition** (FR-002, FR-003)
   - Compute degree and betweenness centrality.
-  - Define hubs using `floor(N * 0.10)`.
+  - Define hubs using a threshold proportion of the network size, such as `floor(N * p)` where p represents a small fraction..
 - **Phase 2: Overlap & Statistical Validation** (FR-004, FR-005, FR-006)
   - Compute Jaccard/Dice overlap.
   - **Calculate Expected Jaccard for random sets of matching cardinality.**
   - Perform Spatial Spin Test for significance.
   - Calculate Spearman correlation (post-aggregation).
 - **Phase 3: Sensitivity Analysis** (FR-008)
-  - Sweep thresholds {0.08, 0.10, 0.12}.
+  - Sweep thresholds {, 0.10, 0.12}.
   - **Perform fixed-cardinality sweep (e.g., compare top hubs across all resolutions).**
   - Report variation in overlap metrics.
 - **Phase 4: Visualization & Reporting** (FR-007)

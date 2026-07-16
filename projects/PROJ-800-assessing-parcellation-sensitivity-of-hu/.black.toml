@@ -1,0 +1,16 @@
+# Black configuration file
+# Note: Black primarily uses pyproject.toml, but this file can be used
+# if pyproject.toml is not available.
+# See: https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html
+
+line-length = 88
+target-version = ["py311"]
+exclude = '''
+(
+  \.git
+  | \.ruff_cache
+  | data
+  | build
+  | dist
+)
+'''
