@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T21:23:47.107060Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-110-investigating-the-correlation-between-ci
-last_run_id: 1063bcaf-62bc-463f-af8c-53e9828faa3f
+last_run_id: b51c0e74-0033-4c4f-84a4-436750d50571
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci
 title: Investigating the Correlation Between Circadian Gene Expression and Metabolic
   Syndrome Risk
-updated_at: '2026-07-07T13:23:42.266871Z'
+updated_at: '2026-07-16T09:08:38.988458Z'

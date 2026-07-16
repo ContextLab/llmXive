@@ -1,0 +1,125 @@
+# Schema Definition: Metabolic Syndrome Clinical Variables
+# Used to validate input data for ATP-III classification
+# Project: PROJ-110-investigating-the-correlation-between-ci
+
+schema_version: "1.0.0"
+last_updated: "2023-10-27"
+
+dataset_name: "GTEx_Clinical_Metabolic"
+
+required_columns:
+  - name: "sample_id"
+    type: "string"
+    description: "Unique identifier for the donor sample"
+    nullable: false
+    
+  - name: "bmi"
+    type: "float"
+    description: "Body Mass Index (kg/m^2)"
+    nullable: true
+    constraints:
+      min: 10.0
+      max: 70.0
+      unit: "kg/m^2"
+      
+  - name: "waist_circumference"
+    type: "float"
+    description: "Waist circumference (cm)"
+    nullable: true
+    constraints:
+      min: 40.0
+      max: 180.0
+      unit: "cm"
+      
+  - name: "systolic_bp"
+    type: "float"
+    description: "Systolic Blood Pressure (mmHg)"
+    nullable: true
+    constraints:
+      min: 70.0
+      max: 250.0
+      unit: "mmHg"
+      
+  - name: "diastolic_bp"
+    type: "float"
+    description: "Diastolic Blood Pressure (mmHg)"
+    nullable: true
+    constraints:
+      min: 40.0
+      max: 150.0
+      unit: "mmHg"
+      
+  - name: "triglycerides"
+    type: "float"
+    description: "Triglycerides (mg/dL)"
+    nullable: true
+    constraints:
+      min: 20.0
+      max: 1000.0
+      unit: "mg/dL"
+      
+  - name: "hdl_cholesterol"
+    type: "float"
+    description: "High-Density Lipoprotein Cholesterol (mg/dL)"
+    nullable: true
+    constraints:
+      min: 10.0
+      max: 150.0
+      unit: "mg/dL"
+      
+  - name: "glucose"
+    type: "float"
+    description: "Fasting Plasma Glucose (mg/dL)"
+    nullable: true
+    constraints:
+      min: 40.0
+      max: 500.0
+      unit: "mg/dL"
+      
+  - name: "tissue"
+    type: "string"
+    description: "Anatomical tissue source"
+    nullable: false
+    
+  - name: "sex"
+    type: "string"
+    description: "Biological sex (Male/Female)"
+    nullable: false
+    allowed_values:
+      - "Male"
+      - "Female"
+      
+  - name: "age"
+    type: "integer"
+    description: "Donor age at death"
+    nullable: false
+    constraints:
+      min: 20
+      max: 100
+
+classification_criteria:
+  name: "ATP-III"
+  description: "Adult Treatment Panel III criteria for Metabolic Syndrome"
+  threshold_count: 3
+  rules:
+    - name: "Elevated Waist Circumference"
+      condition: "waist_circumference > 102 (Men) OR > 88 (Women)"
+    - name: "Elevated Triglycerides"
+      condition: "triglycerides >= 150 mg/dL"
+    - name: "Reduced HDL"
+      condition: "hdl < 40 (Men) OR < 50 (Women)"
+    - name: "Elevated Blood Pressure"
+      condition: "systolic >= 130 OR diastolic >= 85"
+    - name: "Elevated Fasting Glucose"
+      condition: "glucose >= 100 mg/dL"
+
+output_artifacts:
+  - name: "baseline_labels.csv"
+    path: "data/processed/baseline_labels.csv"
+    description: "Classification of samples as MetS or Control"
+  - name: "feasibility_report.json"
+    path: "data/processed/feasibility_report.json"
+    description: "Statistical power and sample size analysis"
+  - name: "data_availability_gate.json"
+    path: "data/processed/data_availability_gate.json"
+    description: "Gate status for required phenotype columns"

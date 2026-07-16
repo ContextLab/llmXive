@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GTEx Phenotype Data Schema",
+  "description": "Schema for GTEx donor phenotype data including metabolic syndrome criteria",
+  "type": "object",
+  "required": ["sample_id", "bmi", "glucose", "systolic_bp", "diastolic_bp", "triglycerides", "hdl_cholesterol"],
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Unique identifier for the GTEx sample"
+    },
+    "bmi": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Body Mass Index (kg/m^2)"
+    },
+    "glucose": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Fasting glucose level (mg/dL)"
+    },
+    "systolic_bp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Systolic blood pressure (mmHg)"
+    },
+    "diastolic_bp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Diastolic blood pressure (mmHg)"
+    },
+    "triglycerides": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Triglyceride level (mg/dL)"
+    },
+    "hdl_cholesterol": {
+      "type": "number",
+      "minimum": 0,
+      "description": "HDL cholesterol level (mg/dL)"
+    },
+    "age": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Age of donor at time of death"
+    },
+    "sex": {
+      "type": "string",
+      "enum": ["M", "F"],
+      "description": "Biological sex of donor"
+    },
+    "tissue": {
+      "type": "string",
+      "description": "Tissue type from which sample was taken"
+    }
+  }
+}

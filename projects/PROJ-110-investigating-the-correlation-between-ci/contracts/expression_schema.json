@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GTEx Gene Expression Data Schema",
+  "description": "Schema for GTEx gene expression matrix (TPM values)",
+  "type": "object",
+  "required": ["samples", "genes", "expression_matrix"],
+  "properties": {
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of sample IDs (rows in expression matrix)"
+    },
+    "genes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of gene symbols (columns in expression matrix)"
+    },
+    "expression_matrix": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "description": "2D array of TPM values (samples x genes)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Data source (e.g., GTEx v8)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the dataset"
+        },
+        "units": {
+          "type": "string",
+          "description": "Expression units (e.g., TPM)"
+        }
+      }
+    }
+  }
+}

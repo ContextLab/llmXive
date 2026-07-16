@@ -34,7 +34,7 @@ This project implements a statistical analysis pipeline to investigate the corre
 | **III. Data Hygiene** | Raw data downloaded to `data/raw` with checksums; processed data written to `data/processed` with derivation logs; no in-place modification. | **Pass** |
 | **IV. Single Source of Truth** | All statistics in `paper/` (future) derived from `data/processed` tables; no hand-typed numbers. Output formats (CSV/JSON) match `contracts/` schema. | **Pass** |
 | **V. Versioning Discipline** | Artifacts tracked via content hashes; **State Update Mechanism**: The `main.py` pipeline includes a `update_state_hash()` function that reads the content hash of `data/processed/` artifacts and writes them to `state/projects/PROJ-110-...yaml` upon successful completion. | **Pass** |
-| **VI. Clinical Criteria & Gene Panel** | MetS classification strictly follows ATP-III (BMI, Glucose, BP, TG, HDL); Gene panel fixed to PER, CRY1-2, BMAL1, CLOCK, NR1D1, RORα. | **Pass** |
+| **VI. Clinical Criteria & Gene Panel** | MetS classification strictly follows ATP-III (BMI, Glucose, BP, TG, HDL); Gene panel fixed to PER, CRY-2, BMAL1, CLOCK, NR1D1, RORα. | **Pass** |
 | **VII. Statistical Correction** | Benjamini-Hochberg FDR applied to all DE p-values; k-fold CV used for logistic regression. | **Pass** |
 
 ## Project Phases

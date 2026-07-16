@@ -1,0 +1,156 @@
+# Schema for Metabolic Syndrome Classification
+# Based on ATP-III Criteria
+# Project: PROJ-110-investigating-the-correlation-between-ci
+
+version: "1.0"
+description: >
+  Schema defining the structure and constraints for metabolic syndrome
+  clinical variables and classification results.
+
+datasets:
+  raw_clinical_data:
+    source: GTEx v8 Phenotype Data
+    format: csv
+    location: data/raw/gtex_phenotype.csv
+    required_columns:
+      - sample_id
+      - bmi
+      - glucose
+      - systolic_bp
+      - diastolic_bp
+      - triglycerides
+      - hdl_cholesterol
+      - tissue_type
+      - sex
+      - age
+
+    constraints:
+      bmi:
+        type: float
+        min: 0
+        max: 100
+        unit: kg/m^2
+      glucose:
+        type: float
+        min: 0
+        max: 1000
+        unit: mg/dL
+      systolic_bp:
+        type: float
+        min: 0
+        max: 300
+        unit: mmHg
+      diastolic_bp:
+        type: float
+        min: 0
+        max: 200
+        unit: mmHg
+      triglycerides:
+        type: float
+        min: 0
+        max: 2000
+        unit: mg/dL
+      hdl_cholesterol:
+        type: float
+        min: 0
+        max: 200
+        unit: mg/dL
+      tissue_type:
+        type: string
+        non_empty: true
+      sex:
+        type: string
+        allowed_values: ["Male", "Female", "M", "F"]
+      age:
+        type: integer
+        min: 0
+        max: 120
+
+  processed_labels:
+    source: code/data/classifier.py
+    format: csv
+    location: data/processed/baseline_labels.csv
+    columns:
+      - sample_id
+      - bmi_status
+      - glucose_status
+      - bp_status
+      - tg_status
+      - hdl_status
+      - criteria_met_count
+      - metabolic_syndrome_status
+      - tissue_type
+      - sex
+      - age
+
+    constraints:
+      bmi_status:
+        type: string
+        allowed_values: ["Normal", "High"]
+      glucose_status:
+        type: string
+        allowed_values: ["Normal", "High"]
+      bp_status:
+        type: string
+        allowed_values: ["Normal", "High"]
+      tg_status:
+        type: string
+        allowed_values: ["Normal", "High"]
+      hdl_status:
+        type: string
+        allowed_values: ["Normal", "Low"]
+      criteria_met_count:
+        type: integer
+        min: 0
+        max: 5
+      metabolic_syndrome_status:
+        type: string
+        allowed_values: ["Control", "MetS"]
+      tissue_type:
+        type: string
+        non_empty: true
+      sex:
+        type: string
+      age:
+        type: integer
+
+atp_iii_criteria:
+  definition: "ATP-III Metabolic Syndrome requires >= 3 of 5 criteria"
+  thresholds:
+    bmi:
+      high: 30.0
+      unit: kg/m^2
+      description: "Abdominal obesity (BMI >= 30)"
+    glucose:
+      high: 100.0
+      unit: mg/dL
+      description: "Elevated fasting glucose"
+    systolic_bp:
+      high: 130.0
+      unit: mmHg
+      description: "Elevated systolic blood pressure"
+    diastolic_bp:
+      high: 85.0
+      unit: mmHg
+      description: "Elevated diastolic blood pressure"
+    triglycerides:
+      high: 150.0
+      unit: mg/dL
+      description: "Elevated triglycerides"
+    hdl_cholesterol:
+      low: 40.0
+      high: 50.0
+      unit: mg/dL
+      description: "Low HDL cholesterol (<40 for men, <50 for women)"
+      gender_specific: true
+
+data_availability_gate:
+  required_columns:
+    - bmi
+    - glucose
+    - systolic_bp
+    - diastolic_bp
+    - triglycerides
+    - hdl_cholesterol
+  output_file: data/processed/data_availability_gate.json
+  failure_status: "Exploratory - Insufficient Phenotype Data"

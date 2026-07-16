@@ -1,0 +1,74 @@
+# Schema for Gene Expression Data
+# Project: PROJ-110-investigating-the-correlation-between-ci
+
+version: "1.0"
+description: >
+  Schema defining the structure and constraints for gene expression data
+  from GTEx v8.
+
+datasets:
+  raw_expression_matrix:
+    source: GTEx v8 TPM Matrix
+    format: csv
+    location: data/raw/gtex_expression_matrix.csv
+    row_identifier: sample_id
+    column_identifier: gene_symbol
+    expected_columns:
+      - sample_id
+      - gene_symbol
+      - expression_value
+
+    constraints:
+      sample_id:
+        type: string
+        non_empty: true
+      gene_symbol:
+        type: string
+        non_empty: true
+      expression_value:
+        type: float
+        min: 0
+        unit: TPM
+
+  processed_expression_matrix:
+    source: code/data/loader.py (filter_core_genes)
+    format: csv
+    location: data/processed/filtered_expression_matrix.csv
+    columns:
+      - sample_id
+      - gene_symbol
+      - expression_value
+
+    constraints:
+      gene_symbol:
+        allowed_values:
+          - PER1
+          - PER2
+          - PER3
+          - CRY1
+          - CRY2
+          - ARNTL
+          - CLOCK
+          - NR1D1
+          - RORA
+
+core_circadian_genes:
+  description: "List of core circadian clock genes for analysis"
+  genes:
+    - PER1
+    - PER2
+    - PER3
+    - CRY1
+    - CRY2
+    - ARNTL
+    - CLOCK
+    - NR1D1
+    - RORA
+
+data_processing_requirements:
+  missing_value_handling:
+    strategy: "exclude"
+    description: "Samples with missing expression values for any core gene are excluded"
+  normalization:
+    method: "TPM"
+    description: "Transcripts Per Million - already normalized in source"

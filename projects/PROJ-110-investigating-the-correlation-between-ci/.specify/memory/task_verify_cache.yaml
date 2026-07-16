@@ -1,0 +1,7 @@
+T017:
+  c: false
+  h: 8aaffb27a28746ecef162f3e01d0d66f2e1f7e9540203a6ce583edb3be222ada
+  r: The repository lacks the required `data/processed/baseline_labels.csv` file,
+    and the provided excerpt of `code/data/classifier.py` does not show an implementation
+    of a `store_baseline_labels` function that writes to that path. Both the artifact
+    and the expected function are missing, so the task is not satisfied.

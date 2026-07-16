@@ -1,0 +1,41 @@
+# Schema Definition: Circadian Gene Expression Data
+# Used to validate expression matrices
+# Project: PROJ-110-investigating-the-correlation-between-ci
+
+schema_version: "1.0.0"
+last_updated: "2023-10-27"
+
+dataset_name: "GTEx_Expression_Matrix"
+
+matrix_structure:
+  type: "wide_format"
+  index_name: "sample_id"
+  column_type: "gene_symbol"
+  value_type: "TPM"
+  description: "Transcripts Per Million normalized gene expression values"
+
+core_circadian_genes:
+  - "PER1"
+  - "PER2"
+  - "PER3"
+  - "CRY1"
+  - "CRY2"
+  - "BMAL1"
+  - "CLOCK"
+  - "NR1D1"
+  - "RORA"
+  - "RORB"
+  - "RORC"
+  - "DBP"
+  - "TEF"
+  - "HLF"
+
+quality_control:
+  min_samples_per_gene: 20
+  max_missing_values_percent: 10.0
+  min_expression_threshold: 0.1
+
+output_artifacts:
+  - name: "filtered_expression_matrix.csv"
+    path: "data/processed/filtered_expression_matrix.csv"
+    description: "Expression matrix filtered for core circadian genes"

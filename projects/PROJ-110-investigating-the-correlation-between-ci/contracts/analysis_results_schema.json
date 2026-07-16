@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analysis Results Schema",
+  "description": "Schema for differential expression and correlation analysis results",
+  "type": "object",
+  "required": ["analysis_type", "gene", "tissue", "statistics"],
+  "properties": {
+    "analysis_type": {
+      "type": "string",
+      "enum": ["differential_expression", "correlation", "regression"],
+      "description": "Type of analysis performed"
+    },
+    "gene": {
+      "type": "string",
+      "description": "Gene symbol"
+    },
+    "tissue": {
+      "type": "string",
+      "description": "Tissue type analyzed"
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "p_value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Raw p-value"
+        },
+        "adjusted_p_value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "FDR-adjusted p-value"
+        },
+        "effect_size": {
+          "type": "number",
+          "description": "Effect size (e.g., Cohen's d)"
+        },
+        "sample_size_metS": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of MetS samples"
+        },
+        "sample_size_control": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of Control samples"
+        }
+      }
+    },
+    "significance": {
+      "type": "string",
+      "enum": ["significant", "exploratory", "non_significant"],
+      "description": "Significance classification based on FDR threshold"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metabolic Syndrome Classification Schema",
+  "description": "Schema for metabolic syndrome classification results based on ATP-III criteria",
+  "type": "object",
+  "required": ["sample_id", "metabolic_status", "criteria_met"],
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Unique identifier for the GTEx sample"
+    },
+    "metabolic_status": {
+      "type": "string",
+      "enum": ["MetS", "Control"],
+      "description": "Classification status: MetS (≥3 criteria) or Control (<3 criteria)"
+    },
+    "criteria_met": {
+      "type": "object",
+      "properties": {
+        "high_bmi": {
+          "type": "boolean",
+          "description": "BMI ≥ 30 kg/m^2"
+        },
+        "high_glucose": {
+          "type": "boolean",
+          "description": "Glucose ≥ 100 mg/dL or on medication"
+        },
+        "high_triglycerides": {
+          "type": "boolean",
+          "description": "Triglycerides ≥ 150 mg/dL"
+        },
+        "low_hdl": {
+          "type": "boolean",
+          "description": "HDL < 40 mg/dL (men) or < 50 mg/dL (women)"
+        },
+        "high_bp": {
+          "type": "boolean",
+          "description": "Systolic ≥ 130 mmHg or Diastolic ≥ 85 mmHg"
+        }
+      },
+      "required": ["high_bmi", "high_glucose", "high_triglycerides", "low_hdl", "high_bp"]
+    },
+    "criteria_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Number of ATP-III criteria met (0-5)"
+    },
+    "excluded_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for exclusion if sample was not classified"
+    }
+  }
+}
