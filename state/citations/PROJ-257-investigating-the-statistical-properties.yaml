@@ -86,9 +86,20 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-06T03:19:01.161597Z'
-- artifact_hash: 445f3f93ba0d2d24f272a418ea4f0f83c9153d0affa47ab797ccd335611397cb
+- artifact_hash: 4851e7440bf77ee62621c4d4c4bfa3f13652463aedef710914ca32493b9a721d
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pi - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pi
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-07-16T00:50:42.047547Z'
+- artifact_hash: 4851e7440bf77ee62621c4d4c4bfa3f13652463aedef710914ca32493b9a721d
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -96,10 +107,10 @@
   value: 10.5281/zenodo.3966973
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
-  verified_at: '2026-07-06T03:33:31.575298Z'
-- artifact_hash: 445f3f93ba0d2d24f272a418ea4f0f83c9153d0affa47ab797ccd335611397cb
+  verified_at: '2026-07-16T00:50:42.047547Z'
+- artifact_hash: 4851e7440bf77ee62621c4d4c4bfa3f13652463aedef710914ca32493b9a721d
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  cite_id: c-002
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -107,4 +118,4 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-07-06T03:33:31.575298Z'
+  verified_at: '2026-07-16T00:50:42.047547Z'

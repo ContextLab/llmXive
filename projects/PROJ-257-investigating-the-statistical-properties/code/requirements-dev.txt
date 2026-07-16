@@ -1,0 +1,16 @@
+# Core dependencies (pinned in requirements.txt)
+-r requirements.txt
+
+# Development and Tooling
+pytest==7.4.4
+pytest-cov==4.1.0
+black==24.3.0
+ruff==0.3.5
+pre-commit==3.7.0
+
+# Type checking (optional but recommended)
+mypy==1.9.0
+
+# Documentation (optional)
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0

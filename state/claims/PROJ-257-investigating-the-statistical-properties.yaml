@@ -1,0 +1,1586 @@
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: fetch GWTC-1 and GWTC-2 using specific DOIs
+  claim_id: c_5c6bac11
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:02:18Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: create synthetic catalog based on power-law spin distribution hypothesis
+    from GWTC-3 literature
+  claim_id: c_d2c07977
+  context: Implement src/data/generate_synthetic.py to create a catalog based on a
+    'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/generate_synthetic.py to create a catalog based on
+    a 'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:03:35Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: implement Inverse Probability Weighting using detection efficiency curves
+    from Abbott et al. 2021
+  claim_id: c_d3598f73
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST implement Inverse Probability Weighting (IPW) using detection efficiency
+    curves described in standard LVC papers (e.g., Abbott et al. 2021) as a fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:03:40Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-1 DOI 10.5281/zenodo.3966973 and GWTC-2 DOI 10.5281/zenodo.3966974
+  claim_id: c_b3b2e36b
+  context: Implementation for User Story 1
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:02Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Power-law spin distribution hypothesis cited from GWTC-3 literature
+  claim_id: c_f24aedc9
+  context: Implementation for User Story 1b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/data/generate_synthetic.py to create a catalog based on
+    a 'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:02Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting IPW using detection efficiency curves from
+    Abbott et al. 2021
+  claim_id: c_b1defceb
+  context: Implementation for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:09Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier limits 6 hours 7GB RAM 20GB Disk
+  claim_id: c_91493dcf
+  context: 'Goal: Ensure pipeline runs within GitHub Actions free-tier limits'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure pipeline runs within GitHub Actions free-tier limits (\u22646h,\
+    \ \u22647GB RAM, \u226420GB Disk)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:09Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: output/figures contains 2 PNGs at 300 DPI
+  claim_id: c_96db6ee8
+  context: Independent Test for User Story 3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify output/figures/ contains \u22652 PNGs (300 DPI) with annotated\
+    \ divergence regions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:09Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fetch GWTC-1 and GWTC-2 catalogs from Zenodo
+  claim_id: c_1d803aac
+  context: 'Implementation for User Story 1: Implement `src/data/download.py` function
+    to fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+    with unified retry/backoff logic'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:04:30Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Document selection bias correction method (Official LVK vs. Estimated
+    IPW)
+  claim_id: c_c540cc87
+  context: 'Implementation for User Story 2: Implement selection bias handling...
+    Generate `data/results/selection_bias_status.json` documenting the method used
+    (Official LVK vs. Estimated IPW).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Document_selection_bias_correction_method_(Official_LVK_vs.
+  kind: entity_fact
+  raw_text: Generate `data/results/selection_bias_status.json` documenting the method
+    used (Official LVK vs. Estimated IPW)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:07:27Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate synthetic catalog based on Power-law spin distribution from
+    GWTC-3 literature
+  claim_id: c_78ad93b7
+  context: 'Implementation for User Story 1b: Implement `src/data/generate_synthetic.py`
+    to create a catalog based on a ''Power-law spin distribution'' hypothesis (cited
+    from GWTC-3 literature)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/generate_synthetic.py` to create a catalog based on
+    a 'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:07:27Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Power-law spin distribution hypothesis cited from GWTC-3 literature
+  claim_id: c_ac0504da
+  context: Implement src/data/generate_synthetic.py to create a catalog based on a
+    'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create a catalog based on a 'Power-law spin distribution' hypothesis (cited
+    from GWTC-3 literature)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:10:29Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: detection efficiency curves described in Abbott et al. 2021
+  claim_id: c_56542d2d
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply correction using detection efficiency curves described in standard
+    LVC papers (e.g., Abbott et al. 2021) as a fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:10:53Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-1 and GWTC-2 catalog DOIs
+  claim_id: c_d5d16992
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:11:35Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Power-law spin distribution hypothesis source
+  claim_id: c_4c2d3a49
+  context: Implement src/data/generate_synthetic.py to create a catalog based on a
+    'Power-law spin distribution' hypothesis (cited from GWTC-3 literature)
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: cited from GWTC-3 literature
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T00:11:58Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Abbott et al. 2021 LVC detection efficiency curves
+  claim_id: c_d2c66fce
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detection efficiency curves described in standard LVC papers (e.g., Abbott
+    et al. 2021)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:12:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC catalog minimum event count
+  claim_id: c_60308c0a
+  context: "Independent Test: Verify data/raw/gwtc_*.csv exists with \u2265100 valid\
+    \ events and correct checksums."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify data/raw/gwtc_*.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:12:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Simulation catalog minimum event count
+  claim_id: c_ef986ba7
+  context: "Independent Test: Verify data/raw/simulation_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify data/raw/simulation_catalog.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:12:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator minimum event count
+  claim_id: c_5693d2c8
+  context: "Ensure synthetic generator produces \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, component_mass_2"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure synthetic generator produces \u2265100 events"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:12:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Minimum figure count and resolution
+  claim_id: c_fa6b373f
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output/figures/ contains \u22652 PNGs (300 DPI)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:12:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Alpha sensitivity sweep values
+  claim_id: c_40d37bd8
+  context: "Implement src/analysis/sensitivity.py to sweep \u03B1 \u2208 {0.04, 0.05,\
+    \ 0.06} and flag 'borderline' results (FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweep \u03B1 \u2208 {0.04, 0.05, 0.06}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:13:19Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Simulation sample size ratio threshold
+  claim_id: c_076c0694
+  context: Implement logic in src/analysis/power.py to detect if simulation sample
+    size < 50% of observational size
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detect if simulation sample size < 50% of observational size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:13:19Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fetch GWTC-1 and GWTC-2 from Zenodo DOIs 10.5281/zenodo.3966973 and 10.5281/zenodo.3966974
+  claim_id: c_513c91d3
+  context: T013 [P] [US1] Implement src/data/download.py function to fetch GWTC-1
+    (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified
+    retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:14:42Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Perform KS tests on mass_ratio and effective_spin distributions
+  claim_id: c_c45c8330
+  context: 'T029 [US2] Implement src/analysis/ks_test.py to perform KS tests on mass_ratio
+    and effective_spin distributions. Dependency: This task requires T017 (Event-Level
+    Bootstrapping) to be complete.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_KS_tests_on_mass_ratio_and_effective_spin_distributi
+  kind: entity_fact
+  raw_text: Implement src/analysis/ks_test.py to perform KS tests on mass_ratio and
+    effective_spin distributions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:15:33Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Apply Inverse Probability Weighting using detection efficiency curves
+    from Abbott et al. 2021
+  claim_id: c_41b26d82
+  context: 'T032 [US2] Implement selection bias handling in src/analysis/ks_test.py
+    (FR-016): Attempt to load LVK selection files. If present, apply correction. If
+    LVK files are missing, MUST implement Inverse Probability Weighting (IPW) using
+    detection efficiency curves described in standard LVC papers (e.g., Abbott et
+    al. 2021) as a fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Inverse Probability Weighting (IPW) using detection efficiency
+    curves described in standard LVC papers (e.g., Abbott et al. 2021)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:16:01Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate synthetic catalog based on Power-law spin distribution hypothesis
+  claim_id: c_5725313a
+  context: T022 [US1b] Implement src/data/generate_synthetic.py to create a catalog
+    based on a 'Power-law spin distribution' hypothesis ({{claim:c_4c2d3a49}} (pi,
+    https://en.wikipedia.org/wiki/Pi))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_catalog_based_on_Power-law_spin_distribut
+  kind: entity_fact
+  raw_text: Create a catalog based on a Power-law spin distribution hypothesis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:16:05Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fetch GWTC-1 and GWTC-2 using DOIs 10.5281/zenodo.3966973 and 10.5281/zenodo.3966974
+  claim_id: c_d77cb54d
+  context: Phase 3, Implementation for User Story 1, Task T013
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:16:33Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate synthetic black hole population using power-law spin distribution
+    hypothesis
+  claim_id: c_fb071ce8
+  context: Phase 4, Implementation for User Story 1b, Task T022
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_black_hole_population_using_power-law_spi
+  kind: entity_fact
+  raw_text: Implement `src/data/generate_synthetic.py` to create a catalog based on
+    a 'Power-law spin distribution' hypothesis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:16:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Use Inverse Probability Weighting with detection efficiency curves from
+    Abbott et al. 2021 for selection bias correction
+  claim_id: c_a1275e8a
+  context: Phase 5, Implementation for User Story 2, Task T032
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Inverse Probability Weighting (IPW) using detection efficiency
+    curves described in standard LVC papers (e.g., Abbott et al. 2021) as a fallback
+    for selection bias handling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:17:11Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: fetch GWTC-1 DOI 10.5281/zenodo.3966973 and GWTC-2 DOI 10.5281/zenodo.3966974
+  claim_id: c_2f92c531
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:18:15Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: create catalog based on Power-law spin distribution hypothesis
+  claim_id: c_52b1a7b4
+  context: Implement src/data/generate_synthetic.py to create a catalog based on a
+    'Power-law spin distribution' hypothesis ({{claim:c_4c2d3a49}} (pi, https://en.wikipedia.org/wiki/Pi))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_catalog_based_on_Power-law_spin_distribution_hypothes
+  kind: entity_fact
+  raw_text: Implement src/data/generate_synthetic.py to create a catalog based on
+    a Power-law spin distribution hypothesis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:18:19Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: use detection efficiency curves from Abbott et al. 2021 for IPW
+  claim_id: c_9f3d90b1
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Inverse Probability Weighting (IPW) using detection efficiency
+    curves described in standard LVC papers (e.g., Abbott et al. 2021) as a fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:18:50Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: verify at least 100 valid events in GWTC CSV
+  claim_id: c_fab2ca3a
+  context: "Independent Test: Verify data/raw/gwtc_*.csv exists with \u2265100 valid\
+    \ events and correct checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_100_valid_events_in_GWTC_CSV
+  kind: magnitude
+  raw_text: "Verify data/raw/gwtc_*.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:19:39Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: generate at least 100 synthetic events
+  claim_id: c_f299b31f
+  context: "Ensure synthetic generator produces \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, component_mass_2"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_synthetic_events
+  kind: magnitude
+  raw_text: "Ensure synthetic generator produces \u2265100 events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:20:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: verify at least 100 valid events in simulation CSV
+  claim_id: c_26255760
+  context: "Independent Test: Verify data/raw/simulation_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_100_valid_events_in_simulation_CSV
+  kind: magnitude
+  raw_text: "Verify data/raw/simulation_catalog.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:21:14Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: verify at least 2 PNG figures at 300 DPI
+  claim_id: c_ca63bcbf
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    candidates:
+    - - Verify at least 2 PNG figures at
+      - 300.0
+    - - Create account Log in Verify at least
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_2_PNG_figures_at_300_DPI
+  kind: magnitude
+  raw_text: "Verify output/figures/ contains \u22652 PNGs with 300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T00:22:08Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: verify pipeline runs within 6 hours, 7 GB RAM, and 20 GB disk
+  claim_id: c_86f9c0e1
+  context: "Goal: Ensure pipeline runs within GitHub Actions free-tier limits (\u2264\
+    6h, \u22647GB RAM, \u226420GB Disk)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure pipeline runs within GitHub Actions free-tier limits (\u22646h,\
+    \ \u22647GB RAM, \u226420GB Disk)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:22:08Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline timeout 360 minutes
+  claim_id: c_7e86adae
+  context: Configure .github/workflows/ci.yml to run the pipeline with timeout-minutes=360
+    and resource constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runs with timeout-minutes=360 and resource constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:23:33Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: alpha thresholds default 0.04 0.05 0.06
+  claim_id: c_460ef196
+  context: Create src/config.py defining paths, random seeds (42), and alpha_thresholds
+    defaults. The configuration MUST define alpha_thresholds as a default value (e.g.,
+    [0.04, 0.05, 0.06]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines alpha_thresholds as a default value of [0.04,
+    0.05, 0.06].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:24:11Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-1 DOI 10.5281/zenodo.3966973
+  claim_id: c_2e1a1874
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: GWTC-1 is available at DOI 10.5281/zenodo.3966973.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:24:14Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-2 DOI 10.5281/zenodo.3966974
+  claim_id: c_423c8e28
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: GWTC-2 is available at DOI 10.5281/zenodo.3966974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:24:16Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: synthetic generator produce 100 events
+  claim_id: c_eaf13129
+  context: "Ensure synthetic generator produces \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, component_mass_2"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produce_100_events
+  kind: magnitude
+  raw_text: The synthetic generator must produce at least 100 events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:24:55Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: validation ensure 100 valid events
+  claim_id: c_1f89b589
+  context: "Implement validation in src/data/preprocess.py to ensure \u2265100 valid\
+    \ events remain; fail with explicit error if not"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_ensure_100_valid_events
+  kind: magnitude
+  raw_text: The validation must ensure at least 100 valid events remain.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:25:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep alpha 0.04 0.05 0.06
+  claim_id: c_d2c12176
+  context: "Implement src/analysis/sensitivity.py to sweep \u03B1 \u2208 {0.04, 0.05,\
+    \ 0.06} and flag borderline results (FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep logic must implement alpha values of 0.04, 0.05,
+    and 0.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:26:15Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline exit code 1 on resource breach
+  claim_id: c_3367e532
+  context: If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a [RESOURCE_BREACH]
+    message with the specific metric and value, then exit with code 1 to signal failure,
+    ensuring hard constraints (FR-011) are enforced.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must exit with code 1 if time, RAM, or Disk thresholds are
+    exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:27:13Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: selection bias correction Abbott et al 2021
+  claim_id: c_902f6295
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Selection bias correction should use detection efficiency curves described
+    in Abbott et al. 2021 if LVK files are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:27:34Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: simulation sample size 50% of observational
+  claim_id: c_5034021d
+  context: Implement logic in src/analysis/power.py to detect if simulation sample
+    size < 50% of observational size
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_sample_size_50%25_of_observational
+  kind: magnitude
+  raw_text: The simulation sample size must be at least 50% of the observational size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:28:25Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: figures saved as PNG with 300 DPI
+  claim_id: c_a3b72236
+  context: "Ensure all figures saved as PNG with \u2265300 DPI resolution"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figures_saved_as_PNG_with_300_DPI
+  kind: magnitude
+  raw_text: The figures must be saved as PNG with at least 300 DPI resolution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:29:11Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: output figures directory contains 2 PNGs
+  claim_id: c_cf1a07eb
+  context: "Verify output/figures/ contains \u22652 PNGs (300 DPI) with annotated\
+    \ divergence regions."
+  evidence:
+    entailment_evidence: Output figures directory contains 2 PNGs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Output_figures_directory_contains_2_PNGs
+  kind: magnitude
+  raw_text: The output/figures directory must contain at least 2 PNGs.
+  resolved_value: output figures directory contains 2 PNGs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T00:29:13Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 6 hours 7GB RAM 20GB Disk
+  claim_id: c_1a318e50
+  context: "Ensure pipeline runs within GitHub Actions free-tier limits (\u22646h,\
+    \ \u22647GB RAM, \u226420GB Disk)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours, 7GB RAM, and 20GB Disk limits on
+    GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:29:49Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fetch GWTC-1 and GWTC-2 catalogs using DOIs 10.5281/zenodo.3966973 and
+    10.5281/zenodo.3966974
+  claim_id: c_4520a7e1
+  context: Implementation for User Story 1, Task T013
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:30:15Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify GWTC catalog contains at least 100 valid events
+  claim_id: c_9742731a
+  context: User Story 1 Independent Test
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_GWTC_catalog_contains_at_least_100_valid_events
+  kind: magnitude
+  raw_text: "Independent Test: Verify `data/raw/gwtc_*.csv` exists with \u2265100\
+    \ valid events and correct checksums."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:30:55Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify simulation catalog contains at least 100 valid events
+  claim_id: c_535dfd6e
+  context: User Story 1b Independent Test
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_simulation_catalog_contains_at_least_100_valid_events
+  kind: magnitude
+  raw_text: "Independent Test: Verify `data/raw/simulation_catalog.csv` exists with\
+    \ \u2265100 valid events and matching schema."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:31:33Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify output contains at least 2 PNG figures at 300 DPI
+  claim_id: c_7c4acf14
+  context: User Story 3 Independent Test
+  evidence:
+    candidates:
+    - - PNG figures at
+      - 300.0
+    - - Verify output contains at least
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_output_contains_at_least_2_PNG_figures_at_300_DPI
+  kind: magnitude
+  raw_text: "Independent Test: Verify `output/figures/` contains \u22652 PNGs (300\
+    \ DPI) with annotated divergence regions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T00:32:21Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline must run within 6 hours, 7GB RAM, and 20GB Disk limits
+  claim_id: c_01c2c8ba
+  context: User Story 0 Goal
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Ensure pipeline runs within GitHub Actions free-tier limits (\u2264\
+    6h, \u22647GB RAM, \u226420GB Disk)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:32:21Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC catalog data/raw/gwtc_*.csv contains at least 100 valid events
+  claim_id: c_2bfea26a
+  context: "Independent Test: Verify data/raw/gwtc_*.csv exists with \u2265100 valid\
+    \ events and correct checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GWTC_catalog_data/raw/gwtc_*.csv_contains_at_least_100_valid
+  kind: magnitude
+  raw_text: "Verify data/raw/gwtc_*.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:33:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Simulation catalog data/raw/simulation_catalog.csv contains at least
+    100 valid events
+  claim_id: c_25830a0e
+  context: "Independent Test: Verify data/raw/simulation_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_catalog_data/raw/simulation_catalog.csv_contains
+  kind: magnitude
+  raw_text: "Verify data/raw/simulation_catalog.csv exists with \u2265100 valid events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:33:07Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 100 events
+  claim_id: c_e01c4ef4
+  context: "Ensure synthetic generator produces \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, component_mass_2"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_100_events
+  kind: magnitude
+  raw_text: "Ensure synthetic generator produces \u2265100 events"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:33:09Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Simulation sample size is less than 50% of observational size
+  claim_id: c_072a9cac
+  context: Implement logic in src/analysis/power.py to detect if simulation sample
+    size < 50% of observational size
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_sample_size_is_less_than_50%25_of_observational_siz
+  kind: magnitude
+  raw_text: detect if simulation sample size < 50% of observational size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:34:29Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Figures saved as PNG with at least 300 DPI resolution
+  claim_id: c_c4235f15
+  context: "Ensure all figures saved as PNG with \u2265300 DPI resolution"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figures_saved_as_PNG_with_at_least_300_DPI_resolution
+  kind: magnitude
+  raw_text: "figures saved as PNG with \u2265300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:35:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Output figures directory contains at least 2 PNG files
+  claim_id: c_ec83ae99
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_figures_directory_contains_at_least_2_PNG_files
+  kind: magnitude
+  raw_text: "Verify output/figures/ contains \u22652 PNGs"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:36:18Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline runs within GitHub Actions free-tier limits of 6 hours, 7 GB
+    RAM, and 20 GB Disk
+  claim_id: c_7d47757f
+  context: "Goal: Ensure pipeline runs within GitHub Actions free-tier limits (\u2264\
+    6h, \u22647GB RAM, \u226420GB Disk)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pipeline runs within GitHub Actions free-tier limits (\u22646h, \u2264\
+    7GB RAM, \u226420GB Disk)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:36:18Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting uses detection efficiency curves from Abbott
+    et al. 2021
+  claim_id: c_0dcf8121
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply correction using detection efficiency curves described in standard
+    LVC papers (e.g., Abbott et al. 2021)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:36:56Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: fetch GWTC-1 and GWTC-2 using specific DOIs
+  claim_id: c_8760a2a0
+  context: Phase 3, Implementation for User Story 1, Task T013
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:37:17Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 3
+  canonical: GWTC-1 DOI 10.5281/zenodo.3966973 and GWTC-2 DOI 10.5281/zenodo.3966974
+  claim_id: c_fe8c40e1
+  context: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:38:28Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fallback to synthetic catalog if external BBH population synthesis source
+    fails
+  claim_id: c_badee404
+  context: Implement fallback logic in src/data/download.py to generate synthetic
+    catalog if external source fails
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_synthetic_catalog_if_external_BBH_population_syn
+  kind: entity_fact
+  raw_text: Implement fallback logic in src/data/download.py to generate synthetic
+    catalog if external source fails
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:39:06Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic catalog based on Power-law spin distribution hypothesis
+  claim_id: c_b3572615
+  context: Implement src/data/generate_synthetic.py to create a catalog based on a
+    'Power-law spin distribution' hypothesis
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_catalog_based_on_Power-law_spin_distribution_hypot
+  kind: entity_fact
+  raw_text: Implement src/data/generate_synthetic.py to create a catalog based on
+    a 'Power-law spin distribution' hypothesis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:39:10Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting (IPW) using detection efficiency curves
+    from Abbott et al. 2021
+  claim_id: c_b287374f
+  context: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement selection bias handling in src/analysis/ks_test.py using Inverse
+    Probability Weighting (IPW) using detection efficiency curves described in standard
+    LVC papers (e.g., Abbott et al. 2021) as a fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:39:48Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Fetch GWTC-1 from DOI 10.5281/zenodo.3966973 and GWTC-2 from DOI 10.5281/zenodo.3966974
+  claim_id: c_28f600d6
+  context: 'Task T013 in Phase 3: User Story 1 - Download and Preprocess GWTC Catalogs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement src/data/download.py function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973)
+    AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:41:00Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Perform Kolmogorov-Smirnov tests on mass_ratio and effective_spin distributions
+  claim_id: c_e3fcd863
+  context: 'Task T029 in Phase 5: User Story 2 - Statistical Analysis'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Kolmogorov-Smirnov_tests_on_mass_ratio_and_effective
+  kind: entity_fact
+  raw_text: Implement src/analysis/ks_test.py to perform KS tests on mass_ratio and
+    effective_spin distributions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:41:05Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate ks_test_results.json with statistics, adjusted p-values, and
+    significance flags
+  claim_id: c_0d37e098
+  context: 'Task T033 in Phase 5: User Story 2 - Statistical Analysis'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_ks_test_results.json_with_statistics,_adjusted_p-va
+  kind: entity_fact
+  raw_text: Generate output/results/ks_test_results.json with all statistics, adjusted
+    p-values, and significance flags
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:41:37Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate power_analysis.json with minimum_detectable_effect_size, sample
+    size ratios, and power estimates
+  claim_id: c_bc5f3339
+  context: 'Task T038 in Phase 6: User Story 2b & 2c - Power Analysis & Limitations'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_power_analysis.json_with_minimum_detectable_effect
+  kind: entity_fact
+  raw_text: Generate output/results/power_analysis.json containing MDES values (explicitly
+    named minimum_detectable_effect_size), sample size ratios, and power estimates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:42:40Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify output/figures contains at least 2 PNGs at 300 DPI with annotated
+    divergence regions
+  claim_id: c_73eb3750
+  context: 'Independent Test for Phase 7: User Story 3 - Visualization & Reporting'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output/figures_contains_at_least_2_PNGs_at_300_DPI_wi
+  kind: magnitude
+  raw_text: "Verify output/figures/ contains \u22652 PNGs (300 DPI) with annotated\
+    \ divergence regions"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:43:26Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 100 events with mass_ratio, effective_spin,
+    component_mass_1, component_mass_2
+  claim_id: c_3660f46e
+  context: 'Task T023 in Phase 4: User Story 1b - Download/Generate Simulation Population'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_100_events_with_mass_r
+  kind: magnitude
+  raw_text: "Ensure synthetic generator produces \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, component_mass_2"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:44:13Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify data/raw/gwtc_*.csv exists with at least 100 valid events and
+    correct checksums
+  claim_id: c_577a41c8
+  context: 'Independent Test for Phase 3: User Story 1 - Download and Preprocess GWTC
+    Catalogs'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_data/raw/gwtc_*.csv_exists_with_at_least_100_valid_ev
+  kind: magnitude
+  raw_text: "Verify data/raw/gwtc_*.csv exists with \u2265100 valid events and correct\
+    \ checksums"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:44:47Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify data/raw/simulation_catalog.csv exists with at least 100 valid
+    events and matching schema
+  claim_id: c_be8603e8
+  context: 'Independent Test for Phase 4: User Story 1b - Download/Generate Simulation
+    Population'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_data/raw/simulation_catalog.csv_exists_with_at_least
+  kind: magnitude
+  raw_text: "Verify data/raw/simulation_catalog.csv exists with \u2265100 valid events\
+    \ and matching schema"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:45:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Validate that at least 100 valid events remain in preprocessing
+  claim_id: c_be969d2e
+  context: 'Task T016 in Phase 3: User Story 1 - Download and Preprocess GWTC Catalogs'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_that_at_least_100_valid_events_remain_in_preprocess
+  kind: magnitude
+  raw_text: "Implement validation in src/data/preprocess.py to ensure \u2265100 valid\
+    \ events remain"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:46:06Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure CI pipeline with timeout of 360 minutes
+  claim_id: c_d5ed2fa9
+  context: 'Task T047 in Phase 1: Setup (Shared Infrastructure)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure .github/workflows/ci.yml to run the pipeline with timeout-minutes=360
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:46:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline runs within GitHub Actions free-tier limits of 6 hours, 7GB
+    RAM, and 20GB Disk
+  claim_id: c_41d07024
+  context: 'Goal for Phase 8: User Story 0 - CI/CD Constraints & Performance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure pipeline runs within GitHub Actions free-tier limits (\u22646h,\
+    \ \u22647GB RAM, \u226420GB Disk)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:46:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure random seed to 42
+  claim_id: c_38975274
+  context: 'Task T006 in Phase 2: Foundational (Blocking Prerequisites)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config.py defining paths, random seeds (42), and alpha_thresholds
+    defaults
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:47:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Define alpha_thresholds default values as 0.04, 0.05, and 0.06
+  claim_id: c_3fa4a4b6
+  context: 'Task T006 in Phase 2: Foundational (Blocking Prerequisites)'
+  evidence:
+    asserted: '0.04'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement src/config.py defining alpha_thresholds as a default value (e.g.,
+    [0.04, 0.05, 0.06])
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T00:47:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Sweep alpha values 0.04, 0.05, and 0.06 for sensitivity analysis
+  claim_id: c_e2595eaf
+  context: 'Task T031 in Phase 5: User Story 2 - Statistical Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement src/analysis/sensitivity.py to sweep \u03B1 \u2208 {0.04, 0.05,\
+    \ 0.06} and flag borderline results"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:47:39Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Attempt to fetch dedicated BBH population synthesis catalog from Zenodo
+    or Community Repo
+  claim_id: c_c51026fe
+  context: 'Task T020 in Phase 4: User Story 1b - Download/Generate Simulation Population'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Attempt_to_fetch_dedicated_BBH_population_synthesis_catalog
+  kind: entity_fact
+  raw_text: Implement src/data/download.py function to attempt fetching a dedicated
+    BBH population synthesis catalog (e.g., from Zenodo/Community Repo)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:48:18Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Detect if simulation sample size is less than 50% of observational size
+  claim_id: c_2fe7f889
+  context: 'Task T037 in Phase 6: User Story 2b & 2c - Power Analysis & Limitations'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Detect_if_simulation_sample_size_is_less_than_50%25_of_observa
+  kind: magnitude
+  raw_text: Implement src/analysis/power.py to detect if simulation sample size <
+    50% of observational size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T00:49:07Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Create 1D KDE plots for mass_ratio and effective_spin overlaid distributions
+  claim_id: c_a8cea2cf
+  context: 'Task T042 in Phase 7: User Story 3 - Visualization & Reporting'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_1D_KDE_plots_for_mass_ratio_and_effective_spin_overla
+  kind: entity_fact
+  raw_text: Implement src/viz/plots.py to create 1D KDE plots for mass_ratio and effective_spin
+    (overlaid distributions)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:49:51Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Save all figures as PNG with at least 300 DPI resolution
+  claim_id: c_cb211d99
+  context: 'Task T045 in Phase 7: User Story 3 - Visualization & Reporting'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Save_all_figures_as_PNG_with_at_least_300_DPI_resolution
+  kind: magnitude
+  raw_text: "Ensure all figures saved as PNG with \u2265300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:50:41Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Implement Inverse Probability Weighting using detection efficiency curves
+    from Abbott et al. 2021 if LVK files are missing
+  claim_id: c_882e025b
+  context: 'Task T032 in Phase 5: User Story 2 - Statistical Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If LVK files are missing, MUST implement Inverse Probability Weighting
+    (IPW) using detection efficiency curves described in standard LVC papers (e.g.,
+    Abbott et al. 2021) as a fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T00:50:41Z'
