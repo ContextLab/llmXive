@@ -1,68 +1,59 @@
-# Quickstart: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
+# Quick Start Guide
 
 ## Prerequisites
-
-- Python 3.11+
-- pip / virtualenv
-- Access to the verified HuggingFace datasets (no API key required for public datasets).
+- Python 3.9+
+- `pip` for dependency management.
+- Access to `data/raw` (OpenNeuro datasets) or network connectivity to download them.
 
 ## Installation
-
-1. **Clone the repository** (or create the project structure).
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` will pin versions of `mne`, `networkx`, `powerlaw`, `scikit-learn`, `pandas`, `numpy`, `huggingface_hub`.*
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+3. Set up environment variables (optional):
+ ```bash
+ cp.env.example.env
+ # Edit.env with necessary paths/secrets
+ ```
 
 ## Running the Pipeline
+The main entry point is `code/main.py`. It orchestrates the entire workflow from data acquisition to statistical reporting.
 
-### Step 1: Download Data
-The pipeline will attempt to download data from the verified sources.
 ```bash
-python code/main.py --action download --subset 10
-```
-*Note: `--subset` limits the number of subjects to download for testing (default: all available).*
-
-### Step 2: Preprocess Data
-This step runs dMRI connectivity extraction and EEG cleaning.
-```bash
-python code/main.py --action preprocess
+cd code
+python main.py
 ```
 
-### Step 3: Compute Metrics
-Calculates network metrics and avalanche statistics.
-```bash
-python code/main.py --action metrics
-```
+### Execution Flow
+1. **Data Setup**: Checks `data/raw` and downloads `ds004230` if missing (streaming).
+2. **Preprocessing**: Converts dMRI to connectomes. Attempts EEG download (`ds004231`).
+3. **Simulation**: If EEG download fails, runs Wilson-Cowan simulation.
+4. **QC**: Filters subjects based on connectivity and signal quality.
+5. **Metrics**: Computes structural and avalanche metrics.
+6. **Analysis**: Runs correlations and permutation tests.
+7. **Reporting**: Generates `correlation_report.csv` or `null_result_report.md`.
 
-### Step 4: Statistical Analysis
-Runs correlations, permutation tests, and sensitivity analysis.
-```bash
-python code/main.py --action analysis
-```
-
-### Step 5: Generate Report
-Outputs the final CSV and a summary JSON.
-```bash
-python code/main.py --action report
-```
-
-## Verification
-
-To verify the pipeline:
-```bash
-pytest tests/ -v
-```
-This runs unit tests on metric computation and integration tests on the full pipeline (with a small synthetic dataset if real data is unavailable).
+## Output Artifacts
+- `data/processed/avalanche_metrics.csv`: Per-subject avalanche statistics.
+- `data/results/correlation_report.csv`: Statistical associations (if N >= 10).
+- `data/results/null_result_report.md`: Null result protocol report (if N < 10).
+- `figures/sensitivity_sweep.png`: Stability of results across thresholds.
 
 ## Troubleshooting
+- **Data Download Failures**: Ensure network connectivity. The pipeline will fail loudly if `ds004230` is unavailable.
+- **OOM Errors**: The pipeline uses streaming for large datasets. If issues persist, increase RAM or reduce batch size in `config.py`.
+- **Power-Law Convergence**: If fitting fails for a subject, that subject is excluded from correlation analysis (logged in `fitting_report.json`).
 
-- **Memory Error**: Reduce the `--subset` size. The pipeline is designed for moderate RAM requirements.
-- **No Matched Subjects**: If the report states "No Matched Subjects Found", the pipeline has validated successfully, but the specific dataset constraint (matched dMRI+EEG) was not met in the verified sources.
-- **Power-Law Convergence**: If many subjects fail power-law fitting, check the EEG signal quality or the threshold settings.
+## Validation
+Run the validation tasks to ensure integrity:
+```bash
+python main.py --validate-correlation-path
+python main.py --validate-null-path
+```
+
+## Documentation Location
+All documentation resides in `specs/001-investigating-the-impact-of-network-stru/`.
+- `research.md`: Research plan and methodology.
+- `data-model.md`: Data structures and formats.
+- `quickstart.md`: This guide.

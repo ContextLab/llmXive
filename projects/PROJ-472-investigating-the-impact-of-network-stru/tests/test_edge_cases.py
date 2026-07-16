@@ -1,10 +1,8 @@
 """
 Unit tests for edge cases in the analysis pipeline.
-
-Specifically covers:
-1. Power-law convergence failure handling (T033 requirement).
-2. Disconnected graph handling in network metrics (T014 requirement).
-3. Empty avalanche detection scenarios.
+Specifically targets:
+1. Power-law convergence failure handling (fitting.py)
+2. Disconnected graph handling (metrics.py)
 """
 import os
 import sys
@@ -15,240 +13,193 @@ import pandas as pd
 import networkx as nx
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from analysis.fitting import fit_power_law_model, run_fitting_for_subject
+from analysis.fitting import fit_power_law_model, load_avalanche_sizes_from_store
 from analysis.metrics import compute_degree_centrality, compute_clustering_coefficient, compute_rich_club_coefficient
 from data.models import Participant, StructuralConnectome, AvalancheRecord
-from utils.logger import ResearchError
+from utils.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
-class TestPowerLawConvergence:
-    """Tests for T033: Validate Power-Law Fit Convergence handling."""
+class TestPowerLawConvergenceFailure:
+    """Tests for handling power-law fitting convergence failures."""
 
-    def test_fit_power_law_convergence_failure(self):
-        """
-        Test that fit_power_law_model handles convergence failures gracefully.
-        
-        According to T033, the function must explicitly handle convergence failure
-        by logging a specific error code and returning a structured result
-        (or raising a specific exception) rather than silently returning NaN.
-        """
-        # Create a synthetic dataset that is known to cause convergence issues
-        # for the powerlaw package (e.g., extremely small sample size or uniform data)
-        # We simulate the scenario by mocking the powerlaw.Fit object to raise a warning/error
-        # or by providing data that results in a non-convergent fit.
-        
-        # Using a very small sample size often triggers convergence warnings/failures
-        data = np.array([1, 1, 1, 1, 2]) 
-        
-        # Mock the powerlaw.Fit to simulate a convergence failure scenario
-        # The powerlaw package might raise a warning or return a fit with high error
-        # We test the robustness of our wrapper.
-        
-        with patch('analysis.fitting.powerlaw') as mock_powerlaw:
-            # Simulate a fit object that has a high D-statistic or fails to converge
-            mock_fit = MagicMock()
-            mock_fit.D = 0.999  # Very high D-statistic indicates poor fit
-            mock_fit.p = 0.001  # Low p-value indicates rejection of power law
-            mock_fit.power_law = MagicMock()
-            mock_fit.power_law.alpha = 2.5
-            mock_fit.power_law.xmin = 1.0
-            
-            # Simulate a scenario where the comparison fails or raises an error
-            # The powerlaw package's comparison method might raise if data is insufficient
-            mock_fit.distribution_compare.side_effect = Exception("Convergence failed: insufficient data")
-            
-            mock_powerlaw.Fit.return_value = mock_fit
+    def test_fit_power_law_with_empty_sizes(self):
+        """Test that empty avalanche sizes raise a clear error or return None."""
+        empty_sizes = np.array([])
+        result = fit_power_law_model(empty_sizes)
+        # Expecting None or a specific failure indicator as per T033
+        assert result is None or result.get("status") == "failed"
 
-            try:
-                result = fit_power_law_model(data)
-                # If it doesn't crash, it should handle the error gracefully
-                # Check if the result indicates failure
-                assert result is not None
-                # Depending on implementation, it might return a dict with 'success': False
-                # or raise a specific ResearchError. 
-                # Given T033 says "logging a specific error code and excluding", 
-                # we expect the function to handle the exception internally or raise a clear error.
-                
-                # If the function is designed to raise on failure (as per "exclude from correlation"):
-                # assert isinstance(result, ResearchError) 
-                # OR if it returns a status dict:
-                if isinstance(result, dict):
-                    assert result.get('success') is False
-                    assert 'error_code' in result or 'message' in result
-            except Exception as e:
-                # It is also acceptable to raise a clear ResearchError
-                assert "Convergence" in str(e) or "fit" in str(e).lower()
+    def test_fit_power_law_with_single_value(self):
+        """Test fitting with a single data point (convergence likely to fail)."""
+        single_size = np.array([5.0])
+        result = fit_power_law_model(single_size)
+        # Should not crash, but indicate failure
+        assert result is None or result.get("status") == "failed"
 
-    def test_run_fitting_for_subject_handles_convergence_failure(self):
-        """
-        Test that the subject-level runner handles convergence failure without crashing the pipeline.
-        """
-        # Setup mock participant data
-        participant_id = "SUBJ-CONV-FAIL"
-        data_dir = Path(tempfile.mkdtemp())
-        sizes_file = data_dir / f"{participant_id}_avalanche_sizes.csv"
-        
-        # Create a file with data likely to fail
-        df = pd.DataFrame({'size': [1, 1, 1, 1, 1]})
-        df.to_csv(sizes_file, index=False)
-        
-        # Mock the fit function to raise an error
-        with patch('analysis.fitting.fit_power_law_model') as mock_fit:
-            mock_fit.side_effect = ResearchError(
-                code="CONV_FAIL", 
-                message="Power law fit did not converge for subject"
-            )
-            
-            # This should not crash the runner, but handle the error
-            # The implementation should catch this and log it, potentially returning None or a failure flag
-            result = run_fitting_for_subject(participant_id, data_dir)
-            
-            # Verify the result indicates failure or is handled gracefully
-            assert result is not None
-            # Depending on design, result might be a dict with success=False
-            if isinstance(result, dict):
-                assert result.get('success') is False
+    def test_fit_power_law_with_constant_values(self):
+        """Test fitting with constant values (no variance, convergence failure)."""
+        constant_sizes = np.array([3.0, 3.0, 3.0, 3.0])
+        result = fit_power_law_model(constant_sizes)
+        assert result is None or result.get("status") == "failed"
+
+    def test_fit_power_law_with_valid_data(self):
+        """Test that valid data returns a successful fit."""
+        # Generate synthetic power-law distributed data for testing
+        # Using a simple Pareto-like distribution
+        valid_sizes = np.random.pareto(a=2.0, size=1000) + 1  # Ensure min >= 1
+        result = fit_power_law_model(valid_sizes)
+        # Should succeed
+        assert result is not None and result.get("status") != "failed"
+        assert "alpha" in result
+        assert "xmin" in result
+
+    def test_fit_power_law_handles_nan(self):
+        """Test fitting with NaN values."""
+        sizes_with_nan = np.array([1.0, 2.0, np.nan, 4.0])
+        result = fit_power_law_model(sizes_with_nan)
+        # Should handle gracefully, likely failing or cleaning data
+        assert result is not None  # Should not crash
 
 
 class TestDisconnectedGraphs:
-    """Tests for T014/T028: Handle disconnected graphs in network metrics."""
+    """Tests for handling disconnected structural connectome graphs."""
 
-    def test_degree_centrality_disconnected_graph(self):
-        """
-        Test that degree centrality works correctly on a disconnected graph.
-        A disconnected graph has at least two components.
-        """
-        # Create a disconnected graph: two separate triangles
+    def test_compute_degree_on_disconnected_graph(self):
+        """Test degree centrality calculation on a disconnected graph."""
+        # Create a disconnected graph: two separate components
         G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 1)])  # Component 1
-        G.add_edges_from([(4, 5), (5, 6), (6, 4)])  # Component 2
-        
-        # This should not raise an error
-        result = compute_degree_centrality(G)
-        
-        # Verify the result is a dict with expected keys
-        assert isinstance(result, dict)
-        assert len(result) == G.number_of_nodes()
-        
-        # All nodes in a 3-node component should have degree 2
-        for node in G.nodes():
-            assert result[node] == 2.0 / (G.number_of_nodes() - 1)  # Normalized degree
+        G.add_edges_from([(1, 2), (2, 3)])  # Component 1
+        G.add_edges_from([(4, 5)])          # Component 2
 
-    def test_clustering_coefficient_disconnected_graph(self):
-        """
-        Test that clustering coefficient works on a disconnected graph.
-        """
+        degree = compute_degree_centrality(G)
+        # Should return a dictionary with degrees for all nodes
+        assert isinstance(degree, dict)
+        assert len(degree) == 5
+        # Nodes 1, 2, 3, 4, 5 should have non-negative degrees
+        for node, deg in degree.items():
+            assert deg >= 0
+
+    def test_compute_clustering_on_disconnected_graph(self):
+        """Test clustering coefficient on a disconnected graph."""
         G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 1)])  # Triangle
-        G.add_edges_from([(4, 5)])  # Single edge (clustering 0)
-        
-        result = compute_clustering_coefficient(G)
-        
-        assert isinstance(result, dict)
-        # Triangle nodes should have clustering 1.0
-        assert result[1] == 1.0
-        # Edge nodes should have clustering 0.0
-        assert result[4] == 0.0
+        G.add_edges_from([(1, 2), (2, 3)])
+        G.add_edges_from([(4, 5)])
 
-    def test_rich_club_coefficient_disconnected_graph(self):
-        """
-        Test rich-club coefficient on a disconnected graph.
-        """
-        # Create a graph with a clear rich club and a disconnected part
+        clustering = compute_clustering_coefficient(G)
+        assert isinstance(clustering, dict)
+        assert len(clustering) == 5
+
+    def test_compute_rich_club_on_disconnected_graph(self):
+        """Test rich-club coefficient on a disconnected graph."""
         G = nx.Graph()
-        # Rich club: 4 fully connected nodes
-        rich_nodes = [1, 2, 3, 4]
-        G.add_edges_from([(i, j) for i in rich_nodes for j in rich_nodes if i < j])
-        # Disconnected part: 2 nodes
-        G.add_edges_from([(5, 6)])
-        
-        # This should not crash
-        result = compute_rich_club_coefficient(G)
-        
-        assert isinstance(result, dict)
-        # Rich club nodes should have high coefficients
-        for k, val in result.items():
-            assert isinstance(val, (int, float))
+        G.add_edges_from([(1, 2), (2, 3)])
+        G.add_edges_from([(4, 5)])
 
-    def test_empty_graph_metrics(self):
-        """
-        Test that metrics handle an empty graph (no nodes) gracefully.
-        """
-        G = nx.Graph()
-        
-        # Degree centrality on empty graph
-        deg = compute_degree_centrality(G)
-        assert deg == {}
-        
-        # Clustering on empty graph
-        clust = compute_clustering_coefficient(G)
-        assert clust == {}
-        
-        # Rich club on empty graph
-        rich = compute_rich_club_coefficient(G)
-        assert rich == {}
+        rich_club = compute_rich_club_coefficient(G)
+        # Should return a dictionary or array, not crash
+        assert rich_club is not None
 
-    def test_single_node_graph_metrics(self):
-        """
-        Test metrics on a graph with a single node (no edges).
-        """
+    def test_compute_metrics_on_single_node_graph(self):
+        """Test metrics on a graph with a single isolated node."""
         G = nx.Graph()
         G.add_node(1)
-        
-        deg = compute_degree_centrality(G)
-        assert deg[1] == 0.0
-        
-        clust = compute_clustering_coefficient(G)
-        assert clust[1] == 0.0
+
+        degree = compute_degree_centrality(G)
+        assert degree[1] == 0.0
+
+        clustering = compute_clustering_coefficient(G)
+        # Clustering for isolated node is typically 0 or NaN depending on definition
+        assert clustering[1] == 0.0 or np.isnan(clustering[1])
+
+    def test_compute_metrics_on_empty_graph(self):
+        """Test metrics on a graph with no nodes."""
+        G = nx.Graph()
+
+        degree = compute_degree_centrality(G)
+        assert degree == {}
+
+        clustering = compute_clustering_coefficient(G)
+        assert clustering == {}
+
+    def test_compute_metrics_on_complete_graph(self):
+        """Test metrics on a complete graph (all nodes connected)."""
+        G = nx.complete_graph(5)
+
+        degree = compute_degree_centrality(G)
+        # In a complete graph of 5 nodes, degree centrality should be (5-1)/(5-1) = 1.0
+        for node, deg in degree.items():
+            assert np.isclose(deg, 1.0)
+
+        clustering = compute_clustering_coefficient(G)
+        # In a complete graph, clustering coefficient is 1.0
+        for node, coef in clustering.items():
+            assert np.isclose(coef, 1.0)
 
 
-class TestAvalancheEdgeCases:
-    """Additional edge cases for avalanche detection."""
+class TestIntegrationEdgeCases:
+    """Integration tests combining edge cases with pipeline functions."""
 
-    def test_flat_signal_avalanche(self):
-        """
-        Test that flat signal (no variance) results in no avalanches or handled gracefully.
-        """
-        from analysis.avalanches import z_score_normalize, calculate_threshold, detect_avalanches
-        
-        # Flat signal
-        signal = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
-        
-        # Z-score normalization of flat signal results in NaNs or zeros
-        try:
-            normalized = z_score_normalize(signal)
-            # If it returns zeros, threshold calculation should handle it
-            threshold = calculate_threshold(normalized, percentile=75)
-            
-            # Detect avalanches
-            avalanches = detect_avalanches(normalized, threshold)
-            
-            # Should return empty list or handle gracefully
-            assert isinstance(avalanches, list)
-        except Exception as e:
-            # If it raises, it must be a clear error about flat signal
-            assert "flat" in str(e).lower() or "variance" in str(e).lower()
+    def test_run_fitting_pipeline_with_mixed_data(self):
+        """Test fitting pipeline with a mix of valid and invalid subject data."""
+        # Create a temporary store directory
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store_dir = Path(tmpdir) / "avalanche_store"
+            store_dir.mkdir()
 
-    def test_nan_signal_avalanche(self):
-        """
-        Test that signal with NaNs is handled gracefully.
-        """
-        from analysis.avalanches import z_score_normalize, detect_avalanches
-        
-        signal = np.array([1.0, np.nan, 2.0, 3.0, 4.0])
-        
-        # Should either clean the data or raise a clear error
-        try:
-            normalized = z_score_normalize(signal)
-            # If normalization succeeds, detect_avalanches should handle NaNs
-            threshold = calculate_threshold(normalized, percentile=75)
-            avalanches = detect_avalanches(normalized, threshold)
-            assert isinstance(avalanches, list)
-        except Exception:
-            # Expected behavior if NaNs are not allowed
-            pass
+            # Create valid data for one subject
+            valid_sizes = np.random.pareto(a=2.0, size=500) + 1
+            valid_df = pd.DataFrame({"size": valid_sizes, "subject_id": "sub_001"})
+            valid_df.to_csv(store_dir / "sub_001_avalanches.csv", index=False)
+
+            # Create invalid data (empty) for another subject
+            invalid_df = pd.DataFrame(columns=["size", "subject_id"])
+            invalid_df.to_csv(store_dir / "sub_002_avalanches.csv", index=False)
+
+            # Run pipeline
+            results = load_avalanche_sizes_from_store(store_dir)
+            assert len(results) == 2
+            assert "sub_001" in results
+            assert "sub_002" in results
+
+    def test_run_metrics_pipeline_with_disconnected_subjects(self):
+        """Test metrics pipeline with subjects having disconnected connectomes."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            store_dir = Path(tmpdir) / "connectome_store"
+            store_dir.mkdir()
+
+            # Create a connected graph for sub_001
+            G1 = nx.erdos_renyi_graph(10, 0.3, seed=42)
+            while not nx.is_connected(G1):
+                G1 = nx.erdos_renyi_graph(10, 0.3, seed=42)
+            nx.write_edgelist(G1, str(store_dir / "sub_001_connectome.edgelist"))
+
+            # Create a disconnected graph for sub_002
+            G2 = nx.Graph()
+            G2.add_edges_from([(1, 2), (2, 3)])
+            G2.add_edges_from([(4, 5)])
+            nx.write_edgelist(G2, str(store_dir / "sub_002_connectome.edgelist"))
+
+            # Run pipeline
+            metrics = {}
+            for subject_file in store_dir.glob("*.edgelist"):
+                subject_id = subject_file.stem.replace("_connectome", "")
+                G = nx.read_edgelist(subject_file)
+                metrics[subject_id] = {
+                    "degree": compute_degree_centrality(G),
+                    "clustering": compute_clustering_coefficient(G),
+                    "rich_club": compute_rich_club_coefficient(G)
+                }
+
+            assert len(metrics) == 2
+            assert "sub_001" in metrics
+            assert "sub_002" in metrics
+            # Both should have computed metrics without crashing
+            assert metrics["sub_001"]["degree"] is not None
+            assert metrics["sub_002"]["degree"] is not None

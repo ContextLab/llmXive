@@ -1,82 +1,62 @@
-# Data Model: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
+# Data Model Specification
 
-## 1. Entity Relationship Overview
+## Overview
+This document defines the core data structures used throughout the pipeline for representing participants, structural connectomes, and avalanche records. All data is stored in `data/processed` or `data/results` in JSON, CSV, or NumPy formats.
 
-The data model centers on the **Participant** entity, linking structural and simulated functional data.
+## Core Entities
 
-```mermaid
-erDiagram
-    PARTICIPANT ||--o{ STRUCTURAL_METRICS : "has"
-    PARTICIPANT ||--o{ AVALANCHE_METRICS : "has"
-    PARTICIPANT ||--o{ CORRELATION_RESULT : "generates"
-    
-    PARTICIPANT {
-        string subject_id PK
-        string data_source
-        bool is_valid
-    }
+### Participant
+Represents a single subject in the study.
+- `subject_id`: Unique identifier (string).
+- `source`: Data source (e.g., "OpenNeuro_ds004230", "Simulation").
+- `qc_status`: Pass/Fail status from quality control.
+- `eeg_path`: Path to processed EEG time-series (if available).
+- `connectome_path`: Path to structural adjacency matrix.
 
-    STRUCTURAL_METRICS {
-        string subject_id FK
-        float mean_degree
-        float clustering_coeff
-        float rich_club_coeff
-        string graph_type
-    }
+### StructuralConnectome
+Represents the weighted adjacency matrix of the brain network.
+- `subject_id`: Reference to Participant.
+- `matrix`: 2D NumPy array (N x N) of connection weights.
+- `parcellation`: Name of the parcellation scheme (e.g., "HCP-MMP1.0").
+- `checksum`: SHA-256 hash of the matrix file for integrity.
 
-    AVALANCHE_METRICS {
-        string subject_id FK
-        float size_exponent
-        float duration_exponent
-        float threshold_used
-        bool power_law_preferred
-        float likelihood_ratio_p_value
-        string preferred_model
-    }
+### AvalancheRecord
+Represents a single neural avalanche event.
+- `subject_id`: Reference to Participant.
+- `size`: Number of active channels/time steps.
+- `duration`: Duration in time steps.
+- `timestamp`: Start time of the avalanche.
+- `channels`: List of involved channel indices.
 
-    CORRELATION_RESULT {
-        string metric_pair PK
-        float spearman_rho
-        float p_value
-        float corrected_p_value
-        float vif_score
-        string collinearity_flag
-        string robustness_status
-    }
+## File Formats
+
+### `data/processed/simulation_metadata.json`
+Contains parameters for synthetic data generation.
+```json
+{
+ "seed": 42,
+ "wilson_cowan_params": {
+ "connection_strength": 0.5,
+ "time_constant": 10.0
+ },
+ "checksum": "sha256_hash"
+}
 ```
 
-## 2. Detailed Data Definitions
+### `data/processed/avalanche_metrics.csv`
+Aggregated metrics for all participants.
+Columns: `subject_id`, `avg_size`, `avg_duration`, `power_law_exponent`, `p_value`.
 
-### 2.1 Participant
-- `subject_id`: Unique identifier (string).
-- `data_source`: Source dataset name (e.g., "OpenNeuro-ds003813").
-- `is_valid`: Boolean flag indicating if the participant passed quality control (e.g., sufficient data, connected graph).
+### `data/results/correlation_report.csv`
+Statistical association results.
+Columns: `metric_name`, `avalanche_metric`, `rho`, `p_value`, `corrected_p_value`.
 
-### 2.2 Structural Metrics
-- `mean_degree`: Average node degree in the structural connectome.
-- `clustering_coeff`: Mean clustering coefficient.
-- `rich_club_coeff`: Rich-club coefficient at a specific k-level (or mean).
-- `graph_type`: "weighted" or "binary".
+## Data Flow
+1. **Raw**: `data/raw/` (Downloaded dMRI/EEG).
+2. **Processed**: `data/processed/` (Connectomes, Cleaned EEG, Metrics).
+3. **Results**: `data/results/` (Final statistical reports, plots).
 
-### 2.3 Avalanche Metrics
-- `size_exponent`: Scaling exponent (τ) for avalanche size distribution.
-- `duration_exponent`: Scaling exponent (α) for avalanche duration distribution.
-- `threshold_used`: The percentile threshold used (e.g., 0.75).
-- `power_law_preferred`: Boolean indicating if the power-law model was statistically preferred over exponential/log-normal.
-- `likelihood_ratio_p_value`: P-value from the likelihood ratio test comparing power-law to alternative models.
-- `preferred_model`: Name of the preferred model ("power_law", "exponential", "log_normal").
-
-### 2.4 Correlation Results
-- `metric_pair`: Name of the pair (e.g., "degree_vs_size_exponent").
-- `spearman_rho`: Correlation coefficient.
-- `p_value`: Raw p-value.
-- `corrected_p_value`: Permutation-corrected p-value.
-- `vif_score`: Variance Inflation Factor if applicable.
-- `collinearity_flag`: "high_collinearity" if VIF ≥ 5, else "low_collinearity".
-- `robustness_status`: "stable", "sensitive", or "inconclusive".
-
-## 3. File Formats
-
-- **Input**: BIDS (dMRI), JSON (per-subject metrics).
-- **Intermediate**: JSON (per-subject metrics), Pickle (preprocessed EEG epochs - if RAM allows, else JSON).
-- **Output**: CSV (aggregated results), YAML (summary statistics).
+## Integrity & Versioning
+- All processed files have associated SHA-256 checksums.
+- `data/processed/data_status.json` tracks the pipeline path (Real vs. Simulation).
+- `state/projects/...yaml` tracks project state and versioning.

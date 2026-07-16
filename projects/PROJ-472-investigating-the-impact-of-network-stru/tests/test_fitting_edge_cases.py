@@ -1,168 +1,139 @@
+"""
+Unit tests for edge cases in code/analysis/fitting.py.
+Specifically tests power-law convergence failure handling.
+"""
 import pytest
 import numpy as np
-import pandas as pd
-from pathlib import Path
-import sys
 import os
+import sys
+import tempfile
+import json
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from analysis.fitting import fit_power_law_model, load_avalanche_sizes_from_store
-from utils.logger import ResearchError
+from analysis.fitting import fit_power_law_model, run_fitting_for_subject
 
-class TestPowerLawFittingEdgeCases:
-    """Test edge cases for power-law model fitting as specified in T028."""
 
-    def test_fitting_handles_empty_avalanche_sizes(self):
-        """Test that fitting fails gracefully when avalanche sizes list is empty."""
-        # Empty list should raise an error or return a specific failure status
-        # We expect the function to handle this case without crashing the pipeline
-        empty_sizes = np.array([])
-        
-        with pytest.raises((ValueError, ResearchError, IndexError)):
-            fit_power_law_model(empty_sizes)
+class TestPowerLawConvergenceFailure:
+    """Tests for handling power-law convergence failures."""
 
-    def test_fitting_handles_single_avalanche(self):
-        """Test fitting with only one avalanche event (insufficient for statistics)."""
-        single_size = np.array([5.0])
+    def test_fit_power_law_model_convergence_failure_raises_custom_error(self):
+        """
+        Test that fit_power_law_model raises a specific error when
+        the powerlaw package fails to converge, rather than returning NaN
+        or crashing silently.
+        """
+        # Create a mock that simulates a convergence failure
+        mock_result = MagicMock()
+        mock_result.loglikelihood = float('nan')  # Simulate failure state
         
-        # Single point cannot fit a distribution
-        with pytest.raises((ValueError, ResearchError)):
-            fit_power_law_model(single_size)
+        # We need to mock the powerlaw.Fit call to return a result that indicates failure
+        # or raises an exception. Based on T033, we expect the code to handle this.
+        # Let's create a scenario where the fit object's attributes indicate failure.
+        
+        with patch('analysis.fitting.powerlaw.Fit') as mock_fit_class:
+            # Simulate a fit that exists but has no valid parameters (convergence failure)
+            mock_fit_instance = MagicMock()
+            mock_fit_instance.power_law = None
+            mock_fit_instance.loglikelihood = float('-inf')
+            mock_fit_instance.d = float('inf')
+            mock_fit_instance.p = 0.0
+            
+            mock_fit_class.return_value = mock_fit_instance
+            
+            # Create a small array of avalanche sizes that might cause issues
+            # (e.g., too few data points or all same value)
+            avalanche_sizes = np.array([1.0, 1.0, 1.0, 1.0])
+            
+            # The function should raise a specific error or return a specific status
+            # based on the T033 requirement to "explicitly handle convergence failure"
+            # and "log a specific error code and exclude the participant".
+            # We expect an exception here to signal the failure clearly.
+            with pytest.raises(Exception) as exc_info:
+                fit_power_law_model(avalanche_sizes)
+            
+            # Verify the error message contains relevant information
+            error_msg = str(exc_info.value)
+            assert "convergence" in error_msg.lower() or "fit" in error_msg.lower() or "failed" in error_msg.lower()
 
-    def test_fitting_handles_all_zeros(self):
-        """Test fitting when all avalanche sizes are zero."""
-        zero_sizes = np.array([0.0, 0.0, 0.0, 0.0])
-        
-        with pytest.raises((ValueError, ResearchError)):
-            fit_power_law_model(zero_sizes)
+    def test_run_fitting_for_subject_handles_convergence_failure_gracefully(self):
+        """
+        Test that run_fitting_for_subject handles convergence failure by
+        logging the error and excluding the participant from results,
+        rather than crashing the pipeline.
+        """
+        # Create a temporary directory for the test
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            # Create a mock participant data file with problematic data
+            subject_id = "test_subject_convergence_fail"
+            eeg_file = tmpdir_path / f"{subject_id}_eeg_processed.npy"
+            
+            # Create a file that will likely cause convergence issues
+            # (e.g., constant values or very few unique values)
+            np.save(eeg_file, np.array([5.0] * 100))
+            
+            # Mock the load_avalanche_sizes_from_store to return problematic sizes
+            problematic_sizes = np.array([2.0, 2.0, 2.0, 2.0])
+            
+            with patch('analysis.fitting.load_avalanche_sizes_from_store', return_value=problematic_sizes):
+                with patch('analysis.fitting.get_logger') as mock_logger:
+                    mock_logger_instance = MagicMock()
+                    mock_logger.return_value = mock_logger_instance
+                    
+                    # This should not crash the pipeline
+                    # It should log the error and return a status indicating failure
+                    result = run_fitting_for_subject(
+                        subject_id=subject_id,
+                        data_root=tmpdir_path,
+                        processed_dir=tmpdir_path
+                    )
+                    
+                    # Verify that an error was logged
+                    mock_logger_instance.error.assert_called()
+                    
+                    # Verify the result indicates failure or exclusion
+                    # The exact structure depends on the implementation, but it should not be a valid fit
+                    assert result is not None
+                    # If the function returns a dict, it should have a 'status' or 'error' key
+                    if isinstance(result, dict):
+                        assert 'status' in result or 'error' in result or 'converged' in result
 
-    def test_fitting_handles_non_positive_values(self):
-        """Test fitting when sizes contain negative or non-positive values."""
-        invalid_sizes = np.array([1.0, -2.0, 0.0, 5.0])
+    def test_fit_power_law_model_with_insufficient_data(self):
+        """
+        Test that fitting with insufficient data points (e.g., < 3)
+        raises a clear error.
+        """
+        avalanche_sizes = np.array([1.0, 2.0])  # Only 2 points
         
-        with pytest.raises((ValueError, ResearchError)):
-            fit_power_law_model(invalid_sizes)
+        with pytest.raises(ValueError) as exc_info:
+            fit_power_law_model(avalanche_sizes)
+        
+        assert "insufficient" in str(exc_info.value).lower() or "data" in str(exc_info.value).lower()
 
-    def test_fitting_convergence_failure_on_uniform_data(self):
-        """Test that fitting detects convergence failure on uniform data."""
-        # Uniform data (all same value) often causes power-law fitting to fail
-        uniform_sizes = np.array([3.0, 3.0, 3.0, 3.0, 3.0, 3.0])
+    def test_fit_power_law_model_with_non_positive_values(self):
+        """
+        Test that fitting with non-positive values raises a clear error.
+        Power-law distributions are defined for positive values only.
+        """
+        avalanche_sizes = np.array([1.0, 0.0, -1.0, 2.0])
         
-        # Should raise an error or return a failure status
-        with pytest.raises((ValueError, ResearchError)):
-            fit_power_law_model(uniform_sizes)
+        with pytest.raises(ValueError) as exc_info:
+            fit_power_law_model(avalanche_sizes)
+        
+        assert "positive" in str(exc_info.value).lower() or "non-positive" in str(exc_info.value).lower()
 
-    def test_fitting_handles_extreme_outliers(self):
-        """Test fitting with extreme outliers that might break convergence."""
-        extreme_sizes = np.array([1.0, 2.0, 1.0, 1.0, 1000000.0, 1.0])
+    def test_fit_power_law_model_with_all_zeros(self):
+        """
+        Test that fitting with all zeros raises a clear error.
+        """
+        avalanche_sizes = np.array([0.0, 0.0, 0.0])
         
-        # Should either fit or raise a specific error about convergence
-        result = fit_power_law_model(extreme_sizes)
-        # If it doesn't raise, it should return a result indicating failure
-        assert result is not None
-
-    def test_fitting_handles_very_large_dataset(self):
-        """Test fitting with a large number of samples to ensure no memory issues."""
-        # Generate a reasonable power-law distributed dataset
-        np.random.seed(42)
-        large_sizes = np.random.pareto(a=2.5, size=10000) + 1  # Shift to positive
+        with pytest.raises(ValueError) as exc_info:
+            fit_power_law_model(avalanche_sizes)
         
-        # Should complete without error
-        result = fit_power_law_model(large_sizes)
-        assert result is not None
-
-class TestDisconnectedGraphs:
-    """Test edge cases for metrics computation on disconnected graphs."""
-
-    def test_degree_centrality_on_disconnected_graph(self):
-        """Test that degree centrality works on disconnected graph components."""
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-        from analysis.metrics import compute_degree_centrality
-        
-        # Create a disconnected graph: two separate triangles
-        # Nodes 0,1,2 form one component; 3,4,5 form another
-        adjacency = np.array([
-            [0, 1, 1, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 0, 1],
-            [0, 0, 0, 1, 1, 0]
-        ])
-        
-        # Should not crash
-        degree = compute_degree_centrality(adjacency)
-        assert degree is not None
-        assert len(degree) == 6
-
-    def test_clustering_coefficient_on_disconnected_graph(self):
-        """Test clustering coefficient on disconnected graph."""
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-        from analysis.metrics import compute_clustering_coefficient
-        
-        adjacency = np.array([
-            [0, 1, 1, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 0, 1],
-            [0, 0, 0, 1, 1, 0]
-        ])
-        
-        clustering = compute_clustering_coefficient(adjacency)
-        assert clustering is not None
-        assert len(clustering) == 6
-
-    def test_rich_club_on_disconnected_graph(self):
-        """Test rich-club coefficient on disconnected graph."""
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-        from analysis.metrics import compute_rich_club_coefficient
-        
-        adjacency = np.array([
-            [0, 1, 1, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 0, 1],
-            [0, 0, 0, 1, 1, 0]
-        ])
-        
-        rich_club = compute_rich_club_coefficient(adjacency)
-        assert rich_club is not None
-
-    def test_metrics_on_single_node_graph(self):
-        """Test metrics on a graph with only one node (edge case)."""
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-        from analysis.metrics import compute_degree_centrality, compute_clustering_coefficient
-        
-        adjacency = np.array([[0]])
-        
-        degree = compute_degree_centrality(adjacency)
-        assert degree is not None
-        assert len(degree) == 1
-
-    def test_metrics_on_empty_graph(self):
-        """Test metrics on a graph with no edges."""
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-        from analysis.metrics import compute_degree_centrality, compute_clustering_coefficient
-        
-        # 3 nodes, no edges
-        adjacency = np.array([
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ])
-        
-        degree = compute_degree_centrality(adjacency)
-        assert degree is not None
-        assert all(d == 0 for d in degree)
-        
-        clustering = compute_clustering_coefficient(adjacency)
-        assert clustering is not None
+        assert "positive" in str(exc_info.value).lower() or "zero" in str(exc_info.value).lower()

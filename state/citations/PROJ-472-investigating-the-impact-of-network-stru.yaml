@@ -1,22 +1,11 @@
-- artifact_hash: 87dbd2212fa48902f0d0b04ac61afcd98c79769ceab96a8e4b1cb4130b4befbf
-  artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: OpenNeuro
-  kind: url
-  value: https://openneuro.org/datasets/ds003813/versions/1.0.0`
-  verification_status: verified
-  verified_against_url: https://openneuro.org/datasets/ds003813/versions/1.0.0
-  verified_at: '2026-07-01T13:48:18.495798Z'
-- artifact_hash: 82404a6146ab28763755700a7a0c0cb26434798842ea7965dff5d9a600d89a01
+- artifact_hash: 35db558eae28f5592bd6d24906a1d6c8ba3c63d2e40d127aec6cddb8ab162213
   artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://...`
-  verification_status: unreachable
-  verified_against_url: https://
-  verified_at: '2026-07-15T22:13:43.131646Z'
+  value: https://www.humanconnectome.org/storage/app/media/documentation/s1200/HCP_MMP1.0_Glasser2016.zip`
+  verification_status: mismatch
+  verified_against_url: https://www.humanconnectome.org/storage/app/media/documentation/s1200/HCP_MMP1.0_Glasser2016.zip
+  verified_at: '2026-07-16T01:07:13.742933Z'

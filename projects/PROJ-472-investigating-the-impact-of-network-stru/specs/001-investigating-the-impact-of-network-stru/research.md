@@ -1,52 +1,46 @@
-# Research: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
+# Research Plan: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
-## 1. Dataset Strategy
+## Overview
+This research project investigates the statistical associations between structural brain network properties (derived from diffusion MRI) and neural avalanche dynamics (derived from EEG/MEG or simulated data). The primary hypothesis is that specific topological features of the structural connectome, such as rich-club organization and degree distribution, constrain the statistical properties of neural avalanches, particularly their size and duration distributions.
 
-The project requires **verified** diffusion-MRI (dMRI) data to generate structural connectomes. Since no verified public dataset contains matched dMRI and resting-state EEG for the same participants, the study adopts a **simulation-based approach**. Structural connectomes from verified dMRI data will be used to generate synthetic EEG time-series, from which avalanche statistics are computed.
+## Research Questions
+1. **RQ1**: Do structural network metrics (degree, clustering, rich-club coefficient) correlate with neural avalanche exponents?
+2. **RQ2**: Is the power-law scaling of neural avalanches robust across different thresholding parameters?
+3. **RQ3**: How does the structural topology influence the criticality of neural dynamics?
 
-**Verified Datasets**:
+## Data Sources
+### Primary Source (dMRI)
+- **Dataset**: OpenNeuro ds004230
+- **Modality**: Diffusion MRI (tractography)
+- **Processing**: Converted to HCP-MMP parcellated adjacency matrices using MRtrix3 `tck2connectome`.
+- **Constraint**: Strict single-source constraint. No fallback to other datasets (e.g., ds004503) is permitted.
 
-| Modality | Dataset Source | URL (Verified Only) | Format | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **dMRI** | OpenNeuro ds003813 | `https://openneuro.org/datasets/ds003813/versions/1.0.0` | BIDS | Contains diffusion MRI data with HCP parcellation. Verified source for structural connectomes. |
-| **Simulation** | N/A (Generated) | N/A | N/A | Synthetic EEG time-series generated from dMRI structural connectomes using a linear neural mass model. |
+### Secondary Source (EEG)
+- **Probe**: OpenNeuro ds004231 (FR-002)
+- **Status**: **Unavailable**. The pipeline attempts to download this dataset. If unavailable (HTTP 404 or empty), it fails loudly and triggers the simulation contingency path.
+- **Contingency**: Synthetic EEG generated via Wilson-Cowan equations driven by the structural connectomes.
 
-**Dataset Fit Assessment**:
-- **Variable Coverage**: The OpenNeuro structural connectivity dataset provides structural connectivity metrics. The simulation module generates the required EEG time-series.
-- **No Mismatch Risk**: By using a simulation-based approach, the need for matched empirical EEG data is eliminated. The analysis is now between structural metrics and *simulated* avalanche exponents.
-- **Plan Adjustment**: The implementation will download dMRI data from OpenNeuro ds003813, process it to generate structural connectomes, and then simulate EEG avalanches. No empirical EEG data is required.
+## Methodology
+1. **Data Acquisition & Preprocessing**:
+ - Download dMRI data (streaming enabled to prevent OOM).
+ - Preprocess tractography to structural connectomes.
+ - Attempt real EEG download; if failed, generate synthetic EEG using `code/data/simulate_EEG.py`.
+2. **Metric Computation**:
+ - **Structural**: Node degree, mean clustering coefficient, rich-club coefficient (NetworkX, BCTpy).
+ - **Dynamics**: Neural avalanche detection (75th percentile threshold on z-scored signal), size/duration calculation, power-law fitting (`powerlaw` package).
+3. **Statistical Analysis**:
+ - Spearman rank correlation between structural metrics and avalanche exponents.
+ - Non-parametric permutation tests (max-t method) for significance correction.
+ - Sensitivity analysis across thresholds [0.70, 0.75, 0.80].
+4. **Reporting**:
+ - Generate associational reports (no causal claims).
+ - Validate null result protocol if N < 10 subjects.
 
-**Decision**: The plan proceeds with the **simulation pipeline** using verified dMRI data. The statistical association (FR-006) is between structural metrics and simulated avalanche exponents, which is executable without matched empirical data.
+## Ethical Considerations
+- All data is anonymized and publicly available via OpenNeuro.
+- Synthetic data generation uses random seeds logged for reproducibility.
 
-## 2. Methodological Rigor
-
-### 2.1 Statistical Approach
-- **Correlation**: Spearman rank correlation (FR-006) is chosen over Pearson due to the likely non-normal distribution of power-law exponents and network metrics.
-- **Multiple Comparisons**: Family-wise error rate (FWER) control via 1000-shuffle permutation test (FR-007).
-- **Collinearity**: Variance Inflation Factor (VIF) calculated for degree and clustering (FR-009). If VIF ≥ 5, results are flagged as "high collinearity" and independent effects are not claimed.
-- **Causal Framing**: All findings framed as **associational** (FR-010). No causal claims.
-
-### 2.2 Power-Law Fitting
-- **Model Comparison**: Likelihood ratio test (FR-011) between Power-Law, Exponential, and Log-Normal.
-- **Fallback**: If Power-Law is not preferred, the exponent is not reported for that subject.
-- **Convergence**: If `powerlaw` fails to converge, the subject is excluded from correlation analysis.
-
-### 2.3 Sensitivity Analysis
-- **Threshold Sweep**: {70%, 75%, 80%} of the 75th percentile amplitude (FR-008).
-- **Robustness**: Correlation stability across thresholds will be reported.
-
-## 3. Compute Feasibility (CPU-Only)
-
-- **Hardware**: GitHub Actions Free Tier (2 vCPU, 7 GB RAM).
-- **Strategy**:
-  - **Data Loading**: Stream data from BIDS/Parquet; do not load entire dataset into RAM if > 4GB.
-  - **Preprocessing**: MRtrix3 and NetworkX are CPU-efficient. Simulation will be limited to a subset of subjects to save time.
-  - **Parallelization**: Use `joblib` for parallel processing of subjects (max 2 workers).
-  - **Runtime**: Target < 6 hours. If a subject's processing exceeds a predefined time threshold, it is flagged and potentially skipped.
-
-## 4. Limitations & Assumptions
-
-- **Sample Size**: Power analysis is [deferred]. The study acknowledges power limitations if N < 30.
-- **Data Quality**: Participants with >30% channels removed or disconnected graphs are excluded.
-- **Simulation Validity**: The study assumes the linear neural mass model is a valid proxy for empirical avalanche dynamics. This is a known limitation of simulation-based approaches.
-- **Data Availability**: The primary limitation is the availability of verified dMRI data. The plan is robust to this by validating the pipeline even if the correlation cannot be computed (Null Result Protocol).
+## Limitations
+- Reliance on simulation for EEG dynamics due to data unavailability.
+- Cross-dataset registration is not performed (single-source constraint).
+- Power-law fit convergence failures are excluded from correlation analysis.
