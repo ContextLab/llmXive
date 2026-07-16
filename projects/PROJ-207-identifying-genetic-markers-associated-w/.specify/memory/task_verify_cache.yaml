@@ -1,0 +1,28 @@
+T017:
+  c: true
+  h: ab5573b4376d8d4413e8e845b59e13be2f458e6d5609d7dd801488887645bbe8
+  r: "The `code/03_gwas.sh` script is present, non\u2011empty, and contains PLINK\
+    \ logistic regression commands with covariate handling, directing results to `data/interim/gwas_raw.tsv`\
+    \ as required. The missing `gwas_raw.tsv` file is a runtime product, not a static\
+    \ deliverable."
+T022:
+  c: true
+  h: 188edd72e806a57880be4870e187f070e17f1bba807f018472b61bc229d0d5d0
+  r: "The repository contains a non\u2011empty `code/04_apply_fdr.sh` that references\
+    \ the expected input `data/interim/gwas_raw.tsv`, invokes `code/utils/fdr_correction.py`\
+    \ with appropriate arguments, and writes to `data/processed/gwas_results_fdr.tsv`.\
+    \ The required Python utility is also present. No further artifacts are needed\
+    \ for the creation task."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no evidence of new test files under `tests/unit/`; there
+    are no listed or displayed unit tests that handle the specified edge cases (missing
+    Varroa data, all SNPs filtered). Without actual test code, the requirement is
+    not satisfied.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no evidence that the quickstart.md validation was executed\u2014\
+    no logs, output files, screenshots, or reproducibility reports are present. Consequently,\
+    \ the required artifact confirming the validation run is missing."

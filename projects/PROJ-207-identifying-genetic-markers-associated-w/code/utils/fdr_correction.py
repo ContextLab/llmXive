@@ -1,14 +1,3 @@
-"""
-code/utils/fdr_correction.py
-Implements Benjamini-Hochberg FDR correction for GWAS results.
-
-Features:
-- Calculates q-values from raw p-values.
-- Flags SNPs with q-value < threshold as significant.
-- Prepend mandatory disclaimer text to the output file header.
-- Documents the correction method used.
-"""
-
 import os
 import sys
 import argparse
@@ -18,109 +7,95 @@ import numpy as np
 
 def calculate_q_values(p_values: pd.Series) -> pd.Series:
     """
-    Calculate q-values using the Benjamini-Hochberg procedure.
+    Implements the Benjamini-Hochberg procedure to calculate q-values.
     
     Args:
-        p_values: Series of raw p-values (must be sorted by p-value ascending).
-    
+        p_values: Series of p-values.
+        
     Returns:
-        Series of q-values aligned with the input index.
+        Series of q-values.
     """
-    # Ensure we are working with a copy to avoid modifying original
-    p = p_values.sort_values()
-    n = len(p)
+    n = len(p_values)
     if n == 0:
         return pd.Series([], dtype=float)
     
-    # BH procedure: q_i = p_i * n / i
-    # where i is the rank (1-indexed)
-    ranks = np.arange(1, n + 1)
-    q_values = (p.values * n) / ranks
+    # Sort p-values
+    sorted_indices = p_values.argsort()
+    sorted_p_values = p_values.iloc[sorted_indices]
     
-    # Ensure monotonicity: q_i <= q_{i+1}
-    # We iterate backwards to enforce this
+    # Calculate BH q-values
+    q_values = np.zeros(n)
+    for i in range(n):
+        rank = i + 1
+        q_values[i] = sorted_p_values.iloc[i] * n / rank
+    
+    # Ensure monotonicity (q-values should be non-decreasing when sorted by p-value)
+    # We process from largest p-value to smallest
     for i in range(n - 2, -1, -1):
-        if q_values[i] > q_values[i + 1]:
-            q_values[i] = q_values[i + 1]
+        q_values[i] = min(q_values[i], q_values[i + 1])
     
-    # Cap values at 1.0
-    q_values = np.minimum(q_values, 1.0)
+    # Map back to original order
+    result = pd.Series(np.zeros(n), index=p_values.index)
+    result.iloc[sorted_indices] = q_values
     
-    # Re-index to match original input order
-    result = pd.Series(q_values, index=p.index)
-    return result.sort_index() # Return in original order of input series
+    return result
 
-def apply_fdr_correction(
-    df: pd.DataFrame, 
-    p_col: str = "P", 
-    q_col: str = "Q", 
-    sig_col: str = "significant",
-    threshold: float = 0.05
-) -> pd.DataFrame:
+def apply_fdr_correction(df: pd.DataFrame, p_col: str = 'P', q_col: str = 'Q') -> pd.DataFrame:
     """
-    Apply FDR correction to a DataFrame containing GWAS results.
+    Applies FDR correction to a dataframe containing p-values.
     
     Args:
-        df: DataFrame with GWAS results.
-        p_col: Name of the column containing raw p-values.
-        q_col: Name of the column for the calculated q-values.
-        sig_col: Name of the column for the significance flag.
-        threshold: The q-value threshold for significance.
-    
+        df: DataFrame with p-values.
+        p_col: Name of the column containing p-values.
+        q_col: Name of the column for q-values.
+        
     Returns:
-        DataFrame with added q-value and significance columns.
+        DataFrame with added q-values column.
     """
     if p_col not in df.columns:
-        raise ValueError(f"P-value column '{p_col}' not found in dataframe. Columns: {df.columns.tolist()}")
+        raise ValueError(f"Column '{p_col}' not found in DataFrame. Available columns: {df.columns.tolist()}")
     
-    # Calculate q-values
     df[q_col] = calculate_q_values(df[p_col])
-    
-    # Flag significance
-    df[sig_col] = df[q_col] < threshold
-    
     return df
 
-def write_output_with_disclaimer(
-    df: pd.DataFrame, 
-    output_path: Path, 
-    disclaimer: str, 
-    method: str
-) -> None:
+def write_output_with_disclaimer(df: pd.DataFrame, output_path: Path, p_col: str = 'P', q_col: str = 'Q'):
     """
-    Write the DataFrame to a TSV file, prepending the mandatory disclaimer
-    and method documentation as comment lines.
+    Writes the FDR-corrected results to a file, prepending the mandatory disclaimer.
     
     Args:
-        df: The processed DataFrame.
+        df: DataFrame with results.
         output_path: Path to the output file.
-        disclaimer: The mandatory disclaimer text.
-        method: Description of the correction method used.
+        p_col: Name of the p-value column.
+        q_col: Name of the q-value column.
     """
-    # Prepare header comments
-    header_lines = [
-        f"# WARNING: {disclaimer}",
-        f"# Correction Method: {method}",
-        f"# Significance Threshold: q < 0.05",
-        f"# This file contains SNPs flagged as significant based on the Benjamini-Hochberg procedure."
-    ]
+    # Flag significant SNPs
+    df['significant'] = df[q_col] < 0.05
     
-    # Write comments first
+    # Create the disclaimer text
+    disclaimer = (
+        "# Findings are associational, not causal. "
+        "This report applies the Benjamini-Hochberg (BH) FDR correction method. "
+        "SNPs with q < 0.05 are flagged as significant. "
+        "The BH method controls the expected proportion of false discoveries among the declared significant findings. "
+        "Impact on discovery rate: The BH method is less stringent than Bonferroni, "
+        "allowing for more discoveries while controlling the false discovery rate. "
+        "However, it assumes independence or positive dependence among tests. "
+        "In GWAS, linkage disequilibrium (LD) can violate this assumption, potentially affecting the actual FDR. "
+        "Results should be interpreted with caution and validated in independent cohorts."
+    )
+    
+    # Write disclaimer and header
     with open(output_path, 'w') as f:
-        for line in header_lines:
-            f.write(line + '\n')
-    
-    # Append the TSV data
-    df.to_csv(output_path, sep='\t', index=False, mode='a')
+        f.write(disclaimer + "\n")
+        f.write("# " + "\t".join(df.columns) + "\n")
+        df.to_csv(f, sep='\t', index=False, header=False)
 
 def main():
-    parser = argparse.ArgumentParser(description="Apply FDR correction to GWAS results")
-    parser.add_argument("--input", type=str, required=True, help="Input TSV file (raw GWAS results)")
-    parser.add_argument("--output", type=str, required=True, help="Output TSV file (FDR corrected)")
-    parser.add_argument("--disclaimer", type=str, required=True, help="Mandatory disclaimer text")
-    parser.add_argument("--threshold", type=float, default=0.05, help="Q-value threshold for significance")
-    parser.add_argument("--method", type=str, default="Benjamini-Hochberg (BH)", help="Description of correction method")
-    parser.add_argument("--p-col", type=str, default="P", help="Column name for p-values")
+    parser = argparse.ArgumentParser(description="Apply Benjamini-Hochberg FDR correction to GWAS results.")
+    parser.add_argument("--input", required=True, help="Path to the input GWAS raw TSV file.")
+    parser.add_argument("--output", required=True, help="Path to the output FDR-corrected TSV file.")
+    parser.add_argument("--p-col", default="P", help="Column name for p-values (default: P).")
+    parser.add_argument("--q-col", default="Q", help="Column name for q-values (default: Q).")
     
     args = parser.parse_args()
     
@@ -128,33 +103,24 @@ def main():
     output_path = Path(args.output)
     
     if not input_path.exists():
-        print(f"ERROR: Input file not found: {input_path}")
+        print(f"Error: Input file not found at {input_path}")
         sys.exit(1)
     
-    # Read data
+    print(f"Loading data from {input_path}...")
     try:
         df = pd.read_csv(input_path, sep='\t')
     except Exception as e:
-        print(f"ERROR: Failed to read input file: {e}")
+        print(f"Error reading input file: {e}")
         sys.exit(1)
     
-    # Apply correction
-    df = apply_fdr_correction(
-        df, 
-        p_col=args.p_col, 
-        q_col="Q", 
-        sig_col="significant", 
-        threshold=args.threshold
-    )
+    print(f"Applying FDR correction to column '{args.p_col}'...")
+    df = apply_fdr_correction(df, p_col=args.p_col, q_col=args.q_col)
     
-    # Write output with disclaimer
-    write_output_with_disclaimer(df, output_path, args.disclaimer, args.method)
+    print(f"Writing results to {output_path}...")
+    write_output_with_disclaimer(df, output_path, p_col=args.p_col, q_col=args.q_col)
     
-    # Print summary
-    total_snps = len(df)
-    significant_snps = df["significant"].sum()
-    print(f"Processed {total_snps} SNPs.")
-    print(f"Significant SNPs (q < {args.threshold}): {significant_snps}")
+    significant_count = (df[args.q_col] < 0.05).sum()
+    print(f"FDR correction complete. Found {significant_count} significant SNPs (q < 0.05).")
 
 if __name__ == "__main__":
     main()

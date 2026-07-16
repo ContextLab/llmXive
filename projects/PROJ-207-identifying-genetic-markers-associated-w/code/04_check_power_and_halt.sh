@@ -1,56 +1,53 @@
 #!/bin/bash
 #
-# code/04_check_power_and_halt.sh
+# Task: T043
+# Description: Execute power analysis (T005) immediately after data loading.
+#              HALT the pipeline with ERR_SAMPLE_SIZE_INSUFFICIENT if n < 80
+#              BEFORE any GWAS execution (T017) runs.
 #
-# Implements FR-012: Enforce minimum sample size (n >= 80) before GWAS execution.
-# This script runs immediately after data loading and halts the pipeline if
-# the sample size is insufficient.
-#
-# Exit Codes:
-#   0 - Power analysis passed, pipeline can proceed
-#   1 - Power analysis failed (sample size insufficient) or other error
+# This script enforces FR-012 halt logic early in the pipeline.
 #
 
 set -e
 
-# Define the path to the power analysis utility
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
+
 POWER_ANALYSIS_SCRIPT="code/utils/power_analysis.py"
+ERROR_CODE="ERR_SAMPLE_SIZE_INSUFFICIENT"
 
-# Define the error code for insufficient sample size
-ERR_CODE="ERR_SAMPLE_SIZE_INSUFFICIENT"
+echo "----------------------------------------"
+echo "Running Power Analysis Check (FR-012)..."
+echo "----------------------------------------"
 
-echo "=========================================="
-echo "Starting Power Analysis Check (FR-012)"
-echo "=========================================="
-
-# Check if the power analysis script exists
 if [ ! -f "$POWER_ANALYSIS_SCRIPT" ]; then
     echo "ERROR: Power analysis script not found at $POWER_ANALYSIS_SCRIPT"
-    echo "HALTING pipeline."
     exit 1
 fi
 
-# Execute the power analysis
-# The Python script will:
-# 1. Locate input data (phenotypes/fam file)
-# 2. Count samples (n)
-# 3. If n < 80: Print error and exit with code 1
-# 4. If n >= 80: Calculate power, write report, exit with code 0
-python "$POWER_ANALYSIS_SCRIPT"
-POWER_EXIT_CODE=$?
-
-if [ $POWER_EXIT_CODE -ne 0 ]; then
-    echo "=========================================="
-    echo "PIPELINE HALTED: Insufficient Sample Size"
-    echo "=========================================="
-    echo "The power analysis failed. This likely means the sample size (n) is less than 80."
-    echo "Error code: $ERR_CODE"
-    echo "Please ensure sufficient data is loaded before attempting GWAS execution."
-    exit 1
+# Execute the power analysis script.
+# If n < 80, power_analysis.py will exit with code 1 and print the error code.
+# We capture the output to check for the specific error message if needed,
+# but the non-zero exit code is the primary signal to halt.
+if ! python "$POWER_ANALYSIS_SCRIPT"; then
+    EXIT_CODE=$?
+    
+    # Check if the exit code corresponds to the insufficient sample size error
+    # The python script exits with 1 for ERR_SAMPLE_SIZE_INSUFFICIENT
+    if [ $EXIT_CODE -ne 0 ]; then
+        echo "----------------------------------------"
+        echo "CRITICAL: Power analysis failed."
+        echo "Pipeline HALTED due to insufficient sample size."
+        echo "Error Code: $ERROR_CODE"
+        echo "----------------------------------------"
+        exit $EXIT_CODE
+    fi
 fi
 
-echo "=========================================="
-echo "Power Analysis Check PASSED"
-echo "Pipeline may proceed to GWAS execution."
-echo "=========================================="
+echo "----------------------------------------"
+echo "Power analysis passed. Sample size >= 80."
+echo "Proceeding to GWAS execution (T017)..."
+echo "----------------------------------------"
+
 exit 0

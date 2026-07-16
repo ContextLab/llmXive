@@ -1,128 +1,129 @@
-#!/usr/bin/env bash
-# 03_gwas.sh: Execute PLINK logistic regression for GWAS
+#!/bin/bash
+# code/03_gwas.sh
+# Executes PLINK logistic regression for GWAS analysis with covariates.
 #
 # Usage:
-#   ./03_gwas.sh <plink_prefix> <pheno_file> <covar_file> <output_prefix>
+#   ./code/03_gwas.sh <plink_prefix> <phenotype_file> <covariate_file> <output_prefix>
 #
-# Inputs:
-#   <plink_prefix> : Prefix for PLINK binary files (.bed, .bim, .fam)
-#   <pheno_file>   : Path to phenotype file (format: FID IID PHENO)
-#   <covar_file>   : Path to covariate file (format: FID IID COV1 COV2 ...)
-#   <output_prefix>: Prefix for output files
+# Arguments:
+#   plink_prefix: Prefix for PLINK binary files (.bed, .bim, .fam)
+#   phenotype_file: Path to phenotype file (.pheno)
+#   covariate_file: Path to covariate file (.covar)
+#   output_prefix: Prefix for output files
 #
-# Outputs:
-#   <output_prefix>.assoc.logistic : Raw association statistics
-#
-# Requirements:
-#   - plink (v1.9 or v2.0) must be in PATH
-#
-# Note:
-#   - FDR correction is NOT applied here (handled by T022).
-#   - This script outputs raw p-values and statistics.
+# Environment Variables:
+#   PLINK_THREADS: Number of threads for PLINK (default: 4)
+#   LOGISTIC_MODEL: Logistic regression model type (default: firth)
 
 set -euo pipefail
 
-# --- Configuration ---
-readonly SCRIPT_NAME=$(basename "$0")
-readonly PLINK_CMD="plink"
+# Configuration with defaults
+PLINK_THREADS="${PLINK_THREADS:-4}"
+LOGISTIC_MODEL="${LOGISTIC_MODEL:-firth}"
 
-# --- Functions ---
-log_info() {
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
-}
+# Validate arguments
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 <plink_prefix> <phenotype_file> <covariate_file> <output_prefix>" >&2
+    echo "  plink_prefix: Prefix for PLINK binary files" >&2
+    echo "  phenotype_file: Path to phenotype file" >&2
+    echo "  covariate_file: Path to covariate file" >&2
+    echo "  output_prefix: Prefix for output files" >&2
+    exit 1
+fi
 
-log_error() {
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
-}
+PLINK_PREFIX="$1"
+PHENOTYPE_FILE="$2"
+COVARIATE_FILE="$3"
+OUTPUT_PREFIX="$4"
 
-check_prereqs() {
-    if ! command -v "$PLINK_CMD" &> /dev/null; then
-        log_error "PLINK not found in PATH. Please install PLINK."
-        exit 1
-    fi
-}
+# Validate input files exist
+if [ ! -f "${PLINK_PREFIX}.bed" ]; then
+    echo "ERROR: PLINK BED file not found: ${PLINK_PREFIX}.bed" >&2
+    exit 1
+fi
 
-validate_inputs() {
-    local plink_prefix="$1"
-    local pheno_file="$2"
-    local covar_file="$3"
+if [ ! -f "${PLINK_PREFIX}.bim" ]; then
+    echo "ERROR: PLINK BIM file not found: ${PLINK_PREFIX}.bim" >&2
+    exit 1
+fi
 
-    if [[ -z "$plink_prefix" || -z "$pheno_file" || -z "$covar_file" ]]; then
-        log_error "Missing required arguments."
-        echo "Usage: $SCRIPT_NAME <plink_prefix> <pheno_file> <covar_file> <output_prefix>"
-        exit 1
-    fi
+if [ ! -f "${PLINK_PREFIX}.fam" ]; then
+    echo "ERROR: PLINK FAM file not found: ${PLINK_PREFIX}.fam" >&2
+    exit 1
+fi
 
-    if [[ ! -f "${plink_prefix}.bed" ]]; then
-        log_error "PLINK binary file not found: ${plink_prefix}.bed"
-        exit 1
-    fi
+if [ ! -f "$PHENOTYPE_FILE" ]; then
+    echo "ERROR: Phenotype file not found: $PHENOTYPE_FILE" >&2
+    exit 1
+fi
 
-    if [[ ! -f "${plink_prefix}.bim" ]]; then
-        log_error "PLINK bim file not found: ${plink_prefix}.bim"
-        exit 1
-    fi
+if [ ! -f "$COVARIATE_FILE" ]; then
+    echo "ERROR: Covariate file not found: $COVARIATE_FILE" >&2
+    exit 1
+fi
 
-    if [[ ! -f "${plink_prefix}.fam" ]]; then
-        log_error "PLINK fam file not found: ${plink_prefix}.fam"
-        exit 1
-    fi
+# Create output directory if it doesn't exist
+OUTPUT_DIR=$(dirname "$OUTPUT_PREFIX")
+mkdir -p "$OUTPUT_DIR"
 
-    if [[ ! -f "$pheno_file" ]]; then
-        log_error "Phenotype file not found: $pheno_file"
-        exit 1
-    fi
+# Execute PLINK logistic regression
+RAW_OUTPUT="${OUTPUT_PREFIX}_raw.logistic"
+echo "Running PLINK logistic regression with covariates"
 
-    if [[ ! -f "$covar_file" ]]; then
-        log_error "Covariate file not found: $covar_file"
-        exit 1
-    fi
-}
+plink \
+    --bfile "$PLINK_PREFIX" \
+    --logistic hide-covar $LOGISTIC_MODEL \
+    --covar "$COVARIATE_FILE" \
+    --pheno "$PHENOTYPE_FILE" \
+    --covar-name Geographic_Region,Sampling_Year,Varroa_Load \
+    --threads "$PLINK_THREADS" \
+    --out "$RAW_OUTPUT"
 
-run_gwas() {
-    local plink_prefix="$1"
-    local pheno_file="$2"
-    local covar_file="$3"
-    local output_prefix="$4"
-    local output_file="${output_prefix}.assoc.logistic"
+# Convert PLINK output to TSV format
+RAW_TSV="${OUTPUT_PREFIX}_raw.tsv"
+if [ -f "${RAW_OUTPUT}.assoc.logistic" ]; then
+    # PLINK 1.9/2.0 output format
+    cp "${RAW_OUTPUT}.assoc.logistic" "$RAW_TSV"
+elif [ -f "${RAW_OUTPUT}.logistic" ]; then
+    # Alternative output format
+    cp "${RAW_OUTPUT}.logistic" "$RAW_TSV"
+else
+    echo "ERROR: PLINK did not generate expected output files" >&2
+    ls -la "${RAW_OUTPUT}"* >&2
+    exit 1
+fi
 
-    log_info "Starting GWAS with PLINK logistic regression..."
+# Generate summary statistics
+TOTAL_SNPS=$(tail -n +2 "$RAW_TSV" | wc -l)
+SIGNIFICANT_SNPS=$(tail -n +2 "$RAW_TSV" | awk -v p=5e-8 '$P < p {count++} END {print count+0}')
 
-    # Execute PLINK
-    # --logistic: Perform logistic regression
-    # --covar: Use covariates
-    # --pheno: Use phenotype file
-    # --out: Output prefix
-    # --threads: Use multiple threads if available
-    $PLINK_CMD \
-        --bfile "$plink_prefix" \
-        --logistic \
-        --covar "$covar_file" \
-        --pheno "$pheno_file" \
-        --out "$output_prefix" \
-        --threads 4
+SUMMARY_FILE="${OUTPUT_PREFIX}_summary.txt"
+cat > "$SUMMARY_FILE" <<EOF
+GWAS Analysis Summary
+=====================
+Input:
+  PLINK Prefix: $PLINK_PREFIX
+  Phenotype File: $PHENOTYPE_FILE
+  Covariate File: $COVARIATE_FILE
+  Model: $LOGISTIC_MODEL
+  Threads: $PLINK_THREADS
 
-    if [[ ! -f "$output_file" ]]; then
-        log_error "GWAS failed: Output file not created."
-        exit 2
-    fi
+Covariates Used:
+  - Geographic_Region
+  - Sampling_Year
+  - Varroa_Load
 
-    log_info "GWAS complete. Output: $output_file"
-}
+Results:
+  Total SNPs Analyzed: $TOTAL_SNPS
+  Significant SNPs (p < 5e-8): $SIGNIFICANT_SNPS
 
-# --- Main ---
-main() {
-    local plink_prefix="${1:-}"
-    local pheno_file="${2:-}"
-    local covar_file="${3:-}"
-    local output_prefix="${4:-}"
+Output Files:
+  Raw TSV: $RAW_TSV
+  Summary: $SUMMARY_FILE
 
-    check_prereqs
-    validate_inputs "$plink_prefix" "$pheno_file" "$covar_file"
+Note: This output contains raw association statistics.
+FDR correction must be applied separately using code/04_apply_fdr.sh.
+EOF
 
-    run_gwas "$plink_prefix" "$pheno_file" "$covar_file" "$output_prefix"
-
-    log_info "Pipeline completed successfully."
-}
-
-main "$@"
+echo "GWAS pipeline complete. Summary: $SUMMARY_FILE"
+echo "Raw results: $RAW_TSV"

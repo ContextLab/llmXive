@@ -1,15 +1,2 @@
-T010 [P] [US1] Contract test for VCF schema validation in `tests/contract/test_vcf_schema.py`: 2
-T011 [P] [US1] Integration test for full synthetic pipeline run in `tests/integration/test_synthetic_gwas.py`: 1
-? 'T011 [P] [US1] Integration test for full synthetic pipeline run in `tests/integration/test_synthetic_gwas.py`
-  <!-- FAILED: unspecified -->'
-: 1
-? T012 [US1] Implement `code/01_download.py` to fetch data from NCBI BioProject PRJNA/PRJNA566029
-  with SSL verification (FR-001). MUST halt with clear error on SSL failure. If SSL
-  fails and fallback is explicitly configured, proceed to synthetic path; otherwise,
-  halt.
-: 1
-? T043 [P] Implement `code/04_check_power_and_halt.sh` to execute `code/utils/power_analysis.py`
-  (T005) immediately after data loading. MUST halt the pipeline with `ERR_SAMPLE_SIZE_INSUFFICIENT`
-  if n < 80 BEFORE any GWAS execution (T017) runs. This task enforces FR-012 halt
-  logic early in the pipeline.
-: 2
+T036: 2
+T037: 2

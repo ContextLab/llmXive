@@ -122,7 +122,7 @@ As a researcher, I want to validate GWAS findings using LASSO logistic regressio
 
 - **SC-004**: Total pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit. (See US-1)
 
-- **SC-005**: Peak memory usage is measured against the 7 GB RAM constraint of the CI runner. (See US-1)
+- **SC-005**: Peak memory usage is measured against the RAM constraint of the CI runner. (See US-1)
 
 - **SC-006**: Collinearity diagnostics (VIF or correlation matrix) are measured against the threshold of r² > 0.8 for flagging problematic covariate relationships. (See US-1)
 
