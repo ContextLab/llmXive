@@ -122,7 +122,7 @@ def _runbook_cli_mismatches(res: AnalysisRunResult) -> list[tuple[str, str, str]
     mismatch so the implementer is told to reconcile the quickstart command and the
     script's argparse (not pointlessly edit the body)."""
     out: list[tuple[str, str, str]] = []
-    for r in res.commands:
+    for r in getattr(res, "commands", None) or []:
         if r.ok or not r.tail:
             continue
         if not _ARGPARSE_ERROR_RE.search(r.tail):
@@ -568,26 +568,37 @@ def _poll_offload(project_dir: Path, repo: Path) -> bool:
                 project_id, len(real),
             )
             return True
+        # Capture WHY the completed bundle failed so the durable offload
+        # sub-record carries the diagnosis (issue #1139 AP4), not just "failed".
         if real and gate is not None:
+            fail_reason = gate.reason()
+            fail_evidence = [
+                *gate.fabrication[:5], *gate.hollow[:5],
+                *gate.undurable[:5], *gate.declared_missing[:5],
+            ]
             logger.warning(
                 "offload %s completed but the retrieved bundle FAILED the semantic "
                 "gate — NOT advancing (%s); falling back to a local pass",
-                project_id, gate.reason(),
+                project_id, fail_reason,
             )
         else:
+            fail_reason = "offload retrieved no real (non-empty) artifacts"
+            fail_evidence = []
             logger.warning(
                 "offload %s completed but retrieved no real artifacts; falling back",
                 project_id,
             )
         execution_status.record_offload(
-            project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+            project_id, status="failed", kernel_ref=kernel_ref,
+            reason=fail_reason, evidence=fail_evidence, repo_root=repo,
         )
         return _run_local_after_failed_offload(project_dir, repo)
 
     # error / cancelAcknowledged / unknown-terminal → failed, then local fallback.
     logger.warning("offload %s ended status=%s; falling back to local path", project_id, status)
     execution_status.record_offload(
-        project_id, status="failed", kernel_ref=kernel_ref, repo_root=repo,
+        project_id, status="failed", kernel_ref=kernel_ref,
+        reason=f"offload kernel ended in terminal status={status}", repo_root=repo,
     )
     return _run_local_after_failed_offload(project_dir, repo)
 
