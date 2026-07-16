@@ -3,11 +3,15 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-plant-defense"
+name = "llmxive-plant-defense-pipeline"
 version = "0.1.0"
 description = "Predicting Plant Defense Compound Production from Genomic and Transcriptomic Data"
 readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team"}
+]
 dependencies = [
     "pandas",
     "numpy",
@@ -22,16 +26,16 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
-    "pytest",
-    "pytest-cov",
-    "mypy",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -44,23 +48,30 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | \.eggs
-    | \.ipynb_checkpoints
+    | __pycache__
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+skip = [".git", "__pycache__", ".eggs", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
 
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
-
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["*"]
+disallow_untyped_defs = false
+strict_optional = true

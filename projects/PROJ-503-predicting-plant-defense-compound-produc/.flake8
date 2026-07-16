@@ -1,16 +1,8 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
+exclude = .git,__pycache__,build,dist,.eggs
 per-file-ignores =
-    # Allow unused imports in __init__.py for API surface exposure
-    */__init__.py: F401
-# Additional flake8 settings for scientific code
-# Ignore line-too-long for docstrings and URLs
+    # Allow longer lines in docstrings or specific config-heavy files if needed
+    */__init__.py:F401
 max-complexity = 15

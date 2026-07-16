@@ -1,0 +1,10 @@
+status: none
+intent: AI usage frequency moral disengagement survey dataset ICPSR python package
+  dataset
+required_fields:
+- ai_usage_frequency
+- moral_disengagement_score
+- cognitive_dissonance_proxy
+cache_key: 629fcba79936033857ab3e13896b7ded32a46fedc1b110adb7eeb61aa4f26d09
+searched_at: '2026-07-16T16:40:13.086015+00:00'
+retry_count: 1

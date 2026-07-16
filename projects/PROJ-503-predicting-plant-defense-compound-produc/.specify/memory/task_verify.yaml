@@ -1,21 +1,7 @@
-? 'T001 Create project structure with exact directories: `projects/PROJ-503-predicting-plant-defense-compound-produc/code/`,
-  `projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/`, `projects/PROJ-503-predicting-plant-defense-compound-produc/data/processed/`,
-  `projects/PROJ-503-predicting-plant-defense-compound-produc/data/paired/`, `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/`,
-  `projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/models/`, `projects/PROJ-503-predicting-plant-defense-compound-produc/docs/`,
-  `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/contract/`, `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/integration/`,
-  `projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/`'
-: 2
-? 'T003 [P] Configure linting and formatting: Create `projects/PROJ-503-predicting-plant-defense-compound-produc/.flake8`
-  and `projects/PROJ-503-predicting-plant-defense-compound-produc/pyproject.toml`
-  with black configuration'
-: 2
-? 'T004 [P] Implement logging logic: Create utility functions to write to `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json`
-  (on mismatch) and `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/feature_filtering.csv`
-  (on zero-variance filter) per spec.md edge cases'
-: 2
-? T006 [P] Create base data model classes (ExpressionMatrix, MetaboliteMatrix, FeatureSet,
-  ModelArtifact) in `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`
-: 2
-? 'T007 Implement error handling framework with E-DATASET, E-PAIRING, E-TIMEOUT, and
-  E-POWER error codes per plan.md (Note: E-POWER is required for power analysis failures)'
-: 1
+T001: 1
+T003: 1
+T004: 1
+T006: 1
+T007: 1
+T009: 1
+T010: 1

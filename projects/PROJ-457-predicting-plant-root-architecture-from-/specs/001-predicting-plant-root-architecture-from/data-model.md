@@ -1,99 +1,106 @@
 # Data Model: 001-predict-root-architecture
 
-## Overview
+## Entity Relationship Diagram (Conceptual)
 
-This document defines the data structures used throughout the pipeline, from ingestion to final reporting. All data is processed in Pandas DataFrames, serialized to Parquet for efficiency, and validated against the schemas defined in `contracts/`.
+The data model consists of three primary entities: `RootPhenotypeRecord`, `SoilNutrientRecord`, and `MergedDataset`.
 
-## Entity Definitions
+1.  **RootPhenotypeRecord**: Represents a single root architecture observation.
+2.  **SoilNutrientRecord**: Represents soil chemical properties at a specific location.
+3.  **MergedDataset**: The joined entity containing both root metrics and nutrient levels, plus metadata.
 
-### 1. RawRootPhenotype
-Represents the raw ingestion from PlantPheno or RootReader.
-*   **Source**: `data/raw/plantpheno_raw.parquet` (or txt converted)
-*   **Attributes**:
-    *   `species` (string): Plant species name.
-    *   `root_length` (float): Total root length (cm).
-    *   `branching_density` (float): Branches per cm.
-    *   `surface_area` (float): Total surface area (cm²).
-    *   `geographic_location` (string): "lat,lon" or "lat;lon".
-    *   `data_source_type` (string): "observational" or "experimental".
-    *   `experimental_id` (string): Unique study identifier.
+## Schema Definitions
 
-### 2. RawSoilNutrient
-Represents raw soil data (ISRIC or local).
-*   **Source**: `data/raw/isric_raw.csv`
-*   **Attributes**:
-    *   `latitude` (float): Decimal degrees.
-    *   `longitude` (float): Decimal degrees.
-    *   `phosphorus_concentration` (float): mg/kg.
-    *   `nitrogen_concentration` (float): mg/kg.
-    *   `depth` (float): Soil depth in cm.
-    *   `measurement_date` (date): YYYY-MM-DD.
+### 1. RootPhenotypeRecord
+*Source*: PlantPheno (Hugging Face)
+*   `species` (string): Taxonomic name of the plant.
+*   `root_length` (float): Total root length (mm or cm).
+*   `branching_density` (float): Number of branches per unit length.
+*   `surface_area` (float): Total root surface area.
+*   `experimental_id` (string): Unique identifier for the experimental run.
+*   `data_source_type` (string): "observational" or "experimental".
+*   `latitude` (float): Geographic latitude.
+*   `longitude` (float): Geographic longitude.
+
+### 2. SoilNutrientRecord
+*Source*: PlantPheno (if P/N present) or Verified Fallback
+*   `phosphorus_concentration` (float): P concentration (mg/kg).
+*   `nitrogen_concentration` (float): N concentration (mg/kg).
+*   `latitude` (float): Geographic latitude.
+*   `longitude` (float): Geographic longitude.
+*   `depth` (float): Soil depth (cm).
+*   `measurement_date` (string): Date of measurement.
 
 ### 3. MergedDataset (Processed)
-The cleaned, joined, and transformed dataset ready for modeling.
-*   **Source**: `data/processed/merged_root_soil.parquet`
-*   **Attributes**:
-    *   `species` (category): Categorical species.
-    *   `root_length_log` (float): Log-transformed root length.
-    *   `branching_density_log` (float): Log-transformed branching density.
-    *   `surface_area_log` (float): Log-transformed surface area.
-    *   `phosphorus_z` (float): Z-score normalized P.
-    *   `nitrogen_z` (float): Z-score normalized N.
-    *   `latitude` (float): Geographic latitude (fixed effect).
-    *   `longitude` (float): Geographic longitude (fixed effect).
-    *   `sample_count` (int): Number of observations for this species.
-    *   `exclusion_reason` (string): "n<20", "missing_nutrient", "experimental", or null.
+*Target*: `data/processed/merged_clean.csv`
+*   `species` (string): Categorical.
+*   `root_length_log` (float): Log-transformed root length.
+*   `branching_density_log` (float): Log-transformed branching density.
+*   `surface_area_log` (float): Log-transformed root surface area.
+*   `phosphorus_z` (float): Z-score normalized P.
+*   `nitrogen_z` (float): Z-score normalized N.
+*   `species_id` (int): Integer encoding for random effects.
+*   `data_source_type` (string): Filtered to "observational" only.
+*   `latitude` (float): Geographic latitude (required for geospatial logic).
+*   `longitude` (float): Geographic longitude (required for geospatial logic).
 
-### 4. ModelOutput
-Serialized results from the modeling phase.
-*   **Source**: `artifacts/models/lmm_results.json`
-*   **Attributes**:
-    *   `model_type` (string): "LMM" or "RandomForest".
-    *   `adj_r2` (float): Adjusted R-squared.
-    *   `rmse` (float): Root Mean Squared Error.
-    *   `coefficients` (dict): Map of predictor to coefficient.
-    *   `p_values` (dict): Map of predictor to Bonferroni-corrected p-values.
-    *   `cv_r2_mean` (float): Mean R² from 5-fold CV.
-    *   `cv_coeff_stability` (float): Standard deviation of nutrient coefficients across folds.
-    *   `lrt_p_value` (float): P-value from Likelihood Ratio Test (Full vs Null).
-    *   `collinearity_vif` (dict): VIF for predictors.
-    *   `association_only` (boolean): Flag indicating no causal claims are made.
-    *   `literature_overlap` (boolean): True if 95% CI overlaps with literature range.
+## Preprocessing Pipeline
 
-## Data Flow Diagram
+1.  **Ingestion**: Load raw data from Hugging Face.
+2.  **Filtering**:
+    *   Exclude rows where `phosphorus_concentration` or `nitrogen_concentration` is null (no imputation). Log exclusion count.
+    *   Exclude rows where `data_source_type` == "experimental" (FR-012). **Log exclusion count**.
+    *   Exclude rows where `latitude` or `longitude` is missing (cannot perform geospatial merge). Log exclusion count.
+    *   Group by `species`; exclude groups with count < 20 (FR-001). Log exclusion count.
+    *   **Handle `depth` and `measurement_date`**: If these fields are present in the source data but not required for the final model, they are dropped. If they are required for geospatial matching (e.g., to filter by depth), they are used in the filtering step. If they are missing and required, the record is excluded.
+3.  **Transformation**:
+    *   **Log-Transform**: `log(root_metric + 1e-6)` to handle zeros (FR-003).
+    *   **Normalization**: `z_score(nutrient)` globally across all species.
+    *   **No Imputation**: Missing nutrient values result in row exclusion.
+4.  **Encoding**: Convert `species` to integer for model input.
+
+## Logging Requirements
+
+The ingestion and preprocessing scripts must log the following exclusion counts:
+*   Number of species excluded due to n < 20.
+*   Number of rows excluded due to missing P/N values.
+*   Number of rows excluded due to experimental data type.
+*   Number of rows excluded due to missing coordinates.
+*   Number of rows excluded due to missing `depth` or `measurement_date` (if required).
+*   Total number of rows in the final cleaned dataset.
+
+Example log output:
+```
+[INFO] Ingestion started.
+[INFO] Loaded PlantPheno: 5000 rows.
+[INFO] Merging datasets...
+[INFO] Merged dataset: 5000 rows.
+[INFO] Filtering experimental data...
+[INFO] Excluded 500 rows (experimental).
+[INFO] Filtering missing nutrients...
+[INFO] Excluded 1000 rows (missing P/N).
+[INFO] Filtering missing coordinates...
+[INFO] Excluded 200 rows (missing lat/lon).
+[INFO] Filtering missing depth/date...
+[INFO] Excluded 50 rows (missing depth/date).
+[INFO] Filtering species with n < 20...
+[INFO] Excluded 20 species (100 rows).
+[INFO] Final dataset: 3200 rows.
+```
+
+## Data Flow
 
 ```mermaid
 graph TD
-    A[Raw PlantPheno] -->|Ingest & Parse| B(RawRootPhenotype)
-    C[Raw ISRIC/Local] -->|Ingest & Parse| D(RawSoilNutrient)
-    B -->|Filter: n>=20, observational| E[Filtered Roots]
-    D -->|Filter: valid coords| F[Filtered Soils]
-    E -->|Join: Geo Nearest Neighbor (10km)| G[Merged Raw]
-    G -->|Impute (KNN k=5, Predictor-Only, Fit-Apply)| H[Imputed Data]
-    H -->|Transform: Log Roots, Z Nutrients| I[MergedDataset]
-    I -->|Split: By Species| J[Train/Val/Test]
-    J -->|LMM | K[ModelOutput]
-    J -->|RF | L[ModelOutput]
-    K -->|Plot | M[Visualization]
-    L -->|Plot | M
-    M -->|Report | N[Final Report]
+    A[PlantPheno Raw] --> B(Ingestion Script)
+    B --> D{Filtering}
+    D -->|Exclude Experimental| E[Filtered Raw]
+    D -->|Exclude n<20| E
+    D -->|Exclude Missing Nutrients| E
+    D -->|Exclude Missing Coords| E
+    D -->|Exclude Missing Depth/Date| E
+    E --> F(Preprocessing: Log, Z-score)
+    F --> G[Merged Clean CSV]
+    G --> H[Modeling: LMM & RF]
+    H --> I[Results JSON]
+    H --> J[Plots PNG]
 ```
-
-## Transformation Rules
-
-1.  **Filtering**:
-    *   Exclude `data_source_type == "experimental"` (FR-012).
-    *   Exclude species with count < 20 (FR-001).
-    *   Exclude rows where P or N is missing (FR-001).
-2.  **Imputation**:
-    *   **Predictor-Only**: KNN (k=5, Euclidean) uses only `phosphorus`, `nitrogen`, `latitude`, `longitude`. **Excludes** root metrics.
-    *   **Fit-Apply**: Imputer fitted on Training fold only, applied to all folds.
-    *   **Fallback**: If no neighbors in training set, exclude sample from evaluation (no mean imputation).
-3.  **Transformation**:
-    *   `log(x + 1e-6)` for root metrics (FR-003, Const. VII).
-    *   `(x - mean) / std` for nutrients (FR-003, Const. VII).
-4.  **Splitting**:
-    *   Group by `species`.
-    *   Shuffle species list.
-    *   Assign 5 folds.
-    *   No row-level mixing.

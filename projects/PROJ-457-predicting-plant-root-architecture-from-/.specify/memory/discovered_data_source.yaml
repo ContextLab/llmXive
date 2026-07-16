@@ -1,0 +1,13 @@
+status: none
+intent: PlantPheno root phenotype ISRIC soil nutrients HuggingFace python package
+  dataset
+required_fields:
+- species
+- root_length
+- branching_density
+- surface_area
+- phosphorus
+- nitrogen
+cache_key: 2ee46e3557e2ac71f6d70d97c8669a3394e247f5249c8f55a67b5603443531a2
+searched_at: '2026-07-16T16:17:15.475876+00:00'
+retry_count: 1

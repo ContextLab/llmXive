@@ -5,198 +5,343 @@ import sys
 import re
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Ensure project root is in path for imports if running as script
+# Project root relative to code/
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
-from error_handler import raise_dataset_error, handle_error
-from logging_utils import log_data_pairing_mismatch
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(PROJECT_ROOT / 'logs' / 'data_download.log')
+        logging.FileHandler(PROJECT_ROOT / "logs" / "data_download.log"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-METABOLOMICS_WORKBENCH_API = "https://www.metabolomicsworkbench.org/rest/study"
-METABOLOMICS_WORKBENCH_STUDY_URL = "https://www.metabolomicsworkbench.org/rest/study/study_summary/STUDY_ID"
-METABOLOMICS_WORKBENCH_SAMPLE_URL = "https://www.metabolomicsworkbench.org/rest/study/sample_summary/STUDY_ID"
-METABOLOMICS_WORKBENCH_DATA_URL = "https://www.metabolomicsworkbench.org/rest/study/data_download/STUDY_ID"
-
-# Keywords for defense compounds
-DEFENSE_KEYWORDS = [
-    "terpenoid", "terpene", "alkaloid", "phenylpropanoid", "phenolic",
-    "glucosinolate", "defense", "herbivore", "stress", "jasmonate",
-    "salicylate", "camalexin", "capsaicin", "nicotine", "caffeine"
-]
 
 def create_session() -> requests.Session:
-    """Create a requests session with standard headers."""
+    """Create a requests session with standard headers and retry logic."""
     session = requests.Session()
     session.headers.update({
-        'User-Agent': 'llmXive-Research-Agent/1.0 (Plant Defense Project)',
-        'Accept': 'application/json'
+        "User-Agent": "llmXive-PlantDefense-Pipeline/1.0 (contact: research@llmxive.org)",
+        "Accept": "application/json"
     })
     return session
 
-def search_metabolomics_workbench(session: requests.Session, keywords: List[str]) -> List[Dict[str, Any]]:
+
+def search_metabolomics_workbench(
+    keywords: List[str],
+    organism: str,
+    study_type: str = "targeted"
+) -> List[Dict[str, Any]]:
     """
-    Search Metabolomics Workbench for studies related to plant defense compounds.
+    Search Metabolomics Workbench for defense-related metabolite experiments.
+    
+    Uses the public REST API to find studies matching herbivore stress,
+    terpenoids, alkaloids, or phenylpropanoids in the specified organism.
     
     Args:
-        session: Requests session
-        keywords: List of keywords to search for (e.g., terpenoid, alkaloid)
+        keywords: List of search terms (e.g., "herbivore", "jasmonate")
+        organism: Target organism (e.g., "Arabidopsis thaliana", "Solanum lycopersicum")
+        study_type: Type of study ("targeted", "untargeted", "both")
         
     Returns:
-        List of matching study metadata dictionaries
-    """
-    logger.info(f"Searching Metabolomics Workbench for keywords: {keywords}")
-    
-    matched_studies = []
-    
-    # We will iterate through known plant-related studies or search by title/abstract
-    # Since MW API search is limited, we fetch a broader set and filter locally
-    # or search by specific terms if the API supports query parameters.
-    # The MW REST API 'study' endpoint allows filtering by 'title' or 'abstract' via query params.
-    
-    base_url = METABOLOMICS_WORKBENCH_API
-    
-    for keyword in keywords:
-        try:
-            # Try searching by title first
-            params = {'title': keyword}
-            response = session.get(base_url, params=params, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            # MW API returns a list of studies or a specific structure depending on version
-            # Often it returns a list of dictionaries under a key or directly
-            studies = data if isinstance(data, list) else data.get('studies', [])
-            
-            for study in studies:
-                study_id = study.get('STUDY_ID') or study.get('study_id')
-                title = study.get('TITLE') or study.get('title', '')
-                abstract = study.get('ABSTRACT') or study.get('abstract', '')
-                
-                # Check if it's plant-related (simple heuristic)
-                is_plant = any(term in (title + abstract).lower() for term in ['plant', 'arabidopsis', 'solanum', 'tobacco', 'tomato', 'maize'])
-                
-                if is_plant and study_id and study_id not in [s.get('STUDY_ID') for s in matched_studies]:
-                    matched_studies.append({
-                        'study_id': study_id,
-                        'title': title,
-                        'abstract': abstract,
-                        'source': 'Metabolomics Workbench',
-                        'keywords_matched': [keyword]
-                    })
-                    
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"Error searching for keyword '{keyword}': {e}")
-            continue
-        except json.JSONDecodeError as e:
-            logger.warning(f"JSON decode error for keyword '{keyword}': {e}")
-            continue
+        List of study metadata dictionaries containing 'study_id', 'title', 
+        'organisms', 'study_type', and download URLs if available.
         
-        # Rate limiting
-        time.sleep(1)
-    
-    logger.info(f"Found {len(matched_studies)} potential studies from Metabolomics Workbench.")
-    return matched_studies
-
-def validate_studies(session: requests.Session, studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    Raises:
+        RuntimeError: If the API is unreachable or returns an error.
     """
-    Validate that studies contain sample-level data suitable for pairing.
+    session = create_session()
+    base_url = "https://www.metabolomicsworkbench.org/rest/study/study_search"
     
-    Args:
-        session: Requests session
-        studies: List of study metadata
-        
-    Returns:
-        Filtered list of studies with valid sample data
-    """
-    valid_studies = []
+    # Construct query parameters
+    params = {
+        "keyword": " OR ".join(keywords),
+        "organism": organism,
+        "study_type": study_type,
+        "format": "json"
+    }
     
-    for study in studies:
-        study_id = study.get('study_id')
-        if not study_id:
-            continue
-            
-        try:
-            # Fetch sample summary to check if samples exist
-            sample_url = METABOLOMICS_WORKBENCH_SAMPLE_URL.replace("STUDY_ID", study_id)
-            response = session.get(sample_url, timeout=30)
-            
-            if response.status_code == 200:
-                sample_data = response.json()
-                samples = sample_data if isinstance(sample_data, list) else sample_data.get('samples', [])
-                
-                if len(samples) > 0:
-                    study['sample_count'] = len(samples)
-                    study['samples'] = samples # Store sample metadata for later pairing
-                    valid_studies.append(study)
-                    logger.info(f"Validated study {study_id} with {len(samples)} samples.")
-                else:
-                    logger.warning(f"Study {study_id} has no samples.")
-            else:
-                logger.warning(f"Could not retrieve samples for study {study_id}: {response.status_code}")
-                
-        except Exception as e:
-            logger.warning(f"Error validating study {study_id}: {e}")
-            continue
-            
-    return valid_studies
-
-def save_search_results(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save search results to a JSON file.
-    
-    Args:
-        results: List of study dictionaries
-        output_path: Path to output file
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Saved search results to {output_path}")
-
-def main():
-    """Main entry point for searching Metabolomics Workbench."""
-    logger.info("Starting Metabolomics Workbench search for defense metabolites.")
+    logger.info(f"Searching MW for {organism} with keywords: {keywords}")
     
     try:
-        session = create_session()
+        response = session.get(base_url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
         
-        # Search for relevant studies
-        results = search_metabolomics_workbench(session, DEFENSE_KEYWORDS)
+        if "STUDIES" not in data:
+            logger.warning("No studies found in response.")
+            return []
         
-        # Validate results
-        valid_results = validate_studies(session, results)
+        studies = data["STUDIES"]
+        logger.info(f"Found {len(studies)} candidate studies.")
         
-        if not valid_results:
-            logger.warning("No valid plant defense metabolite studies found on Metabolomics Workbench.")
-            # Save empty results or a specific marker
-            save_search_results([], PROJECT_ROOT / 'data' / 'raw' / 'metabolomics_search_results.json')
-            return
+        # Filter for relevant studies (defense compounds)
+        relevant_studies = []
+        defense_terms = ["defense", "herbivore", "jasmonate", "salicylate", 
+                       "terpenoid", "alkaloid", "phenylpropanoid", "secondary metabolite"]
         
-        # Save valid results
-        output_file = PROJECT_ROOT / 'data' / 'raw' / 'metabolomics_search_results.json'
-        save_search_results(valid_results, output_file)
+        for study in studies:
+            title = study.get("STUDY_TITLE", "").lower()
+            abstract = study.get("ABSTRACT", "").lower() if study.get("ABSTRACT") else ""
+            combined_text = f"{title} {abstract}"
+            
+            if any(term in combined_text for term in defense_terms):
+                relevant_studies.append({
+                    "study_id": study.get("STUDY_ID"),
+                    "title": study.get("STUDY_TITLE"),
+                    "organisms": study.get("ORGANISMS", []),
+                    "study_type": study.get("STUDY_TYPE"),
+                    "download_url": study.get("DOWNLOAD_URL")
+                })
         
-        logger.info(f"Successfully identified {len(valid_results)} studies for further processing.")
+        return relevant_studies
         
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to search Metabolomics Workbench: {e}")
+        raise RuntimeError(f"API request failed: {e}")
+
+
+def validate_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Validate that studies have required metadata and download URLs.
+    
+    Args:
+        studies: List of study metadata dictionaries.
+        
+    Returns:
+        Filtered list of valid studies.
+    """
+    valid_studies = []
+    for study in studies:
+        if not study.get("study_id"):
+            logger.warning(f"Skipping study with missing ID: {study}")
+            continue
+        if not study.get("download_url"):
+            logger.warning(f"Skipping study {study.get('study_id')} without download URL")
+            continue
+        valid_studies.append(study)
+    
+    logger.info(f"Validated {len(valid_studies)} studies for download.")
+    return valid_studies
+
+
+def download_study_data(
+    study_id: str,
+    download_url: str,
+    output_dir: Path
+) -> Path:
+    """
+    Download metabolite data for a specific study.
+    
+    Args:
+        study_id: Unique identifier for the study.
+        download_url: URL to download the data.
+        output_dir: Directory to save the downloaded file.
+        
+    Returns:
+        Path to the downloaded file.
+        
+    Raises:
+        RuntimeError: If download fails or file is empty.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"MW_{study_id}.zip"
+    output_path = output_dir / filename
+    
+    logger.info(f"Downloading {download_url} to {output_path}")
+    
+    session = create_session()
+    try:
+        response = session.get(download_url, stream=True, timeout=300)
+        response.raise_for_status()
+        
+        with open(output_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        if output_path.stat().st_size == 0:
+            raise RuntimeError(f"Downloaded file {output_path} is empty")
+            
+        logger.info(f"Successfully downloaded {output_path} ({output_path.stat().st_size} bytes)")
+        return output_path
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Download failed for {study_id}: {e}")
+        raise RuntimeError(f"Download failed: {e}")
+
+
+def save_search_results(
+    studies: List[Dict[str, Any]],
+    output_path: Path
+) -> None:
+    """
+    Save search results to a JSON file for downstream processing.
+    
+    Args:
+        studies: List of study metadata dictionaries.
+        output_path: Path to save the JSON file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(studies, f, indent=2)
+    logger.info(f"Saved search results to {output_path}")
+
+
+def extract_metabolite_samples(study_path: Path) -> List[Dict[str, Any]]:
+    """
+    Extract sample-level metabolite data from a downloaded study archive.
+    
+    Note: This is a simplified implementation. Real Metabolomics Workbench
+    archives often contain multiple CSV/TSV files with specific structures.
+    This function assumes a standard 'METABOLITES.csv' or similar file exists.
+    
+    Args:
+        study_path: Path to the downloaded study archive.
+        
+    Returns:
+        List of sample dictionaries with metabolite concentrations.
+        
+    Raises:
+        RuntimeError: If the archive cannot be processed or no data is found.
+    """
+    import zipfile
+    import csv
+    import pandas as pd
+    
+    if not study_path.exists():
+        raise FileNotFoundError(f"Study file not found: {study_path}")
+    
+    samples = []
+    
+    try:
+        with zipfile.ZipFile(study_path, 'r') as zip_ref:
+            # Look for common data files
+            possible_files = [f for f in zip_ref.namelist() 
+                            if f.endswith('.csv') or f.endswith('.tsv')]
+            
+            if not possible_files:
+                raise RuntimeError(f"No CSV/TSV files found in {study_path}")
+            
+            # Try to find the metabolite data file
+            data_file = None
+            for f in possible_files:
+                if 'metabolite' in f.lower() or 'conc' in f.lower() or 'sample' in f.lower():
+                    data_file = f
+                    break
+            
+            if not data_file:
+                # Fallback to first CSV
+                data_file = possible_files[0]
+                logger.warning(f"Using fallback data file: {data_file}")
+            
+            with zip_ref.open(data_file) as file:
+                # Read as text
+                import io
+                content = file.read().decode('utf-8')
+                reader = csv.DictReader(io.StringIO(content))
+                
+                for row in reader:
+                    # Normalize row keys (strip whitespace)
+                    normalized_row = {k.strip(): v for k, v in row.items()}
+                    samples.append(normalized_row)
+                    
+    except zipfile.BadZipFile:
+        logger.error(f"Corrupted zip file: {study_path}")
+        raise RuntimeError(f"Corrupted archive: {study_path}")
     except Exception as e:
-        logger.error(f"Critical error in Metabolomics Workbench search: {e}")
-        raise_dataset_error(f"Failed to search Metabolomics Workbench: {e}")
+        logger.error(f"Failed to extract samples from {study_path}: {e}")
+        raise RuntimeError(f"Extraction failed: {e}")
+    
+    if not samples:
+        raise RuntimeError(f"No metabolite samples found in {study_path}")
+        
+    logger.info(f"Extracted {len(samples)} samples from {study_path}")
+    return samples
+
+
+def main():
+    """
+    Main entry point for Metabolomics Workbench data retrieval.
+    
+    This function:
+    1. Searches for relevant studies for Arabidopsis and Solanum
+    2. Validates and downloads the studies
+    3. Extracts sample-level metabolite data
+    4. Saves the raw data to data/raw/
+    """
+    logger.info("Starting Metabolomics Workbench data retrieval...")
+    
+    # Define search parameters
+    search_configs = [
+        {
+            "organism": "Arabidopsis thaliana",
+            "keywords": ["herbivore", "jasmonate", "defense", "terpenoid"]
+        },
+        {
+            "organism": "Solanum lycopersicum",
+            "keywords": ["herbivore", "defense", "alkaloid", "phenylpropanoid"]
+        },
+        {
+            "organism": "Solanum tuberosum",
+            "keywords": ["herbivore", "defense", "glycoalkaloid"]
+        }
+    ]
+    
+    all_studies = []
+    
+    for config in search_configs:
+        logger.info(f"Searching for {config['organism']}...")
+        try:
+            studies = search_metabolomics_workbench(
+                keywords=config["keywords"],
+                organism=config["organism"]
+            )
+            valid_studies = validate_studies(studies)
+            all_studies.extend(valid_studies)
+            
+            # Download each study
+            for study in valid_studies:
+                try:
+                    logger.info(f"Downloading study {study['study_id']}...")
+                    study_path = download_study_data(
+                        study_id=study["study_id"],
+                        download_url=study["download_url"],
+                        output_dir=DATA_RAW_DIR
+                    )
+                    
+                    # Extract samples
+                    samples = extract_metabolite_samples(study_path)
+                    
+                    # Save extracted samples as JSON for pairing step
+                    samples_path = DATA_RAW_DIR / f"samples_{study['study_id']}.json"
+                    with open(samples_path, "w") as f:
+                        json.dump(samples, f, indent=2)
+                    logger.info(f"Saved samples to {samples_path}")
+                    
+                except Exception as e:
+                    logger.error(f"Failed to process study {study['study_id']}: {e}")
+                    
+        except Exception as e:
+            logger.error(f"Search failed for {config['organism']}: {e}")
+    
+    # Save all search results metadata
+    search_results_path = DATA_RAW_DIR / "metabolomics_search_results.json"
+    save_search_results(all_studies, search_results_path)
+    
+    logger.info(f"Completed. Found {len(all_studies)} valid studies.")
+    return all_studies
+
 
 if __name__ == "__main__":
     main()

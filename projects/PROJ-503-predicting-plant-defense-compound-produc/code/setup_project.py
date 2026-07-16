@@ -1,61 +1,59 @@
+"""
+Project structure setup script for PROJ-503.
+Creates the required directory hierarchy as specified in T001.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Create the project directory structure for PROJ-503.
-    This script ensures all required directories exist as per T001.
-    """
-    # Define the project root relative to the script location or current working directory
-    # Assuming this script is run from the repo root or the project root
-    # We construct the path based on the task requirement
+    # Define the project root based on the task requirements
+    # The task specifies paths relative to the repo root, e.g., projects/PROJ-...
+    # We assume the script is run from the repo root or we construct the absolute path.
+    # To be safe and robust, we'll determine the project root relative to this file's location
+    # or use the current working directory if this file is in the code/ directory.
     
-    # The task requires specific paths under:
-    # projects/PROJ-503-predicting-plant-defense-compound-produc/
+    # The task requires paths like:
+    # projects/PROJ-503-predicting-plant-defense-compound-produc/code/
+    # ...
     
-    # We will assume the script is run from the repository root.
-    # If run from elsewhere, we adjust based on __file__ or CWD.
-    # To be safe and robust, we define the project root explicitly.
+    # Since the API surface shows this file is at code/setup_project.py,
+    # we assume the script is executed from the project root (which contains 'projects' dir)
+    # or we are inside the project directory.
     
-    script_dir = Path(__file__).resolve().parent
-    # The script is inside code/, so project root is parent of code/
-    project_root = script_dir.parent 
+    # Let's construct the base path. The task description implies the project is
+    # at `projects/PROJ-503-predicting-plant-defense-compound-produc/`.
+    # If we are running `python code/setup_project.py` from the repo root:
     
-    # However, the task paths are relative to the repo root which might be the parent of 'projects'
-    # Let's check if 'projects' exists in parent of project_root
-    if project_root.name == "code":
-        potential_project_root = project_root.parent
-        if potential_project_root.name == "PROJ-503-predicting-plant-defense-compound-produc":
-            project_root = potential_project_root
-        else:
-            # Fallback: assume current working directory is the repo root
-            project_root = Path.cwd() / "projects" / "PROJ-503-predicting-plant-defense-compound-produc"
+    repo_root = Path.cwd()
     
-    # If the path logic above is complex, let's just ensure the directories exist relative to the project root
-    # The task specifies exact paths. We will create them relative to the project root.
+    # Check if we are already inside the project directory or if we need to navigate
+    # The task path is explicit: projects/PROJ-503-predicting-plant-defense-compound-produc
+    # Let's assume the standard structure where this script is run from the repo root
+    # and the project is a subdirectory.
     
-    # Re-evaluating: The task says "Create project structure with exact directories: projects/PROJ-503.../code/..."
-    # This implies the script should create these if they don't exist.
-    # We will assume the current working directory is the repository root where 'projects' folder lives.
-    # If the script is run as `python code/setup_project.py`, the CWD might be the repo root.
+    project_dir_name = "PROJ-503-predicting-plant-defense-compound-produc"
     
-    base_path = Path.cwd()
-    project_path = base_path / "projects" / "PROJ-503-predicting-plant-defense-compound-produc"
-    
-    # If we are running from inside the project, adjust
-    if not project_path.exists():
-        # Try relative to script
-        script_path = Path(__file__).resolve()
-        # script is code/setup_project.py -> parent is code -> parent is project
-        candidate = script_path.parent.parent
-        if candidate.name == "PROJ-503-predicting-plant-defense-compound-produc":
-            project_path = candidate
-        else:
-            # Fallback to creating in CWD/projects/...
-            project_path = Path.cwd() / "projects" / "PROJ-503-predicting-plant-defense-compound-produc"
+    # Attempt to find the project directory
+    # Strategy 1: Check if current dir ends with the project name
+    if repo_root.name == project_dir_name:
+        project_root = repo_root
+    # Strategy 2: Check if parent dir contains the project name (e.g. running from repo root)
+    elif (repo_root / project_dir_name).exists():
+        project_root = repo_root / project_dir_name
+    # Strategy 3: Check if we are in a 'projects' subfolder
+    elif (repo_root / "projects" / project_dir_name).exists():
+        project_root = repo_root / "projects" / project_dir_name
+    else:
+        # Fallback: assume current directory is the project root if it matches the pattern
+        # or just create relative to current
+        print(f"Warning: Could not locate project directory '{project_dir_name}' in expected locations.")
+        print(f"Creating directories relative to current working directory: {repo_root}")
+        project_root = repo_root / project_dir_name
+        project_root.mkdir(parents=True, exist_ok=True)
 
-    directories = [
+    # Define the required directories
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -69,28 +67,30 @@ def main():
     ]
 
     created_count = 0
-    for dir_name in directories:
-        full_path = project_path / dir_name
+    skipped_count = 0
+
+    print(f"Setting up project structure at: {project_root}")
+
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {full_path}")
             created_count += 1
-            print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Exists: {full_path}")
+            skipped_count += 1
 
-    print(f"\nProject structure setup complete for: {project_path}")
-    print(f"Total directories created: {created_count}")
+    # Verify the structure by listing created directories
+    print(f"\nProject structure setup complete.")
+    print(f"Created: {created_count} directories")
+    print(f"Skipped (already exist): {skipped_count} directories")
     
-    # Verification step: List created structure
-    print("\nVerification - Directory Tree:")
-    for root, dirs, files in os.walk(project_path):
-        level = root.replace(str(project_path), '').count(os.sep)
-        indent = ' ' * 2 * level
-        print(f'{indent}{os.path.basename(root)}/')
-        subindent = ' ' * 2 * (level + 1)
-        # Only print directories to keep output clean, or limit depth
-        for d in dirs:
-            print(f'{subindent}{d}/')
+    # Print the final tree structure (depth 1)
+    print("\nDirectory structure:")
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        print(f"  {full_path.relative_to(project_root) if full_path.is_relative_to(project_root) else full_path}")
 
     return 0
 

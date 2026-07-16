@@ -47,16 +47,16 @@
  - LAMBADA via `datasets.load_dataset("lambada")`
  - Story Cloze Test via `datasets.load_dataset("story_cloze")`
  - Each download must compute and store a SHA‑256 checksum in `data/raw/checksums.json`.
-- [ ] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to 4 and, if RSS still > 6 GB, cap the training dataset to [deferred] of its original size. Must log the decision and final hyperparameters (FR‑).
+- [X] T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction to 4 and, if RSS still > 6 GB, cap the training dataset to [deferred] of its original size. Must log the decision and final hyperparameters (FR‑).
 - [X] T006 Implement model loading utilities (`code/models/loading.py`) that provide functions to load:
  - `gpt2-medium` (with 4‑bit quantization) when RAM permits,
  - `DistilGPT2` as a fallback when the memory budget is exceeded.
 - [X] T007 [P] Implement 2‑D grid memory slot data structures (`code/models/memory_slot.py`) and EpisodicChunk schema (`code/models/episodic_chunk.py`).
 - [ ] T007b Implement coordinate assignment logic for episodic chunks (FR‑001).
 - [X] T008 [P] Configure experiment logging and artifact storage (`code/utils/logger.py`) to write JSON/CSV to `artifacts/results/`.
-- [ ] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
-- [ ] T008c Draft quickstart guide: `docs/quickstart.md`.
-- [ ] T008d Draft contracts document: `docs/contracts.md`.
+- [X] T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.
+- [X] T008c Draft quickstart guide: `docs/quickstart.md`.
+- [X] T008d Draft contracts document: `docs/contracts.md`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,10 +80,10 @@
 - [X] T012 [US1] Implement gpt2‑medium baseline wrapper (`code/models/base.py`) **and** DistilGPT2 fallback (`code/models/base_fallback.py`). The wrapper must expose the same interface; selection logic lives in `code/models/loading.py`. Addresses FR‑001, FR‑002, and the spec’s requirement for a gpt2‑medium baseline (with documented fallback).
 - [X] T013 [P] [US1] Implement cosine similarity calculation for soft‑addressed retrieval (FR‑002) in `code/models/spatial.py`.
 - [X] T014 [US1] Implement training loop (`code/training/loop.py`) with adaptive batch size (8 → 4) and, if RSS > 6 GB at batch size 4, cap the dataset to [deferred] of its size. Include detailed logging of memory usage and batch‑size decisions.
-- [~] T015 [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`.
-- [~] T016 [US1] Implement main execution entry point (`code/main.py`) to orchestrate download → model loading → train (across seeds ‑4) → evaluate. Must generate `artifacts/results/run_summary.json` with keys: `seeds`, `accuracies`, `effective_batch_size`, `runtime_seconds`.
-- [~] T017a [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. Must run after T014.
-- [~] T017b [US1] Record final effective hyperparameters and any deviations (e.g., batch‑size reduction, dataset capping) in `artifacts/results/hyperparams_log.json`, explicitly noting the 6 GB RAM threshold (FR‑003).
+- [ ] T015 [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`.
+- [ ] T016 [US1] Implement main execution entry point (`code/main.py`) to orchestrate download → model loading → train (across seeds ‑4) → evaluate. Must generate `artifacts/results/run_summary.json` with keys: `seeds`, `accuracies`, `effective_batch_size`, `runtime_seconds`.
+- [ ] T017a [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. Must run after T014.
+- [ ] T017b [US1] Record final effective hyperparameters and any deviations (e.g., batch‑size reduction, dataset capping) in `artifacts/results/hyperparams_log.json`, explicitly noting the 6 GB RAM threshold (FR‑003).
 - [ ] T017c [US1] Verify total runtime ≤ 5 hours; write `artifacts/results/runtime_report.json` with `runtime_seconds` and a boolean `within_limit`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,7 +103,7 @@
 ### Implementation for User Story 2
 
 - [X] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
-- [~] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006).
+- [ ] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm‑Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006).
 - [~] T021 [US2] Implement effect‑size calculation (Cohen's d) with 95 % confidence intervals (FR‑007).
 - [ ] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset.
 
@@ -127,7 +127,7 @@
 - [X] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/results/slot_occupancy_epoch_{epoch}.csv`.
 - [X] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/results/coordinate_variance_epoch_{epoch}.csv`.
 - [~] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation, log results to `artifacts/results/interference_metrics.json`, and ensure the file includes both variant results and statistical significance.
-- [ ] T028 [US3] Add documentation to `research.md` under a new “Structural Metrics” heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking.
+- [~] T028 [US3] Add documentation to `research.md` under a new “Structural Metrics” heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,11 +137,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T029 [P] Documentation updates: Add formal mapping between spatial “rooms” and transformer components (addressing John von Neumann concern on formal mapping).
-- [ ] T030 Refactor `code/models/spatial.py` to reduce memory footprint (addressing Eric Kandel concern on structural stability).
-- [ ] T031 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead).
-- [ ] T032 [P] Additional unit tests for edge cases (dataset mismatch, OOM recovery) in `tests/unit/`.
-- [ ] T033 [P] Run quickstart validation: execute `./scripts/validate_quickstart.sh` which runs a minimal end‑to‑end pipeline and checks that `artifacts/results/run_summary.json` is produced within the 5‑hour limit.
+- [~] T029 [P] Documentation updates: Add formal mapping between spatial “rooms” and transformer components (addressing John von Neumann concern on formal mapping).
+- [X] T030 Refactor `code/models/spatial.py` to reduce memory footprint (addressing Eric Kandel concern on structural stability).
+- [X] T031 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead).
+- [~] T032 [P] Additional unit tests for edge cases (dataset mismatch, OOM recovery) in `tests/unit/`.
+- [~] T033 [P] Run quickstart validation: execute `./scripts/validate_quickstart.sh` which runs a minimal end‑to‑end pipeline and checks that `artifacts/results/run_summary.json` is produced within the 5‑hour limit.
 
 ---
 

@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-221-the-role-of-cognitive-dissonance-in-just",
+  "stage": "clarified",
+  "class": "permanent",
+  "fingerprint": "unreachable_reference",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-16T16:45:05.344819+00:00",
+  "last_seen": "2026-07-16T16:45:05.344819+00:00",
+  "retry_after": null,
+  "last_error": "research.md reference is unreachable: 'https://data.pewresearch.org/datasets/ai-ethics-2024' (connection/DNS failure: [Errno -2] Name or service not known). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "evidence": "research.md reference is unreachable: 'https://data.pewresearch.org/datasets/ai-ethics-2024' (connection/DNS failure: [Errno -2] Name or service not known). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
+}

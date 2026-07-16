@@ -1,98 +1,257 @@
 """
-FeatureSet data model for selected gene features.
+FeatureSet class for managing selected features for modeling.
 
-Represents a subset of genes selected for modeling (e.g., pathway-specific genes).
+This class represents a subset of features (genes) selected for
+predictive modeling, including their associated metadata and
+pathway information.
 """
+
 import pandas as pd
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 import json
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class FeatureSet:
     """
-    Container for a set of selected features (genes) with associated metadata.
+    A class to represent a set of selected features.
     
     Attributes:
-        gene_ids: List of gene identifiers included in this set.
-        metadata: Dictionary containing selection criteria (e.g., pathway, method).
+        feature_ids (List[str]): List of feature identifiers included in the set.
+        feature_info (Dict[str, Any]): Metadata for each feature (e.g., pathway, gene_name).
+        source_expression_matrix (Optional[str]): Reference to the source expression matrix.
+        selection_method (Optional[str]): Method used for feature selection (e.g., 'KEGG_pathway').
+        description (Optional[str]): Description of the feature set.
     """
     
     def __init__(
         self,
-        gene_ids: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        feature_ids: Optional[List[str]] = None,
+        feature_info: Optional[Dict[str, Any]] = None,
+        source_expression_matrix: Optional[str] = None,
+        selection_method: Optional[str] = None,
+        description: Optional[str] = None
     ):
         """
-        Initialize a FeatureSet.
+        Initialize a FeatureSet instance.
         
         Args:
-            gene_ids: List of gene identifiers.
-            metadata: Optional metadata dictionary.
+            feature_ids: List of feature identifiers.
+            feature_info: Dictionary mapping feature_id to metadata.
+            source_expression_matrix: Identifier of the source expression matrix.
+            selection_method: Method used for feature selection.
+            description: Description of the feature set.
         """
-        self.gene_ids = gene_ids or []
-        self.metadata = metadata or {}
-
+        self.feature_ids = feature_ids or []
+        self.feature_info = feature_info or {}
+        self.source_expression_matrix = source_expression_matrix
+        self.selection_method = selection_method
+        self.description = description
+        
+        logger.info(f"Initialized FeatureSet with {len(self.feature_ids)} features")
+    
+    def add_feature(self, feature_id: str, **kwargs) -> None:
+        """
+        Add a feature to the set.
+        
+        Args:
+            feature_id: The feature identifier.
+            **kwargs: Feature metadata key-value pairs.
+        """
+        if feature_id not in self.feature_ids:
+            self.feature_ids.append(feature_id)
+        if feature_id not in self.feature_info:
+            self.feature_info[feature_id] = {}
+        self.feature_info[feature_id].update(kwargs)
+    
+    def remove_feature(self, feature_id: str) -> bool:
+        """
+        Remove a feature from the set.
+        
+        Args:
+            feature_id: The feature identifier to remove.
+        
+        Returns:
+            True if the feature was removed, False if not found.
+        """
+        if feature_id in self.feature_ids:
+            self.feature_ids.remove(feature_id)
+            if feature_id in self.feature_info:
+                del self.feature_info[feature_id]
+            return True
+        return False
+    
+    def get_features_by_pathway(self, pathway: str) -> List[str]:
+        """
+        Get all features belonging to a specific pathway.
+        
+        Args:
+            pathway: The pathway name to filter by.
+        
+        Returns:
+            List of feature IDs in the pathway.
+        """
+        return [
+            fid for fid in self.feature_ids
+            if self.feature_info.get(fid, {}).get('pathway') == pathway
+        ]
+    
+    def get_features_by_species(self, species: str) -> List[str]:
+        """
+        Get all features belonging to a specific species.
+        
+        Args:
+            species: The species name to filter by.
+        
+        Returns:
+            List of feature IDs in the species.
+        """
+        return [
+            fid for fid in self.feature_ids
+            if self.feature_info.get(fid, {}).get('species') == species
+        ]
+    
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Convert the feature set to a DataFrame.
+        
+        Returns:
+            DataFrame with feature metadata.
+        """
+        rows = []
+        for fid in self.feature_ids:
+            row = {'feature_id': fid}
+            row.update(self.feature_info.get(fid, {}))
+            rows.append(row)
+        return pd.DataFrame(rows)
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation."""
+        """
+        Convert the feature set to a dictionary for serialization.
+        
+        Returns:
+            Dictionary representation of the feature set.
+        """
         return {
-            "gene_ids": self.gene_ids,
-            "metadata": self.metadata,
-            "n_features": len(self.gene_ids),
+            'feature_ids': self.feature_ids,
+            'feature_info': self.feature_info,
+            'source_expression_matrix': self.source_expression_matrix,
+            'selection_method': self.selection_method,
+            'description': self.description
         }
-
+    
     @classmethod
-    def from_dict(cls, data_dict: Dict[str, Any]) -> "FeatureSet":
+    def from_dict(cls, data_dict: Dict[str, Any]) -> 'FeatureSet':
         """
         Create a FeatureSet from a dictionary.
         
         Args:
-            data_dict: Dictionary containing 'gene_ids', 'metadata', etc.
+            data_dict: Dictionary representation of the feature set.
         
         Returns:
-            New FeatureSet instance.
+            FeatureSet instance.
         """
         return cls(
-            gene_ids=data_dict.get("gene_ids", []),
-            metadata=data_dict.get("metadata", {}),
+            feature_ids=data_dict.get('feature_ids', []),
+            feature_info=data_dict.get('feature_info', {}),
+            source_expression_matrix=data_dict.get('source_expression_matrix'),
+            selection_method=data_dict.get('selection_method'),
+            description=data_dict.get('description')
         )
-
-    def save(self, path: Path) -> None:
+    
+    def save_json(self, filepath: Path) -> None:
         """
         Save the feature set to a JSON file.
         
         Args:
-            path: Path to the output file.
+            filepath: Path to the output file.
         """
-        path = Path(path)
-        with open(path, "w") as f:
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        with open(filepath, 'w') as f:
             json.dump(self.to_dict(), f, indent=2)
-
+        logger.info(f"Saved FeatureSet to {filepath}")
+    
     @classmethod
-    def load(cls, path: Path) -> "FeatureSet":
+    def load_json(cls, filepath: Path) -> 'FeatureSet':
         """
-        Load a feature set from a JSON file.
+        Load a FeatureSet from a JSON file.
         
         Args:
-            path: Path to the input file.
+            filepath: Path to the input file.
         
         Returns:
-            Loaded FeatureSet instance.
+            FeatureSet instance.
         """
-        path = Path(path)
-        with open(path, "r") as f:
+        filepath = Path(filepath)
+        with open(filepath, 'r') as f:
             data_dict = json.load(f)
         return cls.from_dict(data_dict)
-
-    def filter_by_pathway(self, pathway_ids: List[str]) -> "FeatureSet":
+    
+    def save_csv(self, filepath: Path) -> None:
         """
-        Create a new FeatureSet filtered by pathway IDs (if pathway metadata exists).
+        Save the feature set to a CSV file.
         
         Args:
-            pathway_ids: List of pathway identifiers to filter by.
+            filepath: Path to the output file.
+        """
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        df = self.to_dataframe()
+        df.to_csv(filepath, index=False)
+        logger.info(f"Saved FeatureSet to {filepath}")
+    
+    @classmethod
+    def load_csv(
+        cls,
+        filepath: Path,
+        source_expression_matrix: Optional[str] = None,
+        selection_method: Optional[str] = None,
+        description: Optional[str] = None
+    ) -> 'FeatureSet':
+        """
+        Load a FeatureSet from a CSV file.
+        
+        Args:
+            filepath: Path to the input file.
+            source_expression_matrix: Optional source identifier.
+            selection_method: Optional selection method.
+            description: Optional description.
         
         Returns:
-            New filtered FeatureSet.
+            FeatureSet instance.
         """
-        # This is a placeholder; actual filtering logic depends on how pathway info is stored.
-        # For now, we return a copy assuming the list is already filtered or metadata is external.
-        return FeatureSet(gene_ids=self.gene_ids.copy(), metadata=self.metadata.copy())
+        filepath = Path(filepath)
+        df = pd.read_csv(filepath)
+        
+        feature_ids = df['feature_id'].tolist()
+        feature_info = {}
+        
+        for _, row in df.iterrows():
+            fid = row['feature_id']
+            feature_info[fid] = row.to_dict()
+            # Remove the feature_id from the metadata dict as it's the key
+            feature_info[fid].pop('feature_id', None)
+        
+        return cls(
+            feature_ids=feature_ids,
+            feature_info=feature_info,
+            source_expression_matrix=source_expression_matrix,
+            selection_method=selection_method,
+            description=description
+        )
+    
+    def __len__(self) -> int:
+        return len(self.feature_ids)
+    
+    def __contains__(self, feature_id: str) -> bool:
+        return feature_id in self.feature_ids
+    
+    def __repr__(self) -> str:
+        return (
+            f"FeatureSet(features={len(self.feature_ids)}, "
+            f"method={self.selection_method or 'unknown'})"
+        )

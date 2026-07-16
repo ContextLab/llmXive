@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided to demonstrate that the required
+    project folders (e.g., `projects/PROJ-503-predicting-plant-defense-compound-produc/code/`,
+    `.../data/raw/`, etc.) actually exist; the response contains only the task description
+    and no concrete filesystem evidence. The implementer must supply a verified directory
+    listing or screenshots showing the full structure.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required utility functions or the log files (`logs/data_pairing.json`
+    and `logs/feature_filtering.csv`) was provided; the claim lacks any actual artifacts
+    to verify that the logging logic was implemented per the spec.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files or class definitions were presented for `ExpressionMatrix`, `MetaboliteMatrix`,
+    `FeatureSet`, or `ModelArtifact` in the required `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`
+    directory, so the required artifacts are absent. The implementer must add the
+    four model class files (or a module containing them) with proper implementations.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation defining the E\u2011DATASET, E\u2011\
+    PAIRING, E\u2011TIMEOUT, or E\u2011POWER error codes (and their handling) is present.\
+    \ The required error\u2011handling framework and its integration per plan.md are\
+    \ missing, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON file at `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/power_analysis.json`\
+    \ was provided, nor any evidence of the power\u2011analysis calculation (effect\
+    \ size\u202Fr\u202F=\u202F0.5, \u03B1\u202F=\u202F0.05, power\u202F=\u202F0.8)\
+    \ or the required abort behavior when n\u202F<\u202F28. The task\u2019s core artifact\
+    \ is missing."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, script, or documentation for a SHA\u2011256\
+    \ checksum validation utility, nor any tests or usage examples. The only artifacts\
+    \ described relate to plant\u2011defense data acquisition and modelling, which\
+    \ do not satisfy the checksum utility requirement. A functional utility (e.g.,\
+    \ a script or library that computes and verifies SHA\u2011256 hashes for files)\
+    \ is missing."

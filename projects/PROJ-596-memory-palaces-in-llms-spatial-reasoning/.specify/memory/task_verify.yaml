@@ -1,9 +1,8 @@
-? "T005 [P] Implement memory monitoring utility (`code/training/memory_monitor.py`)\
-  \ to track RSS and trigger batch\u2011size reduction to 4 and, if RSS still\u202F\
-  >\u202F6\u202FGB, cap the training dataset to [deferred] of its original size. Must\
-  \ log the decision and final hyperparameters (FR\u2011)."
-: 2
-"T007b Implement coordinate assignment logic for episodic chunks (FR\u2011001).": 2
-'T008b Create YAML schema for training run metadata: `artifacts/schemas/training_run.yaml`.': 1
-'T008c Draft quickstart guide: `docs/quickstart.md`.': 1
-'T008d Draft contracts document: `docs/contracts.md`.': 1
+T007b: 1
+T015: 1
+T016: 1
+T017a: 1
+T017b: 1
+T017c: 1
+T020: 1
+T022: 1

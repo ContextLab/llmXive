@@ -17,7 +17,7 @@ This plan implements a CPU-tractable machine learning pipeline to predict molecu
 **Project Type**: Computational Chemistry / Data Science Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion + Optuna trials + analysis) within 6 hours on CPU-only runner.  
 **Constraints**: No GPU usage; memory footprint < 7 GB; no custom deep learning training from scratch; a fixed timeout per Optuna trial.  
-**Scale/Scope**: Target dataset size: a sufficiently large collection of IonPairs to ensure statistical power (stratified split); 3 models; ANOVA analysis; Independent DFT validation
+**Scale/Scope**: Target dataset size: a sufficiently large collection of IonPairs to ensure statistical power (stratified split); multiple models; ANOVA analysis; Independent DFT validation
 
 The research question is to assess the accuracy of the proposed model against density functional theory benchmarks. The method involves conducting independent DFT calculations to validate the theoretical framework.
 

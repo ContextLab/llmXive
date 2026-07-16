@@ -1,38 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MergedDatasetSchema"
-description: "Schema for the processed merged dataset used in modeling."
-type: "object"
+description: "Schema for the cleaned, merged dataset used in root architecture analysis."
+type: object
 properties:
   species:
-    type: "string"
-    description: "Plant species name."
+    type: string
+    description: "Taxonomic name of the plant species."
   root_length_log:
-    type: "number"
+    type: number
     description: "Log-transformed total root length."
   branching_density_log:
-    type: "number"
+    type: number
     description: "Log-transformed branching density."
   surface_area_log:
-    type: "number"
-    description: "Log-transformed surface area."
+    type: number
+    description: "Log-transformed root surface area."
   phosphorus_z:
-    type: "number"
+    type: number
     description: "Z-score normalized phosphorus concentration."
   nitrogen_z:
-    type: "number"
+    type: number
     description: "Z-score normalized nitrogen concentration."
-  latitude:
-    type: "number"
-    description: "Geographic latitude (fixed effect)."
-  longitude:
-    type: "number"
-    description: "Geographic longitude (fixed effect)."
-  sample_count:
-    type: "integer"
-    description: "Number of observations for this species."
-  exclusion_reason:
-    type: ["string", "null"]
-    description: "Reason for exclusion if applicable, else null."
+  species_id:
+    type: integer
+    description: "Integer encoding of species for random effects."
+  data_source_type:
+    type: string
+    enum:
+      - "observational"
+    description: "Must be 'observational' after filtering."
 required:
   - species
   - root_length_log
@@ -40,7 +36,6 @@ required:
   - surface_area_log
   - phosphorus_z
   - nitrogen_z
-  - latitude
-  - longitude
-  - sample_count
+  - species_id
+  - data_source_type
 additionalProperties: false

@@ -1,130 +1,119 @@
-# Contracts: Memory Palaces in LLMs – Spatial Reasoning for Enhanced Episodic Recall
+# Contracts Document: Memory Palaces in LLMs
 
-**Project ID**: PROJ-596
-**Version**: 1.0
+**Project**: PROJ-596-memory-palaces-in-llms-spatial-reasoning
+**Version**: 1.0.0
+**Date**: 2026-07-03
 **Status**: Draft
-**Last Updated**: 2026-07-10
 
-## 1. Introduction
+This document defines the formal contracts, interfaces, and behavioral guarantees for the Memory Palace architecture. It serves as the binding specification between the spatial memory modules, the transformer backbone, and the evaluation framework.
 
-This document defines the formal contracts, invariants, and acceptance criteria for the **Memory Palaces in LLMs** research pipeline. These contracts serve as the binding specification between the system's components, ensuring that the implementation of spatial memory mechanisms adheres to the scientific hypotheses and engineering constraints outlined in `specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md`.
+## 1. Scope and Purpose
 
-The contracts are categorized into:
-1. **Data Integrity Contracts**: Ensuring reproducibility and correctness of input datasets.
-2. **Memory Architecture Contracts**: Defining the spatial slot structure and coordinate assignment logic.
-3. **Training & Resource Contracts**: Enforcing memory budgets and batch size adaptations.
-4. **Evaluation & Statistical Contracts**: Mandating rigorous statistical testing and metric definitions.
+The purpose of this contract is to ensure that:
+1. Spatial coordinate assignment is deterministic and reproducible across seeds.
+2. Memory slot operations (read/write) are consistent with the transformer's attention mechanism.
+3. Evaluation metrics (recall, interference distance) are computed on real, verifiable data without synthetic fallbacks.
+4. Resource constraints (RAM, runtime) are enforced and logged explicitly.
 
----
+## 2. Functional Requirements
 
-## 2. Data Integrity Contracts
+### FR-001: Coordinate Assignment
+**Contract**: The `CoordinateAssigner` must assign a unique 2D grid coordinate `(x, y)` to every `EpisodicChunk` based on its content hash and current slot occupancy.
+- **Input**: `EpisodicChunk` (text, metadata), `MemoryGrid` (current state).
+- **Output**: `CoordinateAssignmentResult` containing `(x, y)` and `interference_potential`.
+- **Guarantee**: No two chunks with identical content hashes map to the same coordinate unless the grid is full (in which case, the eviction policy defined in FR-004 applies).
+- **Failure Mode**: If the grid is full and no eviction strategy can free a slot, the system must raise a `MemoryGridFullError` rather than silently overwriting data.
 
-These contracts ensure that the input data used for training and evaluation is authentic, unmodified, and verifiable.
+### FR-002: Soft-Addressed Retrieval
+**Contract**: The `spatial_attention_loss` module must compute a weighted aggregation of memory slots using cosine similarity between the query embedding and slot coordinates.
+- **Input**: Query embedding `q`, Memory Grid `M`.
+- **Output**: Aggregated context vector `c` and scalar loss value `L_spatial`.
+- **Guarantee**: The retrieval weights must sum to 1.0 (softmax normalized). The similarity metric must be cosine similarity.
+- **Failure Mode**: If `M` is empty, return a zero vector and a loss of 0.0 (no penalty for missing memory).
 
-### C-001: Dataset Authenticity
-**Scope**: `code/data/download.py`
-**Requirement**: The system MUST download datasets exclusively from the canonical Hugging Face Hub repositories:
-- `babi` (Task 3, `task3_10k`)
-- `lambada`
-- `story_cloze`
-**Constraint**: No synthetic, hard-coded, or placeholder data is permitted.
-**Verification**: Upon download, the system MUST compute the SHA-256 checksum of the raw dataset files and store them in `data/raw/checksums.json`. Any subsequent run must verify the local file against this checksum.
+### FR-003: Resource Constraints (Memory & Runtime)
+**Contract**: The `MemoryMonitor` and `TrainingLoop` must enforce a hard limit of 6 GB RSS for the training process.
+- **Behavior**:
+ 1. If RSS > 6 GB, reduce `batch_size` to 4.
+ 2. If RSS > 6 GB at `batch_size=4`, cap the training dataset to 10% of its original size.
+ 3. Log the decision and final hyperparameters to `artifacts/results/hyperparams_log.json`.
+- **Guarantee**: The process must never exceed 6 GB RSS for more than 5 seconds.
+- **Failure Mode**: If the dataset capping reduces the training set to < 100 samples, raise `InsufficientDataError`.
 
-### C-002: Data Immutability
-**Scope**: `data/raw/`
-**Requirement**: Once a dataset is downloaded and verified, the raw files in `data/raw/` MUST NOT be modified by the training or evaluation scripts. All preprocessing must occur in memory or in a separate `data/processed/` directory.
+### FR-004: Eviction Policy
+**Contract**: When the memory grid is full, the system must evict the slot with the lowest "recency-weighted activation" score.
+- **Input**: `MemoryGrid`, new `EpisodicChunk`.
+- **Output**: Evicted slot index and updated grid.
+- **Guarantee**: Eviction must be deterministic given the same sequence of inputs.
 
----
+## 3. Interface Contracts
 
-## 3. Memory Architecture Contracts
+### 3.1. Data Models
 
-These contracts define the structural invariants of the "Memory Palace" mechanism, addressing the "binding problem" and the distinction between address (location) and content (data).
+#### `EpisodicChunk`
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `UUID` | Unique identifier for the chunk. |
+| `content` | `str` | The raw text content. |
+| `timestamp` | `datetime` | When the chunk was created. |
+| `coordinates` | `Optional[Tuple[int, int]]` | Assigned (x, y) grid position. |
 
-### C-003: Spatial Slot Structure
-**Scope**: `code/models/memory_slot.py`
-**Requirement**: The `MemoryGrid` MUST implement a 2D coordinate system where each slot is addressable by `(x, y)` coordinates.
-**Invariant**: The number of slots must be fixed per experiment run and defined in the configuration. No dynamic resizing of the grid is permitted during inference.
+#### `MemorySlot`
+| Field | Type | Description |
+|-------|------|-------------|
+| `coordinate` | `Tuple[int, int]` | Grid position. |
+| `chunk` | `Optional[EpisodicChunk]` | The stored chunk. |
+| `activation_score` | `float` | Last computed activation. |
+| `access_count` | `int` | Number of times accessed. |
 
-### C-004: Coordinate Assignment Logic
-**Scope**: `code/models/coordinate_assignment.py`
-**Requirement**: The `CoordinateAssigner` MUST assign a unique `(x, y)` coordinate to every `EpisodicChunk` based on a deterministic hash of the chunk's content or temporal sequence, ensuring reproducibility across seeds.
-**Constraint**: Coordinates MUST fall strictly within the bounds of the `MemoryGrid` defined in C-003.
+### 3.2. Module Interfaces
 
-### C-005: Soft-Addressed Retrieval
-**Scope**: `code/models/spatial.py`
-**Requirement**: Retrieval MUST utilize cosine similarity between the query embedding and the spatial slot embeddings.
-**Invariant**: The retrieval mechanism MUST be differentiable to allow gradient flow through the spatial addressing mechanism during fine-tuning.
+#### `code/models/coordinate_assigner.py`
+```python
+class CoordinateAssigner:
+ def assign(self, chunk: EpisodicChunk, grid: MemoryGrid) -> CoordinateAssignmentResult:
+ """Assigns coordinates and returns interference potential."""
+...
+```
 
----
+#### `code/models/spatial.py`
+```python
+def soft_addressed_retrieve(query: torch.Tensor, grid: MemoryGrid) -> Tuple[torch.Tensor, float]:
+ """Returns aggregated context and spatial attention loss."""
+...
+```
 
-## 4. Training & Resource Contracts
+#### `code/training/memory_monitor.py`
+```python
+class MemoryMonitor:
+ def check_and_adjust(self, batch_size: int) -> int:
+ """Returns adjusted batch size if RSS > 6GB."""
+...
+```
 
-These contracts address the engineering constraints regarding hardware limitations and training stability, specifically responding to reviewer concerns about overhead and memory.
+## 4. Non-Functional Requirements
 
-### C-006: Memory Budget Enforcement
-**Scope**: `code/training/memory_monitor.py`
-**Requirement**: The system MUST monitor Resident Set Size (RSS) in real-time.
-**Threshold**: If RSS > 6 GB:
-1. Reduce batch size to 4.
-2. If RSS remains > 6 GB at batch size 4, the system MUST cap the training dataset to a defined fraction (e.g., 50%) of its original size.
-**Logging**: All adjustments to batch size or dataset size MUST be logged to `artifacts/results/hyperparams_log.json` with a timestamp and the specific trigger (RSS value).
+### NFR-001: Reproducibility
+All random seeds must be fixed at the start of the experiment. The `CoordinateAssigner` must use a deterministic hash function (SHA-256) for content mapping.
 
-### C-007: Model Fallback Protocol
-**Scope**: `code/models/loading.py`
-**Requirement**: The system MUST attempt to load `gpt2-medium` with 4-bit quantization first.
-**Fallback**: If the memory budget (C-006) is exceeded even with quantization, the system MUST automatically switch to `DistilGPT2`.
-**Invariant**: The fallback mechanism MUST be transparent and recorded in the run metadata.
+### NFR-002: Data Integrity
+No synthetic data or placeholder rows are permitted in the evaluation pipeline. All metrics must be derived from real datasets (bAbI, LAMBADA, Story Cloze) as verified by checksums in `data/raw/checksums.json`.
 
-### C-008: Runtime Limit
-**Scope**: `code/main.py`
-**Requirement**: The total runtime for a full experiment (download + train + eval) across 5 seeds MUST not exceed 5 hours.
-**Action**: If a run exceeds this limit, it MUST be terminated, and the partial results must be recorded with a `status: timeout` flag.
+### NFR-003: Performance
+The `soft_addressed_retrieve` operation must complete within 50ms for a grid size of 1024 slots on a standard CPU.
 
----
+## 5. Verification & Validation
 
-## 5. Evaluation & Statistical Contracts
+### 5.1. Contract Tests
+- **T010**: Verify `compute_exact_match_recall` matches expected values on a known dataset subset.
+- **T023**: Verify `compute_interference_distance` correctly identifies spatial vs. non-spatial variants.
 
-These contracts ensure that the scientific claims regarding "enhanced recall" are supported by rigorous statistical evidence, addressing reviewer concerns about measurable structural correlates.
+### 5.2. Integration Tests
+- **T011**: Verify `TrainingLoop` respects the 6 GB RAM limit and logs adjustments.
+- **T019**: Verify statistical analysis module correctly handles normality checks and fallbacks.
 
-### C-009: Exact-Match Recall Metric
-**Scope**: `code/evaluation/metrics.py`
-**Requirement**: The primary metric MUST be Exact-Match Recall (EMR), calculated as the ratio of correctly recalled answers to total questions.
-**Constraint**: EMR MUST be computed separately for the spatial variant and the non-spatial baseline.
+## 6. Change Log
 
-### C-010: Statistical Significance
-**Scope**: `code/evaluation/stats.py`
-**Requirement**: Comparisons between spatial and baseline models MUST use paired two-tailed t-tests across the 5 random seeds.
-**Normality Check**: A Shapiro-Wilk test MUST be performed. If normality is violated (p < 0.05), the system MUST fallback to the Wilcoxon signed-rank test.
-**Correction**: For comparisons across multiple datasets (bAbI, LAMBADA, Story Cloze), the system MUST apply Bonferroni or Holm-Bonferroni correction to the p-values.
-
-### C-011: Effect Size Reporting
-**Scope**: `code/evaluation/stats.py`
-**Requirement**: All significant comparisons MUST report Cohen's d with a 95% confidence interval.
-**Output**: Results MUST be stored in `artifacts/results/statistical_summary.json`.
-
-### C-012: Structural Correlate Metrics
-**Scope**: `code/evaluation/metrics.py`
-**Requirement**: The system MUST compute and report the following structural metrics to validate spatial organization:
-1. **Interference Distance**: The average Euclidean distance between slots containing semantically conflicting information.
-2. **Slot Occupancy**: The distribution of items across the grid (logarithmic binning).
-3. **Coordinate Variance**: The variance of assigned coordinates over epochs.
-**Output**: These metrics MUST be logged per epoch to `artifacts/results/` (CSV/JSON) and summarized in the final report.
-
----
-
-## 6. Compliance & Verification
-
-To verify compliance with these contracts, the following automated checks are enforced:
-
-| Contract ID | Verification Method | Artifact |
-|:--- |:--- |:--- |
-| C-001 | Checksum validation script | `data/raw/checksums.json` |
-| C-006 | Memory monitor logs | `artifacts/results/hyperparams_log.json` |
-| C-009 | Unit test for metric calc | `tests/unit/test_metrics.py` |
-| C-010 | Integration test for stats | `tests/unit/test_stats.py` |
-| C-012 | Structural metric logger | `artifacts/results/interference_distance.json` |
-
-## 7. Revision History
-
-- **v1.0 (Draft)**: Initial draft covering data, architecture, training, and evaluation contracts.
-- **Status**: Pending approval by the scientific review board.
+| Version | Date | Author | Description |
+|---------|------|--------|-------------|
+| 1.0.0 | 2026-07-03 | LLM Implementer | Initial draft based on T008d requirements. |

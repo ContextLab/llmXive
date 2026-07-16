@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResultsSchema"
+description: "Schema for the JSON output containing model performance metrics."
+type: object
+properties:
+  lmm:
+    type: object
+    description: "Linear Mixed-Effects Model results."
+    properties:
+      adjusted_r_squared:
+        type: number
+        description: "Adjusted R-squared value."
+      rmse:
+        type: number
+        description: "Root Mean Square Error."
+      p_values:
+        type: object
+        description: "P-values for predictors."
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+        required:
+          - phosphorus
+          - nitrogen
+      coefficients:
+        type: object
+        description: "Fixed effect coefficients."
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+        required:
+          - phosphorus
+          - nitrogen
+    required:
+      - adjusted_r_squared
+      - rmse
+      - p_values
+      - coefficients
+  random_forest:
+    type: object
+    description: "Random Forest baseline results."
+    properties:
+      r_squared:
+        type: number
+        description: "R-squared value."
+      rmse:
+        type: number
+        description: "Root Mean Square Error."
+    required:
+      - r_squared
+      - rmse
+  cross_validation:
+    type: object
+    description: "Cross-species cross-validation results."
+    properties:
+      lmm_mean_r2:
+        type: number
+        description: "Mean out-of-sample R-squared for LMM."
+      rf_mean_r2:
+        type: number
+        description: "Mean out-of-sample R-squared for RF."
+    required:
+      - lmm_mean_r2
+      - rf_mean_r2
+  literature_comparison:
+    type: object
+    description: "Comparison of coefficients to literature ranges."
+    properties:
+      phosphorus_overlap:
+        type: boolean
+        description: "True if 95% CI overlaps with literature range for phosphorus."
+      nitrogen_overlap:
+        type: boolean
+        description: "True if 95% CI overlaps with literature range for nitrogen."
+    required:
+      - phosphorus_overlap
+      - nitrogen_overlap
+  spec_deviations:
+    type: array
+    description: "List of deviations from the original specification."
+    items:
+      type: string
+    example:
+      - "FR-002: ISRIC merge not possible (no verified source). Observations excluded."
+      - "FR-003: KNN imputation skipped (scientific validity). Missing nutrients excluded."
+required:
+  - lmm
+  - random_forest
+  - cross_validation
+  - literature_comparison
+  - spec_deviations
+additionalProperties: false
