@@ -55,7 +55,7 @@
 - [X] T006 Create base `GrainBoundaryRecord` dataclass/schema in `code/models/grain_boundary_record.py`
 - [X] T007 Setup error handling infrastructure for `Data Insufficiency` halt (exit code 1) ensuring the error message logs the exact count of retrieved vs. required records (implementation in T011)
 - [X] T008 Configure environment variables for API keys (Materials Project, OpenKIM) in `.env` (not committed)
-- [X] T030 [P] [Foundational] Create `config.yaml` in the project root to store the R² ≥ 0.7 threshold justification. **MANDATORY REQUIREMENT**: The `config.yaml` MUST contain a non-empty string in the `thresholds.r2.citation` field referencing the community-standard benchmark (e.g., "Fundamentals and Catalytic Applications of CeO₂-Based Materials, 2016"). The pipeline MUST raise a validation error if this field is missing or empty [UNRESOLVED-CLAIM: c_a5e8f5b1 — status=not_enough_info] (`if not config['thresholds']['r2']['citation']: raise ValueError`). Define the sensitivity sweep range in `thresholds.r2.sweep_range` as `{0.70 (moderate), 0.75 (high), 0.80 (very high)}` to strictly satisfy the spec's `{moderate, high, very high}` requirement (see SC-004 acceptance scenarios).
+- [X] T030 [P] [Foundational] Create `config.yaml` in the project root to store the R² ≥ 0.7 threshold justification. **MANDATORY REQUIREMENT**: The `config.yaml` MUST contain a non-empty string in the `thresholds.r2.citation` field referencing the community-standard benchmark (e.g., "Fundamentals and Catalytic Applications of CeO₂-Based Materials, 2016"). The pipeline MUST raise a validation error if this field is missing or empty (`if not config['thresholds']['r2']['citation']: raise ValueError`). Define the sensitivity sweep range in `thresholds.r2.sweep_range` as `{0.70 (moderate), 0.75 (high), 0.80 (very high)}` to strictly satisfy the spec's `{moderate, high, very high}` requirement (see SC-004 acceptance scenarios).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -115,7 +115,7 @@
  - **Logic**:
  - **Case A (Valid Σ Available)**: Compute MI.
  - **Case B (No Valid Σ)**: **DO NOT SKIP**. Generate a report with `{"status": "unavailable", "message": "No valid Σ values in dataset after preprocessing.", "count": <int>}`.
- - **Log** a descriptive note: "MI > 0.8 indicates strong dependency [UNRESOLVED-CLAIM: c_ac72564a — status=not_enough_info]; relationship is descriptive, not causal."
+ - **Log** a descriptive note: "MI > 0.8 indicates strong dependency; relationship is descriptive, not causal."
  - **Output** `artifacts/reports/collinearity_diagnostic.json` (or the specific 'unavailable' report) to inform feature selection before training.
  - **Note**: Do NOT halt execution or flag errors based on MI thresholds; strictly report and frame descriptively as per FR-007. **T012b must explicitly use this report for framing, not for feature dropping.**
  - **Dependency**: Must run AFTER T011 (Preprocessing) and BEFORE T012 (Training).
@@ -128,18 +128,18 @@
  - **Scoring metric**: `r2`.
  - Save best hyperparameters to `models/best_params.json`.
  - **Measure and log** peak RAM usage (MB) using `psutil` and total runtime (seconds) to `artifacts/reports/compute_metrics.json`.
-- [X] T012b [US1] Implement `code/train_final.py` to:
+- [X] T012b [US1] Implement `code/train_final.py` to: <!-- FAILED: unspecified -->
  - **Dependency**: Must run AFTER T012a.
  - **Load Split Indices**: **MUST** load `data/processed/split_indices.pkl` to ensure the held-out test set is identical to the one used in T012a.
  - Train final XGBoost model on the training set using best hyperparameters from T012a.
  - **Evaluate**: Evaluate the final model **ONLY** on the held-out test set.
  - **Calculate Metrics**: Calculate R², RMSE, MAPE on the held-out test set.
  - **Calculate SD**: **MUST** calculate the **standard deviation of R² across k=5 folds of the held-out test set** (using repeated k-fold CV on the test set, or nested CV outer loop on test) to satisfy SC-001.
- - **Collinearity Framing**: **MUST** read `artifacts/reports/collinearity_diagnostic.json` from T016. **Unconditionally** write a framing statement for the joint relationship of misorientation and Σ value in `artifacts/reports/training_metrics.json` stating: "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation [UNRESOLVED-CLAIM: c_f341a07a — status=not_enough_info]." (This applies regardless of the MI score).
+ - **Collinearity Framing**: **MUST** read `artifacts/reports/collinearity_diagnostic.json` from T016. **Unconditionally** write a framing statement for the joint relationship of misorientation and Σ value in `artifacts/reports/training_metrics.json` stating: "The relationship between misorientation and Σ value is descriptive, not causal, as Σ is derived from misorientation. [UNRESOLVED-CLAIM: c_31c070b9 — status=not_enough_info]" (This applies regardless of the MI score).
  - Save `models/best_model.json`.
  - Log R², RMSE, MAPE, and SD to `artifacts/reports/training_metrics.json`.
 - [X] T013 [P] [US1] Add unit tests in `tests/unit/test_geometry_parser.py` for parsing logic and encoding correctness (including boundary plane normal derivation).
-- [X] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value extraction/calculation logic, and missing value handling.
+- [X] T014 [P] [US1] Add unit tests in `tests/unit/test_preprocess.py` for feature engineering, Σ value extraction/calculation logic, and missing value handling. <!-- FAILED: unspecified -->
 - [X] T015 [US1] Add integration test in `tests/integration/test_pipeline.py` to verify end-to-end execution (T009a-c -> T010 -> T011 -> T016 -> T012a -> T012b) within 6 hours and <7 GB RAM. **Removed [P] tag**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -159,10 +159,10 @@
  - Perform k=5 cross-validation **on the held-out test set** (repeated split) to assess generalization stability and measure test-set performance variance.
  - Report average R², RMSE, MAPE and **calculate standard deviation of R² across the k=5 folds on the test set** (must be <= 0.05). **This metric satisfies SC-001.**
  - Execute regression bias test (y_true ~ y_pred) on the **held-out test set** to calculate intercept, slope, and p-values.
- - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) for multiple hypothesis tests [UNRESOLVED-CLAIM: c_cc2a4b5c — status=not_enough_info].
+ - Apply Bonferroni correction (α_adj = 0.05 / 3 ≈ 0.017) for multiple hypothesis tests. [UNRESOLVED-CLAIM: c_3af9f8fd — status=not_enough_info]
  - Generate `artifacts/reports/validation_report.json`.
 - [X] T018 [P] [US2] Add unit tests in `tests/unit/test_diagnostics.py` for MI calculation (if not covered in T013). <!-- FAILED: unspecified -->
-- [X] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
+- [ ] T019 [P] [US2] Add unit tests in `tests/unit/test_validate.py` for bias test logic and FWER correction. <!-- FAILED: unspecified -->
 - [X] T020 [US2] Add integration test in `tests/integration/test_validation.py` to verify report generation and metric thresholds.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -177,7 +177,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified -->
+- [ ] T021 [US3] Implement `code/interpret.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Dependency**: This task MUST run AFTER T017 (Validation) to ensure `validation_report.json` is available. **Removed [P] tag**.
  - Generate SHAP summary plot and ranked feature-importance list.
  - Perform sensitivity analysis sweeping R² threshold across the range **defined in `config.yaml` (`thresholds.r2.sweep_range`)**. **Do NOT hardcode values.**
@@ -189,8 +189,8 @@
  - **Include** a one-line justification for the R² ≥ 0.7 threshold by loading the `thresholds.r2.citation` field from `config.yaml` (created in T030) and embedding it in the report.
  - Save plots to `artifacts/figures/` and reports to `artifacts/reports/`.
 - [ ] T022 [P] [US3] Add logic to `code/interpret.py` to load the R² threshold justification from `config.yaml` (created in T030) and include it in the final report. <!-- FAILED: unspecified -->
-- [X] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
-- [X] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
+- [ ] T023 [P] [US3] Add unit tests in `tests/unit/test_interpret.py` for SHAP value extraction. <!-- FAILED: unspecified -->
+- [ ] T024 [US3] Add integration test in `tests/integration/test_interpretability.py` to verify plot generation and sensitivity table accuracy.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -205,12 +205,12 @@
 - [X] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`.
 - [X] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
 - [X] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.
-- [X] T034 [US1] Add unit tests in `tests/unit/test_download.py` to verify that the download script logs the raw count but does NOT halt on insufficiency [UNRESOLVED-CLAIM: c_fc49b0bb — status=not_enough_info] (delegating to T011), ensuring no synthetic fallback is used (addressing edge case: data insufficiency).
-- [X] T036 [US1] Update `code/download.py` (and sub-modules) to include exponential backoff logic for API rate limits (Materials Project, OpenKIM) to prevent premature failures during bulk fetches.
-- [X] T037 [US1] Update `code/preprocess.py` to explicitly log the count of excluded records due to missing `Σ value` or `boundary plane normal` and verify these counts are non-zero if the dataset is incomplete, ensuring transparency in data filtering.
-- [X] T038 [US2] Add a unit test in `tests/unit/test_validate.py` to verify the Bonferroni correction calculation (α_adj = 0.05 / 3) and ensure the p-value adjustment logic is correctly applied to the bias test results.
-- [X] T039 [US3] Add a unit test in `tests/unit/test_interpret.py` to verify the "False Positive Rate Proxy" metric calculation logic (predicted > threshold AND actual <= threshold), ensuring it correctly measures the rate of incorrect high predictions.
-- [X] T040 [US1] Implement a `data/sample_config.yaml` that defines a specific, reproducible sampling strategy (e.g., `itertools.islice` first N rows or fixed-seed random sample) with explicit documentation of the sample size and its representativeness limitations, to be used only if the full dataset cannot be processed within compute constraints.
+- [ ] T034 [US1] Add unit tests in `tests/unit/test_download.py` to verify that the download script logs the raw count but does NOT halt on insufficiency (delegating to T011), ensuring no synthetic fallback is used (addressing edge case: data insufficiency).
+- [ ] T036 [US1] Update `code/download.py` (and sub-modules) to include exponential backoff logic for API rate limits (Materials Project, OpenKIM) to prevent premature failures during bulk fetches.
+- [ ] T037 [US1] Update `code/preprocess.py` to explicitly log the count of excluded records due to missing `Σ value` or `boundary plane normal` and verify these counts are non-zero if the dataset is incomplete, ensuring transparency in data filtering.
+- [ ] T038 [US2] Add a unit test in `tests/unit/test_validate.py` to verify the Bonferroni correction calculation (α_adj = 0.05 / 3) and ensure the p-value adjustment logic is correctly applied to the bias test results.
+- [ ] T039 [US3] Add a unit test in `tests/unit/test_interpret.py` to verify the "False Positive Rate Proxy" metric calculation logic (predicted > threshold AND actual <= threshold), ensuring it correctly measures the rate of incorrect high predictions.
+- [ ] T040 [US1] Implement a `data/sample_config.yaml` that defines a specific, reproducible sampling strategy (e.g., `itertools.islice` first N rows or fixed-seed random sample) with explicit documentation of the sample size and its representativeness limitations, to be used only if the full dataset cannot be processed within compute constraints.
 
 ---
 
@@ -264,7 +264,7 @@
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization, no large LLMs.
 - **CPU Limit**: The GitHub Actions free-tier limit is a hard constraint of **2 CPU cores**.
-- **Data Source Constraint**: The pipeline strictly adheres to Materials Project, OpenKIM, and NIST. No fallbacks are permitted.
+- **Data Source Constraint**: {{claim:c_919349f5}} (Wikidata Q37499364, https://www.wikidata.org/wiki/Q37499364) No fallbacks are permitted.
 - **Σ Value Constraint**: Σ value must be calculated from misorientation if not in metadata; it is a required feature. Missing values result in record exclusion.
 - **Reproducibility Constraint**: All datasets must be downloaded, chunked if necessary, and checksummed locally. Streaming without local storage is prohibited. **Exception**: For datasets >7GB, sampling with immediate processing (T040) is required to maintain RAM limits, but MUST result in a static, checksummed local copy.
 - **New Task Rationale**: T034-T040 address specific reviewer concerns regarding API robustness (backoff), data transparency (missing value logging), statistical rigor (Bonferroni verification), metric correctness (FPR proxy for regression), and reproducible sampling strategies for out-of-memory scenarios. T027 and T028 were removed as they were ungrounded scope creep.

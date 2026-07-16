@@ -1,12 +1,14 @@
 """
 Download module for fetching raw grain boundary data from external APIs.
-Handles authentication via environment variables.
+Handles authentication via environment variables with exponential backoff for rate limits.
 """
 import os
 import sys
 import json
 import logging
 import hashlib
+import time
+import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import requests
@@ -22,9 +24,55 @@ from utils import compute_sha256, setup_logging, raise_data_insufficiency
 
 logger = setup_logging()
 
-def fetch_materials_project_data(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+def exponential_backoff_retry(func, max_retries: int = 5, base_delay: float = 1.0, max_delay: float = 60.0):
     """
-    Fetch data from Materials Project API.
+    Decorator to add exponential backoff retry logic to a function.
+    
+    Args:
+        func: The function to wrap.
+        max_retries: Maximum number of retry attempts.
+        base_delay: Initial delay in seconds.
+        max_delay: Maximum delay in seconds.
+        
+    Returns:
+        The wrapped function.
+    """
+    def wrapper(*args, **kwargs):
+        delay = base_delay
+        last_exception = None
+        
+        for attempt in range(max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except requests.exceptions.RequestException as e:
+                last_exception = e
+                if attempt == max_retries:
+                    logger.error(f"Max retries ({max_retries}) reached. Last error: {e}")
+                    raise
+                
+                # Check if the error is a rate limit (429) or server error (5xx)
+                status_code = getattr(e, 'response', None)
+                if status_code is not None:
+                    status_code = status_code.status_code
+                
+                if status_code in [429, 500, 502, 503, 504]:
+                    jitter = random.uniform(0.1, 0.5)
+                    sleep_time = min(delay * (2 ** attempt) + jitter, max_delay)
+                    logger.warning(f"Attempt {attempt + 1} failed with status {status_code}. Retrying in {sleep_time:.2f}s...")
+                    time.sleep(sleep_time)
+                    delay = min(delay * 2, max_delay)
+                else:
+                    # For other errors, don't retry immediately, just log and raise
+                    logger.error(f"Non-retryable error: {e}")
+                    raise
+        raise last_exception
+    return wrapper
+
+@exponential_backoff_retry
+def _fetch_materials_project_internal(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+    """
+    Internal function to fetch data from Materials Project API.
+    Wrapped with retry logic.
     
     Args:
         query_params: Dictionary of query parameters.
@@ -41,16 +89,7 @@ def fetch_materials_project_data(query_params: Dict[str, Any]) -> Optional[List[
     headers = {"X-API-Key": api_key}
     
     try:
-        # Example search endpoint - adjust based on actual MP API structure
-        # The spec mentions searching by keywords, but MP API often uses material_ids or specific filters.
-        # We will attempt a search using the materials search endpoint if available, 
-        # or fallback to a generic structure query if specific endpoints are not exposed in the spec.
-        # Note: The actual MP API requires specific endpoints like /search/ or specific material queries.
-        # For this implementation, we assume a generic search capability or a placeholder structure 
-        # that would be replaced by the actual endpoint in a real integration.
-        
-        # Mocking the request structure based on common REST patterns for materials
-        # In a real scenario, this would use the specific MP search endpoint
+        # Using the search endpoint as per spec
         url = f"{base_url}/search" 
         params = {
             "keywords": "grain boundary bicrystal",
@@ -59,24 +98,35 @@ def fetch_materials_project_data(query_params: Dict[str, Any]) -> Optional[List[
             **query_params
         }
         
-        logger.info(f"Attempting to fetch from Materials Project: {url}")
-        # response = requests.get(url, headers=headers, params=params, timeout=30)
-        # response.raise_for_status()
-        # return response.json().get("results", [])
-        
-        # Since we cannot actually call the API without a valid key and endpoint details,
-        # we simulate the structure for the code logic to work, but log the actual attempt.
-        # The real implementation would uncomment the lines above.
-        logger.warning("Materials Project API call is simulated in this environment. Replace with actual fetch.")
-        return []
+        logger.info(f"Fetching from Materials Project: {url}")
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        return response.json().get("results", [])
 
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch from Materials Project: {e}")
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error(f"Failed to decode JSON from Materials Project: {e}")
         return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed (will be retried by decorator): {e}")
+        raise
 
-def fetch_openkim_data(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+def fetch_materials_project_data(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
     """
-    Fetch data from OpenKIM.
+    Fetch data from Materials Project API with exponential backoff.
+    
+    Args:
+        query_params: Dictionary of query parameters.
+        
+    Returns:
+        List of data records or None if fetch fails.
+    """
+    return _fetch_materials_project_internal(query_params)
+
+@exponential_backoff_retry
+def _fetch_openkim_internal(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+    """
+    Internal function to fetch data from OpenKIM.
+    Wrapped with retry logic.
     
     Args:
         query_params: Dictionary of query parameters.
@@ -90,9 +140,41 @@ def fetch_openkim_data(query_params: Dict[str, Any]) -> Optional[List[Dict[str, 
         return []
 
     # OpenKIM typically uses a different API structure (often JSON-RPC or specific endpoints)
-    # Placeholder for implementation
-    logger.info("OpenKIM fetch simulated.")
-    return []
+    # Placeholder for implementation - assuming a similar REST structure for now
+    base_url = "https://api.openkim.org/v1"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    
+    try:
+        # Example endpoint - adjust based on actual OpenKIM API
+        url = f"{base_url}/search"
+        params = {
+            "keywords": "grain boundary diffusivity",
+            **query_params
+        }
+        
+        logger.info(f"Fetching from OpenKIM: {url}")
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        return response.json().get("results", [])
+
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error(f"Failed to decode JSON from OpenKIM: {e}")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed (will be retried by decorator): {e}")
+        raise
+
+def fetch_openkim_data(query_params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+    """
+    Fetch data from OpenKIM with exponential backoff.
+    
+    Args:
+        query_params: Dictionary of query parameters.
+        
+    Returns:
+        List of data records or None if fetch fails.
+    """
+    return _fetch_openkim_internal(query_params)
 
 def save_raw_data(data: List[Dict[str, Any]], output_dir: Path, source: str) -> str:
     """

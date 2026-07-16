@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "models/best_model.json",
+    "required": []
+  }
+]

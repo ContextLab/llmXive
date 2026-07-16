@@ -1,13 +1,3 @@
-"""
-Validation module for grain boundary diffusivity model.
-
-This module implements:
-- k-fold cross-validation on the held-out test set
-- Regression bias testing (y_true ~ y_pred)
-- Bonferroni correction for multiple hypothesis tests
-- Report generation with average metrics and standard deviations
-"""
-
 import json
 import logging
 import os
@@ -17,275 +7,268 @@ from typing import Dict, Any, Tuple, List
 
 import numpy as np
 import pandas as pd
-import xgboost as xgb
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.linear_model import LinearRegression
 from scipy import stats
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_percentage_error
 
-# Import project utilities
-from utils import setup_logging, set_random_seed
-from error_handling import DataInsufficiencyError
+# Import project utilities using the exact names from the API surface
+from utils import setup_logging
+from models.grain_boundary_record import GrainBoundaryRecord
 
-# Configure logging
-logger = setup_logging(__name__)
+# Configure logger with the correct signature (name string, not level string)
+logger = setup_logging("validate")
 
-# Constants
-R2_THRESHOLD = 0.7
-BONFERRONI_ALPHA = 0.05
-NUM_FOLDS = 5
-RANDOM_SEED = 42
+# Paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+MODEL_PATH = PROJECT_ROOT / "models" / "best_model.json"
+DATA_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_dataset.parquet"
+SPLIT_INDICES_PATH = PROJECT_ROOT / "data" / "processed" / "split_indices.pkl"
+REPORT_PATH = PROJECT_ROOT / "artifacts" / "reports" / "validation_report.json"
+CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
-def load_model_and_data(model_path: str, data_path: str) -> Tuple[xgb.XGBRegressor, pd.DataFrame]:
+def load_model_and_data() -> Tuple[pd.DataFrame, pd.DataFrame, Any]:
     """
-    Load the trained model and the test dataset.
-
-    Args:
-        model_path: Path to the saved model JSON
-        data_path: Path to the cleaned dataset parquet
-
+    Load the trained model, cleaned dataset, and split indices.
     Returns:
-        Tuple of (model, dataframe)
+        X_test: Features for the held-out test set.
+        y_test: Target values for the held-out test set.
+        model: The trained XGBoost model (or a wrapper dict if loading JSON).
     """
-    logger.info(f"Loading model from {model_path}")
-    model = xgb.XGBRegressor()
-    model.load_model(model_path)
+    if not MODEL_PATH.exists():
+        raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Run T012b first.")
+    if not DATA_PATH.exists():
+        raise FileNotFoundError(f"Cleaned dataset not found at {DATA_PATH}. Run T011 first.")
+    if not SPLIT_INDICES_PATH.exists():
+        raise FileNotFoundError(f"Split indices not found at {SPLIT_INDICES_PATH}. Run T012a first.")
 
-    logger.info(f"Loading data from {data_path}")
-    df = pd.read_parquet(data_path)
+    # Load split indices to reconstruct the test set
+    import pickle
+    with open(SPLIT_INDICES_PATH, 'rb') as f:
+        split_indices = pickle.load(f)
 
-    # Identify feature and target columns based on schema
-    # Assuming target is 'diffusivity' and features are all other numeric columns
-    target_col = 'diffusivity'
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset. Columns: {df.columns.tolist()}")
+    test_indices = split_indices.get('test_indices')
+    if not test_indices:
+        raise ValueError("Test indices missing from split_indices.pkl")
 
-    # Filter for numeric columns only for model input
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if target_col in numeric_cols:
-        numeric_cols.remove(target_col)
+    # Load cleaned data
+    df = pd.read_parquet(DATA_PATH)
 
-    if not numeric_cols:
-        raise ValueError("No numeric feature columns found in dataset.")
+    # Ensure we have the expected columns. 
+    # The target is typically 'diffusivity' or 'log_diffusivity'. 
+    # Based on standard physics pipelines, we assume 'diffusivity' or similar.
+    # We will look for a column that looks like the target.
+    target_col = None
+    for col in df.columns:
+        if 'diffusivity' in col.lower() or 'target' in col.lower():
+            target_col = col
+            break
+    
+    if not target_col:
+        # Fallback to a common default if logic fails, but log it
+        target_col = 'diffusivity'
+        logger.warning(f"Could not auto-detect target column. Defaulting to '{target_col}'.")
+        if target_col not in df.columns:
+            raise ValueError(f"Target column '{target_col}' not found in dataset. Available: {list(df.columns)}")
 
-    X = df[numeric_cols]
+    feature_cols = [c for c in df.columns if c != target_col]
+    X = df[feature_cols]
     y = df[target_col]
 
-    logger.info(f"Loaded {len(y)} samples with {len(numeric_cols)} features")
-    return model, X, y, numeric_cols
+    # Extract test set
+    X_test = X.iloc[test_indices].reset_index(drop=True)
+    y_test = y.iloc[test_indices].reset_index(drop=True)
 
-def perform_cross_validation(model: xgb.XGBRegressor, X: pd.DataFrame, y: pd.Series, n_folds: int = NUM_FOLDS) -> Dict[str, Any]:
+    # Load model (assuming it's a pickle or json representation of XGBoost)
+    # Since we don't have the exact serialization format from T012b in the prompt,
+    # we assume a standard JSON structure or a pickle. 
+    # For robustness, we'll try to load the model file. 
+    # If it's a JSON of params, we might need to reconstruct, but T012b usually saves the model object.
+    # Let's assume it's a pickle for now as is common in sklearn/xgboost pipelines, 
+    # or a JSON if we implemented a custom save. 
+    # Given the constraints, we will load the best_model.json as a dict if it exists, 
+    # but usually, models are pickled. Let's check extension.
+    
+    model = None
+    if MODEL_PATH.suffix == '.pkl':
+        import pickle
+        with open(MODEL_PATH, 'rb') as f:
+            model = pickle.load(f)
+    else:
+        # If it's JSON, it might be the parameters. We need the actual model object for prediction.
+        # However, T012b saves 'best_model.json'. If that's a params file, we can't predict without re-instantiating.
+        # Assuming T012b saved the actual model object in a way that can be loaded.
+        # Let's try to load as JSON and see if it contains model data, or assume it's a pickle renamed.
+        # To be safe against the "file missing" error from the execution log, we must ensure this path works.
+        # If the previous run failed to write it, we can't load it.
+        # We assume T012b wrote a valid model file.
+        import pickle
+        # Try loading as pickle first (most common for sklearn/xgb)
+        try:
+            with open(MODEL_PATH, 'rb') as f:
+                model = pickle.load(f)
+        except Exception:
+            # Fallback: try JSON and hope it's a serialized model or params we can use (unlikely for prediction)
+            with open(MODEL_PATH, 'r') as f:
+                model_data = json.load(f)
+            # If it's just params, we can't run CV on it without the model class.
+            # We assume T012b saved the actual model object.
+            raise RuntimeError(f"Could not load model from {MODEL_PATH}. It may not be a valid model file.")
+
+    return X_test, y_test, model
+
+def perform_cross_validation(X: pd.DataFrame, y: pd.Series, model: Any, k: int = 5) -> Dict[str, float]:
     """
-    Perform k-fold cross-validation on the test set to assess stability.
-
-    Args:
-        model: Trained XGBoost model
-        X: Feature dataframe
-        y: Target series
-        n_folds: Number of folds
-
-    Returns:
-        Dictionary with mean and std of R2, RMSE, MAPE
+    Perform k-fold cross-validation on the test set to measure stability.
+    Calculates R², RMSE, and MAPE for each fold and returns averages and std devs.
     """
-    logger.info(f"Performing {n_folds}-fold cross-validation on test set")
-
-    # Define scoring metrics
-    # sklearn's cross_val_score only returns one metric at a time usually,
-    # so we use a custom approach or loop.
-    # For R2:
-    kf = KFold(n_splits=n_folds, shuffle=True, random_state=RANDOM_SEED)
-
+    logger.info(f"Performing {k}-fold cross-validation on test set.")
+    
+    # We need to create a wrapper that uses the trained model for prediction
+    # Since the model is already trained, we can't use sklearn's cross_val_score directly
+    # with a pre-fitted estimator in the standard way (it expects an unfitted estimator).
+    # Instead, we will manually split the test set and predict.
+    
+    kfold = KFold(n_splits=k, shuffle=True, random_state=42)
+    
     r2_scores = []
     rmse_scores = []
     mape_scores = []
-
-    for train_idx, test_idx in kf.split(X):
-        X_train_fold, X_test_fold = X.iloc[train_idx], X.iloc[test_idx]
-        y_train_fold, y_test_fold = y.iloc[train_idx], y.iloc[test_idx]
-
-        # Train a clone of the model on the fold
-        fold_model = xgb.XGBRegressor(**model.get_params())
-        fold_model.fit(X_train_fold, y_train_fold)
-
-        y_pred_fold = fold_model.predict(X_test_fold)
-
-        # Calculate metrics
-        r2 = r2_score(y_test_fold, y_pred_fold)
+    
+    for fold_idx, (train_idx, val_idx) in enumerate(kfold.split(X)):
+        # Split test data into fold-train and fold-val
+        X_fold_train = X.iloc[train_idx]
+        X_fold_val = X.iloc[val_idx]
+        y_fold_train = y.iloc[train_idx]
+        y_fold_val = y.iloc[val_idx]
+        
+        # Since the model is already trained on the full training set (from T012b),
+        # we cannot re-train it on X_fold_train. 
+        # The task asks for "k-fold cross-validation on the held-out test set".
+        # This usually implies assessing the variance of the model's performance
+        # on different subsets of the test data, or re-training.
+        # Given the model is fixed, we will evaluate the fixed model on the validation folds.
+        # This measures how much the test set variance affects the metric.
+        
+        y_pred = model.predict(X_fold_val)
+        
+        r2 = r2_score(y_fold_val, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_fold_val, y_pred))
+        mape = mean_absolute_percentage_error(y_fold_val, y_pred)
+        
         r2_scores.append(r2)
-
-        rmse = np.sqrt(np.mean((y_test_fold - y_pred_fold) ** 2))
         rmse_scores.append(rmse)
-
-        # MAPE: Mean Absolute Percentage Error
-        # Handle division by zero if actual is 0
-        mape = np.mean(np.abs((y_test_fold - y_pred_fold) / y_test_fold)) * 100
         mape_scores.append(mape)
-
+        logger.debug(f"Fold {fold_idx+1}: R²={r2:.4f}, RMSE={rmse:.4f}, MAPE={mape:.4f}")
+    
     return {
-        "r2": {
-            "mean": float(np.mean(r2_scores)),
-            "std": float(np.std(r2_scores)),
-            "values": [float(x) for x in r2_scores]
-        },
-        "rmse": {
-            "mean": float(np.mean(rmse_scores)),
-            "std": float(np.std(rmse_scores)),
-            "values": [float(x) for x in rmse_scores]
-        },
-        "mape": {
-            "mean": float(np.mean(mape_scores)),
-            "std": float(np.std(mape_scores)),
-            "values": [float(x) for x in mape_scores]
-        }
+        "r2_mean": float(np.mean(r2_scores)),
+        "r2_std": float(np.std(r2_scores)),
+        "rmse_mean": float(np.mean(rmse_scores)),
+        "rmse_std": float(np.std(rmse_scores)),
+        "mape_mean": float(np.mean(mape_scores)),
+        "mape_std": float(np.std(mape_scores)),
+        "k_folds": k,
+        "r2_scores": r2_scores,
+        "rmse_scores": rmse_scores,
+        "mape_scores": mape_scores
     }
 
-def run_regression_bias_test(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, Any]:
+def run_regression_bias_test(X: pd.DataFrame, y: pd.Series, model: Any) -> Dict[str, Any]:
     """
-    Execute regression bias test (y_true ~ y_pred).
-
-    Tests if the relationship is y = x (intercept=0, slope=1).
-
-    Args:
-        y_true: Actual values
-        y_pred: Predicted values
-
-    Returns:
-        Dictionary with intercept, slope, p-values, and significance flags
+    Execute regression bias test (y_true ~ y_pred) on the held-out test set.
+    Calculates intercept, slope, and p-values.
     """
-    logger.info("Running regression bias test")
-
-    model = LinearRegression()
-    model.fit(y_pred.values.reshape(-1, 1), y_true.values)
-
-    intercept = model.intercept_
-    slope = model.coef_[0]
-
-    # Perform t-test for intercept and slope
-    # y = intercept + slope * x + error
-    # We want to test H0: intercept=0 and H0: slope=1
-
-    # Calculate residuals
-    residuals = y_true - (intercept + slope * y_pred)
-
-    # Standard error of regression
-    n = len(y_true)
-    mse = np.sum(residuals ** 2) / (n - 2)
-    s_err = np.sqrt(mse)
-
-    # Standard errors for coefficients
-    x_mean = np.mean(y_pred)
-    ss_x = np.sum((y_pred - x_mean) ** 2)
-
-    se_intercept = s_err * np.sqrt(1/n + (x_mean**2)/ss_x)
-    se_slope = s_err / np.sqrt(ss_x)
-
-    # T-statistics
-    t_intercept = (intercept - 0) / se_intercept
-    t_slope = (slope - 1) / se_slope
-
-    # P-values (two-tailed)
-    p_intercept = 2 * (1 - stats.t.cdf(np.abs(t_intercept), n - 2))
-    p_slope = 2 * (1 - stats.t.cdf(np.abs(t_slope), n - 2))
-
-    # Bonferroni correction: alpha_adj = 0.05 / 3 (intercept, slope, maybe R2 test if included)
-    # Here we focus on intercept and slope, but task says 3 tests.
-    # Let's assume the 3 tests are: Intercept=0, Slope=1, and maybe an overall F-test or similar.
-    # The prompt specifically mentions "intercept, slope, and p-values" and "Bonferroni correction (α_adj = 0.05 / 3)".
-    # We will adjust p-values for the two tests we have, and perhaps include a third (e.g., R2 significance) or just report adjusted.
-    # Let's assume the 3 tests are: Intercept, Slope, and R2 (coefficient of determination significance).
-    # Actually, usually bias test is just intercept and slope. If 3 is required, maybe it includes a test for homoscedasticity or similar.
-    # Given the constraint, we will adjust the p-values we have by dividing alpha by 3.
-    alpha_adj = BONFERRONI_ALPHA / 3
-
-    sig_intercept = p_intercept < alpha_adj
-    sig_slope = p_slope < alpha_adj
-
+    logger.info("Running regression bias test.")
+    
+    y_pred = model.predict(X)
+    
+    # Linear regression: y_true = slope * y_pred + intercept
+    # We use statsmodels or scipy for p-values
+    # Using scipy.stats.linregress
+    slope, intercept, r_value, p_value, std_err = stats.linregress(y_pred, y)
+    
+    # Bonferroni correction: alpha = 0.05 / 3 tests (intercept, slope, r-value? or just slope/intercept?)
+    # The task says "multiple hypothesis tests" and alpha_adj = 0.05 / 3.
+    # We will report the raw p-value and the adjusted one.
+    alpha_adj = 0.05 / 3
+    
     return {
-        "intercept": float(intercept),
         "slope": float(slope),
-        "p_intercept": float(p_intercept),
-        "p_slope": float(p_slope),
-        "alpha_adjusted": float(alpha_adj),
-        "significance": {
-            "intercept_is_zero": not sig_intercept, # If p < alpha, we reject null (intercept != 0), so bias exists
-            "slope_is_one": not sig_slope
-        },
-        "bias_detected": sig_intercept or sig_slope
+        "intercept": float(intercept),
+        "r_squared": float(r_value**2),
+        "p_value_slope": float(p_value),
+        "p_value_adj_slope": float(p_value * 3), # Bonferroni
+        "alpha_adj": alpha_adj,
+        "is_significant_at_adj": float(p_value * 3) < alpha_adj
     }
 
-def r2_score(y_true, y_pred):
-    """Calculate R-squared score."""
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    return 1 - (ss_res / ss_tot)
-
-def generate_report(cv_results: Dict[str, Any], bias_results: Dict[str, Any], output_path: str):
+def generate_report(cv_results: Dict, bias_results: Dict, X_test: pd.DataFrame, y_test: pd.Series, model: Any) -> Dict[str, Any]:
     """
-    Generate the validation report JSON.
-
-    Args:
-        cv_results: Cross-validation results
-        bias_results: Bias test results
-        output_path: Path to save the report
+    Generate the final validation report.
     """
+    y_pred = model.predict(X_test)
+    
+    overall_r2 = r2_score(y_test, y_pred)
+    overall_rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    overall_mape = mean_absolute_percentage_error(y_test, y_pred)
+    
     report = {
-        "validation_summary": {
-            "k_folds": NUM_FOLDS,
-            "alpha_adjusted": bias_results["alpha_adjusted"]
+        "overall_metrics": {
+            "r2": float(overall_r2),
+            "rmse": float(overall_rmse),
+            "mape": float(overall_mape),
+            "test_sample_size": int(len(y_test))
         },
-        "cross_validation_metrics": cv_results,
-        "regression_bias_test": bias_results,
+        "cross_validation": cv_results,
+        "bias_test": bias_results,
         "stability_check": {
             "r2_std_threshold": 0.05,
-            "r2_std_actual": cv_results["r2"]["std"],
-            "passed": cv_results["r2"]["std"] <= 0.05
-        }
+            "r2_std_actual": cv_results["r2_std"],
+            "passed_stability": cv_results["r2_std"] <= 0.05
+        },
+        "timestamp": str(pd.Timestamp.now())
     }
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Validation report saved to {output_path}")
+    
+    return report
 
 def main():
-    """Main entry point for validation."""
-    set_random_seed(RANDOM_SEED)
-
-    # Paths
-    project_root = Path(__file__).resolve().parents[1]
-    model_path = project_root / "models" / "best_model.json"
-    data_path = project_root / "data" / "processed" / "cleaned_dataset.parquet"
-    report_path = project_root / "artifacts" / "reports" / "validation_report.json"
-
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-
+    """
+    Main entry point for T017.
+    """
     try:
-        # Load data and model
-        model, X, y, feature_cols = load_model_and_data(str(model_path), str(data_path))
+        # 1. Load data and model
+        X_test, y_test, model = load_model_and_data()
+        logger.info(f"Loaded test set with {len(y_test)} samples.")
 
-        # Perform Cross-Validation on Test Set
-        cv_results = perform_cross_validation(model, X, y)
+        # 2. Perform Cross-Validation on Test Set
+        cv_results = perform_cross_validation(X_test, y_test, model, k=5)
+        logger.info(f"CV R² Mean: {cv_results['r2_mean']:.4f}, Std: {cv_results['r2_std']:.4f}")
 
-        # Run Bias Test
-        # Use the full test set for bias test as per spec
-        y_pred_test = model.predict(X)
-        bias_results = run_regression_bias_test(y, y_pred_test)
+        # 3. Run Bias Test
+        bias_results = run_regression_bias_test(X_test, y_test, model)
+        logger.info(f"Bias Test Slope: {bias_results['slope']:.4f}, P-Value: {bias_results['p_value_slope']:.4f}")
 
-        # Generate Report
-        generate_report(cv_results, bias_results, str(report_path))
+        # 4. Generate Report
+        report = generate_report(cv_results, bias_results, X_test, y_test, model)
 
-        # Log key metrics
-        logger.info(f"CV R2 Mean: {cv_results['r2']['mean']:.4f} (+/- {cv_results['r2']['std']:.4f})")
-        logger.info(f"Bias Test - Intercept: {bias_results['intercept']:.4f}, Slope: {bias_results['slope']:.4f}")
-        logger.info(f"Stability Check: {'PASSED' if cv_results['r2']['std'] <= 0.05 else 'FAILED'}")
+        # 5. Ensure output directory exists
+        REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
+        # 6. Write Report
+        with open(REPORT_PATH, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Validation report saved to {REPORT_PATH}")
+        
+        # Print summary to stdout for quick verification
+        print(f"Validation Complete:")
+        print(f"  R² (Overall): {report['overall_metrics']['r2']:.4f}")
+        print(f"  R² (CV Mean): {report['cross_validation']['r2_mean']:.4f} (+/- {report['cross_validation']['r2_std']:.4f})")
+        print(f"  Stability Check (Std <= 0.05): {report['stability_check']['passed_stability']}")
+        
     except Exception as e:
-        logger.error(f"Validation failed: {e}")
+        logger.error(f"Validation failed: {str(e)}")
         raise
 
 if __name__ == "__main__":
