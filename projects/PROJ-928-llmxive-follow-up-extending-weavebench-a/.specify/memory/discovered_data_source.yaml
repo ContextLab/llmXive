@@ -1,0 +1,15 @@
+status: none
+intent: download WeaveBench dataset pip install python package dataset
+required_fields:
+- trajectory_id
+- step_index
+- action
+- interface
+- timestamp
+- task_id
+- modality
+- state_before
+- state_after
+cache_key: 2a74a5e3f4560b5a96a6b846c0ae481428f2c6282dcbfe20ee605f29c0899a23
+searched_at: '2026-07-16T09:30:03.043978+00:00'
+retry_count: 1

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.09082",
+  "judged_at": "2026-07-16T09:20:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides a foundational benchmark and methodology for \"long-horizon\" tasks in computer-use agents (specifically Vision-Language Navigation), which directly addresses the core mechanism and domain of the user's question regarding extending the WeaveBench for long-horizon computer-use agents.",
+  "relevant": true
+}

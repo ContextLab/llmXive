@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14140",
+  "judged_at": "2026-07-16T09:20:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same core mechanism (long-horizon reasoning capabilities) and dependent variable (model performance on extended tasks) within the same domain (computer science and autonomous agents) as the user's question, serving as a canonical benchmark for the specific capability gap the user is investigating.",
+  "relevant": true
+}

@@ -5,29 +5,81 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen"
 
-## Summary of the prior work
-The paper introduces WeaveBench, a benchmark designed to evaluate Computer-Use Agents (CUAs) on long-horizon tasks requiring the orchestration of hybrid interfaces (GUI, CLI, and code) in real-world environments. It highlights that current agents struggle with cross-interface coordination, achieving a maximum pass rate of only 41.2%, and proposes a trajectory-aware judge that detects shortcut behaviors and reveals that outcome-only grading significantly overestimates performance.
+**Field**: computer science
 
-## Proposed extension
-How does the cognitive load of "context-switching" between modalities (e.g., moving from a GUI window to a CLI terminal) correlate with specific error types in long-horizon trajectories, and can a lightweight, rule-based "modality scheduler" reduce these errors without requiring GPU-accelerated model retraining? This direction matters because it isolates whether agent failures stem from inherent model limitations or inefficient execution strategies, offering a CPU-tractable path to improve reliability through better orchestration logic rather than scaling compute.
+## Research question
+
+How does the frequency of cross-modality context switches (e.g., GUI to CLI) in long-horizon agent trajectories correlate with specific failure modes, and can a lightweight, rule-based orchestration strategy reduce these failures without requiring model retraining?
+
+## Motivation
+
+Current Computer-Use Agents (CUAs) struggle with long-horizon tasks, often failing not due to a lack of reasoning capability but due to inefficient execution strategies like premature interface switching. Isolating whether these failures stem from inherent model limitations or poor orchestration is critical for developing CPU-tractable reliability improvements that do not require expensive GPU-accelerated retraining.
+
+## Related work
+
+- [WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces](https://arxiv.org/abs/2606.09426) — Establishes the baseline performance of CUAs on hybrid interface tasks and introduces a trajectory-aware judge to detect shortcut behaviors, providing the primary dataset and error taxonomy for this study.
+- [OS-Marathon: Benchmarking Computer-Use Agents on Long-Horizon Repetitive Tasks](https://arxiv.org/abs/2601.20650) — Highlights the prevalence of long-horizon, repetitive workflows in professional settings, contextualizing the need for robust, non-retraining-based improvements to agent stability.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — Discusses the critical role of planning in complex autonomous tasks, offering a theoretical contrast to the execution-orchestration focus of the proposed modality scheduler.
+
+## Expected results
+
+We expect to find a strong positive correlation between high-frequency context switching and specific "interface-mismatch" errors (e.g., typing in a GUI field or clicking a CLI prompt). The study aims to demonstrate that a rule-based scheduler can recover at least 10-15% of previously failed tasks by enforcing a "verify-before-switch" protocol, proving that execution strategy is a distinct bottleneck from model capability.
 
 ## Methodology sketch
-**Data:** Extract the 114 tasks from WeaveBench and filter for trajectories where the agent failed, specifically tagging segments where the agent switched between GUI and CLI modes.
-**Procedure:** Implement a CPU-only "Modality Scheduler" agent that intervenes in the inference loop of a baseline CUA; this scheduler analyzes the immediate history to decide if the next action should be delayed or if a specific interface should be pre-focused based on simple heuristics (e.g., "if CLI output is pending, block GUI clicks"). We will run this scheduler against the baseline on the filtered failure set, measuring the reduction in "context-switch errors" (defined as actions taken on the wrong interface immediately after a switch).
-**Expected result:** The study will likely show that a significant portion of failures (e.g., >30%) are caused by premature or unverified context switches, and the lightweight scheduler can recover 10-15% of these tasks by enforcing a "verify-before-switch" protocol, proving that execution strategy is a distinct bottleneck from model capability.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the WeaveBench dataset (114 tasks) from the official repository or arXiv supplementary materials using `wget` or `curl`.
+- **Trajectory Parsing**: Write a Python script to parse the JSONL trajectory logs, specifically extracting segments where the agent transitions between GUI and CLI modalities.
+- **Error Tagging**: Implement a rule-based classifier to tag "context-switch errors" defined as actions performed on the wrong interface immediately following a modality switch, using the baseline failure labels as ground truth.
+- **Scheduler Implementation**: Develop a lightweight, CPU-only "Modality Scheduler" agent that intercepts the inference loop; it will apply heuristics (e.g., "block GUI input if CLI output is pending") to delay or redirect actions.
+- **Simulation**: Re-run the baseline agent trajectories through the scheduler intervention layer, simulating the modified execution path without retraining the underlying LLM.
+- **Statistical Analysis**: Perform a McNemar's test to compare the pass/fail rates of the baseline versus the scheduler-intervened trajectories, calculating the statistical significance of the error reduction.
+- **Correlation Analysis**: Compute the Pearson correlation coefficient between the number of context switches per task and the probability of a context-switch error occurring.
+- **Visualization**: Generate bar charts comparing error rates by modality transition type and line plots showing the recovery rate of tasks as a function of scheduler strictness.
 
-- **WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces** — Wanli Li, Bowen Zhou, Yunyao Yu, Zhou Xu, Yifan Yang, Dongsheng Li, Caihua Shan. https://arxiv.org/abs/2606.09426.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_09426,
-  title = {WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces},
-  author = {Wanli Li and Bowen Zhou and Yunyao Yu and Zhou Xu and Yifan Yang and Dongsheng Li and Caihua Shan},
-  year = {2026},
-  eprint = {2606.09426},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.09426},
-  url = {https://arxiv.org/abs/2606.09426}
-}
-```
+- Reviewed existing ideas: None in current corpus.
+- Closest match: None (similarity sketch: N/A).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-16T09:20:17Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen" computer science | 0 |
+| 1 | long-horizon computer-use agent benchmarks | 5 |
+| 2 | real-world agent interaction evaluation frameworks | 0 |
+| 3 | automated GUI navigation benchmarks | 0 |
+| 4 | multi-step computer task agents | 0 |
+| 5 | embodied AI desktop environment evaluation | 0 |
+| 6 | agent planning in real-world software interfaces | 0 |
+| 7 | WeaveBench extension and comparative analysis | 0 |
+| 8 | autonomous agent long-term goal execution | 0 |
+| 9 | human-computer interaction agent benchmarks | 0 |
+| 10 | software automation agent performance metrics | 0 |
+| 11 | cross-application agent task benchmarks | 0 |
+| 12 | real-world digital workflow automation evaluation | 0 |
+| 13 | agent reasoning in complex desktop environments | 0 |
+| 14 | benchmarking AI agents for OS-level tasks | 0 |
+| 15 | long-context agent interaction datasets | 0 |
+| 16 | autonomous software operation evaluation | 0 |
+| 17 | multi-modal computer use agent testing | 0 |
+| 18 | agent reliability in unstructured digital environments | 0 |
+| 19 | real-world agent error recovery benchmarks | 0 |
+| 20 | scalable evaluation for computer-use agents | 0 |
+
+### Verified citations
+
+1. **LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning** (2026). Sumeet Ramesh Motwani, Daniel Nichols, Charles London, Peggy Li, Fabio Pizzati, et al.. arXiv. [2604.14140](https://arxiv.org/abs/2604.14140). PDF-sampled: No.
+2. **WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces** (2026). Wanli Li, Bowen Zhou, Yunyao Yu, Zhou Xu, Yifan Yang, et al.. arXiv. [2606.09426](https://arxiv.org/abs/2606.09426). PDF-sampled: No.
+3. **OS-Marathon: Benchmarking Computer-Use Agents on Long-Horizon Repetitive Tasks** (2026). Jing Wu, Daphne Barretto, Yiye Chen, Nicholas Gydé, Yanan Jian, et al.. arXiv. [2601.20650](https://arxiv.org/abs/2601.20650). PDF-sampled: No.
+4. **Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method** (2024). Xinshuai Song, Weixing Chen, Yang Liu, Weikai Chen, Guanbin Li, et al.. arXiv. [2412.09082](https://arxiv.org/abs/2412.09082). PDF-sampled: No.
+5. **LPS-Bench: Benchmarking Safety Awareness of Computer-Use Agents in Long-Horizon Planning under Benign and Adversarial Scenarios** (2026). Tianyu Chen, Chujia Hu, Ge Gao, Dongrui Liu, Xia Hu, et al.. arXiv. [2602.03255](https://arxiv.org/abs/2602.03255). PDF-sampled: No.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.14374",
+  "judged_at": "2026-07-16T09:20:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+  "rationale": "The paper focuses on explainable machine learning in public policy and critiques the use of simplified benchmarks, but it does not address the specific domain of \"computer-use agents,\" \"long-horizon tasks,\" or the \"WeaveBench\" benchmark mentioned in the user's question. While both topics touch on the broad theme of real-world AI evaluation, the candidate paper lacks the specific mechanism, domain (agent-based computer interaction), or empirical population required by inclusion criteria (a) throu",
+  "relevant": false
+}

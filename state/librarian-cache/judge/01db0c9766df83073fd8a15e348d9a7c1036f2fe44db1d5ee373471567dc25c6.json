@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.03255",
+  "judged_at": "2026-07-16T09:20:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the \"long-horizon\" and \"computer-use agent\" components of the user's question by providing a canonical benchmark (LPS-Bench) for evaluating safety and planning in the exact same domain (MCP-based CUAs), serving as essential prior work for any follow-up research on WeaveBench.",
+  "relevant": true
+}

@@ -1,0 +1,638 @@
+{
+  "fetched_at": "2026-07-16T09:20:17Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen\"",
+      "target_n": 5
+    },
+    "duration_seconds": 98.338,
+    "ended_at": "2026-07-16T09:20:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "long-horizon computer-use agent benchmarks"
+        ],
+        [
+          2,
+          "real-world agent interaction evaluation frameworks"
+        ],
+        [
+          3,
+          "automated GUI navigation benchmarks"
+        ],
+        [
+          4,
+          "multi-step computer task agents"
+        ],
+        [
+          5,
+          "embodied AI desktop environment evaluation"
+        ],
+        [
+          6,
+          "agent planning in real-world software interfaces"
+        ],
+        [
+          7,
+          "WeaveBench extension and comparative analysis"
+        ],
+        [
+          8,
+          "autonomous agent long-term goal execution"
+        ],
+        [
+          9,
+          "human-computer interaction agent benchmarks"
+        ],
+        [
+          10,
+          "software automation agent performance metrics"
+        ],
+        [
+          11,
+          "cross-application agent task benchmarks"
+        ],
+        [
+          12,
+          "real-world digital workflow automation evaluation"
+        ],
+        [
+          13,
+          "agent reasoning in complex desktop environments"
+        ],
+        [
+          14,
+          "benchmarking AI agents for OS-level tasks"
+        ],
+        [
+          15,
+          "long-context agent interaction datasets"
+        ],
+        [
+          16,
+          "autonomous software operation evaluation"
+        ],
+        [
+          17,
+          "multi-modal computer use agent testing"
+        ],
+        [
+          18,
+          "agent reliability in unstructured digital environments"
+        ],
+        [
+          19,
+          "real-world agent error recovery benchmarks"
+        ],
+        [
+          20,
+          "scalable evaluation for computer-use agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen\" computer science": 0,
+        "long-horizon computer-use agent benchmarks": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "agent memory contamination benchmark leakage",
+      "WeaveBench GUI automation long-horizon tasks",
+      "homeostatic reinforcement learning embodied agents",
+      "trajectory reward model evaluation success rate",
+      "policy degradation recursive self-improvement"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.20650"
+      ]
+    },
+    "per_query_hit_count": {
+      "WeaveBench GUI automation long-horizon tasks": 3,
+      "agent memory contamination benchmark leakage": 3,
+      "homeostatic reinforcement learning embodied agents": 3,
+      "llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen\" computer science": 3,
+      "policy degradation recursive self-improvement": 3,
+      "trajectory reward model evaluation success rate": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2010.14374",
+          "rationale": "The paper focuses on explainable machine learning in public policy and critiques the use of simplified benchmarks, but it does not address the specific domain of \"computer-use agents,\" \"long-horizon tasks,\" or the \"WeaveBench\" benchmark mentioned in the user's question. While both topics touch on the broad theme of real-world AI evaluation, the candidate paper lacks the specific mechanism, domain (agent-based computer interaction), or empirical population required by inclusion criteria (a) throu",
+          "title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T09:18:39Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+      "raw": "llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agen\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Membership inference attacks (MIAs) test whether a target data record belongs to a system's private data, and have become a standard tool to measure privacy leakage in machine learning systems. Prior work has primarily focused on training corpora or retrieval databases. However, MIAs against agent memory have received less attention, even though such memory can contain sensitive user-agent interactions, retrieved facts, and user preferences. Therefore, in this work, we focus on chat agent memory MIAs, where an adversary infers whether a candidate memory unit belongs to the chat agent's memory store. We propose Multi-Recall Memory MIA (MRMMIA), a unified attack that utilizes multiple recall probes to the agent to extract the membership signal across black-box, gray-box, and white-box settings. Our experiments demonstrate that MRMMIA consistently outperforms baselines. Our results expose the privacy risk in agents and provide an initial evaluation framework for membership leakage in chat-agent memory systems.",
+          "claimed_authors": [
+            "Kai Chen",
+            "Yan Pang",
+            "Tianhao Wang"
+          ],
+          "claimed_title": "MRMMIA: Membership Inference Attacks on Memory in Chat Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27825"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='MRMMIA: Membership Inference Attacks on Memory in Chat Agents')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agent memory is a systems problem for long-horizon agents. Practical deployments require retention of task state across extended conversations, recovery of user-specific facts and preferences across sessions, and accumulation of procedural knowledge from prior outcomes. These requirements extend beyond document retrieval: a memory layer must determine which interactions become durable state, how that state is scoped, how it is retrieved under latency constraints, and how it is revised or removed over time. This report studies Oracle Agent Memory as a database-native memory substrate built on Oracle Database. Three themes organize the discussion: memory as a lifecycle spanning ingestion, extraction, consolidation, retrieval, summarization, and revision or removal; a layered architecture that separates an active memory core from a passive memory-store interface with explicit scope control across users, agents, and threads; and evaluation methodology in which downstream task accuracy is complemented by memory-centric measures such as evidence retrieval, recall, latency, and estimated token use. The report summarizes LongMemEval results, reaching 93.8% accuracy, compares Oracle Agent Memory against flat-history baselines, using about 10.7x fewer tokens, and published or reported external baselines where available, and closes with implementation-oriented appendix material covering setup, thread lifecycle, and search semantics.",
+          "claimed_authors": [
+            "Richmond Alake",
+            "Cesare Bernardis",
+            "Paul Cayet",
+            "Luca Engel",
+            "Damien Hilloulin",
+            "Sungpack Hong",
+            "Allen Hosler",
+            "Nickolas Kavantzas",
+            "Ingo Kossyk",
+            "Son Le",
+            "Rhicheek Patra",
+            "Kartik Talamadupula",
+            "Valentin Venzin"
+          ],
+          "claimed_title": "Oracle Agent Memory as an Enterprise Memory Substrate for Long-Horizon AI Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.13157"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Oracle Agent Memory as an Enterprise Memory Substrate for Long-Horizon AI Agents')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Memory for large language model (LLM) agents has rapidly evolved from simple retrieval-augmented mechanisms into a data management system that supports persistent information storage, retrieval, update, consolidation, and dynamic lifecycle governance throughout agent execution. Despite this evolution, existing evaluations still benchmark agent memory mainly through end-to-end task success metrics (e.g., F1, BLEU), while treating the underlying system as a monolithic black box. As a result, critical system-level concerns, including operational costs, architectural trade-offs across memory modules, and robustness under dynamic knowledge updates, remain insufficiently explored. In this paper, we present a systematic experimental study of agent memory from a data management perspective. We propose an analytical framework that decomposes agent memory into four core modules: memory representation and storage, extraction, retrieval and routing, and maintenance. Under this framework, we evaluate 12 representative memory systems and two reference baselines across five benchmark workloads spanning 11 datasets. Our extensive end-to-end evaluation shows that no single architecture dominates across all scenarios; instead, effectiveness depends heavily on how well the memory structure aligns with the workload bottleneck. Furthermore, through fine-grained ablation studies, we quantify their individual effects on representation fidelity, retrieval precision, update correctness, and long-horizon stability. Finally, we reveal cost-performance trade-offs under realistic workloads, showing localized maintenance is more cost-efficient than global reorganization. Based on these findings, we identify promising directions towards building truly agent-native memory systems. The code is publicly available at https://github.com/OpenDataBox/MemoryData.",
+          "claimed_authors": [
+            "Wei Zhou",
+            "Xuanhe Zhou",
+            "Shaokun Han",
+            "Hongming Xu",
+            "Guoliang Li",
+            "Zhiyu Li",
+            "Feiyu Xiong",
+            "Fan Wu"
+          ],
+          "claimed_title": "Are We Ready For An Agent-Native Memory System?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.24775"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Are We Ready For An Agent-Native Memory System?')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
+          "claimed_authors": [
+            "Dongping Chen",
+            "Yue Huang",
+            "Siyuan Wu",
+            "Jingyu Tang",
+            "Liuyi Chen",
+            "Yilin Bai",
+            "Zhigang He",
+            "Chenlong Wang",
+            "Huichi Zhou",
+            "Yiqiang Li",
+            "Tianshuo Zhou",
+            "Yue Yu",
+            "Chujie Gao",
+            "Qihui Zhang",
+            "Yi Gui",
+            "Zhen Li",
+            "Yao Wan",
+            "Pan Zhou",
+            "Jianfeng Gao",
+            "Lichao Sun"
+          ],
+          "claimed_title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10819"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+          "claimed_authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "claimed_title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.04518"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-agent reinforcement learning systems aim to provide interacting agents with the ability to collaboratively learn and adapt to the behaviour of other agents. In many real-world applications, the agents can only acquire a partial view of the world. Here we consider a setting whereby most agents' observations are also extremely noisy, hence only weakly correlated to the true state of the environment. Under these circumstances, learning an optimal policy becomes particularly challenging, even in the unrealistic case that an agent's policy can be made conditional upon all other agents' observations. To overcome these difficulties, we propose a multi-agent deep deterministic policy gradient algorithm enhanced by a communication medium (MADDPG-M), which implements a two-level, concurrent learning mechanism. An agent's policy depends on its own private observations as well as those explicitly shared by others through a communication medium. At any given point in time, an agent must decide whether its private observations are sufficiently informative to be shared with others. However, our environments provide no explicit feedback informing an agent whether a communication action is beneficial, rather the communication policies must also be learned through experience concurrently to the main policies. Our experimental results demonstrate that the algorithm performs well in six highly non-stationary environments of progressively higher complexity, and offers substantial performance gains compared to the baselines.",
+          "claimed_authors": [
+            "Ozsel Kilinc",
+            "Giovanni Montana"
+          ],
+          "claimed_title": "Multi-agent Deep Reinforcement Learning with Extremely Noisy Observations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.00922"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Multi-agent Deep Reinforcement Learning with Extremely Noisy Observations')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models are used throughout the post-training of language models to capture nuanced signals from preference data and provide a training target for optimization across instruction following, reasoning, safety, and more domains. The community has begun establishing best practices for evaluating reward models, from the development of benchmarks that test capabilities in specific skill areas to others that test agreement with human preferences. At the same time, progress in evaluation has not been mirrored by the effectiveness of reward models in downstream tasks -- simpler direct alignment algorithms are reported to work better in many cases. This paper introduces RewardBench 2, a new multi-skill reward modeling benchmark designed to bring new, challenging data for accuracy-based reward model evaluation -- models score about 20 points on average lower on RewardBench 2 compared to the first RewardBench -- while being highly correlated with downstream performance. Compared to most other benchmarks, RewardBench 2 sources new human prompts instead of existing prompts from downstream evaluations, facilitating more rigorous evaluation practices. In this paper, we describe our benchmark construction process and report how existing models perform on it, while quantifying how performance on the benchmark correlates with downstream use of the models in both inference-time scaling algorithms, like best-of-N sampling, and RLHF training algorithms like proximal policy optimization.",
+          "claimed_authors": [
+            "Saumya Malik",
+            "Valentina Pyatkin",
+            "Sander Land",
+            "Jacob Morrison",
+            "Noah A. Smith",
+            "Hannaneh Hajishirzi",
+            "Nathan Lambert"
+          ],
+          "claimed_title": "RewardBench 2: Advancing Reward Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01937"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='RewardBench 2: Advancing Reward Model Evaluation')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models are widely used as proxies for human preferences when aligning or evaluating LLMs. However, reward models are black boxes, and it is often unclear what, exactly, they are actually rewarding. In this paper we develop Rewrite-based Attribute Treatment Estimator (RATE) as an effective method for measuring the sensitivity of a reward model to high-level attributes of responses, such as sentiment, helpfulness, or complexity. Importantly, RATE measures the causal effect of an attribute on the reward. RATE uses LLMs to rewrite responses to produce imperfect counterfactuals examples that can be used to measure causal effects. A key challenge is that these rewrites are imperfect in a manner that can induce substantial bias in the estimated sensitivity of the reward model to the attribute. The core idea of RATE is to adjust for this imperfect-rewrite effect by rewriting twice. We establish the validity of the RATE procedure and show empirically that it is an effective estimator.",
+          "claimed_authors": [
+            "David Reber",
+            "Sean Richardson",
+            "Todd Nief",
+            "Cristina Garbacea",
+            "Victor Veitch"
+          ],
+          "claimed_title": "RATE: Causal Explainability of Reward Models with Imperfect Counterfactuals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.11348"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='RATE: Causal Explainability of Reward Models with Imperfect Counterfactuals')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recursive self-improvement is moving from theory to practice: modern systems can critique, revise, and evaluate their own outputs, yet iterative self-modification risks subtle alignment drift. We introduce SAHOO, a practical framework to monitor and control drift through three safeguards: (i) the Goal Drift Index (GDI), a learned multi-signal detector combining semantic, lexical, structural, and distributional measures; (ii) constraint preservation checks that enforce safety-critical invariants such as syntactic correctness and non-hallucination; and (iii) regression-risk quantification to flag improvement cycles that undo prior gains. Across 189 tasks in code generation, mathematical reasoning, and truthfulness, SAHOO produces substantial quality gains, including 18.3 percent improvement in code tasks and 16.8 percent in reasoning, while preserving constraints in two domains and maintaining low violations in truthfulness. Thresholds are calibrated on a small validation set of 18 tasks across three cycles. We further map the capability-alignment frontier, showing efficient early improvement cycles but rising alignment costs later and exposing domain-specific tensions such as fluency versus factuality. SAHOO therefore makes alignment preservation during recursive self-improvement measurable, deployable, and systematically validated at scale.",
+          "claimed_authors": [
+            "Subramanyam Sahoo",
+            "Aman Chadha",
+            "Vinija Jain",
+            "Divya Chaudhary"
+          ],
+          "claimed_title": "SAHOO: Safeguarded Alignment for High-Order Optimization Objectives in Recursive Self-Improvement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.06333"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='SAHOO: Safeguarded Alignment for High-Order Optimization Objectives in Recursive Self-Improvement')",
+        "failed_at": "2026-07-16T09:20:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How should we evaluate the effect of a policy on the likelihood of an undesirable event, such as conflict? The significance test has three limitations. First, relying on statistical significance misses the fact that uncertainty is a continuous scale. Second, focusing on a standard point estimate overlooks the variation in plausible effect sizes. Third, the criterion of substantive significance is rarely explained or justified. A new Bayesian decision-theoretic model, \"causal binary loss function model,\" overcomes these issues. It compares the expected loss under a policy intervention with the one under no intervention. These losses are computed based on a particular range of the effect sizes of a policy, the probability mass of this effect size range, the cost of the policy, and the cost of the undesirable event the policy intends to address. The model is more applicable than common statistical decision-theoretic models using the standard loss functions or capturing costs in terms of false positives and false negatives. I exemplify the model's use through three applications and provide an R package.",
+          "claimed_authors": [
+            "Akisato Suzuki"
+          ],
+          "claimed_title": "Policy Implications of Statistical Estimates: A General Bayesian Decision-Theoretic Model for Binary Outcomes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.10903"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"WeaveBench: A Long-Horizon, Real-World Benchmark f', candidate_title='Policy Implications of Statistical Estimates: A General Bayesian Decision-Theoretic Model for Binary Outcomes')",
+        "failed_at": "2026-07-16T09:20:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14140",
+        "summary": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14140",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3846,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T09:20:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wanli Li",
+            "Bowen Zhou",
+            "Yunyao Yu",
+            "Zhou Xu",
+            "Yifan Yang",
+            "Dongsheng Li",
+            "Caihua Shan"
+          ],
+          "title": "WeaveBench: A Long-Horizon, Real-World Benchmark for Computer-Use Agents with Hybrid Interfaces",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09426",
+        "summary": "Computer-use agents (CUAs) increasingly operate in runtimes that combine visual desktop control, command-line execution, code editing, browsers, and external tools. Existing benchmarks, however, often evaluate these interfaces as separable capabilities, leaving long-horizon cross-interface orchestration under-tested. Thus, we introduce WeaveBench, a long-horizon hybrid-interface benchmark with 114 tasks across 8 real-world work domains, grounded in real user requests and publicly verifiable artifacts. Each task requires agents to combine GUI observations/actions with CLI/code operations within a single trajectory. We evaluate these tasks on a real Ubuntu desktop inside deployed CLI-agent runtimes, augmented with a minimal desktop-control plugin. We also propose a companion trajectory-aware judge that inspects deliverables, files, screenshots, logs, and action traces, while detecting shortcut behaviors such as fabricated visual evidence or hard-coded metrics. Across frontier model-runtime pairings, the best PassRate reaches only 41.2%, showing the benchmark remains far from saturated. The trajectory-aware judge further reveals that outcome-only grading substantially overestimates agent performance. Overall, WeaveBench exposes a critical gap in CUA evaluation and provides an effective testbed to measure whether agents can orchestrate GUI, CLI, and code operations across long-horizon real-world tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09426",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6154,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T09:20:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jing Wu",
+            "Daphne Barretto",
+            "Yiye Chen",
+            "Nicholas Gydé",
+            "Yanan Jian",
+            "Yuhang He",
+            "Vibhav Vineet"
+          ],
+          "title": "OS-Marathon: Benchmarking Computer-Use Agents on Long-Horizon Repetitive Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.20650",
+        "summary": "Long-horizon, repetitive workflows are common in professional settings, such as processing expense reports from receipts and entering student grades from exam papers. These tasks are often tedious for humans since they can extend to extreme lengths proportional to the size of the data to process. However, they are ideal for Computer-Use Agents (CUAs) due to their structured, recurring sub-workflows with logic that can be systematically learned. Identifying the absence of an evaluation benchmark as a primary bottleneck, we establish OS-Marathon, comprising 242 long-horizon, repetitive tasks across 2 domains to evaluate state-of-the-art (SOTA) agents. We then introduce a cost-effective method to construct a condensed demonstration using only few-shot examples to teach agents the underlying workflow logic, enabling them to execute similar workflows effectively on larger, unseen data collections. Extensive experiments demonstrate both the inherent challenges of these tasks and the effectiveness of our proposed method. Project website: https://os-marathon.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.20650",
+          "http_status": 200,
+          "pdf_sample_score": 0.2316,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T09:20:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinshuai Song",
+            "Weixing Chen",
+            "Yang Liu",
+            "Weikai Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "title": "Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.09082",
+        "summary": "Existing Vision-Language Navigation (VLN) methods primarily focus on single-stage navigation, limiting their effectiveness in multi-stage and long-horizon tasks within complex and dynamic environments. To address these limitations, we propose a novel VLN task, named Long-Horizon Vision-Language Navigation (LH-VLN), which emphasizes long-term planning and decision consistency across consecutive subtasks. Furthermore, to support LH-VLN, we develop an automated data generation platform NavGen, which constructs datasets with complex task structures and improves data utility through a bidirectional, multi-granularity generation approach. To accurately evaluate complex tasks, we construct the Long-Horizon Planning and Reasoning in VLN (LHPR-VLN) benchmark consisting of 3,260 tasks with an average of 150 task steps, serving as the first dataset specifically designed for the long-horizon vision-language navigation task. Furthermore, we propose Independent Success Rate (ISR), Conditional Success Rate (CSR), and CSR weight by Ground Truth (CGT) metrics, to provide fine-grained assessments of task completion. To improve model adaptability in complex tasks, we propose a novel Multi-Granularity Dynamic Memory (MGDM) module that integrates short-term memory blurring with long-term memory retrieval to enable flexible navigation in dynamic environments. Our platform, benchmark and method supply LH-VLN with a robust data generation pipeline, comprehensive model evaluation dataset, reasonable metrics, and a novel VLN model, establishing a foundational framework for advancing LH-VLN.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.09082",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T09:20:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianyu Chen",
+            "Chujia Hu",
+            "Ge Gao",
+            "Dongrui Liu",
+            "Xia Hu",
+            "Wenjie Wang"
+          ],
+          "title": "LPS-Bench: Benchmarking Safety Awareness of Computer-Use Agents in Long-Horizon Planning under Benign and Adversarial Scenarios",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.03255",
+        "summary": "Computer-use agents (CUAs) that interact with real computer systems can perform automated tasks but face critical safety risks. Ambiguous instructions may trigger harmful actions, and adversarial users can manipulate tool execution to achieve malicious goals. Existing benchmarks mostly focus on short-horizon or GUI-based tasks, evaluating on execution-time errors but overlooking the ability to anticipate planning-time risks. To fill this gap, we present LPS-Bench, a benchmark that evaluates the planning-time safety awareness of MCP-based CUAs under long-horizon tasks, covering both benign and adversarial interactions across 65 scenarios of 7 task domains and 9 risk types. We introduce a multi-agent automated pipeline for scalable data generation and adopt an LLM-as-a-judge evaluation protocol to assess safety awareness through the planning trajectory. Experiments reveal substantial deficiencies in existing CUAs' ability to maintain safe behavior. We further analyze the risks and propose mitigation strategies to improve long-horizon planning safety in MCP-based CUA systems. We open-source our code at https://github.com/tychenn/LPS-Bench.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.03255",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T09:20:06Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"weavebench: a long-horizon, real-world benchmark for computer-use agen\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
