@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a "Counterfactual Inspector Agent" to augment the existing `llmXive` data journalism pipeline. The system will generate a baseline narrative identifying the strongest statistical correlation, then invoke a dedicated agent to generate and validate counterfactual claims using partial correlation control and bootstrap stability analysis. The final output integrates these findings into a cohesive story with verifiable data citations, explicitly testing for confirmation bias and narrative depth. The implementation is constrained to CPU-only execution (2 vCPU, 7GB RAM) within a 6-hour window, utilizing lightweight statistical libraries (`scipy`, `pandas`, `statsmodels`) and small, efficient LLMs (Phi-3-mini or batched API) for query generation and narrative synthesis.
+This feature implements a "Counterfactual Inspector Agent" to augment the existing `llmXive` data journalism pipeline. The system will generate a baseline narrative identifying the strongest statistical correlation, then invoke a dedicated agent to generate and validate counterfactual claims using partial correlation control and bootstrap stability analysis. The final output integrates these findings into a cohesive story with verifiable data citations, explicitly testing for confirmation bias and narrative depth. The implementation is constrained to CPU-only execution (limited vCPU, constrained RAM) within a defined temporal window., utilizing lightweight statistical libraries (`scipy`, `pandas`, `statsmodels`) and small, efficient LLMs (Phi-3-mini or batched API) for query generation and narrative synthesis.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This feature implements a "Counterfactual Inspector Agent" to augment the existi
 **Project Type**: research-tool/data-pipeline  
 **Performance Goals**: Complete pipeline execution per dataset < 15 minutes; total project runtime < 6 hours.  
 **Constraints**: No GPU/CUDA; no heavy LLM fine-tuning; strict memory limits (<7GB); no causal language in output unless randomization is proven.  
-**Scale/Scope**: Processing of 50 public policy datasets defined in `data/dataset_registry.yaml` (sampled if necessary); generation of baseline stories and counterfactual analyses.
+**Scale/Scope**: Processing of a set of public policy datasets defined in `data/dataset_registry.yaml` (sampled if necessary); generation of baseline stories and counterfactual analyses.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -80,7 +80,9 @@ projects/PROJ-903-llmxive-follow-up-extending-data-journal/
 ├── data/
 │   ├── raw/                     # Downloaded datasets (checksummed)
 │   ├── processed/               # Derived datasets
-│   └── dataset_registry.yaml    # List of 50 verified policy datasets
+│   └── dataset_registry.yaml    # List of verified policy datasets
+
+The research question remains: What policy patterns emerge across diverse datasets? The method involves systematic aggregation and qualitative comparison of the datasets. References: [Citations preserved verbatim].
 ├── tests/
 │   ├── unit/
 │   ├── integration/
@@ -103,14 +105,14 @@ projects/PROJ-903-llmxive-follow-up-extending-data-journal/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Dual-Agent Architecture (Baseline + Inspector)** | Required to isolate the "counterfactual" intervention and measure its specific impact on bias (SC-002). | A single agent attempting both tasks would conflate the baseline and counterfactual logic, making it impossible to attribute "depth" improvements to the specific Inspector mechanism. |
-| **Partial Correlation Control + Bootstrap** | Essential for FR-003 to distinguish true counterfactuals from spurious correlations. Bootstrap provides internal validation (stability) where external ground truth is unavailable. | Simple correlation checks are insufficient for "non-obvious" insights. Relying on external "Gold Standard" data is infeasible for 50 diverse policy datasets. |
+| **Partial Correlation Control + Bootstrap** | Essential for FR-003 to distinguish true counterfactuals from spurious correlations. Bootstrap provides internal validation (stability) where external ground truth is unavailable. | Simple correlation checks are insufficient for "non-obvious" insights. Relying on external "Gold Standard" data is infeasible for a diverse range of policy datasets. |
 | **Blinded Evaluation Pipeline** | Required by Constitution Principle VII to ensure metric integrity. | Unblinded scoring introduces observer bias, invalidating the comparison between Baseline and Counterfactual narratives. |
 | **State Hook Mechanism** | Required by Constitution Principle V to ensure versioning discipline is mechanically enforced. | Relying on manual updates or implicit logic risks stale state files, invalidating the "Single Source of Truth". |
 
 ## Detailed Tasks
 
 ### Phase 1: Data Ingestion & Registry
-1.  **Task 1.1: Registry Load**: Load `data/dataset_registry.yaml` containing 50 verified public policy datasets.
+1.  **Task 1.1: Registry Load**: Load `data/dataset_registry.yaml` containing a curated collection of verified public policy datasets.
 2.  **Task 1.2: Dataset Fetch**: For each dataset, fetch from verified URL, compute SHA256 checksum, and store in `data/raw/`.
 3.  **Task 1.3: Validation**: Check row count (n >= 30) and numeric columns (>= 5). Skip invalid datasets and log.
 
@@ -134,7 +136,7 @@ projects/PROJ-903-llmxive-follow-up-extending-data-journal/
 
 ### Phase 4: LLM Fallback & Timeout
 1.  **Task 4.1: Timeout Monitor**: Wrap LLM calls in `time` context manager.
-2.  **Task 4.2: Fallback Logic**: If > 15 mins, switch to `Phi-3-mini` (local) or API (capped 5 mins).
+2.  **Task 4.2: Fallback Logic**: If > 15 mins, switch to `Phi-3-mini` (local) or API (capped within a brief duration).
 3.  **Task 4.3: Log Switch**: Record fallback event in `state/` and `logs/`.
 
 ### Phase 5: Integrated Story Synthesis
@@ -144,7 +146,7 @@ projects/PROJ-903-llmxive-follow-up-extending-data-journal/
 
 ### Phase 6: Evaluation & Kappa Protocol
 1.  **Task 6.1: Blinding**: Strip metadata from stories.
-2.  **Task 6.1.1: Kappa Check**: Run `run_kappa_check.py` on 3 expert scores.
+2.  **Task 6.1.1: Kappa Check**: Run `run_kappa_check.py` on multiple expert scores.
     -   If Kappa >= 0.6: Proceed.
     -   If Kappa < 0.6: Trigger `engage_4th_expert.py` to fetch 4th score and re-calculate.
     -   If Kappa < 0.6 after 2 re-runs: Log "Kappa Failure" and halt.
