@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-292-the-relationship-between-personality-tra",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ue',         help='Force synthetic data generation if real data\u2026\u201d; 2 command(s) failed: python code/main.py (rc=1); python code/download.py --validate (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-292-the-relationship-between-personality-tra/code/main.py\", line 22, in <module>\n    from code.data_ingestion import run_ingestion_pipeline\nModuleNotFoundError: No module named 'code.data_ingestion'",
+    "python code/download.py --validate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-292-the-relationship-between-personality-tra/code/download.py\", line 21, in <module>\n    from code.data_ingestion import run_ingestion_pipeline\nModuleNotFoundError: No module named 'code.data_ingestion'"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-16T16:49:31Z"
+}

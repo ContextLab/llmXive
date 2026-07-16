@@ -1,0 +1,40 @@
+T012:
+  c: false
+  h: dfa943bddb3c4bf41bdd9326c9ca798fe48fd1df65dae7800cd2a9d908be3762
+  r: "The repository lacks the required `data/raw/feedback_responses.csv` file, and\
+    \ the provided `code/data_ingestion.py` does not contain any implementation that\
+    \ fetches a \u201CHuman Feedback Response\u201D dataset, checks for the columns\
+    \ `receptivity`, `anxiety`, `intention`, logs errors, or saves the result to the\
+    \ expected path. The script only shows partial code for fetching personality data\
+    \ and does not fulfill the specified task."
+T013:
+  c: false
+  h: dba0adcb7443487ee467a9a63c739edd18fb7562a8de81af3c03f7e39494cbf4
+  r: "The repository lacks the required `data/manual_override_instructions.txt` file,\
+    \ and the shown portion of `code/data_ingestion.py` contains no logic that checks\
+    \ for T011/T012 failures, writes the override instructions, respects `FORCE_SYNTHETIC`,\
+    \ or exits with code\u202F1. The task\u2019s \u201CFail\u2011Loud\u201D behavior\
+    \ is therefore not implemented."
+T014:
+  c: false
+  h: 429394effd9e2a3b9ae4f3c18aac757c763e71d47c9938c6854e9a9f1a34ed2c
+  r: "The repository lacks the required input files (`data/raw/iPIP50.csv` and `data/raw/feedback_responses.csv`)\
+    \ and the expected output (`data/processed/analysis_data.csv`). Moreover, the\
+    \ provided `code/data_ingestion.py` does not contain the merge\u2011by\u2011`participant_id`\
+    \ logic, missing\u2011value handling, or creation of the `source_type` column\
+    \ as specified. These essential components are absent, so the task is not fulfilled."
+T015:
+  c: false
+  h: a6c1a5f950e40b8544a891adc4a1025995cac917f924aa0076654001fdec546f
+  r: "The repository lacks the required `data/synthetic_citations.json` and the generated\
+    \ `data/raw/synthetic_responses.csv`. Moreover, the shown portion of `code/data_ingestion.py`\
+    \ contains only data\u2011fetching utilities and does not implement the conditional\
+    \ synthetic data generation, correlation\u2011based sampling, CSV writing, or\
+    \ merging with T014 as specified. These essential components are missing."
+T015a:
+  c: false
+  h: 5c883b16f3e93f1f90aa4ee3fd8022de8c947d05a22c2cf501e3f63a2b0c6d4b
+  r: "The required `data/synthetic_citations.json` file does not exist (and the script\
+    \ points to a different path `data/raw/synthetic_citations.json`). Consequently\
+    \ no literature citations or correlation coefficients are documented, so the task\u2019\
+    s core requirement is unmet."

@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/656df05f1f8d9b618dfcbc3d/1b1132ac3c6bc2be0cddd70f81905f0014780775a37288aba67c0bd6da12f187?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-dc4d4705f1141a6f.parquet%3B+filename%3D%22test-00000-of-00001-dc4d4705f1141a6f.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783476475&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU2ZGYwNWYxZjhkOWI2MThkZmNiYzNkLzFiMTEzMmFjM2M2YmMyYmUwY2RkZDcwZjgxOTA1ZjAwMTQ3ODA3NzVhMzcyODhhYmE2N2MwYmQ2ZGExMmYxODdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1kYzRkNDcwNWYxMTQxYTZmLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWRjNGQ0NzA1ZjExNDFhNmYucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDc2NDc1fX19XX0_&Signature=MEUCIB6WRaIc1PscZhmQtzHS61o6dX2lB19lzVgRGLBhrOJbAiEAm8X14KUcMicmrjLvakfi2chSHhCrhbveuw0DHuNS6Hc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-08T01:07:55.855793Z'
+- artifact_hash: 2f56914bbacf3684a0bceeb9122dee1abed766e97582f403fb444a2b982a03da
+  artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pi - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pi
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-07-16T17:24:19.252837Z'

@@ -1,0 +1,17 @@
+Real data fetch failed.
+
+Please manually download the following datasets and place them in `data/raw/`:
+1. Personality Data (Big Five): 
+   - Source: OpenML (e.g., https://www.openml.org/search?type=data&sort=runs&q=personality)
+   - Expected file: `data/raw/iPIP50.csv`
+   - Required columns: openness, conscientiousness, extraversion, agreeableness, neuroticism
+
+2. Feedback Response Data:
+   - Source: OpenML (e.g., https://www.openml.org/search?type=data&sort=runs&q=feedback)
+   - Expected file: `data/raw/feedback_responses.csv`
+   - Required columns: receptivity_score, anxiety_level, behavioral_intention
+
+After downloading, run the pipeline with `FORCE_SYNTHETIC=0`.
+If you wish to use synthetic data (for testing purposes only), set `FORCE_SYNTHETIC=1`.
+
+Note: Synthetic data generation is only allowed if `FORCE_SYNTHETIC=1` is explicitly set.

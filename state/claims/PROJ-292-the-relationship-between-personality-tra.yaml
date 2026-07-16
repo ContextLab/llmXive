@@ -1,0 +1,404 @@
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic personality traits mean 30 standard deviation 8
+  claim_id: c_81ff449d
+  context: T015 [US1] Implement synthetic data generation in `code/data_ingestion.py`
+    ... Generate synthetic personality traits (Mean=30, SD=8) and response metrics
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic personality traits (Mean=30, SD=8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:55:10Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: Costa and McCrae 1992
+  claim_id: c_b51a8b29
+  context: T015a [US1] Implement literature citation documentation ... documenting
+    the specific psychological literature (e.g., Costa & McCrae, 1992; Goldberg, 1992)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Costa & McCrae, 1992
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T16:58:12Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: Goldberg 1992
+  claim_id: c_08f1414d
+  context: T015a [US1] Implement literature citation documentation ... documenting
+    the specific psychological literature (e.g., Costa & McCrae, 1992; Goldberg, 1992)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Goldberg, 1992
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:00:13Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: output data processed analysis data csv with sample size at least 50
+  claim_id: c_bfba7f9d
+  context: "Independent Test: The pipeline runs end-to-end ... outputs `data/processed/analysis_data.csv`\
+    \ with valid columns and N \u2265 50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_data_processed_analysis_data_csv_with_sample_size_at
+  kind: magnitude
+  raw_text: "outputting `data/processed/analysis_data.csv` with valid columns and\
+    \ N \u2265 50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:02:34Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: validate sample size at least 50
+  claim_id: c_de23687f
+  context: "T017 [US1] Implement validation logic ... check sample size N \u2265 50;\
+    \ if N < 50 and `source_type` is 'real', exit with code 1"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_sample_size_at_least_50
+  kind: magnitude
+  raw_text: "check sample size N \u2265 50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:02:56Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: handle missing values by mean imputation or excluding rows with missingness
+    greater than 10 percent
+  claim_id: c_36fa8b42
+  context: T014 [US1] Implement merge logic ... handling missing values via mean imputation
+    or excluding rows where missingness > 10%
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_missing_values_by_mean_imputation_or_excluding_rows_w
+  kind: magnitude
+  raw_text: handling missing values via mean imputation or excluding rows where missingness
+    > 10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:03:04Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: pipeline completes within 15 minutes on 2 core 7GB RAM runner
+  claim_id: c_03fcb06a
+  context: T016 [US1] Implement performance validation ... assert that it completes
+    within 15 minutes on a standard GitHub Actions 2-core CPU, 7GB RAM runner.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: assert that it completes within 15 minutes on a standard GitHub Actions
+    2-core CPU, 7GB RAM runner
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T17:03:07Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic personality traits with mean 30 and standard deviation 8
+  claim_id: c_4216651e
+  context: 'Implement synthetic data generation in code/data_ingestion.py (ONLY if
+    FORCE_SYNTHETIC=1 AND T013 confirms real data unavailable): Generate synthetic
+    personality traits (Mean=30, SD=8) and response metrics based on the specific
+    correlation coefficients defined in data/synthetic_citations.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic personality traits (Mean=30, SD=8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:07:55Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic personality traits with standard deviation 8
+  claim_id: c_5587079f
+  context: Generate synthetic personality traits (Mean=30, SD=8) and response metrics
+    (receptivity, anxiety, intention) based on the specific correlation coefficients
+    defined in data/synthetic_citations.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic personality traits SD=8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:10:38Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic data generation requires sample size of at least 50
+  claim_id: c_3fa710da
+  context: "If FORCE_SYNTHETIC=1 is set and real data is missing, it generates synthetic\
+    \ data based on cited literature, merges by ID, and outputs data/processed/analysis_data.csv\
+    \ with valid columns and N \u2265 50."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generation_requires_sample_size_of_at_least_5
+  kind: magnitude
+  raw_text: "Synthetic data generation requires sample size N \u2265 50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:13:50Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: rows with missingness greater than 10 percent are excluded
+  claim_id: c_b2c7f75f
+  context: Implement merge logic in code/data_ingestion.py to align data/raw/iPIP50.csv
+    and data/raw/feedback_responses.csv (or manual override file) by participant_id,
+    handling missing values via mean imputation or excluding rows where missingness
+    > 10%.
+  evidence:
+    entailment_evidence: Rows with missingness greater than 10 percent are excluded
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Rows_with_missingness_greater_than_10_percent_are_excluded
+  kind: magnitude
+  raw_text: Rows with missingness greater than 10% are excluded during merge
+  resolved_value: rows with missingness greater than 10 percent are excluded
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T17:13:52Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: costa and mccrae 1992 cited for synthetic data generation
+  claim_id: c_99747f09
+  context: Create data/synthetic_citations.json documenting the specific psychological
+    literature (e.g., Costa & McCrae, 1992; Goldberg, 1992) and specific correlation
+    coefficients to be used for synthetic data generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Costa & McCrae, 1992 cited as psychological literature for synthetic data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:13:58Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: goldberg 1992 cited for synthetic data generation
+  claim_id: c_1c4ff392
+  context: Create data/synthetic_citations.json documenting the specific psychological
+    literature (e.g., Costa & McCrae, 1992; Goldberg, 1992) and specific correlation
+    coefficients to be used for synthetic data generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Goldberg, 1992 cited as psychological literature for synthetic data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:14:04Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic data output requires N >= 50
+  claim_id: c_95ec8e28
+  context: "Independent Test: The pipeline runs end-to-end, attempting the download.\
+    \ If real data is missing, it halts with code 1 and writes override instructions.\
+    \ If FORCE_SYNTHETIC=1 is set and real data is missing, it generates synthetic\
+    \ data based on cited literature, merges by ID, and outputs data/processed/analysis_data.csv\
+    \ with valid columns and N \u2265 50."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline runs end-to-end, attempting the download. If real data is\
+    \ missing, it halts with code 1 and writes override instructions. If FORCE_SYNTHETIC=1\
+    \ is set and real data is missing, it generates synthetic data based on cited\
+    \ literature, merges by ID, and outputs data/processed/analysis_data.csv with\
+    \ valid columns and N \u2265 50."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:19:06Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: data schema requires source_type in ['real', 'synthetic'] and no null
+    values
+  claim_id: c_96d3cf64
+  context: 'Assert that data/processed/analysis_data.csv contains exactly these columns:
+    participant_id, openness, conscientiousness, extraversion, agreeableness, neuroticism,
+    receptivity_score, anxiety_level, behavioral_intention, source_type. Assert that
+    source_type is either ''real'' or ''synthetic'' and that no null values exist
+    in these columns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/data_schema_requires_source_type_in_%5B'real',_'synthetic'%5D_an
+  kind: entity_fact
+  raw_text: Assert that source_type is either 'real' or 'synthetic' and that no null
+    values exist in these columns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:19:28Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: synthetic personality traits generated with Mean=30 and SD=8
+  claim_id: c_0ed1283c
+  context: 'Implement synthetic data generation in code/data_ingestion.py (ONLY if
+    FORCE_SYNTHETIC=1 AND T013 confirms real data unavailable): Generate synthetic
+    personality traits (Mean=30, SD=8) and response metrics (receptivity, anxiety,
+    intention) based on the specific correlation coefficients defined in data/synthetic_citations.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic personality traits (Mean=30, SD=8) and response metrics
+    (receptivity, anxiety, intention) based on the specific correlation coefficients
+    defined in data/synthetic_citations.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:19:49Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: ingestion pipeline timeout set to 15 minutes
+  claim_id: c_77c1e350
+  context: Run the full ingestion pipeline (T011-T014 or T015) and {{claim:c_03fcb06a}}
+    (pi, https://en.wikipedia.org/wiki/Pi). If it exceeds 15 minutes, exit with code
+    1 and log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If it exceeds 15 minutes, exit with code 1 and log a warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:20:09Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: real data validation requires N >= 50
+  claim_id: c_405eb6c1
+  context: "Implement validation logic in code/data_ingestion.py to explicitly validate\
+    \ data/processed/analysis_data.csv: check sample size N \u2265 50; if N < 50 and\
+    \ source_type is 'real', exit with code 1 and write a detailed warning message\
+    \ to data/validation_log.txt."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "check sample size N \u2265 50; if N < 50 and source_type is 'real', exit\
+    \ with code 1 and write a detailed warning message to data/validation_log.txt."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:20:09Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: report requires headers Results, Correlation Matrix, Regression Analysis,
+    Sensitivity Analysis
+  claim_id: c_ac0ef2f2
+  context: 'Assert that results/report.md contains headers ## Results, ## Correlation
+    Matrix, ## Regression Analysis, ## Sensitivity Analysis. Assert that plots are
+    saved in results/plots/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_requires_headers_Results,_Correlation_Matrix,_Regress
+  kind: entity_fact
+  raw_text: 'Assert that results/report.md contains headers ## Results, ## Correlation
+    Matrix, ## Regression Analysis, ## Sensitivity Analysis.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:20:30Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: alpha sensitivity analysis levels include 0.05 and 0.10
+  claim_id: c_854e5a44
+  context: Implement sensitivity analysis table for alpha across representative significance
+    levels (read from code/config.py, default [a low threshold, 0.05, 0.10]) in code/report.py,
+    outputting a table showing significance status for primary findings at each alpha.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default [a low threshold, 0.05, 0.10]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T17:20:52Z'
+- artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/tasks.md
+  attempts: 1
+  canonical: full pipeline execution must complete within 4 hours
+  claim_id: c_6f91e2f3
+  context: 'Run quickstart.md validation to ensure full pipeline execution: Assert
+    that the pipeline completes with exit code 0, generates data/processed/analysis_data.csv,
+    results/stats/stats.json, and results/report.md within 4 hours, and no warnings
+    are logged regarding missing data (unless FORCE_SYNTHETIC is set).'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Assert that the pipeline completes with exit code 0, generates data/processed/analysis_data.csv,
+    results/stats/stats.json, and results/report.md within 4 hours, and no warnings
+    are logged regarding missing data (unless FORCE_SYNTHETIC is set).
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T17:20:59Z'

@@ -1,0 +1,16 @@
+status: none
+intent: OpenML IPIP-50 personality dataset and HuggingFace AI feedback response dataset
+  python package dataset
+required_fields:
+- participant_id
+- ipip_extraversion
+- ipip_agreeableness
+- ipip_conscientiousness
+- ipip_neuroticism
+- ipip_openness
+- feedback_receptivity
+- feedback_anxiety
+- feedback_behavioral_intention
+cache_key: a096bea96e7d9dc78b5789a1ee8f2c4e9bbe719a73779dcb564abb337c7c81dc
+searched_at: '2026-07-16T16:51:07.658258+00:00'
+retry_count: 1
