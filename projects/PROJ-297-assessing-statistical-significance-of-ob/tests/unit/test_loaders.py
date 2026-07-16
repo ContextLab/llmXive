@@ -1,164 +1,211 @@
-"""
-Unit tests for code/loaders.py
-"""
+"""Unit tests for the loaders module, specifically checksumming functionality."""
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import tempfile
 import os
 import json
+import hashlib
+from unittest.mock import patch, MagicMock
+import tempfile
+import shutil
 
+# Import the module functions
 from code.loaders import (
-    ingest_csv,
-    _compute_file_hash,
-    _save_checksum,
-    _verify_checksum
+    _calculate_sha256,
+    _load_checksums,
+    _save_checksums,
+    _verify_checksum,
+    fetch_uci_dataset,
+    load_dataset_from_path
 )
 
+class TestChecksumCalculation:
+    """Tests for SHA256 hash calculation."""
 
-class TestIngestCSV:
-    """Tests for the ingest_csv function."""
+    def test_calculate_sha256_known_value(self, tmp_path):
+        """Test SHA256 calculation against a known value."""
+        test_content = b"Hello, World!"
+        expected_hash = hashlib.sha256(test_content).hexdigest()
+        
+        file_path = tmp_path / "test.txt"
+        file_path.write_bytes(test_content)
+        
+        calculated_hash = _calculate_sha256(str(file_path))
+        
+        assert calculated_hash == expected_hash
 
-    def test_ingest_valid_csv(self, tmp_path):
-        """Test ingesting a valid CSV file."""
-        # Create a temporary CSV file
-        csv_content = """col1,col2,col3
-        1,2.5,hello
-        2,3.5,world
-        3,4.5,test"""
+    def test_calculate_sha256_empty_file(self, tmp_path):
+        """Test SHA256 calculation on empty file."""
+        file_path = tmp_path / "empty.txt"
+        file_path.touch()
         
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text(csv_content)
+        calculated_hash = _calculate_sha256(str(file_path))
+        expected_hash = hashlib.sha256(b"").hexdigest()
         
-        # Ingest the file
-        df = ingest_csv(csv_file)
-        
-        # Verify results
-        assert len(df) == 3
-        assert len(df.columns) == 3
-        assert list(df.columns) == ["col1", "col2", "col3"]
-        assert df["col1"].iloc[0] == 1
-        assert df["col2"].iloc[0] == 2.5
-        assert df["col3"].iloc[0] == "hello"
+        assert calculated_hash == expected_hash
 
-    def test_ingest_empty_file(self, tmp_path):
-        """Test that ingesting an empty file raises ValueError."""
-        csv_file = tmp_path / "empty.csv"
-        csv_file.write_text("")
-        
-        with pytest.raises(ValueError, match="File is empty"):
-            ingest_csv(csv_file)
+class TestChecksumStorage:
+    """Tests for checksum storage and retrieval."""
 
-    def test_ingest_nonexistent_file(self, tmp_path):
-        """Test that ingesting a non-existent file raises FileNotFoundError."""
-        csv_file = tmp_path / "nonexistent.csv"
-        
-        with pytest.raises(FileNotFoundError):
-            ingest_csv(csv_file)
+    def test_load_empty_checksums(self, tmp_path):
+        """Test loading checksums when file doesn't exist."""
+        with patch('code.loaders.CHECKSUM_FILE', str(tmp_path / "nonexistent.json")):
+            checksums = _load_checksums()
+            assert checksums == {}
 
-    def test_ingest_with_na_values(self, tmp_path):
-        """Test handling of NA values."""
-        csv_content = """col1,col2
-        1,2
-        2,NA
-        3,"""
+    def test_load_valid_checksums(self, tmp_path):
+        """Test loading valid checksums from file."""
+        test_checksums = {"dataset1": "hash1", "dataset2": "hash2"}
+        checksum_file = tmp_path / "checksums.json"
+        checksum_file.write_text(json.dumps(test_checksums))
         
-        csv_file = tmp_path / "na_test.csv"
-        csv_file.write_text(csv_content)
-        
-        df = ingest_csv(csv_file, na_values=["NA", ""])
-        
-        assert len(df) == 3
-        assert pd.isna(df["col2"].iloc[1])
-        assert pd.isna(df["col2"].iloc[2])
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            loaded = _load_checksums()
+            assert loaded == test_checksums
 
-
-class TestChecksumFunctions:
-    """Tests for checksum utilities."""
-
-    def test_compute_file_hash(self, tmp_path):
-        """Test file hash computation."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test content")
+    def test_save_checksums(self, tmp_path):
+        """Test saving checksums to file."""
+        test_checksums = {"dataset1": "hash1"}
+        checksum_file = tmp_path / "checksums.json"
         
-        hash1 = _compute_file_hash(test_file)
-        hash2 = _compute_file_hash(test_file)
-        
-        # Hash should be consistent
-        assert hash1 == hash2
-        assert len(hash1) == 64  # SHA256 hex length
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            _save_checksums(test_checksums)
+            
+            assert checksum_file.exists()
+            with open(checksum_file, 'r') as f:
+                saved = json.load(f)
+            assert saved == test_checksums
 
-    def test_save_and_verify_checksum(self, tmp_path):
-        """Test saving and verifying checksums."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test content")
+class TestChecksumVerification:
+    """Tests for checksum verification logic."""
+
+    def test_verify_new_dataset_stores_checksum(self, tmp_path):
+        """Test that new datasets have their checksums stored."""
+        test_content = b"Test data"
+        file_path = tmp_path / "test.csv"
+        file_path.write_bytes(test_content)
         
         checksum_file = tmp_path / "checksums.json"
-        dataset_id = "test_dataset"
-        
-        # Save checksum
-        checksum = _compute_file_hash(test_file)
-        _save_checksum(dataset_id, checksum, checksum_file)
-        
-        # Verify checksum
-        assert _verify_checksum(test_file, dataset_id, checksum_file) is True
-        
-        # Modify file and verify failure
-        test_file.write_text("modified content")
-        assert _verify_checksum(test_file, dataset_id, checksum_file) is False
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            result = _verify_checksum("new_dataset", str(file_path))
+            
+            assert result is True
+            assert checksum_file.exists()
+            with open(checksum_file, 'r') as f:
+                stored = json.load(f)
+            assert "new_dataset" in stored
+            assert stored["new_dataset"] == hashlib.sha256(test_content).hexdigest()
 
-    def test_verify_nonexistent_checksum_file(self, tmp_path):
-        """Test verification when checksum file doesn't exist."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test content")
-        
-        checksum_file = tmp_path / "nonexistent.json"
-        
-        # Should return True (no checksum to verify against)
-        assert _verify_checksum(test_file, "test_id", checksum_file) is True
-
-    def test_verify_corrupt_checksum_file(self, tmp_path):
-        """Test verification with corrupt checksum file."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test content")
+    def test_verify_matching_checksum(self, tmp_path):
+        """Test verification with matching checksum."""
+        test_content = b"Test data"
+        file_path = tmp_path / "test.csv"
+        file_path.write_bytes(test_content)
         
         checksum_file = tmp_path / "checksums.json"
-        checksum_file.write_text("not valid json")
+        stored_hash = hashlib.sha256(test_content).hexdigest()
+        checksum_file.write_text(json.dumps({"existing_dataset": stored_hash}))
         
-        # Should return True (skip verification on corrupt file)
-        assert _verify_checksum(test_file, "test_id", checksum_file) is True
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            result = _verify_checksum("existing_dataset", str(file_path))
+            assert result is True
 
+    def test_verify_mismatched_checksum_raises_error(self, tmp_path):
+        """Test that checksum mismatch raises ValueError."""
+        test_content = b"Test data"
+        file_path = tmp_path / "test.csv"
+        file_path.write_bytes(test_content)
+        
+        checksum_file = tmp_path / "checksums.json"
+        wrong_hash = hashlib.sha256(b"different data").hexdigest()
+        checksum_file.write_text(json.dumps({"existing_dataset": wrong_hash}))
+        
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            with pytest.raises(ValueError, match="Checksum mismatch"):
+                _verify_checksum("existing_dataset", str(file_path))
 
-class TestLoadersIntegration:
-    """Integration tests for loader functions."""
+class TestFetchWithChecksum:
+    """Tests for fetch_uci_dataset with checksumming."""
 
-    def test_attributes_preserved(self, tmp_path):
-        """Test that DataFrame attributes are preserved."""
-        csv_content = """col1,col2
-        1,2
-        3,4"""
-        
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text(csv_content)
-        
-        df = ingest_csv(csv_file)
-        
-        assert 'original_columns' in df.attrs
-        assert df.attrs['original_columns'] == ["col1", "col2"]
+    @patch('code.loaders.requests.get')
+    @patch('code.loaders._verify_checksum')
+    def test_fetch_stores_and_verifies(self, mock_verify, mock_get, tmp_path):
+        """Test that fetch stores and verifies checksum."""
+        mock_response = MagicMock()
+        mock_response.text = "col1,col2\n1,2\n3,4"
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        mock_verify.return_value = True
 
-    def test_large_file_handling(self, tmp_path):
-        """Test handling of larger files."""
-        # Generate a larger CSV
-        n_rows = 1000
-        csv_content = "col1,col2,col3\n"
-        for i in range(n_rows):
-            csv_content += f"{i},{i*2},{i*3}\n"
+        # Create data/raw directory
+        data_dir = tmp_path / "data" / "raw"
+        data_dir.mkdir(parents=True)
         
-        csv_file = tmp_path / "large.csv"
-        csv_file.write_text(csv_content)
+        with patch('code.loaders.UCI_BASE_URL', 'http://test.com'):
+            with patch('code.loaders.CHECKSUM_FILE', str(tmp_path / "checksums.json")):
+                with patch('os.makedirs'):
+                    df = fetch_uci_dataset("test_dataset", "test.csv")
+                    
+                    assert df is not None
+                    assert len(df) == 2
+                    mock_verify.assert_called_once()
+
+    @patch('code.loaders.requests.get')
+    def test_fetch_raises_on_404(self, mock_get, tmp_path):
+        """Test that 404 errors are properly raised."""
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_get.side_effect = Exception("404 Client Error")
         
-        df = ingest_csv(csv_file)
+        with patch('code.loaders.requests.exceptions.HTTPError') as mock_http_error:
+            mock_http_error.return_value.response.status_code = 404
+            with pytest.raises(FileNotFoundError):
+                fetch_uci_dataset("nonexistent", "file.csv")
+
+class TestLoadFromPathWithChecksum:
+    """Tests for load_dataset_from_path with checksumming."""
+
+    def test_load_new_file_stores_checksum(self, tmp_path):
+        """Test that loading a new file stores its checksum."""
+        test_data = "col1,col2\n1,2\n3,4"
+        file_path = tmp_path / "test.csv"
+        file_path.write_text(test_data)
         
-        assert len(df) == n_rows
-        assert len(df.columns) == 3
+        checksum_file = tmp_path / "checksums.json"
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            df = load_dataset_from_path(str(file_path))
+            
+            assert df is not None
+            assert len(df) == 2
+            assert checksum_file.exists()
+            with open(checksum_file, 'r') as f:
+                stored = json.load(f)
+            assert "test.csv" in stored
+
+    def test_load_matching_checksum_succeeds(self, tmp_path):
+        """Test loading file with matching stored checksum."""
+        test_data = "col1,col2\n1,2\n3,4"
+        file_path = tmp_path / "test.csv"
+        file_path.write_text(test_data)
+        
+        checksum_file = tmp_path / "checksums.json"
+        stored_hash = hashlib.sha256(test_data.encode()).hexdigest()
+        checksum_file.write_text(json.dumps({"test.csv": stored_hash}))
+        
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            df = load_dataset_from_path(str(file_path))
+            assert df is not None
+
+    def test_load_mismatched_checksum_raises_error(self, tmp_path):
+        """Test that loading file with mismatched checksum raises error."""
+        test_data = "col1,col2\n1,2\n3,4"
+        file_path = tmp_path / "test.csv"
+        file_path.write_text(test_data)
+        
+        checksum_file = tmp_path / "checksums.json"
+        wrong_hash = hashlib.sha256(b"wrong data").hexdigest()
+        checksum_file.write_text(json.dumps({"test.csv": wrong_hash}))
+        
+        with patch('code.loaders.CHECKSUM_FILE', str(checksum_file)):
+            with pytest.raises(ValueError, match="Checksum mismatch"):
+                load_dataset_from_path(str(file_path))

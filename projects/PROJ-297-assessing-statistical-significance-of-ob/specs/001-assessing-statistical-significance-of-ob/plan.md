@@ -19,7 +19,7 @@ This feature implements a permutation-based statistical engine to assess the sig
 **Project Type**: Data analysis CLI / Research pipeline
 **Performance Goals**: Complete full pipeline (3+ valid datasets, 1,000 permutations) within 6 hours.
 **Constraints**: No GPU usage; memory footprint < 7GB; strict handling of missing data (drop rows); no causal language in output.
-**Scale/Scope**: Multiple valid datasets (from fallback list if primary fails), a set of network statistics, 5 correlation thresholds.
+**Scale/Scope**: Multiple valid datasets (from fallback list if primary fails), a set of network statistics, correlation thresholds.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -95,7 +95,7 @@ projects/PROJ-297-assessing-statistical-significance-of-ob/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Benjamini-Yekutieli (BY) vs. Benjamini-Hochberg (BH) | Spec requires control of FDR under *dependence*. BH assumes independence or positive dependence; BY is robust to arbitrary dependence. Constitution Principle VII requires amendment. | BH is simpler but violates FR-004 and leads to scientific invalidity. |
-| 1,000 Permutations | Required by FR-003 (amended from [deferred]) for stable empirical p-values while ensuring runtime < 6h on CPU. Resolution is 0.001, sufficient for α=0.05. | 2,000 permutations risk timeout on 2-CPU runner for clustering coefficient. 100 permutations insufficient for accuracy. |
+| 1,000 Permutations | Required by FR-003 (amended from [deferred]) for stable empirical p-values while ensuring runtime < 6h on CPU. Resolution is 0.001, sufficient for α=0.05. | A large number of permutations risks timeout on a 2-CPU runner for clustering coefficient. A limited number of permutations may be insufficient for accuracy. |
 | Threshold Sensitivity Sweep | Required by US-3 and FR-005 to assess robustness of findings to arbitrary cutoffs. | Single threshold analysis would fail to demonstrate robustness, a key research question. |
 | Fallback Dataset Strategy | Primary 6 UCI datasets may have <20 variables. Fallback ensures multiple valid datasets are found. | Relying solely on the primary list risks a null result due to data unavailability. |
 
@@ -137,7 +137,7 @@ projects/PROJ-297-assessing-statistical-significance-of-ob/
     *   Store null distributions.
 
 3.  **Significance Testing**:
-    *   Calculate two-sided empirical p-values: $p = \frac{\text{count}(|stat_{perm}| \ge |stat_{obs}|) + 1}{N + 1}$.
+    *   Calculate two-sided empirical p-values using a standard permutation-based estimator that accounts for the observed statistic relative to the permuted distribution.
     *   Apply Benjamini-Yekutieli (BY) procedure across all tests (valid datasets × 4 statistics).
     *   Flag significant findings (q < 0.05).
 

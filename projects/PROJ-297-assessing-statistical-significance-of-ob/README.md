@@ -1,199 +1,128 @@
 # Assessing Statistical Significance of Observed Correlations in Public Databases
 
-A research pipeline to assess the statistical significance of observed correlations in multivariate datasets from the UCI Machine Learning Repository using permutation testing and multiple testing correction.
+## Project Overview
 
-## Overview
+This project implements a rigorous statistical pipeline to assess the significance of observed correlations in multivariate public datasets (specifically from the UCI Machine Learning Repository). It moves beyond naive p-value reporting by employing **permutation testing** to generate empirical null distributions and the **Benjamini-Yekutieli (BY)** procedure to control the False Discovery Rate (FDR) under arbitrary dependence.
 
-This project implements a rigorous statistical framework to:
-1. Ingest multivariate datasets from the UCI repository
-2. Compute observed network statistics from correlation matrices
-3. Generate empirical null distributions via permutation testing
-4. Apply Benjamini-Yekutieli correction for multiple testing
-5. Perform threshold sensitivity analysis
+The pipeline is designed to answer: "Is the observed network structure (density, clustering, max correlation) significantly different from what we would expect by chance given the marginal distributions of the variables?"
 
-## Project Structure
+## Key Features
 
-```
-PROJ-297-assessing-statistical-significance-of-ob/
-├── code/ # Core implementation
-│ ├── config.py # Configuration and path management
-│ ├── loaders.py # Data loading and hygiene pipelines
-│ ├── stats_engine.py # Statistical analysis and permutation testing
-│ ├── correction.py # Multiple testing correction (BY procedure)
-│ ├── viz.py # Visualization generation
-│ └── main.py # Pipeline orchestration
-├── data/
-│ ├── raw/ # Downloaded UCI datasets
-│ └── processed/ # Cleaned and processed datasets
-├── output/
-│ ├── results/ # Statistical analysis results
-│ ├── plots/ # Generated visualizations
-│ ├── reports/ # Summary reports
-│ └── exploratory/ # Exploratory analyses (Spearman matrices)
-├── tests/
-│ ├── unit/ # Unit tests
-│ └── integration/ # Integration tests
-├── docs/ # Documentation
-├── requirements.txt # Python dependencies
-├── README.md # This file
-└── tasks.md # Task tracking
-```
+- **Dynamic Dataset Discovery**: Automatically fetches and validates multivariate datasets from UCI with >=20 continuous variables.
+- **Robust Data Hygiene**: Enforces strict cleaning (missing value removal, constant variable exclusion).
+- **Empirical Null Modeling**: Generates null distributions via 1,000 permutations per dataset, preserving marginal distributions.
+- **Multiple Testing Correction**: Implements the Benjamini-Yekutieli procedure to correct for multiple comparisons across datasets and statistics.
+- **Threshold Sensitivity Analysis**: Sweeps correlation thresholds {0.1, 0.2, 0.3, 0.4, 0.5} to assess robustness of findings.
+- **Visualization**: Generates heatmaps and histograms for primary thresholds and sensitivity sweeps.
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd PROJ-297-assessing-statistical-significance-of-ob
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## Requirements
-
-- Python 3.11+
-- pandas
-- numpy
-- scipy
-- networkx
-- matplotlib
-- seaborn
-- requests
+1. Ensure you have Python 3.9+ installed.
+2. Create a virtual environment (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Usage
 
 ### Running the Full Pipeline
 
+Execute the main analysis script to process datasets, run permutations, apply corrections, and generate reports:
+
 ```bash
-# Run the complete analysis pipeline
 python code/main.py
 ```
 
-### Running Specific Analyses
+This will:
+1. Discover and load valid UCI datasets.
+2. Compute observed correlation matrices and graph statistics.
+3. Generate null distributions via permutation.
+4. Calculate empirical p-values and apply BY correction.
+5. Perform threshold sensitivity analysis.
+6. Save results to `output/results/`, `output/plots/`, and `output/reports/`.
+
+### Running Tests
+
+Unit and integration tests can be run with pytest:
 
 ```bash
-# Run threshold sensitivity sweep
-python code/main.py --task threshold_sweep
-
-# Run synthetic validation (100 iterations)
-python code/main.py --task synthetic_validation
-
-# Generate primary threshold visualizations
-python code/main.py --task viz_primary
+pytest tests/ -v
 ```
 
-### Command Line Arguments
+To run the quickstart validation:
 
-- `--task`: Specify which task to run (default: full pipeline)
- - `full`: Run complete pipeline
- - `synthetic_validation`: Run validation on synthetic data
- - `threshold_sweep`: Run sensitivity analysis
- - `viz_primary`: Generate primary visualizations
-- `--threshold`: Correlation threshold for analysis (default: 0.3)
-- `--n_permutations`: Number of permutations (default: 1000)
-- `--output-dir`: Custom output directory
+```bash
+python -m pytest tests/integration/test_quickstart.py -v
+```
 
-## Statistical Methods
+## Project Structure
 
-### Permutation Testing
+```
+.
+├── code/
+│ ├── config.py # Configuration paths and parameters
+│ ├── loaders.py # Data fetching and hygiene pipeline
+│ ├── stats_engine.py # Core statistical logic (correlation, permutation, graph stats)
+│ ├── correction.py # Benjamini-Yekutieli correction implementation
+│ ├── viz.py # Visualization generation (heatmaps, histograms)
+│ └── main.py # Pipeline orchestration
+├── data/
+│ ├── raw/ # Downloaded raw UCI datasets
+│ └── processed/ # Cleaned and validated datasets
+├── output/
+│ ├── results/ # Statistical summaries (CSV)
+│ ├── plots/ # Generated visualizations (PNG)
+│ └── reports/ # Final summary reports
+├── tests/
+│ ├── unit/ # Unit tests for individual components
+│ └── integration/ # End-to-end pipeline tests
+├── requirements.txt # Python dependencies
+├── README.md # This file
+└── docs/
+ └── methodology.md # Detailed statistical methodology and assumptions
+```
 
-- N=1,000 permutations per dataset (optimized for feasibility)
-- Reduced to N=500 for clustering coefficient on datasets with >50 variables
-- Marginal distributions preserved during permutation
+## Statistical Methodology
 
-### Network Statistics
+### Null Model Generation
+For each dataset, we generate an empirical null distribution by permuting the values within each column (variable) independently. This preserves the marginal distribution of each variable while breaking any true associations between them. We compute the statistic of interest (e.g., mean absolute correlation, edge density) for each of the 1,000 permuted datasets.
 
-1. **Mean Absolute Correlation**: Average of absolute correlation values
-2. **Edge Density**: Proportion of edges above threshold
-3. **Max Absolute Correlation**: Maximum absolute correlation value
-4. **Average Clustering Coefficient**: Network clustering measure
+### Significance Testing
+The empirical p-value is calculated as:
+```
+p = (r + 1) / (N + 1)
+```
+where `r` is the number of permuted statistics greater than or equal to the observed statistic, and `N` is the number of permutations.
 
 ### Multiple Testing Correction
-
-- Benjamini-Yekutieli (BY) procedure for FDR control under dependence
-- Empirical p-values calculated as (r+1)/(N+1) to avoid 0/1 extremes
+We apply the Benjamini-Yekutieli (BY) procedure to control the FDR under arbitrary dependence structures. This is more conservative than the standard Benjamini-Hochberg (BH) procedure and is required for our analysis where correlation tests are not independent.
 
 ### Threshold Sensitivity
-
-Analysis performed across thresholds: {0.1, 0.2, 0.3, 0.4, 0.5}
-
-## Data Sources
-
-- Primary: UCI Machine Learning Repository
-- Dynamic discovery mechanism ensures >=3 valid datasets with >=20 continuous variables
-- Strict data hygiene: missing values dropped, constant variables excluded
-
-## Testing
-
-```bash
-# Run all tests
-python -m pytest tests/ -v
-
-# Run unit tests only
-python -m pytest tests/unit/ -v
-
-# Run integration tests only
-python -m pytest tests/integration/ -v
-
-# Run specific test
-python -m pytest tests/unit/test_stats_engine.py::test_permutation_preserves_marginals -v
-```
-
-## Validation
-
-The pipeline includes built-in validation:
-- Synthetic data validation (identity covariance) should yield p > 0.05 in >=95% of runs
-- Threshold sweep validates sensitivity across correlation thresholds
-- Primary visualizations generated for threshold |r| > 0.3
-
-## Output Files
-
-### Results
-- `output/results/summary.csv`: Dataset statistics, p-values, q-values
-- `output/results/sensitivity_report.csv`: Significant counts per threshold
-- `output/results/validation_report.json`: Synthetic validation results
-
-### Plots
-- `output/plots/primary/heatmap.png`: Correlation matrix heatmap
-- `output/plots/primary/histogram.png`: Null distribution with observed value
-- `output/plots/sensitivity/*.png`: Sensitivity analysis visualizations
-
-### Reports
-- `output/reports/associational_report.txt`: Final associational analysis report
-- `output/reports/sensitivity_summary.txt`: Threshold sensitivity summary
+To assess the robustness of our findings, we repeat the analysis across a range of correlation thresholds: {0.1, 0.2, 0.3, 0.4, 0.5}. This helps identify whether significant findings are stable or highly sensitive to the choice of threshold.
 
 ## Configuration
 
-Edit `code/config.py` to customize:
-- Default correlation threshold
-- Number of permutations
-- Output directories
-- Random seed for reproducibility
+Key parameters can be adjusted in `code/config.py`:
+- `DATA_RAW_DIR`: Directory for raw data
+- `DATA_PROCESSED_DIR`: Directory for processed data
+- `OUTPUT_RESULTS_DIR`: Directory for results
+- `RANDOM_SEED`: Seed for reproducibility
+- `PERMUTATIONS`: Number of permutations (default: 1000)
+- `THRESHOLDS`: List of correlation thresholds for sensitivity analysis
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
+When adding new features:
+1. Ensure all new code passes existing tests.
+2. Add new tests for new functionality.
+3. Update documentation in `docs/` if methodology changes.
+4. Run `black` and `flake8` for code style compliance.
 
 ## License
 
 This project is licensed under the MIT License.
-
-## Acknowledgments
-
-- UCI Machine Learning Repository for dataset availability
-- scipy.stats for correlation and statistical functions
-- networkx for graph analysis
-- matplotlib and seaborn for visualization
-
-## Contact
-
-For questions or issues, please open an issue in the repository.
