@@ -41,12 +41,38 @@ IDEA_BACKLOG_STAGES: frozenset[Stage] = frozenset(
     }
 )
 
+#: Stages counted as DOWNSTREAM in-flight work — a project that has left the idea
+#: stages and entered the implementation/execution pipeline. Seeding MORE ideas
+#: while this pit is congested (the live #1139 state: 492 projects at in_progress,
+#: ~0 reaching research_complete) just grows unbounded WIP behind a stalled
+#: pipeline — the intake throttle was BLIND to it (it watched only the idea
+#: backlog ~192, which was flat, so it granted full intake). issue #1139 M1.
+DOWNSTREAM_WIP_STAGES: frozenset[Stage] = frozenset(
+    {
+        Stage.PLANNED,
+        Stage.TASKED,
+        Stage.ANALYZE_IN_PROGRESS,
+        Stage.ANALYZED,
+        Stage.IN_PROGRESS,
+    }
+)
+
 #: Backlog-growth measurement window.
 WINDOW_HOURS: float = 24.0
 
 #: Growth (projects added net over the window) at which automated intake
 #: shuts off entirely; below it the allowance scales linearly.
 FULL_STOP_GROWTH: int = 20
+
+#: Net DOWNSTREAM-WIP growth over the window at which automated intake shuts off
+#: (drain < intake through the whole pipeline, not just the idea stages).
+DOWNSTREAM_FULL_STOP_GROWTH: int = 40
+
+#: Absolute downstream-WIP size above which automated intake is damped REGARDLESS
+#: of growth — a congested implementation pipeline must DRAIN (projects reaching
+#: research_complete) before more ideas enter. Self-recovering: as WIP falls back
+#: under the ceiling the allowance returns to full.
+DOWNSTREAM_WIP_CEILING: int = 250
 
 #: Human submissions are never throttled below this per tick.
 MIN_HUMAN_ALLOWANCE: int = 1
@@ -101,6 +127,22 @@ def backlog_depth(*, repo_root: Path | None = None) -> int:
     )
 
 
+def downstream_wip_depth(*, repo_root: Path | None = None) -> int:
+    """Current DOWNSTREAM in-flight work (implementation/execution pipeline)."""
+    return sum(
+        1
+        for p in project_store.list_all(repo_root=repo_root)
+        if p.current_stage in DOWNSTREAM_WIP_STAGES
+    )
+
+
+def _growth_fraction(growth: int, full_stop: int) -> float:
+    """Linear allowance fraction: 1.0 at growth<=0, 0.0 at ``full_stop``."""
+    if growth <= 0:
+        return 1.0
+    return max(0.0, 1.0 - growth / full_stop)
+
+
 def intake_allowance(
     requested: int,
     *,
@@ -116,6 +158,7 @@ def intake_allowance(
     """
     now = now or datetime.now(UTC)
     depth = backlog_depth(repo_root=repo_root)
+    wip = downstream_wip_depth(repo_root=repo_root)
     state = _load_state(repo_root)
     cutoff = now - timedelta(hours=WINDOW_HOURS)
     samples = [
@@ -123,27 +166,48 @@ def intake_allowance(
         for s in state["samples"]
         if datetime.fromisoformat(str(s["at"])) >= cutoff
     ]
-    samples.append({"at": now.isoformat(), "backlog": depth})
+    samples.append({"at": now.isoformat(), "backlog": depth, "wip": wip})
 
     growth = 0
+    wip_growth = 0
     if len(samples) >= 2:
         growth = depth - int(samples[0]["backlog"])
+        # Old samples (pre-#1139-M1) have no "wip" key → treat as the current
+        # value so a missing history contributes 0 growth (never a false stop).
+        wip_growth = wip - int(samples[0].get("wip", wip))
 
     requested = max(0, requested)
-    if growth <= 0:
-        allowed = requested
+    # Three self-recovering signals, each a linear allowance fraction; the
+    # allowance is damped by the WORST (smallest) of them (issue #1139 M1):
+    #   1. idea-stage backlog growth (the original FR-008 signal);
+    #   2. DOWNSTREAM-WIP growth (the implementation pipeline filling faster than
+    #      it drains) — the signal the throttle was blind to;
+    #   3. an absolute downstream-WIP ceiling (a congested pipeline must DRAIN
+    #      before more ideas enter, regardless of growth).
+    f_backlog = _growth_fraction(growth, FULL_STOP_GROWTH)
+    f_wip_growth = _growth_fraction(wip_growth, DOWNSTREAM_FULL_STOP_GROWTH)
+    f_wip_ceiling = _growth_fraction(
+        max(0, wip - DOWNSTREAM_WIP_CEILING), DOWNSTREAM_WIP_CEILING
+    )
+    fraction = min(f_backlog, f_wip_growth, f_wip_ceiling)
+    allowed = int(requested * fraction)
+    if fraction >= 1.0:
         reason = (
-            f"backlog flat/draining over the window (growth={growth}); "
-            "full intake"
+            f"backlog flat/draining (growth={growth}) and downstream WIP "
+            f"healthy (wip={wip}, growth={wip_growth}); full intake"
         )
     else:
-        # Proportional damping: linear from full allowance at growth=0 to
-        # zero at FULL_STOP_GROWTH.
-        fraction = max(0.0, 1.0 - growth / FULL_STOP_GROWTH)
-        allowed = int(requested * fraction)
+        # Name the binding constraint so the decision is self-explaining.
+        binding = min(
+            ("idea-backlog", f_backlog),
+            ("downstream-WIP-growth", f_wip_growth),
+            ("downstream-WIP-ceiling", f_wip_ceiling),
+            key=lambda kv: kv[1],
+        )[0]
         reason = (
-            f"backlog grew by {growth} over {WINDOW_HOURS:.0f}h "
-            f"(drain < intake); allowance damped to {fraction:.0%}"
+            f"damped to {fraction:.0%} by {binding} "
+            f"(idea growth={growth}, wip={wip}, wip growth={wip_growth}, "
+            f"ceiling={DOWNSTREAM_WIP_CEILING})"
         )
     if kind == "human":
         allowed = max(allowed, min(requested, MIN_HUMAN_ALLOWANCE))
@@ -165,11 +229,15 @@ def intake_allowance(
 
 
 __all__ = [
+    "DOWNSTREAM_FULL_STOP_GROWTH",
+    "DOWNSTREAM_WIP_CEILING",
+    "DOWNSTREAM_WIP_STAGES",
     "FULL_STOP_GROWTH",
     "IDEA_BACKLOG_STAGES",
     "MIN_HUMAN_ALLOWANCE",
     "WINDOW_HOURS",
     "IntakeDecision",
     "backlog_depth",
+    "downstream_wip_depth",
     "intake_allowance",
 ]
