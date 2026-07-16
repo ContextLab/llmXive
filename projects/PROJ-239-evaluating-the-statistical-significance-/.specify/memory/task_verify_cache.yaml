@@ -13,3 +13,12 @@ T031:
     \ More critically, `code/simulation_runner.py` has no module\u2011level docstring\
     \ at all, and none of its functions document the ICC range, number of iterations\
     \ per ICC, or the seed used, so the required documentation is missing."
+T035:
+  c: false
+  h: a0d7189bb12866720aa42efb37f3909c0eb0544dc9efed31327cb02bb945b688
+  r: The repository contains the `code/synthetic_cluster_params.py` script, but the
+    required output file `data/derived/synthetic_cluster_structure.csv` is absent,
+    indicating the script either does not write the CSV or was never executed. Additionally,
+    the provided code excerpt does not show the validation step that checks the ICC_RANGE
+    constraint. The missing CSV (and likely missing validation) must be added to satisfy
+    the task.

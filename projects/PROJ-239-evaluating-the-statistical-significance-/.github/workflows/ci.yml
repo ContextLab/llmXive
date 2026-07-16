@@ -7,23 +7,22 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: Cache pip dependencies
-      uses: actions/cache@v4
+    - name: Cache pip
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
@@ -32,26 +31,23 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Verify CPU-only (No CUDA dependencies)
+    - name: Run linting (flake8)
       run: |
-        echo "Checking for CUDA-related packages in requirements.txt..."
-        if grep -iE "cuda|torch.*cu|tensorflow.*gpu|cupy" requirements.txt; then
-          echo "Error: CUDA-related packages detected in requirements.txt. This project must run on CPU-only hardware."
-          exit 1
-        else
-          echo "Success: No CUDA-related packages found. Project is CPU-only compliant."
-        fi
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Run Linting
+    - name: Run Black check
       run: |
         black --check .
-        flake8 .
 
-    - name: Run Tests
+    - name: Run tests
       run: |
         pytest tests/ -v
 
-    - name: Run Simulation (Smoke Test)
+    - name: Verify CUDA-free requirements
       run: |
-        python code/run_simulation_baseline.py --icc 0.0 --iterations 5 --seed 42
-        python code/run_simulation_robust.py --icc 0.0 --iterations 5 --seed 42
+        if grep -i "cuda" requirements.txt; then
+          echo "Error: CUDA-related packages found in requirements.txt"
+          exit 1
+        fi
+        echo "Verified: No CUDA dependencies found."

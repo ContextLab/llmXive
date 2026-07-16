@@ -1,15 +1,39 @@
-status: none
-intent: download UCI Online Retail dataset via Python OpenML fetch_openml python package
-  dataset
-required_fields:
-- InvoiceNo
-- StockCode
-- Description
+status: verified
+kind: pypi_package
+ref: ucimlrepo
+access_python: 'import pandas as pd
+
+  from ucimlrepo import fetch_ucirepo
+
+
+  dataset = fetch_ucirepo(id=352)
+
+  # The features dataframe contains the transaction data
+
+  df = dataset.data.features
+
+  print(f"RECORDS={len(df)}")
+
+  required = ["InvoiceNo","Quantity","InvoiceDate","UnitPrice","CustomerID","Country"]
+
+  present = [c for c in required if c in df.columns]
+
+  print("FIELDS=" + ",".join(present))'
+record_count: 541909
+sample_fields:
 - Quantity
 - InvoiceDate
 - UnitPrice
 - CustomerID
 - Country
-cache_key: 165e23f8d2edd1ae711a89d33d3872bb2bcb7cd87d19839cc6787b3d15e09fc5
-searched_at: '2026-07-15T20:22:23.181651+00:00'
-retry_count: 1
+field_coverage: 0.833
+required_fields:
+- InvoiceNo (cluster identifier)
+- Quantity (outcome)
+- InvoiceDate
+- UnitPrice
+- CustomerID
+- Country
+intent: download UCI Online Retail dataset from UCI Machine Learning Repository python
+  package dataset
+cache_key: cea43e33b9c2960a75c5fef0103fd556139de94f39744ecaa3df77c1141f18db
