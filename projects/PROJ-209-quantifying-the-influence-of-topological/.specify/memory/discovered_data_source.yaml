@@ -1,0 +1,16 @@
+status: none
+intent: Materials Project graphene MoS2 structures and 2022 supplementary defect dataset
+  python package dataset
+required_fields:
+- material_id
+- formula
+- atomic_coordinates
+- lattice_parameters
+- defect_type
+- defect_density
+- conductivity
+- elastic_tensor
+- fracture_energy
+cache_key: b0892059e2334a7a4337bda9068d265a30b812466c681c9a50aee1ad7078d652
+searched_at: '2026-07-16T19:12:48.654904+00:00'
+retry_count: 1

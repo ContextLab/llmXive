@@ -43,6 +43,10 @@ properties:
     type: "string"
     enum: ["valid", "missing_fracture", "timeout"]
     description: "Data quality flag"
+  data_source:
+    type: "string"
+    enum: ["real", "synthetic"]
+    description: "Origin of the data. MUST be 'synthetic' for generated data."
 required:
   - id
   - material
@@ -51,4 +55,5 @@ required:
   - conductivity_raw
   - youngs_modulus_raw
   - status
+  - data_source
 additionalProperties: false

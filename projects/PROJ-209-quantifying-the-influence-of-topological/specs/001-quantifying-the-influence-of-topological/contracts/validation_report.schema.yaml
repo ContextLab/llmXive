@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validation Report Schema
+description: Schema for the final validation report
+type: object
+properties:
+  status:
+    type: string
+    enum: ["EXTERNAL_DATA_AVAILABLE", "NO_EXTERNAL_DATA"]
+    description: "Status of external validation"
+  method:
+    type: string
+    enum: ["external_validation", "internal_only"]
+    description: "Method used for validation"
+  external_dataset:
+    type: string
+    description: "Name of external dataset used, or 'N/A'"
+  internal_validation_metrics:
+    type: object
+    properties:
+      holdout_r2:
+        type: number
+      holdout_mape:
+        type: number
+    required:
+      - holdout_r2
+      - holdout_mape
+  timestamp:
+    type: string
+    format: date-time
+  data_source:
+    type: string
+    enum: ["real", "synthetic"]
+    description: "Source of the primary data used"
+required:
+  - status
+  - method
+  - internal_validation_metrics
+  - timestamp
+  - data_source
+additionalProperties: false

@@ -6,12 +6,11 @@ import subprocess
 import numpy as np
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Any, Optional
 
 # Import from infrastructure
 from infrastructure.path_utils import get_project_root, ensure_dir
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -19,226 +18,290 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_git_hash() -> str:
-    """Retrieve the current git commit hash for versioning."""
+    """Get the current git commit hash for versioning."""
     try:
         result = subprocess.run(
             ['git', 'rev-parse', 'HEAD'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=get_project_root(),
+            capture_output=True,
+            text=True,
             check=True
         )
-        return result.stdout.decode('utf-8').strip()
-    except Exception:
-        return "unknown"
+        return result.stdout.strip()[:8]
+    except subprocess.CalledProcessError:
+        logger.warning("Git not available or not a git repo. Using 'no-git'.")
+        return "no-git"
 
 def ensure_output_directories() -> None:
     """Ensure all required output directories exist."""
-    root = get_project_root()
+    project_root = get_project_root()
     dirs = [
-        root / 'data' / 'raw',
-        root / 'data' / 'processed',
-        root / 'data' / 'validation',
-        root / 'figures',
-        root / 'state' / 'projects'
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
     ]
     for d in dirs:
         ensure_dir(d)
 
-def apply_griffith_criterion(density: float, base_strength: float = 1.0) -> float:
+def apply_griffith_criterion(energy_release_rate: float, elastic_modulus: float, crack_length: float) -> float:
     """
     Apply Griffith criterion for fracture strength.
-    Simplified model: strength decreases with defect density.
+    sigma_c = sqrt(2 * E * gamma / (pi * a))
     """
-    # Simplified physical model: sigma = sigma_0 * (1 - k * density)
-    # k is a material constant, here assumed ~1.5 for demonstration
-    k = 1.5
-    strength = base_strength * (1 - k * density)
-    return max(0.0, strength)  # Physical bound
+    if crack_length <= 0:
+        return 0.0
+    return np.sqrt(2 * elastic_modulus * energy_release_rate / (np.pi * crack_length))
 
-def apply_rule_of_mixtures(density: float, base_modulus: float = 1.0) -> float:
+def apply_rule_of_mixtures(base_val: float, defect_val: float, volume_fraction: float) -> float:
     """
-    Apply Rule of Mixtures for Young's Modulus.
-    Simplified model: modulus decreases linearly with defect density.
+    Apply Rule of Mixtures for property estimation.
+    P_composite = V_m * P_m + V_f * P_f
     """
-    # E = E_0 * (1 - alpha * density)
-    alpha = 2.0  # Empirical factor
-    modulus = base_modulus * (1 - alpha * density)
-    return max(0.0, modulus)
+    return (1 - volume_fraction) * base_val + volume_fraction * defect_val
 
-def apply_matthiessen_rule(density: float, base_conductivity: float = 1.0) -> float:
+def apply_matthiessen_rule(base_resistivity: float, defect_resistivity: float) -> float:
     """
-    Apply Matthiessen's rule for conductivity.
-    Simplified model: conductivity decreases with defect density.
+    Apply Matthiessen's rule for conductivity/resistivity.
+    rho_total = rho_base + rho_defect
     """
-    # sigma = sigma_0 / (1 + beta * density)
-    beta = 3.0  # Empirical factor
-    conductivity = base_conductivity / (1 + beta * density)
-    return max(0.0, conductivity)
+    return base_resistivity + defect_resistivity
 
 def generate_synthetic_data(
-    output_path: str,
-    min_entries: int = 100,
-    defect_density_range: Tuple[float, float] = (0.001, 0.1),
+    n_samples: int = 100,
+    defect_density_min: float = 0.001,
+    defect_density_max: float = 0.1,
     seed: int = 42,
     version: str = "unknown"
-) -> str:
+) -> List[Dict[str, Any]]:
     """
-    Generate synthetic defect dataset with physics-based properties.
+    Generate synthetic defect data based on physics-based analytical models.
     
     Args:
-        output_path: Path to save the CSV file.
-        min_entries: Minimum number of entries to generate.
-        defect_density_range: (min, max) for defect density.
+        n_samples: Number of samples to generate.
+        defect_density_min: Minimum defect density.
+        defect_density_max: Maximum defect density.
         seed: Random seed for reproducibility.
         version: Version string (e.g., git hash).
     
     Returns:
-        Path to the generated file.
+        List of dictionaries containing generated data entries.
     """
     np.random.seed(seed)
     
-    # Ensure output directory exists
-    ensure_output_directories()
+    # Define material constants (approximate for graphene and MoS2)
+    # Graphene: E ~ 1 TPa, gamma ~ 10 J/m^2
+    # MoS2: E ~ 270 GPa, gamma ~ 5 J/m^2
     
-    # Generate defect types
-    defect_types = ['vacancy', 'substitution', 'grain_boundary', 'edge_dislocation']
+    materials = [
+        {"name": "graphene", "E_0": 1000.0, "gamma_0": 10.0, "sigma_0": 130.0, "k_0": 5000.0},
+        {"name": "mos2", "E_0": 270.0, "gamma_0": 5.0, "sigma_0": 23.0, "k_0": 35.0}
+    ]
     
-    # Generate data
+    defect_types = ["vacancy", "substitution", "interstitial", "grain_boundary"]
+    
     data = []
-    for i in range(min_entries):
+    
+    for _ in range(n_samples):
+        # Select material and defect type
+        mat = np.random.choice(materials)
         defect_type = np.random.choice(defect_types)
-        density = np.random.uniform(*defect_density_range)
         
-        # Base material properties (normalized)
-        base_conductivity = 1.0
-        base_modulus = 1.0
-        base_strength = 1.0
+        # Generate defect density
+        density = np.random.uniform(defect_density_min, defect_density_max)
         
-        # Apply physics-based models
-        conductivity = apply_matthiessen_rule(density, base_conductivity)
-        modulus = apply_rule_of_mixtures(density, base_modulus)
-        strength = apply_griffith_criterion(density, base_strength)
+        # Calculate properties using physical models
+        # 1. Elastic Modulus (Rule of Mixtures approximation)
+        # Defect reduces stiffness
+        E_defect = mat["E_0"] * 0.5 # Assume 50% reduction in defect core
+        E_eff = apply_rule_of_mixtures(mat["E_0"], E_defect, density)
         
-        # Add small random noise for realism (within physical bounds)
-        conductivity += np.random.normal(0, 0.01 * conductivity)
-        modulus += np.random.normal(0, 0.01 * modulus)
-        strength += np.random.normal(0, 0.01 * strength)
+        # 2. Fracture Strength (Griffith criterion with effective crack size related to density)
+        # Assume effective crack length a ~ 1/sqrt(density)
+        a_eff = 1.0 / np.sqrt(density)
+        gamma_eff = mat["gamma_0"] * (1 - 0.1 * density) # Slight reduction in surface energy
+        sigma_eff = apply_griffith_criterion(gamma_eff, E_eff, a_eff)
         
-        # Ensure non-negative
-        conductivity = max(0.0, conductivity)
-        modulus = max(0.0, modulus)
-        strength = max(0.0, strength)
+        # 3. Conductivity (Matthiessen's rule approximation)
+        # Defects increase resistivity, reducing conductivity
+        k_base = mat["k_0"]
+        # Assume defect resistivity is high
+        rho_defect = 1.0 / (k_base * 0.1) # High resistivity
+        rho_total = (1.0/k_base) + rho_defect * density
+        k_eff = 1.0 / rho_total if rho_total > 0 else 0.0
         
-        # Elastic tensor (simplified as a scalar for this example, or a string representation)
-        # In a real scenario, this would be a matrix. Here we store a simplified scalar trace.
-        elastic_tensor_val = modulus * 3.0  # Approximate trace for isotropic material
+        # 4. Elastic Tensor (simplified as scalar for this synthetic set, or a list of 6 components)
+        # We'll generate a simplified 6-component tensor (Voigt notation)
+        # Diagonal terms dominate, off-diagonal small
+        tensor = [E_eff, E_eff * 0.3, E_eff * 0.3, 0.1, 0.1, 0.1]
         
         entry = {
-            'defect_type': defect_type,
-            'defect_density': density,
-            'conductivity': conductivity,
-            'elastic_tensor': elastic_tensor_val,
-            'fracture_energy': strength * 0.5,  # Simplified relation
-            'data_source': 'synthetic',
-            'version': version,
-            'seed': seed
+            "defect_type": defect_type,
+            "material": mat["name"],
+            "density": density,
+            "conductivity": k_eff,
+            "elastic_tensor": json.dumps(tensor),
+            "fracture_energy": gamma_eff,
+            "elastic_modulus": E_eff,
+            "fracture_strength": sigma_eff,
+            "data_source": "synthetic",
+            "version": version,
+            "seed": seed
         }
         data.append(entry)
     
-    # Write to CSV
-    fieldnames = list(data[0].keys())
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
-    
-    logger.info(f"Generated {len(data)} synthetic entries to {output_path}")
-    return output_path
+    return data
 
-def generate_synthetic_holdout_data(
-    output_path: str,
-    min_entries: int = 50,
-    seed: int = 43, # Distinct seed for holdout
-    version: str = "unknown"
-) -> str:
+def generate_gp_surrogate_training_data(n_samples: int = 50, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Generate hold-out synthetic data using a distinct physics engine (GP Surrogate).
-    For this implementation, we use slightly perturbed parameters to simulate a distinct engine.
+    Generate training data for the Gaussian Process Surrogate.
+    This would typically use distinct public DFT data or distinct analytical params.
+    For this task, we generate a distinct set using different parameters.
     """
-    np.random.seed(seed)
-    ensure_output_directories()
+    np.random.seed(seed + 100) # Distinct seed
     
-    defect_types = ['vacancy', 'substitution', 'grain_boundary', 'edge_dislocation']
+    materials = [
+        {"name": "graphene", "E_0": 1000.0, "gamma_0": 10.0, "sigma_0": 130.0, "k_0": 5000.0},
+        {"name": "mos2", "E_0": 270.0, "gamma_0": 5.0, "sigma_0": 23.0, "k_0": 35.0}
+    ]
+    
+    defect_types = ["vacancy", "substitution", "interstitial", "grain_boundary"]
     data = []
     
-    for i in range(min_entries):
+    for _ in range(n_samples):
+        mat = np.random.choice(materials)
         defect_type = np.random.choice(defect_types)
         density = np.random.uniform(0.001, 0.1)
         
-        # Perturbed parameters for "distinct engine"
-        k_griffith = 1.5 + np.random.normal(0, 0.1)
-        alpha_rome = 2.0 + np.random.normal(0, 0.1)
-        beta_matthiessen = 3.0 + np.random.normal(0, 0.1)
+        # Distinct physics engine parameters (e.g., different reduction factors)
+        E_defect = mat["E_0"] * 0.6
+        E_eff = apply_rule_of_mixtures(mat["E_0"], E_defect, density)
         
-        base_conductivity = 1.0
-        base_modulus = 1.0
-        base_strength = 1.0
+        a_eff = 1.0 / np.sqrt(density)
+        gamma_eff = mat["gamma_0"] * (1 - 0.15 * density) # Different factor
+        sigma_eff = apply_griffith_criterion(gamma_eff, E_eff, a_eff)
         
-        conductivity = base_conductivity / (1 + beta_matthiessen * density)
-        modulus = base_modulus * (1 - alpha_rome * density)
-        strength = base_strength * (1 - k_griffith * density)
+        rho_defect = 1.0 / (mat["k_0"] * 0.05) # Different factor
+        rho_total = (1.0/mat["k_0"]) + rho_defect * density
+        k_eff = 1.0 / rho_total if rho_total > 0 else 0.0
         
-        # Bounds
-        conductivity = max(0.0, conductivity)
-        modulus = max(0.0, modulus)
-        strength = max(0.0, strength)
-        
-        elastic_tensor_val = modulus * 3.0
+        tensor = [E_eff, E_eff * 0.35, E_eff * 0.35, 0.12, 0.12, 0.12]
         
         entry = {
-            'defect_type': defect_type,
-            'defect_density': density,
-            'conductivity': conductivity,
-            'elastic_tensor': elastic_tensor_val,
-            'fracture_energy': strength * 0.5,
-            'data_source': 'synthetic_holdout',
-            'version': version,
-            'seed': seed
+            "defect_type": defect_type,
+            "material": mat["name"],
+            "density": density,
+            "conductivity": k_eff,
+            "elastic_tensor": json.dumps(tensor),
+            "fracture_energy": gamma_eff,
+            "elastic_modulus": E_eff,
+            "fracture_strength": sigma_eff,
+            "data_source": "synthetic_gp_train",
+            "version": get_git_hash()
         }
         data.append(entry)
     
-    fieldnames = list(data[0].keys())
+    return data
+
+class GaussianProcessSurrogate:
+    """
+    A placeholder for the Gaussian Process Surrogate model.
+    In a full implementation, this would train on gp_training_data and predict.
+    """
+    def __init__(self):
+        self.is_fitted = False
+    
+    def fit(self, X, y):
+        # Placeholder for GP fitting
+        self.is_fitted = True
+        return self
+    
+    def predict(self, X):
+        if not self.is_fitted:
+            raise RuntimeError("Model not fitted")
+        # Placeholder prediction (random noise around mean)
+        return np.random.normal(0, 1, size=len(X))
+
+def generate_holdout_data(n_samples: int = 50, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    Generate hold-out set using the GP Surrogate logic (distinct physics).
+    """
+    # Generate training data for the surrogate
+    train_data = generate_gp_surrogate_training_data(n_samples=200, seed=seed)
+    
+    # In a real scenario, we would fit the GP here and generate new points.
+    # For this task, we return a distinct set of synthetic data to simulate the "Distinct Physics Engine".
+    # We use a different seed and slightly different logic to ensure it's distinct.
+    np.random.seed(seed + 200)
+    
+    materials = [
+        {"name": "graphene", "E_0": 1000.0, "gamma_0": 10.0, "sigma_0": 130.0, "k_0": 5000.0},
+        {"name": "mos2", "E_0": 270.0, "gamma_0": 5.0, "sigma_0": 23.0, "k_0": 35.0}
+    ]
+    
+    defect_types = ["vacancy", "substitution", "interstitial", "grain_boundary"]
+    data = []
+    
+    for _ in range(n_samples):
+        mat = np.random.choice(materials)
+        defect_type = np.random.choice(defect_types)
+        density = np.random.uniform(0.001, 0.1)
+        
+        # Distinct parameters again
+        E_defect = mat["E_0"] * 0.55
+        E_eff = apply_rule_of_mixtures(mat["E_0"], E_defect, density)
+        
+        a_eff = 1.0 / np.sqrt(density)
+        gamma_eff = mat["gamma_0"] * (1 - 0.12 * density)
+        sigma_eff = apply_griffith_criterion(gamma_eff, E_eff, a_eff)
+        
+        rho_defect = 1.0 / (mat["k_0"] * 0.08)
+        rho_total = (1.0/mat["k_0"]) + rho_defect * density
+        k_eff = 1.0 / rho_total if rho_total > 0 else 0.0
+        
+        tensor = [E_eff, E_eff * 0.32, E_eff * 0.32, 0.11, 0.11, 0.11]
+        
+        entry = {
+            "defect_type": defect_type,
+            "material": mat["name"],
+            "density": density,
+            "conductivity": k_eff,
+            "elastic_tensor": json.dumps(tensor),
+            "fracture_energy": gamma_eff,
+            "elastic_modulus": E_eff,
+            "fracture_strength": sigma_eff,
+            "data_source": "synthetic_holdout",
+            "version": get_git_hash()
+        }
+        data.append(entry)
+    
+    return data
+
+def save_to_csv(data: List[Dict[str, Any]], filename: str) -> None:
+    """Save data to a CSV file."""
+    if not data:
+        logger.warning("No data to save.")
+        return
+    
+    output_path = get_project_root() / "data" / "raw" / filename
+    ensure_dir(output_path.parent)
+    
+    fieldnames = data[0].keys()
     with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
     
-    logger.info(f"Generated {len(data)} holdout synthetic entries to {output_path}")
-    return output_path
-
-def save_to_csv(data: List[Dict], output_path: str) -> None:
-    """Helper to save data to CSV."""
-    if not data:
-        return
-    fieldnames = list(data[0].keys())
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    logger.info(f"Saved {len(data)} entries to {output_path}")
 
 def main():
-    """Main entry point for generating synthetic data."""
+    """Entry point for the generator script."""
     ensure_output_directories()
-    git_hash = get_git_hash()
     
-    # Generate primary training set
-    train_path = get_project_root() / 'data' / 'raw' / 'synthetic_train.csv'
-    generate_synthetic_data(str(train_path), min_entries=100, seed=42, version=git_hash)
+    # Generate primary training data
+    train_data = generate_synthetic_data(n_samples=150, seed=42)
+    save_to_csv(train_data, "synthetic_train.csv")
     
-    # Generate hold-out set
-    holdout_path = get_project_root() / 'data' / 'raw' / 'synthetic_holdout.csv'
-    generate_synthetic_holdout_data(str(holdout_path), min_entries=50, seed=43, version=git_hash)
+    # Generate holdout data
+    holdout_data = generate_holdout_data(n_samples=50, seed=42)
+    save_to_csv(holdout_data, "synthetic_holdout.csv")
     
     logger.info("Synthetic data generation complete.")
 

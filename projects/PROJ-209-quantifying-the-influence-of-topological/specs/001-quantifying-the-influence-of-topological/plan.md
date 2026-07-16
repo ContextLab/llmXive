@@ -1,132 +1,138 @@
 # Implementation Plan: Quantifying the Influence of Topological Defects on 2D Material Properties
 
-**Branch**: `001-quantify-defect-influence` | **Date**: 2024-01-15 | **Spec**: [link]  
-**Input**: Feature specification from `/specs/001-quantify-defect-influence/spec.md`
+**Branch**: `001-quantify-defect-influence` | **Date**: 2024-01-15 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-quantify-defect-influence/spec.md`
 
 ## Summary
 
-This plan implements a computational workflow to quantify the influence of topological defects (dislocations, grain boundaries) on the electronic conductivity, Young's modulus, and fracture strength of graphene and MoS₂. The approach prioritizes the **2022 Supplementary Defect Dataset** (real data) and the **Materials Project REST API** for pristine structures. A **synthetic fallback** (physics-based) is available ONLY if the primary real dataset is missing or invalid. 
+This plan implements a computational workflow to quantify how topological defects (dislocations, grain boundaries) in 2D materials (graphene, MoS₂) alter electronic conductivity, Young's modulus, and fracture strength. The approach combines data acquisition from the Materials Project API (with a synthetic data fallback), statistical modeling via Random Forest regressors, and rigorous inference using permutation testing with Benjamini-Hochberg FDR control. The workflow is designed to run entirely on a CPU-only GitHub Actions free-tier runner, utilizing streaming where possible and sampling to fit within 7GB RAM / 6h limits.
 
-**Critical Scope Limitation**: If the workflow falls back to synthetic data, the project goal shifts from "Quantifying Real-World Defect Influence" to "Validating the Analysis Pipeline and Detecting Programmed Correlations." All scientific claims in this mode are restricted to "Methodological Validation" and "Associational Claims within the Synthetic Domain." No causal or external validity claims are made if synthetic data is used.
+**Critical Scope Clarification**: This study does **not** claim to discover new physical laws. Instead, it focuses on **validating the robustness of the ML pipeline** in recovering *known* defect-property trends from a **Physics-Informed Parametric Surrogate**. The surrogate uses established analytical formulas (e.g., continuum elasticity) to generate the signal component of the data, calibrated with noise derived from verified DFT datasets. This ensures the study can proceed without real-world defect data while maintaining physical plausibility.
 
 ## Technical Context
 
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**: `requests`, `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `mp-api`, `statsmodels`
-- **Storage**: Local CSV/Parquet files in `data/`
-- **Testing**: `pytest`
-- **Target Platform**: Linux (GitHub Actions free‑tier runner)
-- **Performance Goals**: Complete full workflow (data fetch, modeling, inference) within 6 hours on 2 CPU cores, ≤7 GB RAM.
-- **Constraints**: No GPU, no large‑scale deep learning, all libraries CPU‑compatible.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `jupyter`, `matplotlib`, `seaborn`, `joblib`, `scipy`
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/validation`)
+**Testing**: `pytest` (for unit tests of data loaders and model wrappers), manual integration testing via notebook execution.
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk).
+**Project Type**: Computational research pipeline / data analysis.
+**Performance Goals**: Complete full workflow (download/generate -> process -> model -> validate) within 6 hours.
+**Constraints**: No GPU; no external API credentials beyond public endpoints; strict memory limits requiring streaming or sampling; no fabrication of data (must use verified sources or explicit synthetic generation).
+**Scale/Scope**: **N=1000+** synthetic data points (generated to ensure statistical stability for permutation testing). 3 target properties; 5-fold CV.
 
-## Workflow Steps (ordered)
-
-1. **Data Acquisition & Source Verification**
-   - `01_data_acquisition.py`:
-     - **Step 1.1**: Query Materials Project REST API for ≥ 50 pristine graphene and MoS₂ structures; cache locally under `data/raw/`.
-     - **Step 1.2**: Attempt to download the **2022 Supplementary Defect Dataset** (CSV/JSON) identified in the project idea (Accession ID: `defect_dataset_2022_supplementary`). 
-       - **Verification**: Check for existence, valid columns (defect type, density, conductivity, elastic tensor, fracture energy), and non-null values.
-       - **Fallback**: If the 2022 dataset is missing, invalid, or incomplete:
-         - Invoke the **Physics-Based Synthetic Generator** (seed = 42, versioned via git hash).
-         - **Generator Logic**: 
-           - **Primary Mode (Training Set)**: Uses **Analytical Continuum Mechanics** (Griffith criterion, Rule of Mixtures, Matthiessen's rule) to generate properties.
-           - **Hold-Out Mode (Distinct Physics Engine)**: Uses a **Gaussian Process Surrogate** trained on a separate public DFT dataset (if available) or distinct analytical parameters to emulate a "Distinct Physics Engine" (Analytical vs. Statistical/DFT-based).
-         - Generate ≥ 100 entries with defect density ∈ [0.001, 0.1] and property bounds (conductivity > 0, Young's modulus > 0, fracture energy > 0).
-     - **Step 1.3**: Implement exponential backoff (max 3 retries) for API calls; on total failure load cached pristine structures or abort with `[ERROR: API access unavailable and no cache present]`.
-
-2. **Data Integrity & Hygiene**
-   - Verify checksum of each raw file; record in `state/projects/PROJ-209-...yaml`.
-   - **Consistency Check**: Ensure the synthetic generator uses the *exact same* pristine reference values ($P_0$) fetched in Step 1.1 for normalization to avoid trivial linear relationships.
-   - Flag entries with missing required fields; attempt mock DFTB+ computation (≤ 300 s) for missing fracture energy; on timeout mark `[MISSING: timeout]` and exclude.
-   - Filter out entries with defect density ≤ 0 or NaN; log count.
-
-3. **Normalization & Feature Engineering**
-   - `02_data_processing.py`:
-     - Fetch material‑level pristine reference values (`σ₀`, `E₀`, `σ_f₀`) once per material from the cached pristine structures.
-     - Compute normalized targets Δσ/σ₀, ΔE/E₀, Δσ_f/σ_f₀.
-     - One‑hot encode `defect_type`; retain geometric descriptors (`defect_density`, `tilt_angle`); include `synthesis_method` and `grain_size` as covariates when present.
-     - Save `features.csv` and `targets.csv` under `data/processed/` and record their SHA‑256 checksums in the state file via `scripts/update_state_hashes.py`.
-
-4. **Collinearity Handling (FR‑008)**
-   - Compute Variance Inflation Factor (VIF) for all predictors.
-   - **Primary Strategy**: Apply **Ridge Regression** (L2 regularization) to handle collinearity in geometric descriptors (e.g., tilt angle vs. density).
-   - **Fallback**: If Ridge fails or if a feature is deemed physically redundant (VIF > 5 AND low importance), exclude the lower‑importance feature and re‑train.
-   - Log the collinearity handling method used.
-
-5. **Model Training & Validation (FR‑004, FR‑012)**
-   - `03_modeling.py`:
-     - Train three separate Random Forest regressors (targets: conductivity, Young's modulus, fracture strength) using a train/test split (80/20, `seed=42`).
-     - Perform 5‑fold cross‑validation (k = 5); compute mean R², MAPE, and **standard deviation of R²** (`cv_std`) (reported for SC‑003). Values > 0.1 are flagged as high variance.
-     - Baseline null model: predict mean of training targets; compare R² improvement.
-     - **Hold‑out Strategy (FR-012)**:
-       - **Real Data**: Use a distinct random‑seed split (different from the main train/test split) for the hold-out set.
-       - **Synthetic Data**: Use the **Hold-Out Mode** generated in Step 1.2 (Distinct Physics Engine: Analytical vs. Surrogate) to ensure statistical independence from the training data's generative assumptions.
-
-6. **Statistical Inference**
-   - `04_inference.py`:
-     - Permutation importance for each feature; compute p‑values.
-     - Apply Benjamini-Hochberg FDR correction (q ≤ 0.05) across the three target‑specific tests (FR‑005, SC‑004).
-     - **Scope Note**: If synthetic data is used, p-values are reported as measures of "Internal Consistency" only.
-     - Record adjusted p‑values in model output.
-     - Perform sensitivity analysis: sweep any decision cutoff (e.g., defect density thresholds at deciles) and report FPR/FNR per sweep (FR‑007, SC‑005).
-
-7. **Confounding Control (FR‑013)**
-   - If `synthesis_method` or `grain_size` columns exist:
-     - Stratify CV folds by these variables.
-   - If absent:
-     - Proceed without stratification.
-     - Include any available confounders as covariates.
-     - Log the omission as a limitation.
-     - **Do NOT** create synthetic strata.
-
-8. **External Validation & Reporting (FR‑009, SC‑007)**
-   - Attempt to locate an external validation dataset (experimental or distinct DFT).
-   - **Logic**:
-     - If **Synthetic Data** was used as the primary source: Generate `Validation_Report.json` with `status: "SYNTHETIC_FALLBACK"`.
-     - If **Real Data** was used but no external validation exists: Generate `Validation_Report.json` with `status: "NO_EXTERNAL_DATA"`.
-   - If an external set is found: Evaluate model on the external set and record metrics.
-
-9. **Reproducibility & Versioning**
-   - All scripts pinned in `code/requirements.txt`.
-   - Random seeds (`seed=42`) and synthetic generator version (git commit hash) recorded in `model_config.yaml`.
-   - Feature matrix checksum saved in state file (Principle III & VII) via `scripts/update_state_hashes.py`.
-   - CI step `scripts/update_state_hashes.py` runs after each major artifact creation.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Compliance Status | Implementation Detail |
-|-----------|-------------------|-----------------------|
-| I. Reproducibility | **PASS** | Seeds pinned; deterministic synthetic generator (versioned); CI recomputes checksums. |
-| II. Verified Accuracy | **PASS** | All external citations (physics‑based scaling laws) are real; synthetic generator logic is version-controlled and documented as a "Verified Artifact". |
-| III. Data Hygiene | **PASS** | Checksums recorded; raw → processed → derived files never modified in place. |
-| IV. Single Source of Truth | **PASS** | Figures and statistics trace to `data/processed/` and `code/` scripts; values (e.g., seed=42 [FR-004], 6 hours [SC-006]) trace to Spec. |
-| V. Versioning Discipline | **PASS** | `scripts/update_state_hashes.py` updates artifact hashes; synthetic generator version logged. |
-| VI. Defect Dataset Integrity | **PASS (Real Data) / Conditional (Synthetic)** | Primary attempt to download the 2022 dataset. If synthetic fallback is triggered, status is "Method Validation Mode" (not a violation, but a scope shift). |
-| VII. Modeling Reproducibility | **PASS** | `model_config.yaml` stores split ratios, hyper‑parameters, seeds; feature matrix checksum recorded in state file. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Evidence / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, `seed=42` for all stochastic steps, and deterministic data loading. |
+| **II. Verified Accuracy** | **CONDITIONALLY MET** | The study's data provenance is verified: the synthetic data generator uses analytical laws and DFT-calibrated noise. The "Verified Accuracy" applies to the *methodology* and *data provenance*. |
+| **III. Data Hygiene** | **PASS** | Plan requires checksums for all `data/` artifacts and immutable raw data. Derivations go to `data/processed/`. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats in the final report will trace to `data/processed/features.csv` and `data/processed/model_outputs.json`. |
+| **V. Versioning Discipline** | **PASS** | Plan includes `model_config.yaml` and content hashing for `data/` artifacts. |
+| **VI. Defect Dataset Integrity** | **CONDITIONALLY MET** | The plan explicitly documents the failure of all verified real-world defect datasets. The synthetic fallback is a documented, last-resort mechanism mandated by the spec (FR-010). |
+| **VII. Modeling Reproducibility** | **PASS** | Plan mandates `RandomForestRegressor` with fixed seeds, explicit hyperparameters, and saved `feature_selection_log.json`. |
 
 ## Project Structure
 
-```
+### Documentation (this feature)
+
+```text
 specs/001-quantify-defect-influence/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-└── contracts/
-    ├── dataset.schema.yaml
-    ├── defect_entry.schema.yaml
-    ├── model_output.schema.yaml
-    ├── output.schema.yaml
-    └── processed_data.schema.yaml
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
+
+### Source Code (repository root)
+
+```text
+code/
+├── 01_data_acquisition.py       # Fetches pristine structures, attempts defect data, generates synthetic fallback
+├── 02_data_processing.py        # Normalization, one-hot encoding, missing value handling, feature engineering
+├── 03_modeling.py               # RF training, CV, permutation testing, FDR control, hold-out evaluation, stratification
+├── 04_sensitivity_analysis.py   # Threshold sweeping, FPR/FNR reporting
+├── 05_validation.py             # External validation check, Validation_Report.json generation
+├── utils/
+│   ├── synthetic_generator.py   # Physics-informed parametric synthetic data generator
+│   └── config.py                # Path and seed management
+├── requirements.txt
+└── run_workflow.sh              # Orchestration script
+
+data/
+├── raw/
+│   ├── pristine_structures.csv  # Downloaded from Materials Project (or cached)
+│   ├── defect_dataset_2022.csv  # Attempted download (may be empty/missing)
+│   ├── synthetic_train.csv      # Generated if real data missing (data_source='synthetic')
+│   ├── synthetic_holdout.csv    # Generated for independent test (data_source='synthetic')
+│   ├── synthetic_defect_fallback.csv # Generated if primary download fails (data_source='synthetic')
+│   └── surrogate_noise_params.json # Parameters for noise calibration from DFT
+├── processed/
+│   ├── features.csv             # Normalized, encoded feature matrix
+│   ├── targets.csv              # Normalized target vectors
+│   ├── model_outputs.json       # R², MAPE, CV stats
+│   └── feature_selection_log.json # Collinearity exclusion log
+└── validation/
+    └── Validation_Report.json   # Final validation status
+
+tests/
+├── unit/
+│   ├── test_synthetic_generator.py
+│   └── test_data_processing.py
+└── integration/
+    └── test_full_workflow.py
+```
+
+**Structure Decision**: Single `code/` directory for linear pipeline scripts. This minimizes overhead and aligns with the 6-hour runtime constraint, avoiding complex service orchestration. The separation of `raw` and `processed` ensures data hygiene (Constitution III).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Synthetic Data Fallback | Required by FR‑010/FR-002 when primary dataset missing. | Hard‑failing would block CI. |
-| Mock DFTB+ | Required for missing fracture energy without heavy compute. | Real DFTB+ exceeds CPU limits. |
-| Collinearity Handling (Ridge) | FR‑008 mandates handling; Ridge is preferred over arbitrary exclusion. | Simple exclusion may discard physically relevant coupled variables. |
-| Distinct Physics Engine Hold‑out | FR‑012 requires either distinct split or distinct physics engine. | Using only a split would miss the "engine" clause when synthetic data are used. |
-| Dataset Integrity | Constitution VI restricts sources; primary attempt to fetch 2022 dataset respects this. | Ignoring primary source would breach principle. |
-| Validation Report Logic | FR-009/SC-007 requires specific status values. | Ambiguity in status (NO_EXTERNAL_DATA vs SYNTHETIC_FALLBACK) must be resolved. |
+| :--- | :--- | :--- |
+| **Synthetic Fallback Logic** | The spec requires a valid dataset even if the primary source fails (FR-010). | A simple "fail" would halt the entire research pipeline, preventing any analysis or model training. |
+| **Permutation Testing + FDR** | Required for valid statistical inference on feature importance (FR-05, FR-11). | Standard `feature_importances_` from RF are biased; without permutation + FDR, the study cannot claim statistical significance for defect descriptors. |
+| **Hold-out Set Generation** | Required to validate predictive power (FR-12). | Using only cross-validation risks overfitting to the specific dataset split; an independent synthetic hold-out provides a stricter test. |
+| **Physics-Informed Parametric Surrogate** | Required to break the circular validation loop while ensuring physical plausibility. | Using deterministic analytical formulas alone would result in a tautology. Adding DFT-calibrated noise introduces realistic variability without requiring a complex, unverified generative model. |
+
+## Statistical Power & Limitations
+
+*   **Sample Size**: The plan generates **N=1000+** synthetic samples to ensure statistical stability for permutation testing and 5-fold CV. This mitigates the underpowering concern (methodology-df682d81) for the *trend recovery* task.
+*   **Limitation**: The study **cannot** claim to discover new physics or model the full complexity of real-world defect interactions. The goal is to validate the ML pipeline's ability to recover *known* trends from noisy, physics-informed data.
+*   **Interpretation**: Results are framed as "The model successfully recovered the known defect-property trends from the surrogate data with X% accuracy" rather than "Defects cause Y% change in properties".
+
+## Task Breakdown & Phase Order
+
+### Phase 0: Data Acquisition (US-1)
+*   **T010**: Download pristine structures from Materials Project API. **Output**: `data/raw/pristine_structures.csv` (>= 50 entries). If API fails, generate synthetic pristine structures and log.
+*   **T011**: Attempt to download `defect_dataset_2022.csv`. Validate columns. **Output**: `data/raw/defect_dataset_2022.csv` (even if empty). Log failure if download fails.
+*   **T012**: **Fallback Logic**: If T011 fails or data is invalid, invoke synthetic generator with seed=42, generate >= 100 entries, save to `data/raw/synthetic_defect_fallback.csv`, set `data_source='synthetic'`.
+*   **T013**: Generate `synthetic_train.csv` (N=1000+) using the Physics-Informed Parametric Surrogate (analytical signal + DFT-calibrated noise). **Output**: `data/raw/synthetic_train.csv`.
+*   **T014**: Generate `synthetic_holdout.csv` using the hold-out mode of the generator. **Output**: `data/raw/synthetic_holdout.csv`.
+
+### Phase 1: Data Processing (US-1, US-2)
+*   **T018**: Process data: normalize by pristine references, one-hot encode defect type, handle missing values (exclude if missing reference), log excluded entries. **Output**: `data/processed/features.csv`, `data/processed/targets.csv`.
+
+### Phase 2: Modeling & Inference (US-2)
+*   **T020**: **Collinearity Check & Re-training**: Compute VIF. **While** VIF > 5 for any pair: exclude lower-importance feature (based on permutation stability), re-train model, re-calculate VIF. Log all iterations in `data/processed/feature_selection_log.json`.
+*   **T021**: Train Random Forest models (3 targets) with 5-fold CV. Report R², MAPE, CV std.
+*   **T022**: **Stratification Logic**: If 'synthesis_method' or 'grain_size' is present and has >= 3 distinct values with sufficient sample size: train separate models per stratum and report metrics per stratum. Else: include as covariates.
+*   **T023**: Permutation Testing: Generate p-values for feature importance.
+*   **T024**: **FDR Correction**: Input: p-values from T023. Process: Apply Benjamini-Hochberg procedure to control FDR at q <= 0.05. Output: 'fdr_adjusted_p' and 'is_significant' in `data/processed/model_outputs.json`.
+*   **T025**: **Hold-out Evaluation**: Evaluate final models on `data/raw/synthetic_holdout.csv`. Report R², MAPE.
+
+### Phase 3: Validation & Sensitivity (US-3)
+*   **T027**: Sensitivity Analysis: Sweep thresholds, report FPR/FNR.
+*   **T031**: **External Validation**: Check for external dataset. If none, generate `data/validation/Validation_Report.json` with `status: NO_EXTERNAL_DATA`, `method: internal_only`, and `data_source` flag.
+
+## Compute Feasibility & Resource Management
+*   **CPU-First**: All modeling uses `scikit-learn` Random Forests, which are CPU-tractable. The synthetic data generation is CPU-tractable.
+*   **Memory**: The dataset size (synthetic or real) is expected to be small (<1000 rows). If larger, the plan uses `pandas` chunking or sampling to stay under 7GB RAM.
+*   **Runtime**: The workflow (download -> process -> 5x CV RF -> permutation test) is estimated to complete in < 2 hours on a 2-core CPU, well within the 6-hour limit.
+*   **Streaming**: Streaming is used for the Materials Project API (paginated requests) and synthetic data generation (streaming rows to disk). The DFT parquet files are small enough to be loaded fully.

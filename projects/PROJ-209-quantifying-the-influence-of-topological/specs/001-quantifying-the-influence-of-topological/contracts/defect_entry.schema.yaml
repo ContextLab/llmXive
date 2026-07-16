@@ -1,58 +1,58 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "DefectEntry"
-description: "Schema for a single defect entry from the simulated or external dataset."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: DefectEntry Schema
+description: Schema for defect entry records (real or synthetic)
+type: object
 properties:
   defect_id:
-    type: "string"
-    description: "Unique identifier for the defect entry."
+    type: string
+    description: "Unique identifier for the defect entry"
+  material:
+    type: string
+    enum: ["graphene", "MoS2"]
+    description: "The base material"
   defect_type:
-    type: "string"
+    type: string
     enum: ["dislocation", "grain_boundary", "vacancy", "substitution"]
-    description: "Type of topological defect."
+    description: "Type of topological defect"
   defect_density:
-    type: ["number", "null"]
-    description: "Defect density as a fraction of atoms (must be > 0 if present)."
-  tilt_angle:
-    type: ["number", "null"]
-    description: "Geometric descriptor: tilt angle in degrees."
-  conductivity_raw:
-    type: ["number", "null"]
-    description: "Raw electronic conductivity (S/m)."
-  elastic_tensor:
-    type: ["array", "null"]
-    items:
-      type: "number"
-    description: "Flattened 6x6 elastic tensor components."
+    type: number
+    minimum: 0.0
+    maximum: 0.1
+    description: "Fraction of atoms affected by the defect"
+  geometric_descriptors:
+    type: object
+    properties:
+      tilt_angle:
+        type: number
+        description: "Grain boundary tilt angle in degrees"
+      width:
+        type: number
+        description: "Width of the defect region"
+    required:
+      - tilt_angle
+  conductivity:
+    type: number
+    minimum: 0.0
+    description: "Electronic conductivity (S/m)"
+  youngs_modulus:
+    type: number
+    minimum: 0.0
+    description: "Young's modulus (GPa)"
   fracture_energy:
-    type: ["number", "null"]
-    description: "Fracture energy (J/m²)."
-  pristine_ref_conductivity:
-    type: ["number", "null"]
-    description: "Reference conductivity for pristine material (computed with same potential)."
-  pristine_ref_modulus:
-    type: ["number", "null"]
-    description: "Reference Young's modulus for pristine material (computed with same potential)."
-  pristine_ref_strength:
-    type: ["number", "null"]
-    description: "Reference fracture strength for pristine material (computed with same potential)."
-  synthesis_method:
-    type: ["string", "null"]
-    description: "Method of creation (optional)."
-  grain_size:
-    type: ["number", "null"]
-    description: "Average grain size (optional, > 0)."
-  missing_flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of flags indicating missing data (e.g., 'fracture_energy_missing')."
-  source:
-    type: "string"
-    enum: ["simulation", "external"]
-    description: "Source of the data."
+    type: number
+    minimum: 0.0
+    description: "Fracture energy (J/m^2)"
+  data_source:
+    type: string
+    enum: ["real", "synthetic"]
+    description: "Origin of the data. MUST be 'synthetic' for generated data."
 required:
   - defect_id
+  - material
   - defect_type
-  - source
+  - defect_density
+  - conductivity
+  - youngs_modulus
+  - fracture_energy
+  - data_source
 additionalProperties: false

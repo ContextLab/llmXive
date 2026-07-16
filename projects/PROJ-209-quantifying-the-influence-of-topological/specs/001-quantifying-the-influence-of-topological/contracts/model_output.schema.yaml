@@ -1,62 +1,76 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelOutput"
-description: "Schema for model predictions and evaluation metrics."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for Random Forest model performance metrics
+type: object
 properties:
   model_id:
-    type: "string"
-    description: "Unique identifier for the model instance."
+    type: string
+    description: "Unique identifier for the model (e.g., 'conductivity_rf')"
   target_property:
-    type: "string"
-    enum: ["conductivity", "youngs_modulus", "fracture_strength"]
-    description: "The property being predicted."
-  hyperparameters:
-    type: "object"
-    description: "JSON object containing n_estimators, max_depth, etc."
-  seed:
-    type: "integer"
-    description: "Random seed used for reproducibility."
-  performance_metrics:
-    type: "object"
+    type: string
+    enum: ["conductivity", "youngs_modulus", "fracture_energy"]
+    description: "The property being predicted"
+  performance:
+    type: object
     properties:
-      r_squared:
-        type: "number"
-      mape:
-        type: "number"
-      cv_std:
-        type: "number"
-        description: "Standard deviation of R² across k=5 folds."
+      r2_train:
+        type: number
+      r2_test:
+        type: number
+      mape_test:
+        type: number
+      cv_r2_std:
+        type: number
+        description: "Standard deviation of R^2 across 5 folds"
     required:
-      - r_squared
-      - mape
-      - cv_std
-  predictions:
-    type: "array"
+      - r2_train
+      - r2_test
+      - mape_test
+      - cv_r2_std
+  feature_importance:
+    type: array
     items:
-      type: "object"
+      type: object
       properties:
-        entry_id:
-          type: "string"
-        actual_value:
-          type: "number"
-        predicted_value:
-          type: "number"
-        residual:
-          type: "number"
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+        p_value:
+          type: number
+        fdr_adjusted_p:
+          type: number
+        is_significant:
+          type: boolean
+          description: "True if p-value < FDR threshold"
       required:
-        - entry_id
-        - actual_value
-        - predicted_value
-        - residual
-  collinearity_method:
-    type: "string"
-    description: "Method used to handle collinearity (e.g., 'Ridge', 'Exclusion')."
+        - feature_name
+        - importance_score
+        - p_value
+        - fdr_adjusted_p
+        - is_significant
+  collinearity_flags:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_pair:
+          type: array
+          items:
+            type: string
+        vif:
+          type: number
+        action:
+          type: string
+          enum: ["excluded_lower_importance", "retained"]
+      required:
+        - feature_pair
+        - vif
+        - action
 required:
   - model_id
   - target_property
-  - hyperparameters
-  - seed
-  - performance_metrics
-  - predictions
-  - collinearity_method
+  - performance
+  - feature_importance
+  - collinearity_flags
 additionalProperties: false
