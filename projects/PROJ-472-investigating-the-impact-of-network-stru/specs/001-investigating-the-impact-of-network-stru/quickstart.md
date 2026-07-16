@@ -1,59 +1,63 @@
-# Quick Start Guide
+# Quickstart Guide: Network Structure & Avalanche Dynamics
 
-## Prerequisites
+## 1. Prerequisites
 - Python 3.9+
-- `pip` for dependency management.
-- Access to `data/raw` (OpenNeuro datasets) or network connectivity to download them.
+- MRtrix3 (for dMRI processing, installed separately)
+- MNE-Python
+- NetworkX, BCTpy, powerlaw, pandas, numpy, scipy
 
-## Installation
+## 2. Installation
 1. Clone the repository.
 2. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
-3. Set up environment variables (optional):
+3. Set up environment variables (optional, defaults are in `code/config.py`):
  ```bash
- cp.env.example.env
- # Edit.env with necessary paths/secrets
+ cp code/.env.example code/.env
+ # Edit.env if custom paths are needed
  ```
 
-## Running the Pipeline
-The main entry point is `code/main.py`. It orchestrates the entire workflow from data acquisition to statistical reporting.
+## 3. Data Acquisition
+The pipeline automatically downloads data from OpenNeuro `ds004231` upon first run.
+- **Note**: Ensure sufficient disk space (~10GB+).
+- **Constraint**: If `ds004231` is unreachable, the pipeline will halt with a clear error.
 
+## 4. Running the Pipeline
+Execute the main entry point:
 ```bash
-cd code
-python main.py
+python code/main.py
 ```
+This will:
+1. Download and verify data.
+2. Preprocess dMRI and EEG.
+3. Compute structural and avalanche metrics.
+4. Run statistical analysis (if N >= 10).
+5. Generate reports.
 
-### Execution Flow
-1. **Data Setup**: Checks `data/raw` and downloads `ds004230` if missing (streaming).
-2. **Preprocessing**: Converts dMRI to connectomes. Attempts EEG download (`ds004231`).
-3. **Simulation**: If EEG download fails, runs Wilson-Cowan simulation.
-4. **QC**: Filters subjects based on connectivity and signal quality.
-5. **Metrics**: Computes structural and avalanche metrics.
-6. **Analysis**: Runs correlations and permutation tests.
-7. **Reporting**: Generates `correlation_report.csv` or `null_result_report.md`.
+## 5. Output Location
+- **Processed Data**: `data/processed/`
+- **Results & Reports**: `data/results/`
+- **Logs**: `data/logs/`
 
-## Output Artifacts
-- `data/processed/avalanche_metrics.csv`: Per-subject avalanche statistics.
-- `data/results/correlation_report.csv`: Statistical associations (if N >= 10).
-- `data/results/null_result_report.md`: Null result protocol report (if N < 10).
-- `figures/sensitivity_sweep.png`: Stability of results across thresholds.
-
-## Troubleshooting
-- **Data Download Failures**: Ensure network connectivity. The pipeline will fail loudly if `ds004230` is unavailable.
-- **OOM Errors**: The pipeline uses streaming for large datasets. If issues persist, increase RAM or reduce batch size in `config.py`.
-- **Power-Law Convergence**: If fitting fails for a subject, that subject is excluded from correlation analysis (logged in `fitting_report.json`).
-
-## Validation
-Run the validation tasks to ensure integrity:
+## 6. Validation
+To verify the pipeline integrity:
 ```bash
-python main.py --validate-correlation-path
-python main.py --validate-null-path
+python code/main.py --validate
 ```
+This checks for:
+- Presence of required files.
+- Valid checksums.
+- Correct routing state (`routing_state.json`).
 
-## Documentation Location
-All documentation resides in `specs/001-investigating-the-impact-of-network-stru/`.
-- `research.md`: Research plan and methodology.
-- `data-model.md`: Data structures and formats.
+## 7. Troubleshooting
+- **Data Download Failed**: Check internet connection and OpenNeuro status. The pipeline does not support offline/fallback modes for the primary source.
+- **Insufficient Subjects**: If fewer than 10 subjects pass QC, a `insufficient_sample_report.md` will be generated in `data/results/`.
+- **Power-Law Convergence**: If fitting fails for a subject, they are excluded from the correlation matrix (logged in `fitting_report.json`).
+
+## 8. Documentation Path
+All project documentation resides in `specs/001-network-structure-avalanche-dynamics/`.
+- `research.md`: Research protocol.
+- `data-model.md`: Data structures.
 - `quickstart.md`: This guide.
+- **Deprecated**: The `docs/` directory is no longer used.

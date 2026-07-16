@@ -1,46 +1,50 @@
-# Research Plan: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
+# Research Protocol: Network Structure and Neural Avalanche Dynamics
 
-## Overview
-This research project investigates the statistical associations between structural brain network properties (derived from diffusion MRI) and neural avalanche dynamics (derived from EEG/MEG or simulated data). The primary hypothesis is that specific topological features of the structural connectome, such as rich-club organization and degree distribution, constrain the statistical properties of neural avalanches, particularly their size and duration distributions.
+## 1. Objective
+To investigate the statistical association between structural connectome properties (derived from dMRI) and neural avalanche dynamics (derived from resting-state EEG) in human subjects, specifically testing whether network topology influences the criticality of neural activity.
 
-## Research Questions
-1. **RQ1**: Do structural network metrics (degree, clustering, rich-club coefficient) correlate with neural avalanche exponents?
-2. **RQ2**: Is the power-law scaling of neural avalanches robust across different thresholding parameters?
-3. **RQ3**: How does the structural topology influence the criticality of neural dynamics?
+## 2. Data Sources
+- **Primary Source**: OpenNeuro dataset `ds004231` (FR-002).
+ - Contains both diffusion MRI (dMRI) and resting-state EEG recordings.
+ - **Strict Constraint**: The pipeline requires data from this specific source. If `ds004231` is unavailable, the pipeline halts and triggers the Null Result Protocol. No synthetic data or fallback to other datasets (e.g., HCP, ds004503) is permitted for the primary analysis.
+- **Structural Parcellation**: HCP-MMP1.0 (Glasser et al., 2016).
+ - Downloaded from the official HCP repository.
+ - Verified via SHA-256 checksum against the value stored in `code/config.py`.
 
-## Data Sources
-### Primary Source (dMRI)
-- **Dataset**: OpenNeuro ds004230
-- **Modality**: Diffusion MRI (tractography)
-- **Processing**: Converted to HCP-MMP parcellated adjacency matrices using MRtrix3 `tck2connectome`.
-- **Constraint**: Strict single-source constraint. No fallback to other datasets (e.g., ds004503) is permitted.
+## 3. Methodology
 
-### Secondary Source (EEG)
-- **Probe**: OpenNeuro ds004231 (FR-002)
-- **Status**: **Unavailable**. The pipeline attempts to download this dataset. If unavailable (HTTP 404 or empty), it fails loudly and triggers the simulation contingency path.
-- **Contingency**: Synthetic EEG generated via Wilson-Cowan equations driven by the structural connectomes.
+### 3.1 Data Acquisition & Preprocessing
+1. **dMRI Processing**:
+ - Tractography conversion to connectome matrices using MRtrix3 (`tck2connectome`).
+ - Mapping to HCP-MMP parcellation (180 regions per hemisphere).
+ - Quality Control: Exclusion of participants with disconnected graphs or >30% channel loss.
+2. **EEG Processing**:
+ - Band-pass filtering (1-40 Hz).
+ - Downsampling to 250 Hz.
+ - ICA-based artifact removal.
+ - **Strict Constraint**: If real EEG data from `ds004231` is missing, the pipeline raises `RuntimeError` and halts.
 
-## Methodology
-1. **Data Acquisition & Preprocessing**:
- - Download dMRI data (streaming enabled to prevent OOM).
- - Preprocess tractography to structural connectomes.
- - Attempt real EEG download; if failed, generate synthetic EEG using `code/data/simulate_EEG.py`.
-2. **Metric Computation**:
- - **Structural**: Node degree, mean clustering coefficient, rich-club coefficient (NetworkX, BCTpy).
- - **Dynamics**: Neural avalanche detection (75th percentile threshold on z-scored signal), size/duration calculation, power-law fitting (`powerlaw` package).
-3. **Statistical Analysis**:
- - Spearman rank correlation between structural metrics and avalanche exponents.
- - Non-parametric permutation tests (max-t method) for significance correction.
- - Sensitivity analysis across thresholds [0.70, 0.75, 0.80].
-4. **Reporting**:
- - Generate associational reports (no causal claims).
- - Validate null result protocol if N < 10 subjects.
+### 3.2 Metric Computation
+- **Structural Metrics**: Degree centrality, clustering coefficient, rich-club coefficient (NetworkX, BCTpy).
+- **Avalanche Metrics**:
+ - Z-score normalization of EEG signals.
+ - Thresholding at the 75th percentile of the z-scored distribution.
+ - Identification of spatiotemporal cascades.
+ - Power-law fitting of avalanche size and duration distributions (using `powerlaw` package).
 
-## Ethical Considerations
-- All data is anonymized and publicly available via OpenNeuro.
-- Synthetic data generation uses random seeds logged for reproducibility.
+### 3.3 Statistical Analysis
+- **Correlation**: Spearman rank correlation between structural metrics and avalanche exponents.
+- **Robustness**:
+ - Permutation testing (max-t correction) for family-wise error control.
+ - Sensitivity analysis across thresholds {0.70, 0.75, 0.80}.
+ - Collinearity diagnostics (VIF).
+- **Sample Size Gate**: If N < 10 participants pass QC, the correlation analysis is skipped, and a "Null Result" report is generated.
 
-## Limitations
-- Reliance on simulation for EEG dynamics due to data unavailability.
-- Cross-dataset registration is not performed (single-source constraint).
-- Power-law fit convergence failures are excluded from correlation analysis.
+## 4. Ethical Considerations
+- All data is from public, de-identified repositories (OpenNeuro).
+- No causal claims are made; findings are strictly framed as associational.
+
+## 5. Reproducibility
+- All random seeds are fixed in `code/config.py`.
+- Data integrity is enforced via SHA-256 checksums.
+- The pipeline is fully automated via `code/main.py`.

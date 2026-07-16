@@ -271,3 +271,534 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T04:44:05Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Stream datasets larger than 100MB, load smaller subsets into memory
+  claim_id: c_4c65409c
+  context: T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography
+    data AND resting-state EEG data from OpenNeuro ds004231. **MUST** stream the dataset
+    if size > 100MB, otherwise load into memory to handle small valid subsets efficiently.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_datasets_larger_than_100MB,_load_smaller_subsets_into
+  kind: entity_fact
+  raw_text: The pipeline MUST stream the dataset if size > 100MB, otherwise load into
+    memory to handle small valid subsets efficiently.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:24:03Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Default sensitivity thresholds 0.70, 0.75, 0.80
+  claim_id: c_4f24e78a
+  context: T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters.
+    **MUST** define `HCP_MMP_FILE_PATH` ... and `SENSITIVITY_THRESHOLDS` (default
+    list {0.70, 0.75, 0.80}).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default sensitivity thresholds are {0.70, 0.75, 0.80}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:24:24Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Exclude participants with more than 30% channels removed after ICA
+  claim_id: c_31e45f9e
+  context: 'T012 [US1] Implement quality control checks in `code/data/quality_control.py`.
+    **Real Data**: Exclude participants with >30% channels removed after ICA or disconnected
+    structural graphs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_more_than_30%25_channels_removed_aft
+  kind: magnitude
+  raw_text: Participants with >30% channels removed after ICA or disconnected structural
+    graphs are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:24:53Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Preprocess EEG with band-pass low-frequency to 40 Hz and downsample to
+    250 Hz
+  claim_id: c_31af973c
+  context: 'T011 [US1] Implement `code/data/preprocess_EEG.py` ... 2) If ds004231
+    data is present: preprocess (MNE band-pass low-frequency to 40 Hz, downsample
+    to 250 Hz, ICA artifact removal).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: EEG preprocessing involves band-pass low-frequency to 40 Hz and downsampling
+    to 250 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:25:15Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Use 75th percentile amplitude threshold from z-scored signal for avalanche
+    detection
+  claim_id: c_81f41756
+  context: T015 [US2] Implement `code/analysis/avalanches.py` ... 2) Calculate the
+    75th percentile amplitude threshold **from the z-scored signal distribution**.
+    3) Threshold the **z-scored signal** at that value to identify contiguous spatiotemporal
+    events across channels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_75th_percentile_amplitude_threshold_from_z-scored_signal
+  kind: entity_fact
+  raw_text: Avalanche detection uses the 75th percentile amplitude threshold from
+    the z-scored signal distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:25:56Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Flag collinearity if VIF is greater than or equal to 5
+  claim_id: c_81082308
+  context: "T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py`\
+    \ with flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_collinearity_if_VIF_is_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "Collinearity diagnostics flag variables with VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:26:16Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Halt correlation analysis if number of usable subjects is less than 10
+  claim_id: c_4775e177
+  context: 'T029c [US3] **Runtime Gate: Insufficient Sample Size**: ... 2) If N <
+    10: **HALT** correlation analysis, generate `data/results/insufficient_sample_report.md`...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_correlation_analysis_if_number_of_usable_subjects_is_le
+  kind: magnitude
+  raw_text: Correlation analysis halts if the number of usable subjects N is less
+    than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:27:29Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Optimize permutation loop to run within 6 hours on CPU-only
+  claim_id: c_670d30b4
+  context: "T027 Profile `code/analysis/stats.py` and optimize the permutation loop\
+    \ using multiprocessing and **chunked processing** to ensure total runtime \u2264\
+    \ 6 hours on CPU-only runner for **N=len(participants)** (SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation loop in stats.py must complete within 6 hours on a CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:27:42Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/research.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds004231 contains concurrent dMRI and resting-state
+    EEG recordings
+  claim_id: c_64e42024
+  context: 'Primary Source: OpenNeuro dataset `ds004231` (FR-002). This dataset contains
+    concurrent diffusion MRI (dMRI) and resting-state EEG recordings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds004231_contains_concurrent_dMRI_and_rest
+  kind: entity_fact
+  raw_text: This dataset contains concurrent diffusion MRI (dMRI) and resting-state
+    EEG recordings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:30:40Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/research.md
+  attempts: 1
+  canonical: HCP-MMP1.0 parcellation was created by Glasser et al. in 2016
+  claim_id: c_24251b07
+  context: 'Parcellation: HCP-MMP1.0 (Glasser et al., 2016) downloaded from the official
+    HCP repository.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HCP-MMP1.0 (Glasser et al., 2016) downloaded from the official HCP repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:30:55Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Stream datasets larger than 100MB
+  claim_id: c_30097974
+  context: T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography
+    data AND resting-state EEG data from OpenNeuro ds004231.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_datasets_larger_than_100MB
+  kind: entity_fact
+  raw_text: The pipeline MUST stream the dataset if size > 100MB, otherwise load into
+    memory to handle small valid subsets efficiently.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:31:45Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Exclude participants with more than 30 percent channels removed after
+    ICA
+  claim_id: c_e91c0f66
+  context: 'T012 [US1] Implement quality control checks in `code/data/quality_control.py`.
+    **Real Data**: Exclude participants with >30% channels removed after ICA or disconnected
+    structural graphs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_more_than_30_percent_channels_remo
+  kind: magnitude
+  raw_text: Exclude participants with >30% channels removed after ICA or disconnected
+    structural graphs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:32:11Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Preprocess EEG with band-pass to 40 Hz and downsample to 250 Hz
+  claim_id: c_14d23c43
+  context: 'T011 [US1] Implement `code/data/preprocess_EEG.py` to download and preprocess
+    **real** resting-state EEG recordings from **OpenNeuro ds004231** (FR-002). **Logic**:
+    ... 2) If ds004231 data is present: preprocess (MNE band-pass low-frequency to
+    40 Hz, downsample to 250 Hz, ICA artifact removal).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Preprocess MNE band-pass low-frequency to 40 Hz, downsample to 250 Hz,
+    ICA artifact removal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:32:30Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Downsample EEG to 250 Hz
+  claim_id: c_c9d9bc88
+  context: 'T011 [US1] Implement `code/data/preprocess_EEG.py` to download and preprocess
+    **real** resting-state EEG recordings from **OpenNeuro ds004231** (FR-002). **Logic**:
+    ... 2) If ds004231 data is present: preprocess (MNE band-pass low-frequency to
+    40 Hz, downsample to 250 Hz, ICA artifact removal).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Downsample to 250 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:33:04Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Calculate 75th percentile amplitude threshold from z-scored signal
+  claim_id: c_0cc94192
+  context: 'T015 [US2] Implement `code/analysis/avalanches.py` to detect neural avalanches
+    from **real** EEG (FR-004). **Logic**: ... 2) Calculate the 75th percentile amplitude
+    threshold **from the z-scored signal distribution**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_75th_percentile_amplitude_threshold_from_z-scored
+  kind: entity_fact
+  raw_text: Calculate the 75th percentile amplitude threshold from the z-scored signal
+    distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:33:47Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Flag VIF greater than or equal to 5
+  claim_id: c_2df5bcbd
+  context: "T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py`\
+    \ with flagging logic for VIF \u2265 5 (FR-009)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_VIF_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "Flag collinearity diagnostics (VIF) for VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:34:05Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Default sensitivity thresholds 0.70, 0.75, 0.80
+  claim_id: c_30fbd27f
+  context: 'T031 [US3] **Standardize Sensitivity Sweep Range**: Update `code/analysis/sensitivity.py`
+    to load threshold values from `code/config.py` or an environment variable (e.g.,
+    `SENSITIVITY_THRESHOLDS`). **MUST** use default values {0.70, 0.75, 0.80} if configuration
+    is missing or empty, and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use default sensitivity thresholds {0.70, 0.75, 0.80} if configuration
+    is missing or empty.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:34:19Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Halt correlation analysis if sample size is less than 10
+  claim_id: c_bade4ac8
+  context: 'T029c [US3] **Runtime Gate: Insufficient Sample Size**: Implement the
+    ''Insufficient Sample Protocol'' in `code/main.py` as an explicit **runtime gate**
+    task. **Logic**: ... 2) If N < 10: **HALT** correlation analysis, generate `data/results/insufficient_sample_report.md`,
+    write `data/processed/routing_state.json` with `path: insufficient_sample`, and
+    exit.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_correlation_analysis_if_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: 'If N < 10: HALT correlation analysis, generate `data/results/insufficient_sample_report.md`.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:35:12Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Continue correlation analysis if sample size is 10 or more
+  claim_id: c_69373dc0
+  context: 'T029c [US3] **Runtime Gate: Insufficient Sample Size**: Implement the
+    ''Insufficient Sample Protocol'' in `code/main.py` as an explicit **runtime gate**
+    task. **Logic**: ... 3) If N >= 10: **CONTINUE** to correlation analysis, generate
+    `data/results/correlation_report.csv`, write `data/processed/routing_state.json`
+    with `path: correlation`, and exit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If N >= 10: CONTINUE to correlation analysis, generate `data/results/correlation_report.csv`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:35:55Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Correlation report must contain at least 10 rows
+  claim_id: c_e994dc56
+  context: 'T029a [US3] **Validation A (Correlation Path)**: Run end-to-end validation
+    for **Correlation Path**. **Logic**: ... 2) If `path: correlation`: Assert `data/results/correlation_report.csv`
+    exists and contains >= 10 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_report_must_contain_at_least_10_rows
+  kind: magnitude
+  raw_text: Assert `data/results/correlation_report.csv` exists and contains >= 10
+    rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:36:12Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Permutation loop runtime must be less than or equal to 6 hours on CPU-only
+    runner
+  claim_id: c_92bec076
+  context: "T027 Profile `code/analysis/stats.py` and optimize the permutation loop\
+    \ using multiprocessing and **chunked processing** to ensure total runtime \u2264\
+    \ 6 hours on CPU-only runner for **N=len(participants)** (SC-006)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_loop_runtime_must_be_less_than_or_equal_to_6_hou
+  kind: magnitude
+  raw_text: "Ensure total runtime \u2264 6 hours on CPU-only runner for N=len(participants)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:36:34Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Download HCP-MMP1.0 parcellation file from official HCP repository
+  claim_id: c_fe330cfd
+  context: 'T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw
+    tractography (`.tck` format) to HCP-MMP (multiple parcels) adjacency matrices
+    using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation
+    file from the official HCP repository (URL: `).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download the HCP-MMP1.0 parcellation file from the official HCP repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:36:46Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Verify HCP-MMP file SHA-256 hash against config constant
+  claim_id: c_2ece2d15
+  context: T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw
+    tractography (`.tck` format) to HCP-MMP (multiple parcels) adjacency matrices
+    using MRtrix3 `tck2connectome`. ... **MUST** verify the file's SHA-256 hash against
+    the pre-verified `HCP_MMP_HASH` constant defined in `code/config.py` (calculated
+    by T004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the file's SHA-256 hash against the pre-verified `HCP_MMP_HASH`
+    constant defined in `code/config.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:37:25Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Download and preprocess real resting-state EEG from OpenNeuro ds004231
+  claim_id: c_ec676fdb
+  context: T011 [US1] Implement `code/data/preprocess_EEG.py` to download and preprocess
+    **real** resting-state EEG recordings from **OpenNeuro ds004231** (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_and_preprocess_real_resting-state_EEG_from_OpenNeur
+  kind: entity_fact
+  raw_text: Download and preprocess real resting-state EEG recordings from OpenNeuro
+    ds004231.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:37:59Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Attempt OpenNeuro ds004231 for dMRI and EEG data
+  claim_id: c_e20154a3
+  context: 'T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography
+    data AND resting-state EEG data from OpenNeuro ds004231. **Logic**: 1) Attempt
+    OpenNeuro ds004231 (contains both dMRI and EEG).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Attempt_OpenNeuro_ds004231_for_dMRI_and_EEG_data
+  kind: entity_fact
+  raw_text: Attempt OpenNeuro ds004231 (contains both dMRI and EEG).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:38:06Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Fallback to ds004503, HCP-YA, and HCP-Lifespan if ds004231 unavailable
+  claim_id: c_eff96924
+  context: 'T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography
+    data AND resting-state EEG data from OpenNeuro ds004231. **Logic**: ... 2) **FALLBACK**:
+    If ds004231 is unavailable (HTTP 404 or empty metadata), attempt ds004503, HCP-YA,
+    and HCP-Lifespan in sequence as authorized by spec Assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If ds004231 is unavailable (HTTP 404 or empty metadata), attempt ds004503,
+    HCP-YA, and HCP-Lifespan in sequence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:38:08Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Define sensitivity thresholds default list 0.70, 0.75, 0.80
+  claim_id: c_16442aa7
+  context: T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters.
+    **MUST** define `HCP_MMP_FILE_PATH` ... and `SENSITIVITY_THRESHOLDS` (default
+    list {0.70, 0.75, 0.80}).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define `SENSITIVITY_THRESHOLDS` (default list {0.70, 0.75, 0.80}).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:38:14Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/research.md
+  attempts: 1
+  canonical: HCP-MMP1.0 parcellation by Glasser et al. 2016
+  claim_id: c_ea88c5c8
+  context: 'Structural Parcellation: HCP-MMP1.0 (Glasser et al., 2016). Downloaded
+    from the official HCP repository.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Structural Parcellation: HCP-MMP1.0 (Glasser et al., 2016).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T10:39:32Z'

@@ -1,5 +1,5 @@
 """
-Unit tests for power-law model fitting (T016).
+Unit tests for power-law model fitting (T016) and convergence handling (T033, T038).
 """
 import pytest
 import numpy as np
@@ -7,6 +7,8 @@ import pandas as pd
 import tempfile
 import os
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+import logging
 
 # Import the module under test
 from analysis.fitting import (
@@ -52,6 +54,7 @@ def test_fit_power_law_model_success(sample_avalanche_sizes):
 def test_fit_power_law_model_insufficient_data():
     """Test fitting with too few data points."""
     result = fit_power_law_model([1, 2])
+    # Should fail gracefully, not crash
     assert 'error' in result or not result.get('fit_successful', False)
 
 def test_fit_power_law_model_empty_input():
@@ -104,3 +107,51 @@ def test_load_avalanche_sizes_from_store_missing_file(temp_data_dir):
     """Test loading when no files exist."""
     loaded = load_avalanche_sizes_from_store(temp_data_dir)
     assert loaded == {}
+
+def test_fit_power_law_convergence_failure_logs_error(caplog, sample_avalanche_sizes):
+    """
+    Test T033/T038: Verify that when powerlaw convergence fails, 
+    the function logs a specific error code and returns fit_successful=False.
+    """
+    # Mock the powerlaw.Fit to raise an exception or return a failure state
+    # We simulate a scenario where the fit fails due to convergence issues
+    with patch('powerlaw.Fit') as mock_fit_class:
+        # Configure the mock to raise a generic exception simulating convergence failure
+        mock_fit_instance = MagicMock()
+        mock_fit_instance.power_law.alpha = 2.5
+        # Simulate a failure in the comparison or fitting process
+        mock_fit_class.side_effect = Exception("Convergence failed: Optimization did not converge")
+        
+        with caplog.at_level(logging.ERROR):
+            result = fit_power_law_model(sample_avalanche_sizes)
+            
+            # Verify the result indicates failure
+            assert result.get('fit_successful') is False
+            assert 'error' in result
+            
+            # Verify the specific error code or message is logged
+            # The implementation should log a specific error code for this case
+            assert any("CONVERGENCE_FAIL" in record.message for record in caplog.records) or \
+                   any("Convergence failed" in record.message for record in caplog.records)
+
+def test_run_fitting_for_subject_handles_convergence_failure(caplog):
+    """
+    Test T033/T038: Verify that run_fitting_for_subject handles convergence failure
+    by excluding the participant (fit_successful=False) and logging the error.
+    """
+    # Prepare a dataset that might cause issues or mock the failure
+    small_data = [1, 2, 3] # Very small dataset often causes fitting issues
+    
+    with patch('powerlaw.Fit') as mock_fit_class:
+        mock_fit_class.side_effect = Exception("Convergence failed")
+        
+        with caplog.at_level(logging.ERROR):
+            result = run_fitting_for_subject("sub-fail", small_data)
+            
+            assert result['subject_id'] == "sub-fail"
+            assert result['fit_successful'] is False
+            assert result.get('alpha') is None
+            
+            # Ensure the error was logged so it can be excluded from correlation analysis
+            assert any("CONVERGENCE_FAIL" in record.message for record in caplog.records) or \
+                   any("Convergence failed" in record.message for record in caplog.records)

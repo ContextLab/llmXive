@@ -1,11 +1,22 @@
-- artifact_hash: 35db558eae28f5592bd6d24906a1d6c8ba3c63d2e40d127aec6cddb8ab162213
+- artifact_hash: 558eeee12893519aaf132d0f7c3c364994595556ab0cc94b7584e2481376a855
   artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.humanconnectome.org/storage/app/media/documentation/s1200/HCP_MMP1.0_Glasser2016.zip`
+  value: https://www.humanconnectome.org/study/hcp-young-adult/document/The
+  verification_status: unreachable
+  verified_against_url: https://www.humanconnectome.org/study/hcp-young-adult/document/The
+  verified_at: '2026-07-16T11:05:55.938740Z'
+- artifact_hash: 558eeee12893519aaf132d0f7c3c364994595556ab0cc94b7584e2481376a855
+  artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/example
   verification_status: mismatch
-  verified_against_url: https://www.humanconnectome.org/storage/app/media/documentation/s1200/HCP_MMP1.0_Glasser2016.zip
-  verified_at: '2026-07-16T01:07:13.742933Z'
+  verified_against_url: https://api.crossref.org/works/10.1234/example
+  verified_at: '2026-07-16T11:05:55.938740Z'
