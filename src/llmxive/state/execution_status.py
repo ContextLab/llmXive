@@ -352,6 +352,8 @@ def record_offload(
     *,
     status: str,
     kernel_ref: str,
+    reason: str | None = None,
+    evidence: list[str] | None = None,
     repo_root: Path | None = None,
 ) -> dict[str, Any]:
     """Persist the async GPU-offload tri-state (issue #367) on the record.
@@ -362,6 +364,13 @@ def record_offload(
     human_input_needed while a kernel is in flight (it stays IN_PROGRESS and
     keeps polling). The rest of the execution record (ok, reason, artifacts,
     failures, fix_rounds) is PRESERVED untouched.
+
+    ``reason``/``evidence`` (issue #1139 residual, AP4): when a completed offload
+    bundle FAILS the semantic gate (fabrication/hollow/no-deliverable) — or ends
+    in a terminal error — the caller passes the gate's diagnosis so the durable
+    offload sub-record carries WHY it failed, not just the bare ``failed``
+    status. Only meaningful for ``status='failed'``; omitted for pending/retrieved
+    transitions.
     """
     existing = load(project_id, repo_root=repo_root) or {}
     prior_rounds = existing.get("fix_rounds", 0)
@@ -386,6 +395,15 @@ def record_offload(
             "status": status,
             "kernel_ref": kernel_ref,
             "submitted_at": submitted_at,
+            # Durable failure diagnosis (issue #1139 AP4): why the bundle failed
+            # the semantic gate / how the kernel terminated. Empty for the
+            # pending/retrieved transitions that carry no failure.
+            "reason": (reason or "") if status == "failed" else "",
+            "evidence": (
+                [str(e)[:600] for e in (evidence or [])][:20]
+                if status == "failed"
+                else []
+            ),
         },
         "updated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
