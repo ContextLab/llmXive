@@ -1379,3 +1379,224 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T03:21:29Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: retrieve at least 500 valid records after filtering
+  claim_id: c_dfe696f8
+  context: 'Volume Goal: Aim to retrieve a volume of raw records sufficient to yield
+    at least 500 valid records after filtering (per FR-001).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P672: F01.658.500'
+      source_id: Q4503831
+      url: https://www.wikidata.org/wiki/Q4503831
+      value: '500'
+    filled: true
+  kind: magnitude
+  raw_text: Aim to retrieve a volume of raw records sufficient to yield at least 500
+    valid records after filtering.
+  resolved_value: '500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:08:00Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "standard deviation of R\xB2 across k=5 folds must be <= 0.05"
+  claim_id: c_575219b8
+  context: "Report average R\xB2, RMSE, MAPE and calculate standard deviation of R\xB2\
+    \ across the k=5 folds (must be <= 0.05). This metric satisfies SC-001."
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "Report average R\xB2, RMSE, MAPE and calculate standard deviation of\
+    \ R\xB2 across the k=5 folds (must be <= 0.05)."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:08:00Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha adjusted equals 0.017 for 3 tests
+  claim_id: c_bea45fed
+  context: "Apply Bonferroni correction (\u03B1_adj = 0.05 / 3 \u2248 0.017) for multiple\
+    \ hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1_adj = 0.05 / 3 \u2248 0.017) for\
+    \ multiple hypothesis tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:09:26Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier limit is 2 CPU cores
+  claim_id: c_67b97ef8
+  context: 'CPU Limit: The GitHub Actions free-tier limit is a hard constraint of
+    2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:09:58Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Mutual Information greater than 0.8 indicates strong dependency
+  claim_id: c_21173211
+  context: 'Log a descriptive note: ''MI > 0.8 indicates strong dependency; relationship
+    is descriptive, not causal.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mutual_Information_greater_than_0.8_indicates_strong_depende
+  kind: magnitude
+  raw_text: MI > 0.8 indicates strong dependency.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:10:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Heavy loops defined as loops with more than 10000 iterations
+  claim_id: c_a648c567
+  context: 'Deliverable: Generate artifacts/reports/performance_profile.json containing
+    loop timing and vectorization status. Criteria: ''Heavy loops'' are defined as
+    loops with > 10k iterations.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Heavy_loops_defined_as_loops_with_more_than_10000_iterations
+  kind: magnitude
+  raw_text: Define 'Heavy loops' as loops with > 10k iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:10:35Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: pipeline execution time must be under 6 hours
+  claim_id: c_5516e951
+  context: Add integration test in tests/integration/test_pipeline.py to verify end-to-end
+    execution (T009 -> T010 -> T011 -> T016 -> T012) within 6 hours and <7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:10:51Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: pipeline RAM usage must be under 7 GB
+  claim_id: c_5f8693fd
+  context: Add integration test in tests/integration/test_pipeline.py to verify end-to-end
+    execution (T009 -> T010 -> T011 -> T016 -> T012) within 6 hours and <7 GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_RAM_usage_must_be_under_7_GB
+  kind: magnitude
+  raw_text: The pipeline must use less than 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:11:13Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: model training uses 70/15/15 split for train/validation/test
+  claim_id: c_b67c07fc
+  context: Perform a 70/15/15 train/validation/test split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must perform a 70/15/15 train/validation/test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:11:39Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: RandomizedSearchCV uses k=5 for XGBoost tuning
+  claim_id: c_11f7c36f
+  context: Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning on the
+    training set only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute RandomizedSearchCV with k=5 for XGBoost hyperparameter tuning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:13:19Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "R\xB2 threshold citation references Fundamentals and Catalytic Applications\
+    \ of CeO\u2082-Based Materials 2016"
+  claim_id: c_441d3093
+  context: "The config.yaml MUST contain a non-empty string in the citation field\
+    \ referencing the community-standard benchmark (e.g., 'Fundamentals and Catalytic\
+    \ Applications of CeO\u2082-Based Materials, 2016')."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The R\xB2 threshold justification citation must reference 'Fundamentals\
+    \ and Catalytic Applications of CeO\u2082-Based Materials, 2016'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:13:48Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "R\xB2 sensitivity sweep range is 0.70 to 0.75"
+  claim_id: c_f2939698
+  context: Define the sensitivity sweep range as {0.70, 0.75} to strictly satisfy
+    the spec's {moderate, high} requirement (see SC-004 acceptance scenarios).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/R%C2%B2_sensitivity_sweep_range_is_0.70_to_0.75
+  kind: entity_fact
+  raw_text: "The sensitivity sweep range for R\xB2 is defined as {0.70, 0.75}."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:14:55Z'

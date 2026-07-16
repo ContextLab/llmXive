@@ -1,5 +1,5 @@
-'|cross fold perform script validation':
-  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
-  source_id: '2604.10702'
-  url: https://arxiv.org/abs/2604.10702
-  value: '5'
+'|after aim filtering least raw record retrieve sufficient valid volume yield':
+  quote: 'P672: F01.658.500'
+  source_id: Q4503831
+  url: https://www.wikidata.org/wiki/Q4503831
+  value: '500'

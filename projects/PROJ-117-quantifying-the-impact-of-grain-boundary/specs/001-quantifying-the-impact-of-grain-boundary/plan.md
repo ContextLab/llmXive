@@ -112,7 +112,7 @@ projects/PROJ-117-quantifying-the-impact-of-grain-boundary/
 4.  **Collinearity Check**: Run `code/diagnostics.py` to compute Mutual Information (MI) between misorientation and Σ value. If MI > 0.8, flag for feature selection (retain only one or use a combined feature).
 
 ### Phase 2: Model Training
-1.  **Split**: /15/15 Train/Val/Test split.
+1.  **Split**: //15 Train/Val/Test split.
 2.  **Tune**: `RandomizedSearchCV` with k=5 CV.
 3.  **Train**: XGBoost on the training set.
 

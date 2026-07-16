@@ -1,0 +1,52 @@
+# Sampling Configuration for Grain Boundary Diffusivity Pipeline
+#
+# Purpose:
+# This configuration file defines a reproducible sampling strategy to be used
+# ONLY when the full dataset cannot be processed within the project's compute
+# constraints (e.g., >7GB RAM or >6h runtime).
+#
+# Usage:
+# Referenced by code/data_streamer.py or preprocessing scripts when the
+# `--sample` flag is active or when memory limits are detected.
+#
+# Constraints:
+# - Must NOT be used as a default; full dataset processing is preferred.
+# - Must NOT fabricate data; only subsamples existing real data.
+# - Must document limitations in any final report.
+
+sampling_strategy:
+  # Strategy type: "head" (first N rows) or "random" (fixed seed random sample)
+  type: "head"
+  
+  # Number of records to retain if strategy is "head"
+  # This corresponds to itertools.islice(data, N)
+  sample_size: 500
+  
+  # Random seed for reproducibility if strategy is "random"
+  # Ignored if type is "head"
+  random_seed: 42
+
+limitations:
+  # Explicit statement of representativeness limitations
+  description: >
+    This sample consists of the first 500 records from the raw dataset stream.
+    While this ensures reproducibility and fits within memory constraints,
+    it may introduce selection bias if the data stream is not shuffled.
+    The first 500 records might over-represent specific material classes or
+    simulation conditions present at the beginning of the source list.
+    Results derived from this sample should be treated as preliminary and
+    verified against the full dataset when compute resources allow.
+  
+  # Specific risks associated with this sampling method
+  risks:
+    - "Potential bias towards materials listed first in the source API response."
+    - "May not capture rare grain boundary configurations present in the full tail of the dataset."
+    - "Statistical power is limited to the sample size (n=500)."
+
+validation:
+  # Minimum required records for the pipeline to proceed (FR-001)
+  min_required: 500
+  
+  # If the sample size is less than min_required, the pipeline MUST halt.
+  # This config enforces that the chosen sample_size >= min_required.
+  enforce_minimum: true
