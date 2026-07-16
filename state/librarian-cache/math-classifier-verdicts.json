@@ -1463,6 +1463,10 @@
     "classified_at": "2026-07-16T06:26:42Z",
     "verdict": false
   },
+  "PROJ-925-llmxive-follow-up-extending-lens-rethink::1.6.0": {
+    "classified_at": "2026-07-16T07:23:31Z",
+    "verdict": false
+  },
   "PROJ-927-llmxive-follow-up-extending-openrath-ses::1.6.0": {
     "classified_at": "2026-07-09T10:50:45Z",
     "verdict": false

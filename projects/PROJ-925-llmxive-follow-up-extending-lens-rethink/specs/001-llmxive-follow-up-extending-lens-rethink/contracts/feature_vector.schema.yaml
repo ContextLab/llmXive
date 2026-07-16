@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LinguisticFeatureVector Schema"
+description: "Schema for the extracted linguistic features used as predictors. Note: 'semantic_surprisal' is an operational proxy for semantic entropy."
+type: "object"
+properties:
+  caption_id:
+    type: "string"
+    description: "Foreign key to the caption record."
+  semantic_surprisal:
+    type: "number"
+    description: "Natural log of perplexity (ln(perplexity)). Operational proxy for semantic entropy."
+  syntactic_depth:
+    type: "integer"
+    description: "Maximum depth of the dependency parse tree."
+  noun_phrase_density:
+    type: "number"
+    description: "Ratio of noun phrase tokens to total tokens."
+  token_diversity:
+    type: "number"
+    description: "Ratio of unique tokens to total tokens."
+  caption_length:
+    type: "integer"
+    description: "Total token count (covariate to control for length effects)."
+  image_complexity:
+    type: "number"
+    description: "Optional proxy for image complexity (covariate)."
+  is_valid:
+    type: "boolean"
+    description: "True if feature extraction succeeded without errors."
+required:
+  - caption_id
+  - semantic_surprisal
+  - syntactic_depth
+  - noun_phrase_density
+  - token_diversity
+  - caption_length
+  - is_valid
+additionalProperties: false

@@ -1,0 +1,598 @@
+{
+  "fetched_at": "2026-07-16T07:23:59Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo\"",
+      "target_n": 5
+    },
+    "duration_seconds": 60.052,
+    "ended_at": "2026-07-16T07:23:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "training efficiency in text-to-image diffusion models"
+        ],
+        [
+          2,
+          "computational optimization for foundational image generation"
+        ],
+        [
+          3,
+          "parameter-efficient fine-tuning of text-to-image models"
+        ],
+        [
+          4,
+          "scalable training strategies for diffusion-based generative models"
+        ],
+        [
+          5,
+          "memory-efficient training pipelines for large-scale image synthesis"
+        ],
+        [
+          6,
+          "accelerating text-to-image model convergence"
+        ],
+        [
+          7,
+          "reducing computational cost in foundational generative AI"
+        ],
+        [
+          8,
+          "gradient checkpointing for text-to-image diffusion"
+        ],
+        [
+          9,
+          "sparse training methods for image generation models"
+        ],
+        [
+          10,
+          "low-rank adaptation (LoRA) for text-to-image diffusion"
+        ],
+        [
+          11,
+          "mixed-precision training in diffusion models"
+        ],
+        [
+          12,
+          "training dynamics of foundational text-to-image architectures"
+        ],
+        [
+          13,
+          "resource-constrained training for generative vision models"
+        ],
+        [
+          14,
+          "efficient attention mechanisms for text-to-image synthesis"
+        ],
+        [
+          15,
+          "distributed training optimization for large image models"
+        ],
+        [
+          16,
+          "energy-efficient training for foundational generative models"
+        ],
+        [
+          17,
+          "curriculum learning for text-to-image diffusion training"
+        ],
+        [
+          18,
+          "early stopping strategies for image generation model training"
+        ],
+        [
+          19,
+          "hardware-aware training algorithms for diffusion models"
+        ],
+        [
+          20,
+          "cost-effective pretraining for text-to-image foundational models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo\" computer science": 0,
+        "training efficiency in text-to-image diffusion models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "training compute scaling law image generation",
+      "Stable Diffusion XL efficiency diffusion transformer",
+      "FID score compute FLOPs benchmark",
+      "latent diffusion model sampling speedup",
+      "data pruning curriculum learning generative models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.21032"
+      ]
+    },
+    "per_query_hit_count": {
+      "FID score compute FLOPs benchmark": 3,
+      "Stable Diffusion XL efficiency diffusion transformer": 3,
+      "data pruning curriculum learning generative models": 3,
+      "latent diffusion model sampling speedup": 3,
+      "llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo\" computer science": 3,
+      "training compute scaling law image generation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2401.14688",
+          "rationale": "The paper focuses on bilingual text-to-image generation and vocabulary expansion for Chinese support, which does not address the user's specific question regarding \"training efficiency\" or the \"Lens\" framework mentioned in the query. While both fall under the broad domain of text-to-image models, the candidate paper lacks the specific mechanism (training efficiency analysis), variables, or foundational methodology required by the user's follow-up research question.",
+          "title": "Taiyi-Diffusion-XL: Advancing Bilingual Text-to-Image Generation with Large Vision-Language Model Support"
+        },
+        {
+          "primary_pointer": "2403.04279",
+          "rationale": "The candidate paper is a survey on \"controllable generation\" (adding conditions like depth maps or poses) which is a distinct research construct from the user's question about \"training efficiency\" and \"rethinking training\" for foundational models. While both concern text-to-image diffusion models, the paper does not measure the same mechanism, variables, or empirical baselines related to training efficiency, nor does it serve as a foundational reference for that specific topic.",
+          "title": "Controllable Generation with Text-to-Image Diffusion Models: A Survey"
+        },
+        {
+          "primary_pointer": "2305.16223",
+          "rationale": "The paper focuses on removing text prompts from text-to-image diffusion models to improve usability and reduce engineering effort, which is a distinct research goal from the user's question about \"training efficiency\" for foundational models. While both involve text-to-image diffusion, the candidate paper does not measure the same mechanism (training efficiency), variables, or domain constraints as the user's specific inquiry into extending the \"Lens\" work on efficiency.",
+          "title": "Prompt-Free Diffusion: Taking \"Text\" out of Text-to-Image Diffusion Models"
+        },
+        {
+          "primary_pointer": "2312.03397",
+          "rationale": "The paper focuses on a specific training algorithm (Generalized Contrastive Divergence) for Energy-Based Models and Diffusion Models, which does not address the user's specific question regarding \"training efficiency\" metrics, the \"Lens\" framework, or the specific follow-up analysis of that work. While it involves diffusion models, it lacks the direct connection to the user's defined mechanism (efficiency analysis of a specific prior work) or the specific variables required for a literature revi",
+          "title": "Generalized Contrastive Divergence: Joint Training of Energy-Based Model and Diffusion Model through Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T07:22:59Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"lens: rethinking training efficiency for foundational text-to-image mo\" computer science",
+      "raw": "llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demand substantial computational and memory resources, creating deployment challenges. Quantization-aware training (QAT) addresses these challenges by reducing model precision while maintaining performance. However, the scaling behavior of QAT, especially at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws often ignore key factors such as the number of training tokens and quantization granularity, which limits their applicability. This paper proposes a unified scaling law for QAT that models quantization error as a function of model size, training data volume, and quantization group size. Through 268 QAT experiments, we show that quantization error decreases as model size increases, but rises with more training tokens and coarser quantization granularity. To identify the sources of W4A4 quantization error, we decompose it into weight and activation components. Both components follow the overall trend of W4A4 quantization error, but with different sensitivities. Specifically, weight quantization error increases more rapidly with more training tokens. Further analysis shows that the activation quantization error in the FC2 layer, caused by outliers, is the primary bottleneck of W4A4 QAT quantization error. By applying mixed-precision quantization to address this bottleneck, we demonstrate that weight and activation quantization errors can converge to similar levels. Additionally, with more training data, weight quantization error eventually exceeds activation quantization error, suggesting that reducing weight quantization error is also important in such scenarios. These findings offer key insights for improving QAT research and development.",
+          "claimed_authors": [
+            "Mengzhao Chen",
+            "Chaoyi Zhang",
+            "Jing Liu",
+            "Yutao Zeng",
+            "Zeyue Xue",
+            "Zhiheng Liu",
+            "Yunshui Li",
+            "Jin Ma",
+            "Jie Huang",
+            "Xun Zhou",
+            "Ping Luo"
+          ],
+          "claimed_title": "Scaling Law for Quantization-Aware Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.14302"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Scaling Law for Quantization-Aware Training')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale autoregressive models have demonstrated remarkable capabilities in image generation. However, their sequential raster-scan decoding relies on strictly next-token prediction, making inference prohibitively expensive. Existing acceleration methods typically either introduce entirely new generation paradigms that necessitate costly pre-training from scratch, or enable parallel generation at the expense of a training-inference gap or altered prediction objectives. In this paper, we introduce FlashAR, a lightweight post-training adaptation framework that efficiently adapts a pre-trained raster-scan autoregressive model into a highly parallel generator based on two-way next-token prediction. Our key insight is that effective adaptation should minimize modifications to the pre-trained model's original training objective to preserve its learned prior. Accordingly, we retain the original AR head as a horizontal head for row-wise prediction and introduce a complementary, lightweight vertical head for column-wise prediction. To facilitate efficient adaptation, we branch the vertical head from an intermediate layer rather than the final layer, bypassing the inherent horizontal head bias. Moreover, since horizontal and vertical predictions capture complementary dependencies whose relative importance varies across target positions, we employ a learnable fusion gate to dynamically combine the two predictions at each position. To further reduce adaptation cost, we propose a two-stage adaptation pipeline: the vertical head is first initialized through adaptation from the pre-trained autoregressive model before jointly fine-tuned with backbone to adapt to the new decoding paradigm. Extensive experiments on LlamaGen and Emu3.5 show that FlashAR achieves up to a 22.9x speedup for 512x512 image generation through a lightweight post-training with merely 0.05% of the original training data.",
+          "claimed_authors": [
+            "Junkang Zhou",
+            "Yefei He",
+            "Feng Chen",
+            "Weijie Wang",
+            "Bohan Zhuang"
+          ],
+          "claimed_title": "FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09430"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='FlashAR: Efficient Post-Training Acceleration for Autoregressive Image Generation')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article, we propose an anomalous chaotic system of the scaling-law ordinary differential equations involving the Mandelbrot scaling law. This chaotic behavior shows the \"Wukong\" effect. The comparison among the Lorenz and scaling-law attractors is discussed in detail. We also suggest the conjecture for the fixed point theory for the fractal SL attractor. The scaling-law chaos may be open a new door in the study of the chaos theory.",
+          "claimed_authors": [
+            "Xiao-Jun Yang"
+          ],
+          "claimed_title": "A scaling law chaotic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='A scaling law chaotic system')",
+        "failed_at": "2026-07-16T07:23:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jump frequencies of 111In/Cd tracer atoms were measured for a series of layered phases LanCoIn3n+2 using the technique of perturbed angular correlation of gamma rays (PAC). The frequencies were determined by analysis of nuclear quadrupole relaxation produced by fluctuating electric field gradients. Samples were synthesized having nominal values n= 1, 2, 3, 5 and \\infty, with n=\\infty corresponding to the L12 phase LaIn3. The phases form heuristically from LaIn3 by replacing every (n+1)th (100) mixed plane of La and In atoms with a plane of Co-atoms. For the n=1 phase, LaCoIn5, jump frequencies were too small to detect. Two signals were observed, one for indium atoms next to the Co-planes and the other for more distant indium atoms. No relaxation was observed for atoms next to the Co-planes, indicating that there is no diffusion across the Co-planes. With increasing n, jump rates for the other In-atoms increased toward values observed for LaIn3. Jump frequency activation enthalpies for n= 3 and 5 were observed to be the same as for n=\\infty, suggesting the same diffusion mechanism. However, the jump-frequency prefactors were found to be smaller for small n, which is attributed to reductions in the connectivity of the diffusion sublattice. We conclude that diffusion in the layered phases is remarkably similar to diffusion in LaIn3 once the reduced connectivity is taken into account.",
+          "claimed_authors": [
+            "Randal Newhouse",
+            "Gary S. Collins"
+          ],
+          "claimed_title": "Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.2262"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusional jumps can produce fluctuating electric field gradients at nuclei of jumping atoms. Using perturbed angular correlation of gamma rays (PAC), jumps of probe atoms cause nuclear quadrupole relaxation that can be fitted to obtain the mean jump frequency. An overview is given of the application of this approach to highly ordered intermetallic compounds having the L12 (Cu3Au) crystal structure. New results are then presented for jump frequencies of 111In/Cd probe atoms in pseudo-binary L12 compounds of the forms In3(La1-xPrx) and (In1-xSnx)3La. For the mixed rare-earth system, jump frequencies are found to scale with composition between jump frequencies of the end-member phases In3La and In3Pr. However, for the mixed sp-element system, a large decrease in jump frequency is observed as Sn atoms substitute for In-atoms. This difference in behavior appears to depend on whether atomic disorder is on the diffusion sublattice (In-Sn substitution), as opposed to a neighboring sublattice (La-Pr substitution), whether or not there is a difference in diffusion mechanism between end-member phases, and/or whether or not there is a valence difference between the mixing atoms. All three conditions apply for only (In1-xSnx)3La.",
+          "claimed_authors": [
+            "Randal Newhouse",
+            "Justine Minish",
+            "Gary S. Collins"
+          ],
+          "claimed_title": "Diffusion in binary and pseudo-binary L12 indides, stannides, gallides and aluminides of rare-earth elements as studied using perturbed angular correlation of 111In/Cd",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.2261"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Diffusion in binary and pseudo-binary L12 indides, stannides, gallides and aluminides of rare-earth elements as studied using perturbed angular correlation of 111In/Cd')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Frechet Inception Distance (FID) is the de facto arbiter of image generation, yet most papers report just a single number from a single trained model using a single sampling seed. How reproducible is that number if we retrain the model, or merely resample from it? In this paper, we treat FID as a random variable on a two-axis panel of training and generation seeds, and measure its variance directly on several hundred SiT networks trained on class-conditional ImageNet 256x256. We report surprising findings: (a) Retraining the model using the same recipe with a different seed moves FID 3.2x more (in Inception feature space) than redrawing samples from a fixed network. (b) That gap is driven by three factors: random initialisation, data ordering, and the per-step Gaussian noise of the flow-matching loss. (c) Increasing compute or model size barely tightens the spread, holding the FID coefficient of variation (CoV) inside a 1-2% band. (d) Per-cell classifier-free-guidance tuning halves the spread but reshuffles which seeds work best, and a lucky training seed reaches the same FID with up to 2x less compute than an unlucky one. Based on these findings, we recommend a new FID evaluation protocol: evaluate under per-cell optimal guidance, treat any FID gap below the empirically measured ~1.3% CoV as inconclusive, and report an error bar over several training seeds rather than a single FID number.",
+          "claimed_authors": [
+            "Nicolas Dufour",
+            "Alexei A. Efros",
+            "Patrick Pérez"
+          ],
+          "claimed_title": "The FID Lottery: Quantifying Hidden Randomness in Generative-Model Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.20536"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='The FID Lottery: Quantifying Hidden Randomness in Generative-Model Evaluation')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper shows that two commonly used evaluation metrics for generative models, the Fréchet Inception Distance (FID) and the Inception Score (IS), are biased -- the expected value of the score computed for a finite sample set is not the true value of the score. Worse, the paper shows that the bias term depends on the particular model being evaluated, so model A may get a better score than model B simply because model A's bias term is smaller. This effect cannot be fixed by evaluating at a fixed number of samples. This means all comparisons using FID or IS as currently computed are unreliable.\n  We then show how to extrapolate the score to obtain an effectively bias-free estimate of scores computed with an infinite number of samples, which we term $\\overline{\\textrm{FID}}_\\infty$ and $\\overline{\\textrm{IS}}_\\infty$. In turn, this effectively bias-free estimate requires good estimates of scores with a finite number of samples. We show that using Quasi-Monte Carlo integration notably improves estimates of FID and IS for finite sample sets. Our extrapolated scores are simple, drop-in replacements for the finite sample scores. Additionally, we show that using low discrepancy sequence in GAN training offers small improvements in the resulting generator.",
+          "claimed_authors": [
+            "Min Jin Chong",
+            "David Forsyth"
+          ],
+          "claimed_title": "Effectively Unbiased FID and Inception Score and where to find them",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.07023"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Effectively Unbiased FID and Inception Score and where to find them')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diversity is an important criterion for many areas of machine learning (ML), including generative modeling and dataset curation. However, existing metrics for measuring diversity are often domain-specific and limited in flexibility. In this paper, we address the diversity evaluation problem by proposing the Vendi Score, which connects and extends ideas from ecology and quantum statistical mechanics to ML. The Vendi Score is defined as the exponential of the Shannon entropy of the eigenvalues of a similarity matrix. This matrix is induced by a user-defined similarity function applied to the sample to be evaluated for diversity. In taking a similarity function as input, the Vendi Score enables its user to specify any desired form of diversity. Importantly, unlike many existing metrics in ML, the Vendi Score does not require a reference dataset or distribution over samples or labels, it is therefore general and applicable to any generative model, decoding algorithm, and dataset from any domain where similarity can be defined. We showcase the Vendi Score on molecular generative modeling where we found it addresses shortcomings of the current diversity metric of choice in that domain. We also applied the Vendi Score to generative models of images and decoding algorithms of text where we found it confirms known results about diversity in those domains. Furthermore, we used the Vendi Score to measure mode collapse, a known shortcoming of generative adversarial networks (GANs). In particular, the Vendi Score revealed that even GANs that capture all the modes of a labeled dataset can be less diverse than the original dataset. Finally, the interpretability of the Vendi Score allowed us to diagnose several benchmark ML datasets for diversity, opening the door for diversity-informed data augmentation.",
+          "claimed_authors": [
+            "Dan Friedman",
+            "Adji Bousso Dieng"
+          ],
+          "claimed_title": "The Vendi Score: A Diversity Evaluation Metric for Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.02410"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='The Vendi Score: A Diversity Evaluation Metric for Machine Learning')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum machine learning (QML) requires significant quantum resources to address practical real-world problems. When the underlying quantum information exhibits hierarchical structures in the data, limitations persist in training complexity and generalization. Research should prioritize both the efficient design of quantum architectures and the development of learning strategies to optimize resource usage. We propose a framework called quantum curriculum learning (Q-CurL) for quantum data, where the curriculum introduces simpler tasks or data to the learning model before progressing to more challenging ones. Q-CurL exhibits robustness to noise and data limitations, which is particularly relevant for current and near-term noisy intermediate-scale quantum devices. We achieve this through a curriculum design based on quantum data density ratios and a dynamic learning schedule that prioritizes the most informative quantum data. Empirical evidence shows that Q-CurL significantly enhances training convergence and generalization for unitary learning and improves the robustness of quantum phase recognition tasks. Q-CurL is effective with physical learning applications in physics and quantum chemistry.",
+          "claimed_authors": [
+            "Quoc Hoan Tran",
+            "Yasuhiro Endo",
+            "Hirotaka Oshima"
+          ],
+          "claimed_title": "Quantum Curriculum Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.02419"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Quantum Curriculum Learning')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
+          "claimed_authors": [
+            "Datao Tang",
+            "Hao Wang",
+            "Yudeng Xin",
+            "Hui Qiao",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Zhiheng Yu",
+            "Xiangyong Cao"
+          ],
+          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.21391"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lens: Rethinking Training Efficiency for Foundatio', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
+        "failed_at": "2026-07-16T07:23:33Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenshuang Zhang",
+            "Chaoning Zhang",
+            "Mengchun Zhang",
+            "In So Kweon",
+            "Junmo Kim"
+          ],
+          "title": "Text-to-image Diffusion Models in Generative AI: A Survey",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.07909",
+        "summary": "This survey reviews the progress of diffusion models in generating images from text, ~\\textit{i.e.} text-to-image diffusion models. As a self-contained work, this survey starts with a brief introduction of how diffusion models work for image synthesis, followed by the background for text-conditioned image synthesis. Based on that, we present an organized review of pioneering methods and their improvements on text-to-image generation. We further summarize applications beyond image generation, such as text-guided generation for various modalities like videos, and text-guided image editing. Beyond the progress made so far, we discuss existing challenges and promising future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.07909",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T07:23:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dale Decatur",
+            "Thibault Groueix",
+            "Wang Yifan",
+            "Rana Hanocka",
+            "Vladimir Kim",
+            "Matheus Gadelha"
+          ],
+          "title": "Reusing Computation in Text-to-Image Diffusion for Efficient Generation of Image Sets",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.21032",
+        "summary": "Text-to-image diffusion models enable high-quality image generation but are computationally expensive. While prior work optimizes per-inference efficiency, we explore an orthogonal approach: reducing redundancy across correlated prompts. Our method leverages the coarse-to-fine nature of diffusion models, where early denoising steps capture shared structures among similar prompts. We propose a training-free approach that clusters prompts based on semantic similarity and shares computation in early diffusion steps. Experiments show that for models trained conditioned on image embeddings, our approach significantly reduces compute cost while improving image quality. By leveraging UnClip's text-to-image prior, we enhance diffusion step allocation for greater efficiency. Our method seamlessly integrates with existing pipelines, scales with prompt sets, and reduces the environmental and financial burden of large-scale text-to-image generation. Project page: https://ddecatur.github.io/hierarchical-diffusion/",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.21032",
+          "http_status": 200,
+          "pdf_sample_score": 0.1807,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T07:23:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"lens: rethinking training efficiency for foundational text-to-image mo\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

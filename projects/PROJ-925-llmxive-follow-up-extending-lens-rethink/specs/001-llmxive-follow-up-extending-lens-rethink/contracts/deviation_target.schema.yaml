@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DeviationScore Schema"
+description: "Schema for the target variable representing the alignment gap."
+type: "object"
+properties:
+  caption_id:
+    type: "string"
+    description: "Foreign key to the caption record."
+  deviation_score:
+    type: "number"
+    description: "Absolute difference between normalized CLIP and Human rating."
+  normalized_clip:
+    type: "number"
+    description: "CLIP score normalized to [0, 1]."
+  normalized_human:
+    type: "number"
+    description: "Human rating normalized to [0, 1]."
+required:
+  - caption_id
+  - deviation_score
+  - normalized_clip
+  - normalized_human
+additionalProperties: false

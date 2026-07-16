@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureImportanceRanking Schema"
+description: "Schema for the output of the permutation significance test."
+type: "object"
+properties:
+  feature_name:
+    type: "string"
+    description: "Name of the linguistic feature."
+  importance_score:
+    type: "number"
+    description: "Permutation importance score."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the null distribution test."
+  adjusted_p_value:
+    type: "number"
+    description: "p-value after Benjamini-Hochberg correction."
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted_p_value < 0.05."
+required:
+  - feature_name
+  - importance_score
+  - p_value
+  - adjusted_p_value
+  - is_significant
+additionalProperties: false

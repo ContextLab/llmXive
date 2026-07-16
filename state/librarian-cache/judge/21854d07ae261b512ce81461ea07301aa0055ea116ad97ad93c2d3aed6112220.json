@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.04279",
+  "judged_at": "2026-07-16T07:23:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"lens: rethinking training efficiency for foundational text-to-image mo\" computer science",
+  "rationale": "The candidate paper is a survey on \"controllable generation\" (adding conditions like depth maps or poses) which is a distinct research construct from the user's question about \"training efficiency\" and \"rethinking training\" for foundational models. While both concern text-to-image diffusion models, the paper does not measure the same mechanism, variables, or empirical baselines related to training efficiency, nor does it serve as a foundational reference for that specific topic.",
+  "relevant": false
+}
