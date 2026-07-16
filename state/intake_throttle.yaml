@@ -55,12 +55,16 @@ samples:
   backlog: 192
 - at: '2026-07-16T12:37:24.172259+00:00'
   backlog: 192
+- at: '2026-07-16T13:48:16.207413+00:00'
+  backlog: 192
+  wip: 579
 last_decision:
   requested: 5
   allowed: 0
   backlog: 192
   growth: 0
   window_hours: 24.0
-  kind: human
-  reason: backlog flat/draining over the window (growth=-2); full intake
-  decided_at: '2026-07-16T12:37:24.172259+00:00'
+  kind: auto
+  reason: damped to 0% by downstream-WIP-ceiling (idea growth=0, wip=579, wip growth=0,
+    ceiling=250)
+  decided_at: '2026-07-16T13:48:16.207413+00:00'
