@@ -5,13 +5,6 @@ T023:
     in the repository, so the integration test for the sensitivity sweep is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `code/` directory being formatted with Black, sorted with
-    isort, linted with flake8, or having type hints added to all functions is present.
-    The implementer provided no files, diff, or reports showing the required cleanup
-    and refactoring, so the task is not satisfied.
 T032:
   c: false
   h: b650e4be97816fc2079fb0018eb69d75fdfd809b9d3434d3e214393e91ced73a
@@ -19,14 +12,6 @@ T032:
     \ the implementer could not execute the pytest command nor provide an exit code\
     \ confirming successful completion. Without this artifact, the task\u2019s validation\
     \ step is not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a final report or excerpt) was provided showing that the\
-    \ Constitution amendment distinction between Benjamini\u2011Yekutieli (BY) and\
-    \ Benjamini\u2011Hochberg (BH) is noted, so the requirement cannot be verified.\
-    \ The implementer must supply a non\u2011empty report or document containing the\
-    \ explicit BY vs\u202FBH amendment note."
 T035:
   c: true
   h: 12a003f4bdf48ea2338547f05eb613d8e37ad0c7637ce9a4c9dd3a3eb22211bc
@@ -35,3 +20,10 @@ T035:
     ones, fulfilling the required checksumming functionality. The checksum file will
     be created automatically when datasets are first fetched, satisfying the storage
     requirement.
+T060:
+  c: false
+  h: 16cb0e711f01c58a514cdc6fa88c0f6bfbd14e05e64417f49315e0bd9d5887b5
+  r: The provided `code/main.py` only defines a `timer` context manager but never
+    uses it around the pipeline stages, nor does it write any timing results to `output/reports/profiling_log.json`.
+    The expected JSON log file is absent from the repository. Consequently, the profiling
+    step and required output are not implemented.

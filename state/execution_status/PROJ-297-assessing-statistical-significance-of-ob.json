@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 1, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-16T19:33:31Z"
+}

@@ -126,3 +126,67 @@ def plot_observed_vs_null_heatmap(
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
+
+
+def plot_sensitivity_results(
+    sensitivity_results: Dict[str, List[Dict[str, Any]]],
+    output_path: str,
+    title: str = "Sensitivity Analysis: Significant Findings vs Threshold"
+) -> None:
+    """Generate a line plot showing significant findings vs correlation threshold for all datasets.
+
+    This function aggregates sensitivity analysis results across multiple datasets
+    and produces a multi-line plot to visualize robustness of findings across thresholds.
+    As required by FR-005, this provides a visual summary of how significance counts
+    change with correlation thresholds.
+
+    Args:
+        sensitivity_results: Dictionary mapping dataset_id to list of sensitivity data.
+            Each sensitivity data entry must contain 'threshold' and 'significant_count'.
+        output_path: Path to save the output PNG file.
+        title: Title for the plot.
+    """
+    if not sensitivity_results:
+        raise ValueError("sensitivity_results cannot be empty")
+
+    plt.figure(figsize=(12, 8))
+
+    # Extract unique thresholds from all datasets to ensure consistent x-axis
+    all_thresholds = set()
+    for dataset_data in sensitivity_results.values():
+        for entry in dataset_data:
+            all_thresholds.add(entry["threshold"])
+    
+    sorted_thresholds = sorted(list(all_thresholds))
+
+    # Plot a line for each dataset
+    for dataset_id, data in sensitivity_results.items():
+        # Create a mapping from threshold to significant count
+        threshold_map = {entry["threshold"]: entry["significant_count"] for entry in data}
+        
+        # Get values for all thresholds (fill with 0 if not present)
+        y_values = [threshold_map.get(t, 0) for t in sorted_thresholds]
+        
+        plt.plot(
+            sorted_thresholds, 
+            y_values, 
+            marker='o', 
+            linestyle='-', 
+            label=dataset_id,
+            alpha=0.8
+        )
+
+    plt.xlabel("Correlation Threshold (|r|)", fontsize=12)
+    plt.ylabel("Number of Significant Findings", fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.legend(title="Dataset", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True, alpha=0.3, linestyle='--')
+    plt.xticks(sorted_thresholds)
+    
+    # Ensure x-axis shows all thresholds clearly
+    if len(sorted_thresholds) > 1:
+        plt.xlim(sorted_thresholds[0] - 0.02, sorted_thresholds[-1] + 0.02)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()

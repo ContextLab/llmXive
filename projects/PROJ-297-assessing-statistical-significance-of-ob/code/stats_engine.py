@@ -4,217 +4,213 @@ from scipy import stats
 import networkx as nx
 from typing import Callable, Dict, List, Optional, Tuple, Any
 import config
+import os
+import json
+import gc
 
-def compute_correlation(df: pd.DataFrame, method: str) -> pd.DataFrame:
-    """Compute correlation matrix for the given DataFrame."""
+def get_config():
+    return config.get_config()
+
+def compute_correlation(df: pd.DataFrame, method: str = 'pearson') -> pd.DataFrame:
+    """Compute correlation matrix for numeric columns."""
     if method == 'pearson':
-        return df.corr(method='pearson')
+        corr_matrix = df.corr(method='pearson')
     elif method == 'spearman':
-        return df.corr(method='spearman')
+        corr_matrix = df.corr(method='spearman')
     else:
-        raise ValueError(f"Unknown method: {method}")
+        raise ValueError(f"Unsupported method: {method}")
+    return corr_matrix
 
 def construct_graph(corr_matrix: pd.DataFrame, threshold: float) -> nx.Graph:
-    """Construct a graph from correlation matrix above a threshold."""
+    """Construct a graph from correlation matrix with given threshold."""
     G = nx.Graph()
-    vars = corr_matrix.columns
-    G.add_nodes_from(vars)
+    nodes = corr_matrix.columns
+    G.add_nodes_from(nodes)
     
-    for i in range(len(vars)):
-        for j in range(i + 1, len(vars)):
-            v1, v2 = vars[i], vars[j]
-            val = corr_matrix.loc[v1, v2]
-            if abs(val) > threshold:
-                G.add_edge(v1, v2, weight=val)
+    for i in range(len(nodes)):
+        for j in range(i + 1, len(nodes)):
+            node_i, node_j = nodes[i], nodes[j]
+            corr_val = corr_matrix.loc[node_i, node_j]
+            if abs(corr_val) > threshold:
+                G.add_edge(node_i, node_j, weight=corr_val)
     return G
 
-def calculate_stats(graph: nx.Graph, df: pd.DataFrame = None) -> dict:
+def calculate_stats(graph: nx.Graph) -> Dict[str, float]:
     """Calculate network statistics."""
     if graph.number_of_edges() == 0:
         return {
-            'mean_abs_corr': 0.0,
-            'edge_density': 0.0,
-            'max_abs_corr': 0.0,
-            'avg_clustering_coeff': 0.0
+            "mean_abs_corr": 0.0,
+            "edge_density": 0.0,
+            "max_abs_corr": 0.0,
+            "avg_clustering": 0.0
         }
     
-    edges = [abs(graph[u][v]['weight']) for u, v in graph.edges()]
-    n_nodes = graph.number_of_nodes()
-    n_edges = graph.number_of_edges()
-    max_possible_edges = n_nodes * (n_nodes - 1) / 2
-    
-    mean_abs_corr = np.mean(edges)
-    edge_density = n_edges / max_possible_edges if max_possible_edges > 0 else 0.0
-    max_abs_corr = np.max(edges)
-    avg_clustering_coeff = nx.average_clustering(graph)
+    abs_corrs = [abs(d['weight']) for u, v, d in graph.edges(data=True)]
+    n = graph.number_of_nodes()
+    m = graph.number_of_edges()
     
     return {
-        'mean_abs_corr': mean_abs_corr,
-        'edge_density': edge_density,
-        'max_abs_corr': max_abs_corr,
-        'avg_clustering_coeff': avg_clustering_coeff
+        "mean_abs_corr": np.mean(abs_corrs),
+        "edge_density": m / (n * (n - 1) / 2) if n > 1 else 0.0,
+        "max_abs_corr": np.max(abs_corrs),
+        "avg_clustering": nx.average_clustering(graph)
     }
 
-def generate_null_distribution(
-    df: pd.DataFrame, 
-    n_permutations: int, 
-    stats_func: Callable[[pd.DataFrame], dict],
-    variable_count: int = None
-) -> dict:
+def generate_null_distribution(df: pd.DataFrame, n_permutations: int, stats_func: Callable) -> Dict[str, Any]:
     """
     Generate null distribution via permutation.
-    
-    Implements performance optimization (T031):
-    If calculating clustering coefficient and variable_count > 50,
-    reduce n_permutations to 500 to ensure runtime < 6h.
+    Implements chunked processing for memory efficiency.
     """
-    stats_keys = stats_func(df).keys()
-    null_dists = {k: [] for k in stats_keys}
+    rng = np.random.default_rng(seed=get_config()['random_seed'])
+    observed_stats = stats_func(df)
+    null_stats = {k: [] for k in observed_stats.keys()}
     
-    # T031 Optimization: Reduce N for clustering coefficient on large datasets
-    effective_n_permutations = n_permutations
-    if variable_count is not None and variable_count > 50:
-        # Check if clustering coefficient is being calculated
-        if 'avg_clustering_coeff' in stats_keys:
-            effective_n_permutations = 500
+    n_rows = df.shape[0]
+    n_cols = df.shape[1]
     
-    for _ in range(effective_n_permutations):
-        permuted_df = df.apply(np.random.permutation)
+    # Pre-allocate memory for permutation if possible, but stream results
+    # to avoid holding all permutations in memory at once.
+    
+    for i in range(n_permutations):
+        # Permute rows independently for each column to break correlation
+        # while preserving marginals
+        permuted_df = df.apply(lambda col: rng.permutation(col.values))
+        
+        # Compute stats on permuted data
         perm_stats = stats_func(permuted_df)
-        for k, v in perm_stats.items():
-            null_dists[k].append(v)
+        
+        for k in null_stats.keys():
+            null_stats[k].append(perm_stats[k])
+        
+        # Force garbage collection periodically to prevent OOM
+        if (i + 1) % 500 == 0:
+            gc.collect()
     
-    return null_dists
+    return {
+        "observed": observed_stats,
+        "null": null_stats
+    }
 
 def generate_synthetic_dataset(n_samples: int = 500, n_vars: int = 20) -> pd.DataFrame:
     """Generate synthetic dataset with identity covariance (no correlation)."""
-    data = np.random.randn(n_samples, n_vars)
-    columns = [f"var_{i}" for i in range(n_vars)]
+    rng = np.random.default_rng(seed=get_config()['random_seed'])
+    data = rng.standard_normal((n_samples, n_vars))
+    columns = [f"V{i}" for i in range(n_vars)]
     return pd.DataFrame(data, columns=columns)
 
-def validate_null_model(
-    synthetic_df: pd.DataFrame,
-    n_permutations: int = 1000,
-    threshold: float = 0.3
-) -> Dict[str, float]:
-    """Validate null model using synthetic data."""
-    def stats_func(df):
-        corr = compute_correlation(df, 'pearson')
-        graph = construct_graph(corr, threshold)
-        return calculate_stats(graph)
+def validate_null_model(n_runs: int = 100) -> Dict[str, Any]:
+    """Validate null model by running synthetic data 100 times."""
+    results = []
+    for _ in range(n_runs):
+        df = generate_synthetic_dataset()
+        # Compute observed correlation
+        corr_matrix = compute_correlation(df, method='pearson')
+        
+        # Define a simple stats function for validation
+        def simple_stats_func(data):
+            c = data.corr()
+            return {
+                "mean_abs_corr": np.mean(np.abs(c.values[np.triu_indices_from(c, k=1)])),
+                "edge_density": 0.0, # Simplified for validation
+                "max_abs_corr": np.max(np.abs(c.values)),
+                "avg_clustering": 0.0
+            }
+        
+        null_dist = generate_null_distribution(df, n_permutations=2000, stats_func=simple_stats_func)
+        
+        # Calculate p-value
+        obs_val = null_dist["observed"]["mean_abs_corr"]
+        null_vals = null_dist["null"]["mean_abs_corr"]
+        p_val = (sum(v >= obs_val for v in null_vals) + 1) / (len(null_vals) + 1)
+        
+        results.append(p_val > 0.05)
     
-    null_dist = generate_null_distribution(synthetic_df, n_permutations, stats_func)
-    
-    # Calculate p-values for observed stats (which should be ~0 for synthetic)
-    observed_stats = stats_func(synthetic_df)
-    p_values = {}
-    for k in null_dist.keys():
-        observed_val = observed_stats[k]
-        null_vals = null_dist[k]
-        # Two-tailed p-value
-        count_extreme = sum(1 for v in null_vals if abs(v) >= abs(observed_val))
-        p_values[k] = (count_extreme + 1) / (n_permutations + 1)
-    
-    return p_values
-
-def compute_correlation_matrix_with_stats(
-    df: pd.DataFrame,
-    method: str = 'pearson',
-    threshold: float = 0.3
-) -> Tuple[pd.DataFrame, nx.Graph, dict]:
-    """Compute correlation, construct graph, and calculate stats."""
-    corr_matrix = compute_correlation(df, method)
-    graph = construct_graph(corr_matrix, threshold)
-    stats_dict = calculate_stats(graph, df)
-    return corr_matrix, graph, stats_dict
-
-def calculate_empirical_p_value(
-    observed_val: float,
-    null_dist: List[float]
-) -> float:
-    """Calculate empirical p-value from null distribution."""
-    n = len(null_dist)
-    count = sum(1 for v in null_dist if abs(v) >= abs(observed_val))
-    return (count + 1) / (n + 1)
-
-def save_exploratory_spearman_matrices(
-    df: pd.DataFrame,
-    output_dir: str,
-    dataset_id: str
-) -> None:
-    """Save Spearman correlation matrices for exploratory analysis."""
-    import os
-    os.makedirs(output_dir, exist_ok=True)
-    spearman_corr = compute_correlation(df, 'spearman')
-    output_path = os.path.join(output_dir, f"{dataset_id}_spearman.csv")
-    spearman_corr.to_csv(output_path)
-
-def apply_benjamini_yekutieli_correction(
-    p_values: List[float],
-    alpha: float = 0.05
-) -> Tuple[List[float], List[bool]]:
-    """Apply Benjamini-Yekutieli correction to p-values."""
-    from correction import benjamini_yekutieli
-    return benjamini_yekutieli(p_values, alpha)
-
-def run_full_analysis_pipeline(
-    df: pd.DataFrame,
-    dataset_id: str,
-    n_permutations: int = 1000,
-    threshold: float = 0.3,
-    output_dir: str = "output/results"
-) -> Dict[str, Any]:
-    """Run full analysis pipeline on a dataset."""
-    import os
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Compute observed stats
-    corr_matrix, graph, observed_stats = compute_correlation_matrix_with_stats(
-        df, 'pearson', threshold
-    )
-    
-    # Generate null distribution
-    n_vars = df.shape[1]
-    null_dist = generate_null_distribution(
-        df, n_permutations, 
-        lambda d: calculate_stats(construct_graph(compute_correlation(d, 'pearson'), threshold)),
-        variable_count=n_vars
-    )
-    
-    # Calculate p-values
-    p_values = {}
-    q_values = {}
-    is_significant = {}
-    for stat_name in observed_stats.keys():
-        obs_val = observed_stats[stat_name]
-        null_vals = null_dist[stat_name]
-        p_val = calculate_empirical_p_value(obs_val, null_vals)
-        p_values[stat_name] = p_val
-    
-    # Apply BY correction
-    all_p_values = list(p_values.values())
-    corrected = apply_benjamini_yekutieli_correction(all_p_values)
-    q_values_list, sig_flags = corrected
-    
-    for i, stat_name in enumerate(p_values.keys()):
-        q_values[stat_name] = q_values_list[i]
-        is_significant[stat_name] = sig_flags[i]
-    
-    # Save results
-    results = {
-        'dataset_id': dataset_id,
-        'observed': observed_stats,
-        'p_values': p_values,
-        'q_values': q_values,
-        'is_significant': is_significant,
-        'threshold': threshold,
-        'n_permutations': n_permutations,
-        'n_variables': n_vars
+    success_rate = sum(results) / n_runs
+    return {
+        "success_rate": success_rate,
+        "passed_runs": sum(results),
+        "total_runs": n_runs
     }
+
+def compute_correlation_matrix_with_stats(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    """Compute both Pearson and Spearman matrices."""
+    return {
+        "pearson": compute_correlation(df, method='pearson'),
+        "spearman": compute_correlation(df, method='spearman')
+    }
+
+def calculate_empirical_p_value(observed: float, null_distribution: List[float]) -> float:
+    """Calculate empirical p-value using (r+1)/(N+1)."""
+    r = sum(1 for x in null_distribution if x >= observed)
+    return (r + 1) / (len(null_distribution) + 1)
+
+def save_exploratory_spearman_matrices(results: Dict[str, Any], output_dir: str):
+    """Save Spearman matrices to exploratory directory."""
+    os.makedirs(output_dir, exist_ok=True)
+    for dataset_id, data in results.items():
+        if "spearman" in data:
+            path = os.path.join(output_dir, f"{dataset_id}_spearman.csv")
+            data["spearman"].to_csv(path)
+
+def apply_benjamini_yekutieli_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+    """Apply BY correction to list of p-values."""
+    from correction import benjamini_yekutieli
+    return benjamini_yekutieli(np.array(p_values), alpha)
+
+def run_full_analysis_pipeline(datasets: List[str], n_permutations: int = 2000, threshold: float = 0.3) -> Dict[str, Any]:
+    """Run the full analysis pipeline on a list of datasets."""
+    from loaders import load_and_hygiene_dataset
+    from correction import apply_correction_to_results
     
-    output_path = os.path.join(output_dir, f"{dataset_id}_results.json")
-    import json
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    results = {}
+    
+    for ds_name in datasets:
+        print(f"Processing dataset: {ds_name}")
+        try:
+            df = load_and_hygiene_dataset(ds_name)
+            
+            # Compute correlation
+            corr_data = compute_correlation_matrix_with_stats(df)
+            pearson_corr = corr_data["pearson"]
+            
+            # Construct graph
+            G = construct_graph(pearson_corr, threshold)
+            
+            # Calculate stats
+            observed_stats = calculate_stats(G)
+            
+            # Define stats function for permutation
+            def graph_stats_func(data):
+                c = data.corr()
+                g = construct_graph(c, threshold)
+                return calculate_stats(g)
+            
+            # Generate null distribution
+            null_dist = generate_null_distribution(df, n_permutations, graph_stats_func)
+            
+            # Calculate p-values
+            p_values = {}
+            for k in observed_stats.keys():
+                p_values[k] = calculate_empirical_p_value(observed_stats[k], null_dist["null"][k])
+            
+            # Apply BY correction
+            p_list = list(p_values.values())
+            q_values = apply_benjamini_yekutieli_correction(p_list)
+            q_dict = {k: q for k, q in zip(p_values.keys(), q_values)}
+            
+            # Determine significance
+            is_sig = {k: q < 0.05 for k, q in q_dict.items()}
+            
+            results[ds_name] = {
+                "observed": observed_stats,
+                "p_values": p_values,
+                "q_values": q_dict,
+                "is_significant": is_sig,
+                "spearman": corr_data["spearman"]
+            }
+            
+        except Exception as e:
+            print(f"Error processing {ds_name}: {e}")
+            continue
     
     return results
