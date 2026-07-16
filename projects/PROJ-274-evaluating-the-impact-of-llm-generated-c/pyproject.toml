@@ -7,68 +7,74 @@ name = "llmxive-proj-274"
 version = "0.1.0"
 description = "Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding"
 requires-python = ">=3.9"
-dependencies = [
-    "requests",
-    "pandas",
-    "scipy",
-    "statsmodels",
-    "scikit-learn",
-    "openai",
-    "transformers",
-    "llama-cpp-python",
-    "tiktoken",
-    "pyyaml",
-    "psutil",
-    "gitpython",
-    "ruff",
-    "black",
-]
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-exclude = [
-    ".git",
-    ".tox",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "data",
-    "scripts",
-]
-
-[tool.ruff.lint]
-select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "C",    # flake8-comprehensions
-    "B",    # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "C901", # too complex
-]
-
-[tool.ruff.lint.per-file-ignores]
-"data/*" = ["F401"]
-"tests/*" = ["F401"]
 
 [tool.black]
 line-length = 88
 target-version = ['py39']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
+  \.git
+  | \.hg
+  | \.mypy_cache
   | \.tox
+  | \.venv
+  | _build
+  | buck-out
   | build
   | dist
-  | venv
-  | .venv
   | data
-  | scripts
 )/
 '''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".tox",
+  ".venv",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "data",
+  "venv"
+]
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "C",  # flake8-comprehensions
+  "B",  # flake8-bugbear
+]
+ignore = [
+  "E501", # line too long (black handles this)
+  "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = false
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+  "unit: Unit tests",
+  "integration: Integration tests",
+  "contract: Contract tests",
+  "slow: Marks tests to be skipped by default"
+]

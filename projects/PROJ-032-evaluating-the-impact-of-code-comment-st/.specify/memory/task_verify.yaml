@@ -1,16 +1,8 @@
-? 'T006 [P] Implement `src/code/extract.py`: `extract_comments_ast()` using `tree-sitter`
-  to isolate comments from string literals; handle empty files and syntax errors gracefully.'
-: 1
-? 'T006b [P] Implement `src/code/metrics.py`: `calc_complexity()` using `radon` or
-  `ast` module to compute average cyclomatic complexity per function for a repository.'
-: 1
-? 'T007a [P] Implement `src/code/metrics.py`: `calc_readability()` using `textstat.flesch_kincaid_grade`
-  on extracted comments; handle empty comment sets by returning 0.0 and log event.'
-: 1
-? 'T007b [P] Implement `src/code/metrics.py`: `calc_sentiment()` using `TextBlob`
-  polarity on extracted comments; handle empty comment sets by returning 0.0 and log
-  event.'
-: 1
-? 'T007c [P] Implement `src/code/metrics.py`: `calc_churn()` using `git log --numstat`
-  to calculate total lines changed per commit; aggregate to repository level.'
-: 1
+T006: 1
+T007d: 1
+T007e: 1
+T015b: 1
+T015c: 1
+T016: 1
+T021: 1
+T025: 1

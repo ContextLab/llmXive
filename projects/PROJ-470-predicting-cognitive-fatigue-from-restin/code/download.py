@@ -5,216 +5,303 @@ import yaml
 import mne
 import pandas as pd
 from pathlib import Path
-import logging
+from datetime import datetime
 from utils.logging import get_logger
 
-# Ensure lempel-ziv-complexity is available if needed later, though not strictly for download
+# Attempt to import datasets for HuggingFace Hub access
 try:
-    import lz
+    from datasets import load_dataset
+    HF_AVAILABLE = True
 except ImportError:
-    pass
+    HF_AVAILABLE = False
+    # We will try to import it later if needed, but fail loud if not available
+    # and we need to fetch real data.
 
-def load_config(config_path="code/config.yaml"):
-    with open(config_path, 'r') as f:
+def load_config():
+    """Load configuration from code/config.yaml."""
+    config_path = Path(__file__).parent / "config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-def fetch_sleep_edf(config, logger):
+def fetch_sleep_edf(logger):
     """
-    Fetch Sleep-EDF dataset from PhysioNet using MNE.
-    Validates presence of EEG channels and attempts to find any annotations
-    that could serve as fatigue proxies (though Sleep-EDF is primarily sleep stages).
-    
-    Returns:
-        tuple: (dataframe_or_None, error_message_or_None)
-        If successful, returns a DataFrame with at least:
-        ['subject_id', 'eeg_available', 'annotations', 'n_epochs']
+    Fetch the Sleep-EDF dataset from HuggingFace Hub (PhysioNet ID: sleep-edf).
+    Returns a tuple (dataset, metadata_df) or (None, None) if failed.
+    Validates presence of EEG channels and fatigue ratings if available.
     """
-    logger.info("Attempting to fetch Sleep-EDF dataset from PhysioNet...")
-    try:
-        # MNE handles the download and extraction of PhysioNet datasets
-        # Sleep-EDF dataset identifier
-        dataset_name = "sleep-edf"
-        
-        # Try to load the dataset using MNE's built-in fetcher
-        # This will download to the default mne_data directory or config-specified path
-        data_path = mne.datasets.sleep_edf.data_path(download=True)
-        
-        if not data_path:
-            return None, "MNE failed to download Sleep-EDF dataset"
-        
-        # List available files to verify structure
-        # Sleep-EDF contains .edf files with EEG (Fpz-Cz, Pz-Oz) and other signals
-        # We check for the presence of EEG channels
-        files = Path(data_path).glob("*.edf")
-        edf_files = list(files)
-        
-        if not edf_files:
-            return None, "No .edf files found in downloaded Sleep-EDF"
-        
-        logger.info(f"Found {len(edf_files)} EDF files in Sleep-EDF dataset.")
-        
-        # Create a summary dataframe of available subjects
-        subjects = []
-        for f in edf_files[:100]: # Limit scan for performance
-            # Extract subject ID from filename (e.g., 'SC401E0.edf')
-            subj_id = f.stem.split('E')[0] if 'E' in f.stem else f.stem
-            
-            # Attempt to read header to confirm EEG channels
-            try:
-                raw = mne.io.read_raw_edf(str(f), preload=False, verbose=False)
-                ch_names = raw.ch_names
-                # Check for standard EEG channels in Sleep-EDF
-                has_eeg = any(ch in ch_names for ch in ['Fpz-Cz', 'Pz-Oz'])
-                
-                # Check for annotations (sleep stages, but not fatigue ratings)
-                has_annotations = raw.annotations is not None and len(raw.annotations) > 0
-                
-                # CRITICAL: Sleep-EDF does NOT contain pre/post fatigue ratings.
-                # Per FR-001, we need 'paired pre/post fatigue ratings'.
-                # We must report this absence accurately.
-                subjects.append({
-                    'subject_id': subj_id,
-                    'file': f.name,
-                    'eeg_available': has_eeg,
-                    'has_annotations': has_annotations,
-                    'has_fatigue_ratings': False, # Known limitation of Sleep-EDF
-                    'note': 'Sleep-EDF lacks pre/post fatigue ratings'
-                })
-            except Exception as e:
-                logger.warning(f"Could not read {f.name}: {e}")
-                continue
-        
-        df = pd.DataFrame(subjects)
-        
-        # Validate: Do we have the required variables?
-        # Required: 'pre_fatigue', 'post_fatigue'
-        # Sleep-EDF has none.
-        if 'has_fatigue_ratings' in df.columns and not df['has_fatigue_ratings'].any():
-            return None, "Dataset lacks required pre/post fatigue ratings per FR-001"
-        
-        return df, None
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch Sleep-EDF: {str(e)}")
-        return None, str(e)
+    if not HF_AVAILABLE:
+        logger.error("HuggingFace 'datasets' library not installed. Cannot fetch Sleep-EDF.")
+        return None, None
 
-def fetch_shhs(config, logger):
-    """
-    Fetch SHHS (Sleep Heart Health Study) dataset as fallback.
-    SHHS is a large sleep study. We check if it contains the required fatigue metrics.
-    Note: SHHS is typically accessed via specific repositories or large downloads,
-    and standard MNE fetchers might not cover the specific cognitive fatigue subset.
-    """
-    logger.info("Attempting to fetch SHHS dataset as fallback...")
+    dataset_id = "sleep-edf"
+    logger.info(f"Attempting to fetch Sleep-EDF dataset (ID: {dataset_id})...")
     try:
-        # SHHS is not directly available via a simple MNE fetcher like Sleep-EDF.
-        # It usually requires registration with the NHLBI BioLINCC or similar.
-        # For this pipeline, we attempt to check availability via a known proxy or 
-        # acknowledge the difficulty in programmatic access without credentials.
+        # Load the dataset. We use streaming=False to load metadata for validation.
+        # Note: Sleep-EDF on HF might be split into 'train'/'test' or similar.
+        # We attempt to load the full dataset or the first split if necessary.
+        ds = load_dataset(dataset_id, split="train", trust_remote_code=True)
         
-        # We will simulate a check that fails due to lack of direct programmatic access
-        # or lack of specific fatigue labels in the public subset.
-        # In a real production environment, this would require API keys or manual download.
+        # Check if dataset has required columns for fatigue or at least EEG
+        # Sleep-EDF typically has 'sleep', 'stages', 'eeg', etc.
+        # We need to verify if it has a 'fatigue' or 'rating' column.
+        # Based on standard Sleep-EDF, it often lacks explicit 'fatigue' ratings.
+        # We check for EEG channels first.
         
-        # Since we cannot programmatically fetch the specific fatigue-rated subset
-        # without external credentials not provided in the config, we return failure.
-        return None, "SHHS requires external credentials/registration not available in this environment"
+        has_eeg = False
+        has_fatigue = False
         
-    except Exception as e:
-        logger.error(f"Failed to fetch SHHS: {str(e)}")
-        return None, str(e)
-
-def validate_dataset(data, logger):
-    """
-    Validate presence of resting-state EEG and paired pre/post fatigue ratings.
-    """
-    if data is None:
-        return False, "No data provided"
-    
-    # Check for required columns if data is a DataFrame
-    if isinstance(data, pd.DataFrame):
-        # We need a column indicating fatigue ratings exist
-        # In our fetch logic, we set 'has_fatigue_ratings'
-        if 'has_fatigue_ratings' in data.columns:
-            if not data['has_fatigue_ratings'].any():
-                return False, "No records with fatigue ratings found"
+        # Check columns
+        cols = ds.column_names
+        logger.info(f"Sleep-EDF columns: {cols}")
+        
+        # Look for EEG related columns (e.g., 'eeg', 'eeg_data', 'channel')
+        eeg_cols = [c for c in cols if 'eeg' in c.lower() or 'channel' in c.lower()]
+        if eeg_cols:
+            has_eeg = True
+            logger.info(f"Found EEG-related columns: {eeg_cols}")
+        
+        # Look for fatigue/rating columns
+        fatigue_cols = [c for c in cols if 'fatigue' in c.lower() or 'rating' in c.lower() or 'score' in c.lower()]
+        if fatigue_cols:
+            has_fatigue = True
+            logger.info(f"Found fatigue/rating-related columns: {fatigue_cols}")
+        
+        # Count valid participants (N)
+        # We assume each row or group of rows represents a participant.
+        # For simplicity, we count unique 'subject' or 'id' if available, else total rows.
+        if 'subject' in cols:
+            n = ds['subject'].unique().size if hasattr(ds['subject'].unique(), 'size') else len(ds['subject'].unique())
+        elif 'id' in cols:
+            n = ds['id'].unique().size if hasattr(ds['id'].unique(), 'size') else len(ds['id'].unique())
         else:
-            # Fallback check for explicit columns
-            required_cols = ['pre_fatigue', 'post_fatigue']
-            if not all(col in data.columns for col in required_cols):
-                return False, f"Missing required columns: {required_cols}"
-            
-        return True, "Validation passed"
-    
-    return False, "Data is not a DataFrame"
+            n = len(ds)
+        
+        logger.info(f"Sleep-EDF participant count (N): {n}")
+        
+        # Validate: Must have EEG and Fatigue ratings, and N >= 30
+        if not has_eeg:
+            logger.warning("Sleep-EDF lacks EEG channels.")
+            return None, None
+        
+        if not has_fatigue:
+            logger.warning("Sleep-EDF lacks explicit fatigue ratings. This dataset may not meet FR-001.")
+            # We return it anyway but mark as missing fatigue, so the caller can decide to fallback.
+            # However, the task says: "Validate presence of both resting-state EEG and paired pre/post fatigue ratings"
+            # If missing, we should NOT use it as a valid source for this specific study.
+            return None, None
 
-def write_validation_report(report_data, output_path, logger):
+        if n < 30:
+            logger.warning(f"Sleep-EDF N={n} is less than required 30.")
+            return None, None
+
+        # Create a simple metadata dataframe
+        # We extract subject IDs and any available fatigue scores
+        metadata = pd.DataFrame({
+            'subject': ds['subject'] if 'subject' in cols else ds['id'] if 'id' in cols else range(len(ds)),
+            'fatigue_pre': ds['fatigue_pre'] if 'fatigue_pre' in cols else None, # Placeholder
+            'fatigue_post': ds['fatigue_post'] if 'fatigue_post' in cols else None, # Placeholder
+        })
+        
+        # If fatigue columns exist, populate them
+        if 'fatigue_pre' in cols:
+            metadata['fatigue_pre'] = ds['fatigue_pre']
+        if 'fatigue_post' in cols:
+            metadata['fatigue_post'] = ds['fatigue_post']
+        
+        logger.info("Sleep-EDF validation passed.")
+        return ds, metadata
+
+    except Exception as e:
+        logger.error(f"Failed to fetch Sleep-EDF: {e}")
+        return None, None
+
+def fetch_shhs(logger):
     """
-    Write validation report to JSON.
+    Fetch the SHHS dataset as a fallback.
+    SHHS (Sleep Heart Health Study) is large and complex.
+    We attempt to load a subset or a specific split if available on HF.
+    Returns (dataset, metadata_df) or (None, None).
     """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=2)
+    if not HF_AVAILABLE:
+        logger.error("HuggingFace 'datasets' library not installed. Cannot fetch SHHS.")
+        return None, None
+
+    dataset_id = "shhs" # Hypothetical ID, SHHS might be under a different name or require specific access
+    # Actual SHHS on HF might be 'physionet/sleep-edf' or similar. 
+    # Let's try a common identifier or fallback to a known subset if available.
+    # Since SHHS is often restricted, we might not have direct access without credentials.
+    # We try a public subset if it exists.
+    
+    logger.info("Attempting to fetch SHHS dataset as fallback...")
+    
+    # Try to load a public subset if available
+    # Note: SHHS is often not fully public on HF without registration.
+    # We will attempt a generic load and catch errors.
+    try:
+        # Attempting a generic load, might fail if not public
+        ds = load_dataset(dataset_id, split="train", trust_remote_code=True)
+        
+        has_eeg = False
+        has_fatigue = False
+        cols = ds.column_names
+        
+        # Check for EEG
+        eeg_cols = [c for c in cols if 'eeg' in c.lower() or 'channel' in c.lower()]
+        if eeg_cols:
+            has_eeg = True
+        
+        # Check for fatigue
+        fatigue_cols = [c for c in cols if 'fatigue' in c.lower() or 'rating' in c.lower() or 'score' in c.lower()]
+        if fatigue_cols:
+            has_fatigue = True
+        
+        # Count N
+        if 'subject' in cols:
+            n = ds['subject'].unique().size if hasattr(ds['subject'].unique(), 'size') else len(ds['subject'].unique())
+        elif 'id' in cols:
+            n = ds['id'].unique().size if hasattr(ds['id'].unique(), 'size') else len(ds['id'].unique())
+        else:
+            n = len(ds)
+        
+        if not has_eeg:
+            logger.warning("SHHS lacks EEG channels.")
+            return None, None
+        
+        if not has_fatigue:
+            logger.warning("SHHS lacks explicit fatigue ratings.")
+            return None, None
+        
+        if n < 30:
+            logger.warning(f"SHHS N={n} is less than required 30.")
+            return None, None
+        
+        metadata = pd.DataFrame({
+            'subject': ds['subject'] if 'subject' in cols else ds['id'] if 'id' in cols else range(len(ds)),
+            'fatigue_pre': ds['fatigue_pre'] if 'fatigue_pre' in cols else None,
+            'fatigue_post': ds['fatigue_post'] if 'fatigue_post' in cols else None,
+        })
+        
+        if 'fatigue_pre' in cols:
+            metadata['fatigue_pre'] = ds['fatigue_pre']
+        if 'fatigue_post' in cols:
+            metadata['fatigue_post'] = ds['fatigue_post']
+        
+        logger.info("SHHS validation passed.")
+        return ds, metadata
+
+    except Exception as e:
+        logger.error(f"Failed to fetch SHHS: {e}")
+        return None, None
+
+def validate_dataset(dataset, metadata, source_name, logger):
+    """
+    Validate the dataset and metadata.
+    Returns True if valid, False otherwise.
+    """
+    if dataset is None:
+        logger.error(f"{source_name} dataset is None.")
+        return False
+    
+    if metadata is None or metadata.empty:
+        logger.error(f"{source_name} metadata is empty.")
+        return False
+    
+    # Check for required columns in metadata
+    required_cols = ['subject', 'fatigue_pre', 'fatigue_post']
+    missing_cols = [c for c in required_cols if c not in metadata.columns]
+    if missing_cols:
+        logger.error(f"{source_name} metadata missing required columns: {missing_cols}")
+        return False
+    
+    # Check for non-null fatigue values
+    if metadata['fatigue_pre'].isna().all() and metadata['fatigue_post'].isna().all():
+        logger.error(f"{source_name} has no valid fatigue ratings.")
+        return False
+    
+    logger.info(f"{source_name} dataset validated successfully.")
+    return True
+
+def write_validation_report(report_data, logger):
+    """
+    Write the validation report to data/processed/validation_report.json.
+    """
+    output_dir = Path(__file__).parent.parent / "data" / "processed"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "validation_report.json"
+    
+    with open(output_path, "w") as f:
+        json.dump(report_data, f, indent=2, default=str)
+    
     logger.info(f"Validation report written to {output_path}")
 
 def main():
-    config = load_config()
-    logger = get_logger("download", config)
-    
+    """
+    Main entry point for the download and validation pipeline.
+    """
+    logger = get_logger(__name__)
     logger.info("Starting data retrieval and validation pipeline.")
     
-    raw_path = Path(config['paths']['raw_data'])
-    raw_path.mkdir(parents=True, exist_ok=True)
+    config = load_config()
     
-    # Primary attempt: Sleep-EDF
-    data, error = fetch_sleep_edf(config, logger)
-    source_name = "Sleep-EDF"
+    # Try primary source: Sleep-EDF
+    sleep_edf_ds, sleep_edf_meta = fetch_sleep_edf(logger)
+    sleep_edf_valid = False
+    if sleep_edf_ds is not None and sleep_edf_meta is not None:
+        sleep_edf_valid = validate_dataset(sleep_edf_ds, sleep_edf_meta, "Sleep-EDF", logger)
     
-    if data is None:
-        logger.warning(f"Primary source ({source_name}) failed: {error}")
-        # Fallback: SHHS
-        data, error = fetch_shhs(config, logger)
-        source_name = "SHHS"
+    if sleep_edf_valid:
+        logger.info("Sleep-EDF is valid. Proceeding with preprocessing.")
+        # Save dataset and metadata to disk for downstream tasks
+        # We save the metadata to data/processed/metadata.csv
+        output_dir = Path(__file__).parent.parent / "data" / "processed"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        sleep_edf_meta.to_csv(output_dir / "metadata.csv", index=False)
+        
+        # Note: The actual EEG data loading will be handled by preprocess.py
+        # We assume the dataset object can be reloaded or the path is known.
+        # For now, we just signal success.
+        logger.info("Data retrieval and validation completed successfully.")
+        return 0
     
-    if data is None:
-        report = {
-            "status": "failed",
-            "reason": error,
-            "dataset": source_name,
-            "variables_found": [],
-            "n_count": 0,
-            "message": "No source with both EEG and pre/post fatigue ratings and N>=30 found."
-        }
-        write_validation_report(report, "data/processed/validation_report.json", logger)
-        logger.error("Validation failed for all sources.")
-        logger.error("Halting with exit code 1.")
-        sys.exit(1)
+    # Fallback to SHHS
+    shhs_ds, shhs_meta = fetch_shhs(logger)
+    shhs_valid = False
+    if shhs_ds is not None and shhs_meta is not None:
+        shhs_valid = validate_dataset(shhs_ds, shhs_meta, "SHHS", logger)
     
-    # If we got here, we have data
-    # Validate N count
-    n_count = len(data)
-    if n_count < 30:
-        report = {
-            "status": "failed",
-            "reason": f"N < 30 (found {n_count})",
-            "dataset": source_name,
-            "variables_found": list(data.columns),
-            "n_count": n_count
-        }
-        write_validation_report(report, "data/processed/validation_report.json", logger)
-        logger.error(f"Validation failed: N < 30. Found {n_count} records.")
-        sys.exit(1)
+    if shhs_valid:
+        logger.info("SHHS is valid. Proceeding with preprocessing.")
+        output_dir = Path(__file__).parent.parent / "data" / "processed"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        shhs_meta.to_csv(output_dir / "metadata.csv", index=False)
+        
+        logger.info("Data retrieval and validation completed successfully.")
+        return 0
     
-    # Save data
-    # We save the metadata/summary dataframe to raw_data.csv for downstream use
-    # The actual EEG files are in the MNE cache or raw_path if we downloaded them
-    # For this pipeline, we assume the 'data' dataframe contains the mapping
-    # to the raw files.
-    output_file = raw_path / "raw_data.csv"
-    data.to_csv(output_file, index=False)
-    logger.info(f"Data metadata saved to {output_file}")
-    logger.info(f"Data retrieval successful. N={n_count}")
-    logger.info("Pipeline proceeding to preprocessing.")
+    # If both fail, write validation report and exit with code 1
+    logger.error("Validation failed for all sources.")
+    report = {
+        "status": "failed",
+        "timestamp": datetime.now().isoformat(),
+        "sources_checked": {
+            "sleep-edf": {
+                "available": sleep_edf_ds is not None,
+                "valid": sleep_edf_valid,
+                "reason": "Missing EEG, fatigue ratings, or N < 30" if sleep_edf_ds else "Fetch failed"
+            },
+            "shhs": {
+                "available": shhs_ds is not None,
+                "valid": shhs_valid,
+                "reason": "Missing EEG, fatigue ratings, or N < 30" if shhs_ds else "Fetch failed"
+            }
+        },
+        "message": "No dataset with both resting-state EEG and paired fatigue ratings (N>=30) was found."
+    }
+    write_validation_report(report, logger)
+    logger.error("Halting with exit code 1.")
+    return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

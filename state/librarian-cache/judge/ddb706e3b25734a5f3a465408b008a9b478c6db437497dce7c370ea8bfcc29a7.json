@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "math/0108209",
+  "judged_at": "2026-07-16T10:03:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "rationale": "This paper directly addresses the user's question by measuring the specific mechanism of \"initial condition sensitivity\" in chaotic dynamical systems, satisfying acceptance criteria (a) for same-mechanism evidence and (d) as a foundational methodological reference for quantifying chaos.",
+  "relevant": true
+}

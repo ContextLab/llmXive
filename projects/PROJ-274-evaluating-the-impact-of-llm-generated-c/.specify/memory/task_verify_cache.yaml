@@ -1,0 +1,21 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or JSON output was presented. The required artifact\u2014\
+    a JSON file containing the raw help\u2011request logs (timestamp and content)\
+    \ and the computed composite \u201CCognitive Load Proxy\u201D score\u2014is missing,\
+    \ so the task\u2019s functional requirements have not been demonstrated."
+T020:
+  c: false
+  h: 829ba4dab3e6bba3f182ec9d78e7338469c9c4163e61e9f65b42f86f44c28f5b
+  r: "The required `data/raw/participant_logs.json` file does not exist, so the raw\
+    \ data export artifact is missing. While `code/data_collection.py` contains `save_logs`\
+    \ and checksum logic, the export file itself was never created, failing the task\u2019\
+    s core requirement."
+T021c:
+  c: false
+  h: 5afcd58a10bd2da04efc415ff24cd9c1e4e4cef427de90c12118fd7d33c0fa66
+  r: "The repository contains `code/validation.py`, but it only defines metric\u2011\
+    calculation functions and does not write the required `data/raw/repo_covariates.json`.\
+    \ Moreover, the expected output file is absent from the project. The task\u2019\
+    s core deliverable\u2014producing the covariate JSON file\u2014is missing."

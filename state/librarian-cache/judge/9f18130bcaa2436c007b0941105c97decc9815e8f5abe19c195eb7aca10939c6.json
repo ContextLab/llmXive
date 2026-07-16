@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.09613",
+  "judged_at": "2026-07-16T10:03:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "rationale": "This paper satisfies criterion (a) because it investigates Finite-Time Lyapunov Exponents (FTLEs), which are the standard mathematical metric for quantifying the sensitivity of chaotic systems to initial conditions (exponential separation of trajectories). Although the domain is neural ODEs rather than classical physics, the paper measures the exact same physical observable and causal mechanism (sensitivity to initial perturbations) that the user's question targets.",
+  "relevant": true
+}

@@ -1,0 +1,775 @@
+{
+  "fetched_at": "2026-07-16T10:03:25Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Quantifying the Influence of Initial Conditions on Chaotic Systems",
+      "target_n": 5
+    },
+    "duration_seconds": 55.542,
+    "ended_at": "2026-07-16T10:03:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Sensitivity to initial conditions in chaotic dynamics"
+        ],
+        [
+          2,
+          "Lyapunov exponents and chaos quantification"
+        ],
+        [
+          3,
+          "Butterfly effect in deterministic systems"
+        ],
+        [
+          4,
+          "Predictability horizons in nonlinear dynamics"
+        ],
+        [
+          5,
+          "Strange attractor dimensionality and initial state dependence"
+        ],
+        [
+          6,
+          "Finite-time Lyapunov exponents for chaos"
+        ],
+        [
+          7,
+          "Divergence of trajectories in chaotic maps"
+        ],
+        [
+          8,
+          "Chaos control and initial condition stability"
+        ],
+        [
+          9,
+          "Ergodic theory and chaotic system evolution"
+        ],
+        [
+          10,
+          "Nonlinear time series analysis of chaotic systems"
+        ],
+        [
+          11,
+          "Maximum Lyapunov exponent calculation methods"
+        ],
+        [
+          12,
+          "Chaos synchronization and initial state matching"
+        ],
+        [
+          13,
+          "Fractal dimensions of chaotic attractors"
+        ],
+        [
+          14,
+          "Unstable periodic orbits in chaotic systems"
+        ],
+        [
+          15,
+          "Kolmogorov-Sinai entropy and chaos"
+        ],
+        [
+          16,
+          "Chaos identification in physical experiments"
+        ],
+        [
+          17,
+          "Numerical simulation of chaotic trajectory divergence"
+        ],
+        [
+          18,
+          "Phase space reconstruction for chaotic systems"
+        ],
+        [
+          19,
+          "Robustness of chaotic behavior to perturbations"
+        ],
+        [
+          20,
+          "Deterministic chaos in classical mechanics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Lyapunov exponents and chaos quantification": 4,
+        "Quantifying the Influence of Initial Conditions on Chaotic Systems physics": 0,
+        "Sensitivity to initial conditions in chaotic dynamics": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "Lyapunov exponent sensitivity divergence",
+      "Lorenz attractor double pendulum weather models",
+      "strange attractor fractal dimension phase space",
+      "trajectory reconstruction prediction horizon error growth",
+      "butterfly effect deterministic chaos initial value problem"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.29967"
+      ]
+    },
+    "per_query_hit_count": {
+      "Lorenz attractor double pendulum weather models": 3,
+      "Lyapunov exponent sensitivity divergence": 3,
+      "Quantifying the Influence of Initial Conditions on Chaotic Systems physics": 3,
+      "butterfly effect deterministic chaos initial value problem": 3,
+      "strange attractor fractal dimension phase space": 3,
+      "trajectory reconstruction prediction horizon error growth": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T10:02:30Z",
+    "term_input": {
+      "normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+      "raw": "Quantifying the Influence of Initial Conditions on Chaotic Systems physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze simple models of quantum chaotic scattering, namely quantized open baker's maps. We numerically compute the density of quantum resonances in the semiclassical régime. This density satisfies a fractal Weyl law, where the exponent is governed by the (fractal) dimension of the set of trapped trajectories. This type of behaviour is also expected in the (physically more relevant) case of Hamiltonian chaotic scattering. Within a simplified model, we are able to rigorously prove this Weyl law, and compute quantities related to the \"coherent transport\" through the system, namely the conductance and \"shot noise\". The latter is close to the prediction of random matrix theory.",
+          "claimed_authors": [
+            "Stéphane Nonnenmacher",
+            "Maciej Zworski"
+          ],
+          "claimed_title": "Fractal Weyl laws in discrete models of chaotic scattering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math-ph/0506045"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Fractal Weyl laws in discrete models of chaotic scattering')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nowadays the Lyapunov exponents and Lyapunov dimension have become so widespread and common that they are often used without references to the rigorous definitions or pioneering works. It may lead to a confusion since there are at least two well-known definitions, which are used in computations: the upper bounds of the exponential growth rate of the norms of linearized system solutions (Lyapunov characteristic exponents, LCEs) and the upper bounds of the exponential growth rate of the singular values of the fundamental matrix of linearized system (Lyapunov exponents, LEs). In this work the relation between Lyapunov exponents and Lyapunov characteristic exponents is discussed. The invariance of Lyapunov exponents for regular and irregular linearizations under the change of coordinates is demonstrated.",
+          "claimed_authors": [
+            "N. V. Kuznetsov",
+            "T. A. Alexeeva",
+            "G. A. Leonov"
+          ],
+          "claimed_title": "Invariance of Lyapunov exponents and Lyapunov dimension for regular and irregular linearizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.2016"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Invariance of Lyapunov exponents and Lyapunov dimension for regular and irregular linearizations')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give a new definition for a Lyapunov exponent (called new Lyapunov exponent) associated to a continuous map. Our first result states that these new exponents coincide with the usual Lyapunov exponents if the map is differentiable. Then, we apply this concept to prove that there exists a C0-dense subset of the set of the area-preserving homeomorphisms defined in a compact, connected and boundaryless surface such that any element inside this residual subset has zero new Lyapunov exponents for Lebesgue almost every point. Finally, we prove that the function that associates an area-preserving homeomorphism, equipped with the C0-topology, to the integral (with respect to area) of its top new Lyapunov exponent over the whole surface cannot be upper-semicontinuous.",
+          "claimed_authors": [
+            "Mario Bessa",
+            "Cesar Silva"
+          ],
+          "claimed_title": "Dense area-preserving homeomorphisms have zero Lyapunov exponents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.0641"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Dense area-preserving homeomorphisms have zero Lyapunov exponents')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given a discrete-time random dynamical system represented by a cocycle of non-singular measurable maps, we may obtain information on dynamical quantities by studying the cocycle of Perron-Frobenius operators associated to the maps. Of particular interest is the second-largest Lyapunov exponent, $λ_2$, which can tell us about mixing rates and decay of correlations in the system. We prove a generalized Perron-Frobenius theorem for cocycles of bounded linear operators on Banach spaces that preserve and occasionally contract a cone; this theorem shows that the top Oseledets space for the cocycle is one-dimensional, and there is an readily computed lower bound for the gap between the largest Lyapunov exponent $λ_1$ and $λ_2$ (that is, an upper bound for $λ_2$ which is strictly less than $λ_1$). We then apply this theorem to the case of cocycles of Perron-Frobenius operators arising from a parametrized family of maps to obtain an upper bound on $λ_2$; to the best of our knowledge, this is the first time $λ_2$ has been upper-bounded for a family of maps. To do this, we utilize a new balanced Lasota-Yorke inequality. We also examine random perturbations of a fixed map with two invariant densities and show that as the perturbation is scaled back down to the unperturbed map, $λ_2$ is asymptotically linear in the scale parameter. Our estimates are sharp, in the sense that there is a sequence of scaled perturbations of the fixed map that are all Markov, such that $λ_2$ is asymptotic to $-2$ times the scale parameter.",
+          "claimed_authors": [
+            "Joseph Horan"
+          ],
+          "claimed_title": "Asymptotics for the second-largest Lyapunov exponent for some Perron-Frobenius operator cocycles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.12112"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Asymptotics for the second-largest Lyapunov exponent for some Perron-Frobenius operator cocycles')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been conjectured that the classical Lorenz attractor supports a unique measure of maximal entropy. In this article, we give a positive answer to this conjecture and its higher-dimensional counterpart by considering the uniqueness of equilibrium states for Hölder continuous functions on a sectional-hyperbolic attractor $Λ$. We prove that in a $C^1$-open and dense family of vector fields (including the classical Lorenz attractor), if the point masses at singularities are not equilibrium states, then there exists a unique equilibrium state supported on $Λ$. In particular, there exists a unique measure of maximal entropy for the flow $X|_Λ$.",
+          "claimed_authors": [
+            "Maria Jose Pacifico",
+            "Fan Yang",
+            "Jiagang Yang"
+          ],
+          "claimed_title": "Equilibrium states for the classical Lorenz attractor and sectional-hyperbolic attractors in higher dimensions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.10784"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Equilibrium states for the classical Lorenz attractor and sectional-hyperbolic attractors in higher dimensions')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Met Office Space Weather Operations Centre was founded in 2014 and part of its remit is a daily Space Weather Technical Forecast to help the UK build resilience to space weather impacts; guidance includes four day geo-magnetic storm forecasts (GMSF) and X-ray flare forecasts (XRFF). It is crucial for forecasters, users, modelers and stakeholders to understand the strengths and weaknesses of these forecasts; therefore, it is important to verify against the most reliable truth data source available. The present study contains verification results for XRFFs using GOES-15 satellite data and GMSF using planetary K-index (Kp) values from the GFZ Helmholtz Centre. To assess the value of the verification results it is helpful to compare them against a reference forecast and the frequency of occurrence during a rolling prediction period is used for this purpose. Analysis of the rolling 12-month performance over a 19-month period suggests that both the XRFF and GMSF struggle to provide a better prediction than the reference. However, a relative operating characteristic and reliability analysis of the full 19-month period reveals that although the GMSF and XRFF possess discriminatory skill, events tend to be over-forecast.",
+          "claimed_authors": [
+            "Michael A. Sharpe",
+            "Sophie A. Murray"
+          ],
+          "claimed_title": "Verification of Space Weather Forecasts issued by the Met Office Space Weather Operations Centre",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.02985"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Verification of Space Weather Forecasts issued by the Met Office Space Weather Operations Centre')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a community-wide effort to develop a strategy and action plan to advance heliophysics and space weather modeling through open science. While open science has the potential to enhance the quality and pace of scientific discovery, its application to scientific modeling requires more careful consideration regarding open data and open software guidelines, as scientific models differ significantly from data analysis software. We gathered feedback from modeling teams worldwide through a living survey and discussion sessions at the 2024 Open Science Workshop in College Park, USA, and at the 2025 COSPAR ISWAT Working Meeting in Cape Canaveral, USA. We complement these findings with lessons learned from almost 25 years of experience at the Community Coordinated Modeling Center in enabling open use of models. We identify key roadblocks in current open science practices and guidelines and offer recommendations for future progress across four overlapping themes: open use of models and simulation results, open validation, open development, and open collaboration. An essential outcome of the discussion is the need for model developers and model users to speak with a united voice and promote the role of models in future open science efforts. We introduce a new cross-domain community initiative called the Heliophysics Open Modeling Environment (HOME), which will be integrated as an overarching activity within COSPAR ISWAT. HOME will serve as a platform for modelers and model users to work together, facilitate community modeling, improve the scientific return on modeling investment, and advance understanding, modeling, and forecasting in heliophysics and space weather.",
+          "claimed_authors": [
+            "C. Corti",
+            "M. M. Kuznetsova",
+            "M. A. Reiss",
+            "J. Yue",
+            "J. Karpen",
+            "C. N. Arge",
+            "F. Bacchini",
+            "C. Bard",
+            "S. Bruinsma",
+            "R. M. Caplan",
+            "L. K. S. Daldorff",
+            "P. J. Deka",
+            "C. R. DeVore",
+            "S. Elvidge",
+            "N. Ganushkina",
+            "J. D. Huba",
+            "B. V. Jackson",
+            "V. Jordanova",
+            "J. A. Linker",
+            "H. Liu",
+            "J. G. Luhmann",
+            "S. Markidis",
+            "P. Mayank",
+            "V. Merkin",
+            "N. Moens",
+            "D. Odstrcil",
+            "Y. A. Omelchenko",
+            "M. Palmroth",
+            "S. Poedts",
+            "A. J. Ridley",
+            "Y. Shou",
+            "V. Tenishev",
+            "D. R. Themens",
+            "G. Toth",
+            "W. Wang",
+            "R. -P. Wilhelm",
+            "M. A. Young",
+            "B. Cecconi",
+            "M. -Y. Chou",
+            "D. De Zeeuw",
+            "G. L. Delzanno",
+            "C. Didigu",
+            "M. El Alaoui",
+            "S. Fung",
+            "J. Green",
+            "Z. Huang",
+            "L. K. Jian",
+            "L. J. Landwer",
+            "M. Lesko",
+            "P. MacNeice",
+            "A. Masson",
+            "M. L. Mays",
+            "P. M. Mehta",
+            "M. S. Miesch",
+            "E. Palmerio",
+            "M. Petrenko",
+            "E. Provornikova",
+            "L. Rastätter",
+            "L. Rusaitis",
+            "N. Sachdeva",
+            "E. Samara",
+            "D. Sur",
+            "A. Taktakishvili",
+            "J. Topper",
+            "T. Tsui",
+            "C. Verbeke",
+            "J. Wang",
+            "C. Wiegand",
+            "M. Wiltberger",
+            "Y. Zheng",
+            "M. M. Bisi",
+            "M. K. Georgoulis",
+            "T. Kodikara",
+            "T. Pulkkinen",
+            "A. Chartier",
+            "D. da Silva",
+            "A. Faturahman",
+            "K. Garcia-Sage",
+            "D. Kondrashov",
+            "V. E. Ledvina",
+            "W. Liu",
+            "C. Pandey",
+            "E. Resnick",
+            "C. Shi",
+            "R. S. Weigel",
+            "K. Whitman",
+            "I. Zakharenkova",
+            "K. Zhang"
+          ],
+          "claimed_title": "Advancing Heliophysics and Space Weather Modeling through Open Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Advancing Heliophysics and Space Weather Modeling through Open Science')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The local theory of complex dimensions describes the oscillations in the geometry (spectra and dynamics) of fractal strings. Such geometric oscillations can be seen most clearly in the explicit volume formula for the tubular neighborhoods of a $p$-adic fractal string $\\mathcal{L}_p$, expressed in terms of the underlying complex dimensions. The general fractal tube formula obtained in this paper is illustrated by several examples, including the nonarchimedean Cantor and Euler strings. Moreover, we show that the Minkowski dimension of a $p$-adic fractal string coincides with the abscissa of convergence of the geometric zeta function associated with the string, as well as with the asymptotic growth rate of the corresponding geometric counting function. The proof of this new result can be applied to both real and $p$-adic fractal strings and hence, yields a unifying explanation of a key result in the theory of complex dimensions for fractal strings, even in the archimedean (or real) case.",
+          "claimed_authors": [
+            "Michel L. Lapidus",
+            "Lũ' Hùng",
+            "Machiel van Frankenhuijsen"
+          ],
+          "claimed_title": "Minkowski dimension and explicit tube formulas for $p$-adic fractal strings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.09409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Minkowski dimension and explicit tube formulas for $p$-adic fractal strings')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fractalization of torus and its transition to chaos in a quasi-periodically forced logistic map is re-investigated in relation with a strange nonchaotic attractor, with the aid of functional equation for the invariant curve. Existence of fractal torus in an interval in parameter space is confirmed by the length and the number of extrema of the torus attractor, as well as the Fourier mode analysis. Mechanisms of the onset of fractal torus and the transition to chaos are studied in connection with the intermittency.",
+          "claimed_authors": [
+            "Takashi Nishikawa",
+            "Kunihiko Kaneko"
+          ],
+          "claimed_title": "Fractalization of Torus Revisited as a Strange Nonchaotic Attractor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "chao-dyn/9606019"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Fractalization of Torus Revisited as a Strange Nonchaotic Attractor')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have measured the fractal dimensions of the Giant HII Regions Hubble X and Hubble V in NGC6822 using images obtained with the Hubble's Wide Field Planetary Camera 2 (WFPC2). These measures are associated with the turbulence observed in these regions, which is quantified through the velocity dispersion of emission lines in the visible. Our results suggest low turbulence behaviour.",
+          "claimed_authors": [
+            "H. E. Caicedo-Ortiz",
+            "E. Santiago-Cortés",
+            "J. López-Bonilla",
+            "H. O. Castañeda"
+          ],
+          "claimed_title": "Fractal dimension and turbulence in Giant HII Regions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.04911"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Fractal dimension and turbulence in Giant HII Regions')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the trajectories of surrounding objects is a critical task for self-driving vehicles and many other autonomous systems. Recent works demonstrate that adversarial attacks on trajectory prediction, where small crafted perturbations are introduced to history trajectories, may significantly mislead the prediction of future trajectories and induce unsafe planning. However, few works have addressed enhancing the robustness of this important safety-critical task.In this paper, we present a novel adversarial training method for trajectory prediction. Compared with typical adversarial training on image tasks, our work is challenged by more random input with rich context and a lack of class labels. To address these challenges, we propose a method based on a semi-supervised adversarial autoencoder, which models disentangled semantic features with domain knowledge and provides additional latent labels for the adversarial training. Extensive experiments with different types of attacks demonstrate that our Semisupervised Semantics-guided Adversarial Training (SSAT) method can effectively mitigate the impact of adversarial attacks by up to 73% and outperform other popular defense methods. In addition, experiments show that our method can significantly improve the system's robust generalization to unseen patterns of attacks. We believe that such semantics-guided architecture and advancement on robust generalization is an important step for developing robust prediction models and enabling safe decision-making.",
+          "claimed_authors": [
+            "Ruochen Jiao",
+            "Xiangguo Liu",
+            "Takami Sato",
+            "Qi Alfred Chen",
+            "Qi Zhu"
+          ],
+          "claimed_title": "Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.14230"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in large language models (LLMs) have sparked growing interest in integrating language-driven techniques into trajectory prediction. By leveraging their semantic and reasoning capabilities, LLMs are reshaping how autonomous systems perceive, model, and predict trajectories. This survey provides a comprehensive overview of this emerging field, categorizing recent work into five directions: (1) Trajectory prediction via language modeling paradigms, (2) Direct trajectory prediction with pretrained language models, (3) Language-guided scene understanding for trajectory prediction, (4) Language-driven data generation for trajectory prediction, (5) Language-based reasoning and interpretability for trajectory prediction. For each, we analyze representative methods, highlight core design choices, and identify open challenges. This survey bridges natural language processing and trajectory prediction, offering a unified perspective on how language can enrich trajectory prediction.",
+          "claimed_authors": [
+            "Yi Xu",
+            "Ruining Yang",
+            "Yitian Zhang",
+            "Jianglin Lu",
+            "Mingyuan Zhang",
+            "Yizhou Wang",
+            "Lili Su",
+            "Yun Fu"
+          ],
+          "claimed_title": "Trajectory Prediction Meets Large Language Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03408"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Trajectory Prediction Meets Large Language Models: A Survey')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In order to improve the vessel's capacity and ensure maritime traffic safety, vessel intelligent trajectory prediction plays an essential role in the vessel's smart navigation and intelligent collision avoidance system. However, current researchers only focus on short-term or long-term vessel trajectory prediction, which leads to insufficient accuracy of trajectory prediction and lack of in-depth mining of comprehensive historical trajectory data. This paper proposes an Automatic Identification System (AIS) data-driven long short-term memory (LSTM) method based on the fusion of the forward sub-network and the reverse sub-network (termed as FRA-LSTM) to predict the vessel trajectory. The forward sub-network in our method combines LSTM and attention mechanism to mine features of forward historical trajectory data. Simultaneously, the reverse sub-network combines bi-directional LSTM (BiLSTM) and attention mechanism to mine features of backward historical trajectory data. Finally, the final predicted trajectory is generated by fusing output features of the forward and reverse sub-network. Based on plenty of experiments, we prove that the accuracy of our proposed method in predicting short-term and mid-term trajectories has increased by 96.8% and 86.5% on average compared with the BiLSTM and Seq2seq. Furthermore, the average accuracy of our method is 90.1% higher than that of compared the BiLSTM and Seq2seq in predicting long-term trajectories.",
+          "claimed_authors": [
+            "Jin Chen",
+            "Xingchen Li",
+            "Ye Xiao",
+            "Hao Chen",
+            "Yong Zhao"
+          ],
+          "claimed_title": "FRA-LSTM: A Vessel Trajectory Prediction Method Based on Fusion of the Forward and Reverse Sub-Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.07606"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='FRA-LSTM: A Vessel Trajectory Prediction Method Based on Fusion of the Forward and Reverse Sub-Network')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Non-deterministic chaos is a new dynamical paradigm where a non-deterministic system is influenced by random perturbations to produce the appearance of complexity. The non-determinism is envisioned to occur only at a single point in phase space, where many trajectories intersect. In the presence of external random perturbations (noise), whenever the phase space trajectory approaches the singularity, it will jump in an unpredictable way to a different solution. This behavior, while similar in appearance to deterministic chaos, has rather different implications for prediction and control.",
+          "claimed_authors": [
+            "D. D. Dixon"
+          ],
+          "claimed_title": "Non-deterministic chaos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1994,
+          "primary_pointer": "chao-dyn/9408001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Non-deterministic chaos')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study charge diffusion in holographic scaling theories with a particle-hole symmetry. We show that these theories have a universal regime in which the diffusion constant is given by $D_c = C v_B^2/ (2 πT)$ where $v_B$ is the velocity of the butterfly effect. The constant of proportionality, $C$, depends only on the scaling exponents of the infra-red theory. Our results suggest an unexpected connection between transport at strong coupling and quantum chaos.",
+          "claimed_authors": [
+            "Mike Blake"
+          ],
+          "claimed_title": "Universal Charge Diffusion and the Butterfly Effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.08510"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Universal Charge Diffusion and the Butterfly Effect')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Non-deterministic chaos is a form of low-dimensional dynamics which is characterized by the existence of a countable set of {\\em sensitive decision points} (SDP's). Away from these points, the dynamics is well-behaved. Near these points, however, perturbations (e.g., thermal noise) may cause the outgoing trajectory to be chosen randomly. An example of a non-deterministic chaotic system is given, and a statistical method of analyzing the resultant dynamics is developed.",
+          "claimed_authors": [
+            "D. D. Dixon"
+          ],
+          "claimed_title": "Non-deterministic chaos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1993,
+          "primary_pointer": "chao-dyn/9307020"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Influence of Initial Conditions on Chaotic Systems physics', candidate_title='Non-deterministic chaos')",
+        "failed_at": "2026-07-16T10:02:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xavier Leoncini",
+            "George M. Zaslavsky"
+          ],
+          "title": "Chaotic Jets",
+          "venue": "arXiv",
+          "year": 2006
+        },
+        "primary_pointer": "nlin/0602045",
+        "summary": "The problem of characterizing the origin of the non-Gaussian properties of transport resulting from Hamiltonian dynamics is addressed. For this purpose the notion of chaotic jet is revisited and leads to the definition of a diagnostic able to capture some singular properties of the dynamics. This diagnostic is applied successfully to the problem of advection of passive tracers in a flow generated by point vortices. We present and discuss this diagnostic as a result of which clues on the origin of anomalous transport in these systems emerge.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/nlin/0602045",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Konstantinos Metaxas",
+            "Themistoklis P. Sapsis"
+          ],
+          "title": "Risk-Sensitive Learning in Population Games under Extreme Events: Bifurcations and Chaotic Dynamics",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.29967",
+        "summary": "Inspired by nonequilibrium phenomena in game dynamics and behavioral evidence on the impact of extreme events on decision making, we investigate the nonlinear dynamics of a discrete-time multiagent learning rule in population congestion games under extreme events affecting one of the actions. The population state, following a risk-sensitive variant of the Multiplicative Weights Update (MWU), is coupled with a belief variable capturing the agents perceived risk and updated through an adaptive expectation rule. We perform a two-parameter bifurcation analysis with respect to the agents controlled parameters, identifying regions of qualitatively distinct behavior. Equilibria are studied first from both game-theoretic and dynamical perspectives. The resulting two-dimensional system exhibits complex behavior, including multi-stability among fixed points, invariant curves, periodic and chaotic attractors. Despite this complexity, the attractors can be grouped into distinct families, while the Cesàro averages of the trajectories are shown to converge to the stationary equilibrium. The incorporation of risk associated with the extreme event leads to new dynamical phenomena: attracting invariant curves arise and give rise to phase-locking Arnold tongues, within which the dynamics is qualitatively similar. In this setting, codimension-two resonances are identified as organizing centers, both within individual tongues and along the bifurcation curves associated with the fixed-point family. Chaotic attractors emerge and are destroyed through Feigenbaum cascades and forward or reverse boundary crises, with interior and merging crises also observed, along with transient chaos and narrow periodic windows. For each qualitatively distinct region, representative phase portraits and the associated basins of attraction are examined.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.29967",
+          "http_status": 200,
+          "pdf_sample_score": 0.3513,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qiqi Wang"
+          ],
+          "title": "Forward and Adjoint Sensitivity Computation of Chaotic Dynamical Systems",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1202.5229",
+        "summary": "This paper describes a forward algorithm and an adjoint algorithm for computing sensitivity derivatives in chaotic dynamical systems, such as the Lorenz attractor. The algorithms compute the derivative of long time averaged \"statistical\" quantities to infinitesimal perturbations of the system parameters. The algorithms are demonstrated on the Lorenz attractor. We show that sensitivity derivatives of statistical quantities can be accurately estimated using a single, short trajectory (over a time interval of 20) on the Lorenz attractor.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1202.5229",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stefano Galatolo"
+          ],
+          "title": "Information, initial condition sensitivity and dimension in weakly chaotic dynamical systems",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "math/0108209",
+        "summary": "We study generalized indicators of sensitivity to initial conditions and orbit complexity in topological dynamical systems. The orbit complexity is a measure of the asymptotic behavior of the information that is necessary to describe the orbit of a given point. The indicator generalizes in a certain sense, the Brudno's orbit complexity (which is strongly related to the entropy of the system).\n The initial condition sensitivity indicators consider the asymptotic behavior of the speed of divergence of nearby staring orbits.\n The indicators have non trivial values also in weakly chaotic dynamical systems, characterizing various cases of weakly chaotic dynamics. Then, using constructivity, local relations are proved between generalized orbit complexity, initial condition sensitivity and the dimension of the underlying space or invariant measure",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/math/0108209",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tobias Wöhrer",
+            "Christian Kuehn"
+          ],
+          "title": "Tracking Finite-Time Lyapunov Exponents to Robustify Neural ODEs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.09613",
+        "summary": "We investigate finite-time Lyapunov exponents (FTLEs), a measure for exponential separation of input perturbations, of deep neural networks within the framework of continuous-depth neural ODEs. We demonstrate that FTLEs are powerful organizers for input-output dynamics, allowing for better interpretability and the comparison of distinct model architectures. We establish a direct connection between Lyapunov exponents and adversarial vulnerability, and propose a novel training algorithm that improves robustness by FTLE regularization. The key idea is to suppress exponents far from zero in the early stage of the input dynamics. This approach enhances robustness and reduces computational cost compared to full-interval regularization, as it avoids a full ``double'' backpropagation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.09613",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "N. V. Kuznetsov",
+            "T. A. Alexeeva",
+            "G. A. Leonov"
+          ],
+          "title": "Invariance of Lyapunov exponents and Lyapunov dimension for regular and irregular linearizations",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1410.2016",
+        "summary": "Nowadays the Lyapunov exponents and Lyapunov dimension have become so widespread and common that they are often used without references to the rigorous definitions or pioneering works. It may lead to a confusion since there are at least two well-known definitions, which are used in computations: the upper bounds of the exponential growth rate of the norms of linearized system solutions (Lyapunov characteristic exponents, LCEs) and the upper bounds of the exponential growth rate of the singular values of the fundamental matrix of linearized system (Lyapunov exponents, LEs). In this work the relation between Lyapunov exponents and Lyapunov characteristic exponents is discussed. The invariance of Lyapunov exponents for regular and irregular linearizations under the change of coordinates is demonstrated.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1410.2016",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Blaz Krese",
+            "Matjaz Perc",
+            "Edvard Govekar"
+          ],
+          "title": "Experimental observation of a chaos-to-chaos transition in laser droplet generation",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1008.0604",
+        "summary": "We examine the dynamics of laser droplet generation in dependence on the detachment pulse power. In the absence of the detachment pulse, undulating pendant droplets are formed at the end of a properly fed metal wire due to the impact of the primary laser pulse that induces melting. Eventually, these droplets detach, i.e. overcome the surface tension, because of their increasing mass. We show that this spontaneous dripping is deterministically chaotic by means of a positive largest Lyapunov exponent and a negative divergence. In the presence of the detachment pulse, however, the generation of droplets is fastened depending on the pulse power. At high powers, the spontaneity of dripping is completely overshadowed by the impact of the detachment pulse. Still, amplitude chaos can be detected, which similarly as the spontaneous dripping, is characterized by a positive largest Lyapunov exponent and a negative divergence, thus indicating that the observed dynamics is deterministically chaotic with an attractor as solution in the phase space. In the intermediate regime, i.e. for low and medium detachment pulse powers, the two chaotic states compete for supremacy, yielding an intermittent period-doubling to amplitude chaos transition, which we characterize by means of recurrence plots and their properties. Altogether, the transition from spontaneous to triggered laser droplet generation is characterized by a chaos-to-chaos transition with an intermediate dynamically nonstationary phase in-between. Since metal droplets can be used in various industrial applications, we hope that the accurate determination of the dynamical properties underlying their formation will facilitate their use and guide future attempts at mathematical modeling.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1008.0604",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marco Pettini",
+            "Lapo Casetti",
+            "Monica Cerruti-Sola",
+            "Roberto Franzosi",
+            "E. G. D. Cohen"
+          ],
+          "title": "Weak and strong chaos in FPU models and beyond",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "cond-mat/0410282",
+        "summary": "We briefly review some of the most relevant results that our group obtained in the past, while investigating the dynamics of the Fermi-Pasta-Ulam (FPU) models. A first result is the numerical evidence of the existence of two different kinds of transitions in the dynamics of the FPU models: i) a Stochasticity Threshold (ST), characterized by a value of the energy per degree of freedom below which the overwhelming majority of the phase space trajectories are regular (vanishing Lyapunov exponents). It tends to vanish as the number N of degrees of freedom is increased. ii) a Strong Stochasticity Threshold (SST), characterized by a value of the energy per degree of freedom at which a crossover appears between two different power laws of the energy dependence of the largest Lyapunov exponent, which phenomenologically corresponds to the transition between weakly and strongly chaotic regimes. It is stable with N. A second result is the development of a Riemannian geometric theory to explain the origin of Hamiltonian chaos. The starting of this theory has been motivated by the inadequacy of the approach based on homoclinic intersections to explain the origin of chaos in systems of arbitrarily large N, or arbitrarily far from quasi-integrability, or displaying a transition between weak and strong chaos.\n Finally, a third result stems from the search for the transition between weak and strong chaos in systems other than FPU.\n Actually, we found that a very sharp SST appears as the dynamical counterpart of a thermodynamic phase transition, which in turn has led, in the light of the Riemannian theory of chaos, to the development of a topological theory of phase transitions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0410282",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T10:03:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

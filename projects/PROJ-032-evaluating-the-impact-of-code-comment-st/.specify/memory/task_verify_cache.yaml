@@ -1,0 +1,42 @@
+T007d:
+  c: false
+  h: 4f305f314e8f50e45aac0e8ac7dadf2d615759cc4fbd0533c2b1aa2fb6d34b21
+  r: The provided `src/code/metrics.py` contains complexity and readability utilities
+    but does not include the required `calc_quality_rate()` implementation, and the
+    essential `data/manual_labels.csv` file is absent. Both the function and the validation
+    dataset are needed to satisfy the task.
+T007e:
+  c: false
+  h: 4f305f314e8f50e45aac0e8ac7dadf2d615759cc4fbd0533c2b1aa2fb6d34b21
+  r: The required artifact `data/manual_labels.csv` is explicitly missing from the
+    disk, failing the existence requirement. Additionally, the provided `src/code/metrics.py`
+    file is truncated and does not contain the `generate_manual_labels()` function
+    or the logic to perform stratified sampling and save the ground truth.
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact showing a modified `clone_batch` function with retry and skip\
+    \ logic (or corresponding tests/logs) was provided. Without the actual implementation\
+    \ or evidence that errors are logged and processing continues, the requirement\
+    \ cannot be confirmed. The next implementer must add and expose the updated `clone_batch`\
+    \ code (and optionally tests) demonstrating the retry\u2011on\u2011failure behavior."
+T015c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifact for `clone_batch` was provided, and there is no evidence that
+    a check for empty git history was added or that exclusions are logged. The required
+    implementation and logging are missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `logs/acquisition_stats.json` file or its contents were provided; thus there
+    is no evidence that the required JSON logging of success rate, excluded repos
+    count, and total valid clones was added. The implementer must create this file
+    with the specified statistics.
+T025:
+  c: false
+  h: 4f305f314e8f50e45aac0e8ac7dadf2d615759cc4fbd0533c2b1aa2fb6d34b21
+  r: The provided `src/code/metrics.py` does not contain an implementation of `calc_quality_rate()`
+    (the file excerpt shows other metric functions but no such function), and the
+    required `data/manual_labels.csv` file is absent from the repository. Both the
+    core function and the validation dataset are missing, so the task is not satisfied.

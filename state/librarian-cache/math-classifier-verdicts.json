@@ -119,6 +119,10 @@
     "classified_at": "2026-07-10T08:04:58Z",
     "verdict": false
   },
+  "PROJ-101-quantifying-the-influence-of-initial-con::1.6.0": {
+    "classified_at": "2026-07-16T10:02:58Z",
+    "verdict": false
+  },
   "PROJ-1012-llmxive-follow-up-extending-researchstud::1.6.0": {
     "classified_at": "2026-07-08T12:49:04Z",
     "verdict": false

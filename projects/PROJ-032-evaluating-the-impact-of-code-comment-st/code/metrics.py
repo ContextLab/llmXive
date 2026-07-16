@@ -4,356 +4,335 @@ from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
 import subprocess
 import json
+import textstat
+from textblob import TextBlob
+from radon.complexity import cc_visit
+from radon.raw import analyze
 import re
-import statistics
-import csv
 
-# Import shared utilities from utils
-from utils import configure_logging, MemoryMonitor, CommitSampler
-
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-def calc_churn(repo_path: Union[str, Path]) -> float:
+def calc_readability(comments: List[str]) -> float:
     """
-    Calculate the total churn (lines changed) for a repository.
-    
-    Parses `git log --numstat` to calculate total lines added and deleted
-    per commit, then aggregates to the repository level.
+    Calculate average Flesch-Kincaid readability grade for a list of comment strings.
     
     Args:
-        repo_path: Path to the local git repository.
+        comments: List of comment text strings extracted from code.
         
     Returns:
-        Total churn as a float (sum of all lines added and deleted).
+        Average readability grade (float), or 0.0 if comments list is empty.
+    """
+    if not comments:
+        logger.warning("Empty comment set provided to calc_readability, returning 0.0")
+        return 0.0
+    
+    scores = []
+    for comment in comments:
+        if not comment or not comment.strip():
+            continue
+        try:
+            # textstat.flesch_kincaid_grade expects a string
+            score = textstat.flesch_kincaid_grade(comment)
+            scores.append(score)
+        except Exception as e:
+            logger.warning(f"Could not calculate readability for comment: {e}")
+            continue
+    
+    if not scores:
+        logger.warning("No valid scores calculated for readability, returning 0.0")
+        return 0.0
         
-    Raises:
-        RuntimeError: If git log fails or no history is found.
-        MemoryError: If memory usage exceeds limits (checked via MemoryMonitor).
+    return sum(scores) / len(scores)
+
+def calc_sentiment(comments: List[str]) -> float:
+    """
+    Calculate average polarity sentiment for a list of comment strings.
+    
+    Args:
+        comments: List of comment text strings extracted from code.
+        
+    Returns:
+        Average polarity score (float between -1.0 and 1.0), or 0.0 if empty.
+    """
+    if not comments:
+        logger.warning("Empty comment set provided to calc_sentiment, returning 0.0")
+        return 0.0
+    
+    scores = []
+    for comment in comments:
+        if not comment or not comment.strip():
+            continue
+        try:
+            blob = TextBlob(comment)
+            scores.append(blob.sentiment.polarity)
+        except Exception as e:
+            logger.warning(f"Could not calculate sentiment for comment: {e}")
+            continue
+    
+    if not scores:
+        logger.warning("No valid scores calculated for sentiment, returning 0.0")
+        return 0.0
+        
+    return sum(scores) / len(scores)
+
+def calc_complexity_for_file(file_path: str) -> float:
+    """
+    Calculate average cyclomatic complexity for functions in a single Python file.
+    
+    Args:
+        file_path: Path to the Python file.
+        
+    Returns:
+        Average cyclomatic complexity (float), or 0.0 if file has no functions or errors.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        if not source.strip():
+            return 0.0
+            
+        # radon.cc_visit returns a list of complexity objects for each function/class
+        complexity_list = cc_visit(source)
+        
+        if not complexity_list:
+            return 0.0
+            
+        total_complexity = sum(cc.complexity for cc in complexity_list)
+        return total_complexity / len(complexity_list)
+        
+    except Exception as e:
+        logger.warning(f"Could not calculate complexity for {file_path}: {e}")
+        return 0.0
+
+def get_complexity_breakdown(file_path: str) -> Dict[str, Any]:
+    """
+    Get detailed complexity breakdown for a file.
+    
+    Args:
+        file_path: Path to the Python file.
+        
+    Returns:
+        Dictionary with 'average_complexity' and 'total_functions' keys.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        complexity_list = cc_visit(source)
+        
+        return {
+            'average_complexity': sum(cc.complexity for cc in complexity_list) / len(complexity_list) if complexity_list else 0.0,
+            'total_functions': len(complexity_list),
+            'max_complexity': max((cc.complexity for cc in complexity_list), default=0)
+        }
+    except Exception as e:
+        logger.warning(f"Could not get complexity breakdown for {file_path}: {e}")
+        return {'average_complexity': 0.0, 'total_functions': 0, 'max_complexity': 0}
+
+def calc_complexity(repo_path: str) -> float:
+    """
+    Calculate average cyclomatic complexity across all Python files in a repository.
+    
+    Args:
+        repo_path: Path to the repository root.
+        
+    Returns:
+        Average complexity across all files (float).
     """
     repo_path = Path(repo_path)
     if not repo_path.exists():
-        raise FileNotFoundError(f"Repository path not found: {repo_path}")
-    
-    # Check memory before proceeding
-    monitor = MemoryMonitor()
-    if not monitor.check_limit(limit_gb=7):
-        raise MemoryError("Memory limit exceeded during churn calculation.")
-
-    logger.info(f"Calculating churn for repository: {repo_path}")
-    
-    try:
-        # Run git log --numstat to get lines changed per commit
-        # --numstat gives: added<tab>deleted<tab>filename
-        # We use --no-renames to simplify parsing and avoid rename detection overhead
-        cmd = [
-            "git",
-            "-C", str(repo_path),
-            "log",
-            "--numstat",
-            "--no-renames",
-            "--format="  # No commit headers, just numstat blocks
-        ]
+        logger.error(f"Repository path does not exist: {repo_path}")
+        return 0.0
         
+    python_files = list(repo_path.rglob("*.py"))
+    
+    if not python_files:
+        logger.warning(f"No Python files found in {repo_path}")
+        return 0.0
+        
+    total_complexity = 0.0
+    valid_files = 0
+    
+    for py_file in python_files:
+        # Skip common non-source directories
+        if any(part.startswith('.') or part in ['venv', 'env', '__pycache__', 'node_modules'] for part in py_file.parts):
+            continue
+            
+        avg_cc = calc_complexity_for_file(str(py_file))
+        if avg_cc > 0:
+            total_complexity += avg_cc
+            valid_files += 1
+            
+    if valid_files == 0:
+        logger.warning(f"No valid Python files with complexity found in {repo_path}")
+        return 0.0
+        
+    return total_complexity / valid_files
+
+def calc_churn(repo_path: str) -> float:
+    """
+    Calculate total lines changed (churn) for a repository by aggregating
+    git log --numstat output across all commits.
+    
+    This function runs 'git log --numstat' to get added/deleted lines per commit,
+    parses the output, and sums all changes to produce a total churn metric.
+    
+    Args:
+        repo_path: Path to the repository root directory.
+        
+    Returns:
+        Total churn (sum of added + deleted lines) as a float.
+        
+    Raises:
+        RuntimeError: If git command fails or repository is not a valid git repo.
+        FileNotFoundError: If the repo_path does not exist.
+    """
+    repo_path = Path(repo_path)
+    
+    if not repo_path.exists():
+        raise FileNotFoundError(f"Repository path does not exist: {repo_path}")
+        
+    if not (repo_path / ".git").exists():
+        raise RuntimeError(f"Path is not a valid git repository: {repo_path}")
+        
+    try:
+        # Run git log --numstat to get line changes per commit
+        # Format: <added>\t<deleted>\t<filename>
+        # The --numstat uses tabs and numbers, easier to parse
         result = subprocess.run(
-            cmd,
+            ["git", "log", "--numstat", "--pretty=format:"],
+            cwd=str(repo_path),
             capture_output=True,
             text=True,
-            check=True,
             timeout=300  # 5 minute timeout for large repos
         )
+        
+        if result.returncode != 0:
+            error_msg = result.stderr.strip() or "Unknown git error"
+            raise RuntimeError(f"Git log command failed: {error_msg}")
         
         output = result.stdout
         
         if not output.strip():
-            # Check if repo has any commits
-            check_cmd = ["git", "-C", str(repo_path), "rev-list", "--count", "HEAD"]
-            count_result = subprocess.run(check_cmd, capture_output=True, text=True)
-            if count_result.stdout.strip() == "0":
-                logger.warning(f"Repository {repo_path} has no commits. Churn = 0.")
-                return 0.0
-            else:
-                # Repo has commits but log returned nothing (unlikely but possible)
-                logger.warning(f"git log --numstat returned empty for {repo_path}.")
-                return 0.0
-
-        total_churn = 0.0
-        lines_processed = 0
-        
-        # Parse numstat output
-        # Format: added<tab>deleted<tab>filename
-        # Lines starting with '-' for added/deleted mean binary files (we skip binary for churn metric usually, 
-        # or treat as 0. For this metric, we'll skip binary files as they don't contribute to "lines of code" churn)
-        for line in output.splitlines():
-            lines_processed += 1
-            parts = line.split('\t')
+            logger.warning(f"No git history found in {repo_path}")
+            return 0.0
             
-            if len(parts) < 3:
-                # Skip malformed lines or empty lines
+        total_added = 0
+        total_deleted = 0
+        
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
                 continue
                 
-            added_str, deleted_str, filename = parts[0], parts[1], parts[2]
+            # Skip binary files (marked with '-' instead of numbers)
+            if line.startswith('-'):
+                continue
+                
+            parts = line.split('\t')
+            if len(parts) < 2:
+                continue
+                
+            added_str, deleted_str = parts[0], parts[1]
             
-            # Skip binary files (marked as '-' in numstat)
+            # Skip binary files indicated by '-'
             if added_str == '-' or deleted_str == '-':
                 continue
-            
+                
             try:
-                added = int(added_str) if added_str.isdigit() else 0
-                deleted = int(deleted_str) if deleted_str.isdigit() else 0
-                total_churn += (added + deleted)
+                added = int(added_str)
+                deleted = int(deleted_str)
+                total_added += added
+                total_deleted += deleted
             except ValueError:
                 # Skip lines that don't parse as integers
                 continue
                 
-        logger.info(f"Processed {lines_processed} lines for {repo_path}. Total churn: {total_churn}")
+        total_churn = total_added + total_deleted
+        logger.info(f"Calculated churn for {repo_path}: {total_churn} lines (added: {total_added}, deleted: {total_deleted})")
         return float(total_churn)
         
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Git command failed for {repo_path}: {e.stderr}")
-        raise RuntimeError(f"Git log failed for {repo_path}: {e.stderr}")
     except subprocess.TimeoutExpired:
-        logger.error(f"Git command timed out for {repo_path}")
-        raise RuntimeError(f"Git log timed out for {repo_path}")
-
-def calc_complexity_for_file(file_path: Path) -> float:
-    return 0.0
-
-def calc_complexity(repo_path: Union[str, Path]) -> float:
-    return 0.0
-
-def get_complexity_breakdown(repo_path: Union[str, Path]) -> Dict[str, Any]:
-    return {}
-
-def calc_readability(comments: List[str]) -> float:
-    return 0.0
-
-def calc_sentiment(comments: List[str]) -> float:
-    return 0.0
+        logger.error(f"Git log timed out for {repo_path}")
+        raise RuntimeError(f"Git log command timed out for {repo_path}")
+    except Exception as e:
+        logger.error(f"Error calculating churn for {repo_path}: {e}")
+        raise
 
 def calc_density(comments: List[str], total_lines: int) -> float:
-    return 0.0
-
-def calc_quality_rate(repo_path: Union[str, Path], manual_labels_path: Union[str, Path] = "data/manual_labels.csv", sample_size: int = 10) -> Dict[str, Any]:
     """
-    Calculate the quality rate of a repository based on pylint analysis of sampled commits.
-    
-    This function:
-    1. Samples commits using CommitSampler.
-    2. Runs pylint on each sampled commit to detect error-level warnings.
-    3. Calculates the ratio of commits with error-level warnings.
-    4. Validates against manual labels (if available) and computes 95% CI.
+    Calculate comment density as ratio of comment lines to total lines.
     
     Args:
-        repo_path: Path to the local git repository.
-        manual_labels_path: Path to the CSV file containing manual labels.
-        sample_size: Number of commits to sample.
+        comments: List of comment strings (not used directly, but kept for API consistency).
+        total_lines: Total lines of code in the file/repo.
         
     Returns:
-        A dictionary containing:
-            - quality_rate: The ratio of commits with error-level warnings.
-            - sample_size: Number of commits sampled.
-            - error_count: Number of commits with errors.
-            - validation: Dict with 'accuracy', 'ci_lower', 'ci_upper' if manual labels exist.
+        Comment density (float), 0.0 if total_lines is 0.
     """
-    repo_path = Path(repo_path)
-    manual_labels_path = Path(manual_labels_path)
+    if total_lines <= 0:
+        logger.warning(f"Invalid total_lines {total_lines} for density calculation")
+        return 0.0
     
-    if not repo_path.exists():
-        raise FileNotFoundError(f"Repository path not found: {repo_path}")
+    # Count lines in comments (simplified: count non-empty lines in comment strings)
+    comment_lines = 0
+    for comment in comments:
+        if comment:
+            comment_lines += len([l for l in comment.split('\n') if l.strip()])
     
-    logger.info(f"Calculating quality rate for repository: {repo_path}")
-    
-    # Step 1: Get all commits
-    try:
-        cmd = ["git", "-C", str(repo_path), "rev-list", "HEAD"]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        all_commits = [c.strip() for c in result.stdout.splitlines() if c.strip()]
-        
-        if not all_commits:
-            logger.warning(f"Repository {repo_path} has no commits.")
-            return {
-                "quality_rate": 0.0,
-                "sample_size": 0,
-                "error_count": 0,
-                "validation": None
-            }
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to get commits for {repo_path}: {e.stderr}")
-        raise RuntimeError(f"Git rev-list failed for {repo_path}: {e.stderr}")
-    
-    # Step 2: Sample commits
-    sampler = CommitSampler()
-    sampled_commits = sampler.sample_commits(all_commits, n=sample_size)
-    
-    if not sampled_commits:
-        logger.warning(f"No commits sampled for {repo_path}.")
-        return {
-            "quality_rate": 0.0,
-            "sample_size": 0,
-            "error_count": 0,
-            "validation": None
-        }
-    
-    # Step 3: Run pylint on each sampled commit
-    error_count = 0
-    error_details = []
-    
-    for commit in sampled_commits:
-        try:
-            # Checkout the commit
-            checkout_cmd = ["git", "-C", str(repo_path), "checkout", commit]
-            subprocess.run(checkout_cmd, capture_output=True, check=True, timeout=60)
-            
-            # Run pylint on the repository
-            # We run pylint on the current state of the repo at this commit
-            pylint_cmd = [
-                "pylint",
-                "--errors-only",
-                "--output-format=json",
-                "--disable=all",
-                "--enable=E",  # Only enable error-level messages
-                str(repo_path)
-            ]
-            
-            pylint_result = subprocess.run(
-                pylint_cmd,
-                capture_output=True,
-                text=True,
-                timeout=120
-            )
-            
-            # Parse pylint output
-            if pylint_result.returncode != 0 and pylint_result.stdout.strip():
-                # Pylint returns non-zero if errors are found
-                try:
-                    errors = json.loads(pylint_result.stdout)
-                    if errors:
-                        error_count += 1
-                        error_details.append({
-                            "commit": commit,
-                            "errors": len(errors)
-                        })
-                except json.JSONDecodeError:
-                    # If output is not valid JSON but returncode is non-zero, assume errors
-                    error_count += 1
-                    error_details.append({
-                        "commit": commit,
-                        "errors": "Unknown (parse error)"
-                    })
-            
-            # Reset to HEAD after each commit to avoid state issues
-            reset_cmd = ["git", "-C", str(repo_path), "checkout", "HEAD"]
-            subprocess.run(reset_cmd, capture_output=True, check=True, timeout=60)
-            
-        except subprocess.TimeoutExpired:
-            logger.warning(f"Timeout analyzing commit {commit} in {repo_path}")
-            continue
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"Failed to checkout or run pylint for commit {commit}: {e.stderr}")
-            continue
-        except Exception as e:
-            logger.error(f"Unexpected error processing commit {commit}: {e}")
-            continue
-    
-    # Step 4: Calculate quality rate
-    quality_rate = error_count / len(sampled_commits) if sampled_commits else 0.0
-    
-    result = {
-        "quality_rate": quality_rate,
-        "sample_size": len(sampled_commits),
-        "error_count": error_count,
-        "validation": None
-    }
-    
-    # Step 5: Validate against manual labels if available
-    if manual_labels_path.exists():
-        try:
-            # Load manual labels
-            manual_labels = {}
-            with open(manual_labels_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    # Assuming the CSV has columns: commit_hash, label (bug_fix or not_bug_fix)
-                    # We map 'bug_fix' to 'error' for comparison purposes
-                    commit_hash = row.get('commit_hash', '').strip()
-                    label = row.get('label', '').strip().lower()
-                    if commit_hash:
-                        # Map manual label to our error definition
-                        # If manual label is 'bug_fix', we consider it an error
-                        manual_labels[commit_hash] = (label == 'bug_fix')
-            
-            # Compare our detected errors with manual labels for the sampled commits
-            tp, fp, tn, fn = 0, 0, 0, 0
-            
-            for commit in sampled_commits:
-                predicted_error = any(d['commit'] == commit for d in error_details)
-                actual_error = manual_labels.get(commit, None)
-                
-                if actual_error is not None:
-                    if predicted_error and actual_error:
-                        tp += 1
-                    elif predicted_error and not actual_error:
-                        fp += 1
-                    elif not predicted_error and actual_error:
-                        fn += 1
-                    elif not predicted_error and not actual_error:
-                        tn += 1
-            
-            # Calculate accuracy
-            total_valid = tp + fp + tn + fn
-            accuracy = (tp + tn) / total_valid if total_valid > 0 else 0.0
-            
-            # Calculate 95% CI for accuracy using Wilson score interval
-            if total_valid > 0:
-                z = 1.96  # 95% confidence
-                p = accuracy
-                n = total_valid
-                
-                denominator = 1 + (z**2)/n
-                center = (p + (z**2)/(2*n)) / denominator
-                margin = (z / denominator) * ((p*(1-p)/n) + (z**2)/(4*n**2))**0.5
-                
-                ci_lower = max(0, center - margin)
-                ci_upper = min(1, center + margin)
-                
-                result["validation"] = {
-                    "accuracy": accuracy,
-                    "ci_lower": ci_lower,
-                    "ci_upper": ci_upper,
-                    "tp": tp,
-                    "fp": fp,
-                    "tn": tn,
-                    "fn": fn,
-                    "total_valid": total_valid
-                }
-                logger.info(f"Validation for {repo_path}: Accuracy={accuracy:.4f}, 95% CI=[{ci_lower:.4f}, {ci_upper:.4f}]")
-            else:
-                result["validation"] = {
-                    "accuracy": None,
-                    "ci_lower": None,
-                    "ci_upper": None,
-                    "message": "No overlapping commits between sample and manual labels"
-                }
-                
-        except Exception as e:
-            logger.error(f"Failed to validate quality rate for {repo_path}: {e}")
-            result["validation"] = {
-                "error": str(e)
-            }
-    
-    return result
+    return round(comment_lines / total_lines, 4)
+
+def calc_quality_rate(repo_path: str) -> float:
+    """
+    Placeholder for quality rate calculation using pylint.
+    TODO: Implement actual pylint analysis.
+    """
+    logger.warning("calc_quality_rate is not fully implemented yet")
+    return 0.0
 
 def main():
-    """
-    Main entry point for testing calc_quality_rate.
-    """
-    configure_logging()
-    repo_path = Path("data/raw/test_repo")  # Example path
-    if repo_path.exists():
-        result = calc_quality_rate(repo_path)
-        print(json.dumps(result, indent=2))
+    """Main entry point for metrics module testing."""
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python metrics.py <command> [args]")
+        print("Commands: churn <repo_path>, readability <comment1> [comment2...], sentiment <comment1> [comment2...]")
+        sys.exit(1)
+        
+    command = sys.argv[1]
+    
+    if command == "churn":
+        if len(sys.argv) < 3:
+            print("Usage: python metrics.py churn <repo_path>")
+            sys.exit(1)
+        repo_path = sys.argv[2]
+        try:
+            churn = calc_churn(repo_path)
+            print(f"Total churn: {churn}")
+        except Exception as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+            
+    elif command == "readability":
+        if len(sys.argv) < 3:
+            print("Usage: python metrics.py readability <comment1> [comment2...]")
+            sys.exit(1)
+        comments = sys.argv[2:]
+        score = calc_readability(comments)
+        print(f"Average readability: {score}")
+        
+    elif command == "sentiment":
+        if len(sys.argv) < 3:
+            print("Usage: python metrics.py sentiment <comment1> [comment2...]")
+            sys.exit(1)
+        comments = sys.argv[2:]
+        score = calc_sentiment(comments)
+        print(f"Average sentiment: {score}")
+        
     else:
-        print(f"Test repository not found at {repo_path}. Please clone a repo first.")
+        print(f"Unknown command: {command}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

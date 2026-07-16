@@ -1,94 +1,142 @@
+"""
+Unit tests for feature extraction functions.
+
+Tests for Permutation Entropy and Lempel-Ziv Complexity calculations.
+"""
 import pytest
 import numpy as np
 import sys
 import os
 
-# Add code to path for imports
+# Add code directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from features import calculate_lzc, calculate_permutation_entropy
+from features import calculate_permutation_entropy, calculate_lzc
 
-class TestLZC:
-    """Unit tests for Lempel-Ziv Complexity calculation."""
 
+class TestPermutationEntropy:
+    """Tests for permutation entropy calculation."""
+    
     def test_constant_signal(self):
-        """Constant signal should have LZC near 0."""
-        signal = np.ones(1000)
-        lzc = calculate_lzc(signal)
-        assert lzc < 0.1, f"Constant signal LZC should be near 0, got {lzc}"
-
+        """PE should be 0 for constant signal (no patterns)."""
+        signal = np.ones(100)
+        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
+        assert entropy == 0.0
+    
     def test_alternating_signal(self):
-        """Alternating 0/1 signal has low complexity."""
-        signal = np.tile([0, 1], 500)
-        lzc = calculate_lzc(signal)
-        # Alternating pattern is simple, low LZC
-        assert lzc < 0.5, f"Alternating signal LZC too high: {lzc}"
-
+        """PE should be low for highly regular alternating signal."""
+        signal = np.array([0, 1, 0, 1, 0, 1, 0, 1] * 12)
+        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
+        # Should be relatively low compared to random
+        assert entropy < 1.0
+    
     def test_random_signal(self):
-        """Random signal should have higher LZC."""
+        """PE should be higher for random signal."""
         np.random.seed(42)
-        signal = np.random.randn(1000)
-        lzc = calculate_lzc(signal)
-        # Random signal should have moderate to high complexity
-        assert 0.3 < lzc < 1.0, f"Random signal LZC out of expected range: {lzc}"
-
+        signal = np.random.randn(500)
+        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
+        # Should be closer to maximum (log2(6) ≈ 2.58)
+        assert entropy > 1.5
+    
+    def test_order_parameter(self):
+        """PE should change with different order values."""
+        signal = np.random.randn(500)
+        entropy_order3 = calculate_permutation_entropy(signal, order=3, delay=1)
+        entropy_order4 = calculate_permutation_entropy(signal, order=4, delay=1)
+        
+        # Different orders should give different results
+        assert entropy_order3 != entropy_order4
+    
     def test_empty_signal(self):
-        """Empty signal should return 0."""
+        """PE should return 0 for empty signal."""
+        signal = np.array([])
+        entropy = calculate_permutation_entropy(signal)
+        assert entropy == 0.0
+    
+    def test_small_signal(self):
+        """PE should handle very small signals gracefully."""
+        signal = np.array([1, 2, 3])
+        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
+        assert entropy >= 0.0
+    
+    def test_known_signal(self):
+        """Test with a signal of known properties."""
+        # Create a signal with known pattern
+        # [0, 1, 2, 0, 1, 2, ...] should have low entropy
+        signal = np.tile([0, 1, 2], 50)
+        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
+        assert entropy < 0.5  # Very low entropy for repeating pattern
+
+class TestLempelZivComplexity:
+    """Tests for Lempel-Ziv complexity calculation."""
+    
+    def test_constant_signal(self):
+        """LZC should be low for constant signal."""
+        signal = np.ones(100)
+        lzc = calculate_lzc(signal)
+        assert lzc < 0.5  # Low complexity
+    
+    def test_alternating_signal(self):
+        """LZC should be low for alternating signal."""
+        signal = np.array([0, 1, 0, 1, 0, 1, 0, 1] * 25)
+        lzc = calculate_lzc(signal)
+        assert lzc < 0.5  # Low complexity
+    
+    def test_random_signal(self):
+        """LZC should be higher for random signal."""
+        np.random.seed(42)
+        signal = np.random.randn(500)
+        lzc = calculate_lzc(signal)
+        # Should be higher than regular signals
+        assert lzc > 0.5
+    
+    def test_empty_signal(self):
+        """LZC should return 0 for empty signal."""
         signal = np.array([])
         lzc = calculate_lzc(signal)
         assert lzc == 0.0
-
-    def test_known_pattern(self):
-        """Test with a known repeating pattern."""
-        # Pattern: 1, 2, 3 repeated
-        signal = np.tile([1, 2, 3], 300)
+    
+    def test_small_signal(self):
+        """LZC should handle small signals."""
+        signal = np.array([1, 2, 3, 4, 5])
         lzc = calculate_lzc(signal)
-        assert lzc < 0.5, f"Repeating pattern should have low LZC, got {lzc}"
+        assert lzc >= 0.0
+    
+    def test_binary_signal(self):
+        """LZC should work with binary signals."""
+        signal = np.array([0, 1, 0, 0, 1, 1, 0, 1, 0, 1] * 20)
+        lzc = calculate_lzc(signal)
+        assert lzc >= 0.0 and lzc <= 1.0  # Normalized value
 
-class TestPermutationEntropy:
-    """Unit tests for Permutation Entropy calculation."""
-
-    def test_constant_signal(self):
-        """Constant signal has zero permutation entropy."""
-        signal = np.ones(1000)
-        pe = calculate_permutation_entropy(signal, order=3)
-        assert pe == 0.0, f"Constant signal PE should be 0, got {pe}"
-
-    def test_linear_trend(self):
-        """Linear trend has low permutation entropy."""
-        signal = np.linspace(0, 10, 1000)
-        pe = calculate_permutation_entropy(signal, order=3)
-        assert pe < 0.5, f"Linear trend PE too high: {pe}"
-
-    def test_random_signal(self):
-        """Random signal should have high permutation entropy."""
+class TestIntegration:
+    """Integration tests for feature extraction."""
+    
+    def test_both_metrics_on_same_signal(self):
+        """Both metrics should produce reasonable values on same signal."""
         np.random.seed(42)
-        signal = np.random.randn(1000)
-        pe = calculate_permutation_entropy(signal, order=3)
-        # Max PE for order 3 is 1.0
-        assert 0.5 < pe <= 1.0, f"Random signal PE out of expected range: {pe}"
-
-    def test_order_2(self):
-        """Test with order=2 (only 2 permutations possible)."""
-        signal = np.random.randn(1000)
-        pe = calculate_permutation_entropy(signal, order=2)
-        assert 0 <= pe <= 1.0
-
-    def test_high_order(self):
-        """Test with higher order."""
-        signal = np.random.randn(1000)
-        pe = calculate_permutation_entropy(signal, order=5)
-        assert 0 <= pe <= 1.0
-
-    def test_short_signal(self):
-        """Short signal should handle gracefully."""
-        signal = np.array([1.0, 2.0, 3.0])
-        # With order=3, delay=1, we need at least 3 points
-        pe = calculate_permutation_entropy(signal, order=3)
-        assert 0 <= pe <= 1.0
-
-    def test_too_short_signal(self):
-        """Signal too short for order should return 0."""
-        signal = np.array([1.0, 2.0])
-        pe = calculate_permutation_entropy(signal, order=3)
-        assert pe == 0.0
+        signal = np.random.randn(500)
+        
+        lzc = calculate_lzc(signal)
+        pe = calculate_permutation_entropy(signal)
+        
+        # Both should be non-negative
+        assert lzc >= 0.0
+        assert pe >= 0.0
+        
+        # Both should be finite
+        assert np.isfinite(lzc)
+        assert np.isfinite(pe)
+    
+    def test_different_signals_different_metrics(self):
+        """Different signals should produce different metric values."""
+        np.random.seed(42)
+        signal1 = np.random.randn(500)
+        signal2 = np.random.randn(500)
+        
+        lzc1 = calculate_lzc(signal1)
+        lzc2 = calculate_lzc(signal2)
+        pe1 = calculate_permutation_entropy(signal1)
+        pe2 = calculate_permutation_entropy(signal2)
+        
+        # Values should differ (with very high probability)
+        assert lzc1 != lzc2 or pe1 != pe2

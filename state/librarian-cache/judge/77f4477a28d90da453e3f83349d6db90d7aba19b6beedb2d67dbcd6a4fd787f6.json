@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1008.0604",
+  "judged_at": "2026-07-16T10:03:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "rationale": "This paper satisfies criterion (a) as it provides experimental evidence of a chaotic system where the dynamics (chaos-to-chaos transition) are explicitly shown to depend on an initial condition parameter (detachment pulse power), directly measuring the influence of that variable on the system's chaotic behavior.",
+  "relevant": true
+}

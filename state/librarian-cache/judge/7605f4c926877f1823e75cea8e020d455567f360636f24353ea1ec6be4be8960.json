@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.29967",
+  "judged_at": "2026-07-16T10:03:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "rationale": "This paper satisfies criterion (a) as it explicitly investigates the \"nonlinear dynamics\" and \"chaotic attractors\" of a specific system, analyzing how the system's behavior (including the emergence of chaos) depends on controlled parameters and initial conditions (implied by the examination of \"basins of attraction\" and \"multi-stability\"). It provides direct evidence on the mechanism of chaotic dynamics and the influence of system parameters/initial states, which is the core of the user's questi",
+  "relevant": true
+}

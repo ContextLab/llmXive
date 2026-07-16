@@ -4,302 +4,214 @@ import os
 import glob
 import hashlib
 import re
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-# --- Metric Calculation Helpers ---
-
-def calculate_loc(tree: ast.AST) -> int:
-    """Calculate Lines of Code (LOC) for an AST."""
-    if not tree:
+def calculate_loc(file_path: str) -> int:
+    """Calculate Lines of Code (LOC) for a Python file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        # Filter out empty lines and comments
+        code_lines = [
+            line for line in lines 
+            if line.strip() and not line.strip().startswith('#')
+        ]
+        return len(code_lines)
+    except Exception:
         return 0
-    lines = set()
-    for node in ast.walk(tree):
-        if hasattr(node, 'lineno'):
-            lines.add(node.lineno)
-    return len(lines)
 
-def calculate_cyclomatic_complexity(tree: ast.AST) -> int:
-    """Calculate Cyclomatic Complexity (CC) for an AST."""
-    if not tree:
-        return 1
-    complexity = 1
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler,
-                             ast.With, ast.Assert, ast.comprehension)):
-            complexity += 1
-        elif isinstance(node, ast.BoolOp):
-            complexity += len(node.values) - 1
-    return complexity
-
-def analyze_file_metrics(file_path: str) -> Dict[str, Any]:
-    """Analyze a single Python file for LOC and CC."""
+def calculate_cyclomatic_complexity(file_path: str) -> int:
+    """Calculate Cyclomatic Complexity (CC) for a Python file using AST."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             source = f.read()
         tree = ast.parse(source)
-        return {
-            'file': file_path,
-            'loc': calculate_loc(tree),
-            'cc': calculate_cyclomatic_complexity(tree)
-        }
-    except (SyntaxError, UnicodeDecodeError, FileNotFoundError) as e:
-        return {
-            'file': file_path,
-            'error': str(e),
-            'loc': 0,
-            'cc': 0
-        }
+        
+        cc = 1  # Base complexity
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler, 
+                                 ast.With, ast.Assert, ast.comprehension)):
+                cc += 1
+            elif isinstance(node, ast.BoolOp):
+                # Each 'and' or 'or' adds to complexity
+                cc += len(node.values) - 1
+        return cc
+    except SyntaxError:
+        return 0
+    except Exception:
+        return 0
+
+def analyze_file_metrics(repo_path: str) -> List[Dict[str, Any]]:
+    """Scan a repository and return metrics for each Python file."""
+    metrics = []
+    py_files = glob.glob(os.path.join(repo_path, "**", "*.py"), recursive=True)
+    
+    # Exclude common non-source directories
+    exclude_dirs = {'__pycache__', '.git', 'venv', 'env', '.tox', 'node_modules'}
+    
+    for file_path in py_files:
+        # Check if file is in an excluded directory
+        parts = file_path.replace(repo_path, '').split(os.sep)
+        if any(p in exclude_dirs for p in parts):
+            continue
+        
+        loc = calculate_loc(file_path)
+        cc = calculate_cyclomatic_complexity(file_path)
+        
+        metrics.append({
+            "file": file_path,
+            "loc": loc,
+            "cyclomatic_complexity": cc
+        })
+    
+    return metrics
 
 def scan_repository_for_metrics(repo_path: str) -> Dict[str, Any]:
-    """Scan a repository for Python files and aggregate metrics."""
-    python_files = glob.glob(os.path.join(repo_path, '**', '*.py'), recursive=True)
-    results = []
-    total_loc = 0
-    total_cc = 0
-    for pf in python_files:
-        metrics = analyze_file_metrics(pf)
-        results.append(metrics)
-        total_loc += metrics['loc']
-        total_cc += metrics['cc']
+    """Aggregate metrics for an entire repository."""
+    file_metrics = analyze_file_metrics(repo_path)
+    total_loc = sum(m['loc'] for m in file_metrics)
+    total_cc = sum(m['cyclomatic_complexity'] for m in file_metrics)
+    
     return {
-        'files': results,
-        'total_loc': total_loc,
-        'total_cc': total_cc,
-        'file_count': len(results)
+        "total_loc": total_loc,
+        "total_cyclomatic_complexity": total_cc,
+        "file_count": len(file_metrics),
+        "average_cc": total_cc / len(file_metrics) if file_metrics else 0
     }
-
-# --- Documentation Criteria & Rubric Logic (T021a) ---
 
 def check_documentation_criteria(repo_path: str) -> Dict[str, Any]:
     """
-    Check specific documentation criteria for a repository.
-    Criteria: Setup Instructions, API Reference, Architecture.
-    Returns a dict with scores (0-1) and details for each criterion.
+    Check if a repository meets basic documentation criteria:
+    - Has a README (README.md, README.rst, README.txt)
+    - Has a setup file (setup.py, pyproject.toml, setup.cfg)
+    - Has API documentation (docs/ folder or similar)
     """
-    readme_path = os.path.join(repo_path, 'README.md')
-    if not os.path.exists(readme_path):
-        return {
-            'setup_instructions': {'score': 0, 'found': False, 'reason': 'No README.md'},
-            'api_reference': {'score': 0, 'found': False, 'reason': 'No README.md'},
-            'architecture': {'score': 0, 'found': False, 'reason': 'No README.md'}
-        }
-
-    with open(readme_path, 'r', encoding='utf-8') as f:
-        content = f.read().lower()
-
-    # 1. Setup Instructions
-    setup_patterns = [r'install', r'setup', r'getting started', r'quickstart', r'installation']
-    setup_found = any(re.search(p, content) for p in setup_patterns)
-    setup_score = 1.0 if setup_found else 0.0
-
-    # 2. API Reference
-    api_patterns = [r'api', r'usage', r'example', r'function', r'class', r'method']
-    api_found = any(re.search(p, content) for p in api_patterns)
-    api_score = 1.0 if api_found else 0.0
-
-    # 3. Architecture
-    arch_patterns = [r'architecture', r'structure', r'components', r'design', r'overview']
-    arch_found = any(re.search(p, content) for p in arch_patterns)
-    arch_score = 1.0 if arch_found else 0.0
-
-    return {
-        'setup_instructions': {
-            'score': setup_score,
-            'found': setup_found,
-            'reason': 'Setup instructions found' if setup_found else 'No setup instructions detected'
-        },
-        'api_reference': {
-            'score': api_score,
-            'found': api_found,
-            'reason': 'API reference found' if api_found else 'No API reference detected'
-        },
-        'architecture': {
-            'score': arch_score,
-            'found': arch_found,
-            'reason': 'Architecture description found' if arch_found else 'No architecture description detected'
-        }
+    criteria = {
+        "has_readme": False,
+        "has_setup_file": False,
+        "has_api_docs": False,
+        "details": {}
     }
+    
+    # Check for README
+    readme_patterns = ['README.md', 'README.rst', 'README.txt', 'readme.md']
+    for pattern in readme_patterns:
+        if os.path.exists(os.path.join(repo_path, pattern)):
+            criteria["has_readme"] = True
+            criteria["details"]["readme_file"] = pattern
+            break
+    
+    # Check for setup files
+    setup_files = ['setup.py', 'pyproject.toml', 'setup.cfg']
+    for sf in setup_files:
+        if os.path.exists(os.path.join(repo_path, sf)):
+            criteria["has_setup_file"] = True
+            criteria["details"]["setup_file"] = sf
+            break
+    
+    # Check for docs folder
+    if os.path.isdir(os.path.join(repo_path, 'docs')):
+        criteria["has_api_docs"] = True
+        criteria["details"]["docs_folder"] = "docs/"
+    
+    return criteria
 
 def evaluate_repository_rubric(repo_path: str) -> Dict[str, Any]:
     """
-    Evaluate a repository against the full selection rubric.
-    Combines documentation criteria and basic metrics (if available).
-    Returns a summary dict with pass/fail status and breakdown.
+    Evaluate a repository against the selection rubric.
+    Returns a score and pass/fail status.
+    Criteria: Setup instructions, API ref, Architecture docs.
     """
-    doc_criteria = check_documentation_criteria(repo_path)
+    doc_check = check_documentation_criteria(repo_path)
     
-    # Calculate total score (max 3.0)
-    total_score = (
-        doc_criteria['setup_instructions']['score'] +
-        doc_criteria['api_reference']['score'] +
-        doc_criteria['architecture']['score']
-    )
+    # Scoring logic (simple weighted sum)
+    score = 0
+    details = {}
     
-    # Threshold: Must have at least 2 out of 3 criteria met (score >= 2.0)
-    threshold = 2.0
-    passed = total_score >= threshold
-
+    if doc_check["has_readme"]:
+        score += 40
+        details["readme"] = "Present"
+    else:
+        details["readme"] = "Missing"
+        
+    if doc_check["has_setup_file"]:
+        score += 30
+        details["setup"] = "Present"
+    else:
+        details["setup"] = "Missing"
+        
+    if doc_check["has_api_docs"]:
+        score += 30
+        details["api_docs"] = "Present"
+    else:
+        details["api_docs"] = "Missing"
+    
+    # Threshold: Must have at least README and Setup file to pass
+    passed = doc_check["has_readme"] and doc_check["has_setup_file"]
+    
     return {
-        'repo_path': repo_path,
-        'total_score': total_score,
-        'threshold': threshold,
-        'passed': passed,
-        'criteria': doc_criteria
+        "score": score,
+        "passed": passed,
+        "details": details
     }
 
-def run_rubric_on_candidates(candidates: List[str]) -> List[Dict[str, Any]]:
-    """
-    Run the rubric on a list of candidate repository paths.
-    Returns a list of evaluation results.
-    """
+def run_rubric_on_candidates(repos: List[str]) -> List[Dict[str, Any]]:
+    """Run the rubric on a list of repository paths."""
     results = []
-    for candidate in candidates:
-        if not os.path.isdir(candidate):
-            results.append({
-                'repo_path': candidate,
-                'error': 'Directory not found',
-                'passed': False
-            })
-            continue
-        evaluation = evaluate_repository_rubric(candidate)
-        results.append(evaluation)
+    for repo in repos:
+        if os.path.exists(repo):
+            result = evaluate_repository_rubric(repo)
+            result["repo_path"] = repo
+            results.append(result)
     return results
-
-# --- Schema Validation Helpers ---
 
 def load_schema_from_file(schema_path: str) -> Dict[str, Any]:
     """Load a JSON schema from a file."""
-    with open(schema_path, 'r', encoding='utf-8') as f:
+    with open(schema_path, 'r') as f:
         return json.load(f)
 
-def validate_json_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """
-    Basic JSON schema validation without external libraries.
-    Checks for required fields and basic types.
-    Returns (is_valid, list_of_errors).
-    """
-    errors = []
-    required = schema.get('required', [])
-    properties = schema.get('properties', {})
-
-    for field in required:
+def validate_json_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Basic validation of data against a schema (simplified)."""
+    # In a real implementation, use jsonschema library
+    required_fields = schema.get("required", [])
+    for field in required_fields:
         if field not in data:
-            errors.append(f"Missing required field: {field}")
+            return False
+    return True
 
-    for field, value in data.items():
-        if field in properties:
-            expected_type = properties[field].get('type')
-            if expected_type == 'string' and not isinstance(value, str):
-                errors.append(f"Field '{field}' must be string, got {type(value).__name__}")
-            elif expected_type == 'number' and not isinstance(value, (int, float)):
-                errors.append(f"Field '{field}' must be number, got {type(value).__name__}")
-            elif expected_type == 'boolean' and not isinstance(value, bool):
-                errors.append(f"Field '{field}' must be boolean, got {type(value).__name__}")
-            elif expected_type == 'array' and not isinstance(value, list):
-                errors.append(f"Field '{field}' must be array, got {type(value).__name__}")
-            elif expected_type == 'object' and not isinstance(value, dict):
-                errors.append(f"Field '{field}' must be object, got {type(value).__name__}")
-    
-    return len(errors) == 0, errors
-
-def validate_data_file(data_path: str, schema_path: str) -> Dict[str, Any]:
+def validate_data_file(file_path: str, schema_path: str) -> bool:
     """Validate a data file against a schema."""
     try:
-        with open(data_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
         schema = load_schema_from_file(schema_path)
-        is_valid, errors = validate_json_schema(data, schema)
-        return {
-            'valid': is_valid,
-            'errors': errors,
-            'data_path': data_path,
-            'schema_path': schema_path
-        }
-    except json.JSONDecodeError as e:
-        return {
-            'valid': False,
-            'errors': [f"JSON Decode Error: {str(e)}"],
-            'data_path': data_path,
-            'schema_path': schema_path
-        }
-    except FileNotFoundError as e:
-        return {
-            'valid': False,
-            'errors': [f"File not found: {str(e)}"],
-            'data_path': data_path,
-            'schema_path': schema_path
-        }
-
-# --- Covariate Collection Helpers ---
+        return validate_json_schema(data, schema)
+    except Exception:
+        return False
 
 def collect_covariates(repo_path: str) -> Dict[str, Any]:
-    """Collect covariates (LOC, CC, Doc Score) for a repository."""
+    """Collect covariates for a repository (LOC, CC, etc.)."""
     metrics = scan_repository_for_metrics(repo_path)
-    doc_eval = evaluate_repository_rubric(repo_path)
     return {
-        'repo_path': repo_path,
-        'loc': metrics['total_loc'],
-        'cc': metrics['total_cc'],
-        'doc_score': doc_eval['total_score'],
-        'doc_details': doc_eval['criteria']
+        "repo": repo_path,
+        "loc": metrics["total_loc"],
+        "cyclomatic_complexity": metrics["total_cyclomatic_complexity"],
+        "average_cc": metrics["average_cc"]
     }
 
-def generate_covariates_json(repos: List[str], output_path: str) -> None:
-    """Generate a JSON file with covariates for a list of repositories."""
-    covariates = [collect_covariates(repo) for repo in repos]
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+def generate_covariates_json(repos: List[str], output_path: str):
+    """Generate a JSON file with covariates for multiple repositories."""
+    covariates = []
+    for repo in repos:
+        if os.path.exists(repo):
+            covariates.append(collect_covariates(repo))
+    
+    with open(output_path, 'w') as f:
         json.dump(covariates, f, indent=2)
 
-# --- Main Entry Point ---
-
 def main():
-    """Main entry point for validation script."""
-    import sys
-    if len(sys.argv) < 2:
-        print("Usage: python code/validation.py <command> [args...]")
-        print("Commands: rubric, metrics, covariates, validate")
-        sys.exit(1)
+    """Entry point for validation module tests."""
+    print("Validation module loaded successfully.")
 
-    command = sys.argv[1]
-
-    if command == 'rubric':
-        if len(sys.argv) < 3:
-            print("Usage: python code/validation.py rubric <repo_path>")
-            sys.exit(1)
-        repo_path = sys.argv[2]
-        result = evaluate_repository_rubric(repo_path)
-        print(json.dumps(result, indent=2))
-
-    elif command == 'metrics':
-        if len(sys.argv) < 3:
-            print("Usage: python code/validation.py metrics <repo_path>")
-            sys.exit(1)
-        repo_path = sys.argv[2]
-        result = scan_repository_for_metrics(repo_path)
-        print(json.dumps(result, indent=2))
-
-    elif command == 'covariates':
-        if len(sys.argv) < 4:
-            print("Usage: python code/validation.py covariates <repo1> <repo2> ... <output_path>")
-            sys.exit(1)
-        output_path = sys.argv[-1]
-        repos = sys.argv[2:-1]
-        generate_covariates_json(repos, output_path)
-        print(f"Covariates written to {output_path}")
-
-    elif command == 'validate':
-        if len(sys.argv) != 4:
-            print("Usage: python code/validation.py validate <data_path> <schema_path>")
-            sys.exit(1)
-        data_path = sys.argv[2]
-        schema_path = sys.argv[3]
-        result = validate_data_file(data_path, schema_path)
-        print(json.dumps(result, indent=2))
-        sys.exit(0 if result['valid'] else 1)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

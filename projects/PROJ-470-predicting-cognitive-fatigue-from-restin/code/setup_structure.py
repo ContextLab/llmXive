@@ -1,55 +1,79 @@
 """
-Setup script to create the project directory structure.
+Project structure setup script for PROJ-470-predicting-cognitive-fatigue-from-restin.
+Creates the required directory hierarchy for the automated science pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root based on the current working directory context
-    # The script is expected to be run from the project root or the code directory.
-    # We will assume the script is run from the project root 'projects/PROJ-470-...'
-    # or we need to resolve it relative to the script location if run as a module.
-    # Given the task description, we target the specific project path.
+    """Create the project directory structure."""
+    # Define the project root relative to the current working directory
+    project_root = Path.cwd()
     
-    # Determine the base directory. If run from the project root, use that.
-    # If run from code/, go up one level.
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-    
-    # Verify we are in the expected project
-    expected_project_name = "PROJ-470-predicting-cognitive-fatigue-from-restin"
-    if project_root.name != expected_project_name:
-        # If not, try to find the parent that matches, or assume current dir is root
-        # For robustness, we assume the command is run from the project root
-        # but if the file is in code/, we go up.
-        pass 
-    
-    # Define the directories to create
-    # Based on T001: projects/PROJ-470.../data/raw, etc.
-    # Since script is in code/, project_root is the project root.
-    
-    dirs_to_create = [
+    # Define all required directories
+    required_dirs = [
         "data/raw",
         "data/processed",
         "data/analysis",
         "code",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
+        "specs"  # Added for spec files as referenced in task descriptions
     ]
     
     created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
+    existing_count = 0
     
-    print(f"Setup complete. Created {created_count} new directories.")
+    print(f"Setting up project structure in: {project_root}")
+    print("-" * 60)
+    
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        
+        if full_path.exists():
+            if full_path.is_dir():
+                print(f"[EXISTS] {dir_path}")
+                existing_count += 1
+            else:
+                print(f"[ERROR] {dir_path} exists but is not a directory!")
+                sys.exit(1)
+        else:
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+                print(f"[CREATED] {dir_path}")
+                created_count += 1
+            except Exception as e:
+                print(f"[ERROR] Failed to create {dir_path}: {e}")
+                sys.exit(1)
+    
+    # Create .gitkeep files to ensure directories are tracked by git
+    gitkeep_files = []
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path / ".gitkeep"
+        if not full_path.exists():
+            full_path.touch()
+            gitkeep_files.append(str(full_path))
+    
+    print("-" * 60)
+    print(f"Summary: {created_count} directories created, {existing_count} already existed.")
+    print(f"Created {len(gitkeep_files)} .gitkeep files to ensure git tracking.")
+    print("Project structure setup complete.")
+    
+    # Print the resulting tree structure for verification
+    print("\nResulting directory structure:")
+    print("├── data/")
+    print("│   ├── analysis/")
+    print("│   ├── processed/")
+    print("│   └── raw/")
+    print("├── code/")
+    print("├── docs/")
+    print("├── specs/")
+    print("└── tests/")
+    print("    ├── integration/")
+    print("    └── unit/")
+    
     return 0
 
 if __name__ == "__main__":

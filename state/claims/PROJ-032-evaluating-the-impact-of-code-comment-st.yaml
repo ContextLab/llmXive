@@ -211,3 +211,116 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T05:36:43Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: stratified sampling of 500 repositories
+  claim_id: c_3f8de9c0
+  context: Implement generate_manual_labels() - Create a script to generate data/manual_labels.csv
+    by stratified sampling a representative subset of commits from the 500 repos
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratified sampling a representative subset of commits from the 500 repos
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:54:17Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: global stratified sample size of 50
+  claim_id: c_815380dc
+  context: validate against data/manual_labels.csv (global stratified sample N=50)
+    and calculate 95% CI for accuracy
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global stratified sample N=50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:54:34Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: query HuggingFace codeparrot/github-code for Python repos with 100 or
+    more stars
+  claim_id: c_b3ad2de8
+  context: "Implement src/code/fetch.py get_candidates(): Query HuggingFace codeparrot/github-code\
+    \ for Python repos \u2265100 stars"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Query HuggingFace codeparrot/github-code for Python repos \u2265100 stars"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:54:34Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: return list of 500 candidate IDs
+  claim_id: c_8d803f83
+  context: "Query HuggingFace codeparrot/github-code for Python repos \u2265100 stars.\
+    \ If unreachable, fallback to . Return list of 500 candidate IDs"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Return list of 500 candidate IDs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:55:03Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: enforce batch size of 10 or fewer
+  claim_id: c_20e93da6
+  context: "Use BatchIterator (T004b) to clone repos to data/raw/ with full history;\
+    \ handle errors (skip/log); enforce batch size \u226410"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce batch size \u226410"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:55:03Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: Flesch-Kincaid readability target of 65.3 with margin of error 0.1
+  claim_id: c_47bc57cc
+  context: "Use textstat.flesch_kincaid_grade on extracted comments; validate against\
+    \ known string \"This is a simple test.\" (target 65.3 \xB1 0.1)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target 65.3 \xB1 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:55:41Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: sweep significance thresholds over values 0.01, 0.05, and 0.1
+  claim_id: c_fe2a6360
+  context: 'Implement run_sensitivity(): Sweep significance thresholds over {0.01,
+    0.05, 0.1} for exploratory analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep significance thresholds over {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:56:10Z'

@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization, basic structure, and shared utilities.
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/` including `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/`. Verification: Run a Python script `scripts/verify_structure.py` that asserts `os.path.isdir` for `data/raw/`, `code/`, `tests/` and exits with code 0.
-- [ ] T002 Create `requirements.txt` containing: `requests`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `openai`, `transformers`, `llama-cpp-python`, `tiktoken`, `pyyaml`, `psutil`, `gitpython`, `ruff`, `black` with pinned versions (e.g., `pip freeze` or explicit versions). Verification: Run `pip check` to ensure no conflicts.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with configuration and running `ruff check.` and `black --check.` to ensure exit code 0.
-- [ ] T010 [P] [Setup] Implement active monitoring context manager in `code/utils/monitor.py` using `psutil` and `time` to log peak memory and wall-clock time during execution. (Required for FR-010 and available for all phases). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [X] T001 Create project structure per implementation plan: `projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/` including `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/`. Verification: Run a Python script `scripts/verify_structure.py` that asserts `os.path.isdir` for `data/raw/`, `code/`, `tests/` and exits with code 0.
+- [X] T002 Create `requirements.txt` containing: `requests`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `openai`, `transformers`, `llama-cpp-python`, `tiktoken`, `pyyaml`, `psutil`, `gitpython`, `ruff`, `black` with pinned versions (e.g., `pip freeze` or explicit versions). Verification: Run `pip check` to ensure no conflicts.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with configuration and running `ruff check.` and `black --check.` to ensure exit code 0.
+- [X] T010 [P] [Setup] Implement active monitoring context manager in `code/utils/monitor.py` using `psutil` and `time` to log peak memory and wall-clock time during execution. (Required for FR-010 and available for all phases). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
@@ -59,7 +59,7 @@
 
 **⚠️ CRITICAL**: No User Story 2 work can begin until this phase is complete.
 
-- [ ] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks. (Moved from Phase 8 to ensure logic is available for T021a/b). <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks. (Moved from Phase 8 to ensure logic is available for T021a/b). <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 1:
  **Task**: Consolidate validation...
  ^
@@ -69,7 +69,7 @@ expected alphabetic or numeric character, but found '*'
  ^) -->
 - [X] T021a [P] Implement repository selection rubric logic (criteria: setup instructions, API ref, architecture) in `code/validation.py` (DEPENDS on T047).
 - [ ] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
-- [~] T021c [P] Implement metric collection for covariate adjustment in `code/validation.py` (DEPENDS on T021b). Output: `data/raw/repo_covariates.json`. This task replaces "quantitative matching" with metric collection for ANCOVA as per Plan updates.
+- [ ] T021c [P] Implement metric collection for covariate adjustment in `code/validation.py` (DEPENDS on T021b). Output: `data/raw/repo_covariates.json`. This task replaces "quantitative matching" with metric collection for ANCOVA as per Plan updates.
 - [X] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021c).
 
 ---
@@ -92,11 +92,11 @@ expected alphabetic or numeric character, but found '*'
 - [X] T013a [US1] Enforce N≥15 Recruitment Gate: Halt study execution if recruited count < 15 in `code/data_collection.py`. Verification: Log exact error message "Recruitment count < 15" and exit with code 1. (Moved before T014).
 - [X] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
 - [X] T015 [US1] Implement session start/end logging with precise timestamps in `code/data_collection.py`
-- [~] T016 [US1] Implement clarification question logging (timestamp + content) AND calculate the derived 'Cognitive Load Proxy' composite score. Logic: Redefine "Clarification Questions" as "Help Requests" (independent of struggle) by filtering for keywords ('how', 'why', 'what', 'explain') OR moderator tags. Composite Score = (Count of Help Requests) * (Average Time per Request). Output: Both raw logs and composite score written to JSON. Verification: Ensure both raw logs and the composite score are written to the output JSON.
+- [ ] T016 [US1] Implement clarification question logging (timestamp + content) AND calculate the derived 'Cognitive Load Proxy' composite score. Logic: Redefine "Clarification Questions" as "Help Requests" (independent of struggle) by filtering for keywords ('how', 'why', 'what', 'explain') OR moderator tags. Composite Score = (Count of Help Requests) * (Average Time per Request). Output: Both raw logs and composite score written to JSON. Verification: Ensure both raw logs and the composite score are written to the output JSON.
 - [X] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
 - [X] T018 [US1] Implement "Stop-Loss" intervention logic: flag `intervention_flag=True`, `time_capped=True`, set `final_time=MAX_TIME` (minutes), or record as failed if docs are unusable in `code/data_collection.py`. (Corrected timeout to 45m per spec Edge Case).
 - [X] T019 [US1] Implement handling for incomplete/abandoned records (exclude from time analysis, retain for dropout reporting) in `code/data_collection.py`
-- [~] T020 [US1] Create raw data export function to `data/raw/participant_logs.json` with checksum generation in `code/data_collection.py`
+- [ ] T020 [US1] Create raw data export function to `data/raw/participant_logs.json` with checksum generation in `code/data_collection.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,16 +110,16 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
+- [X] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
 - [X] T026 [P] [US2] Integration test for repo fetch and commit pinning in `tests/integration/test_repo_fetch.py`
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Implement primary LLM API integration (e.g., OpenAI) for documentation generation in `code/doc_generation.py`
+- [X] T027 [P] [US2] Implement primary LLM API integration (e.g., OpenAI) for documentation generation in `code/doc_generation.py`
 - [ ] T028 [US2] Implement fallback logic to local CPU-optimized model. If API fails, load a quantized language model using `llama-cpp-python`. MUST pin the model to a specific HuggingFace commit hash (use `HF_COMMIT_HASH` env var or constant). Max a limited number of retries with exponential backoff (s base, max bounded interval). NO paid API fallbacks allowed. Log generation config (model, temp, prompt, commit hash) to `data/llm_config.yaml` and generate a checksum recorded in `data/checksums.txt` to satisfy Constitution Principle VII.
-- [ ] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/doc_generation.py`
+- [X] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/doc_generation.py`
 - [ ] T030 [US2] Implement generation config logging (model, temp, prompt, commit hash) to `data/llm_config.yaml` (Note: Config is now logged in T028).
-- [ ] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/doc_generation.py`
+- [X] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/doc_generation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

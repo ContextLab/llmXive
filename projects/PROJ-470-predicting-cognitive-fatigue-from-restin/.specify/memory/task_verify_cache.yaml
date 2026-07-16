@@ -1,0 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory hierarchy (e.g., `projects/PROJ-470-predicting-cognitive-fatigue-from-restin/`\
+    \ with subfolders `data/raw/`, `data/processed/`, `data/analysis/`, `code/`, `tests/unit/`,\
+    \ `tests/integration/`, `docs/`) was presented. The implementer must provide a\
+    \ listing or screenshot showing that these directories exist and are non\u2011\
+    empty where appropriate."
+T014:
+  c: false
+  h: 7e2c7808a15f5654fc11a6bed7852b641cc9899285530ef0585fc7498607c4e6
+  r: "The repository contains a `code/features.py` file, but it does not include any\
+    \ code that writes Lempel\u2011Ziv complexity results to `data/processed/lzc_metrics.csv`,\
+    \ and the expected CSV file is absent from the project. Consequently the required\
+    \ output artifact is missing, so the task is not fulfilled."
+T015:
+  c: false
+  h: bb32971e5384cf730373af8e3fbedd36af4e69a6facc908add9539793cca5742
+  r: The repository contains a `code/features.py` file, but the required output file
+    `data/processed/pe_metrics.csv` is absent, indicating the script does not generate
+    the requested CSV. Without the CSV artifact, the task of calculating permutation
+    entropy per channel and saving the results is not fulfilled. The missing file
+    must be created (populated with the computed metrics) for the task to be considered
+    complete.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any new test files in `tests/unit/` was provided; the implementer\u2019\
+    s claim is unsupported and the required edge\u2011case unit tests (missing data,\
+    \ artifact rejection, analysis mode failures) are not present. The artifact is\
+    \ missing."

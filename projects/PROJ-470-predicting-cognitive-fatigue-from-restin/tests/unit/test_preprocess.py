@@ -7,7 +7,6 @@ Verifies that a 1-40 Hz bandpass filter attenuates 50 Hz line noise by > 20dB.
 import numpy as np
 import mne
 import pytest
-from scipy.signal import freqz
 import sys
 from pathlib import Path
 
@@ -19,7 +18,7 @@ from preprocess import apply_bandpass_filter
 def create_test_signal(length=1000, sfreq=256, noise_freq=50, noise_amp=1.0):
     """Create a synthetic signal with 50Hz noise for testing."""
     t = np.arange(length) / sfreq
-    # Base signal (low frequency)
+    # Base signal (low frequency, 10Hz)
     signal = np.sin(2 * np.pi * 10 * t)
     # Add 50Hz noise
     noise = noise_amp * np.sin(2 * np.pi * noise_freq * t)
@@ -45,7 +44,6 @@ def test_bandpass_attenuation_50hz():
     
     # Analyze frequency content
     # We expect the 50Hz component to be significantly reduced.
-    # Simple approach: Compare RMS of the 50Hz band before and after.
     
     # FFT
     fft_signal = np.fft.rfft(signal)
@@ -62,7 +60,7 @@ def test_bandpass_attenuation_50hz():
     # Avoid division by zero
     if power_before == 0:
         pytest.skip("Input signal has no 50Hz component")
-        
+            
     # Attenuation in dB
     # dB = 10 * log10(P_after / P_before)
     # We want attenuation > 20dB, meaning P_after / P_before < 0.01
@@ -72,7 +70,7 @@ def test_bandpass_attenuation_50hz():
         attenuation_db = -np.inf
     else:
         attenuation_db = 10 * np.log10(power_after / power_before)
-        
+            
     logger_msg = f"Attenuation at 50Hz: {attenuation_db:.2f} dB"
     print(logger_msg)
     

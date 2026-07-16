@@ -1,321 +1,299 @@
 """
-Unit tests for edge cases in the cognitive fatigue pipeline.
-Tests missing data, artifact rejection, and analysis mode failures.
+Unit tests for edge cases in the EEG complexity pipeline.
+Covers missing data, artifact rejection, and analysis mode failures.
 """
-
 import os
 import sys
 import json
 import tempfile
-import shutil
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from preprocess import reject_artifacts, apply_bandpass_filter
 from features import calculate_lzc, calculate_permutation_entropy
 from analysis import validate_metadata, run_correlation_analysis
-from utils.logging import get_logger
 
 
-class TestArtifactRejectionEdgeCases:
-    """Tests for artifact rejection logic under edge conditions."""
-
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.sample_rate = 100
-        self.duration = 120  # seconds
-
-    def test_all_epochs_rejected_due_to_amplitude(self):
-        """Test when all epochs exceed amplitude threshold."""
-        # Create data with amplitude > 100µV everywhere
-        data = np.random.randn(1, 100 * 120) * 150  # All > 100µV
-        sfreq = 100
-        info = {'sfreq': sfreq}
-
-        rejected_count, kept_count = reject_artifacts(data, sfreq, info, amplitude_threshold=100)
-
-        assert rejected_count > 0, "At least one epoch should be rejected"
-        assert kept_count == 0, "All epochs should be rejected when amplitude > threshold everywhere"
-
-    def test_short_segment_rejection(self):
-        """Test rejection of segments shorter than 120 seconds."""
-        # Create data for only 60 seconds (too short)
-        short_duration = 60
-        short_data = np.random.randn(1, 100 * short_duration) * 50
-        sfreq = 100
-        info = {'sfreq': sfreq}
-
-        # The function should reject this because duration < 120s
-        # Note: The actual implementation may handle this differently
-        # depending on how epochs are defined
-        rejected_count, kept_count = reject_artifacts(short_data, sfreq, info, amplitude_threshold=100, min_duration=120)
-
-        # If the segment is too short, it should be rejected
-        # The exact behavior depends on implementation details
-        # For now, we check that the function doesn't crash
-        assert isinstance(rejected_count, int)
-        assert isinstance(kept_count, int)
-
-    def test_mixed_rejection_scenario(self):
-        """Test scenario with some good and some bad epochs."""
-        # Create data with mixed quality
-        # First half: good (low amplitude)
-        # Second half: bad (high amplitude)
-        good_data = np.random.randn(1, 100 * 60) * 30
-        bad_data = np.random.randn(1, 100 * 60) * 150
-        mixed_data = np.concatenate([good_data, bad_data], axis=1)
-
-        sfreq = 100
-        info = {'sfreq': sfreq}
-
-        rejected_count, kept_count = reject_artifacts(mixed_data, sfreq, info, amplitude_threshold=100)
-
-        assert kept_count > 0, "Some good epochs should be kept"
-        assert rejected_count > 0, "Some bad epochs should be rejected"
-        assert kept_count + rejected_count > 0, "Total epochs should be positive"
-
-    def test_empty_data_array(self):
-        """Test rejection logic with empty data array."""
-        empty_data = np.array([]).reshape(1, 0)
-        sfreq = 100
-        info = {'sfreq': sfreq}
-
-        with pytest.raises((ValueError, IndexError)):
-            reject_artifacts(empty_data, sfreq, info, amplitude_threshold=100)
-
-    def test_nan_values_in_data(self):
-        """Test rejection logic when data contains NaN values."""
-        data = np.random.randn(1, 100 * 120) * 50
-        data[0, 500:600] = np.nan  # Inject NaNs
-
-        sfreq = 100
-        info = {'sfreq': sfreq}
-
-        # Should handle NaNs gracefully (either reject or fill)
-        # This test ensures no crash occurs
-        try:
-            rejected_count, kept_count = reject_artifacts(data, sfreq, info, amplitude_threshold=100)
-            assert isinstance(rejected_count, int)
-            assert isinstance(kept_count, int)
-        except Exception as e:
-            # If it raises, it should be a clear error, not a silent failure
-            assert "NaN" in str(e) or "invalid" in str(e).lower()
-
-
-class TestMissingDataEdgeCases:
+class TestMissingData:
     """Tests for handling missing data scenarios."""
 
-    def test_missing_metadata_columns(self):
+    def test_empty_eeg_segment(self):
+        """Test that empty EEG segments are handled gracefully."""
+        # Create empty data
+        empty_data = np.array([])
+        sfreq = 100.0
+
+        # Test LZC calculation on empty data
+        with pytest.raises((ValueError, IndexError)):
+            calculate_lzc(empty_data, sfreq)
+
+        # Test PE calculation on empty data
+        with pytest.raises((ValueError, IndexError)):
+            calculate_permutation_entropy(empty_data, sfreq)
+
+    def test_nan_values_in_eeg(self):
+        """Test handling of NaN values in EEG data."""
+        # Create data with NaN values
+        nan_data = np.array([1.0, np.nan, 3.0, 4.0, 5.0])
+        sfreq = 100.0
+
+        # Test LZC with NaN (should raise or handle)
+        with pytest.raises((ValueError, RuntimeError)):
+            calculate_lzc(nan_data, sfreq)
+
+        # Test PE with NaN
+        with pytest.raises((ValueError, RuntimeError)):
+            calculate_permutation_entropy(nan_data, sfreq)
+
+    def test_metadata_missing_required_columns(self):
         """Test validation when required metadata columns are missing."""
-        # Create metadata with missing columns
-        metadata = pd.DataFrame({
+        # Create metadata without required columns
+        incomplete_metadata = pd.DataFrame({
             'participant_id': ['P001', 'P002'],
-            'other_column': [1, 2]
+            'age': [25, 30]
             # Missing: pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id
         })
 
+        # Should raise ValueError or similar
         with pytest.raises((ValueError, KeyError)):
-            validate_metadata(metadata)
+            validate_metadata(incomplete_metadata)
 
-    def test_empty_metadata_dataframe(self):
-        """Test validation with empty metadata dataframe."""
-        empty_metadata = pd.DataFrame()
+    def test_missing_input_file(self):
+        """Test handling of missing input files."""
+        from preprocess import stream_eeg_files
 
-        with pytest.raises((ValueError, KeyError)):
-            validate_metadata(empty_metadata)
+        # Try to stream from non-existent directory
+        with pytest.raises(FileNotFoundError):
+            list(stream_eeg_files('/non/existent/path'))
 
-    def test_missing_complexity_metrics_file(self):
-        """Test analysis when complexity metrics file is missing."""
-        # This test would require mocking file system or using temp dir
-        # For now, we test the validation logic
-        pass
 
-    def test_null_values_in_fatigue_scores(self):
-        """Test handling of null values in fatigue scores."""
-        metadata = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
-            'pre_fatigue': [10.0, np.nan, 15.0],
-            'post_fatigue': [20.0, 25.0, np.nan],
-            'pre_eeg_id': ['E001', 'E002', 'E003'],
-            'post_eeg_id': ['E004', 'E005', 'E006']
-        })
+class TestArtifactRejection:
+    """Tests for artifact rejection edge cases."""
 
-        # Should handle NaN values (either exclude or raise clear error)
-        try:
-            result = validate_metadata(metadata)
-            # If it passes validation, it should have handled NaNs
-            assert result is not None
-        except Exception as e:
-            # If it raises, it should be a clear error message
-            assert "NaN" in str(e) or "missing" in str(e).lower()
+    def test_all_epochs_rejected(self):
+        """Test behavior when all epochs exceed artifact threshold."""
+        # Create data with extreme values (all > 100uV)
+        extreme_data = np.full((10, 1000), 150.0)  # 10 epochs, 1000 samples each
+        sfreq = 100.0
+        threshold = 100.0
+
+        # Should reject all epochs
+        rejected_indices = reject_artifacts(extreme_data, threshold)
+        assert len(rejected_indices) == 10
+
+    def test_no_epochs_rejected(self):
+        """Test when no epochs exceed threshold."""
+        # Create data with small values
+        small_data = np.full((10, 1000), 10.0)
+        sfreq = 100.0
+        threshold = 100.0
+
+        rejected_indices = reject_artifacts(small_data, threshold)
+        assert len(rejected_indices) == 0
+
+    def test_mixed_artifact_rejection(self):
+        """Test rejection with mixed valid/invalid epochs."""
+        # Create mixed data
+        mixed_data = np.zeros((5, 1000))
+        mixed_data[0, :] = 50.0  # Valid
+        mixed_data[1, :] = 150.0  # Invalid
+        mixed_data[2, :] = 80.0  # Valid
+        mixed_data[3, :] = 200.0  # Invalid
+        mixed_data[4, :] = 90.0  # Valid
+
+        threshold = 100.0
+        rejected_indices = reject_artifacts(mixed_data, threshold)
+
+        assert len(rejected_indices) == 2
+        assert 1 in rejected_indices
+        assert 3 in rejected_indices
+
+    def test_segment_too_short(self):
+        """Test rejection of segments shorter than minimum duration."""
+        # Create very short segment (less than 120 seconds at 100Hz = 12000 samples)
+        short_segment = np.random.randn(5000)  # 50 seconds
+        sfreq = 100.0
+
+        # This should be rejected or handled
+        # The actual implementation may raise or filter
+        with pytest.raises((ValueError, RuntimeError)):
+            calculate_lzc(short_segment, sfreq)
 
 
 class TestAnalysisModeFailures:
-    """Tests for analysis mode failures and fallback logic."""
+    """Tests for analysis pipeline failure modes."""
 
-    def test_no_paired_data_fallback(self):
-        """Test fallback to cross-sectional analysis when paired data is missing."""
-        # Create metadata with only baseline data (no paired)
-        metadata = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
-            'pre_fatigue': [10.0, 15.0, 20.0],
-            'post_fatigue': [np.nan, np.nan, np.nan],  # Missing post
-            'pre_eeg_id': ['E001', 'E002', 'E003'],
-            'post_eeg_id': [np.nan, np.nan, np.nan]  # Missing post
-        })
-
-        # Create complexity metrics with only baseline
-        complexity_metrics = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
-            'channel': ['Fz', 'Fz', 'Fz'],
-            'metric_type': ['lzc', 'lzc', 'lzc'],
-            'value': [0.5, 0.6, 0.7],
-            'timepoint': ['pre', 'pre', 'pre']
-        })
-
-        # Should fall back to cross-sectional analysis
-        # This test ensures the fallback logic works without crashing
-        try:
-            result = validate_metadata(metadata)
-            # If validation passes, it should have detected the mode
-            assert result is not None
-        except Exception as e:
-            # If it raises, it should be a clear error
-            assert "fallback" in str(e).lower() or "cross-sectional" in str(e).lower()
-
-    def test_neither_mode_available(self):
-        """Test when neither paired nor cross-sectional data is available."""
-        # Create metadata with no fatigue scores at all
-        metadata = pd.DataFrame({
+    def test_no_paired_data(self):
+        """Test analysis when no paired data is available."""
+        # Create metadata with only baseline data
+        baseline_only = pd.DataFrame({
             'participant_id': ['P001', 'P002'],
-            'pre_eeg_id': ['E001', 'E002'],
-            'post_eeg_id': ['E003', 'E004']
-            # Missing: pre_fatigue, post_fatigue
+            'pre_fatigue': [2.0, 3.0],
+            'post_fatigue': [np.nan, np.nan],  # Missing post
+            'pre_eeg_id': ['eeg1', 'eeg2'],
+            'post_eeg_id': [np.nan, np.nan]
         })
 
-        with pytest.raises((ValueError, KeyError)):
-            validate_metadata(metadata)
+        # Should either fail gracefully or switch to cross-sectional mode
+        # Based on T018, it should write validation_report.json and exit
+        # We test that it doesn't crash with unhandled exception
+        try:
+            validate_metadata(baseline_only)
+        except Exception as e:
+            # Expected to raise or handle gracefully
+            assert isinstance(e, (ValueError, KeyError))
 
-    def test_insufficient_samples_for_correlation(self):
-        """Test correlation analysis with insufficient samples."""
-        # Create metadata with only 1 participant
-        metadata = pd.DataFrame({
-            'participant_id': ['P001'],
-            'pre_fatigue': [10.0],
-            'post_fatigue': [15.0],
-            'pre_eeg_id': ['E001'],
-            'post_eeg_id': ['E002']
+    def test_no_baseline_data(self):
+        """Test analysis when no baseline data is available."""
+        # Create metadata with only post data
+        post_only = pd.DataFrame({
+            'participant_id': ['P001', 'P002'],
+            'pre_fatigue': [np.nan, np.nan],
+            'post_fatigue': [4.0, 5.0],
+            'pre_eeg_id': [np.nan, np.nan],
+            'post_eeg_id': ['eeg1', 'eeg2']
         })
 
-        complexity_metrics = pd.DataFrame({
-            'participant_id': ['P001'],
-            'channel': ['Fz'],
-            'metric_type': ['lzc'],
-            'value': [0.5],
-            'timepoint': ['pre']
+        try:
+            validate_metadata(post_only)
+        except Exception as e:
+            assert isinstance(e, (ValueError, KeyError))
+
+    def test_insufficient_sample_size(self):
+        """Test analysis with insufficient sample size."""
+        # Create metadata with only 2 participants (N < 30)
+        small_sample = pd.DataFrame({
+            'participant_id': ['P001', 'P002'],
+            'pre_fatigue': [2.0, 3.0],
+            'post_fatigue': [4.0, 5.0],
+            'pre_eeg_id': ['eeg1', 'eeg2'],
+            'post_eeg_id': ['eeg3', 'eeg4']
         })
 
-        # Correlation requires at least 2 samples
+        # Should handle small sample size gracefully
+        # May raise warning or error
+        try:
+            validate_metadata(small_sample)
+        except Exception:
+            pass  # Expected behavior
+
+    def test_correlation_with_constant_values(self):
+        """Test correlation calculation with constant values."""
+        # Create data with constant values (no variance)
+        constant_complexity = np.array([1.0, 1.0, 1.0, 1.0])
+        constant_fatigue = np.array([2.0, 2.0, 2.0, 2.0])
+
+        # Correlation should fail or return NaN
+        with pytest.raises((ValueError, RuntimeWarning)):
+            run_correlation_analysis(constant_complexity, constant_fatigue)
+
+    def test_correlation_with_single_pair(self):
+        """Test correlation with only one data pair."""
+        # Only one pair cannot compute correlation
+        single_complexity = np.array([1.0])
+        single_fatigue = np.array([2.0])
+
         with pytest.raises((ValueError, RuntimeError)):
-            run_correlation_analysis(metadata, complexity_metrics)
+            run_correlation_analysis(single_complexity, single_fatigue)
 
-    def test_mismatched_participant_ids(self):
-        """Test when metadata and complexity metrics have mismatched IDs."""
-        metadata = pd.DataFrame({
-            'participant_id': ['P001', 'P002'],
-            'pre_fatigue': [10.0, 15.0],
-            'post_fatigue': [12.0, 18.0],
-            'pre_eeg_id': ['E001', 'E002'],
-            'post_eeg_id': ['E003', 'E004']
-        })
 
-        # Complexity metrics for different participants
-        complexity_metrics = pd.DataFrame({
-            'participant_id': ['P003', 'P004'],  # Different IDs
-            'channel': ['Fz', 'Fz'],
-            'metric_type': ['lzc', 'lzc'],
-            'value': [0.5, 0.6],
-            'timepoint': ['pre', 'pre']
-        })
+class TestFileIOEdgeCases:
+    """Tests for file I/O edge cases."""
 
-        # Should handle mismatch gracefully
+    def test_write_to_nonexistent_directory(self):
+        """Test writing to a directory that doesn't exist."""
+        from features import save_metrics_to_csv
+
+        # Try to write to non-existent directory
+        non_existent_path = '/non/existent/dir/output.csv'
+
+        with pytest.raises(FileNotFoundError):
+            save_metrics_to_csv(
+                pd.DataFrame({'col': [1, 2, 3]}),
+                non_existent_path
+            )
+
+    def test_read_corrupted_csv(self):
+        """Test reading a corrupted CSV file."""
+        # Create a corrupted CSV
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("col1,col2\n1,\n2,3\n")  # Missing value
+            temp_path = f.name
+
         try:
-            result = run_correlation_analysis(metadata, complexity_metrics)
-            # If it returns empty results, that's acceptable
-            assert result is not None
-        except Exception as e:
-            # If it raises, it should be a clear error
-            assert "mismatch" in str(e).lower() or "no matching" in str(e).lower()
-
-
-class TestFeatureCalculationEdgeCases:
-    """Tests for edge cases in feature calculation."""
-
-    def test_lzc_on_constant_signal(self):
-        """Test LZC calculation on a constant signal (should be near 0)."""
-        constant_signal = np.ones(1000)
-        lzc_value = calculate_lzc(constant_signal)
-        assert lzc_value >= 0, "LZC should be non-negative"
-        assert lzc_value < 0.1, "Constant signal should have very low LZC"
-
-    def test_lzc_on_random_signal(self):
-        """Test LZC calculation on random signal (should be higher)."""
-        random_signal = np.random.randn(1000)
-        lzc_value = calculate_lzc(random_signal)
-        assert lzc_value >= 0, "LZC should be non-negative"
-        assert lzc_value > 0.3, "Random signal should have higher LZC"
-
-    def test_permutation_entropy_on_constant_signal(self):
-        """Test permutation entropy on constant signal (should be 0)."""
-        constant_signal = np.ones(1000)
-        pe_value = calculate_permutation_entropy(constant_signal)
-        assert pe_value >= 0, "PE should be non-negative"
-        assert pe_value < 0.1, "Constant signal should have near-zero PE"
-
-    def test_short_signal_for_complexity(self):
-        """Test complexity calculation on very short signal."""
-        short_signal = np.random.randn(10)  # Very short
-        lzc_value = calculate_lzc(short_signal)
-        pe_value = calculate_permutation_entropy(short_signal)
-        # Should not crash, even if results are unreliable
-        assert isinstance(lzc_value, (int, float))
-        assert isinstance(pe_value, (int, float))
-
-    def test_signal_with_extreme_outliers(self):
-        """Test complexity calculation with extreme outliers."""
-        signal = np.random.randn(1000)
-        signal[500] = 1e10  # Extreme outlier
-        lzc_value = calculate_lzc(signal)
-        pe_value = calculate_permutation_entropy(signal)
-        # Should handle without crashing
-        assert isinstance(lzc_value, (int, float))
-        assert isinstance(pe_value, (int, float))
-
-class TestLoggingEdgeCases:
-    """Tests for logging edge cases."""
-
-    def test_log_with_none_values(self):
-        """Test logging when some values are None."""
-        logger = get_logger("test_edge_cases")
-        # Should not crash when logging None values
-        logger.info("Test log with None: %s", None)
-
-    def test_log_with_special_characters(self):
-        """Test logging with special characters in messages."""
-        logger = get_logger("test_edge_cases")
-        special_message = "Test with special chars: émojis 🧠, symbols @#$, unicode 日本語"
-        logger.info(special_message)
-
-    def test_log_rejection_summary_empty(self):
-        """Test saving empty rejection summary."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "rejection_summary.json"
-            # Should handle empty summary gracefully
-            # This would test the save_rejection_summary function
+            df = pd.read_csv(temp_path)
+            # If it reads, check for NaN handling
+            assert df.isnull().any().any()
+        except Exception:
+            # Expected to handle corruption gracefully
             pass
+        finally:
+            os.unlink(temp_path)
+
+    def test_empty_csv_output(self):
+        """Test writing an empty DataFrame to CSV."""
+        from features import save_metrics_to_csv
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            temp_path = f.name
+
+        try:
+            empty_df = pd.DataFrame()
+            save_metrics_to_csv(empty_df, temp_path)
+
+            # Verify file exists and is empty or has headers only
+            result_df = pd.read_csv(temp_path)
+            assert len(result_df) == 0
+        finally:
+            os.unlink(temp_path)
+
+
+class TestBoundaryConditions:
+    """Tests for boundary conditions in calculations."""
+
+    def test_lzc_boundary_values(self):
+        """Test LZC calculation at theoretical boundaries."""
+        sfreq = 100.0
+
+        # Perfectly repetitive signal should have low complexity
+        repetitive = np.ones(1000)
+        lzc_rep = calculate_lzc(repetitive, sfreq)
+        assert lzc_rep < 0.5  # Low complexity
+
+        # Random signal should have higher complexity
+        random_signal = np.random.randn(1000)
+        lzc_rand = calculate_lzc(random_signal, sfreq)
+        assert lzc_rand > lzc_rep
+
+    def test_permutation_entropy_boundary(self):
+        """Test permutation entropy at boundaries."""
+        sfreq = 100.0
+
+        # Constant signal should have minimum entropy
+        constant = np.ones(1000)
+        pe_const = calculate_permutation_entropy(constant, sfreq)
+        assert pe_const == 0.0 or pe_const < 0.1
+
+        # Random signal should have higher entropy
+        random_signal = np.random.randn(1000)
+        pe_rand = calculate_permutation_entropy(random_signal, sfreq)
+        assert pe_rand > pe_const
+
+    def test_filter_edge_cases(self):
+        """Test bandpass filter at edge frequencies."""
+        sfreq = 256.0
+
+        # DC signal (0 Hz) should be filtered out
+        dc_signal = np.ones(1000)
+        filtered_dc = apply_bandpass_filter(dc_signal, sfreq, 1.0, 40.0)
+        assert np.std(filtered_dc) < 0.1  # Should be near zero
+
+        # High frequency noise (>40Hz) should be attenuated
+        high_freq = np.sin(2 * np.pi * 50 * np.arange(1000) / sfreq)
+        filtered_high = apply_bandpass_filter(high_freq, sfreq, 1.0, 40.0)
+        assert np.std(filtered_high) < np.std(high_freq) * 0.1

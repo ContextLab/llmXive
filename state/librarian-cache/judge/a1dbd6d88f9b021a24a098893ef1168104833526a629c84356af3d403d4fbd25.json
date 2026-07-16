@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1410.2016",
+  "judged_at": "2026-07-16T10:03:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the influence of initial conditions on chaotic systems physics",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference, since Lyapunov exponents are the primary mathematical tool used to quantify sensitivity to initial conditions in chaotic systems. It also satisfies category (a) by rigorously defining the specific mechanism (exponential growth rates of linearized solutions) that measures the influence of initial conditions the user is asking about.",
+  "relevant": true
+}
