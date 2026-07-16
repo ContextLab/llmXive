@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-07-16T16:43:17.255048+00:00"
+    "audited_at": "2026-07-16T17:10:59.902792+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-679-geneb-why-genomic-models-are-hard-to-com",
-  "updated_at": "2026-07-16T16:43:17.255061+00:00"
+  "updated_at": "2026-07-16T17:10:59.902807+00:00"
 }
