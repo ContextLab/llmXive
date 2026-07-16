@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics"
+description: "Schema for aggregated evaluation metrics."
+type: "object"
+required:
+  - "profile_id"
+  - "task_id"
+  - "condition"
+  - "heuristic_adherence"
+  - "hallucination_rate"
+  - "style_consistency"
+  - "style_deviation_score"
+  - "generation_time_sec"
+  - "status"
+properties:
+  profile_id:
+    type: "string"
+    description: "UUID of the expert profile."
+  task_id:
+    type: "string"
+    description: "UUID of the task scenario."
+  condition:
+    type: "string"
+    description: "Prompt condition used."
+    enum:
+      - "monolithic"
+      - "separated"
+      - "generic"
+  heuristic_adherence:
+    type: "integer"
+    description: "Binary score for task success."
+    enum:
+      - 0
+      - 1
+  hallucination_rate:
+    type: "number"
+    description: "Ratio of hallucinated facts (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  style_consistency:
+    type: "number"
+    description: "Composite style consistency score (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  style_deviation_score:
+    type: "number"
+    description: "Tone/structure deviation score (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  generation_time_sec:
+    type: "number"
+    description: "Time taken to generate the output."
+    minimum: 0.0
+  status:
+    type: "string"
+    description: "Status of the inference run."
+    enum:
+      - "success"
+      - "timeout"
+      - "error"

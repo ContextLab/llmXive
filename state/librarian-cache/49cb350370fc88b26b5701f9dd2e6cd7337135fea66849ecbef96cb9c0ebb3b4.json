@@ -1,0 +1,684 @@
+{
+  "fetched_at": "2026-07-16T05:34:04Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Di\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.046,
+    "ended_at": "2026-07-16T05:34:04Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "automated skill acquisition for large language models"
+        ],
+        [
+          2,
+          "expert knowledge distillation into AI agents"
+        ],
+        [
+          3,
+          "dynamic skill generation for LLMs"
+        ],
+        [
+          4,
+          "modular skill injection in language models"
+        ],
+        [
+          5,
+          "automated capability synthesis for AI systems"
+        ],
+        [
+          6,
+          "expert-guided prompt engineering and skill formation"
+        ],
+        [
+          7,
+          "knowledge transfer methods for LLM specialization"
+        ],
+        [
+          8,
+          "automatic generation of tool-using skills in LLMs"
+        ],
+        [
+          9,
+          "curriculum learning for AI skill acquisition"
+        ],
+        [
+          10,
+          "meta-learning approaches for AI skill generation"
+        ],
+        [
+          11,
+          "fine-tuning strategies for expert knowledge integration"
+        ],
+        [
+          12,
+          "automated reasoning skill construction in language models"
+        ],
+        [
+          13,
+          "knowledge graph-based skill induction for LLMs"
+        ],
+        [
+          14,
+          "hierarchical skill decomposition for AI agents"
+        ],
+        [
+          15,
+          "few-shot skill learning from expert demonstrations"
+        ],
+        [
+          16,
+          "automatic prompt chaining for complex skill execution"
+        ],
+        [
+          17,
+          "self-improving AI agents via skill expansion"
+        ],
+        [
+          18,
+          "neuro-symbolic skill generation for language models"
+        ],
+        [
+          19,
+          "adaptive skill retrieval in large language models"
+        ],
+        [
+          20,
+          "automated code generation skill synthesis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "automated skill acquisition for large language models": 5,
+        "llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Di\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "AI skill synthesis knowledge distillation",
+      "LLM fine-tuning instruction tuning datasets",
+      "prompt engineering capability transfer",
+      "downstream task performance benchmark evaluation",
+      "model alignment knowledge injection"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.05032"
+      ]
+    },
+    "per_query_hit_count": {
+      "AI skill synthesis knowledge distillation": 3,
+      "LLM fine-tuning instruction tuning datasets": 3,
+      "downstream task performance benchmark evaluation": 3,
+      "llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Di\" computer science": 3,
+      "model alignment knowledge injection": 3,
+      "prompt engineering capability transfer": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the user's specific question about \"Automated AI Skill Generation via Expert Knowledge Distillation.\" It does not measure the same mechanism, variables, or domain as the \"COLLEAGUE.SKILL\" framework and falls under the rejection rule for distinct constructs sharing only homonym keywords (general \"AI skills\" vs. specific automated",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2603.23611",
+          "rationale": "The paper focuses on automated testing and robustness evaluation of LLMs using metamorphic relations, which is a distinct construct from the user's question about \"Automated AI Skill Generation via Expert Knowledge Distillation.\" While both involve LLMs, the candidate paper does not measure the mechanism of skill generation, expert knowledge transfer, or the specific \"COLLEAGUE.SKILL\" framework, nor does it establish a baseline for the variables in the user's query.",
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates the consistency between LLM self-reported personality and observed behavior, which is a distinct construct from the user's question regarding \"Automated AI Skill Generation via Expert Knowledge Distillation.\" While both involve LLMs, the candidate paper does not measure the mechanism of skill generation, expert knowledge distillation, or the specific \"COLLEAGUE.SKILL\" framework, nor does it provide a baseline or methodology for the user's specific domain of automated skill",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about \"Automated AI Skill Generation via Expert Knowledge Distillation.\" While both involve LLMs, the candidate paper does not measure the same mechanism, variables, or domain (skill generation/distillation) as the user's specific research topic, and it falls under the rejection rule for distinct constructs sharing only the broad domain of \"LLMs.",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on AI deception, safety governance, and risk categorization, which are distinct constructs from the user's question regarding \"Automated AI Skill Generation via Expert Knowledge Distillation.\" While both topics concern Large Language Models, the candidate paper does not measure the same mechanism (skill generation vs. deceptive behavior), address the same variables, or provide a foundational methodology for the specific technique of automated skill generation mentioned in the u",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T05:33:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"colleague.skill: automated ai skill generation via expert knowledge di\" computer science",
+      "raw": "llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Di\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation allows AI to create tailored content addressing user needs directly, enhancing user experience with immediate, relevant outputs. Information synthesis leverages the ability of generative AI to integrate and reorganize existing information, providing grounded responses and mitigating issues like model hallucination, which is particularly valuable in scenarios requiring precision and external knowledge. This chapter delves into the foundational aspects of generative models, including architecture, scaling, and training, and discusses their applications in multi-modal scenarios. Additionally, it examines the retrieval-augmented generation paradigm and other methods for corpus modeling and understanding, demonstrating how generative AI can enhance information access systems. It also summarizes potential challenges and fruitful directions for future studies.",
+          "claimed_authors": [
+            "Qingyao Ai",
+            "Jingtao Zhan",
+            "Yiqun Liu"
+          ],
+          "claimed_title": "Foundations of GenIR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.02842"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Foundations of GenIR')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine-tuning language models on tasks with instructions has demonstrated potential in facilitating zero-shot generalization to unseen tasks. In this paper, we introduce a straightforward yet effective method for enhancing instruction tuning by employing symbolic tasks. Compared to crowdsourced human tasks or model-generated tasks, symbolic tasks present a unique advantage as they can be easily generated in vast quantities, theoretically providing an infinite supply of high-quality training instances. To explore the potential of symbolic tasks, we carry out an extensive case study on the representative symbolic task of SQL execution. Empirical results on various benchmarks validate that the integration of SQL execution leads to significant improvements in zero-shot scenarios, particularly in table reasoning. Notably, our 3B model surpasses both the 175B GPT-3 and ChatGPT in zero-shot table reasoning across four benchmarks. Furthermore, experimental results on BBH (27 tasks) and MMLU (57 tasks) reveal that language models can be enhanced through symbolic tasks without compromising their generality. We hope that our paper serves as a catalyst, inspiring increased efforts to incorporate symbolic tasks in instruction tuning.",
+          "claimed_authors": [
+            "Qian Liu",
+            "Fan Zhou",
+            "Zhengbao Jiang",
+            "Longxu Dou",
+            "Min Lin"
+          ],
+          "claimed_title": "From Zero to Hero: Examining the Power of Symbolic Tasks in Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.07995"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='From Zero to Hero: Examining the Power of Symbolic Tasks in Instruction Tuning')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_authors": [
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+          "claimed_authors": [
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
+          ],
+          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.26615"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
+          "claimed_authors": [
+            "Moaath Alshaikh",
+            "Tasneem Alshaher",
+            "Ricardo Vieira",
+            "Beatriz Santana",
+            "Clelio Xavier",
+            "Jose Amancio",
+            "Glauco Carneiro",
+            "Julio Leite",
+            "Savio Freire",
+            "Manoel Mendonca"
+          ],
+          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07422"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown prominent performance in various downstream tasks and prompt engineering plays a pivotal role in optimizing LLMs' performance. This paper, not only as an overview of current prompt engineering methods, but also aims to highlight the limitation of designing prompts based on an anthropomorphic assumption that expects LLMs to think like humans. From our review of 50 representative studies, we demonstrate that a goal-oriented prompt formulation, which guides LLMs to follow established human logical thinking, significantly improves the performance of LLMs. Furthermore, We introduce a novel taxonomy that categorizes goal-oriented prompting methods into five interconnected stages and we demonstrate the broad applicability of our framework. With four future directions proposed, we hope to further emphasize the power and potential of goal-oriented prompt engineering in all fields.",
+          "claimed_authors": [
+            "Haochen Li",
+            "Jonathan Leung",
+            "Zhiqi Shen"
+          ],
+          "claimed_title": "Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.14043"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Towards Goal-oriented Prompt Engineering for Large Language Models: A Survey')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adapting general large language models (LLMs) to specialized domains presents great challenges due to varied data distributions. This adaptation typically requires continual pre-training on massive domain-specific corpora to facilitate knowledge memorization, followed by training to apply this knowledge following human instructions and preferences. However, this method may result in inefficient knowledge memorization due to a lack of awareness of knowledge utilization and imposes substantial demands on LLMs to simultaneously learn knowledge utilization and format alignment with limited training samples. To facilitate the domain adaptation of LLM, we revise this process and propose a new domain adaptation framework including domain knowledge learning and general format alignment, called Mix-CPT. Specifically, we first conduct a knowledge mixture continual pre-training that concurrently focuses on knowledge memorization and utilization, allowing for mutual reinforcement. To avoid catastrophic forgetting during the continual pre-training process, we further incorporate a logit swap self-distillation constraint. Subsequently, leveraging the knowledge and capabilities acquired during continual pre-training, we efficiently perform instruction tuning and alignment with a few general training samples to achieve format alignment. Extensive experiments demonstrate that our proposed Mix-CPT framework can simultaneously improve the task-solving capabilities of LLMs on the target and general domains compared to the traditional adaptation methods.",
+          "claimed_authors": [
+            "Jinhao Jiang",
+            "Junyi Li",
+            "Wayne Xin Zhao",
+            "Yang Song",
+            "Tao Zhang",
+            "Ji-Rong Wen"
+          ],
+          "claimed_title": "Mix-CPT: A Domain Adaptation Framework via Decoupling Knowledge Learning and Format Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.10804"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Mix-CPT: A Domain Adaptation Framework via Decoupling Knowledge Learning and Format Alignment')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language models (LMs) are increasingly used to simulate human-like responses in scenarios where accurately mimicking a population's behavior can guide decision-making, such as in developing educational materials and designing public policies. The objective of these simulations is for LMs to capture the variations in human responses, rather than merely providing the expected correct answers. Prior work has shown that LMs often generate unrealistically accurate responses, but there are no established metrics to quantify how closely the knowledge distribution of LMs aligns with that of humans. To address this, we introduce \"psychometric alignment,\" a metric that measures the extent to which LMs reflect human knowledge distribution. Assessing this alignment involves collecting responses from both LMs and humans to the same set of test items and using Item Response Theory to analyze the differences in item functioning between the groups. We demonstrate that our metric can capture important variations in populations that traditional metrics, like differences in accuracy, fail to capture. We apply this metric to assess existing LMs for their alignment with human knowledge distributions across three real-world domains. We find significant misalignment between LMs and human populations, though using persona-based prompts can improve alignment. Interestingly, smaller LMs tend to achieve greater psychometric alignment than larger LMs. Further, training LMs on human response data from the target distribution enhances their psychometric alignment on unseen test items, but the effectiveness of such training varies across domains.",
+          "claimed_authors": [
+            "Joy He-Yueya",
+            "Wanjing Anya Ma",
+            "Kanishk Gandhi",
+            "Benjamin W. Domingue",
+            "Emma Brunskill",
+            "Noah D. Goodman"
+          ],
+          "claimed_title": "Psychometric Alignment: Capturing Human Knowledge Distributions via Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.15645"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"COLLEAGUE.SKILL: Automated AI Skill Generation via', candidate_title='Psychometric Alignment: Capturing Human Knowledge Distributions via Language Models')",
+        "failed_at": "2026-07-16T05:33:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
+          ],
+          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.05032",
+        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.05032",
+          "http_status": 200,
+          "pdf_sample_score": 0.1866,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T05:33:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Steven Cho",
+            "Stefano Ruberto",
+            "Valerio Terragni"
+          ],
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.23611",
+        "summary": "Automated testing is essential for evaluating and improving the reliability of Large Language Models (LLMs), yet the lack of automated oracles for verifying output correctness remains a key challenge. We present LLMORPH, an automated testing tool specifically designed for LLMs performing NLP tasks, which leverages Metamorphic Testing (MT) to uncover faulty behaviors without relying on human-labeled data. MT uses Metamorphic Relations (MRs) to generate follow-up inputs from source test input, enabling detection of inconsistencies in model outputs without the need of expensive labelled data. LLMORPH is aimed at researchers and developers who want to evaluate the robustness of LLM-based NLP systems. In this paper, we detail the design, implementation, and practical usage of LLMORPH, demonstrating how it can be easily extended to any LLM, NLP task, and set of MRs. In our evaluation, we applied 36 MRs across four NLP benchmarks, testing three state-of-the-art LLMs: GPT-4, LLAMA3, and HERMES 2. This produced over 561,000 test executions. Results demonstrate LLMORPH's effectiveness in automatically exposing inconsistencies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.23611",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T05:33:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Ai",
+            "Zhiwei He",
+            "Ziyin Zhang",
+            "Wenhong Zhu",
+            "Hongkun Hao",
+            "Kai Yu",
+            "Lingjun Chen",
+            "Rui Wang"
+          ],
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.14679",
+        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.14679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T05:33:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Shin",
+            "Kunitake Kaneko"
+          ],
+          "title": "Large Language Models Lack Understanding of Character Composition of Words",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.11357",
+        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.11357",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T05:33:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linge Guo"
+          ],
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.09676",
+        "summary": "This research critically navigates the intricate landscape of AI deception, concentrating on deceptive behaviours of Large Language Models (LLMs). My objective is to elucidate this issue, examine the discourse surrounding it, and subsequently delve into its categorization and ramifications. The essay initiates with an evaluation of the AI Safety Summit 2023 (ASS) and introduction of LLMs, emphasising multidimensional biases that underlie their deceptive behaviours.The literature review covers four types of deception categorised: Strategic deception, Imitation, Sycophancy, and Unfaithful Reasoning, along with the social implications and risks they entail. Lastly, I take an evaluative stance on various aspects related to navigating the persistent challenges of the deceptive AI. This encompasses considerations of international collaborative governance, the reconfigured engagement of individuals with AI, proposal of practical adjustments, and specific elements of digital education.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.09676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T05:33:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"colleague.skill: automated ai skill generation via expert knowledge di\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

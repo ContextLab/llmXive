@@ -1447,6 +1447,10 @@
     "classified_at": "2026-07-14T00:56:53Z",
     "verdict": false
   },
+  "PROJ-922-llmxive-follow-up-extending-colleague-sk::1.6.0": {
+    "classified_at": "2026-07-16T05:33:44Z",
+    "verdict": false
+  },
   "PROJ-923-llmxive-follow-up-extending-zone-of-prox::1.6.0": {
     "classified_at": "2026-07-10T10:18:27Z",
     "verdict": false

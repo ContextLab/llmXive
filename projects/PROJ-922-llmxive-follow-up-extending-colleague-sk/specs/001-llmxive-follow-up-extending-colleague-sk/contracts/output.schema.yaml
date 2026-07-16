@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output"
+description: "Schema for individual model output files."
+type: "object"
+required:
+  - "profile_id"
+  - "task_id"
+  - "condition"
+  - "model_name"
+  - "generation_params"
+  - "output_text"
+  - "metadata"
+properties:
+  profile_id:
+    type: "string"
+    description: "UUID of the expert profile."
+  task_id:
+    type: "string"
+    description: "UUID of the task scenario."
+  condition:
+    type: "string"
+    description: "Prompt condition used."
+    enum:
+      - "monolithic"
+      - "separated"
+      - "generic"
+  model_name:
+    type: "string"
+    description: "Name of the model used."
+  generation_params:
+    type: "object"
+    description: "Parameters used for generation."
+    required:
+      - "temperature"
+      - "max_tokens"
+      - "seed"
+    properties:
+      temperature:
+        type: "number"
+      max_tokens:
+        type: "integer"
+      seed:
+        type: "integer"
+  output_text:
+    type: "string"
+    description: "The generated text."
+  metadata:
+    type: "object"
+    description: "Metadata about the generation."
+    required:
+      - "generation_time_sec"
+      - "token_count"
+      - "status"
+    properties:
+      generation_time_sec:
+        type: "number"
+      token_count:
+        type: "integer"
+      status:
+        type: "string"
+        enum:
+          - "success"
+          - "timeout"
+          - "error"
