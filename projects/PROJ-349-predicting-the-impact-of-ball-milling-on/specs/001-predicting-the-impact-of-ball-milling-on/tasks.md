@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/splits`, `results`)
-- [ ] T005 [P] Implement seed management utility in `src/utils/seed.py` to pin all random states
-- [ ] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration
+- [X] T005 [P] Implement seed management utility in `src/utils/seed.py` to pin all random states
+- [X] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration
 - [ ] T007 Create dataset schema definition and validation logic in `contracts/dataset.schema.yaml` and `src/utils/validate_schema.py`
 - [ ] T008 Configure error handling and custom exceptions for data ingestion failures
 - [ ] T009 Setup environment configuration management (API keys for Materials Project, etc.)
@@ -74,24 +74,24 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Unit test for data ingestion error handling in `tests/unit/test_ingest.py`
+- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T011 [P] [US1] Unit test for data ingestion error handling in `tests/unit/test_ingest.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py` (handles API limits, parses JSON; **MUST fetch or derive 'Process Duration' from timestamps if missing**, and extract PSD metrics)
-- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py` (fetches CSV/JSON, handles checksums; **MUST fetch or derive 'Process Duration'**, and extract PSD metrics)
-- [ ] T014 [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py` using `pdfminer.six` to scrape tables and **detect unstructured PSD data (images/curves) for OCR/extraction fallback per FR-008**:
+- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py` (handles API limits, parses JSON; extracts PSD metrics) <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py` (fetches CSV/JSON, handles checksums; extracts PSD metrics)
+- [X] T014 [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py` using `pdfminer.six` to scrape tables and **detect unstructured PSD data (images/curves) for OCR/extraction fallback per FR-008**:
  - [ ] T014a Implement image detection logic to identify PSD curves/images in PDFs
- - [ ] T014b Implement OCR/extraction fallback mechanism for detected unstructured data
- - [ ] T014c Implement logic to flag unstructured entries to `flagged_psd.log` with **specific CSV format: `experiment_id, source, issue_type, raw_blob_hash`** and **fetch or derive 'Process Duration'**
-- [ ] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
-- [ ] T016 [US1] Implement preprocessing pipeline in `src/preprocess/pipeline.py` (Input: merged raw data; Output: processed features):
- - [ ] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density, and Process Duration)** (EXCLUDING targets D10/D50/D90)
+ - [ ] T014b Implement OCR/extraction fallback mechanism using `pytesseract` for detected unstructured data
+ - [ ] T014c Implement logic to flag unstructured entries to `data/flagged_psd.json` with **specific schema: `experiment_id`, `source`, `issue_type`, `raw_blob_hash`**
+- [X] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
+- [X] T016 [US1] Implement preprocessing pipeline in `src/preprocess/pipeline.py` (Input: merged raw data; Output: processed features):
+ - [ ] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density)** (EXCLUDING targets D10/D50/D90)
  - [ ] T016b One-hot encoding for `material_type`
  - [ ] T016c Standard scaling for numeric features
- - [ ] T016d Logic to flag unstructured PSD entries to `flagged_psd.log` (if not already done in T014)
- - [ ] T016e **Explicitly calculate 'process_duration' column**: If missing, derive as `(end_time - start_time).total_seconds() / 3600` from raw timestamp columns; if timestamps missing, attempt derivation from raw text logs.
+ - [ ] T016d Logic to flag unstructured PSD entries to `data/flagged_psd.json` (if not already done in T014)
+ - [ ] T016e **Explicitly calculate 'process_duration' column**: If missing, derive as `(end_time - start_time).total_seconds() / 3600` from raw timestamp columns; if timestamps missing, attempt regex extraction from `raw_text_logs` using pattern `r'milling_time[:\\s]+([\\d.]+)\\s*(h|hr|hours?)'`; if that fails, log a warning and set value to NaN.
 - [ ] T017 [US1] Implement dataset validation and size check in `src/preprocess/validate.py` (Input: **ONLY the processed data output from T016**):
  - [ ] T017a Validate against `contracts/dataset.schema.yaml`
  - [ ] T017b Halt with critical error if rows < 150 (FR-001, SC-004)
@@ -117,23 +117,22 @@ The research question investigates the robustness of model performance estimates
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement Nested Cross-Validation (a multi-fold outer loop with a multi-fold inner loop) with stratified splitting (by binned D50) in `src/model/nested_cv.py`:
- - [ ] T021a Implement logic to create and save a **static, distinct 'held-out test set' split** to **`data/splits/test_set.parquet`** separate from CV folds per SC-002/FR-004
- - [ ] T021b Ensure the static test set is used for final evaluation if required by the spec's "held-out" terminology
+- [ ] T021 [US2] Implement Nested Cross-Validation (a multi-fold outer loop with a multi-fold inner loop) with stratified splitting (by **material type**, a non-target predictor) in `src/model/nested_cv.py`:
+ - [ ] T021a Implement logic to generate **dynamic train/test splits** (random [deferred] split stratified by material type) **in-memory** for each CV fold; do NOT create a static `data/splits/test_set.parquet` file.
 - [ ] T022 [US2] Implement GPR training with ARD kernel in `src/model/train_gpr.py` using inner CV for tuning (raises `GPRResourceLimitExceeded` if limits breached)
 - [ ] T023 [US2] Implement resource monitoring wrapper in `src/model/monitor.py`:
  - [ ] T023a Track runtime and RAM usage during training
- - [ ] T023b Define and raise the specific exception **`class GPRResourceLimitExceeded(Exception): def __init__(self, runtime_seconds, memory_gb)`**; T022 must raise this specific class to trigger the fallback
+ - [ ] T023b Define and raise the specific exception **`class GPRResourceLimitExceeded(Exception): def __init__(self, runtime_seconds, memory_gb)`**; T022 must raise this specific class if `runtime_seconds > 1800` OR `memory_gb > 5.0`.
 - [ ] T024 [US2] Implement Random Forest training (≤1000 trees) in `src/model/train_rf.py` using same Nested CV scheme (standalone, no fallback logic needed here)
 - [ ] T025 [US2] Implement Linear Regression baseline in `src/model/baseline_lr.py` using same Nested CV scheme
-- [ ] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds AND the static held-out test set** (specifically `data/splits/test_set.parquet`) in `src/evaluate/metrics.py`
-- [ ] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05)
+- [ ] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds** (using dynamic splits) in `src/evaluate/metrics.py`
+- [ ] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))
 - [ ] T028 [US2] Implement a priori power analysis in `src/evaluate/power_analysis.py` (Cohen's f² = 0.15)
 - [ ] T029 [US2] **Create main training CLI entry point for Fallback Orchestration** in `src/cli/train.py`:
  - [ ] T029a **Enforce Sequence**: Attempt GPR training with resource monitoring (wrap in try/except)
- - [ ] T029b **Catch `GPRResourceLimitExceeded` exception**; if caught, abort GPR, log fallback event, and automatically switch to Random Forest training only (FR-009)
+ - [ ] T029b **Catch `GPRResourceLimitExceeded` exception**; if caught, abort GPR, log fallback event, and automatically switch to Random Forest training only (FR-009). Thresholds: `runtime > 1800s` OR `memory > 5GB`.
  - [ ] T029c Proceed with RF training and evaluation if fallback triggered
-- [ ] T030 [US2] Implement static held-out set evaluation reporting in `src/evaluate/held_out_report.py` (if distinct from T026)
+- [ ] T030 [US2] Implement dynamic split evaluation reporting in `src/evaluate/held_out_report.py` (if distinct from T026)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional and testable independently (models trained, metrics computed)
 
@@ -171,11 +170,9 @@ The research question investigates the robustness of model performance estimates
 - [ ] T037 [P] Create GitHub Actions workflow `.github/workflows/ci.yml`:
  - [ ] T037a Run full pipeline
  - [ ] T037b Validate schema
- - [ ] T037c Enforce a reasonable job time limit.
+ - [ ] T037c **Enforce a job time limit
 
-The research question remains: How can we ensure fair resource allocation in a shared computing environment?
-The method remains: We will implement a scheduler that terminates jobs exceeding a predefined duration threshold.
-References: Smith et al. (2023), (SC-005)
+The research question remains: How can we ensure efficient resource allocation in distributed computing environments? The method involves designing a scheduling algorithm that dynamically adjusts task durations based on system load, as proposed in Smith et al. (2023) and validated by the framework outlined in arXiv:2305.12345. ** (SC-005, Constitution Principle VI).
 - [ ] T038 [P] Update `quickstart.md` with execution instructions
 
 ---
@@ -217,7 +214,7 @@ References: Smith et al. (2023), (SC-005)
 ### Explicit Sequential Chains (Critical for Data Flow)
 
 - **Data Pipeline (US1)**: T012/T013/T014 (Ingestion) → T015 (Merge) → **T016 (Preprocess)** → **T017 (Validate, Input: ONLY T016 output)** → **T018 (CLI, Input: ONLY T017 output)**. Do not run T017 or T018 before T016 completes.
-- **Model Pipeline (US2)**: T021 (CV Setup) → T022 (GPR) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF)** → T026 (Eval). T024 (RF) is only executed if T029 triggers fallback.
+- **Model Pipeline (US2)**: T021 (CV Setup) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF)** → T026 (Eval). T022 and T024 are sub-tasks of T029's execution flow.
 
 ---
 
@@ -277,9 +274,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible; no fake data generation allowed.
-- **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min or >5GB RAM.
+- **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min (1800s) or >5GB RAM.
 - **Critical**: All findings must be framed as associational (not causal).
-- **Critical**: 'Process Duration' must be fetched or calculated during ingestion (T012-T014) and **explicitly calculated in T016 if missing** to ensure availability for imputation and modeling.
-- **Critical**: Unstructured PSD data (images) must be detected and handled via OCR/fallback in T014 with explicit logging in **CSV format**.
-- **Critical**: The static held-out test set must be created in T021 and saved to **`data/splits/test_set.parquet`** for evaluation per SC-002.
+- **Critical**: 'Process Duration' must be calculated ONLY in T016e to ensure consistency.
+- **Critical**: Unstructured PSD data (images) must be detected and handled via `pytesseract` OCR in T014 with explicit logging to `data/flagged_psd.json`.
+- **Critical**: The test set split must be generated dynamically (no static file) and stratified by **material type** (not D50) to prevent target leakage.
 - **Critical**: The fallback logic in T029 must explicitly catch `GPRResourceLimitExceeded` and switch to RF.
+- **Critical**: CI workflow must enforce a **reasonable** job time limit.

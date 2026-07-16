@@ -1,0 +1,514 @@
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nadeau and Bengio and Dietterich (1998) discuss repeated cross-validation
+    to mitigate variance in performance evaluation
+  claim_id: c_3c6d2a45
+  context: The research question investigates the robustness of model performance
+    estimates under varying data splits. The method employs a repeated cross-validation
+    framework to mitigate variance in performance evaluation, as discussed in Nadeau
+    and Bengio () and further analyzed in Dietterich (1998).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research method employs a repeated cross-validation framework to mitigate
+    variance in performance evaluation, as discussed in Nadeau and Bengio () and further
+    analyzed in Dietterich (1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:37:08Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Smith et al. (2023) proposed a scheduling algorithm that dynamically
+    adjusts task durations based on system load, validated by arXiv:2305.12345
+  claim_id: c_185e167b
+  context: 'The research question remains: How can we ensure efficient resource allocation
+    in distributed computing environments? The method involves designing a scheduling
+    algorithm that dynamically adjusts task durations based on system load, as proposed
+    in Smith et al. (2023) and validated by the framework outlined in arXiv:2305.12345.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The scheduling algorithm dynamically adjusts task durations based on system
+    load, as proposed in Smith et al. (2023) and validated by the framework outlined
+    in arXiv:2305.12345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:37:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset target of 500 experiments or minimum of 150
+  claim_id: c_950d49e4
+  context: 'Goal: Automatically aggregate ball milling experimental data from public
+    repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized
+    features, creating a clean, analysis-ready dataset of at least 500 experiments
+    (target) or 150 (minimum viable).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_target_of_500_experiments_or_minimum_of_150
+  kind: magnitude
+  raw_text: creating a clean, analysis-ready dataset of at least 500 experiments (target)
+    or 150 (minimum viable)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:47:13Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: scheduling algorithm proposed in Smith et al. 2023 and validated by arXiv:2305.12345
+  claim_id: c_b27ecdbd
+  context: The method involves designing a scheduling algorithm that dynamically adjusts
+    task durations based on system load, as proposed in Smith et al. (2023) and validated
+    by the framework outlined in arXiv:2305.12345.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: as proposed in Smith et al. (2023) and validated by the framework outlined
+    in arXiv:2305.12345
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:47:15Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Repeated cross-validation framework discussed in Nadeau and Bengio and
+    Dietterich (1998)
+  claim_id: c_7b150a67
+  context: The research question investigates the robustness of model performance
+    estimates under varying data splits. The method employs a repeated cross-validation
+    framework to mitigate variance in performance evaluation, as discussed in Nadeau
+    and Bengio () and further analyzed in Dietterich (1998).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method employs a repeated cross-validation framework to mitigate variance
+    in performance evaluation, as discussed in Nadeau and Bengio () and further analyzed
+    in Dietterich (1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:53:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Scheduling algorithm proposed in Smith et al. (2023) and validated by
+    arXiv:2305.12345
+  claim_id: c_14debcb1
+  context: 'The research question remains: How can we ensure efficient resource allocation
+    in distributed computing environments? The method involves designing a scheduling
+    algorithm that dynamically adjusts task durations based on system load, as proposed
+    in Smith et al. (2023) and validated by the framework outlined in arXiv:2305.12345.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The method involves designing a scheduling algorithm that dynamically
+    adjusts task durations based on system load, as proposed in Smith et al. (2023)
+    and validated by the framework outlined in arXiv:2305.12345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:53:24Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset size target 500 experiments or minimum viable 150 experiments
+  claim_id: c_66905798
+  context: 'Goal: Automatically aggregate ball milling experimental data from public
+    repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized
+    features, creating a clean, analysis-ready dataset of at least 500 experiments
+    (target) or 150 (minimum viable).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_target_500_experiments_or_minimum_viable_150_ex
+  kind: magnitude
+  raw_text: creating a clean, analysis-ready dataset of at least 500 experiments (target)
+    or 150 (minimum viable)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:08:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: validation threshold 500 rows target or 150 rows minimum viable
+  claim_id: c_9a5a3978
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validated that the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:08:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: halt condition dataset rows less than 150
+  claim_id: c_797de221
+  context: T017b Halt with critical error if rows < 150 (FR-001, SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_condition_dataset_rows_less_than_150
+  kind: magnitude
+  raw_text: halts with critical error if rows < 150
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:08:41Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest training maximum 1000 trees
+  claim_id: c_ca8c47e3
+  context: "T024 [US2] Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme (standalone, no fallback logic needed here)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Random Forest training with \u22641000 trees"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:08:41Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: statistical test alpha level 0.05
+  claim_id: c_269e1068
+  context: "T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: statistical test significance level alpha = 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:08:49Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: power analysis Cohen's f squared 0.15
+  claim_id: c_3755f7cd
+  context: "T028 [US2] Implement a priori power analysis in src/evaluate/power_analysis.py\
+    \ (Cohen's f\xB2 = 0.15)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "a priori power analysis using Cohen's f\xB2 = 0.15"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR resource limit 1800 seconds or 5.0 GB memory
+  claim_id: c_1a3c7f40
+  context: 'T023b Define and raise the specific exception class GPRResourceLimitExceeded(Exception):
+    def __init__(self, runtime_seconds, memory_gb); T022 must raise this specific
+    class if runtime_seconds > 1800 OR memory_gb > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR training raises exception if runtime_seconds > 1800 OR memory_gb >
+    5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: fallback threshold 1800 seconds or 5 GB memory
+  claim_id: c_97d3214a
+  context: 'T029b Catch GPRResourceLimitExceeded exception; if caught, abort GPR,
+    log fallback event, and automatically switch to Random Forest training only (FR-009).
+    Thresholds: runtime > 1800s OR memory > 5GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fallback to Random Forest if runtime > 1800s OR memory > 5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback automatic if 30 minutes or 5 GB RAM exceeded
+  claim_id: c_043cc14b
+  context: 'Critical: GPR fallback to Random Forest must be automatic and logged if
+    >30min (1800s) or >5GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: plot size validation maximum 10 MB
+  claim_id: c_8f3194b4
+  context: "T034c Validate total plot size \u2264 10MB and raise error if exceeded\
+    \ (US-3 acceptance criteria)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate total plot size \u2264 10MB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: framework validated in arXiv 2305.12345
+  claim_id: c_93081607
+  context: The method involves designing a scheduling algorithm that dynamically adjusts
+    task durations based on system load, as proposed in Smith et al. (2023) and validated
+    by the framework outlined in arXiv:2305.12345.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: validated by the framework outlined in arXiv:2305.12345
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:09:34Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: scheduling algorithm proposed in Smith et al. 2023
+  claim_id: c_033a1931
+  context: The method involves designing a scheduling algorithm that dynamically adjusts
+    task durations based on system load, as proposed in Smith et al. (2023) and validated
+    by the framework outlined in arXiv:2305.12345.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: proposed in Smith et al. (2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:47Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 0
+  canonical: framework validated by arXiv 2305.12345
+  claim_id: c_0defd099
+  context: The method involves designing a scheduling algorithm that dynamically adjusts
+    task durations based on system load, as proposed in Smith et al. (2023) and validated
+    by the framework outlined in arXiv:2305.12345.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: validated by the framework outlined in arXiv:2305.12345
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:12:16Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset of 500 experiments target or 150 minimum viable
+  claim_id: c_04abedf4
+  context: 'Goal: Automatically aggregate ball milling experimental data from public
+    repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized
+    features, creating a clean, analysis-ready dataset of at least 500 experiments
+    (target) or 150 (minimum viable).'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Dataset of
+      - 500.0
+    - - Dataset of 500 experiments target or
+      - 150.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Dataset_of_500_experiments_target_or_150_minimum_viable
+  kind: magnitude
+  raw_text: creating a clean, analysis-ready dataset of at least 500 experiments (target)
+    or 150 (minimum viable)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T07:12:17Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: verify output contains 500 rows target or 150 rows minimum viable
+  claim_id: c_1cfe210c
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the output CSV/Parquet contains \u2265500 rows (target) or\
+    \ \u2265150 rows (minimum viable)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:17Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: halt if rows less than 150
+  claim_id: c_c48da6d1
+  context: T017b Halt with critical error if rows < 150 (FR-001, SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_rows_less_than_150
+  kind: magnitude
+  raw_text: halt with critical error if rows < 150
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR resource limit exceeded if runtime 1800s or memory 5GB
+  claim_id: c_d278e07b
+  context: 'T023b Define and raise the specific exception class GPRResourceLimitExceeded(Exception):
+    def __init__(self, runtime_seconds, memory_gb); T022 must raise this specific
+    class if runtime_seconds > 1800 OR memory_gb > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raises GPRResourceLimitExceeded if runtime_seconds > 1800 OR memory_gb
+    > 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest training with 1000 trees limit
+  claim_id: c_f7480c76
+  context: "T024 [US2] Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme (standalone, no fallback logic needed here)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Random Forest training (\u22641000 trees)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nadeau and Bengio corrected resampled t-test with alpha 0.05
+  claim_id: c_04eeaa57
+  context: "T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:49Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: a priori power analysis with Cohen's f squared 0.15
+  claim_id: c_d6b7bfe4
+  context: "T028 [US2] Implement a priori power analysis in src/evaluate/power_analysis.py\
+    \ (Cohen's f\xB2 = 0.15)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "a priori power analysis in src/evaluate/power_analysis.py (Cohen's f\xB2\
+    \ = 0.15)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:13:43Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback to Random Forest if runtime 1800s or memory 5GB
+  claim_id: c_551f5378
+  context: 'Critical: GPR fallback to Random Forest must be automatic and logged if
+    >30min (1800s) or >5GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPR_fallback_to_Random_Forest_if_runtime_1800s_or_memory_5GB
+  kind: entity_fact
+  raw_text: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:14:10Z'

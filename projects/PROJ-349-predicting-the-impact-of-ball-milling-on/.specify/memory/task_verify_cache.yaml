@@ -1,0 +1,9 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification for data aggregation and
+    modeling; there is no artifact such as configuration files, environment variable
+    definitions, or code that sets up and manages API keys for the Materials Project
+    or other services. Consequently, the requirement to establish environment configuration
+    management is not met. A proper implementation should include, for example, a
+    `.env` template, secure loading of API keys, and documentation of the setup process.
