@@ -1,0 +1,99 @@
+# Project Configuration: Neural Correlates of Simulated Social Exclusion
+# Generated for PROJ-474
+# Matches FR-002 Motion Threshold requirements
+
+project:
+  name: "neural-correlates-social-exclusion"
+  version: "1.0.0"
+  root_dir: "."
+
+# Paths relative to project root
+paths:
+  data:
+    raw: "data/raw"
+    processed: "data/processed"
+    results: "data/results"
+    figures: "figures"
+  code: "code"
+  tests: "tests"
+  state: "state" # For integrity hashes
+
+# Functional Requirements Configuration
+# FR-002: Motion Threshold
+qc:
+  motion_threshold_mm: 3.0
+  max_missing_frames_ratio: 0.2
+  min_subjects_required: 10
+
+# Atlas Configuration for ROI Extraction (FR-003)
+# Using standard atlases available in nilearn
+atlases:
+  structural:
+    - name: "AAL"
+      description: "Automated Anatomical Labeling"
+      default: true
+    - name: "HarvardOxford"
+      description: "Harvard-Oxford Cortical and Subcortical Structural Atlases"
+      default: false
+  functional_rois:
+    - name: "PCC"
+      region: "Posterior Cingulate Cortex"
+      atlas_source: "HarvardOxford"
+      mask: "Posterior Cingulate Cortex Probabilistic"
+    - name: "mPFC"
+      region: "Medial Prefrontal Cortex"
+      atlas_source: "HarvardOxford"
+      mask: "Medial Prefrontal Cortex Probabilistic"
+    - name: "Angular"
+      region: "Angular Gyrus"
+      atlas_source: "HarvardOxford"
+      mask: "Angular Gyrus Probabilistic"
+
+# Data Source Configuration
+data_sources:
+  openneuro:
+    dataset_id: "ds000030"
+    version: "1.0.0"
+    events_required: ["Inclusion", "Exclusion"]
+
+# Simulation Parameters (for testing/unit tests only)
+# Real pipeline must use real data; these are fallbacks for unit testing logic
+simulation:
+  seed: 42
+  num_subjects: 20
+  time_points: 120
+  noise_level: 0.1
+  effect_size: 0.5
+
+# Processing Parameters
+preprocessing:
+  high_pass_filter_hz: 0.01
+  low_pass_filter_hz: 0.1
+  nuisance_regressors:
+    - "motion_x"
+    - "motion_y"
+    - "motion_z"
+    - "motion_pitch"
+    - "motion_roll"
+    - "motion_yaw"
+    - "motion_x_derivative"
+    - "motion_y_derivative"
+    - "motion_z_derivative"
+    - "motion_pitch_derivative"
+    - "motion_roll_derivative"
+    - "motion_yaw_derivative"
+    - "wm"
+    - "csf"
+  global_signal_regression: false # Per spec: not in scope
+
+# Statistical Analysis Parameters
+statistics:
+  permutation_iterations: 5000
+  fdr_q_threshold: 0.05
+  sensitivity_thresholds_mm: [2.0, 3.0, 4.0]
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"

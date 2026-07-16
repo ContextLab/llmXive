@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-correlates-social-exclusion"
+version = "0.1.0"
+description = "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "nibabel",
+    "nilearn",
+    "pyyaml",
+    "requests",
+    "matplotlib",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "C901", # too complex
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.ruff.isort]
+known-first-party = ["neural_correlates"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+]

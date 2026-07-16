@@ -101,12 +101,12 @@ src/
 4. **Framing**: Set `is_associational` flag based on metadata `randomization_verified`.
 
 ### Phase 4: Sensitivity & Visualization (SC-005)
-1. **Sensitivity Curve**: Re-calculate MAC and p-values for the *fixed set of retained subjects* using alternative motion thresholds (2mm, 4mm) for reporting purposes only. **Note**: This does not re-include subjects excluded by the 3mm rule.
+1. **Sensitivity Curve**: Re-calculate MAC and p-values for the *fixed set of retained subjects* using alternative motion thresholds (mm, 4mm) for reporting purposes only. **Note**: This does not re-include subjects excluded by the 3mm rule.
 2. **Visualize**: Generate null distribution, CI bar plots, and sensitivity curve.
 
 ### Phase 5: Reporting & Versioning (Constitution Principle V)
 1. **Compile**: Generate `results.json` and markdown report.
-2. **Hash**: Compute SHA-256 hashes for all output artifacts.
+2. **Hash**: Compute cryptographic hashes for all output artifacts..
 3. **Update State**: Write hashes and `updated_at` timestamp to `state/projects/PROJ-474-neural-correlates-of-simulated-social-ex.yaml`.
 
 ## Complexity Tracking

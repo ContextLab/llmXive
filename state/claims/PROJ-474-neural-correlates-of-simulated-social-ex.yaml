@@ -1,0 +1,1061 @@
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000030 used for data ingestion
+  claim_id: c_55a9fbd6
+  context: Implement src/data_loader.py to fetch OpenNeuro dataset ds000030 using
+    requests with retry logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000030_used_for_data_ingestion
+  kind: entity_fact
+  raw_text: fetch OpenNeuro dataset ds000030
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:16:35Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Motion threshold of 3mm used for subject exclusion
+  claim_id: c_59097ca0
+  context: Implement src/qc.py to filter and return a list of subjects with max displacement
+    <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_threshold_of_3mm_used_for_subject_exclusion
+  kind: entity_fact
+  raw_text: filter and return a list of subjects with max displacement <= 3mm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:17:02Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Minimum sample size of 10 subjects required after QC
+  claim_id: c_9a07afd5
+  context: Implement src/qc.py to check the count of filtered subjects; if < 10, raise
+    ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if < 10, raise ERR_N_INSUFFICIENT
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:17:02Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint of 7GB for ROI extraction
+  claim_id: c_15eef57e
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas (FR-003); ensure memory usage
+    < 7GB by processing subject-by-subject
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_of_7GB_for_ROI_extraction
+  kind: entity_fact
+  raw_text: ensure memory usage < 7GB by processing subject-by-subject
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:17:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: FDR correction q-value of 0.05 applied to 6 unique off-diagonal edges
+  claim_id: c_72fe27e4
+  context: "Implement src/stats.py for edge-wise statistical testing with FDR correction\
+    \ (q \u2264 0.05) applied only to the family of 6 unique off-diagonal edges (PCC-mPFC,\
+    \ PCC-Ang, mPFC-Ang) to detect opposing effects (FR-011)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply FDR correction (q \u2264 0.05) applied only to the family of 6\
+    \ unique off-diagonal edges"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:17:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Sensitivity curve generated across motion thresholds 2.0, 3.0, and 4.0
+    mm
+  claim_id: c_e35b89e4
+  context: Implement src/stats.py to generate a sensitivity curve measuring the p-values
+    and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm, using the fixed
+    set of subjects retained at the 3.0mm threshold
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a sensitivity curve measuring the p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:17:39Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ROI extraction targets PCC, mPFC, and Angular Gyrus
+  claim_id: c_fa6ed12d
+  context: Unit test for ROI extraction logic in tests/unit/test_extraction.py (verify
+    signal extraction from PCC, mPFC, Angular)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ROI_extraction_targets_PCC,_mPFC,_and_Angular_Gyrus
+  kind: entity_fact
+  raw_text: verify signal extraction from PCC, mPFC, Angular
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:18:16Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000030
+  claim_id: c_a974cdd6
+  context: Implement src/data_loader.py to fetch OpenNeuro dataset ds000030 using
+    requests with retry logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000030
+  kind: entity_fact
+  raw_text: OpenNeuro dataset ds000030
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:18:45Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: 6 unique off-diagonal edges PCC-mPFC PCC-Ang mPFC-Ang
+  claim_id: c_c53d45dd
+  context: "apply FDR correction (q \u2264 0.05) applied only to the family of 6 unique\
+    \ off-diagonal edges (PCC-mPFC, PCC-Ang, mPFC-Ang)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6 unique off-diagonal edges (PCC-mPFC, PCC-Ang, mPFC-Ang)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:19:24Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: motion thresholds 2.0 3.0 4.0 mm
+  claim_id: c_cc9f0a2c
+  context: generate a sensitivity curve measuring the p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:19:40Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: raise error if filtered subjects < 10
+  claim_id: c_eecf7e83
+  context: Implement src/qc.py to check the count of filtered subjects; if < 10, raise
+    ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise ERR_N_INSUFFICIENT if count of filtered subjects is < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:20:59Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: extract BOLD time-series from PCC mPFC and angular gyrus
+  claim_id: c_d3931f4f
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_BOLD_time-series_from_PCC_mPFC_and_angular_gyrus
+  kind: entity_fact
+  raw_text: Extract BOLD time-series from PCC, mPFC, and angular gyrus
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:21:24Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ensure memory usage < 7GB
+  claim_id: c_d69820a2
+  context: ensure memory usage < 7GB by processing subject-by-subject
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ensure_memory_usage_%3C_7GB
+  kind: entity_fact
+  raw_text: Ensure memory usage < 7GB by processing subject-by-subject
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:21:24Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: generate sensitivity curve across motion thresholds 2.0 3.0 4.0 mm
+  claim_id: c_3b328892
+  context: Implement src/stats.py to generate a sensitivity curve measuring the p-values
+    and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a sensitivity curve measuring p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:21:24Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000030 fetched
+  claim_id: c_7679f32d
+  context: Implement src/data_loader.py to fetch OpenNeuro dataset ds000030 using
+    requests with retry logic
+  evidence:
+    entailment_evidence: OpenNeuro dataset ds000030 fetched
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000030_fetched
+  kind: entity_fact
+  raw_text: The pipeline fetches OpenNeuro dataset ds000030.
+  resolved_value: OpenNeuro dataset ds000030 fetched
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T04:23:09Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Subjects excluded if max displacement > 3mm
+  claim_id: c_723db6c0
+  context: Implement src/qc.py to filter and return a list of subjects with max displacement
+    <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_excluded_if_max_displacement_%3E_3mm
+  kind: magnitude
+  raw_text: Subjects with max displacement greater than 3mm are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:23:39Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if filtered subjects < 10
+  claim_id: c_300439a4
+  context: Implement src/qc.py to check the count of filtered subjects; if < 10, raise
+    ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline raises an error if the count of filtered subjects is less
+    than 10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T04:23:39Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Nuisance regression includes 6 motion params and derivatives
+  claim_id: c_c47139fa
+  context: Implement src/preprocessing.py to perform nuisance regression (6 motion
+    params + derivatives, WM, CSF)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nuisance regression includes 6 motion parameters and their derivatives.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:24:06Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Memory usage < 7GB during ROI extraction
+  claim_id: c_8f50d479
+  context: ensure memory usage < 7GB by processing subject-by-subject
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_%3C_7GB_during_ROI_extraction
+  kind: magnitude
+  raw_text: Memory usage is constrained to be less than 7GB during ROI extraction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:24:23Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Connectivity metrics for PCC, mPFC, angular gyrus
+  claim_id: c_9cf7b3a6
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_metrics_for_PCC,_mPFC,_angular_gyrus
+  kind: entity_fact
+  raw_text: Connectivity metrics are computed for PCC, mPFC, and angular gyrus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:24:43Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: FDR correction applied to 6 unique off-diagonal edges
+  claim_id: c_98390842
+  context: "Implement src/stats.py for edge-wise statistical testing with FDR correction\
+    \ (q \u2264 0.05) applied only to the family of 6 unique off-diagonal edges (PCC-mPFC,\
+    \ PCC-Ang, mPFC-Ang)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FDR correction is applied to the family of 6 unique off-diagonal edges.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:25:12Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: 'Edges tested: PCC-mPFC, PCC-Ang, mPFC-Ang'
+  claim_id: c_abab6ece
+  context: family of 6 unique off-diagonal edges (PCC-mPFC, PCC-Ang, mPFC-Ang)
+  evidence:
+    entailment_evidence: 'Edges tested: PCC-mPFC, PCC-Ang, mPFC-Ang'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Edges_tested:_PCC-mPFC,_PCC-Ang,_mPFC-Ang
+  kind: entity_fact
+  raw_text: The specific edges tested are PCC-mPFC, PCC-Ang, and mPFC-Ang.
+  resolved_value: 'Edges tested: PCC-mPFC, PCC-Ang, mPFC-Ang'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T04:25:14Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Sensitivity curve across thresholds 2.0, 3.0, 4.0 mm
+  claim_id: c_334f1969
+  context: generate a sensitivity curve measuring the p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity curve measures p-values and effect sizes across motion
+    thresholds of 2.0, 3.0, and 4.0 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:25:32Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_e6642a41
+  context: Initialize Python 3.11 project with pinned dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 is used for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:25:48Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 0
+  canonical: edges tested are PCC-mPFC, PCC-Ang, mPFC-Ang
+  claim_id: c_3007c994
+  context: T034 [US3] ...family of 6 unique off-diagonal edges (PCC-mPFC, PCC-Ang,
+    mPFC-Ang) to detect opposing effects
+  evidence:
+    entailment_evidence: 'Edges tested: PCC-mPFC, PCC-Ang, mPFC-Ang'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Edges_tested:_PCC-mPFC,_PCC-Ang,_mPFC-Ang
+  kind: entity_fact
+  raw_text: The specific edges tested are PCC-mPFC, PCC-Ang, and mPFC-Ang.
+  resolved_value: 'Edges tested: PCC-mPFC, PCC-Ang, mPFC-Ang'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T04:26:32Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: exclude subjects with max displacement > 3mm
+  claim_id: c_6d785810
+  context: T014 [US1] Implement src/qc.py to filter and return a list of subjects
+    with max displacement <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_subjects_with_max_displacement_%3E_3mm
+  kind: magnitude
+  raw_text: Subjects with max displacement greater than 3mm will be excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:27:15Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: halt if subject count < 10 after QC
+  claim_id: c_80a376be
+  context: T015 [US1] Implement src/qc.py to check the count of filtered subjects;
+    if < 10, raise ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/halt_if_subject_count_%3C_10_after_QC
+  kind: magnitude
+  raw_text: The pipeline will halt if fewer than 10 subjects pass quality control.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:27:35Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: nuisance regression uses 6 motion parameters and derivatives
+  claim_id: c_1dd88753
+  context: T023 [US2] Implement src/preprocessing.py to perform nuisance regression
+    (6 motion params + derivatives, WM, CSF)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nuisance regression will use 6 motion parameters plus their derivatives.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:28:00Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: memory usage < 7GB for ROI extraction
+  claim_id: c_a631447b
+  context: T024 [US2] Implement src/extraction.py to extract BOLD time-series from
+    PCC, mPFC, and angular gyrus... ensure memory usage < 7GB by processing subject-by-subject
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/memory_usage_%3C_7GB_for_ROI_extraction
+  kind: entity_fact
+  raw_text: Memory usage for ROI extraction will be kept below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:28:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: extract BOLD time-series from PCC, mPFC, and angular gyrus
+  claim_id: c_cfd359ac
+  context: T024 [US2] Implement src/extraction.py to extract BOLD time-series from
+    PCC, mPFC, and angular gyrus using AAL/Harvard-Oxford atlas
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_BOLD_time-series_from_PCC,_mPFC,_and_angular_gyrus
+  kind: entity_fact
+  raw_text: ROI extraction will target the PCC, mPFC, and angular gyrus regions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:28:42Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: FDR correction applied to 6 unique off-diagonal edges
+  claim_id: c_13e53b47
+  context: "T034 [US3] Implement src/stats.py for edge-wise statistical testing with\
+    \ FDR correction (q \u2264 0.05) applied only to the family of 6 unique off-diagonal\
+    \ edges"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Edge-wise statistical testing will be applied to 6 unique off-diagonal
+    edges.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:29:06Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: sensitivity curve across motion thresholds 2.0, 3.0, 4.0 mm
+  claim_id: c_6fc1dc3b
+  context: T036 [US3] Implement src/stats.py to generate a sensitivity curve measuring
+    the p-values and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity curves will be generated across motion thresholds of 2.0,
+    3.0, and 4.0 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:29:24Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: sensitivity curve uses subjects retained at 3.0mm threshold
+  claim_id: c_a531b171
+  context: T036 [US3] ...using the fixed set of subjects retained at the 3.0mm threshold
+    (re-evaluating their motion metrics and re-running the full MAC and permutation
+    test pipeline for each threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity curve analysis will use a fixed set of subjects retained
+    at the 3.0mm threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:29:40Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_cf11c709
+  context: T003 Initialize Python 3.11 project with pinned dependencies in requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python project will be initialized with version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:29:58Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 2
+  canonical: fetch OpenNeuro dataset ds000030
+  claim_id: c_ddcf0e91
+  context: T012 [P] [US1] Implement src/data_loader.py to fetch OpenNeuro dataset
+    ds000030 using requests with retry logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OpenNeuro_dataset_ds000030
+  kind: entity_fact
+  raw_text: The project will fetch OpenNeuro dataset ds000030.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:30:33Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: filter subjects with max displacement <= 3mm
+  claim_id: c_bcd4672f
+  context: T014 [US1] Implement src/qc.py to filter and return a list of subjects
+    with max displacement <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/filter_subjects_with_max_displacement_%3C=_3mm
+  kind: entity_fact
+  raw_text: filter and return a list of subjects with max displacement <= 3mm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:30:33Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: raise error if subject count < 10
+  claim_id: c_bf6588d5
+  context: T015 [US1] Implement src/qc.py to check the count of filtered subjects;
+    if < 10, raise ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if < 10 subjects remain after filtering, raise ERR_N_INSUFFICIENT
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:30:33Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: extract BOLD time-series from PCC, mPFC, and angular gyrus
+  claim_id: c_70a3e430
+  context: T024 [US2] Implement src/extraction.py to extract BOLD time-series from
+    PCC, mPFC, and angular gyrus using AAL/Harvard-Oxford atlas (FR-003)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_BOLD_time-series_from_PCC,_mPFC,_and_angular_gyrus
+  kind: entity_fact
+  raw_text: extract BOLD time-series from PCC, mPFC, and angular gyrus using AAL/Harvard-Oxford
+    atlas
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:31:16Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ensure memory usage < 7GB
+  claim_id: c_bdb0c861
+  context: T024 [US2] Implement src/extraction.py to extract BOLD time-series from
+    PCC, mPFC, and angular gyrus using AAL/Harvard-Oxford atlas (FR-003); ensure memory
+    usage < 7GB by processing subject-by-subject
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ensure_memory_usage_%3C_7GB
+  kind: entity_fact
+  raw_text: ensure memory usage < 7GB by processing subject-by-subject
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:31:16Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: apply FDR correction to 6 unique off-diagonal edges
+  claim_id: c_ef091b8c
+  context: "T034 [US3] Implement src/stats.py for edge-wise statistical testing with\
+    \ FDR correction (q \u2264 0.05) applied only to the family of 6 unique off-diagonal\
+    \ edges (PCC-mPFC, PCC-Ang, mPFC-Ang)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply FDR correction (q \u2264 0.05) applied only to the family of 6\
+    \ unique off-diagonal edges"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:31:17Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: generate sensitivity curve across motion thresholds 2.0, 3.0, 4.0 mm
+  claim_id: c_aa0eae9c
+  context: T036 [US3] Implement src/stats.py to generate a sensitivity curve measuring
+    the p-values and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a sensitivity curve measuring the p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:31:17Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: use subjects retained at 3.0mm threshold
+  claim_id: c_c2752afe
+  context: T036 [US3] ... using the fixed set of subjects retained at the 3.0mm threshold
+    (re-evaluating their motion metrics and re-running the full MAC and permutation
+    test pipeline for each threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use the fixed set of subjects retained at the 3.0mm threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:31:32Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: include 'associational' string if randomization not verified
+  claim_id: c_9a7ac11b
+  context: T037 [US3] Implement src/stats.py logic to check randomization_verified
+    flag in dataset metadata; if false or missing, the output report MUST explicitly
+    contain the literal string 'associational' (FR-007)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_%27associational%27_string_if_randomization_not_verified
+  kind: entity_fact
+  raw_text: the output report MUST explicitly contain the literal string 'associational'
+    if randomization_verified flag is false or missing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:32:25Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 2
+  canonical: filter subjects with max displacement <= 3mm
+  claim_id: c_a3f6fde2
+  context: Implement src/qc.py to filter and return a list of subjects with max displacement
+    <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/filter_subjects_with_max_displacement_%3C=_3mm
+  kind: entity_fact
+  raw_text: Filter and return a list of subjects with max displacement <= 3mm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:33:57Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: raise error if filtered subjects count < 10
+  claim_id: c_19a02547
+  context: Implement src/qc.py to check the count of filtered subjects; if < 10, raise
+    ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if count of filtered subjects is < 10, raise ERR_N_INSUFFICIENT
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:33:57Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: nuisance regression using 6 motion parameters plus derivatives, WM, and
+    CSF
+  claim_id: c_86381409
+  context: Implement src/preprocessing.py to perform nuisance regression (6 motion
+    params + derivatives, WM, CSF) using memory-mapped NIfTI loading
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use nuisance regression with 6 motion params + derivatives, WM, CSF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:17Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: extract BOLD time-series from PCC, mPFC, and angular gyrus
+  claim_id: c_64698484
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_BOLD_time-series_from_PCC,_mPFC,_and_angular_gyrus
+  kind: entity_fact
+  raw_text: extract BOLD time-series from PCC, mPFC, and angular gyrus
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:18Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ensure memory usage < 7GB
+  claim_id: c_3efb33c3
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas (FR-003); ensure memory usage
+    < 7GB by processing subject-by-subject
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ensure_memory_usage_%3C_7GB
+  kind: entity_fact
+  raw_text: ensure memory usage < 7GB by processing subject-by-subject
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 2
+  canonical: apply FDR correction to 6 unique off-diagonal edges
+  claim_id: c_3f6b2a79
+  context: "Implement src/stats.py for edge-wise statistical testing with FDR correction\
+    \ (q \u2264 0.05) applied only to the family of 6 unique off-diagonal edges (PCC-mPFC,\
+    \ PCC-Ang, mPFC-Ang)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply FDR correction (q \u2264 0.05) to the family of 6 unique off-diagonal\
+    \ edges"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: generate sensitivity curve across motion thresholds 2.0, 3.0, 4.0 mm
+  claim_id: c_28df9761
+  context: Implement src/stats.py to generate a sensitivity curve measuring the p-values
+    and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a sensitivity curve measuring p-values and effect sizes across
+    motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: use subjects retained at 3.0mm threshold
+  claim_id: c_b7fc8ad2
+  context: using the fixed set of subjects retained at the 3.0mm threshold (re-evaluating
+    their motion metrics and re-running the full MAC and permutation test pipeline
+    for each threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use the fixed set of subjects retained at the 3.0mm threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:35:19Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ensure memory usage stays within 7GB limit during permutation tests
+  claim_id: c_4cc89189
+  context: 'Performance optimization: Ensure memory usage stays within 7GB limit during
+    permutation tests (chunking if necessary)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_stays_within_7GB_limit_during_permutatio
+  kind: entity_fact
+  raw_text: 'performance optimization: Ensure memory usage stays within 7GB limit
+    during permutation tests'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:39:02Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 3
+  canonical: fetch OpenNeuro dataset ds000030
+  claim_id: c_6e088c8b
+  context: Implement src/data_loader.py to fetch OpenNeuro dataset ds000030 using
+    requests with retry logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OpenNeuro_dataset_ds000030
+  kind: entity_fact
+  raw_text: Implement src/data_loader.py to fetch OpenNeuro dataset ds000030
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:39:48Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: filter subjects with max displacement less than or equal to 3mm
+  claim_id: c_f98a38d0
+  context: Implement src/qc.py to Filter and return a list of subjects with max displacement
+    <= 3mm (per-subject exclusion, FR-002)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_subjects_with_max_displacement_less_than_or_equal_to
+  kind: magnitude
+  raw_text: subjects with max displacement <= 3mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:39:55Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: raise error if count of filtered subjects is less than 10
+  claim_id: c_82c3708e
+  context: Implement src/qc.py to check the count of filtered subjects; if < 10, raise
+    ERR_N_INSUFFICIENT (FR-009, global halt logic)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P374: 66067'
+      source_id: Q1369252
+      url: https://www.wikidata.org/wiki/Q1369252
+      value: '66067'
+    filled: true
+  kind: magnitude
+  raw_text: if < 10, raise ERR_N_INSUFFICIENT
+  resolved_value: '66067'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T04:40:06Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: nuisance regression using 6 motion parameters plus derivatives, white
+    matter, and CSF
+  claim_id: c_492ada90
+  context: Implement src/preprocessing.py to perform nuisance regression (6 motion
+    params + derivatives, WM, CSF) using memory-mapped NIfTI loading
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6 motion params + derivatives, WM, CSF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:42:02Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: ensure memory usage less than 7GB
+  claim_id: c_4cd06276
+  context: Implement src/extraction.py to extract BOLD time-series from PCC, mPFC,
+    and angular gyrus using AAL/Harvard-Oxford atlas (FR-003); ensure memory usage
+    < 7GB by processing subject-by-subject
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:44:48Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: test 6 unique off-diagonal edges
+  claim_id: c_bd7a1285
+  context: "Implement src/stats.py for edge-wise statistical testing with FDR correction\
+    \ (q \u2264 0.05) applied only to the family of 6 unique off-diagonal edges (PCC-mPFC,\
+    \ PCC-Ang, mPFC-Ang)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6 unique off-diagonal edges (PCC-mPFC, PCC-Ang, mPFC-Ang)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:44:49Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: sensitivity curve across motion thresholds 2.0, 3.0, and 4.0 mm
+  claim_id: c_bfd7503f
+  context: Implement src/stats.py to generate a sensitivity curve measuring the p-values
+    and effect sizes across motion thresholds {2.0, 3.0, 4.0} mm
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: motion thresholds {2.0, 3.0, 4.0} mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:44:49Z'
+- artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  attempts: 1
+  canonical: use fixed set of subjects retained at 3.0mm threshold for sensitivity
+    curve
+  claim_id: c_805fdce2
+  context: using the fixed set of subjects retained at the 3.0mm threshold (re-evaluating
+    their motion metrics and re-running the full MAC and permutation test pipeline
+    for each threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed set of subjects retained at the 3.0mm threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T04:46:30Z'

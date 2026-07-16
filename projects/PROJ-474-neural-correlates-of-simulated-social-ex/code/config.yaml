@@ -1,0 +1,66 @@
+# Project Configuration: Neural Correlates of Simulated Social Exclusion
+# Generated for PROJ-474
+# Per FR-002: Motion threshold set to 3.0mm
+
+project:
+  name: "neural-correlates-social-ex"
+  version: "0.1.0"
+  root: "."
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_results: "data/results"
+  figures: "figures"
+  state: "state"
+
+qc:
+  # Framewise Displacement threshold in mm (FR-002)
+  motion_threshold_mm: 3.0
+  # Minimum number of subjects required to proceed (FR-009)
+  min_subjects_required: 10
+
+data_sources:
+  # OpenNeuro dataset ID for the Cyberball task
+  openneuro_dataset: "ds000030"
+  # Expected modalities
+  modalities:
+    - "func"
+    - "dwi" # If available, though focus is func here
+    - "fmap"
+
+atlas:
+  # Primary atlas for ROI extraction (FR-003)
+  name: "Harvard-Oxford"
+  # Alternative: "AAL"
+  # ROIs of interest defined in extraction logic, but listed here for config
+  rois:
+    - "Posterior Cingulate Cortex" # PCC
+    - "Medial Prefrontal Cortex"   # mPFC
+    - "Angular Gyrus"              # Left and Right handled in code
+
+preprocessing:
+  # Nuisance regressors (FR-003)
+  nuisance_regressors:
+    - "motion_6"
+    - "motion_derivatives"
+    - "wm_signal"
+    - "csf_signal"
+  # Global signal regression is explicitly excluded per spec
+  global_signal_regression: false
+  # Temporal filtering (Hz)
+  low_pass_hz: 0.1
+  high_pass_hz: 0.01
+
+simulation:
+  # Parameters for synthetic data generation (Unit Tests Only)
+  # DO NOT use these for main pipeline execution
+  seed: 42
+  n_subjects: 20
+  n_timepoints: 200
+  noise_level: 0.1
+  effect_size: 0.5
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
