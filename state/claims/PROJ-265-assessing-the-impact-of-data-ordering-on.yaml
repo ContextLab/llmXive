@@ -1,0 +1,680 @@
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.0-0.1: count 3, ordered coverage 0.94, shuffled coverage 0.95,
+    diff 0.01, p-value 0.45, ci width ratio 1.02'
+  claim_id: c_647560df
+  context: Summary Table row for Phi Bin 0.0-0.1
+  evidence:
+    asserted: '0.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.0-0.1, the count is 3, the average ordered coverage
+    is 0.9400, the average shuffled coverage is 0.9500, the difference is 0.0100,
+    the average p-value is 0.4500, and the CI width ratio is 1.0200.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.1-0.2: count 3, ordered coverage 0.92, shuffled coverage 0.95,
+    diff 0.03, p-value 0.20, ci width ratio 1.05'
+  claim_id: c_acab60e6
+  context: Summary Table row for Phi Bin 0.1-0.2
+  evidence:
+    asserted: '0.1'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.1-0.2, the count is 3, the average ordered coverage
+    is 0.9200, the average shuffled coverage is 0.9500, the difference is 0.0300,
+    the average p-value is 0.2000, and the CI width ratio is 1.0500.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.2-0.3: count 3, ordered coverage 0.88, shuffled coverage 0.95,
+    diff 0.07, p-value 0.05, ci width ratio 1.10'
+  claim_id: c_5061d950
+  context: Summary Table row for Phi Bin 0.2-0.3
+  evidence:
+    asserted: '0.2'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.2-0.3, the count is 3, the average ordered coverage
+    is 0.8800, the average shuffled coverage is 0.9500, the difference is 0.0700,
+    the average p-value is 0.0500, and the CI width ratio is 1.1000.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.3-0.4: count 3, ordered coverage 0.82, shuffled coverage 0.95,
+    diff 0.13, p-value 0.01, ci width ratio 1.15'
+  claim_id: c_2929fb34
+  context: Summary Table row for Phi Bin 0.3-0.4
+  evidence:
+    asserted: '0.3'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.3-0.4, the count is 3, the average ordered coverage
+    is 0.8200, the average shuffled coverage is 0.9500, the difference is 0.1300,
+    the average p-value is 0.0100, and the CI width ratio is 1.1500.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.4-0.5: count 3, ordered coverage 0.75, shuffled coverage 0.95,
+    diff 0.20, p-value 0.005, ci width ratio 1.25'
+  claim_id: c_7e0c08e5
+  context: Summary Table row for Phi Bin 0.4-0.5
+  evidence:
+    asserted: '0.4'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.4-0.5, the count is 3, the average ordered coverage
+    is 0.7500, the average shuffled coverage is 0.9500, the difference is 0.2000,
+    the average p-value is 0.0050, and the CI width ratio is 1.2500.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.5-0.6: count 3, ordered coverage 0.65, shuffled coverage 0.95,
+    diff 0.30, p-value 0.001, ci width ratio 1.40'
+  claim_id: c_d076a594
+  context: Summary Table row for Phi Bin 0.5-0.6
+  evidence:
+    asserted: '0.5'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.5-0.6, the count is 3, the average ordered coverage
+    is 0.6500, the average shuffled coverage is 0.9500, the difference is 0.3000,
+    the average p-value is 0.0010, and the CI width ratio is 1.4000.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.6-0.7: count 3, ordered coverage 0.55, shuffled coverage 0.95,
+    diff 0.40, p-value 0.0005, ci width ratio 1.55'
+  claim_id: c_ef542a68
+  context: Summary Table row for Phi Bin 0.6-0.7
+  evidence:
+    asserted: '0.6'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.6-0.7, the count is 3, the average ordered coverage
+    is 0.5500, the average shuffled coverage is 0.9500, the difference is 0.4000,
+    the average p-value is 0.0005, and the CI width ratio is 1.5500.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.7-0.8: count 3, ordered coverage 0.48, shuffled coverage 0.95,
+    diff 0.47, p-value 0.0001, ci width ratio 1.70'
+  claim_id: c_06f4eb7d
+  context: Summary Table row for Phi Bin 0.7-0.8
+  evidence:
+    asserted: '0.7'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.7-0.8, the count is 3, the average ordered coverage
+    is 0.4800, the average shuffled coverage is 0.9500, the difference is 0.4700,
+    the average p-value is 0.0001, and the CI width ratio is 1.7000.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.8-0.9: count 3, ordered coverage 0.40, shuffled coverage 0.95,
+    diff 0.55, p-value 0.0001, ci width ratio 1.90'
+  claim_id: c_335a35c4
+  context: Summary Table row for Phi Bin 0.8-0.9
+  evidence:
+    asserted: '0.8'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.8-0.9, the count is 3, the average ordered coverage
+    is 0.4000, the average shuffled coverage is 0.9500, the difference is 0.5500,
+    the average p-value is 0.0001, and the CI width ratio is 1.9000.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 'phi bin 0.9-1.0: count 3, ordered coverage 0.30, shuffled coverage 0.95,
+    diff 0.65, p-value 0.0001, ci width ratio 2.20'
+  claim_id: c_4951bb7f
+  context: Summary Table row for Phi Bin 0.9-1.0
+  evidence:
+    asserted: '0.9'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the phi bin 0.9-1.0, the count is 3, the average ordered coverage
+    is 0.3000, the average shuffled coverage is 0.9500, the difference is 0.6500,
+    the average p-value is 0.0001, and the CI width ratio is 2.2000.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:01:38Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Mean ordered coverage 0.9350 and shuffled coverage 0.9490 for phi 0.3-0.6
+    bin
+  claim_id: c_93d88f9d
+  context: Stratified Results table row for bin 0.3-0.6 showing coverage metrics.
+  evidence:
+    asserted: '0.3'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the bin with $\phi$ 0.3-0.6, the mean ordered coverage was 0.9350
+    and the mean shuffled coverage was 0.9490, resulting in a coverage drop of -0.0140.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Mean ordered coverage 0.8820 and shuffled coverage 0.9480 for phi 0.6-0.9
+    bin
+  claim_id: c_9a80efb1
+  context: Stratified Results table row for bin 0.6-0.9 showing coverage metrics.
+  evidence:
+    asserted: '0.6'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the bin with $\phi$ 0.6-0.9, the mean ordered coverage was 0.8820
+    and the mean shuffled coverage was 0.9480, resulting in a coverage drop of -0.0660.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Mean ordered coverage 0.7950 and shuffled coverage 0.9470 for phi 0.9-1.0
+    bin
+  claim_id: c_847d0fac
+  context: Stratified Results table row for bin 0.9-1.0 showing coverage metrics.
+  evidence:
+    asserted: '0.9'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For the bin with $\phi$ 0.9-1.0, the mean ordered coverage was 0.7950
+    and the mean shuffled coverage was 0.9470, resulting in a coverage drop of -0.1520.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Mean p-value 0.0001 for phi 0.6-0.9 bin in McNemar's test
+  claim_id: c_4437b088
+  context: Stratified Results table row for bin 0.6-0.9 showing p-value.
+  evidence:
+    asserted: '0.0001'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: McNemar's test yielded a mean p-value of 0.0001 for the bin with $\phi$
+    0.6-0.9.
+  resolved_value: '1.6180'
+  resolver: approximate
+  source_hash: 9f2d781eb5e53e925be32090f683b3c41d8fdb9c68150b9078bd8373001bda3c
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Mean p-value 0.0000 for phi 0.9-1.0 bin in McNemar's test
+  claim_id: c_76035257
+  context: Stratified Results table row for bin 0.9-1.0 showing p-value.
+  evidence:
+    asserted: '0.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: McNemar's test yielded a mean p-value of 0.0000 for the bin with $\phi$
+    0.9-1.0.
+  resolved_value: '1.6180'
+  resolver: approximate
+  source_hash: 9f2d781eb5e53e925be32090f683b3c41d8fdb9c68150b9078bd8373001bda3c
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 15 of 15 samples significant for phi 0.6-0.9 bin
+  claim_id: c_fc21ac54
+  context: Stratified Results table row for bin 0.6-0.9 showing significant count.
+  evidence:
+    asserted: '0.6'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: In the bin with $\phi$ 0.6-0.9, 15 out of 15 samples showed statistically
+    significant differences between ordered and shuffled coverage.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: 10 of 10 samples significant for phi 0.9-1.0 bin
+  claim_id: c_1a3f343c
+  context: Stratified Results table row for bin 0.9-1.0 showing significant count.
+  evidence:
+    asserted: '0.9'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: In the bin with $\phi$ 0.9-1.0, 10 out of 10 samples showed statistically
+    significant differences between ordered and shuffled coverage.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:10:53Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Ordered Coverage of 0.84 at sample size 50
+  claim_id: c_b14b14e8
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 50, the Mean Ordered Coverage was 0.84.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:18:01Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Shuffled Coverage of 0.95 at sample size 50
+  claim_id: c_7bcb8e31
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 50, the Mean Shuffled Coverage was 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:18:47Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Ordered Coverage of 0.86 at sample size 100
+  claim_id: c_9ffc1ab9
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 100, the Mean Ordered Coverage was 0.86.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:19:03Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Shuffled Coverage of 0.95 at sample size 100
+  claim_id: c_079960b2
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 100, the Mean Shuffled Coverage was 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:19:20Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Ordered Coverage of 0.88 at sample size 200
+  claim_id: c_ad481822
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 200, the Mean Ordered Coverage was 0.88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:20:02Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/sensitivity_analysis.md
+  attempts: 1
+  canonical: Mean Shuffled Coverage of 0.95 at sample size 200
+  claim_id: c_98dcd019
+  context: Results by Sample Size table showing metrics for N=50, 100, and 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At N = 200, the Mean Shuffled Coverage was 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:20:21Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/summary_report.md
+  attempts: 1
+  canonical: 18 total configurations tested
+  claim_id: c_96937fc5
+  context: Analysis Summary section listing total configurations and significant differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total configurations tested: 18'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:20:40Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/summary_report.md
+  attempts: 1
+  canonical: Average ordered coverage of 0.86
+  claim_id: c_e46975c4
+  context: Analysis Summary section listing average coverage metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average ordered coverage: 0.86'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:20:56Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/summary_report.md
+  attempts: 1
+  canonical: Average shuffled coverage of 0.95
+  claim_id: c_f6343925
+  context: Analysis Summary section listing average coverage metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average shuffled coverage: 0.95'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:21:12Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/summary_report.md
+  attempts: 1
+  canonical: Average coverage drop of 0.09
+  claim_id: c_f5ba165d
+  context: Analysis Summary section listing average coverage metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average coverage drop: 0.09'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:21:28Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Higher phi values show greater coverage degradation
+  claim_id: c_a873140b
+  context: Stratification Results table showing mean coverage decreasing from 0.9467
+    at phi 0.0-0.2 to 0.7750 at phi 0.8-1.0.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Higher_phi_values_show_greater_coverage_degradation
+  kind: entity_fact
+  raw_text: Higher phi values (stronger autocorrelation) show greater coverage degradation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:21:47Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Shuffled baselines maintain coverage near 0.95
+  claim_id: c_1c1e6912
+  context: Observations section noting baseline performance compared to stratified
+    phi ranges.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffled baselines consistently maintain coverage near 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:22:03Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/results/stratified_report.md
+  attempts: 1
+  canonical: Coverage degradation effect is statistically significant across all phi
+    ranges
+  claim_id: c_f406cf14
+  context: Observations section summarizing the statistical significance of the stratification
+    results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coverage_degradation_effect_is_statistically_significant_acr
+  kind: entity_fact
+  raw_text: The effect is statistically significant across all phi ranges.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:22:20Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/quickstart.md
+  attempts: 1
+  canonical: coverage for phi=0.8 is typically 0.78 to 0.82
+  claim_id: c_2cfa5ada
+  context: Verification section describing expected output metrics.
+  evidence:
+    asserted: '0.8'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For phi=0.8, coverage should be significantly lower than 0.95 (typically
+    ~0.78-0.82).
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:22:25Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/quickstart.md
+  attempts: 1
+  canonical: coverage for phi=0.8 is significantly lower than 0.95
+  claim_id: c_022db846
+  context: Verification section describing expected output metrics.
+  evidence:
+    asserted: '0.8'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: For phi=0.8, coverage should be significantly lower than 0.95 (typically
+    ~0.78-0.82).
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:22:26Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/quickstart.md
+  attempts: 1
+  canonical: shuffled baselines maintain coverage near 0.95
+  claim_id: c_d974f58a
+  context: Verification section describing expected output metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffled baselines should maintain coverage near 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:22:42Z'
+- artifact_path: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/quickstart.md
+  attempts: 1
+  canonical: McNemar's test p-values are less than 0.05 for phi >= 0.5
+  claim_id: c_e01dcd96
+  context: Verification section describing expected output metrics.
+  evidence:
+    asserted: '0.05'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: magnitude
+  raw_text: McNemar's test p-values should be < 0.05 for phi >= 0.5.
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:22:42Z'

@@ -1,0 +1,29 @@
+T016:
+  c: false
+  h: 9312d0e4e630887ae50c74f7133e7012e4fcbf609ce02b6f2362a5c27fd33835
+  r: "The provided `code/runner.py` is incomplete (truncated) and does not show the\
+    \ full nested\u2011loop orchestration or the JSON\u2011writing logic required,\
+    \ and the expected output file `results/simulation_logs.json` is missing from\
+    \ the repository. The task\u2019s required artifact (a non\u2011empty log file)\
+    \ is therefore not present."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, linting reports, or docstring listings were provided; therefore
+    we cannot verify that debug prints were removed, linting errors fixed, or docstrings
+    completed. The required cleanup artifacts are missing.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and no actual artifacts such\
+    \ as code, simulation results, coverage tables, or analysis of the UCI power consumption\
+    \ dataset. Consequently, the required outputs (synthetic AR(1) generation, bootstrap\
+    \ confidence\u2011interval coverage calculations, ordered vs. shuffled comparisons,\
+    \ and real\u2011world data segment analysis) are missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report artifacts were provided; the implementer did not deliver\
+    \ the required stratification logic, simulation outputs, or real\u2011world analysis\
+    \ described in the specification. Consequently the task\u2019s core deliverables\
+    \ are missing."
