@@ -1,0 +1,54 @@
+project_id: PROJ-693-abot-earth-0-5-generative-3d-earth-model
+round: 3
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 10}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/source/
+  location: page 10
+- id: auditdef00001
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 10}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/source/
+  location: page 10
+- id: auditdef00002
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 14}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/source/
+  location: page 14
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 3 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T14:55:42.127304+00:00'
