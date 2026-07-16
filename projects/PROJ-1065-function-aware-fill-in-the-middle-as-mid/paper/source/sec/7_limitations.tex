@@ -1,0 +1,25 @@
+% =============================================================================
+% 7. LIMITATIONS AND DISCUSSION
+% =============================================================================
+\section{Limitations and Discussion}
+\vspace{-0.5ex}
+\label{sec:limitations}
+We close by stating four limitations that scope our claims.
+(i) \textit{Python-only corpus and evaluation.} The mid-training corpus
+and the in-domain agent benchmarks are exclusively Python; cross-language
+evidence comes only indirectly through FullStackBench-EN
+(Section~\ref{sec:exp:gen}), and transfer to Java, C++, or Rust is left
+to future work.
+(ii) \textit{Teacher dependency for CoT.} The default recipe relies on
+Gemini-3-Flash; the CoT-source ablation (Section~\ref{sec:exp:ablation})
+shows self-generated rationales recover most of the gain, but a fully
+open-source replication requires a comparably strong open teacher.
+(iii) \textit{Partial cross-base validation.} Our cross-base evidence
+comes from a single non-Qwen2.5-Coder configuration (Qwen3-8B with
+SWE-Lego), which simultaneously varies the post-training pipeline; the
+result indicates the recipe is not tied to one pretraining/post-training
+combination rather than guaranteeing transfer across all base families.
+(iv) \textit{Modularity assumption.} Function-aware FIM presupposes
+modular code; on monolithic scripts, generated code, or notebooks, the
+pipeline yields fewer eligible targets, a regime we do not study
+systematically.

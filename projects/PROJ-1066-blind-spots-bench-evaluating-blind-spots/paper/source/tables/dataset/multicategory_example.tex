@@ -1,0 +1,14 @@
+\begin{tcolorbox}[title={Multi category example}, size=title,colback=gray!10, colframe=gray, boxrule=0.5pt,
+  arc=2mm, left=2mm, right=2mm, top=1mm, bottom=1mm,,breakable ]
+\noindent
+\textbf{Prompt}: Can you generate an image according to the problem description and solve the problem? Let ABCD be a square, and l be a line segment from B to a point on side AD. A is 5 cm from l and C is 7 cm from l. What is the area of ABCD? \\
+
+\textbf{Question type}: \texttt{image-gen}\\
+
+\textbf{Task Type}: \toggle{abstract reasoning}, \toggle{object-centric}\\
+
+\textbf{Sub-Task Type}: Geometric and Graph reasoning, Attribute binding.\\
+
+\textbf{Failure Mode}: If the model generates an image with incorrect properties, such as placing point B off side AD or producing square ABDC instead of ABCD, then it fails in attribute binding.
+If the model fails to compute the area of ABCD, then it fails in geometric and graph reasoning.
+\end{tcolorbox}

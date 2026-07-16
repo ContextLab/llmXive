@@ -1,0 +1,89 @@
+% =============================================================================
+% SECTION 5 — ANALYSIS (revised for paper_v2)
+% Headline table kept inline; the patch-shape figure is moved to the appendix.
+% Trajectory-level statistics are run-means over three independent evaluation
+% runs of each checkpoint on SWE-Bench-Verified (500 instances per run).
+% =============================================================================
+
+\section{Analysis}
+\label{sec:analysis}
+\vspace{-0.5ex}
+
+The previous section established that FIM mid-training improves end-task
+metrics. We now ask \emph{how} the resulting agent behaves differently
+and \emph{where} along the trajectory the gains accrue. Both analyses
+use the 14B configuration with R2E-Gym, comparing the
+post-training-only baseline (\emph{R2E-Gym}) against our recipe
+(\emph{FIM-Midtrain $+$ R2E-Gym}). The Lite analogue, the full
+action-type distribution, the no-patch mechanism, and a concrete
+trajectory contrast are deferred to Appendix~\ref{app:behavior_extra}.
+
+\vspace{-0.5ex}
+\subsection{Recovery from Negative Observations}
+\label{sec:analysis:recovery}
+
+A trajectory contains a \emph{negative observation} if any tool output
+matches a fixed set of error patterns (stack traces,
+``\texttt{No replacement was performed}'', shell errors, etc.; full list
+in Appendix~\ref{app:algo}). The fraction of such trajectories is
+essentially identical across checkpoints ($88.8\%$ baseline vs.\
+$91.8\%$ ours), so the agents see comparable amounts of negative
+feedback. The \emph{recovery rate}---the fraction of error-containing
+trajectories that nonetheless terminate with a passing patch---rises
+from $24.8\%$ to $28.8\%$ ($+4.0$~pp; $+16\%$ relative;
+Table~\ref{tab:behavior_main}). This is precisely the capability our
+framing predicts mid-training should support: continuing productively
+after an external return contradicts the model's prior expectation.
+Mid-training also shifts the agent toward an iterate-and-verify policy,
+increasing edits per solved task from $3.3$ to $7.4$ and trajectory
+length from $15.1$ to $23.6$ steps; action-type breakdowns are in
+Appendix~\ref{app:behavior_extra}.
+
+% -----------------------------------------------------------------------------
+% Compact headline table
+% -----------------------------------------------------------------------------
+\begin{table}[h]
+\centering
+\caption{Headline trajectory metrics on SWE-Bench-Verified. Full metrics in Appendix~\ref{app:behavior_extra}.}
+\label{tab:behavior_main}
+\small
+\setlength{\tabcolsep}{8pt}
+\vspace{-0.5ex}
+\begin{tabular}{lcccc}
+\toprule
+Setting & Recovery rate (\%) & Edits / solved & Steps / solved & Pass (\%) \\
+\midrule
++ R2E-Gym                          & 24.8           & 3.3           & 15.1           & 26.2 \\
+\textbf{+ FIM-Midtrain + R2E-Gym}  & \textbf{28.8}  & \textbf{7.4}  & \textbf{23.6}  & \textbf{29.2} \\
+\bottomrule
+\end{tabular}
+\vspace{-1ex}
+\end{table}
+
+\vspace{-0.5ex}
+\subsection{The Gain Concentrates on Multi-Function Reasoning}
+\label{sec:analysis:multifn}
+
+The most direct test of the isomorphism argument
+(Section~\ref{sec:method:motivation}) is whether mid-training
+preferentially helps tasks that require reasoning about cross-function
+dependencies inside a file. We stratify the $500$ Verified tasks by the
+shape of the gold patch (Figure~\ref{fig:patchshape},
+Appendix~\ref{app:behavior_extra}). On the $88$ tasks whose gold patch
+modifies $\geq 2$ functions within a single file, the baseline solves
+$13.6\%$ on average and ours solves $22.7\%$, an absolute gain of
+$+9.1$~pp---more than $4{\times}$ the gain on the $341$ single-function
+tasks ($+2.1$~pp). Per-instance head-to-head on this bucket shows ours
+uniquely solves about twice as many tasks as the baseline. Multi-file
+tasks ($n{=}71$) are not differentially helped, which we attribute to a
+granularity mismatch: our FIM operates within files
+(Appendix~\ref{app:behavior_extra}). The slice where mid-training helps
+most is precisely the slice where the agent must follow control- and
+data-dependencies between caller-callee or sibling functions inside a
+file---the same structure exposed by function-aware FIM masking. A
+complementary outcome-distribution breakdown
+(Figure~\ref{fig:failure_app}) shows the $+15$-task gain is driven by an
+order-of-magnitude reduction in \emph{no-patch} failures alongside small
+reductions in localization errors; the FIM signal conditions the model
+to produce a non-empty span between prefix and suffix---a disposition
+that survives subsequent post-training.

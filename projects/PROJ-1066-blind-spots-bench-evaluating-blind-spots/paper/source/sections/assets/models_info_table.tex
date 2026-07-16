@@ -1,0 +1,66 @@
+
+\begin{table}[]
+\caption{Model metadata, pricing, datatype, and serving hardware on the serving platform. Prices are reported in USD per 1M tokens. Size is reported in billions of parameters when available. Serving GPU counts and data-types are taken from the serving platform default model configuration.
+\textbf{VLMs} can process both images and textual inputs but only produce text, while \textbf{LLM} only operate in text. \textbf{Image generation} models can instead processed both modalities as input, but their output are only images.}
+\small
+\label{tab:models-serving-hardware}
+\begin{tabular}{lrrrrll}
+\toprule
+\textbf{Model} &
+\textbf{Size (B)} &
+\textbf{Release} &
+\textbf{In. (\$)} &
+\textbf{Out. (\$)} &
+\textbf{dtype} &
+\textbf{GPUs} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Language models}} \\
+\midrule
+GLM-4.7 & 358 & 2025-12 & 0.5606 & 1.6817 & fp8 & 4 x H200 \\
+GLM-5 & 754 & 2026-02 & 1.0758 & 3.2274 & fp8 & 8 x H200 \\
+GLM-5.1 & 754 & 2026-04 & 0.7716 & 2.3149 & fp8 & 8 x H200 \\
+GLM-5.2 & 754 & 2026-06 & 0.69 & 2.07 & fp8 & 8 x H200 \\
+DeepSeek-V4-Flash & 158 & 2026-04 & 0.2666 & 0.7998 & fp8 & 4 x H100 \\
+DeepSeek-V4-Pro & 862 & 2026-04 & 0.9324 & 2.7971 & fp8 & 8 x H200 \\
+GPT-oss-20b & 21 & 2025-08 & 0.0204 & 0.0611 & bf16 & 1 x A100 \\
+GPT-oss-120b & 117 & 2025-08 & 0.0486 & 0.1457 & bf16 & 1 x A100 \\
+Qwen3-Next-80B-A3B-Thinking & 80 & 2025-09 & 0.1365 & 0.4097 & bf16 & 4 x A100 \\
+\midrule
+\multicolumn{7}{l}{\textbf{Vision-language models}} \\
+\midrule
+Kimi-K2.5 & 1000 & 2026-02 & 0.6856 & 2.0567 & int4 & 8 x H200 \\
+Kimi-K2.6 & 1000 & 2026-04 & 0.6121 & 1.8362 & int4 & 8 x H200 \\
+Gemma-4-E2B-it & 5 & 2026-04 & 0.0164 & 0.0493 & bf16 & 1 x A100 \\
+Gemma-4-E4B-it & 8 & 2026-04 & 0.0249 & 0.0746 & bf16 & 1 x A100 \\
+Gemma-4-26B-A4B-it & 26 & 2026-04 & 0.0422 & 0.1266 & bf16 & 1 x A100 \\
+Qwen3-VL-30B-A3B-Thinking & 30 & 2025-09 & 0.0633 & 0.1902 & bf16 & 1 x A100 \\
+Qwen3-VL-235B-A22B-Thinking & 235 & 2025-09 & 0.3095 & 0.9285 & fp8 & 4 x A100 \\
+Qwen3.5-35B-A3B & 35 & 2026-03 & 0.0483 & 0.1448 & fp8 & 1 x A100 \\
+Qwen3.5-122B-A10B & 122 & 2026-03 & 0.1491 & 0.4474 & fp8 & 2 x A100 \\
+Qwen3.5-397B-A17B & 397 & 2026-03 & 0.5047 & 1.5142 & fp8 & 8 x A100 \\
+Gemini-2.5-flash & -- & 2025-06 & 0.3000 & 2.5000 & -- & -- \\
+Gemini-2.5-pro & -- & 2025-06 & 1.2500 & 10.0000 & -- & -- \\
+Gemini-3-flash-preview & -- & 2025-12 & 0.5000 & 3.0000 & -- & -- \\
+Gemini-3.1-flash-lite-preview & -- & 2026-03 & 0.2500 & 1.5000 & -- & -- \\
+Gemini-3.1-pro-preview & -- & 2026-02 & 1.0000 & 6.0000 & -- & -- \\
+GPT-5-mini & -- & 2025-08 & 0.2500 & 2.0000 & -- & -- \\
+GPT-5 & -- & 2025-08 & 1.2500 & 10.0000 & -- & -- \\
+GPT-5.2 & -- & 2025-12 & 1.7500 & 14.0000 & -- & -- \\
+GPT-5.4-nano & -- & 2026-03 & 0.2000 & 1.2500 & -- & -- \\
+GPT-5.4-mini & -- & 2026-03 & 0.7500 & 4.5000 & -- & -- \\
+GPT-5.4 & -- & 2026-03 & 2.5000 & 15.0000 & -- & -- \\
+GPT-5.5 & -- & 2026-04 & 5.0000 & 30.0000 & -- & -- \\
+\midrule
+\multicolumn{7}{l}{\textbf{Generative image models}} \\
+\midrule
+Gemini-2.5-flash-image & -- & 2025-08 & 0.3000 & 30.0000 & -- & -- \\
+Gemini-3-pro-image-preview & -- & 2025-11 & 2.0000 & 120.0000 & -- & -- \\
+Gemini-3.1-flash-image-preview & -- & 2026-03 & 0.5000 & 60.0000 & -- & -- \\
+GPT-image-1-mini & -- & 2025-10 & 2.5000 & 8.0000 & -- & -- \\
+GPT-image-1.5 & -- & 2025-12 & 8.0000 & 32.0000 & -- & -- \\
+GPT-image-2 & -- & 2026-04 & 8.0000 & 30.0000 & -- & -- \\
+\bottomrule
+\end{tabular}
+\normalsize
+
+\end{table}

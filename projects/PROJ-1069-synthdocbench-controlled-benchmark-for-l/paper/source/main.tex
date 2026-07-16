@@ -1,0 +1,1563 @@
+\documentclass{article} % For LaTeX2e
+\usepackage[final]{colm2026_conference}
+
+% --- Encoding & fonts (must come early) ---
+\usepackage[T1]{fontenc}
+% \usepackage{lmodern}
+
+% --- Silence unfixable COLM template font warnings ---
+\usepackage{silence}
+\WarningFilter{latexfont}{Font shape}
+\WarningFilter{latexfont}{Some font shapes}
+
+% --- Core typography ---
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{url}
+
+% --- Math ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- Tables ---
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{colortbl}
+
+% --- Graphics & layout ---
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{placeins}        % provides \FloatBarrier
+
+% --- Todo notes (marginparwidth fix must precede loading) ---
+% \setlength{\marginparwidth}{2cm}
+% \usepackage{todonotes}
+
+
+
+% --- Boxes ---
+\usepackage[breakable,skins]{tcolorbox}
+\usepackage{pifont}
+
+% NOTE: geometry package warning
+% \usepackage[pass]{geometry}  % only if needed, with pass flag
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% COLUMN TYPES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{localyellow}{RGB}{255,249,196}
+\definecolor{sectiongray}{RGB}{240,240,240}
+\definecolor{ocyellow}{RGB}{255,253,220}
+\definecolor{paperblue}{RGB}{219,234,254}
+\definecolor{lbgreen}{RGB}{220,245,220}
+\definecolor{snGreen}{RGB}{131,198,97}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\na}{---}
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\oc}[1]{\cellcolor{ocyellow}#1}
+\newcommand{\pb}[1]{\cellcolor{paperblue}#1}
+\newcommand{\lb}[1]{\cellcolor{lbgreen}#1}
+\newcommand{\todos}[1]{\textcolor{red}{#1}}
+\newcommand{\synthdocbench}[1]{\textsc{SynthDocBench}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% TCOLORBOX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtcolorbox{promptbox}[1][]{
+  breakable, enhanced,
+  title={#1},
+  fonttitle=\small\bfseries\sffamily,
+  coltitle=white,
+  colbacktitle=gray!60,
+  colback=gray!5,
+  colframe=gray!40,
+  boxrule=0.5pt,
+  arc=3pt,
+  left=8pt, right=8pt, top=3pt, bottom=5pt,
+}
+
+\newtcolorbox{titlebox}{
+  enhanced, breakable,
+  colback=white, colframe=snGreen,
+  boxrule=1.3pt, arc=5mm,
+  left=14pt, right=14pt, top=12pt, bottom=12pt,
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{lineno}
+
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+
+\hypersetup{colorlinks=true, citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue}
+
+% arXiv version is not page-limited: open up spacing around floats so the
+% layout reads less cramped (COLM's defaults are tuned for an 8-9 page limit).
+\setlength{\textfloatsep}{22pt plus 4pt minus 4pt}
+\setlength{\floatsep}{18pt plus 4pt minus 4pt}
+\setlength{\intextsep}{18pt plus 4pt minus 4pt}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{10pt}
+\setlength{\dblfloatsep}{22pt plus 4pt minus 4pt}
+\setlength{\dbltextfloatsep}{22pt plus 4pt minus 4pt}
+% Prevent LaTeX from stretching vertical space to fill pages
+\raggedbottom
+
+% ── Table colours (COLM-safe: light tints only, print-friendly) ──────────────
+\definecolor{sectiongray}{RGB}{230,230,230}   % section divider rows
+\definecolor{localyellow}{RGB}{255,248,196}   % our local evaluation runs
+\definecolor{natext}{RGB}{150,150,150}        % greyed-out N/A text
+
+
+\title{SynthDocBench: Controlled Benchmark for Long-Context Visual Document Understanding}
+
+\hypersetup{
+  pdftitle={SynthDocBench: Controlled Benchmark for Long-Context Visual Document Understanding},
+  pdfauthor={Abhigya Verma, Khyati Mahajan, Amit Kumar Saha, Shruthan Radhakrishna, Sagar Davasam, Vikas Yadav, Sai Rajeswar}
+}
+
+\begin{document}
+
+\ifcolmsubmission
+\linenumbers
+\fi
+
+% Title block rendered manually inside a branded box below; \maketitle is not
+% called, so we set the running header that it would otherwise produce.
+\lhead{Published as a conference paper at COLM 2026}
+\setcounter{footnote}{0}
+
+\begin{titlebox}
+\raisebox{-.65ex}{\includegraphics[width=0.78cm]{images/icon2.png}}\,%
+{\Large\bf\textls[-5]{SynthDocBench: Controlled Benchmark for Long-Context Visual Document Understanding}}
+
+\vspace{8pt}
+\textbf{Abhigya Verma}\textsuperscript{\rm 1*}\,,
+\textbf{Khyati Mahajan}\textsuperscript{\rm 1*}\,,
+\textbf{Amit Kumar Saha}\textsuperscript{\rm 1*}\,,
+\textbf{Shruthan Radhakrishna}\textsuperscript{\rm 1}\,,
+\textbf{Sagar Davasam}\textsuperscript{\rm 1}\,,
+\textbf{Vikas Yadav}\textsuperscript{\rm 1}\,,
+\textbf{Sai Rajeswar}\textsuperscript{\rm 1, 2, 3}
+
+\vspace{4pt}
+\textsuperscript{\rm 1}ServiceNow AI\quad
+\textsuperscript{\rm 2}Mila\quad
+\textsuperscript{\rm 3}Universit\'e de Montr\'eal
+
+\vspace{10pt}
+\input{sections/0-abstract}
+
+\vspace{10pt}
+\noindent
+\begin{minipage}[b]{0.72\textwidth}
+\footnotesize
+\textbf{Correspondence:} \href{mailto:abhigya.verma@servicenow.com}{abhigya.verma@servicenow.com}\\[2pt]
+\textbf{Code:} \url{https://github.com/ServiceNow/SynthDocBench}\quad
+\textbf{Dataset:} \url{https://huggingface.co/datasets/ServiceNow-AI/SynthDocBench}\\[4pt]
+{\scriptsize \textsuperscript{\rm *}Equal contribution.}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.22\textwidth}
+\raggedleft
+\includegraphics[width=0.9\textwidth]{images/ServiceNow_logo.png}
+\end{minipage}
+\end{titlebox}
+
+%-------------------------------
+\input{sections/1-introduction}
+\input{sections/2-related-work}
+\input{sections/3-synthdocbench}
+\input{sections/4-model-evaluation}
+\input{sections/5-analysis}
+\input{sections/6-conclusion}
+
+%-------------------------------
+
+% \section*{Author Contributions}
+
+% \section*{Acknowledgments}
+
+%-------------------------------
+\section*{Reproducibility Statement}
+The authors are committed to aiding researchers in reproducing our benchmark and results. The evaluation source code is publicly available at \url{https://github.com/ServiceNow/SynthDocBench}, and the dataset is publicly available at \url{https://huggingface.co/datasets/ServiceNow-AI/SynthDocBench}. We also make every effort to disclose experiment hyperparameters wherever necessary throughout the paper, and in the appendix.
+
+\section*{Ethics Statement}
+ 
+\paragraph{Synthetic data and content generation.}
+\textsc{SynthDocBench} is constructed entirely from programmatically generated synthetic
+documents. No human subjects were involved, no personal data were collected, and no
+real-world documents were reproduced. Document content is grounded in broad, publicly
+available topic seeds (geopolitics, economics, environmental science, technology, and
+related domains) and generated by large language models under structured constraints.
+We reviewed generated content to confirm that it does not contain personally identifying
+information, hate speech, or other harmful material. Because all textual content is
+machine-generated and factually non-binding, it should not be treated as authoritative.
+
+\paragraph{Model evaluation and API usage.}
+Evaluation is performed via commercial APIs (Gemini, GPT-4o, Claude) and
+open-weight models under their respective terms of service. No model was fine-tuned on
+\textsc{SynthDocBench} data during the study; all evaluations use frozen model weights.
+The GPT-5 judge is used solely to score candidate responses against deterministic
+reference answers; the rubric and prompts are fully disclosed in the appendix to
+allow independent replication.
+
+\paragraph{Environmental impact.}
+Large-scale model evaluation carries a non-trivial computational and energy cost. We
+limited redundant evaluation runs through careful ablation design (Section~\ref{sec:analysis})
+and report all configurations transparently so that future work can build on our
+results rather than repeating them. Estimated compute was approximately 150 GPU-hours
+for document rendering and 200 API-hours for model inference and judge scoring.
+
+\paragraph{Benchmark integrity and Goodhart's Law.}
+Releasing a controlled benchmark creates the risk that future models overfit to its
+specific design choices (chart types, layout archetypes, question templates). We
+mitigate this through (i) a 40\% random layout override that prevents spurious
+topic--layout correlations and (ii) programmatic generation that admits straightforward
+extension. We encourage the community to use \textsc{SynthDocBench} as a
+\emph{diagnostic} tool and to contribute extensions that preserve the benchmark's
+diagnostic validity rather than optimizing against its current instantiation.
+
+\paragraph{Intended use.}
+\textsc{SynthDocBench} is intended for research on long-context visual document
+understanding. It is not intended for deployment in high-stakes decision-making
+systems. Results on \textsc{SynthDocBench} characterize specific, controlled failure
+modes and should not be generalized uncritically to real-world document understanding
+performance.
+
+%-------------------------------
+
+\bibliography{colm2026_conference}
+\bibliographystyle{colm2026_conference}
+
+\appendix
+
+% ──────────────────────────────────────────────────────────────
+\section{Evaluation Pipeline Diagram}
+\label{app:eval_pipeline}
+% ──────────────────────────────────────────────────────────────
+
+Figure~\ref{fig:eval_diagram} details the end-to-end evaluation pipeline used
+to assess all candidate models on \textsc{SynthDocBench}.
+Rendered PDFs are rasterized to page images at 144\,DPI, concatenated into
+5-page vertical strips, and passed directly to each candidate vision-language
+model at temperature~0 (vision-only; no OCR or metadata).
+Each candidate response is then scored against the reference
+answer by GPT-5 acting as judge $\mathcal{J}$, using the Table~\ref{tab:rubric} rubric.
+
+\begin{table}[h!]
+\centering
+\small
+\caption{GPT-5 judge scoring rubric. Scores of $-1$ indicate parse failures and are
+excluded from aggregate statistics.}
+\label{tab:rubric}
+\begin{tabular}{cp{9cm}}
+\toprule
+\textbf{Score} & \textbf{Criterion} \\
+\midrule
+10   & All key facts present and fully correct \\
+8--9 & Mostly correct, with only minor omissions or imprecision \\
+6--7 & Core answer correct, but with some missing detail \\
+4--5 & Partially correct, with significant gaps or errors \\
+2--3 & Mostly incorrect or severely incomplete \\
+0--1 & Incorrect, hallucinated, or contradictory to the reference \\
+$-1$ & Judge parse failure (excluded) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.78\textwidth]{images/EvalPipeline.pdf}
+  \caption{%
+    \textbf{Evaluation pipeline.}
+    Rendered PDFs are converted to page images at 144\,DPI, grouped into
+    concatenated 5-page strips, and supplied directly to candidate models at
+    temperature~0. Candidate answers are then scored against deterministic
+    reference answers by GPT-5 acting as the judge model $\mathcal{J}$.%
+  }
+  \label{fig:eval_diagram}
+\end{figure}
+
+% ============================================================
+\FloatBarrier
+\section{Benchmark Comparison}
+\label{app:benchmark_comparison}
+% ============================================================
+\input{tables/benchmark} 
+
+Table~\ref{tab:benchmark} situates \textsc{SynthDocBench} relative to the most closely
+related benchmarks and reports frontier model scores on each.
+Despite strong numbers on DocVQA, ChartQA, and MMLongBench-Doc, coverage is sparse and
+inconsistent across models---a direct consequence of benchmarks built from heterogeneous
+real corpora with no controlled variation.
+Crucially, high scores on these benchmarks do not transfer: the same models that
+approach saturation on DocVQA and ChartQA exhibit substantial failure rates on our
+controlled subsets, demonstrating that \textsc{SynthDocBench} exposes failure modes
+that existing benchmarks cannot surface.
+
+% ============================================================
+
+\section{Judge Validation}
+\label{app:judge_validation}
+
+To assess the reliability of GPT-5 as judge, we re-scored the full 1{,}788-question benchmark for four candidate--judge pairs using Gemini-3.1-Pro and Claude-Sonnet-4.5 as alternative judges. The same two candidates (GPT-4o and Qwen3-VL-235B) are evaluated under both alternative judges, enabling a direct comparison of judge behaviour on identical responses. Table~\ref{tab:judge_agreement} reports overall pairwise Pearson correlation, within-1-point agreement rate, and ACC delta between GPT-5 and each alternative judge; Table~\ref{tab:judge_agreement_by_type} further stratifies by question type.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Overall judge agreement statistics on the full \textsc{SynthDocBench} (200 reports, 1{,}788 questions). \textbf{$r$}: Pearson correlation between score sequences. \textbf{$w_1$}: fraction of responses where $|\text{score}_\text{GPT-5} - \text{score}_\text{alt}| \leq 1$. \textbf{$\Delta$ACC}: ACC(alt judge) $-$ ACC(GPT-5) at $\tau{=}6$.}
+\label{tab:judge_agreement}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Candidate} & \textbf{Alt.\ Judge} & $r$ & $w_1$ & $\Delta$\textbf{ACC} \\
+\midrule
+GPT-4o           & Gemini-3.1-Pro    & 0.942 & 0.838 & $-$0.035 \\
+Qwen3-VL-235B    & Gemini-3.1-Pro    & 0.960 & 0.893 & $-$0.010 \\
+\midrule
+GPT-4o           & Claude-Sonnet-4.5 & 0.881 & 0.654 & $+$0.135 \\
+Qwen3-VL-235B    & Claude-Sonnet-4.5 & 0.916 & 0.723 & $+$0.156 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table*}[htbp]
+\centering
+\small
+\caption{Judge agreement stratified by question type on the full \textsc{SynthDocBench} (200 reports, 1{,}788 questions).
+  \textbf{$r$}: Pearson correlation. \textbf{$w_1$}: within-1-point agreement. \textbf{$\Delta$ACC}: ACC(alt)~$-$~ACC(GPT-5) at $\tau{=}6$.
+  Positive $\Delta$ACC means the alternative judge is more lenient than GPT-5.}
+\label{tab:judge_agreement_by_type}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}ll ccc ccc ccc ccc@{}}
+\toprule
+ & & \multicolumn{3}{c}{\textbf{Overall}} & \multicolumn{3}{c}{\textbf{Chart}} & \multicolumn{3}{c}{\textbf{Complex}} & \multicolumn{3}{c}{\textbf{Cross-Modal}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}
+\textbf{Candidate} & \textbf{Alt.\ Judge} & $r$ & $w_1$ & $\Delta$\textbf{ACC} & $r$ & $w_1$ & $\Delta$\textbf{ACC} & $r$ & $w_1$ & $\Delta$\textbf{ACC} & $r$ & $w_1$ & $\Delta$\textbf{ACC} \\
+\midrule
+\multicolumn{14}{c}{\textit{Alt.\ Judge: Gemini-3.1-Pro}} \\
+\midrule
+GPT-4o        & Gemini & 0.942 & 0.838 & $-$0.035 & 0.953 & 0.801 & $-$0.030 & 0.915 & 0.869 & $-$0.054 & 0.950 & 0.845 & $-$0.020 \\
+Qwen3-VL-235B & Gemini & 0.960 & 0.893 & $-$0.010 & 0.968 & 0.910 & $-$0.022 & 0.933 & 0.896 & $-$0.013 & 0.967 & 0.872 & $+$0.005 \\
+\midrule
+\multicolumn{14}{c}{\textit{Alt.\ Judge: Claude-Sonnet-4.5}} \\
+\midrule
+GPT-4o         & Claude & 0.881 & 0.654 & $+$0.135 & 0.913 & 0.647 & $+$0.022 & 0.833 & 0.610 & $+$0.271 & 0.895 & 0.705 & $+$0.113 \\
+Qwen3-VL-235B  & Claude & 0.916 & 0.723 & $+$0.156 & 0.950 & 0.824 & $+$0.069 & 0.849 & 0.618 & $+$0.241 & 0.916 & 0.727 & $+$0.159 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+GPT-5 and Gemini-as-judge agree to within 3.5 ACC points ($r \geq 0.94$, $w_1 \geq 0.84$) across all tested candidates. Agreement is highest for chart-reading and cross-modal questions ($r \geq 0.95$) and slightly lower for complex multi-hop questions ($r \geq 0.91$), where scoring subjectivity is higher. These gaps are consistent across both candidate models and are well within the benchmark's bootstrap CI half-widths, confirming that model rankings are robust to judge choice regardless of question type. Claude-Sonnet-4.5 is a systematically lenient judge ($+$11--16 ACC points overall, rising to $+$24--27 pp on complex questions), consistent with the positivity bias documented for smaller LLM judges, and was excluded on this basis. The GPT-5/Gemini convergence addresses a potential vendor-conflict concern: Gemini-as-judge independently replicates GPT-5's ranking with a maximum ACC deviation of 3.5 points.
+
+\paragraph{Ranking correlation with MMLongBench-Doc.}
+To assess external validity, we compute the Spearman rank correlation between SynthDocBench overall ACC and published MMLongBench-Doc scores for the six models evaluated on both benchmarks. The correlation is $\rho = 0.657$ ($r = 0.683$), indicating moderate positive agreement: models that perform well on our benchmark tend to perform well on MMLongBench-Doc, but the rankings are not identical. Notably, GPT-4o ranks higher on MMLongBench-Doc (\#2) than on SynthDocBench (\#3), suggesting that our benchmark's emphasis on precise chart-value extraction and cross-modal alignment surfaces capabilities that MMLongBench-Doc's more heterogeneous question set partially masks. The imperfect correlation ($\rho < 1$) is itself evidence that SynthDocBench provides complementary diagnostic signal beyond existing benchmarks.
+
+\paragraph{Qualitative alignment with real-document failures.}
+Consistent with our benchmark's error taxonomy, the failure modes we identify in the controlled setting correspond to qualitatively similar patterns in MMLongBench-Doc: models that score lowest on our chart-reading subset also show the steepest degradation on MMLongBench-Doc's figure-heavy questions, and the cross-modal integration failures we isolate (where GPT-4o drops to 0.342 ACC) align with the documented difficulty of questions requiring evidence from non-adjacent pages in real documents. The key distinction is attribution: in real documents these factors co-vary and failures cannot be cleanly assigned to a single cause, whereas SynthDocBench's factorial design makes each failure mode individually observable.
+
+% ============================================================
+\section{Bootstrap Confidence Intervals}
+\label{app:bootstrap_ci}
+
+Table~\ref{tab:bootstrap_ci} reports per-model bootstrap 95\% confidence intervals (2{,}000 resamples, seed 42) for ACC on each question subset; Table~\ref{tab:bootstrap_ci_diff} breaks these down by difficulty level. All pairwise ACC gaps between adjacent-ranked models exceed their combined CI half-widths, confirming the reliability of the rankings in Table~\ref{tab:main_results}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Bootstrap 95\% CI half-widths ($\pm$) for ACC at $\tau{=}6$, computed over 2{,}000 resamples (seed 42) on the full \textsc{SynthDocBench} (200 reports, 1{,}788 questions).}
+\label{tab:bootstrap_ci}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Model} & \textbf{Overall} & \textbf{Chart} & \textbf{Complex} & \textbf{Cross-Modal} \\
+\midrule
+Gemini-3.1-Pro    & $\pm$0.020 & $\pm$0.036 & $\pm$0.034 & $\pm$0.039 \\
+GPT-4o            & $\pm$0.022 & $\pm$0.040 & $\pm$0.039 & $\pm$0.038 \\
+Claude-Sonnet-4.5 & $\pm$0.022 & $\pm$0.041 & $\pm$0.037 & $\pm$0.034 \\
+Qwen3-VL-235B     & $\pm$0.022 & $\pm$0.038 & $\pm$0.041 & $\pm$0.040 \\
+InternVL3-78B     & $\pm$0.023 & $\pm$0.040 & $\pm$0.038 & $\pm$0.038 \\
+Qwen2.5-VL-7B     & $\pm$0.013 & $\pm$0.029 & $\pm$0.008 & $\pm$0.021 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Bootstrap 95\% CI half-widths ($\pm$) for ACC at $\tau{=}6$ stratified by difficulty level, computed over 2{,}000 resamples (seed 42).}
+\label{tab:bootstrap_ci_diff}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{L1} & \textbf{L2} & \textbf{L3} & \textbf{L4} & \textbf{L5} \\
+\midrule
+Gemini-3.1-Pro    & $\pm$0.055 & $\pm$0.044 & $\pm$0.040 & $\pm$0.036 & $\pm$0.069 \\
+GPT-4o            & $\pm$0.063 & $\pm$0.048 & $\pm$0.044 & $\pm$0.042 & $\pm$0.053 \\
+Claude-Sonnet-4.5 & $\pm$0.070 & $\pm$0.044 & $\pm$0.044 & $\pm$0.042 & $\pm$0.051 \\
+Qwen3-VL-235B     & $\pm$0.070 & $\pm$0.049 & $\pm$0.044 & $\pm$0.044 & $\pm$0.069 \\
+InternVL3-78B     & $\pm$0.070 & $\pm$0.046 & $\pm$0.042 & $\pm$0.043 & $\pm$0.056 \\
+Qwen2.5-VL-7B     & $\pm$0.018 & $\pm$0.031 & $\pm$0.032 & $\pm$0.015 & $\pm$0.008 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.48\textwidth]{images/fig_score_dist.pdf}
+  \caption{Distribution of judge scores (0--10) per model.}
+  \label{fig:score_dist}
+\end{figure}
+% ============================================================
+\section{Score Distribution per Model}
+\label{app:score_dist}
+% ============================================================
+
+Figure~\ref{fig:score_dist} shows the distribution of raw judge scores (0--10) for each
+model. A bimodal distribution (mass near 0--2 and near 8--10) indicates a model that
+either fully recovers or fully misses an answer. A unimodal distribution centered at
+6--7 indicates consistent but imprecise retrieval. Gemini-3.1-Pro is the only model
+with a strong right-skewed distribution, while Qwen2.5-VL-7B is concentrated near 0.
+
+
+% ============================================================
+\FloatBarrier
+\section{Question Quality Control}
+\label{app:qc}
+% ============================================================
+
+We apply three layers of quality assurance to the generated questions.
+
+\paragraph{Numeric recomputation.}
+For every question whose ground-truth answer is a single numeric value (e.g.\ a chart data point, percentage, or count), we independently re-derive the answer from the structured metadata $\mathcal{M}$ used during generation, including raw \texttt{chart\_data} arrays and \texttt{key\_facts} tables.  Any question whose recomputed answer differs from the LLM-generated answer by more than a 5\% relative tolerance is flagged and either corrected or dropped.  This filter removed fewer than 2\% of chart-reading questions.
+
+\paragraph{Automated consistency filtering.}
+All 1,788 questions pass a rule-based filter checking: (1)~the question references an element present in $\mathcal{M}$; (2)~the ground-truth answer is non-empty and at least six tokens long; (3)~no exact-match overlap between question text and answer text exceeding 40\% of answer tokens (to screen out trivially answerable questions); and (4)~difficulty level $L$ is consistent with the number of inferential steps encoded in the \texttt{reasoning} field.
+
+\paragraph{Manual review.}
+A random sample of 100 questions (stratified by group type and difficulty level) was reviewed by two of the authors independently.  Reviewers rated each question on three dimensions: \emph{answerability} (is the answer determinable from the document?), \emph{answer correctness} (is the ground-truth answer correct?), and \emph{question clarity} (is the question unambiguous?).  Inter-rater agreement was $\kappa = 0.81$.  Overall acceptance rate across all three dimensions was 96\%.  The four rejected questions (two from \textit{complex} and two from \textit{cross-modal}) involved ambiguous referents that could not be resolved from the document alone; all four were removed from the final benchmark.
+
+% ============================================================
+\FloatBarrier
+\section{Positional Bias: Bar Chart}
+\label{app:positional_bias}
+
+\begin{figure}[htbp]
+\centering
+
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{images/fig_positional_bias_thirds.pdf}
+  \caption{%
+    Chart-reading ACC ($\tau{=}6$, judge: GPT-5) by evidence position bucket ($n{=}597$, 200 reports).
+    Questions bucketed by relative chart position $p = k/K$ into equal thirds.
+    Middle third is hardest for 4 of 6 models; Claude-Sonnet-4.5 steepest decline ($-$11.7~pp).
+  }
+  \label{fig:positional_bias}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{images/fig_domain_analysis.pdf}
+  \caption{%
+    Gemini-3.1-Pro accuracy (ACC, $\tau{=}6$) per topic domain, grouped by question type.
+    Black diamonds = overall accuracy per domain. Dashed line at 0.5.
+    Based on the 57 domain-annotated reports (513 questions).
+  }
+  \label{fig:domain_analysis}
+\end{minipage}
+
+\end{figure}
+% ============================================================
+
+Figure~\ref{fig:positional_bias} visualises the ACC per position bucket from Table~\ref{tab:positional_bias} in the main text.
+
+% ============================================================
+\FloatBarrier
+\section{Domain Analysis}
+\label{app:domain_analysis}
+% ============================================================
+
+Figure~\ref{fig:domain_analysis} shows Gemini-3.1-Pro's accuracy stratified by six topic domains and three question types. Domain annotations cover 57 of the 200 reports (original curated set); the remaining 143 are not grouped by domain. Within the annotated subset, cross-modal accuracy falls 13--16 pp below chart-reading and complex in every domain; the gap is widest in AI \& Technology topics.
+
+% ============================================================
+\FloatBarrier
+\section{Question-Category Breakdown (Full Table)}
+\label{app:category_table}
+% ============================================================
+
+Table~\ref{tab:category_result_breakdown} provides the complete numerical values
+visualised in Figure~\ref{fig:category_heatmap}.
+
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Category}
+  & \textbf{Gemini-3.1} & \textbf{GPT-4o}
+  & \textbf{Claude-S-4.5} & \textbf{Qwen3-VL} & \textbf{InternVL3}
+  & \textbf{Qwen2.5-7B} \\
+\midrule
+\rowcolor{gray!15} \multicolumn{7}{c}{\textit{Chart Reading}} \\
+\midrule
+Value reading       & \textbf{0.784} & 0.271 & 0.382 & 0.648 & 0.437 & 0.015 \\
+Comparison          & \textbf{0.759} & 0.377 & 0.266 & 0.623 & 0.327 & 0.075 \\
+Trend / pattern     & 0.734          & \textbf{0.724} & 0.412 & 0.653 & 0.603 & 0.397 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{7}{c}{\textit{Cross-Modal}} \\
+\midrule
+Verify with chart   & \textbf{0.616} & 0.399 & 0.278 & 0.480 & 0.318 & 0.045 \\
+Integrate sources   & \textbf{0.692} & 0.298 & 0.260 & 0.545 & 0.293 & 0.030 \\
+Compare repr.       & \textbf{0.576} & 0.328 & 0.213 & 0.485 & 0.278 & 0.126 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{7}{c}{\textit{Complex Reasoning}} \\
+\midrule
+Historical/timeline & \textbf{0.910} & 0.553 & 0.508 & 0.784 & 0.598 & 0.015 \\
+Technical           & \textbf{0.643} & 0.111 & 0.137 & 0.427 & 0.156 & 0.000 \\
+Impact / reception  & \textbf{0.814} & 0.417 & 0.364 & 0.623 & 0.437 & 0.020 \\
+\bottomrule
+\end{tabular}
+}
+\caption{%
+  ACC ($\tau{=}6$) by fine-grained question category (numerical companion to
+  Figure~\ref{fig:category_heatmap}).
+  Best per row in \textbf{bold}.
+}
+\label{tab:category_result_breakdown}
+\end{table*}
+
+% ============================================================
+\section{Performance by Question Subset}
+\label{app:subset_fig}
+% ============================================================
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.53\textwidth]{images/fig_perf_by_subset.pdf}
+  \caption{%
+    ACC ($\tau{=}6$) by question subset. Cross-modal questions are consistently
+    hardest across all models, confirming modality alignment as the primary bottleneck.
+  }
+  \label{fig:perf_by_subset}
+\end{figure}
+
+Figure~\ref{fig:perf_by_subset} reports ACC ($\tau{=}6$) broken down by question subset
+(chart-reading, complex, cross-modal) for all six models.
+Cross-modal integration is consistently the hardest subset across all models,
+confirming modality alignment as the primary bottleneck in long-context document understanding.
+
+% ============================================================
+\FloatBarrier
+\section{Question Category Taxonomy}
+\label{app:question_taxonomy}
+% ============================================================
+
+Table~\ref{tab:question_taxonomy} defines all nine fine-grained question categories
+used in the category-level breakdown of Table~\ref{tab:category_result_breakdown}.
+Each category belongs to one of the three question subsets and targets a distinct
+reasoning capability. The difficulty label $L1$--$L5$ is orthogonal to category:
+any category can appear at any difficulty level depending on the complexity of the
+evidence chain.
+
+\input{tables/difficulty-levels}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{%
+  Fine-grained question category definitions for \synthdocbench{}.
+  Categories are grouped by subset; all nine are mutually exclusive within their subset.
+}
+\label{tab:question_taxonomy}
+\begin{tabular}{@{}lp{10.5cm}@{}}
+\toprule
+\textbf{Category} & \textbf{Definition} \\
+\midrule
+\rowcolor{gray!15} \multicolumn{2}{c}{\textit{Chart Reading}} \\
+\midrule
+Value Reading &
+  Extract one or more exact numerical values from a single chart or table element
+  (e.g., read a bar height, a cell in a table, or a point on a line). No cross-source
+  reasoning is required; the answer is localized to a single visual element. \\[4pt]
+Comparison &
+  Compare two or more values within the same chart or table to identify the larger,
+  smaller, or closest item, or to compute a difference or ratio. The answer requires
+  reading at least two elements from the same visual. \\[4pt]
+Trend / Pattern &
+  Describe the directional behavior, distribution shape, or temporal pattern visible
+  in a chart (e.g., ``increasing trend,'' ``bimodal distribution,'' ``peaks in Q3'').
+  Exact numerical precision is secondary to correctly characterizing the overall pattern. \\
+\midrule
+\rowcolor{gray!15} \multicolumn{2}{c}{\textit{Cross-Modal}} \\
+\midrule
+Verify with Chart &
+  A specific quantitative claim appears in the document text. The model must locate
+  the corresponding chart and confirm, refute, or quantify the claim using visual evidence. \\[4pt]
+Integrate Sources &
+  Answer a question whose complete response requires combining a textual claim with a
+  specific numerical value readable only from an associated chart. Neither source alone
+  is sufficient; the model must execute a four-step pipeline: locate claim~$\to$ find
+  chart~$\to$ parse value~$\to$ synthesize. \\[4pt]
+Compare Representations &
+  The same phenomenon is described both in text (e.g., a percentage trend) and in a
+  chart (e.g., a line plot). The model must reconcile or contrast these two representations,
+  identifying any discrepancy or providing a richer joint characterization. \\
+\midrule
+\rowcolor{gray!15} \multicolumn{2}{c}{\textit{Complex Reasoning}} \\
+\midrule
+Historical / Timeline &
+  Synthesize facts distributed across multiple sections or time periods to construct a
+  causal or chronological narrative (e.g., sequence of policy changes, evolution of a
+  metric over decades). Requires integrating at least two temporally separated evidence units. \\[4pt]
+Technical / Quantitative &
+  Apply domain-specific knowledge or multi-step arithmetic to evidence recovered from
+  the document (e.g., derive a compound growth rate, convert units, or evaluate a
+  quantitative tradeoff between two technical approaches). \\[4pt]
+Impact / Reception &
+  Assess the downstream effects, societal implications, or critical reception of
+  a phenomenon discussed in the document. Requires synthesizing evaluative language
+  from multiple sections rather than extracting a single localized fact. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ──────────────────────────────────────────────────────────────
+\FloatBarrier
+\section{Additional Implementation Details}
+\label{app:implementation_details}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.70\linewidth]{images/fig_chart_type_dist.pdf}
+  \caption{Distribution of chart types (top 20 shown). The corpus covers
+    24 distinct types spanning common (bar, line, scatter) and specialized
+    (dumbbell, sankey, lollipop) forms.}
+  \label{fig:chart_type_dist}
+\end{figure}
+
+This appendix summarizes implementation details that support reproducibility but are not
+strictly necessary for understanding the main methodological contributions. We include
+them here to document the design space of document layouts, the structured schema used to
+encode visualization semantics, the serialized format of generated QA items, and the
+rendering constraints imposed by the evaluation harness.
+
+\subsection{Notation Glossary}
+\label{app:notation}
+
+For readability, the main text introduces notation only when needed. Table~\ref{tab:notation_appendix}
+collects the full symbol glossary in one place. The notation spans the three benchmark
+stages: synthetic document generation, structured question generation, and image-based
+evaluation.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Notation used in the \textsc{SynthDocBench} methodology.}
+\label{tab:notation_appendix}
+\begin{tabular}{clp{10cm}}
+\toprule
+\textbf{Symbol} & \textbf{Type} & \textbf{Definition} \\
+\midrule
+$\tau$        & string     & Topic seed used to initialize document generation \\
+$\mathcal{A}$ & set        & Layout archetype space \\
+$a \sim P_{\mathcal{A}}(\tau)$ & sample & Archetype sampled from the topic-conditioned archetype distribution \\
+$\mathcal{D}$ & document   & Final rendered document, represented as HTML and exported PDF \\
+$\mathcal{V}_k$ & object   & Structured metadata object associated with the $k$-th visualization in $\mathcal{D}$ \\
+$\mathcal{T}_k$ & object   & Structured metadata object associated with the $k$-th table in $\mathcal{D}$ \\
+$\mathcal{M}$ & manifest   & Document-level QA manifest aggregating all $\mathcal{V}_k$ and $\mathcal{T}_k$ \\
+$q$           & string     & Natural-language evaluation question \\
+$a^*$         & string     & Reference answer derived deterministically from $\mathcal{M}$ \\
+$\hat{a}$     & string     & Model-predicted answer for $q$ from rendered page image(s) of $\mathcal{D}$ \\
+$f_\theta$    & model      & Candidate vision-language model parameterized by $\theta$ \\
+$\mathcal{I}$ & sequence   & Rendered page-image sequence supplied to the evaluated model \\
+$\ell$        & integer    & Difficulty level associated with a question \\
+$\mathcal{J}$ & model      & Judge model used to score $(\hat{a}, a^*)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Layout Archetypes}
+\label{app:archetypes}
+
+The report-generation pipeline uses a small but diverse inventory of layout archetypes to
+vary document structure, rhetorical style, and chart placement strategy. These archetypes
+control the global page grammar of a report, including whether visualizations are embedded
+inline, arranged in grids, or surfaced as full-width elements. They also affect the types
+of auxiliary components that can appear, such as metric strips, pull quotes, or timeline
+bands. Table~\ref{tab:archetypes_appendix} lists the archetypes used in
+\textsc{SynthDocBench} together with their distinctive design characteristics.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Layout archetypes used in \textsc{SynthDocBench}.}
+\label{tab:archetypes_appendix}
+\begin{tabular}{lllcp{5.5cm}}
+\toprule
+\textbf{Archetype} & \textbf{Viz layout} & \textbf{Font mood} & \textbf{Max vizzes} & \textbf{Distinctive features} \\
+\midrule
+Magazine    & Hero + smaller   & Editorial  & 3 & 90vh hero, drop caps, gradient overlays, pull quotes \\
+Dashboard   & $2\times$ grid   & Technical  & 4 & KPI strip, metric cards, compact chart grids \\
+Academic    & Inline           & Scholarly  & 2 & Abstract box, numbered sections, formal tables \\
+Editorial   & Breakout column  & Narrative  & 2 & Reading progress cues, chapter markers, block quotes \\
+Infographic & Full-width stack & Bold       & 4 & Icon strips, timeline bands, data callouts \\
+Brutalist   & Full bleed       & Raw        & 2 & Thick borders, monospace, oversized numbers, stamp labels \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Visualization Metadata Schema}
+\label{app:viz_schema}
+
+A key property of the benchmark is that every generated visualization is accompanied by a
+structured metadata object that records its semantic content independently of the rendered
+pixels. This metadata is used downstream for deterministic QA generation and for
+consistency validation between rendered charts and their underlying values. The schema is
+designed to capture both data semantics (e.g., chart values, axes, and derived insights)
+and presentation-level attributes (e.g., legend presence, color encoding, and highlighted
+items). Table~\ref{tab:viz_schema_appendix} summarizes the fields stored for each chart.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Visualization metadata schema used by the report-generation pipeline.}
+\label{tab:viz_schema_appendix}
+\begin{tabular}{llp{10cm}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Contents} \\
+\midrule
+\texttt{vizId}            & string  & Unique identifier of the form \texttt{viz-\{section\}-\{index\}} \\
+\texttt{chartType}        & enum    & Chart type associated with the rendered visualization \\
+\texttt{title}            & string  & Descriptive chart title \\
+\texttt{axes.x / axes.y}  & object  & Axis label, type, optional unit, and optional range \\
+\texttt{data}             & array   & $[$ \{label, value, category, metadata\} $]$ --- one entry per rendered mark \\
+\texttt{insights}         & array   & Typed facts such as maximum, minimum, comparison, gap, trend, outlier, or proportion \\
+\texttt{visualProperties} & object  & colorEncoding, colorMap, sortOrder, hasLegend, hasGridlines, highlightedItems, annotationCount \\
+\texttt{sourceContext}    & string  & Attribution to the source passage supplying the underlying values \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Question Output Schema}
+\label{app:qa_schema}
+
+Generated QA items are serialized in a structured format so that evaluation can be
+performed not only at the answer level but also at the level of question family,
+difficulty, and supporting evidence. In addition to the surface question and reference
+answer, the output schema stores evidence traces such as required facts, chart indices,
+and required data points, which are useful for debugging, validation, and downstream
+error analysis. Table~\ref{tab:qa_output_appendix} describes the fields included in each
+serialized QA record.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Structured output schema for generated question-answer pairs.}
+\label{tab:qa_output_appendix}
+\begin{tabular}{llp{6.8cm}}
+\toprule
+\textbf{Field} & \textbf{Question types} & \textbf{Contents} \\
+\midrule
+\texttt{question}           & All       & Natural-language question string \\
+\texttt{answer}             & All       & Reference answer \\
+\texttt{question\_type}     & All       & Question family/type label \\
+\texttt{difficulty}         & All       & Difficulty level $L1$--$L5$ \\
+\texttt{required\_facts}    & Multi-hop & Indices into the extracted evidence list \\
+\texttt{required\_facts\_text} & Multi-hop & Verbatim supporting evidence \\
+\texttt{fact\_sources}      & Multi-hop & Source section for each supporting fact \\
+\texttt{reasoning}          & All       & Stepwise evidence-to-answer derivation \\
+\texttt{chart\_index}       & Visual, Cross-modal & Index of the referenced chart \\
+\texttt{chart\_title}       & Visual, Cross-modal & Title of the referenced chart \\
+\texttt{required\_data\_points} & Visual, Cross-modal & Specific \{label, value\} pairs required for the answer \\
+\texttt{category}           & Visual, Cross-modal & Fine-grained category label \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Rendering Hyperparameters}
+\label{app:rendering_details}
+
+The evaluation harness operates on rendered page images rather than HTML or PDF source,
+so rendering choices directly affect the visual evidence available to the model. The
+hyperparameters listed in Table~\ref{tab:rendering_appendix} define the image
+construction process, including rasterization resolution, maximum page budget, batching
+of pages into concatenated strips, and compression constraints required to satisfy API
+limits across providers. These values therefore influence both evaluation efficiency and
+the effective difficulty of the visual inference problem.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Rendering and compression hyperparameters.}
+\label{tab:rendering_appendix}
+\begin{tabular}{llr}
+\toprule
+\textbf{Parameter} & \textbf{Description} & \textbf{Value} \\
+\midrule
+\texttt{RESOLUTION}      & PDF rasterization DPI                     & 144 \\
+\texttt{MAX\_PAGES}      & Maximum pages extracted per PDF           & 120 \\
+\texttt{CONCAT\_NUM}     & Pages per concatenated image strip        & 5   \\
+\texttt{COLUMN\_NUM}     & Columns per concatenated image            & 1   \\
+\texttt{MAX\_IMG\_BYTES} & Maximum compressed image size             & 4~MB \\
+\texttt{MAX\_DIMENSION}  & Maximum pixel dimension (longest side)    & 7{,}900~px \\
+\texttt{ACC\_THRESHOLD}  & Minimum judge score counted as correct    & 6   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Inference and Judge Configuration}
+\label{app:inference_details}
+
+Table~\ref{tab:inference_appendix} summarizes the fixed inference configuration applied
+to both candidate models and the judge. All models are queried at temperature~0 to
+ensure fully deterministic outputs across runs.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Inference configuration for candidate models and the judge.}
+\label{tab:inference_appendix}
+\begin{tabular}{llp{7cm}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Notes} \\
+\midrule
+Judge model        & GPT-5          & Fixed across all experiments \\
+Temperature        & 0              & Applied to both candidates and judge \\
+Candidate response & 2--4 sentences & Enforced via system prompt \\
+Judge format       & JSON only      & \texttt{\{"score": <0--10>, ...\}} \\
+Parse failure      & Score $= -1$   & Excluded from $Q_{\mathrm{valid}}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prompts}
+\label{app:prompts}
+
+All prompts are shown verbatim as supplied to the model APIs.
+Text in \textit{italics} denotes fields populated at runtime.
+
+\paragraph{Candidate model — default (concise) prompt.}
+
+\begin{promptbox}[\textsc{System}]
+\ttfamily\small
+You are an expert analyst reviewing a PDF report.\\
+Answer the question using ONLY what is visible in the provided pages.\\
+Be concise and direct --- 2--4 sentences maximum.\\
+Include specific numbers, dates, or names only if directly relevant.\\
+Do not restate the question. Do not explain your reasoning. Just answer.\\
+If the answer is not in the document, say: ``Not found in the document.''
+\end{promptbox}
+
+\begin{promptbox}[\textsc{User}]
+\ttfamily\small
+\textit{[Rendered page images supplied as vision input]}\\[3pt]
+Question: \textit{\{question\}}
+\end{promptbox}
+
+\paragraph{Candidate model — chain-of-thought (CoT) prompt.}
+
+\begin{promptbox}[\textsc{System}]
+\ttfamily\small
+You are an expert analyst reviewing a PDF report.\\
+Answer the question using ONLY what is visible in the provided pages.\\
+Think step by step: first identify the relevant chart or section, then extract\\
+the key facts, then synthesize your final answer.\\
+Include specific numbers, dates, or names where relevant.\\
+If the answer is not in the document, say: ``Not found in the document.''
+\end{promptbox}
+
+\begin{promptbox}[\textsc{User}]
+\ttfamily\small
+\textit{[Rendered page images supplied as vision input]}\\[3pt]
+Question: \textit{\{question\}}
+\end{promptbox}
+
+\paragraph{Candidate model — no system prompt baseline.}
+In the \textit{none} condition no system prompt is supplied.
+The user turn contains only the rendered page images followed by the question,
+identical to the user turns above.
+
+\paragraph{Judge model prompt.}
+
+\begin{promptbox}[\textsc{System}]
+\ttfamily\small
+You are a factual accuracy evaluator.\\
+Score the CANDIDATE ANSWER against the REFERENCE ANSWER for a document-based Q\&A task.\\[5pt]
+Rubric (0--10):\\
+\phantom{xx}10\ = all key facts present and correct\\
+\phantom{xx}8--9 = mostly correct, minor gap or imprecision\\
+\phantom{xx}6--7 = core correct, some detail missing\\
+\phantom{xx}4--5 = partial, significant gaps or errors\\
+\phantom{xx}2--3 = mostly wrong or missing\\
+\phantom{xx}0--1 = incorrect or hallucinated\\[5pt]
+Respond with ONLY this JSON (no markdown, no extra text):\\
+\{"score": <0--10>, "judgement": "<2--3 sentences on accuracy>"\}
+\end{promptbox}
+
+\begin{promptbox}[\textsc{User}]
+\ttfamily\small
+QUESTION: \textit{\{question\}}\\[4pt]
+REFERENCE ANSWER: \textit{\{gt\_answer\}}\\[4pt]
+CANDIDATE ANSWER: \textit{\{candidate\_answer\}}\\[4pt]
+Score 0--10 and explain. Return JSON only.
+\end{promptbox}
+
+
+
+% ============================================================
+\FloatBarrier
+\section{Hard Failure Error Category Definitions}
+\label{app:error_categories}
+% ============================================================
+
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Subset} & \textbf{Total} & \textbf{Ch.} & \textbf{Cx.} & \textbf{XM.} \\
+\midrule
+Hard failures (all 6 $\leq 3$) & \textbf{109} & \textbf{37} & \textbf{14} & \textbf{58} \\
+\bottomrule
+\end{tabular}
+\caption{Hard failure counts by question subset (all six models score $\leq 3$).
+  \textbf{Ch.}~= chart-reading; \textbf{Cx.}~= complex; \textbf{XM.}~= cross-modal.}
+\label{tab:hard_failure_counts}
+\end{table}
+
+Table~\ref{tab:error_categories_app} defines the seven mutually exclusive error
+categories used to classify hard failures in Section~\ref{sec:error_analysis}.
+Each category was assigned by GPT-5 based on the question, ground-truth answer,
+and all model responses.
+The per-category count breakdown is in Table~\ref{tab:hard_failure_counts}.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{%
+  Error category definitions for the hard failure analysis
+  (Section~\ref{sec:error_analysis}).
+  Categories are mutually exclusive; each failure is assigned exactly one.
+}
+\label{tab:error_categories_app}
+\begin{tabular}{@{}lp{9cm}@{}}
+\toprule
+\textbf{Category} & \textbf{Definition} \\
+\midrule
+Visual Hallucination &
+  The model confidently reads a wrong value from the chart.
+  The figure is located and the relevant element identified, but the
+  pixel-level value extraction is incorrect (e.g., reports 1{,}000~ppm instead of 30~ppm). \\[4pt]
+Figure Not Found &
+  The model cannot locate the referenced figure in the document.
+  It either returns ``not found in the document'' or retrieves a different, unrelated figure. \\[4pt]
+Precision Error &
+  The model extracts the correct chart element but with the wrong exact value, scale,
+  or unit (e.g., reads 29\% instead of 27.5\%, or reports billions instead of millions). \\[4pt]
+Incomplete Retrieval &
+  The model retrieves part of the required evidence but misses one or more key facts
+  distributed across the document, producing an answer that is partially correct but
+  substantively incomplete. \\[4pt]
+Cross-Modal Grounding &
+  Both the textual claim and the relevant chart are correctly identified in isolation,
+  but the model fails to perform the required quantitative alignment or comparison
+  between the two modalities. \\[4pt]
+Reasoning Error &
+  The necessary evidence is correctly retrieved from the document, but the model draws
+  a wrong conclusion through a logical or arithmetic mistake in the final inference step. \\[4pt]
+Question / Annotation Ambiguity &
+  The question or ground-truth answer is ambiguous, under-specified, or requires
+  information that is not recoverable from the visible document pages. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\FloatBarrier
+\section{Ablation Study Details}
+\label{app:ablation_details}
+% ============================================================
+
+This section documents the exact experimental configuration used for each
+ablation study.
+All ablations use Gemini-3.1-Pro as the candidate model and GPT-5 as judge
+unless otherwise stated. Each condition is evaluated on a representative
+full 200-report benchmark (1,788 questions), and the same judge prompt is used throughout.
+
+\subsection{Page Concatenation Ablation}
+\label{app:abl_concat}
+
+The evaluation harness renders each PDF page as a raster image and groups
+consecutive pages into a single vertical image strip before passing them to
+the model. The \texttt{concat-num} hyperparameter controls how many pages
+are stacked per strip.
+
+\begin{table}[htbp]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Note} \\
+\midrule
+\texttt{--concat-num} & 1, 2, 5, 10 & Pages per image strip \\
+\texttt{--resolution} & 144 & DPI fixed \\
+\texttt{--prompt-style} & default & Concise system prompt \\
+Model & gemini-3.1-pro & Fixed candidate \\
+Total images/doc & $\lceil$pages / concat-num$\rceil$ & Varies \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Concat-num ablation configuration.}
+\label{tab:ablation_concat}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Note} \\
+\midrule
+\texttt{--resolution} & 72, 144, 216 & PDF rasterization DPI \\
+\texttt{--concat-num} & 5 & Fixed (default) \\
+\texttt{--prompt-style} & default & Fixed \\
+Max bytes/image & 4\,MB & JPEG recompressed if exceeded \\
+Max dimension & 7{,}900\,px & Downscaled if exceeded \\
+\bottomrule
+\end{tabular}%
+}
+\caption{DPI ablation configuration.}
+\label{tab:ablation_dpi}
+\end{minipage}
+\end{table}
+
+\noindent At 72\,DPI the resulting strip is typically around 1{,}200\,px tall;
+at 144\,DPI around 2{,}400\,px; at 216\,DPI around 3{,}600\,px before any
+compression rescaling. At \texttt{concat-num=1} each page is sent individually, maximising resolution per image but fragmenting document context across many turns.
+At \texttt{concat-num=10}, up to ten pages are merged into one tall strip,
+providing wider context at reduced per-line resolution.
+The default \texttt{concat-num=5} balances these trade-offs.
+
+\subsection{Rendering Resolution Ablation}
+\label{app:abl_dpi}
+
+PDF rasterization converts each page to a pixel image at the specified DPI.
+Higher DPI produces finer text and chart detail but larger file sizes
+that may trigger per-image byte-limit compression.
+
+
+\subsection{Prompting Strategy Ablation}
+\label{app:abl_prompt}
+
+Across all three models, the no-prompt condition achieves the highest complex-question ACC
+(Gemini $+$5.3 pts, GPT-4o $+$5.9 pts, Claude $+$17.0 pts over default),
+with Claude's complex ACC jumping from 0.380 to 0.550, suggesting the concise-answer
+framing actively constrains multi-step reasoning.
+CoT yields modest overall gains (Gemini: $+$1.6 pts; Claude: $+$3.0 pts) but reduces
+GPT-4o chart-reading ACC (0.520$\to$0.468), where longer outputs introduce hallucinated
+intermediate steps.
+Chart-reading and cross-modal ACC vary by at most 5 points across all strategies,
+confirming these subsets are driven by visual perception rather than output formatting.
+
+\begin{table}[htbp]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Values} & \textbf{Note} \\
+\midrule
+Judge models & GPT-5, Gemini, Claude & Same rubric/JSON \\
+Candidate models & GPT-4o, Qwen3, InternVL3 & Pre-scored answers \\
+ACC threshold $\tau$ & 4, 5, 6, 7, 8 & GPT-5 judge only \\
+Temperature & 0 & All judges \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Judge sensitivity ablation configuration.}
+\label{tab:ablation_config}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Style} & \textbf{System prompt} & \textbf{Description} \\
+\midrule
+\texttt{default} & Concise (App.~\ref{app:prompts}) & 2--4 sentence answer \\
+\texttt{cot}     & CoT (App.~\ref{app:prompts})     & Step-by-step reasoning \\
+\texttt{none}    & None                              & No system prompt \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Prompting ablation configuration.}
+\label{tab:ablation_prompt}
+\end{minipage}
+\end{table}
+
+\subsection{Judge Sensitivity Ablation}
+\label{app:abl_judge}
+\label{app:judge_sensitivity}
+
+Judge sensitivity results are in Table~\ref{app:prompts}.
+Across all three models, the no-prompt condition achieves the highest complex-question ACC
+(Gemini $+$5.3 pts, GPT-4o $+$5.9 pts, Claude $+$17.0 pts over default),
+with Claude's complex ACC jumping from 0.380 to 0.550, suggesting the concise-answer
+framing actively constrains multi-step reasoning.
+CoT yields modest overall gains (Gemini: $+$1.6 pts; Claude: $+$3.0 pts) but reduces
+GPT-4o chart-reading ACC (0.520$\to$0.468), where longer outputs introduce hallucinated
+intermediate steps.
+Chart-reading and cross-modal ACC vary by at most 5 points across all strategies,
+confirming these subsets are driven by visual perception rather than output formatting.
+
+\begin{table}[h]
+\centering
+\footnotesize
+\label{tab:ablation_judge}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+& & \textbf{GPT-4o} & \textbf{Qwen3-VL} & \textbf{InternVL3} \\
+\midrule
+\multirow{3}{*}{\textit{Judge model}}
+  & GPT-5 (default)             & 0.434 & 0.535 & 0.354 \\
+  & Gemini-3.1-Pro              & 0.417 & 0.522 & 0.363 \\
+  & Claude-Sonnet-4.5           & 0.607 & 0.705 & 0.573 \\
+\midrule
+\multirow{5}{*}{\textit{Threshold $\tau$}}
+  & $\tau=4$           & 0.627 & 0.697 & 0.568 \\
+  & $\tau=5$           & 0.483 & 0.575 & 0.398 \\
+  & $\tau=6$ (default) & 0.434 & 0.535 & 0.354 \\
+  & $\tau=7$           & 0.360 & 0.451 & 0.311 \\
+  & $\tau=8$           & 0.299 & 0.413 & 0.269 \\
+\bottomrule
+\end{tabular}
+\caption{%
+  Judge sensitivity results.
+  \textit{Top:} ACC for three candidates under three judge models.
+  \textit{Bottom:} ACC under GPT-5 at thresholds $\tau \in \{4,5,6,7,8\}$.
+  Rankings are fully preserved across all conditions.
+}
+\end{table}
+
+% ============================================================
+\section{Qualitative Model Response Examples}
+\label{app:qualitative}
+% ============================================================
+
+% \begin{figure}[!htbp]
+%   \centering
+%   \begin{minipage}[t]{0.18\textwidth}
+%     \includegraphics[width=\textwidth]{images/sample_chart.png}
+%   \end{minipage}
+%   \hfill
+%   \begin{minipage}[t]{0.78\textwidth}
+%     \includegraphics[width=\textwidth]{images/sample_complex.png}
+%   \end{minipage}
+%   \caption{Examples from \synthdocbench{} where \emph{all seven evaluated models score zero}. Both are chart-reading tasks, yet they expose two distinct failure modes. \\
+%   \textbf{Example 1} :{\textit{\textbf{Chart reading} (L1, all models fail): \emph{``According to Figure~15, what was the formal employment rate for Germany's 2015 Refugee Cohort in 2019?''} The answer (30\%) requires reading a single point on a rising area chart embedded in a 48-page document.}} \\
+%   \textbf{Example 2} :\textit{\textbf{Chart reading} (L3, all models fail): \emph{``Based on Figure~18, which region had the highest percentage of cage-free laying hens in 2023, and what was the exact percentage?''} The answer (UK, 65\%) requires reading the endpoint of a dumbbell chart comparing 2012 vs.\ 2023 values across three regions.}}
+%   \label{fig:teaser}
+% \end{figure}
+
+We present four representative examples from \synthdocbench{} spanning the three
+question subsets and dominant failure modes from Section~\ref{sec:error_analysis}.
+Each example shows (i)~a zoomed-in crop of the relevant evidence page,
+(ii)~the question and ground-truth answer, and (iii)~the annotated response from
+a representative subset of evaluated models, where \textcolor{red}{\textbf{green}} marks correct facts and
+\textcolor{red}{\textbf{red}} marks hallucinated or wrong values.
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\newcommand{\scorehi}[1]{\colorbox{lbgreen}{\small\bfseries\texttt{#1}}}
+\newcommand{\scoremid}[1]{\colorbox{localyellow}{\small\bfseries\texttt{#1}}}
+\newcommand{\scorelo}[1]{\colorbox{red!18}{\small\bfseries\texttt{#1}}}
+\newcommand{\cor}[1]{\textcolor{mygreen}{\textbf{#1}}}
+\newcommand{\wrg}[1]{\textcolor{red}{\textbf{#1}}}
+
+\clearpage
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Example 1 — Chart Reading L1 \hfill \textit{Mixed: Value Reading from Horizontal Bar}}
+% ─────────────────────────────────────────────────────────────────────────────
+\noindent\rule{\linewidth}{0.4pt}
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{images/qualitative/ex1_fig14_crop}\\[3pt]
+\footnotesize\textit{Figure~14 from the document (p.19) --- OpenAI AI Text Classifier Performance on AI Text.
+The bar shows \textbf{26\% True Positive} (Identified) and \textbf{74\% False Negative} (Missed).}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.56\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Question} \textnormal{\textit{(Chart Reading, L1 --- AI in the Classroom)}}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=gray!65, colback=gray!4, colframe=gray!40,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+According to Figure~14 (`OpenAI AI Text Classifier Performance on AI Text (\%)'),
+what percentage of AI-generated text resulted in a
+\textbf{False Negative (Missed)}?
+\end{tcolorbox}
+\smallskip
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Ground Truth}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=blue!55, colback=blue!3, colframe=blue!30,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+\textbf{74\%} of AI-generated text resulted in a False Negative (Missed).
+\end{tcolorbox}
+\end{minipage}
+
+\medskip
+\noindent\textbf{Gemini-3.1-Pro} \scorehi{10/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=lbgreen!15,colframe=lbgreen!60,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+According to Figure~14, \cor{74\%} of AI-generated text resulted in a False Negative (Missed).
+\end{tcolorbox}
+
+\noindent\textbf{GPT-4o} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+According to Figure~14, \wrg{43\%} of AI-generated text resulted in a False Negative (Missed).
+\end{tcolorbox}
+
+\noindent\textbf{Claude-Sonnet-4.5} \scorehi{10/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=lbgreen!15,colframe=lbgreen!60,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Figure~14 shows that \cor{74\%} of AI-generated text was classified as a False Negative (Missed),
+meaning the classifier failed to identify it as AI-written.
+\end{tcolorbox}
+
+\noindent\textbf{Qwen3-VL-235B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Based on Figure~14, \wrg{26\%} of AI-generated text resulted in a False Negative (Missed).
+\end{tcolorbox}
+
+\noindent\textbf{Qwen2.5-VL-7B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+According to Figure~14, \wrg{26\%} of AI-generated text resulted in a False Negative (Missed).
+\end{tcolorbox}
+
+\noindent\textbf{InternVL3-78B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+According to Figure~14, the percentage of AI-generated text that resulted in a
+False Negative (Missed) is \wrg{16\%}.
+\end{tcolorbox}
+
+\noindent\textit{The chart clearly labels both segments: 26\% (True Positive, blue) and 74\% (False Negative, gray). Only Gemini and Claude read the correct gray segment. GPT-4o hallucinates 43\%---a value absent from the chart. Both Qwen models confuse the two segments, reading the True Positive bar (26\%) as the answer. InternVL3 hallucinates 16\%.}
+
+\clearpage
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Example 2 — Cross-Modal L2 \hfill \textit{Failure: Visual Hallucination}}
+% ─────────────────────────────────────────────────────────────────────────────
+\noindent\rule{\linewidth}{0.4pt}
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{images/qualitative/ex2_fig1_crop}\\[3pt]
+\footnotesize\textit{Figure~1 from the document (p.5) --- Distribution of AI-Generated Code in Enterprise Files.
+The 40--50\% bin has \textbf{120 files}; the 50--60\% bin has \textbf{40 files}.}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.56\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Question} \textnormal{\textit{(Cross-Modal, L2 --- AI-Native Software Dev.)}}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=gray!65, colback=gray!4, colframe=gray!40,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+The text describes the distribution dropping `sharply after the 40--50\% mark.'
+How does Figure~1 quantify this as the \textbf{exact file frequency drop}
+between the 40--50\% and 50--60\% bins?
+\end{tcolorbox}
+\smallskip
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Ground Truth}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=blue!55, colback=blue!3, colframe=blue!30,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+40--50\% bin: \textbf{120 files} $\to$ 50--60\% bin: \textbf{40 files}.
+Drop of \textbf{80 files} (66.7\% reduction).
+\end{tcolorbox}
+\end{minipage}
+
+\medskip
+\noindent\textbf{Gemini-3.1-Pro} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+In Figure~1, the 40--50\% bin shows a frequency of \wrg{200 files}.
+The subsequent 50--60\% bin drops to a frequency of \wrg{50 files}.
+This represents an exact numerical drop of \wrg{150 files} between the two bins.
+\end{tcolorbox}
+
+\noindent\textbf{GPT-4o} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Figure~1 indicates that the file frequency drops from approximately \wrg{17\%} in the
+40--50\% bin to approximately \wrg{8\%} in the 50--60\% bin, representing a numerical
+decline of about \wrg{9 percentage points}.
+\end{tcolorbox}
+
+\noindent\textbf{Claude-Sonnet-4.5} \scorelo{1/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.} While Figure~1 shows the distribution and the text
+describes a sharp drop after the 40--50\% mark, the specific numerical values for
+file frequency in the two bins are not provided in the visible portions of the document.
+\end{tcolorbox}
+
+\noindent\textbf{Qwen3-VL-235B} \scorelo{2/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Figure~1 shows the frequency of files for the 40--50\% bin is approximately
+\wrg{175}. For the next bin, 50--60\%, the frequency drops sharply to approximately
+\wrg{50}. This represents a numerical drop of about \wrg{125 files}.
+\end{tcolorbox}
+
+\noindent\textbf{Qwen2.5-VL-7B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+The figure shows that the number of files drops from approximately \wrg{250} in the
+40--50\% bin to around \wrg{150} in the 50--60\% bin.
+\end{tcolorbox}
+
+\noindent\textbf{InternVL3-78B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textit{Every model hallucinates a different plausible-looking but wrong pair of bar heights. GPT-4o conflates file counts with axis percentages. Claude and InternVL3 decline to answer despite the chart being visible on p.5. No model reads the correct 120$\to$40 counts.}
+
+\clearpage
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Example 3 — Cross-Modal L3 \hfill \textit{Failure: Figure Not Found}}
+% ─────────────────────────────────────────────────────────────────────────────
+\noindent\rule{\linewidth}{0.4pt}
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{images/qualitative/ex3_fig3_crop}\\[3pt]
+\footnotesize\textit{Figure~3 from the document (p.8) --- GitHub Copilot Productivity Study.
+\textbf{Dev~6} (control) reaches \textbf{180 min}; Dev~6 (treatment) is at \textbf{85 min}.}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.56\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Question} \textnormal{\textit{(Cross-Modal, L3 --- AI-Native Software Dev.)}}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=gray!65, colback=gray!4, colframe=gray!40,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+The text states the longest task time in the GitHub Copilot study was 180 min
+by a developer in the control group. Using Figure~3, which \textbf{specific
+developer} recorded this time, and what was their time in the
+\textbf{Treatment Group}?
+\end{tcolorbox}
+\smallskip
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Ground Truth}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=blue!55, colback=blue!3, colframe=blue!30,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+\textbf{Dev~6} (Control: 180 min $\to$ Treatment: \textbf{85 min}).
+\end{tcolorbox}
+\end{minipage}
+
+\medskip
+\noindent\textbf{Gemini-3.1-Pro} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textbf{GPT-4o} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{The document does not specifically identify which developer recorded the
+180-minute maximum time nor their completion time in the Treatment Group.}
+\end{tcolorbox}
+
+\noindent\textbf{Claude-Sonnet-4.5} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.} While the document mentions the 180-minute maximum
+completion time in the control group, it does not identify which specific developer
+recorded this time or provide their individual completion time in the treatment group.
+\end{tcolorbox}
+
+\noindent\textbf{Qwen3-VL-235B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textbf{Qwen2.5-VL-7B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textbf{InternVL3-78B} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textit{Figure~3 is clearly visible on p.8 with per-developer labels on the x-axis (Dev~1 through Dev~10). The highest gray dot at 180 min sits at Dev~6. All six evaluated models fail to localise and resolve the individual data point label, returning a uniform ``not found'' despite the chart being visually present.}
+
+\clearpage
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Example 4 — Complex Multi-Hop L5 \hfill \textit{Failure: Incomplete Retrieval}}
+% ─────────────────────────────────────────────────────────────────────────────
+\noindent\rule{\linewidth}{0.4pt}
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{images/qualitative/ex4_reprights_crop}\\[4pt]
+\includegraphics[width=\linewidth]{images/qualitative/ex4_congress_crop}\\[3pt]
+\footnotesize\textit{Two of three evidence figures from p.5 of the gender equality document:
+Figure~3 (Reproductive Rights Trajectories, top) and the Congress representation figure (bottom).
+A third chart on the same page shows child marriage rates 2013--2023.}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.56\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Question} \textnormal{\textit{(Complex Multi-Hop, L5 --- Gender Equality)}}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=gray!65, colback=gray!4, colframe=gray!40,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+How did women's representation in US Congress change after the 1992 `Year of the
+Woman'? What was the exact decline in global child marriage rates 2013--2023?
+How does the US reproductive rights 50-point drop compare to changes in
+\textbf{Ireland} and \textbf{Argentina} over 2017--2023?
+\end{tcolorbox}
+\smallskip
+\begin{tcolorbox}[
+  enhanced, breakable,
+  title={\textsc{Ground Truth}},
+  fonttitle=\small\bfseries\sffamily, coltitle=white,
+  colbacktitle=blue!55, colback=blue!3, colframe=blue!30,
+  boxrule=0.4pt, arc=2pt, left=5pt, right=5pt, top=2pt, bottom=2pt
+]
+\footnotesize
+House: \textbf{24$\to$48} (doubled). Senate: \textbf{2$\to$6} (tripled).\\
+Child marriage: \textbf{25$\to$20} (drop of 5).\\
+US: \textbf{80$\to$30}. Ireland: \textbf{10$\to$90}. Argentina: \textbf{20$\to$85}.
+\end{tcolorbox}
+\end{minipage}
+
+\medskip
+\noindent\textbf{Gemini-3.1-Pro} \scoremid{4/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Following the 1992 election, voters elected 4 new female senators (bringing the
+Senate total to \cor{6}) and \cor{24} new women to the House of Representatives.
+Between 2013 and 2023, global child marriage rates declined from
+\cor{25\%} to \wrg{19\%}.
+During the 2017--2023 timeframe, the 50-point drop in the US Reproductive Rights
+Index (from \wrg{75} to \wrg{25}) contrasted with a 60-point increase in Ireland
+(from \wrg{20} to \wrg{80}) and a 45-point increase in Argentina
+(from \wrg{30} to \wrg{75}).
+\end{tcolorbox}
+
+\noindent\textbf{GPT-4o} \scorelo{2/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Following the 1992 `Year of the Woman' election, the number of women in the
+U.S. Congress \cor{doubled}. The global child marriage rate
+\wrg{declined by 15\%} between 2013 and 2023.
+While the U.S. reproductive rights index dropped by \cor{50 points} from 2017 to 2023,
+during the same timeframe, Ireland's index rose by \wrg{25 points} and
+Argentina's by \wrg{30 points}.
+\end{tcolorbox}
+
+\noindent\textbf{Claude-Sonnet-4.5} \scorelo{0/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+\wrg{Not found in the document.}
+\end{tcolorbox}
+
+\noindent\textbf{Qwen3-VL-235B} \scorelo{3/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Following the 1992 `Year of the Woman', the number of women in the US Congress
+increased from \wrg{4} to \wrg{6}. Global child marriage rates declined from
+\cor{25\%} in 2013 to \cor{20\%} in 2023, a \cor{5 percentage point} drop.
+The US reproductive rights index dropped \cor{50 points} from 2017 to 2023, while
+Ireland's index rose from \wrg{70} to \cor{90} and Argentina's rose from
+\wrg{60} to \cor{85} during the same period.
+\end{tcolorbox}
+
+\noindent\textbf{Qwen2.5-VL-7B} \scorelo{2/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+The number of women in the US Congress increased from \wrg{4} to \wrg{44} after the
+1992 `Year of the Woman' election. The global child marriage rate declined by
+approximately \wrg{25 percentage points} between 2013 and 2023.
+The US reproductive rights index dropped by \cor{50 points}, while Ireland saw a
+\wrg{10-point increase} and Argentina experienced a \wrg{10-point decrease}
+during the same period.
+\end{tcolorbox}
+
+\noindent\textbf{InternVL3-78B} \scoremid{4/10}:
+\begin{tcolorbox}[enhanced,breakable,colback=red!5,colframe=red!30,boxrule=0.4pt,arc=2pt,left=6pt,right=6pt,top=2pt,bottom=2pt]
+\footnotesize
+Following the 1992 `Year of the Woman' election, the number of women elected to
+the U.S. House of Representatives increased by \cor{24}, marking a then-record high.
+The global child marriage rate declined by \wrg{12 percentage points} between 2013
+and 2023. The U.S. reproductive rights index experienced a \cor{50-point drop},
+contrasting with Ireland and Argentina, which saw \wrg{significant improvements}
+in their index scores during the 2017--2023 period.
+\end{tcolorbox}
+
+\noindent\textit{The question requires six independent statistics from three charts on the same page. Gemini retrieves the Senate total and House count but uses wrong base scores for all three countries. Qwen3 correctly reads the child marriage drop and US delta but has wrong starting values for Ireland and Argentina. GPT-4o correctly identifies the Congress doubling and US 50-point drop but reports wrong deltas for the other countries. InternVL3 correctly retrieves the House count and US drop but vaguely describes Ireland/Argentina without numbers. Claude fails to retrieve any evidence. The Ireland (10$\to$90) and Argentina (20$\to$85) base scores are consistently missed.}
+
+
+\end{document}

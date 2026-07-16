@@ -1,0 +1,71 @@
+\documentclass{article}
+
+% \usepackage[main]{neurips_2026}
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% "preprint" option is used for arXiv or other preprint submissions
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[table]{xcolor}  % colors (with table option for \rowcolor)
+
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{multirow}
+\usepackage{graphicx}
+
+
+\title{Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Foundation Models}
+
+\author{
+\textbf{Yubo Wang}$^{1,5}$\footnotemark[1] \quad \textbf{Jiarong Liang}$^{1}$\footnotemark[1] \quad \textbf{Yuxuan Zhang}$^{2}$ \quad \textbf{Xuye Liu}$^{1}$ \quad \textbf{Cong Wei}$^{1,3}$ \\
+    \textbf{Yuyu Zhang}$^{4}$ \quad \textbf{Ping Nie}$^{1}$ \quad \textbf{Wenhu Chen}$^{1,5}$\footnotemark[1] \\[4pt]
+        $^{1}$University of Waterloo, $^{2}$University of British Columbia, $^{3}$NVIDIA, $^{4}$Verdent AI, $^{5}$Vector Institute
+      }
+
+\begin{document}
+
+
+\maketitle
+\footnotetext[1]{Equal contribution. Corresponding authors: yubo.wang.sunny@gmail.com, hustchenwenhu@gmail.com}
+
+
+
+\input{sec/1_abstract}
+\input{sec/2_introduction}
+\input{sec/3_method}
+
+\input{sec/4_experiments}
+\input{sec/5_analysis}
+
+\input{sec/6_related_works}
+
+\input{sec/7_limitations}
+
+\input{sec/8_conclusion}
+
+\bibliography{references}
+\bibliographystyle{plain}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+
+\input{sec/9_appendix}
+
+\newpage
+\input{checklist.tex}
+
+
+\end{document}

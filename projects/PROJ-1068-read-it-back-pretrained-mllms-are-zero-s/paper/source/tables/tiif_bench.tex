@@ -1,0 +1,99 @@
+\newcommand{\thinrule}{\textcolor{black!60}{\vrule width 0.03pt}}
+\newcolumntype{V}{@{\hspace{4pt}\thinrule\hspace{4pt}}}
+\renewcommand{\arraystretch}{1.7} 
+\setlength{\tabcolsep}{3pt}
+
+\begin{table*}
+\caption{\textbf{Performance of proprietary models and state-of-the-art open-source models on TIIF-Bench \textbf{testmini} subset.} Evaluated systems are grouped into (i) {diffusion-based} open-source models, (ii){autoregressive} open-source models, and (iii) {proprietary} models. 
+The results of \method~and BAGEL are evaluated by GPT-4.1. ``Inf. SRR'' indicates executing the inference-time self-reflective refinement.}
+\small
+\centering
+\resizebox{0.99\linewidth}{!}{
+\begin{tabular}{
+  >{\raggedright\arraybackslash}m{3cm}V
+  *{2}{>{\centering\arraybackslash}m{0.7cm}V}
+  *{8}{>{\centering\arraybackslash}m{0.65cm}V}
+  *{12}{>{\centering\arraybackslash}m{0.65cm}V}
+  >{\centering\arraybackslash}m{0.65cm}V
+  >{\centering\arraybackslash}m{0.65cm}
+}
+\toprule
+\multirow{3}{*}{{Model}}
+  & \multicolumn{2}{cV}{\multirow{2}{*}{{Overall}}}
+  & \multicolumn{8}{cV}{{Basic Following}}
+  & \multicolumn{12}{cV}{{Advanced Following}}
+  & \multicolumn{2}{c}{{Designer}} \\
+\cmidrule(lr{.3em}){4-11} \cmidrule(lr{.3em}){12-23} \cmidrule(l){24-25}
+& & &
+  \multicolumn{2}{cV}{Avg}
+  & \multicolumn{2}{cV}{Attribute}
+  & \multicolumn{2}{cV}{Relation}
+  & \multicolumn{2}{cV}{Reasoning}
+  & \multicolumn{2}{cV}{Avg}
+  & \multicolumn{2}{cV}{\makecell{Attribute\\+Relation}}
+  & \multicolumn{2}{cV}{\makecell{Attribute\\+Reasoning}}
+  & \multicolumn{2}{cV}{\makecell{Relation\\+Reasoning}}
+  & \multicolumn{2}{cV}{Style}
+  & \multicolumn{2}{cV}{Text}
+  & \multicolumn{2}{c}{\makecell{Real\\World}} \\
+\cmidrule(lr{.3em}){4-11} \cmidrule(lr{.3em}){12-23} \cmidrule(l){24-25}
+& short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long &
+  short & long
+\\
+\midrule
+\addlinespace[-1pt]
+% ---------------- Diffusion-based Open-Source ----------------
+\rowcolor{gray!10}
+\multicolumn{25}{l}{{{Diffusion based} Open-Source Models}} \\[-1pt]
+\midrule
+FLUX.1 dev  &{{71.09}} &{71.78} &{83.12} &78.65& 87.05 &83.17 &{87.25} &80.39 &{75.01} &72.39 &65.79 &{68.54} & 67.07 &{73.69} &{73.84} &73.34 &{69.09} &{71.59} & 66.67 & 66.67 &43.83 &{52.83} &70.72 &{71.47} \\
+SD XL           &54.96 &42.13 &65.72 &53.28 &59.33 &50.83 &77.57 &62.57 &60.32 &46.57 &49.73 &36.22 &47.82 &35.57 &56.22 &45.34 &52.59 &36.09 &73.33 &60.00 &16.83 & 0.83 &50.92 &41.59 \\
+SD 3            &67.46 &66.09 &78.32 &77.75 &83.33 &79.83 &82.07 &78.82 &71.07 &74.07 &61.46 &59.56 &61.07 &64.07 &68.84 &70.34 &50.96 &57.84 &66.67 &76.67 &59.83 &20.83 &63.23 &67.34 \\
+SD 3.5 L        &{71.15} &66.96 &78.34 &79.56 &79.50 &76.50 &80.96 &83.21 &72.46 &{78.71} &{67.67} &61.18 &66.46 &61.89 &73.53 &{74.15} &60.03 &61.53 &73.33 &63.33 &{70.52} &42.52 &64.43 &66.39 \\
+\midrule
+\addlinespace[-1pt]
+% ---------------- AR-based Open-Source ----------------
+\rowcolor{gray!10}
+\multicolumn{25}{l}{{{AR based} Open-Source Models}} \\[-1pt]
+\midrule
+Llamagen &41.67 &38.22 &53.00 &50.00 &48.33 &42.33 &59.57 &60.32 &51.07 &47.32 &35.89 &32.61 &38.82 &31.57 &40.84 &47.22 &49.59 &46.22 &46.67 &33.33 &0.00 &0.00 &39.73 &35.62 \\
+Show-o &59.72 &58.86 &73.08 &75.83 &74.83 &79.83 &78.82 &78.32 &65.57 &69.32 &53.67 &50.38 &60.95 &56.82 &68.59 &68.96 &66.46 &56.22 &63.33 &66.67 &3.83 &2.83 &55.02 &50.92 \\
+Infinity &62.07 &62.32 &73.08 &75.41 &74.33 &76.83 &72.82 &77.57 &72.07 &71.82 &56.64 &54.98 &60.44 &55.57 &{74.22} &64.71 &60.22 &59.71 &{80.00} &{73.33} &10.83 &23.83 &54.28 &56.89 \\
+JanusPro &66.50 &65.02 &79.33 &78.25 &79.33 &82.33 &78.32 &73.32 &{80.32} &79.07 &59.71 &58.82 &66.07 &56.20 &70.46 &{70.84} &67.22 &59.97 &60.00 &70.00 &{28.83} &{33.83} &65.84 &60.25 \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{25}{l}{\textit{Inference on 512 resolution}} \\
+\midrule
+BAGEL & 75.21 & 78.56 & 81.73 & 86.11 & 85.50 & 88.00 & 84.99 & 85.39 & 74.69 & 84.94 & 73.66 & 77.61 & 77.68 & 81.55 & 67.77 & 76.48 & 78.58 & 77.86 & 90.00 & 90.00 & 33.03 & 40.72 & 84.70 & 82.09 \\
+AlphaGRPO {(RT2I)} & 78.92 & 79.48 & 85.46 & 84.15 & 88.50 & 85.50 & 88.12 & 86.56 & 79.77 & 80.38 & 77.41 & 78.85 & 81.05 & 82.77 & 74.38 & 80.52 & 79.30 & 75.83 & 90.00 & 83.33 & 44.80 & 53.85 & 84.33 & 86.57 \\
+AlphaGRPO & 79.05 & 79.50 & 85.56 & 83.32 & 89.50 & 85.50 & 85.34 & 83.60 & 81.86 & 80.86 & 77.12 & 79.87 & 78.59 & 83.95 & 71.81 & 78.94 & 83.02 & 79.36 & 86.67 & 93.33 & 51.13 & 45.25 & 83.58 & 84.70 \\
+\rowcolor{myblue} 
+\textbf{\method} & 85.23 & 84.81 & 87.67 & 87.44 & 90.00 & 90.50 & 88.12 & 89.45 & 84.90 & 82.38 & 84.85 & 85.39 & 84.34 & 87.52 & 84.99 & 84.95 & 86.41 & 86.02 & 93.33 & 93.33 & 66.97 & 58.82 & 88.06 & 90.30 \\
+\rowcolor{myblue}
+\textbf{Self-\method} & 85.13 & 84.33 & 89.69 & 87.58 & 88.00 & 92.00 & 93.56 & 87.37 & 87.50 & 83.38 & 83.73 & 85.70 & 85.17 & 86.63 & 83.05 & 90.72 & 84.65 & 82.38 & 93.33 & 93.33 & 60.63 & 57.01 & 90.30 & 86.19 \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{25}{l}{\textit{Inference on 1024 resolution}} \\
+\midrule
+BAGEL & 76.42 & 76.15 & 83.44 & 83.72 & 87.50 & 89.00 & 86.03 & 84.35 & 76.77 & 77.81 & 75.16 & 76.68 & 79.34 & 83.12 & 70.38 & 74.58 & 78.36 & 75.58 & 93.33 & 86.67 & 36.20 & 40.72 & 79.85 & 73.51 \\
+AlphaGRPO {(RT2I)} & 78.70 & 79.48 & 84.83 & 85.92 & 89.00 & 89.50 & 88.81 & 88.36 & 76.69 & 79.89 & 78.42 & 79.21 & 79.38 & 84.09 & 77.48 & 77.37 & 81.05 & 78.84 & 90.00 & 90.00 & 45.70 & 47.06 & 80.22 & 80.22 \\
+AlphaGRPO & 77.74 & 78.09 & 85.39 & 82.90 & 89.00 & 89.50 & 87.31 & 82.96 & 79.85 & 76.25 & 75.62 & 77.49 & 79.46 & 83.32 & 73.28 & 76.13 & 76.48 & 75.56 & 90.00 & 90.00 & 42.53 & 44.80 & 81.72 & 84.33 \\
+\rowcolor{myblue}
+\textbf{\method} & 83.31 & 81.71 & 88.44 & 87.26 & 91.50 & 92.00 & 88.81 & 88.81 & 85.02 & 80.98 & 83.18 & 81.83 & 87.89 & 85.41 & 81.67 & 82.23 & 81.97 & 80.23 & 86.67 & 90.00 & 63.80 & 54.75 & 82.46 & 80.97 \\
+\rowcolor{myblue}  
+\textbf{Self-\method} & 82.66 & 82.54 & 87.38 & 87.60 & 90.50 & 93.00 & 89.80 & 85.68 & 81.86 & 84.10 & 81.49 & 83.15 & 84.33 & 83.39 & 80.88 & 84.25 & 81.16 & 84.71 & 86.67 & 83.33 & 61.09 & 59.73 & 87.69 & 84.70 \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:tiifbench}
+\end{table*}

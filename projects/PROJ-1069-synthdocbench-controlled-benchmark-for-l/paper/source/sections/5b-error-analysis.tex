@@ -1,0 +1,51 @@
+% ============================================================
+\subsection{Hard Failure Analysis}
+\label{sec:error_analysis}
+% ============================================================
+
+To understand \emph{why} frontier models fail, we identify the 30 questions on which \emph{all seven evaluated models} score $\leq 3$ out of 10 --- questions so hard that not a single model produces even a partial answer. We use GPT-5 to classify each failure into one of seven mutually exclusive error categories based on the question, ground-truth answer, and all model responses. Figure~\ref{fig:error_analysis} shows the resulting distribution.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{colm/images/fig_error_analysis}
+  \caption{%
+    Hard failure analysis across the 30 questions where all seven models score $\leq 3$.
+    \textbf{(a)}~Overall error category distribution.
+    \textbf{(b)}~Breakdown by question type.
+    Categories are assigned by GPT-5 based on question, ground truth, and all model answers.
+  }
+  \label{fig:error_analysis}
+\end{figure}
+
+\paragraph{Primary failure mode: Visual Hallucination.}
+The model confidently reads a wrong value from the chart (e.g., reports 1000 ppm instead of 30 ppm). The chart is found but the pixel-level reading is incorrect.
+This is the dominant error category, accounting for 17 of 30 hard failures (57\%).
+It concentrates heavily in chart-reading questions (9 of 17 cases), where models must read precise numerical values from dense heatmaps, stacked bars, and multi-series line charts embedded in 50-page documents.
+
+\paragraph{Figure Not Found and Precision Error.}
+The model cannot locate the relevant figure in the document and responds 'Not found in the document' or retrieves a different figure. Together, these two categories account for 10 failures (34\%). The model extracts the correct element but with wrong exact value, scale, or unit (e.g., reads 29% instead of 27.5%, or billions instead of millions).
+
+\begin{table}[h]
+\centering
+\footnotesize
+\caption{%
+  Distribution of error categories across the 30 hard failures   (all models score $\leq 3$).   Categories assigned by GPT-5.
+}
+\label{tab:error_categories}
+\begin{tabular}{@{}lp{8.5cm}ccc@{}}
+\toprule
+\textbf{Category} & \textbf{Description} & \textbf{Chart} & \textbf{Complex} & \textbf{Cross} \\
+\midrule
+  \textbf{Visual Hallucination} (17) & The model confidently reads a wrong value from the chart (e.g., reports 1000 ppm instead o... & 9 & 0 & 8 \\
+  \textbf{Figure Not Found} (5) & The model cannot locate the relevant figure in the document and responds 'Not found in the... & 0 & 0 & 5 \\
+  \textbf{Precision Error} (5) & The model extracts the correct element but with wrong exact value, scale, or unit (e.g., r... & 2 & 0 & 3 \\
+  \textbf{Incomplete Retrieval} (2) & The model retrieves part of the required evidence but misses one or more key facts distrib... & 0 & 2 & 0 \\
+  \textbf{Cross-Modal Grounding Failure} (1) & The model correctly identifies text and chart evidence separately but fails to perform the... & 0 & 0 & 1 \\
+  \textbf{Reasoning Error} (0) & Evidence is correctly retrieved but the model draws a wrong conclusion through a logical o... & 0 & 0 & 0 \\
+  \textbf{Question / Annotation Ambiguity} (0) & The question or ground-truth answer is ambiguous, under-specified, or requires information... & 0 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Implications.}
+The dominance of visual hallucination and precision errors reveals that the primary bottleneck in hard cases is \emph{low-level perceptual fidelity}---the ability to read exact values from dense chart encodings at scale---rather than high-level reasoning. Cross-modal grounding failures, which are concentrated in cross-modal and complex questions, point to a distinct second bottleneck: models can retrieve text and chart evidence separately but cannot perform the quantitative alignment step that the question demands. These findings suggest that future progress on \textsc{SynthDocBench} will require improvements to both chart-reading resolution and structured cross-modal reasoning, neither of which is addressed by prompt engineering alone (see Section~\ref{sec:ablation_prompt}).

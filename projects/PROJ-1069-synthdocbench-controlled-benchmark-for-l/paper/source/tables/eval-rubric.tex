@@ -1,0 +1,20 @@
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{cp{10cm}}
+\toprule
+\textbf{Score} & \textbf{Criterion} \\
+\midrule
+10   & All key facts present and fully correct \\
+8--9 & Mostly correct, with only minor omissions or imprecision \\
+6--7 & Core answer correct, but with some missing detail \\
+4--5 & Partially correct, with significant gaps or errors \\
+2--3 & Mostly incorrect or severely incomplete \\
+0--1 & Incorrect, hallucinated, or contradictory to the reference \\
+$-1$ & Judge parse failure (excluded) \\
+\bottomrule
+\end{tabular}
+\caption{GPT-5 judge scoring rubric. Scores of $-1$ indicate parse failures and are
+excluded from aggregate statistics.}
+\label{tab:eval-rubric}
+\end{table}

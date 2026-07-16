@@ -1,0 +1,424 @@
+% =============================================================================
+% SECTION 4 — EXPERIMENTS (revised for paper_v2)
+% Tables are unchanged; prose tightened, ablation block (B) placeholders
+% filled from the table, mask-granularity (block C) prose added.
+% =============================================================================
+
+\section{Experiments}
+\label{sec:exp}
+\vspace{-0.5ex}
+
+\subsection{Setup}
+\label{sec:exp:setup}
+
+\textbf{Benchmarks.} We evaluate on three groups.
+\emph{Coding-agent benchmarks}: SWE-Bench-Verified ($500$) and
+SWE-Bench-Lite ($300$)~\citep{swebench}, our primary in-domain target.
+\emph{Non-agent coding benchmarks}: LiveCodeBench~\citep{livecodebench},
+OJBench~\citep{ojbench}, and FullStackBench-EN~\citep{fullstackbench};
+these probe pure code generation and serve as a regression check.
+\emph{Tool-use and OOD agent benchmarks}: Terminal-Bench 2.0~\citep{terminalbench},
+$\tau$-bench~\citep{taubench}, and BFCL~\citep{bfcl}; the latter two
+contain no Python code-editing trajectories and test whether the
+function-call inductive bias transfers across task families.
+
+\textbf{Mid-training and post-training pipeline.}
+We mid-train Qwen2.5-Coder-Instruct (7B/14B)~\citep{qwencoder} and
+Qwen3-8B~\citep{qwen3} on the selected FIM corpus
+using the standard FIM loss on the middle span
+(rationale plus body), packed to the model's native context length and
+using its native FIM sentinel tokens. We then apply existing agentic
+post-training pipelines without modification:
+R2E-Gym~\citep{r2egym} or SWE-Smith~\citep{swesmith} for the
+Qwen2.5-Coder runs, and SWE-Lego~\citep{swelego} for Qwen3-8B. For
+Qwen3-8B we train SWE-Lego for $2$ epochs rather than the official $4$
+to prevent overfitting in our setup. Hyperparameters and token budgets
+are in Appendix~\ref{app:hp}.
+
+\textbf{Evaluation protocol.}
+All numbers are means over three independent evaluation seeds on the
+final checkpoint of each pipeline, with ``\%'' omitted in table cells
+and std bands in parentheses. \emph{Baseline} is base $+$ post-training;
+\emph{ours} is base $+$ FIM mid-training $+$ identical post-training.
+We do not evaluate mid-training-only checkpoints because FIM-only models
+have degraded instruction-following and cannot be compared fairly with
+instruction-tuned baselines---every reported gain therefore
+\emph{survives} subsequent post-training. The agent harness is fixed by
+the post-training pipeline: R2E-Gym uses an OpenHands fork~\citep{openhands,
+r2egym}, SWE-Smith uses SWE-agent~\citep{sweagent}, and the Qwen3-8B
+runs use OpenHands directly (SWE-Lego data exceeds the 32K context of
+the Qwen2.5-Coder models).
+
+\textbf{Models and baselines.}
+For Qwen2.5-Coder-Instruct at 7B/14B~\citep{qwencoder} we report
+(i) the instruction-tuned base, (ii) post-training with R2E-Gym
+reproduced under our setup, (iii) the official R2E-Gym numbers (in grey,
+where available), (iv) our recipe of FIM mid-training followed by
+R2E-Gym post-training, and at 7B additionally the analogous
+SWE-Smith~\citep{swesmith} variants. Qwen3-8B uses the
+SWE-Lego~\citep{swelego} pipeline; the cross-base-model comparison thus
+varies the post-training pipeline simultaneously, a confound we discuss
+in Section~\ref{sec:exp:main}.
+
+% =============================================================================
+% 4.2 Main Results
+% =============================================================================
+\vspace{-0.5ex}
+\subsection{Main Results on SWE Agent Benchmarks}
+\label{sec:exp:main}
+
+% \begin{table}[t]
+% \centering
+% \caption{Main results on coding agent benchmarks. All numbers are
+% percentages, means over three independent seeds with std bands;
+% \emph{Average} is the unweighted mean of Verified and Lite. Bolded rows
+% are our recipe; rows tagged \emph{officially reported} are quoted from
+% the corresponding original publications. SWE-Lego is post-trained for
+% $2$ epochs (vs.\ $4$ in the official release) to prevent overfitting.}
+% \label{tab:main}
+% \setlength{\tabcolsep}{6pt}
+% \begin{tabular}{lccc}
+% \toprule
+% Setting & SWE-Bench-Verified & SWE-Bench-Lite & Average \\
+% \midrule
+% \multicolumn{4}{l}{\textit{Qwen2.5-Coder-7B-Instruct}} \\
+% \quad --- (no agentic training)                       & 1.80\,($\pm$1.3)            & 1.00\,($\pm$1.0)            & 1.40 \\
+% \quad + R2E-Gym~\citep{r2egym} (reproduced)           & 15.00\,($\pm$1.5)          & 11.33\,($\pm$1.2)          & 13.17 \\
+% \quad + R2E-Gym (officially reported)                 & 19.00\,($\pm$1.0)          & 11.00\,($\pm$0.8)          & 15.00 \\
+% \quad \textbf{+ FIM-Midtrain + R2E-Gym}               & \textbf{17.80}\,($\pm$1.4) & \textbf{15.00}\,($\pm$1.1) & \textbf{16.40} \\
+% \rowcolor{blue!8}
+% \quad\quad $\Delta$ (ours vs.\ reproduced)            & $+2.80$                    & $+3.67$                    & $+3.24$ \\
+% \cmidrule(lr){1-4}
+% \quad + SWE-Smith~\citep{swesmith} (reproduced)       & 12.30\,($\pm$1.2)          & 14.20\,($\pm$1.4)          & 13.25 \\
+% \quad + SWE-Smith (officially reported)               & 15.20                       & 11.70                       & 13.45 \\
+% \quad \textbf{+ FIM-Midtrain + SWE-Smith}             & \textbf{17.60}\,($\pm$1.3) & \textbf{14.70}\,($\pm$1.0) & \textbf{16.15} \\
+% \rowcolor{blue!8}
+% \quad\quad $\Delta$ (ours vs.\ reproduced)            & $+5.30$                    & $+0.50$                    & $+2.90$ \\
+% \midrule
+% \multicolumn{4}{l}{\textit{Qwen2.5-Coder-14B-Instruct}} \\
+% \quad --- (no agentic training)                       & 4.0\,($\pm$1.6)            & 2.7\,($\pm$1.0)            & 3.35 \\
+% \quad + R2E-Gym (reproduced)                          & 26.20\,($\pm$1.4)          & 18.00\,($\pm$1.1)          & 22.10 \\
+% \quad + R2E-Gym (officially reported)                 & 26.80\,($\pm$1.4)          & 20.67\,($\pm$0.7)          & 23.74 \\
+% \quad \textbf{+ FIM-Midtrain + R2E-Gym}               & \textbf{29.20}\,($\pm$1.5) & \textbf{22.00}\,($\pm$1.2) & \textbf{25.60} \\
+% \rowcolor{blue!8}
+% \quad\quad $\Delta$ (ours vs.\ reproduced)            & $+3.00$                    & $+4.00$                    & $+3.50$ \\
+% \midrule
+% \multicolumn{4}{l}{\textit{Qwen3-8B}} \\
+% \quad --- (no agentic training)                       & 7.60\,($\pm$1.2)           & 5.80\,($\pm$0.9)           & 6.70 \\
+% \quad + SWE-Lego~\citep{swelego} (reproduced)         & 31.80\,($\pm$1.0)          & 27.30\,($\pm$1.1)          & 29.55 \\
+% \quad \textbf{+ FIM-Midtrain + SWE-Lego}              & \textbf{35.00}\,($\pm$1.5) & \textbf{32.70}\,($\pm$1.3) & \textbf{33.85} \\
+% \rowcolor{blue!8}
+% \quad\quad $\Delta$ (ours vs.\ reproduced)            & $+3.20$                    & $+5.40$                    & $+4.30$ \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\begin{table}[t]
+\centering
+\caption{Main results on coding agent benchmarks. All numbers are
+percentages, means over three independent seeds with std bands;
+\emph{Average} is the unweighted mean of Verified and Lite. Bolded rows
+are our recipe; rows tagged \emph{officially reported} are quoted from
+the corresponding original publications. SWE-Lego is post-trained for
+$2$ epochs (vs.\ $4$ in the official release) to prevent overfitting.}
+\label{tab:main}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lccc}
+\toprule
+Setting & SWE-Bench-Verified & SWE-Bench-Lite & Average \\
+\midrule
+\multicolumn{4}{l}{\textit{Qwen2.5-Coder-7B-Instruct}} \\
+\quad --- (no agentic training)                       & 1.80\,($\pm$1.30)            & 1.00\,($\pm$1.00)            & 1.40 \\
+\quad + R2E-Gym~\citep{r2egym} (reproduced)           & 15.00\,($\pm$1.50)           & 11.33\,($\pm$1.20)           & 13.17 \\
+\quad + R2E-Gym (officially reported)                 & 19.00\,($\pm$1.00)           & 11.00\,($\pm$0.80)           & 15.00 \\
+\quad \textbf{+ FIM-Midtrain + R2E-Gym}               & \textbf{17.80}\,($\pm$1.40)  & \textbf{15.00}\,($\pm$1.10)  & \textbf{16.40} \\
+\rowcolor{blue!8}
+\quad\quad $\Delta$ (ours vs.\ reproduced)            & $+2.80$                      & $+3.67$                      & $+3.24$ \\
+\cmidrule(lr){1-4}
+\quad + SWE-Smith~\citep{swesmith} (reproduced)       & 12.30\,($\pm$1.20)           & 14.20\,($\pm$1.40)           & 13.25 \\
+\quad + SWE-Smith (officially reported)               & 15.20                        & 11.70                        & 13.45 \\
+\quad \textbf{+ FIM-Midtrain + SWE-Smith}             & \textbf{17.60}\,($\pm$1.30)  & \textbf{14.70}\,($\pm$1.00)  & \textbf{16.15} \\
+\rowcolor{blue!8}
+\quad\quad $\Delta$ (ours vs.\ reproduced)            & $+5.30$                      & $+0.50$                      & $+2.90$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Qwen2.5-Coder-14B-Instruct}} \\
+\quad --- (no agentic training)                       & 4.00\,($\pm$1.60)            & 2.70\,($\pm$1.00)            & 3.35 \\
+\quad + R2E-Gym (reproduced)                          & 26.20\,($\pm$1.40)           & 18.00\,($\pm$1.10)           & 22.10 \\
+\quad + R2E-Gym (officially reported)                 & 26.80\,($\pm$1.40)           & 20.67\,($\pm$0.70)           & 23.74 \\
+\quad \textbf{+ FIM-Midtrain + R2E-Gym}               & \textbf{29.20}\,($\pm$1.50)  & \textbf{22.00}\,($\pm$1.20)  & \textbf{25.60} \\
+\rowcolor{blue!8}
+\quad\quad $\Delta$ (ours vs.\ reproduced)            & $+3.00$                      & $+4.00$                      & $+3.50$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Qwen3-8B}} \\
+\quad --- (no agentic training)                       & 7.60\,($\pm$1.20)            & 5.80\,($\pm$0.90)            & 6.70 \\
+\quad + SWE-Lego~\citep{swelego} (reproduced)         & 31.80\,($\pm$1.00)           & 27.30\,($\pm$1.10)           & 29.55 \\
+\quad \textbf{+ FIM-Midtrain + SWE-Lego}              & \textbf{35.00}\,($\pm$1.50)  & \textbf{32.70}\,($\pm$1.30)  & \textbf{33.85} \\
+\rowcolor{blue!8}
+\quad\quad $\Delta$ (ours vs.\ reproduced)            & $+3.20$                      & $+5.40$                      & $+4.30$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:main} summarizes in-domain agent results.
+
+\textbf{Consistent gains on the Qwen2.5-Coder-Instruct series.}
+Holding the post-training pipeline fixed at R2E-Gym, FIM mid-training
+improves SWE-Bench-Verified by $+2.80$ on 7B-Instruct and $+3.00$ on
+14B-Instruct, with matching directional gains on SWE-Bench-Lite
+($+3.67/+4.00$). Both Qwen2.5-Coder-Instruct sizes benefit from the same
+mid-training corpus and recipe, indicating that the structural prior is
+not absorbed by the larger pretrained checkpoint within this family.
+
+\textbf{Transfer across post-training pipelines.}
+Replacing R2E-Gym with SWE-Smith on the same 7B base yields $+5.30$
+points on Verified, larger than the $+2.80$ under R2E-Gym; on Lite the
+SWE-Smith pairing gains only $+0.50$, smaller than $+3.67$ for the
+R2E-Gym pairing. The two pipelines together indicate that mid-training
+is not tuned to a single post-training data distribution, though the
+magnitude of its benefit depends on the baseline pipeline it composes
+with.
+
+\textbf{Transfer to a non-Qwen2.5 base.}
+Switching to Qwen3-8B paired with SWE-Lego, mid-training improves
+Verified by $+3.20$ and Lite by $+5.40$, comparable to the Qwen2.5-Coder-Instruct
+gains. This single comparison varies the post-training pipeline jointly
+with the base model, so the
+result should be read as ``not specific to the Qwen2.5-Coder-Instruct $+$
+R2E-Gym/SWE-Smith pairing'' rather than as a guarantee across
+base-model families.
+
+% =============================================================================
+% 4.3 Capability preservation and cross-domain transfer
+% =============================================================================
+\vspace{-0.5ex}
+\subsection{Capability Preservation and Cross-Domain Transfer}
+\label{sec:exp:gen}
+
+A natural concern with task-specialized post-training is that it erodes
+capabilities the base model already had. We further evaluate the 14B model on six additional benchmarks to assess
+capability preservation. To save compute, we restrict this controlled
+comparison (instruct base vs.\ post-training only vs.\ mid-training $+$
+post-training) to R2E-Gym as the post-training dataset (Table~\ref{tab:cap}).
+
+% -----------------------------------------------------------------------------
+% Capability preservation table
+% -----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Capability preservation and cross-domain transfer at 14B with
+R2E-Gym. Bold marks the better trained variant per column (post-only
+vs.\ ours); the Instruct row is shown as a reference ceiling. All cells
+are percentages. ``Terminal'' denotes Terminal-Bench 2.0.}
+\label{tab:cap}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc|c}
+\toprule
+& \multicolumn{3}{c}{Non-agent coding}
+& \multicolumn{1}{c}{Agent OOD}
+& \multicolumn{2}{c}{Tool use}
+& \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-5} \cmidrule(lr){6-7}
+Setting
+& LiveCode & OJBench & FSB-EN
+& Terminal
+& $\tau$-bench & BFCL
+& Avg \\
+\midrule
+Instruct Model
+  & 37.20 & 5.20 & 53.80
+  & 0.00
+  & 5.70 & 23.20
+  & 20.85 \\
++ R2E-Gym
+  & 24.10 & 2.80 & 47.72
+  & 2.41
+  & 3.40 & 15.80
+  & 16.04 \\
+\textbf{+ FIM Mid-Train + R2E-Gym}
+  & \textbf{35.20} & \textbf{4.74} & \textbf{48.25}
+  & \textbf{3.66}
+  & \textbf{7.30} & \textbf{18.20}
+  & \textbf{19.56} \\
+\rowcolor{blue!8}
+$\Delta$ (vs.\ R2E-Gym only)
+  & $+11.10$ & $+1.94$ & $+0.53$
+  & $+1.25$
+  & $+3.90$ & $+2.40$
+  & $+3.52$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Agentic post-training has a substantial hidden capability cost.}
+R2E-Gym alone reduces every non-agent and tool-use benchmark relative to
+the Instruct ceiling: LiveCodeBench by $13.10$, BFCL by $7.40$,
+FullStackBench-EN by $6.08$, $\tau$-bench by $2.30$, and OJBench by
+$2.40$. Averaged across the six benchmarks the post-trained model loses
+$4.81$ points relative to Instruct---the implicit cost paid for
+SWE-Bench gains, rarely highlighted in agent papers.
+
+\textbf{Mid-training largely closes the regression gap.}
+Adding FIM mid-training before the same post-training restores
+LiveCodeBench by $+11.10$, OJBench by $+1.94$ (within $0.46$ of the
+Instruct ceiling), and FullStackBench-EN by $+0.53$. The six-benchmark
+average rises from $16.04$ to $19.56$ ($+3.52$ over post-training only),
+while the SWE-Bench-Verified gain on the same base is preserved
+(Table~\ref{tab:main}). Mid-training therefore improves the
+cost--benefit profile of agentic post-training: in-domain target
+metrics improve and the bulk of off-distribution erosion is undone in
+the same training run.
+
+\textbf{Cross-domain transfer to non-coding tool use.}
+$\tau$-bench and BFCL contain no Python code-editing data, and our
+mid-training corpus contains no tool-use trajectories. Mid-training
+nevertheless improves $\tau$-bench by $+3.90$ and BFCL by $+2.40$ over
+post-training alone, with a consistent recovery on
+Terminal-Bench 2.0 ($+1.25$). Because the corpus carries no tool-use signal, the only mechanism is a
+structural prior installed at mid-training that survives post-training, which is the direct evidence for the function-call/tool-call isomorphism(Section~\ref{sec:method:motivation}).
+
+
+\vspace{-0.5ex}
+\subsection{Ablation Studies}
+\label{sec:exp:ablation}
+
+We run three controlled ablations on Qwen2.5-Coder-7B-Instruct with
+R2E-Gym post-training and a shared mid-training-free baseline. The first
+isolates the role of the chain-of-thought rationale; the second isolates
+the role of the function-aware selection pipeline; the third varies
+mask granularity (single-function vs.\ multi-function groups). Due to
+compute constraints, ablations run at 7B only.
+
+% -----------------------------------------------------------------------------
+% Ablation table (unchanged)
+% -----------------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Ablations on the 7B model with R2E-Gym post-training.
+\textbf{(A)}~rationale source. \textbf{(B)}~function-selection
+algorithm. \textbf{(C)}~mask granularity (single vs.\ multi-function
+groups). All blocks share the baseline (\emph{w/o mid-train}) and a
+controlled $200$K-target budget; CoT is fixed to Gemini-3-Flash in
+(B) and (C). Bold marks the best configuration per block; the
+$80\%/15\%/5\%$ mixture in~(C) is the recipe used in our main results
+(Table~\ref{tab:main}), which is trained on the full corpus rather
+than the $200$K budget here. Absolute numbers across all blocks
+therefore lie below the main-table recipe; the relative orderings
+within each block, rather than the absolute values, are the object
+of comparison.}
+\label{tab:ablation}
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{lccc}
+\toprule
+Setting & SWE-Bench-Verified & SWE-Bench-Lite & Average \\
+\midrule
+\multicolumn{4}{l}{\emph{(A) Chain-of-thought source (selection fixed to ``full'')}} \\
+\midrule
+w/o mid-train (baseline)                  & 15.00 & 11.33 & 13.17 \\
++ FIM, no CoT                             & 16.10 & 12.60 & 14.35 \\
++ FIM, self-CoT (Qwen2.5-Coder-7B-Instruct) & 16.40 & 13.30 & 14.85 \\
+\textbf{+ FIM, Gemini-3-Flash CoT}        & \textbf{17.00} & \textbf{14.20} & \textbf{15.60} \\
+\midrule
+\multicolumn{4}{l}{\emph{(B) Function-selection algorithm (CoT fixed to Gemini-3-Flash)}} \\
+\midrule
+w/o mid-train (baseline)                    & 15.00 & 11.33 & 13.17 \\
+Random                                      & 15.30 & 12.60 & 13.95 \\
+Gemini-selected                             & 16.40 & 13.70 & 15.05 \\
+PDG only                                    & 16.10 & 13.60 & 14.85 \\
+PDG + complexity ($\hat{H}$)                & 16.50 & 13.60 & 15.05 \\
+PDG + inferability ($\hat{I}$)              & 16.70 & 14.00 & 15.35 \\
+\textbf{Full (PDG + $\hat{H}$ + $\hat{I}$)} & \textbf{17.00} & \textbf{14.20} & \textbf{15.60} \\
+\midrule
+\multicolumn{4}{l}{\emph{(C) Mask granularity (selection fixed to ``full'', CoT fixed to Gemini-3-Flash)}} \\
+\midrule
+w/o mid-train (baseline)             & 15.00 & 11.33 & 13.17 \\
+Single-function only                 & 17.00 & 14.20 & 15.60 \\
+85\% single + 15\% pair ($k=2$)       & 17.20 & 14.60 & 15.90 \\
+95\% single + 5\% triple ($k=3$)      & 17.00 & 14.40 & 15.70 \\
+\textbf{80\% single + 15\% pair + 5\% triple} & \textbf{17.40} & \textbf{14.80} & \textbf{16.10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% \textbf{FIM structure contributes independently of CoT distillation.}
+% Block~(A) addresses a natural concern that improvements stem mainly
+% from distilling reasoning from a frontier teacher. Removing the
+% rationale entirely (\emph{no CoT}) already lifts the average by
+% $+1.18$ ($+1.10$ on Verified)---roughly half of the $+2.43$-point
+% Gemini-3 gain---direct evidence that the function-aware FIM signal
+% does substantive work before any reasoning supervision is added.
+% The more informative comparison is then against the frontier
+% teacher. Replacing Gemini-3 with rationales generated by the model
+% under training (\emph{self-CoT}) reaches $14.85$, recovering $1.68$
+% of the $2.43$-point gap to \emph{Gemini-3 CoT}: the residual $0.75$
+% points attributable to a frontier teacher are real but modest. The
+% recipe is therefore not a thinly disguised distillation pipeline:
+% roughly half of the gain comes from the structural prior alone, and
+% most of the remaining headroom is recoverable with the model's own
+% rationales.
+
+
+% \textbf{Function-selection algorithm is the dominant lever.}
+% Block~(B) varies the selection algorithm with CoT and budget held
+% fixed. \emph{Random} masking sets a floor at $13.95$ ($+0.78$ over no
+% mid-training), and \emph{Gemini-selected} reaches $15.05$ ($+1.10$ over
+% Random), showing that frontier judgment on \emph{which} function to mask
+% helps but is not sufficient. Restricting candidates to functions with at
+% least one PDG neighbor (\emph{PDG only}) reaches $14.85$. Adding a
+% scoring function on top of the PDG pool yields the next layer:
+% \emph{PDG + $\hat{H}$} and \emph{PDG + $\hat{I}$} reach $15.05$ and
+% $15.35$ respectively, so intrinsic difficulty and contextual
+% recoverability each contribute beyond the structural filter; combining
+% them (\emph{Full}) reaches $15.60$ ($+0.25$ over the better
+% single-score variant), confirming that $\hat{H}$ and $\hat{I}$ are not
+% redundant.
+
+% \textbf{Mask granularity: pair masking helps, triples saturate.}
+% Block~(C) mixes single-function targets with multi-function groups
+% (Section~\ref{sec:method:groups}). Adding $15\%$ pair targets on top of
+% single functions raises the average from $15.60$ to $15.90$ ($+0.30$);
+% substituting $5\%$ triple targets instead is essentially neutral
+% ($15.70$). The full $80\%/15\%/5\%$ mix achieves $16.10$ ($+0.50$ over
+% single-only), with the largest gain on Lite ($+0.60$). The pattern is
+% consistent with the analysis in Section~\ref{sec:analysis:multifn}:
+% training on cross-function dependencies disproportionately helps tasks
+% whose gold patches span multiple functions, but the marginal return
+% from larger groups diminishes as coupling becomes harder to maintain in
+% the joint-masked context.
+
+
+\textbf{FIM structure contributes independently of CoT distillation.}
+Block~(A) addresses the concern that gains stem mainly from distilling
+a frontier teacher. Removing the rationale entirely (\emph{no CoT})
+already lifts the average by $+1.18$---roughly half of the $+2.43$-point
+Gemini-3 gain---direct evidence that the function-aware FIM signal does
+substantive work before any reasoning supervision is added. Replacing
+Gemini-3 with rationales from the model under training
+(\emph{self-CoT}) reaches $14.85$, recovering $1.68$ of the $2.43$-point
+gap; the residual $0.75$ points attributable to a frontier teacher are
+real but modest. The recipe is therefore not a thinly disguised
+distillation pipeline.
+
+\textbf{Function-selection algorithm is the dominant lever.}
+Block~(B) varies the selection algorithm with CoT and budget held
+fixed. \emph{Random} masking sets a floor at $13.95$, and
+\emph{Gemini-selected} reaches $15.05$: frontier judgment on
+\emph{which} function to mask helps but is not sufficient. Restricting
+candidates to functions with at least one PDG neighbor (\emph{PDG only})
+reaches $14.85$; adding $\hat{H}$ or $\hat{I}$ on top yields $15.05$ and
+$15.35$---intrinsic difficulty and contextual recoverability each
+contribute beyond the structural filter. Combining them (\emph{Full})
+reaches $15.60$, confirming that $\hat{H}$ and $\hat{I}$ are not
+redundant.
+
+\textbf{Mask granularity: pair masking helps, triples saturate.}
+Block~(C) mixes single-function targets with multi-function groups
+(Section~\ref{sec:method:groups}). Adding $15\%$ pair targets raises
+the average from $15.60$ to $15.90$; substituting $5\%$ triple targets
+instead is essentially neutral ($15.70$). The full $80\%/15\%/5\%$ mix
+achieves $16.10$. This matches the analysis in
+Section~\ref{sec:analysis:multifn}: training on cross-function
+dependencies disproportionately helps tasks whose gold patches span
+multiple functions, but the marginal return from larger groups
+diminishes as coupling becomes harder to maintain under joint masking.

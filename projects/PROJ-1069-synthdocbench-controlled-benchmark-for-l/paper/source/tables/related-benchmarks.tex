@@ -1,0 +1,48 @@
+\begin{figure}[t!]
+\begin{minipage}{\textwidth}
+  \centering
+  \includegraphics[width=0.55\textwidth]{images/benchmark_plot.png}
+\end{minipage}
+
+\vspace{14pt}
+
+\begin{minipage}{\textwidth}
+  \centering
+  \footnotesize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}lcccc@{}}
+  \toprule
+  \textbf{Benchmark} & \textbf{Scope} & \textbf{Avg.\ Context} & \textbf{\#Docs/Charts} & \textbf{\#Questions} \\
+  \midrule
+  \rowcolor{gray!15} \multicolumn{5}{c}{{Chart Benchmarks}} \\
+  \midrule
+  ChartQA \citep{masry2022chartqa}               & Isolated charts   & 1 chart       & 21,953    & 32,701 \\
+  ChartQAPro \citep{masry2025chartqapro}         & Isolated charts   & 1 chart       & 1,341     & 1,948  \\
+  ChartGalaxy \citep{li2025chartgalaxy}          & Isolated charts   & 1 chart       & 1,763,189 & ---    \\
+  VisuLogic \citep{zhang2025visulogic}           & Isolated images   & 1 image       & 1,000     & 1,000  \\
+  ChartMuseum \citep{xu2025chartmuseum}          & Isolated charts   & 1 chart       & 928       & 1,162  \\
+  MultiChartQA \citep{zhu2025multichartqa}       & Multi-chart       & 2--3 charts   & 655       & 944    \\
+  \midrule
+  \rowcolor{gray!15} \multicolumn{5}{c}{{Document VQA Benchmarks}} \\
+  \midrule
+  DocVQA \citep{mathew2021docvqa}                & Single-page docs  & 1 page        & 12,767    & 50,000 \\
+  MP-DocVQA \citep{tito2023hierarchical}         & Multi-page docs   & $\leq$20 pages & ---      & 46,000 \\
+  SlideVQA \citep{tanaka2023slidevqa}            & Multi-page docs   & $\sim$20 pages & 2,619    & 14,500 \\
+  MMLongBench-Doc \citep{ma2024mmlongbenchdoc}   & Multi-page docs   & 47.5 pages    & 135       & 1,082  \\
+  LongDocURL \citep{deng2025longdocurl}          & Multi-page docs   & $\sim$83 pages & 396      & 2,325  \\
+  M-LongDoc \citep{chia2024mlongdoc}             & Multi-page docs   & $>$200 pages  & ---       & 851    \\
+  MMLongBench \citep{wang2025mmlongbench}        & Multi-page docs   & 8K--128K tokens & 13,331  & ---    \\
+  \midrule
+  \includegraphics[width=0.8em]{images/icon2.png} \textbf{\textsc{SynthDocBench}} & \textbf{Multi-page docs} & \textbf{Avg.\ 51.1 pages} & \textbf{200 / 3,340} & \textbf{1,788} \\
+  \bottomrule
+  \end{tabular}
+  }
+  % \captionof{table}{Benchmarks in chart reasoning and long-context document understanding. ChartGalaxy and MMLongBench do not report \#Questions; MP-DocVQA and M-LongDoc do not report doc counts.}
+\end{minipage}
+\vspace{-6pt}
+\caption{\textbf{Landscape of benchmarks} 
+Top: benchmark comparison by average document length (pages) and average textual context (tokens). SynthDocBench occupies a unique region with both long multi-page context and high textual density.
+Bottom: comparison with existing chart and document VQA benchmarks. 
+Prior benchmarks typically isolate either charts or long documents, whereas \textbf{\textsc{SynthDocBench}} is designed to study their intersection under long contexts.}
+\label{fig:related_benchmarks}
+\end{figure}

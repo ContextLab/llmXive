@@ -1,0 +1,203 @@
+% ============================================================
+\section{Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+\begin{table}[!htbp]
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lcccccccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{L1}}
+ & \multicolumn{2}{c}{\textbf{L2}}
+ & \multicolumn{2}{c}{\textbf{L3}}
+ & \multicolumn{2}{c}{\textbf{L4}}
+ & \multicolumn{2}{c}{\textbf{L5}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+\textbf{Model} & ACC & Sc. & ACC & Sc. & ACC & Sc. & ACC & Sc. & ACC & Sc. \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{11}{c}{\textit{Proprietary Models}} \\
+\midrule
+Gemini-3.1-Pro    & \textbf{0.784} & \textbf{7.84} & \textbf{0.731} & \textbf{7.53} & \textbf{0.675} & \textbf{6.91} & \textbf{0.766} & \textbf{7.19} & \textbf{0.670} & \textbf{6.48} \\
+GPT-5.4           & 0.231 & 2.37 & 0.422 & 4.66 & 0.501 & 5.29 & 0.489 & 5.28 & 0.259 & 4.02 \\
+GPT-4o            & 0.271 & 2.68 & 0.455 & 4.78 & 0.451 & 4.83 & 0.400 & 4.64 & 0.173 & 3.54 \\
+Claude-Sonnet-4.5 & 0.382 & 3.81 & 0.300 & 3.96 & 0.312 & 3.99 & 0.360 & 4.28 & 0.154 & 3.18 \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{11}{c}{\textit{Open-Weight Models}} \\
+\midrule
+Qwen3.5-VL-122B   & 0.707 & 7.16 & 0.673 & 7.11 & 0.639 & 6.66 & 0.683 & 6.76 & 0.528 & 6.02 \\
+Qwen3-VL-235B     & 0.648 & 6.48 & 0.595 & 6.55 & 0.568 & 6.01 & 0.619 & 6.25 & 0.457 & 5.36 \\
+InternVL3-78B     & 0.437 & 4.42 & 0.382 & 4.35 & 0.390 & 4.48 & 0.427 & 4.63 & 0.198 & 3.62 \\
+Qwen2.5-VL-7B     & 0.015 & 0.17 & 0.123 & 1.48 & 0.155 & 1.88 & 0.033 & 0.71 & 0.005 & 0.26 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{%
+  Model performance stratified by difficulty level $L1$--$L5$.
+  \textbf{ACC} = fraction of questions with judge score $\ge 6$;
+  \textbf{Sc.} = mean judge score (0--10).
+  Best per column in \textbf{bold}.
+  Bootstrap 95\% CIs (2{,}000 resamples, seed 42) are ${\leq}\pm0.070$ per level for all models;
+  all adjacent-ranked model gaps exceed their combined CI half-widths.
+  Per-level CI details are in Table~\ref{tab:bootstrap_ci_diff}.
+}
+\label{tab:difficulty_results}
+\end{table}
+
+We analyse model performance across three dimensions: difficulty level, question category, and error type, surfacing failure modes hidden by aggregate scores.
+
+% ------------------------------------------------------------
+\paragraph{Difficulty-Stratified Results}
+\label{sec:difficulty_results}
+% ------------------------------------------------------------
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{images/fig_category_heatmap.pdf}
+  \caption{%
+    ACC ($\tau{=}6$) by fine-grained question category.
+    Rows are grouped by subset (Chart Reading, Cross-Modal, Complex Reasoning);
+    columns are models ordered by overall ACC.
+    The colour scale runs from red (0) to green (1).
+    Full numerical values are in Table~\ref{tab:category_result_breakdown}
+    (Appendix~\ref{app:category_table}).
+  }
+  \label{fig:category_heatmap}
+\end{figure}
+
+
+Table~\ref{tab:difficulty_results} shows ACC by level $L1$--$L5$. All models except Gemini-3.1-Pro degrade monotonically toward $L5$; Claude-Sonnet-4.5 drops 23 pp ($L1{\to}L5$) while Gemini stays flat (0.670--0.784). Qwen3.5-VL-122B follows a similar flat-then-drop pattern (0.707 at $L1$, 0.528 at $L5$), tracking closely with Gemini across all levels. GPT-4o's anomalous $L1$ dip (0.271) suggests precise value-extraction is harder for it than compositional reasoning.
+
+% ------------------------------------------------------------
+\paragraph{Question-Category Breakdown}
+\label{sec:category_results}
+% ------------------------------------------------------------
+
+Figure~\ref{fig:category_heatmap} breaks down ACC by fine-grained category. Trend/pattern questions are easiest (perceptually salient direction cues), while value-reading and \emph{integrate-sources} cross-modal questions are hardest --- precise axis-label reading and multi-page evidence alignment each bottleneck distinct model families. The widest cross-model gap is in \emph{technical/quantitative} complex questions (Gemini: 0.643 vs.\ GPT-4o: 0.111, InternVL3: 0.156), isolating quantitative multi-step reasoning as the primary frontier differentiator.
+
+% ------------------------------------------------------------
+\paragraph{Positional Bias: Evidence Location Within Documents}
+\label{sec:positional_bias}
+% ------------------------------------------------------------
+
+
+\begin{table}
+  \centering
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+  \toprule
+  \textbf{Model} & \textbf{Early} & \textbf{Middle} & \textbf{Late} & \textbf{$\Delta$} \\
+  \midrule
+  \rowcolor{gray!15} \multicolumn{5}{c}{\textit{Proprietary}} \\
+  \midrule
+  Gemini-3.1-Pro    & \textbf{0.788} & \textbf{0.717} & \textbf{0.784} & $-$0.004 \\
+  GPT-5.4           & 0.440          & 0.419          & 0.468          & $+$0.028 \\
+  GPT-4o            & 0.489          & 0.443          & 0.443          & $-$0.046 \\
+  Claude-Sonnet-4.5 & 0.418          & 0.342          & 0.301          & $-$0.117 \\
+  \midrule
+  \rowcolor{gray!15} \multicolumn{5}{c}{\textit{Open-Weight}} \\
+  \midrule
+  Qwen3.5-VL-122B   & 0.820          & 0.635          & 0.660          & $-$0.160 \\
+  Qwen3-VL-235B     & 0.674          & 0.578          & 0.693          & $+$0.019 \\
+  InternVL3-78B     & 0.451          & 0.460          & 0.455          & $+$0.003 \\
+  Qwen2.5-VL-7B     & 0.174          & 0.135          & 0.188          & $+$0.014 \\
+  \midrule
+  $n$               & 184            & 237            & 176            & --- \\
+  \bottomrule
+  \end{tabular}
+  \caption{Chart-reading ACC ($\tau{=}6$) by position bucket.
+    $\Delta$ = Late$-$Early; negative = early-content advantage.
+    See Figure~\ref{fig:positional_bias} (Appendix~\ref{app:positional_bias}) for the bar chart.}
+  \label{tab:positional_bias}
+\end{table}
+
+Questions are bucketed by relative chart position $p{=}k/K$ into equal thirds (Table~\ref{tab:positional_bias}; see Appendix~\ref{app:positional_bias} for the bar chart). The \textbf{middle third is hardest for 5 of 8 models}, dropping 5--18 pp below Early. Qwen3.5-VL-122B shows the steepest Early$\to$Middle drop ($-$18.5 pp) while partially recovering in Late; Claude-Sonnet-4.5 shows the steepest monotonic Early$\to$Late decline ($-$11.7 pp); Gemini-3.1-Pro shows a U-shaped pattern echoing the lost-in-the-middle effect~\citep{liu2023lostmiddlelanguagemodels}.
+
+% ============================================================
+\paragraph{Hard Failure and Domain Error Analysis}
+\label{sec:error_analysis}
+% ============================================================
+Of 109 questions where all eight models score $\leq 3$ (Figure~\ref{fig:error_analysis}; Appendix~\ref{app:error_categories}), cross-modal failures dominate, confirming multi-modal evidence integration as the hardest challenge. 
+
+Domain analysis (Figure~\ref{fig:domain_analysis}, Appendix~\ref{app:domain_analysis}) shows cross-modal ACC lags chart reading by 13-16 pp in every topic domain.
+
+\paragraph{Visual hallucination dominates errors.}
+Models return plausible-looking values absent from the ground-truth chart, concentrated on dense value-reading charts, dumbbell plots, and multi-series comparisons, localising the bottleneck to pixel-level decoding, not reasoning. Figure-not-found and precision errors account for the remainder; both point to precise quantitative visual-textual alignment as a second bottleneck that prompting alone does not close (Appendix~\ref{app:prompts}).
+
+% ------------------------------------------------------------
+\paragraph{Effect of Image Presentation: Pages per Strip and Resolution}
+\label{sec:ablation_rendering}
+% ------------------------------------------------------------
+
+All ablations use \textbf{GPT-5} as judge on the full benchmark (Table \ref{tab:ablation_combined}; full details in Appendix~\ref{app:ablation_details}). Gemini-3.1-Pro ACC increases monotonically from 0.369 (1 page/strip) to 0.792 (10 pages), with cross-modal benefiting most (0.339$\to$0.707), confirming multi-page context is essential. 144\,DPI is optimal; higher resolution degrades performance due to JPEG compression under the 4\,MB API cap. GPT-4o and Claude-Sonnet-4.5 show model-specific optima at 2 and 5 pages respectively, indicating model-specific optimal context density.
+
+\paragraph{Gemini-3.1-Pro dominance and potential confounds.}
+The 13.9 pp gap between Gemini (0.725) and Qwen3-VL-235B (0.586) warrants caution: SynthDocBench uses web-rendered (HTML/D3.js) charts, which may be stylistically consistent with Gemini's training distribution. We cannot rule out rendering-familiarity as a partial confounder; future work should validate with alternative rendering backends to isolate long-context reasoning effects.
+
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{%
+  Rendering and prompting ablations on the full 200-report benchmark (judge: GPT-5).
+}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Overall}}
+ & \multicolumn{2}{c}{\textbf{Chart}}
+ & \multicolumn{2}{c}{\textbf{Complex}}
+ & \multicolumn{2}{c}{\textbf{Cross-Modal}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\textbf{Setting} & ACC & Score & ACC & Score & ACC & Score & ACC & Score \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(a) Pages per strip (concat-num) --- Gemini-3.1-Pro, DPI fixed at 144}} \\
+\midrule
+1 (single page) & 0.369 & 4.04 & 0.451 & 4.65 & 0.318 & 3.48 & 0.339 & 3.99 \\
+2 & 0.474 & 5.12 & 0.509 & 5.27 & 0.531 & 5.60 & 0.381 & 4.50 \\
+5 (default) & 0.725 & 7.19 & 0.759 & 7.62 & 0.789 & 7.28 & 0.628 & 6.65 \\
+10 & \textbf{0.792} & \textbf{7.80} & \textbf{0.838} & \textbf{8.32} & \textbf{0.831} & \textbf{7.70} & \textbf{0.707} & \textbf{7.37} \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(b) Rasterization resolution (DPI) --- Gemini-3.1-Pro, concat-num fixed at 5}} \\
+\midrule
+72\,DPI & 0.686 & 6.97 & 0.753 & 7.50 & 0.732 & 7.14 & 0.572 & 6.25 \\
+144\,DPI (default) & \textbf{0.725} & \textbf{7.19} & \textbf{0.759} & \textbf{7.62} & \textbf{0.789} & \textbf{7.28} & \textbf{0.628} & \textbf{6.65} \\
+216\,DPI & 0.683 & 6.92 & 0.729 & 7.36 & 0.747 & 7.18 & 0.570 & 6.23 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(c) Prompting strategy --- Gemini-3.1-Pro}} \\
+\midrule
+Default & \textbf{0.725} & 7.19 & \textbf{0.759} & \textbf{7.62} & 0.789 & 7.28 & \textbf{0.628} & \textbf{6.65} \\
+Chain-of-thought & 0.702 & 7.15 & 0.731 & 7.32 & 0.783 & 7.63 & 0.591 & 6.50 \\
+No system prompt & 0.723 & \textbf{7.25} & 0.756 & 7.52 & \textbf{0.820} & \textbf{7.71} & 0.592 & 6.53 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(d) Prompting strategy --- GPT-4o}} \\
+\midrule
+Default & 0.386 & 4.38 & 0.457 & 4.44 & 0.360 & 4.66 & \textbf{0.342} & 4.05 \\
+Chain-of-thought & 0.396 & 4.61 & 0.458 & 4.49 & 0.393 & 4.91 & 0.336 & \textbf{4.41} \\
+No system prompt & \textbf{0.420} & \textbf{4.72} & \textbf{0.506} & \textbf{4.63} & \textbf{0.419} & \textbf{5.22} & 0.335 & 4.31 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(e) Prompting strategy --- Claude-Sonnet-4.5}} \\
+\midrule
+Default & 0.314 & 3.96 & 0.353 & 4.11 & 0.337 & 4.28 & 0.250 & 3.49 \\
+Chain-of-thought & 0.369 & 4.44 & \textbf{0.403} & \textbf{4.36} & 0.363 & 4.49 & 0.340 & 4.47 \\
+No system prompt & \textbf{0.422} & \textbf{4.90} & 0.392 & 4.31 & \textbf{0.515} & \textbf{5.73} & \textbf{0.357} & \textbf{4.64} \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(f) Pages per strip --- GPT-4o (DPI fixed at 144)}} \\
+\midrule
+1 (single page) & 0.374 & 4.17 & 0.450 & 4.26 & 0.337 & 4.14 & 0.337 & 4.10 \\
+2 & \textbf{0.396} & \textbf{4.39} & \textbf{0.470} & 4.41 & \textbf{0.381} & 4.63 & 0.337 & \textbf{4.13} \\
+5 (default) & 0.386 & 4.38 & 0.457 & \textbf{4.44} & 0.360 & \textbf{4.66} & \textbf{0.342} & 4.05 \\
+10 & 0.354 & 4.21 & 0.438 & 4.35 & 0.332 & 4.51 & 0.292 & 3.75 \\
+\midrule
+\rowcolor{gray!15} \multicolumn{9}{c}{\textit{(g) Pages per strip --- Claude-Sonnet-4.5 (DPI fixed at 144)}} \\
+\midrule
+1 (single page) & 0.258 & 3.15 & 0.303 & 3.51 & 0.236 & 2.78 & 0.235 & 3.15 \\
+2 & 0.288 & 3.41 & \textbf{0.361} & 3.92 & 0.276 & 3.21 & 0.227 & 3.11 \\
+5 (default) & \textbf{0.314} & \textbf{3.96} & 0.353 & \textbf{4.11} & \textbf{0.337} & \textbf{4.28} & \textbf{0.250} & \textbf{3.49} \\
+10 & 0.312 & 3.70 & 0.378 & 4.01 & 0.314 & 4.06 & 0.244 & 3.03 \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:ablation_combined}
+\end{table}

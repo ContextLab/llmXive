@@ -1,0 +1,242 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Experimental Setup}
+\label{sec:implementation}
+We use AWM as the default reinforcement learning algorithm, following the
+optimizer ablation in~\autoref{sec:ablation_algo}, where AWM achieves the
+best overall performance among the tested RL algorithms.
+Our policy model is BAGEL~\cite{bagel}, a native AR-Diffusion unified multimodal model pretrained for both image understanding and image generation.
+Unless otherwise specified, \method uses Qwen3-VL-30B-A3B~\cite{qwen3vl} as the
+reward MLLM backbone, while Self-\method uses BAGEL's own understanding
+branch for reward computation.
+
+\noindent \textbf{Training settings.} 
+We use $T=16$ sampling steps during training and stochastically sample 6 steps from the first 10 denoising steps for training. 
+Each training step uses $32$ prompts, and the group size is $G=16$. The
+training image resolution is $512 \times 512$. We use a classifier-free
+guidance scale of $4$ and a timestep shift of $3$. The learning rate is 1e-4.
+We trained on 32 A100 GPUs with batch size of 2 and gradient accumulation of 8.
+The total training steps are 380.  Other hyperparameters
+follow the official AWM implementation. We train on AlphaGRPO20k~\citep{alphagrpo}.
+
+\subsection{Main Results}
+\label{sec:main_results}
+We use our \method as the proxy reward during training and evaluate the real improvement of generation performance on five out-of-distribution benchmarks.
+All downstream benchmarks use different evaluation protocols and out-of-distribution test sets: 
+GenEval~\cite{geneval}, TIIF-Bench~\cite{tiif}, DPG-Bench~\cite{dpg}, Geneval2~\cite{kamath2025geneval}, and WISE~\cite{wise}.
+We compare against the state-of-the-art generation-only models, 
+including SD3 Medium~\cite{sd3} and FLUX.1 dev~\cite{flux}, and {unified multimodal models} such as 
+Show-o~\cite{showo}, JanusPro~\cite{januspro}, and our baseline BAGEL~\cite{bagel}. 
+We compare with AlphaGRPO~\cite{alphagrpo}, which also applies the RL training on Bagel with the proposed MLLM-derived DVReward.
+
+
+% \textbf{Comparison with State-of-the-Art.}~
+\autoref{tab:main_result} compares \method and
+Self-\method with representative text-to-image generators and prior
+MLLM-derived reward training methods. Overall, both \method and
+Self-\method achieve comparable
+performance and consistently improve over the BAGEL baseline and AlphaGRPO
+across all evaluated benchmarks. 
+Specifically, at 512 resolution, \method improves BAGEL on TIIF-Bench overall
+short/long prompts by +10.0/+6.2, while
+Self-\method achieves a comparable 85.1/84.3 and further brings a 5.5 gain on GenEval. 
+Compared with AlphaGRPO, \method improves
+TIIF-Bench by +6.3/+5.3 on short/long prompts and +3.3 on GenEval, while
+Self-\method improves them by +6.2/+4.8 and +4.5, respectively.
+
+Consistent with AlphaGRPO~\cite{alphagrpo}, although training is performed at 512 resolution, 
+the improvements also transfer to 1024-resolution inference. 
+Specifically, Self-\method reaches 89.8 on GenEval and 34.3 on GenEval2, outperforming both BAGEL and
+AlphaGRPO. More importantly, Self-\method achieves 0.76 on the knowledge-grounded benchmark, WISE.
+These results suggest that \method provides a more effective supervision signal than
+decompositional verification for text-to-image RL.
+
+\input{tables/main_result.tex}
+
+\subsection{Effect of reward MLLM backbone}
+\label{sec:reward_backbone}
+We next study the effect of different reward MLLM backbones in \method, covering different families and scales.~\autoref{tab:reward_mllm} reports the experimental results.
+
+\noindent \textbf{Consistent improvement of \method across diffusion models and reward MLLM families.}
+On both SD3.5-M~\cite{sd3} and BAGEL, applying \method improves the baseline, 
+highlighting the architecture-agnostic nature of the caption-likelihood reward. 
+On BAGEL, different reward MLLMs from different families, including Gemma3~\cite{gemma3}, InternVL3.5~\cite{wang2025internvl3}, and Qwen3-VL~\cite{qwen3vl}, 
+all bring improvements over the baseline on TIIF-Bench. 
+This indicates that \method can extract useful reward signals from diverse MLLM backbones.
+\begin{table}[t]
+    \scriptsize
+    \centering
+    \tablestyle{4pt}{1.2}
+    \caption{ \textbf{Effect of different reward MLLM backbones.}
+    Unless otherwise specified, reward MLLMs all use Instruct models.
+    \textbf{Bold} indicates the best performance. The second best is \underline{underlined}.}
+    \label{tab:reward_mllm}
+    \begin{tabular}{llccc}
+    \toprule[1.5pt]
+    \textbf{Base Model} & \textbf{Reward MLLM} & \textbf{GenEval$\uparrow$} & \textbf{TIIF-Short$\uparrow$} & \textbf{TIIF-Long$\uparrow$} \\
+    \midrule
+    SD3.5-M & -                       & 79.8 & 74.0 & 73.2\\
+    SD3.5-M & Qwen3-VL-8B             & 85.7 & 84.4 & 84.6 \\
+    \midrule
+    BAGEL & -                       & 84.0 & 75.2 & 78.6 \\
+    BAGEL & Gemma3-4B      & 83.6 & 83.1 & 83.0 \\
+    BAGEL & Gemma3-12B-Pretrain     & \underline{88.7} & 84.3 & 82.6 \\
+    BAGEL & Gemma3-12B     & 87.5 & 82.0 & 82.6 \\
+    BAGEL & InternVL3.5-8B          & 84.5 & 80.4 & 80.0 \\
+    BAGEL & InternVL3.5-14B         & 84.9 & 78.5 & 79.9 \\
+    BAGEL & Qwen3-VL-8B             & 87.8 & 85.0 & 83.8 \\
+    \rowcolor{gray!10}
+    BAGEL & Qwen3-VL-30B-A3B        & 88.3 & \textbf{85.2} & \textbf{84.8} \\
+    BAGEL & Qwen3-VL-235B-A22B      & 86.8 & 84.3 & 83.4 \\
+    \rowcolor{gray!10}
+    BAGEL & BAGEL                   & \textbf{89.5} & \underline{85.1} & \underline{84.3} \\
+    \bottomrule[1.5pt]
+    \end{tabular}
+    \vspace{-4mm}
+\end{table}
+
+\begin{table}[t]
+    \scriptsize
+    \centering
+    \tablestyle{4pt}{1.2}
+    \caption{\textbf{Comparison of different RL algorithms and reward models.}
+    When trained with Self-\method, AWM achieves the best downstream performance.
+    Self-\method further outperforms prior reward models under comparable RL training.
+    \textbf{Bold} indicates the best performance. }
+    % \vspace{1mm }
+    \label{tab:rl_algo}
+    \begin{tabular}{lcccc}
+    \toprule[1.5pt]
+    \textbf{RL Algorithm} & \textbf{Reward Model} & \textbf{GenEval$\uparrow$} & \textbf{TIIF-Short$\uparrow$} & \textbf{TIIF-Long$\uparrow$} \\
+    \midrule
+    -         & - & 84.0 & 75.2 & 78.6 \\
+    AlphaGRPO & HPSv3          & 83.4  & 78.5 & 77.1 \\
+    AlphaGRPO & UnifiedReward  & 83.7 & 79.2 & 77.3  \\
+    AlphaGRPO & VIEScore       & 81.7 & 79.1 & 77.9  \\
+    AlphaGRPO & DVReward       & 85.0 & 78.9 & 79.5 \\
+    AWM       & DVReward       & 88.0 & 83.3 & 83.7 \\
+    \midrule
+    FlowGRPO     & Self-\method & 85.3 & 82.1 & 79.8 \\
+    DiffusionNFT & Self-\method & 89.1 & 84.8 & 83.5 \\
+    \rowcolor{gray!10}
+    AWM          & Self-\method & \textbf{89.5} & \textbf{85.1} & \textbf{84.3} \\
+    \bottomrule[1.5pt]
+    \end{tabular}
+    \vspace{-10pt}
+\end{table}
+
+\noindent \textbf{Self-\method shows that reward-policy alignment can rival external scale.}
+Using BAGEL's own understanding branch as the reward MLLM, Self-\method
+achieves the best result among similar-scale reward models, matches the
+strongest 30B-class external reward, and outperforms 30x larger MLLMs, i.e., Qwen3-VL-235B-A22B~\cite{qwen3vl}.
+This suggests that reward quality is not determined by scale alone.
+We attribute the success of Self-\method to its
+distributional alignment with the policy: Self-\method shares the
+tokenizer, vision encoder, and pretraining distribution with the
+generator, so the way it reads generated images is naturally matched to
+the distribution from which the policy samples them.
+
+\noindent \textbf{Reward MLLM scale helps, but is not monotonic.}
+Within Qwen3-VL, scaling from 8B to 30B improves all reported metrics, 
+but further scaling to 235B leads to a clear drop. 
+Within the Gemma3 family, scaling from 4B to 12B improves GenEval, but does not consistently improve TIIF-Bench. 
+We hypothesize that larger MLLMs may devote more capacity to 
+advanced vision-language reasoning and instruction-following tasks, 
+while the more fundamental image-conditioned captioning ability needed by \method may already saturate at a moderate scale. 
+These results suggest that a 30B MLLM is sufficient to unlock most of the benefit of \method.
+
+\noindent \textbf{Pretraining-stage MLLMs can be better reward backbones for \method.}
+Gemma3-12B-Pretrain consistently outperforms Gemma3-12B-Instruct across three evaluated benchmarks.
+We hypothesize that pretraining learns large-scale image-captioning and image-text alignment objectives that closely match
+our reward function, while instruction tuning emphasizes advanced visual tasks and multi-task instruction following
+that are less directly needed by \method. 
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+\noindent \textbf{The effect of RL algorithm.}
+\label{sec:ablation_algo}
+We compare three image generation reinforcement learning methods in the Self-\method setting:
+FlowGRPO~\citep{flowgrpo}, AWM~\citep{awm}, and DiffusionNFT~\citep{diffusionnft}.~\autoref{tab:rl_algo} shows that AWM achieves the best overall downstream performance, outperforming the SDE-based FlowGRPO and DiffusionNFT.
+We therefore apply AWM in the main experiments.
+
+\noindent \textbf{Discussion of Reward function.}
+\label{sec:ablation_reward_form}
+We compare \method with two alternative MLLM-based reward functions for measuring image-text alignment.
+As illustrated in~\autoref{fig:qualitative}, the first is scalar scoring,
+which directly asks the MLLM to rate image-text alignment with a $1$--$5$ score. 
+The second is VQA-Score, which asks a yes/no question such as ``Does this figure show \texttt{\{text\}}?'' and uses the
+probability of the ``yes'' token as the reward.~\autoref{tab:reward_form} shows that the reward function has a large impact on RL performance.
+Scalar scoring substantially degrades all benchmarks, including a $6.3$ drop on GenEval compared with the baseline, 
+while VQA-Score brings minor gains on TIIF-Bench but fails to improve GenEval.
+In contrast, the image-conditioned prompt likelihood used by \method
+achieves the best performance across all metrics, showing that
+likelihood-based reward is a more effective way to leverage MLLMs for
+image-generation RL.
+
+\noindent \textbf{Sequence-level vs.\ token-level advantage.}
+\label{sec:ablation_token}
+We compare the default sequence-level advantage with token-level advantage. 
+The former first averages token log-likelihoods into one sequence-level reward and then computes group-relative advantages, 
+while the latter treats each token position as an individual reward signal,
+computes token-wise group advantages, and averages them as the sequence advantage. 
+We test three normalization scopes for token-level std: global std, group std of all text tokens in the group, and per-token std.
+Although token-level advantage can emphasize visually grounded tokens with larger rollout differences,~\autoref{tab:token_adv} shows no obvious improvement over sequence-level advantage. 
+We use sequence-level reward by default for more stable training.
+
+\begin{table*}[t]
+    \scriptsize
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \captionof{table}{\textbf{Ablation of Reward function.}
+        Scalar Scoring asks the MLLM to rate the image from 1 to 5.
+        VQA-Score asks ``Does this figure show \texttt{\{caption\}}?'' and
+        uses $P(\text{yes})$ as the reward.}
+        \label{tab:reward_form}
+        \resizebox{\linewidth}{!}{%
+        \begin{tabular}{lccc}
+        \toprule[1.5pt]
+        \textbf{Reward function} & \textbf{ GenEval$\uparrow$} & \textbf{TIIF-S$\uparrow$} & \textbf{TIIF-L$\uparrow$} \\
+        \midrule
+        - & 84.0 & 75.2 & 78.6 \\
+        Scalar Scoring (1-5) & 77.7 & 67.5 & 76.0 \\
+        VQA-Score ($P(\text{yes})$) & 83.1 & 77.4 & 78.9 \\
+        \rowcolor{gray!10}
+        Prompt Likelihood & \textbf{89.5} & \textbf{85.1} & \textbf{84.3} \\
+        \bottomrule[1.5pt]
+        \end{tabular}%
+        }
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.47\textwidth}
+        \centering
+        \captionof{table}{\textbf{Ablation of Reward granularity.}
+        Token-level reward does not consistently outperform sequence-level
+        reward, so we use sequence-level reward by default.}
+        \label{tab:token_adv}
+        \resizebox{\linewidth}{!}{%
+        \begin{tabular}{lccc}
+        \toprule[1.5pt]
+        \textbf{Method} & \textbf{GenEval$\uparrow$} & \textbf{TIIF-S$\uparrow$} & \textbf{TIIF-L$\uparrow$} \\
+        \midrule
+        \rowcolor{gray!10}
+        Sequence-level Adv. & \textbf{89.5} & \textbf{85.1} & 84.3 \\
+        Token-level Adv. & 88.4 & 84.9 & \textbf{85.1} \\
+        \quad + Group std & 88.5 & 84.0 & 84.8 \\
+        \quad + Per-token std & 88.8 & 84.1 & 82.1 \\
+        \bottomrule[1.5pt]
+        \end{tabular}%
+        }
+    \end{minipage}
+    \vspace{-3mm}
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/visualization_compare.pdf}
+  \caption{\textbf{Qualitative comparison.}}
+  \label{fig:qualitative}
+  \vspace{-10pt}
+\end{figure*}

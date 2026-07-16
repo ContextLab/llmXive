@@ -1,0 +1,104 @@
+\begin{table}[t]
+\centering
+\caption{We propose a taxonomy of capability dimensions, including object-centric, abstract reasoning, and language and knowledge, with detailed sub-task categories. For each question, we primarily identify its dominant task type for analysis; but still 15 questions have more than one requirement.}
+\label{tab:dataset_category}
+\setlength{\tabcolsep}{3pt}
+\begin{adjustbox}{max width=\textwidth}
+\newcolumntype{P}[1]{>{\normalfont\arraybackslash}p{#1}}
+\begin{tabular}{lll P{0.43\textwidth}P{0.43\textwidth}}
+\toprule
+\bf Task Type & \bf Sub-Task type &  \bf ID & \normalfont{\textbf{Description}} &\textbf{ \normalfont{\textbf{Example}}} \\
+\midrule
+
+
+\multirow{5}{*}{\textbf{Object-centric}}
+  & Attribute and pattern recognition & 1-1 & Perceive and ground objects/attributes/relations in visual inputs or required outputs (e.g., detection, attribute recognition). &
+  \begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Given a picture, how many red and blue balls are in the picture?
+  \end{itemize} \end{minipage}  \\ \addlinespace[8pt]
+  & Spatial reasoning & 1-2 & The ability to perceive, represent, and manipulate spatial relations among objects. Also includes spatial transformations such as mirroring and flipping to an image or generated object. & \begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item  Generate an image of a fully furnished living room. No furniture can touch the carpet. 
+      \item Mirror the input image.
+  \end{itemize}\end{minipage}
+ \\ \addlinespace[8pt]
+  & Generative counting & 1-3 & Enforce discrete quantity constraints during generation (e.g., generate exactly $k$ objects/parts). & \begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Make a figure that repeats a circle, a triangle, and a square 4 times. 
+  \end{itemize}\end{minipage}
+ \\ \addlinespace[6pt]
+  & Perceptual counting & 1-4 & Perceptual counting is for counting visible objects in an image, like trees, chess pieces, dice, clouds. & \begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Given a picture, how many chess pieces are in the picture?
+  \end{itemize}\end{minipage}
+  \\ \addlinespace[8pt]
+  % & Visual transformation & 21 & Apply explicit transformations to an image or generated object (e.g., mirroring, color inversion, highlighting). & Mirror the input image.\\
+  % & Compositional generalization & 34 & Requires novel recombinations of familiar concepts (e.g., unusual attribute/object combinations). & Generate an image of a dog with 5 legs \\
+  & Attribute binding & 1-5 & Correctly associate object attributes such as color, shape, size, or identity with the corresponding objects, avoiding swaps or mismatches between objects and their properties. & \begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Generate an image with the writing "Google" where the two "g"s are red, "o"s are blue and green, "l" is red and "e" is yellow.
+  \end{itemize} \end{minipage}
+  \\ \addlinespace[8pt]
+\midrule
+
+\multirow{7}{*}{\textbf{Abstract reasoning}}
+  & Logical reasoning & 2-1 &Task that requires multiple sequential steps of inference where the solution is derived through a directed chain of implications or valid state-changes.& 
+ \begin{minipage}[t]{\linewidth} \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item If every square were a circle, and every circle were a triangle, what shape would a square be?
+      \item Your task is to deduce the two steps of a security protocol and their correct order of application from the log file entries below. Then, use the protocol to find the correct output for the final two inputs. Log File Entries: \text{GOLD} $\rightarrow$ \text{KSPH}, 
+\text{GLASS} $\rightarrow$ \text{XXFQL}, 
+\text{STEEL} $\rightarrow$ \text{QJJYX}, 
+\text{PASTA} $\rightarrow$ \text{FYXFU}, 
+\text{IMAGE} $\rightarrow$ \text{NRFLJ}. 
+
+Find the outputs for: 
+\text{QUARTZ} $\rightarrow$ ?, 
+\text{SILVER} $\rightarrow$ ?.
+  \end{itemize} \end{minipage}
+ \\ \addlinespace[8pt]
+  & Arithmetic reasoning & 2-2 & Task that requires numerical operations, quantitative inference, working with arithmetic expression and reasoning under uncertainty using probabilistic rules.  &  \begin{minipage}[t]{\linewidth}\begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Find me three integers a, b, and c such that $\exp(9\log(a)) - \exp(18\log(c)/2) + (b^3)^3 = 0.$ Can you solve this with a, b and c being all non-zero?
+      \item Give a smallest non-negative number which can be written as sum of cubes of two different pairs where each pair has different integers
+      \item I draw a white marble from a bag with two marbles. What is the probability the other marble is also white?
+  \end{itemize} \end{minipage}
+\\ \addlinespace[8pt]
+  & Geometric and graph reasoning & 2-3 & Tasks that require reasoning about geometric properties, spatial grid navigation, or graph structures, such as shape properties, distances, connectivity, and board-state positioning. &  \begin{minipage}[t]{\linewidth}\begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Please draw a diagonal in a triangle.
+      \item Given a directed weighted graph, what is the shortest path from A to B? 
+  \end{itemize} \end{minipage}
+  \\ \addlinespace[8pt]
+   
+  & Constraint reasoning & 2-4 & Tasks that require satisfying multiple hard constraints within a complex search space; often equivalent to constraint satisfaction, feasibility checking, finding optimal tactical sequences where most possible paths are invalidated by the rules. &\begin{minipage}[t]{\linewidth}
+  \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Solve the attached sudoku please.
+  \end{itemize} \end{minipage}\\ \addlinespace[8pt]
+\midrule
+
+\multirow{3}{*}{\textbf{Language and knowledge}}
+  & Irrelevant-context robustness & 3-1 &  Tasks where irrelevant or misleading context interferes with correct reasoning. & \begin{minipage}[t]{\linewidth}\begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Imagine you are in a dark room. In a drawer there are 10 red socks, 10 white socks, and 10 green socks. The light comes on. How many socks do you need to take out to be sure you have at least one pair of the same color?
+  \end{itemize} \end{minipage}\\ \addlinespace[8pt]
+
+  & Character-level manipulation
+  & 3-2 & Represent, process, and manipulate text at the atomic granularity of character as opposed to higher-level tokens.
+
+  % Exact symbolic counting or repetition requirements over characters or substrings in text outputs.  Or Hard surface-form constraints on characters (e.g., forbidden letters, required suffixes/prefixes).   
+  &\begin{minipage}[t]{\linewidth} \begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item Repeat the number ``12341234'' exactly 31 times without spaces. 
+      \item Write a sentence that ends with the letter ``m''.
+  \end{itemize} \end{minipage}\\ \addlinespace[8pt]
+
+  & World knowledge
+  & 3-3 & Requires factual knowledge (often stable world facts) and avoiding hallucinated details. Or Requires everyday commonsense inferences beyond explicit text (e.g., typical object uses, social/physical plausibility). & 
+  \begin{minipage}[t]{\linewidth}\begin{itemize}[itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt, leftmargin=15pt]
+      \item  Draw a calendar for February with 29 days. 
+      \item What has no holes and holds water? 
+  \end{itemize} \end{minipage}
+ \\ \addlinespace[8pt]
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+% \paragraph{Benchmark Availability.}

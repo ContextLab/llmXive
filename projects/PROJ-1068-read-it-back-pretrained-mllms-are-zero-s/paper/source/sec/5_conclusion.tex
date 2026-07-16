@@ -1,0 +1,17 @@
+\section{Conclusion}
+\label{sec:conclusion}
+We introduced \method, a training-free reward function that turns
+pretrained MLLMs into off-the-shelf reward models for image-generation
+reinforcement learning by measuring image-conditioned prompt likelihood. 
+Instead of relying on massive preference labels, reward-model fine-tuning,
+\method aggregates the token-level semantic spectrum induced by an MLLM into a simple and effective reward. 
+We further introduced Self-\method for unified multimodal models, 
+where the policy's own understanding branch serves as the reward model for its generation branch, 
+forming a closed-loop self-improving framework without external reward models. 
+Across generator backbones, RL algorithms, reward MLLM backbones, and out-of-distribution benchmarks, 
+\method significantly and consistently improves text-to-image generation and 
+outperforms prior MLLM-derived reward training methods. 
+The results also show that larger reward MLLMs are not always better, 
+while a well-aligned self-reward can match or surpass much larger external reward models. 
+These findings suggest that reward function and reward-policy alignment are key factors for
+reinforcement learning in unified multimodal generation.

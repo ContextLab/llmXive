@@ -1,0 +1,99 @@
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/example.pdf}
+     \caption{Representative examples from the dataset. While these tasks are generally easy for human, we find that they remain challenging for frontier models. Each example is annotated with its solution (an abbreviated version here), question format, task and sub-task categories, illustrating the diversity of skills evaluated in the benchmark. Full taxonomy and additional examples in \autoref{appendix:examples}.}
+\label{fig:example}
+\end{figure*}
+\subsection{Data collection} \label{subsec:data_collection}
+We collected raw questions from students in a graduate-level AI-related course.
+Each student was asked to propose five questions that appeared easy to humans but were failed by frontier models available around October 2025.
+This course-wide collection yielded approximately 287 raw questions. We then transformed the raw collection into a standardized benchmark through a systematic cleaning and annotation pipeline.
+This process included filtering out overly difficult or duplicate entries, normalizing question formats, and ensuring each problem is clear and well-posed.
+We further added key annotations as described below to facilitate verification and analysis. The resulting dataset, \bench, contains 235 samples and is publicly available on Hugging Face.\footnote{\url{https://huggingface.co/datasets/matsant01/blind-spots-bench}}
+Representative examples are shown in \autoref{fig:example}.
+
+\paragraph{Solution and Question format annotation}
+
+% \input{tables/dataset/example}
+For each question, we manually curate structured reference solutions to support reliable evaluation of model outputs. These solutions are designed to support downstream automatic verifiers, which require explicit and operational correctness criteria. Each reference solution specifies the expected answer, the necessary conditions for correctness, and common failure modes. The common failure modes are identified from two sources: errors observed in students' submitted interactions with AI agents during data collection, and additional error cases proposed by at least three annotators for each question. 
+
+We also annotate each example with its question format to facilitate model comparison, since different models support different input-output formats. The benchmark includes three question-format categories: \textit{text-only}, where both input and output are text; \textit{image generation}, where the output is an image; and \textit{multi-to-text}, where the input contains both image and text and the output is text. These labels allow us to assign examples to appropriate models, compare systems within their applicable settings, and identify which formats current models struggle with most. 
+
+\paragraph{Task taxonomy}
+% Because the questions were proposed by students to challenge AI systems, the dataset is not restricted to a single predefined domain or task format, unlike many task-specific benchmarks~\cite{longbench,chartqa,spatialab}. Instead, it spans a broad range of skills.
+Unlike many task-specific benchmarks~\cite{longbench,chartqa,spatialab}, \bench is designed to challenge AI systems and uncover reasoning blind spots across diverse question types, spanning a broad range of skills. To better understand the sources of difficulty and support subsequent analysis of model performance, we introduce a taxonomy tailored to our dataset.
+%Existing taxonomies in prior benchmarks \citep{xu2025diagnosing,zhu2025llm,cemri2025multi} are often either too coarse-grained or limited to specific domains, and thus do not fully capture the fine-grained challenges in our benchmark. 
+Our taxonomy consists of three main categories: \emph{Object-centric}, \emph{Abstract reasoning}, and \emph{Language and knowledge}. Each category is further decomposed into sub-tasks targeting specific abilities. For example, as shown in \autoref{fig:example}, \emph{Object-centric} tasks cover abilities such as attribute and pattern recognition, spatial reasoning, perceptual counting, and generative counting.  We provide detailed descriptions of all categories and sub-tasks in \autoref{tab:dataset_category}, and discuss the overall distribution shown in ~\autoref{fig:dataset_composition} in the next section.
+% While the individual sub-tasks have been discussed separately in prior work, the proposed taxonomy is novel. 
+% Detailed descriptions and representative examples for each task category and sub-task are provided in \autoref{tab:dataset_category} and \autoref{fig:dataset_distribution}. 
+
+% This taxonomy serves two purposes: it characterizes the sources of difficulty in our benchmark, whose questions were explicitly designed by students to challenge current models. We further discuss about this in the next part. Second, the taxonomy enables task-level comparisons across models, helping us identify which types of tasks each system struggles with. We assign each question a primary task label. For the approximately 15 questions that involve multiple requirements and thus sub-tasks, we additionally specify the relevant skills with an extra failure-mode annotation to enable targeted evaluation over concrete skills for task analyses.
+
+
+
+
+\paragraph{Review and Quality Control}
+The dataset underwent a three-stage review process. First, all the questions were manually verified to confirm that each task is well defined and easy to interpret. Then we performed difficulty thresholding, removing questions that are easily solved by models or overly difficult for humans so that the benchmark focuses on blind spots. Finally, some questions were refined to clarify linguistic ambiguities and to ensure the correctness and completeness of the ground truth annotations.
+
+\begin{figure}[htbp!]
+    \centering
+
+    \begin{minipage}[t]{0.23\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/modality_composition.pdf}
+    \end{minipage}
+    \begin{minipage}[t]{0.75\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/task_composition.pdf}
+    \end{minipage}
+    \caption{\textbf{Left:} Question format composition.
+\textbf{Right:} Task category composition.
+Some questions~(about 15) involve multiple subtask categories; for these cases, we count one occurrence for each applicable subtask.
+The bar chart reports the total number of occurrences for each fine-grained task category, grouped into three major categories. }
+    \label{fig:dataset_composition}
+\end{figure}
+\subsection{Dataset Composition}
+Following the construction and annotation phase, we conduct a composition analysis of \bench dataset for both question format and task-category types. 
+As illustrated in \autoref{fig:dataset_composition}, text-only questions constitute the largest portion of the dataset (46.2\%), followed by image-gen (35.6\%) then multi-to-text (18.2\%)  which are relatively fewer. 
+
+Beyond the question format distribution, we further analyze the task and sub-task category composition in \autoref{fig:dataset_composition}. Since the prompts were designed to challenge frontier models, frequent sub-tasks can reveal sources of difficulty to some extent, rather than merely reflecting dataset statistics. They also align with known limitations of current models, suggesting that our taxonomy is both data-driven and grounded in prior findings. For example, spatial reasoning is the most frequent sub-task, appearing 53 times, consistent with prior observations that vision-language models struggle with spatial relations and visual transformations~\cite{stogiannidis2025mind,zhangvision}. Perceptual counting and generative counting are also common, reflecting the difficulty of counting visual instances~\cite{lvlm-count}, generating outputs with precise numerical constraints~\cite{binyamin2025make}, and binding objects to novel quantities~\cite{wiedemer2023compositional}. Logical reasoning often requires multi-step inference, where errors can accumulate when models make locally plausible decisions without sufficient global verification~\cite{saparov2022language}. Character-level manipulation is another challenge requiring exact length control or repeated token sequences, which may be partly explained by limitations of subword tokenization~\cite{zhang2024counting,fu2024large}. We provide a more detailed discussion in \autoref{app:task_type_analyses}.
+
+While these individual sub-tasks have been studied separately in prior work, our contribution is to organize them into a unified taxonomy tailored to our dataset. This taxonomy connects dataset composition, known model weaknesses, and later model performance analysis.
+
+
+% \vspace{-1cm}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.6\linewidth]{sections/assets/q-types-dist.png}
+%     \vspace{-1cm}
+%     \caption{Distribution of question types in the dataset. }
+%     \label{fig:question_type_pie}
+% \end{figure}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=\textwidth]{tables/dataset/question_type.pdf}
+%      \caption{\ms{make text character a bit bigger if possible} \textbf{Left}: Distribution of question types in the dataset. \textbf{Right}: \cl{the spacings between subcategories look weird} Category total scores in the benchmark with the sub-categories count listed in \autoref{tab:dataset_category}. Because one question can connect with multiple sub-categories, we employ a multi-label assignment approach: for each question, 1 point is assigned to each of its associated sub-categories. The total score for each major category is then derived by aggregating the occurrences of its composed sub-categories}
+% \label{fig:dataset_distribution}
+% \end{figure}
+
+
+ % Second, we observe many examples requiring compositional generalization, where models must produce novel recombinations of familiar concepts that rarely occur in natural data. Representative prompts include generating a cat with four eyes or a chair with three legs. These tasks highlight the difficulty of systematically composing attributes beyond training distributions, a challenge that has been repeatedly emphasized in prior work on compositionality and out-of-distribution generalization~\cite{wiedemer2023compositional,keysers2019measuring,redhardt2025scaling}.
+
+% Third, counting-related challenges also arise frequently within the visual reasoning category. 
+% On the perception side, perceptual counting failures often co-occur with incorrect visual grounding, 
+% where models misidentify, merge, or overlook objects in cluttered scenes, especially when instances are small, visually similar, or partially occluded. 
+% Such difficulties have also been noted in prior work on visual counting and object-centric perception~\citep{zhang2018learning,acharya2019tallyqa}. On the generation side, generative counting tasks require controlling the number and structure of depicted objects 
+% (e.g., repeating a circle--triangle--square pattern exactly four times), which remains particularly challenging for diffusion-based models. This limitation may come from the fact that diffusion models operate in a continuous pixel space without explicit discrete object representations or mechanisms 
+% for maintaining consistent instance-level identities across multiple objects.  Recent studies have begun to explicitly investigate and improve counting controllability in text-to-image generation~\citep{binyamin2025make,kang2025counting,guo2025text}.
+
+% Fourth, we identified a pervasive failure pattern in visual perception and grounding tasks that we term prior bias: models tend to extract and report canonical or frequently occurring patterns potentially from their training distribution rather than faithfully perceiving the actual content presented in the input. For example, when asked to identify texts in an image, models may output commonly associated words or plausible guesses instead of the exact word displayed; similarly, when describing object attributes the models often default to prototypical values. Similar findings has also been reported in~\cite{vo2025vision,mitrevski2025inksight,inkslop2026} which deems further study.
+
+ % Finally, we emphasize that many failure cases in our dataset are inherently multi-faceted: a single prompt often requires the simultaneous integration of multiple capabilities, including instruction following, grounding, and reasoning, etc. We provide an illustrative example below, which highlights the need for holistic improvements across interacting dimensions rather than isolated skill enhancements. In this example, the agent is asked to swap the black and white colors of a panda. Solving this task involves several challenges: the model must use \textit{factual grounding} to understand the canonical panda color pattern, apply \textit{visual perception and grounding} to localize the corresponding regions, and perform a consistent \textit{visual transformation} to invert the colors. We also categorize this as \textit{compositional generalization}, since it requires combining familiar concepts in an uncommon configuration.
+
+
+
+
+% In summary, we annotate dataset in the fine-grained way with structured solutions and proposed task taxonomy to support automated verification and systematic analysis. 
+% \todo{write a short paragraph to quickly conclude the 3.1 subsection for data cleaning.}
+% Table~\ref{tab:taxonomy_examples} illustrates representative examples from each category.

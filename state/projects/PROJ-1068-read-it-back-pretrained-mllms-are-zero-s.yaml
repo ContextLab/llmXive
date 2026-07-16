@@ -1,0 +1,19 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-16T01:40:37.747662Z'
+current_stage: paper_ingested
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-1068-read-it-back-pretrained-mllms-are-zero-s
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'Read It Back: Pretrained MLLMs Are Zero-Shot Reward Models for Text-to-Image
+  Generation'
+updated_at: '2026-07-16T01:40:38.303370Z'

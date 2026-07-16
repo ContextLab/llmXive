@@ -1,0 +1,154 @@
+\section{Method}
+\label{sec:method}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/method.pdf}
+    % \vspace{-5pt}
+  \caption{\textbf{Comparison of MLLM-based reward functions.}
+  (a) Scalar scoring directly asks an MLLM to assign a discrete
+  image-text alignment score, making the reward sensitive to judge
+  calibration and scoring noise.
+  (b) VQA decomposition converts the prompt into atomic questions and
+  aggregates verifier confidence, but introduces a two-stage pipeline and
+  depends on the quality of question decomposition.
+  (c) \method computes the image-conditioned prompt likelihood through a single teacher-forced forward pass. 
+  The resulting token-level likelihoods form a semantic spectrum, whose average is used as the scalar reward.
+  (d) Self-\method instantiates the same prompt-likelihood reward within a unified multimodal model by using the policy's own understanding branch,
+  removing the need for an external reward MLLM and improving reward-policy alignment.
+  }
+  \label{fig:method}
+    \vspace{-10pt}
+\end{figure*}
+In this section, we first introduce the \method reward function in~\autoref{sec:reward_def}. 
+We then specialize it to unified multimodal models in~\autoref{sec:self_reward_def}, yielding Self-\method.
+Finally,~\autoref{sec:analysis} analyzes the
+discriminative properties of the reward signal.~\autoref{fig:method} compares \method with previous MLLM-based reward functions.
+
+
+\subsection{\method}
+\label{sec:reward_def}
+Let $G_\theta$ be a text-to-image policy that samples an image $y \sim G_\theta(\cdot \mid x)$ 
+from a prompt $x = (x_1, \ldots, x_T)$, and let $\mathcal{M}$ be the frozen pretrained MLLM.
+Since pretrained MLLMs already learn strong image-text alignment from large-scale pretraining,
+our goal is to extract a scalar reward $R_{\mathcal{M}}(x,y)$ from the pretrained MLLMs
+that measures how well the generated image $y$ realizes the prompt $x$, 
+while requiring no preference labels, reward-model fine-tuning, or other auxiliary pipeline.
+
+The key idea of \method is to evaluate the generated image by asking a simple inverse question: 
+how well the generated image $y$ can be translated back into the prompt $x$ from the perspective of $\mathcal{M}$.
+To compute this, we feed the image $y$ as the visual condition
+to $\mathcal{M}$, and then perform a single teacher-forced forward pass over the prompt tokens $x$.
+The final reward function is as follows:
+\begin{equation}
+  \label{eq:method_reward}
+  R_{\mathcal{M}}(x,y)
+  =
+  \frac{1}{T-1}
+  \sum_{t=1}^{T-1}
+  \log p_{\mathcal{M}}(x_{t+1} \mid x_{\le t}, y).
+\end{equation}
+This reward is the mean image-conditioned prompt log-likelihood under $\mathcal{M}$. 
+The token-wise likelihoods form the \emph{semantic spectrum} of the image-text pair, 
+describing how the visual evidence in $y$ supports the semantics of $x$ across prompt tokens.
+% It measures how likely the prompt $x$ is when the generated image $y$ is provided as visual context. 
+\method aggregates this semantic spectrum into a scalar reward, where a higher reward $R(x,y)$ indicates that 
+the prompt is more predictable from the image and that the generated image better supports the semantic content of the prompt.
+
+The key advantage is that this reward function directly invokes the most fundamental capability of pretrained
+MLLMs, namely understanding the image and associating it with the corresponding language description.
+Thus, rather than training a separate reward model or prompting the MLLM to produce an abstract judgment score, 
+\method reuses the fundamental visual-language grounding ability already learned during MLLM pretraining.
+
+\subsection{Self-\method}
+\label{sec:self_reward_def}
+When $G_\theta$ is a unified multimodal model, it contains both a
+generation branch $G_\theta^{\mathrm{gen}}$ and an understanding branch
+$G_\theta^{\mathrm{und}}$. Self-\method instantiates \method by using
+$G_\theta^{\mathrm{und}}$ as the reward MLLM for images sampled by $G_\theta^{\mathrm{gen}}$. 
+In other words, the model scores its own generated images by measuring 
+how likely the original prompt is under its own image-conditioned understanding branch.
+This forms a closed-loop self-improving framework in which the model uses its own understanding ability to improve the generation quality.
+Moreover, this self-rewarding design eliminates the need for external reward models,
+avoids using additional computational resources to serve large-scale MLLMs, and simplifies the RL training pipeline.
+
+\noindent \textbf{Reward-policy alignment.}
+Self-\method couples two dual capabilities within the same unified model.
+The generation branch maps text to images, while the reward function
+uses the understanding branch to measure how well the generated image can be translated back to the original text. 
+Since the two branches share the same tokenizer, vision encoder, and pretraining distribution, 
+the reward signal is compatible with the policy's own generation knowledge. 
+This does not require the understanding branch to be stronger than external MLLMs in general visual understanding. 
+Instead, it provides a reward signal that is better calibrated to the policy's own generated-image distribution. 
+Optimizing the generation branch with this self-reward therefore encourages the text-to-image policy to become more consistent
+with its own image-to-text understanding ability. 
+We further analyze the reward-policy alignment effect in~\autoref{sec:reward_backbone}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figures/per_token_compare_reward.pdf}
+  \caption{
+    \textbf{Token-level semantic sensitivity of \method.}
+    Positive and negative images are evaluated using the same positive prompt. 
+    For attribute mismatch, instantiated as a counting error, 
+    the negative image mainly lowers the likelihood of ``Two''; 
+    for object identity mismatch, replacing the guitar with a chair sharply lowers the likelihood of ``guitar''. 
+    Bars show image-conditioned prompt-token log-likelihoods with error bars calculated over four pairs, 
+    and dashed lines show the resulting sequence-level reward value, i.e., \method.
+}
+  \label{fig:per_token_reward}
+    \vspace{-12pt}
+\end{figure}
+
+\subsection{Analysis of \method}
+\label{sec:analysis}
+
+In this section, we analyze three questions:
+(1) whether the language prior affects the accuracy of the reward signal;
+(2) whether token-level likelihoods are sensitive to visual misalignment;
+(3) whether the resulting scalar reward can reliably distinguish samples within the same prompt group.
+
+\noindent \textbf{Language-prior cancellation.}
+A natural concern is that~\autoref{eq:method_reward} contains the MLLM's language prior over the prompt, since some words are easier to
+predict regardless of the image. 
+One possible correction is to subtract a text-only likelihood term, 
+yielding a PMI-style reward $\log p(x \mid y) - \log p(x)$. 
+However, since we focus on using group-relative reinforcement learning methods,
+this correction is unnecessary. 
+For a fixed prompt, the text-only likelihood is shared by all generated images in the same group,
+and therefore cancels out when computing the group-relative advantage. 
+Thus, PMI normalization may affect absolute reward calibration across prompts, 
+but it does not provide additional optimization signal within each prompt group.
+
+\noindent \textbf{Token-level semantic sensitivity.} We further examine whether the semantic spectrum responds to local visual errors.
+We construct positive and negative image pairs for two
+common prompt-following failures, attribute mismatch and object identity
+mismatch. The attribute mismatch is instantiated as a counting error,
+where the prompt asks for two cats but the negative image contains five.
+For each pair, we evaluate both images using the original positive prompt.~\autoref{fig:per_token_reward} shows that the likelihood drop is concentrated on the mismatched semantic word. 
+The counting mismatch mainly lowers the likelihood of ``Two'', 
+while replacing the guitar with a chair sharply lowers the likelihood of ``guitar''. 
+The sequence-level reward, shown by the dashed lines, also remains higher for the positive images. 
+This indicates that token-level prompt likelihoods are sensitive to targeted semantic errors, 
+and their average, i.e., the calculation used by \method, still provides a reliable scalar reward.
+
+\noindent \textbf{Reward ranking reliability.}  
+What matters for group-relative RL is whether the reward correctly orders
+different rollouts from the same prompt. As shown in~\autoref{fig:reward_ranking}, \method assigns higher rewards to images
+that better satisfy the prompt and lower rewards to images with missing
+objects, wrong attributes, or incorrect spatial relations. This indicates
+that the image-conditioned prompt likelihood provides a reliable
+group-wise ranking signal for text-to-image RL.
+
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figures/reward_ranking.pdf}
+  \vspace{-2mm}
+  \caption{\textbf{The visual interpretation of \method.} 
+  The reward ranking is consistent with the visual quality ranking.}
+  \label{fig:reward_ranking}
+  \vspace{-10pt}
+\end{figure}
+

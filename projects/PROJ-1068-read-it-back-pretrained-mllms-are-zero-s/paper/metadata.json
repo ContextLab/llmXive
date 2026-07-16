@@ -1,0 +1,51 @@
+{
+  "arxiv_id": "2607.11886",
+  "arxiv_url": "https://arxiv.org/abs/2607.11886",
+  "title": "Read It Back: Pretrained MLLMs Are Zero-Shot Reward Models for Text-to-Image Generation",
+  "authors": [
+    "Runhui Huang",
+    "Qihui Zhang",
+    "Zhe Liu",
+    "Yu Gao",
+    "Jie Wu",
+    "Hengshuang Zhao"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "In this paper, we propose SpectraReward, a training-free reward function that turns pretrained MLLMs into off-the-shelf reward models for image-generation reinforcement learning. Instead of asking the MLLM to judge a generated image or answer decomposed verification questions, SpectraReward measures how well the original prompt can be recovered from the generated image through a single image-conditioned, teacher-forced forward pass. We use the average image-conditioned prompt log-likelihood as the reward, directly reusing the MLLM's pretrained image-text alignment ability without preference labels, reward-model fine-tuning. We further introduce Self-SpectraReward, a special case for unified multimodal models where the policy's own understanding branch serves as the reward model for its generation branch, forming a closed-loop self-improving framework without external reward models or external knowledge. Extensive experiments validate SpectraReward through a broad image-generation RL study covering two diffusion models, three RL algorithms, nine reward MLLM backbones from four MLLM families spanning 4B to 235B parameters, and five out-of-distribution text-to-image benchmarks. Results show that both SpectraReward and Self-SpectraReward significantly and consistently improve generation performance and outperform prior MLLM-derived reward training methods. Further analysis reveals that larger reward MLLMs are not always better, while Self-SpectraReward can match or surpass much larger external reward models, suggesting that reward-policy alignment is a key factor for effective image-generation RL. Project Page: https://huangrh99.github.io/SpectraReward/",
+  "submitted_via": "llmXive dashboard, GitHub issue #1232",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/teaser.pdf",
+    "figures/method.pdf",
+    "figures/visualization_compare.pdf",
+    "figures/per_token_compare_reward.pdf",
+    "figures/appendix_visualization_campare.pdf",
+    "figures/appendix_reward_ranking.pdf",
+    "figures/reward_ranking.pdf",
+    "main.tex",
+    "neurips_2026.sty",
+    "ref.bib",
+    "sec",
+    "sec/X_suppl.tex",
+    "sec/5_conclusion.tex",
+    "sec/4_experiments.tex",
+    "sec/3_method.tex",
+    "sec/2_related_work.tex",
+    "sec/1_intro.tex",
+    "sec/0_abstract.tex",
+    "tables",
+    "tables/wise.tex",
+    "tables/tiif_bench.tex",
+    "tables/main_result.tex",
+    "tables/geneval.tex",
+    "tables/dpg.tex"
+  ]
+}

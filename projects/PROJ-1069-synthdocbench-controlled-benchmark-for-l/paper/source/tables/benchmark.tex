@@ -1,0 +1,81 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model}
+  & \textbf{DocVQA}
+  & \textbf{ChartQA}
+  & \textbf{MathVista}
+  & \textbf{MMMU}
+  & \textbf{MMLongBench-Doc} \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{6}{c}{\textit{Proprietary Models}} \\ \midrule
+Gemini-3.1-Pro      & \textbf{93.4} & 88.5          & \textbf{74.8} & \textbf{81.0} & 45.1 \\
+GPT-4o              & 92.8          & 85.7          & 63.8          & 70.7          & 46.3 \\
+Claude-Sonnet-4.5   & 92.0          & \textbf{89.0} & 72.0          & 77.8          & 40.1 \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{6}{c}{\textit{Open-weight Models}} \\ \midrule
+Qwen3-VL-235B       & \textbf{96.5} & \textbf{91.2} & \textbf{85.8} & 71.3          & \textbf{57.0} \\
+InternVL3-78B       & 95.1          & \na{}         & 79.0          & \textbf{72.2} & 24.3 \\
+Qwen2.5-VL-7B       & 93.7          & 83.8          & 68.1          & 58.0          & 25.1 \\
+\bottomrule
+\end{tabular}
+\caption{Performance of evaluated VLMs on established visual document understanding benchmarks.
+  \na{} = not publicly reported at time of writing.}
+\label{tab:benchmark}
+\end{table*}
+
+% \begin{table*}[t]
+% \centering
+% \small
+% \begin{tabular}{
+%   L{4.0cm}
+%   C{1.2cm}
+%   C{1.15cm}
+%   C{1.2cm}
+%   C{1.2cm}
+%   C{1.2cm}
+% }
+% \toprule
+% \multirow{2}{*}{\textbf{Model}}
+%   & \makecell{\textbf{Doc}\\\textbf{VQA}}
+%   & \textbf{MMMU}
+%   & \makecell{\textbf{MMLong-}\\\textbf{Bench-Doc}}
+%   & \makecell{\textbf{Math}\\\textbf{Vista}}
+%   & \makecell{\textbf{Chart}\\\textbf{QA}} \\
+%   & \small Acc. & \small Acc. & \small Acc. & \small Acc. & \small Acc. \\
+% \midrule
+% \rowcolor{gray!15}
+% \multicolumn{6}{c}{\textbf{API / Proprietary Models}} \\
+% \midrule
+% GPT-4o
+%   & 92.8 & 70.7 & 46.3 & 63.8 & 85.7 \\
+% Gemini 3.1 Pro
+%   & 93.4 & 81.0 & 45.1 & 74.8 & \textbf{88.5} \\
+% Claude Sonnet 4.5
+%   & \textbf{92.0} & \textbf{77.8} & \na{} & \textbf{72.0} & 89.0 \\
+% \midrule
+% \rowcolor{gray!15}
+% \multicolumn{6}{c}{\textbf{Open-Source / Open-Weight Models}} \\
+% \midrule
+% Qwen3-VL 235B
+%   & \textbf{96.5} & 71.3 & \textbf{57.0} & \textbf{85.8} & \textbf{91.2} \\
+% Qwen2.5-VL 7B
+%   & 93.7 & 58.0 & 25.1 & 68.1 & 83.8 \\
+% InternVL3 78B
+%   & 95.08 & 72.2 & 24.3 & 79.0 & \na{} \\
+% LLaVA-OneVision 72B
+%   & 91.3 & 56.6 & 0.12 & 68.4 & 83.7 \\
+% MiniCPM-V 2.6
+%   & 90.8 & 49.8 & 0.13 & 60.8 & 79.4 \\
+% \bottomrule
+% \end{tabular}
+% \caption{%
+%   Performance of multimodal large language models on visual document
+%   understanding benchmarks.
+% }
+% \label{tab:benchmark}
+% \end{table*}

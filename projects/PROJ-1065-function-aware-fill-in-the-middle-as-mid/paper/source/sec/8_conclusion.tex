@@ -1,0 +1,19 @@
+% =============================================================================
+% 8. CONCLUSION
+% =============================================================================
+\section{Conclusion}
+\vspace{-0.5ex}
+\label{sec:conclusion}
+A single step of a coding agent and a single function call site share
+the same four-part structure---\textit{context, action, externally
+produced return, continuation}---making source code an internet-scale
+supply of agent-relevant signal. We turn this into function-aware FIM
+mid-training: a self-supervised stage that masks targets selected via
+program dependency graph analysis and a complexity--inferability
+double criterion, with chain-of-thought rationales embedded inside the
+FIM middle. Across model size, post-training pipeline, and base-model
+family, the recipe delivers consistent gains on coding-agent
+benchmarks, and the same Python-only corpus transfers to non-coding
+tool-use benchmarks ($\tau$-bench, BFCL). Future work includes
+extending the selection to non-Python languages and composing
+mid-training with RL post-training.

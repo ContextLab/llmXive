@@ -1,0 +1,1033 @@
+\documentclass{article}
+
+% Pass options to natbib before loading neurips_2026
+\PassOptionsToPackage{numbers, compress}{natbib}
+
+% NeurIPS 2026 template - using default for submission
+
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amssymb}        % for \Letter and extra symbols
+\usepackage{amsmath}        % math
+\usepackage{marvosym}
+\usepackage{fontawesome}
+\usepackage{graphicx}       % figures
+\usepackage{natbib}         % citation support
+\usepackage{caption}        % \captionof in minipage (Table~\ref{tab:bottleneck} + figure)
+\usepackage[table]{xcolor}  % colors + row colors (\usepackage{colortbl})
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}       % list customization
+\usepackage{multirow}       % table multirow
+\usepackage{rotating}       % rotated table headers
+\usepackage{algorithm}      % algorithms
+\usepackage{algpseudocode}  % algorithm pseudocode
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newcommand{\linkcolor}[1]{\textcolor{blue}{#1}}
+\newcommand{\rev}[1]{\textcolor{red}{#1}} % tracked-change (title-consistency revision)
+\newtcolorbox{takeaway}{
+  enhanced,
+  boxrule=0pt,
+  frame hidden,
+  borderline west={3pt}{0pt}{red!70!black},
+  colback=red!5,
+  sharp corners,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+\newtcolorbox{finding}{
+  enhanced,
+  boxrule=0pt,
+  frame hidden,
+  borderline west={3pt}{0pt}{blue!70!black},
+  colback=blue!4,
+  sharp corners,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+% Example box: same block style as \finding, distinct (green) accent
+\newtcolorbox{examplebox}{
+  enhanced,
+  boxrule=0pt,
+  frame hidden,
+  borderline west={3pt}{0pt}{green!55!black},
+  colback=green!5,
+  sharp corners,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+% Insight box: same block style as \finding, distinct (violet) accent
+\newtcolorbox{insight}{
+  enhanced,
+  boxrule=0pt,
+  frame hidden,
+  borderline west={3pt}{0pt}{violet!65!black},
+  colback=violet!5,
+  sharp corners,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+\tcbset{
+  appboxbase/.style={
+    enhanced,
+    breakable,
+    boxrule=0pt,
+    frame hidden,
+    sharp corners,
+    left=10pt, right=10pt, bottom=6pt,
+    before upper={\small\raggedright\sloppy},
+    fonttitle=\small\bfseries,
+    coltitle=black,
+    colbacktitle=white,
+    boxed title style={frame hidden, boxrule=0pt, colback=white, sharp corners},
+    attach boxed title to top left={xshift=8pt, yshift=-2pt},
+    top=12pt,
+  },
+  appinputbox/.style={
+    appboxbase,
+    borderline west={3pt}{0pt}{blue!70!black},
+    colback=blue!4,
+  },
+  appoutputbox/.style={
+    appboxbase,
+    borderline west={3pt}{0pt}{green!55!black},
+    colback=green!5,
+  },
+  appevalbox/.style={
+    appboxbase,
+    borderline west={3pt}{0pt}{orange!80!black},
+    colback=orange!5,
+  },
+  appscorebox/.style={
+    appboxbase,
+    borderline west={3pt}{0pt}{red!70!black},
+    colback=red!4,
+  },
+}
+\usepackage{listings}
+\lstdefinestyle{appendixjson}{
+  basicstyle=\ttfamily\tiny,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  showstringspaces=false,
+  frame=single,
+  framerule=0.2pt,
+  xleftmargin=0pt,
+  xrightmargin=0pt
+}
+\usepackage{amsthm}
+\newtheorem{conjecture}{Conjecture}
+
+% Styled definition box (matching finding box style but in a distinct color)
+\newtcolorbox{defbox}[1][]{
+  enhanced,
+  boxrule=0pt,
+  frame hidden,
+  borderline west={3pt}{0pt}{headerblue!60},
+  colback=headerblue!3,
+  sharp corners,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+\newcounter{definitionctr}
+\renewcommand{\thedefinitionctr}{\arabic{definitionctr}}
+
+\newcommand{\bench}{\textsc{SearchGen-Bench}}
+\newcommand{\dataset}{\textsc{SearchGen-20K}}
+\newcommand{\searchcorpus}{\textsc{SearchGen-Corpus-1M}}
+\newcommand{\CondNS}{\textsc{No Search}}
+\newcommand{\CondGS}{\textsc{Blind Search}}
+\newcommand{\CondGAS}{\textsc{Generator-Adaptive Search}}
+\newcommand{\website}{https://haozheh3.github.io/SearchGen}
+
+\definecolor{headerblue}{RGB}{41,65,122}
+\definecolor{rowgray}{RGB}{245,247,250}
+\definecolor{grouptop}{RGB}{230,240,255}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=headerblue,
+  citecolor=headerblue,
+  urlcolor=headerblue,
+}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}p{1.05cm}}
+
+\title{Search Beyond What Can Be Taught: 
+Evolving the Knowledge Boundary in Agentic Visual Generation}
+% \author{%
+% Haozhe Wang$^{1}$  \quad Weijia Feng$^3$ \quad Jinpeng Yu$^3$ \quad Che Liu$^4$ \\
+% \textbf{Fangzhen Lin}$^1$ 
+% \quad \textbf{Jiaming Liu}$^3$ \quad \textbf{Ruihua Huang}$^3$ \quad \textbf{Jimmy Lin}$^2$ \\
+% \textbf{Wenhu Chen}$^2$ \quad \textbf{Cong Wei}$^{2}$ \\
+% $^1$HKUST \quad $^2$University of Waterloo \quad $^3$Qwen Applications Business Group \quad $^4$Imperial College, London
+% }
+
+% \author{\vspace{-2em} \\
+%     \textbf{Haozhe Wang}$^{1}$ \
+%     \textbf{Weijia Feng}$^{3}$ \
+%     \textbf{Jinpeng Yu}$^{3}$ \
+%     \textbf{Che Liu}$^{4}$ \
+%     \textbf{Ping Nie}$^{2}$ \
+%     \textbf{Fangzhen Lin}$^{1}$ \
+%     \textbf{Jiaming Liu}$^{3,\text{\Letter}}$ \\
+%     \textbf{Ruihua Huang}$^{3}$ \
+%     \textbf{Jimmy Lin}$^{2}$ \
+%     \textbf{Wenhu Chen}$^{2}$ \
+%     \textbf{Cong Wei}$^{2,\text{\Letter}}$ \vspace{0.3em} \\
+%     $^{1}$Hong Kong University of Science and Technology \
+%     $^{2}$University of Waterloo \\
+%     $^{3}$Qwen Applications \
+%     $^{4}$Imperial College London
+% }
+
+\author{\vspace{-2em} \\
+    \textbf{Haozhe Wang}$^{1}$ \
+    \textbf{Weijia Feng}$^{3}$ \
+    \textbf{Jinpeng Yu}$^{3}$ \
+    \textbf{Che Liu}$^{4}$ \\
+    \textbf{Ping Nie}$^{2}$ \
+    \textbf{Fangzhen Lin}$^{1}$ \
+    \textbf{Jiaming Liu}$^{3,\text{\Letter}}$ \
+    \textbf{Ruihua Huang}$^{3}$ \\
+    \textbf{Jimmy Lin}$^{2}$ \
+    \textbf{Wenhu Chen}$^{2}$ \
+    \textbf{Cong Wei}$^{2,\text{\Letter}}$ \vspace{0.3em} \\
+    $^{1}$Hong Kong University of Science and Technology \
+    $^{2}$University of Waterloo \\
+    $^{3}$Qwen Applications \
+    $^{4}$Imperial College London
+}
+
+
+
+\begin{document}
+
+{
+  \renewcommand{\thefootnote}{} 
+  \footnotetext{\Letter: Corresponding Authors.}
+}
+
+
+\vspace*{-3.5em} 
+\maketitle
+\begin{center}
+\vspace{-3em}
+\faGlobe\ \textbf{Project Page: }
+\href{\website}{\linkcolor{\texttt{\website}}}
+\end{center}
+
+
+
+\begin{abstract}
+  \vspace{-0.5em}
+    Visual generators excel at rendering, but they confidently fabricate what they do not know.
+    User requests are unbounded, evolving, and deeply long-tailed: new characters, trending entities, post-cutoff events, etc.
+    This \emph{world-knowledge bottleneck} is structural: generators are trained on fixed corpora,
+    but the visual world is open-ended.
+    %
+    We construct \textbf{\dataset{}} and \textbf{\bench{}}, 20{,}839 prompts spanning twelve failure categories
+    and twenty-two domains, paired with a pre-executed multimodal \textbf{\searchcorpus{}} to facilitate offline, reproducible research.
+    On \bench{}, frontier open generators score only 21--28 out of 100, a 40-point collapse
+    invisible to existing benchmarks.
+
+    The natural remedy to this knowledge bottleneck is to employ search tools, enabling \emph{agentic visual generation}. But we found that naive search fails: it retrieves indiscriminately,
+    injecting noise into prompts the generator already handles.
+     We trace the root cause to a \emph{generator-specific{, evolving} knowledge boundary} --- the divide
+  between what a generator can internalize through training and what must remain in
+  external context --- and show that this boundary, though hard to specify in advance,
+  is discoverable through a teach-then-search co-training framework.
+  Even a minimal recipe of this co-training produces monotonic improvement, laying the foundation for recursive self-improvement of visual generation that meets world-knowledge grounded requests.
+\textbf{  We release code, model and the full dataset, co-training corpus, and search corpus} as a
+  replayable {harness} for {tool-augmented,} world-knowledge-grounded visual generation.
+\end{abstract}
+
+
+
+\begin{figure}[!h]
+\centering
+\vspace{-.1cm}
+\includegraphics[width=\textwidth]{figures/examples.pdf}
+
+\caption{\small\textbf{Representative search-augmented generations from \dataset{}, spanning all twelve failure categories identified from 20,840 production prompts.} \dataset{} captures the production-scale diverse user requests that demand the unbounded, evolving, and deeply long-tailed world knowledge. }
+\label{fig:user_diversity}
+% \vspace{-.1cm}
+    \vspace{-0.3em}
+\end{figure}
+
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{searchgen_teaser.pdf}
+\caption{\textbf{Two paradigms for visual generation.}
+(\textit{Left}) Prompt rewriting relies on an LLM to expand the user query into a longer textual prompt, which is then passed directly to the generator.
+(\textit{Right}) In contrast, our approach equips an agent with a search tool to retrieve relevant knowledge and visual references from a web corpus; the agent then organizes the retrieved evidence into multimodal context and provides it to the generator.}
+\label{fig:teaser}
+\vspace{-.3cm}
+\end{figure}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+Ask a frontier image generator for the mascot of the 2025 Osaka Expo: you get a polished, confident fabrication.
+Ask for a historically accurate Spartan phalanx: you get anachronistic armor rendered in exquisite detail.
+Modern generators produce complex scenes with precise lighting and coherent structure, saturating on standard benchmarks~\cite{genaibench,blackforestlabs2025flux,esser2024scaling}, yet they still fail on a substantial class of real-world user requests (Figure~\ref{fig:user_diversity}).
+These failures reflect a \emph{world-knowledge} bottleneck rather than a visual-synthesis bottleneck.
+Visual generators are trained on fixed corpora with inherent knowledge cutoffs, whereas user requests are \emph{unbounded, evolving, and deeply long-tailed}: new characters, regional cultural symbols, niche typography, historical artifacts, and recent events.
+The world knowledge bottleneck motivates external knowledge access as a natural complement to visual generation, analogous to illustrators consulting references before depicting unfamiliar concepts.
+
+
+To systematically study this problem, we analyze over 20{,}000 user prompts from production-level AIGC platforms~\citep{qwenimage} and identify twelve major failure modes.
+Based on these requests and failure modes, we construct \dataset{}, a collection of world-knowledge-grounded prompts spanning twenty-two domains and diverse global cultures, each annotated with fine-grained visual checklists for fully automated assessment (\S\ref{sec:benchmark}).
+On \bench{}, frontier open generators achieve only $21$--$28$ out of $100$, at most half of the commercial API ceiling.
+These results reveal a substantial evaluation gap: existing benchmarks largely fail to capture the live and dynamic world-knowledge failures in visual generation.
+\begin{center}
+    \textbf{Can search guide generators as references guide illustrators?} 
+\end{center}
+
+
+{This renders an agentic visual generation problem: a generator is equipped with an agentic reasoner that decides when and how to utilize search tools for knowledge acquisition.}
+Through extensive experiments, our results show that naive search fails: agentic reasoner that triggers a search blindly for every prompt degrades the quality of a substantial fraction of prompts.
+Why does naive search fail? We trace the root cause to two distinct issues that must be solved jointly.
+
+The first is when to search. The world knowledge required for visual generation splits along a structural axis into what generators can internalize and what must remain in context. Some knowledge is stable and low-dimensional: a character's canonical appearance, a flag's fixed geometry. Once encountered through augmented supervision, such knowledge migrates into generator parameters and search becomes superfluous. Other knowledge is inherently contextual: it evolves faster than retraining cycles, sits too deep in the long tail for reliable learning~\cite{valiant1984theory}, or requires per-instance compositional reasoning that resists parameterization. The extreme long tail of visual entities in real requests (Figure~\ref{fig:entity_longtail}) confirms that this contextual stratum is large. This creates a knowledge boundary between the two regimes, and this boundary is generator-specific {and evolving}: it shifts as the generator improves, so a search policy that helps a weaker generator can harm a stronger one.
+
+The second is what search returns. Even when search is correctly triggered, every result injects noise into the generator's input space: irrelevant visual detail, stylistic contamination, spurious structure. The open-weight generators we tested treat all conditioning signals as authoritative, with no capacity to distinguish useful reference content from noise.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/a5_language_prompt_length.pdf}
+\caption{\small\textbf{Bilingual composition and prompt length distribution of \dataset{}.}
+Left: English (58\%) and Chinese (42\%) proportions. Right: bimodal prompt length
+distribution -- Chinese prompts are concise (mean 89 characters) while English prompts
+are more elaborate (mean 266 characters), reflecting authentic cross-lingual user behavior
+rather than translated templates.}
+\label{fig:language_prompt_length}
+\vspace{-.3cm}
+\end{figure}
+We address both issues through two interlocking components. First, we introduce a \emph{noise-resistant} agentic reasoner that builds what to render for generator: the reasoner executes a three-stage gate--filter--integrate pipeline that controls when to search, what retrieved content to retain, and how external information is integrated into generation (\S\ref{sec:atomic}). This pipeline builds noise resistance into the reasoner so that noise is suppressed before reaching the generator. Second, we propose to co-train the reasoner with the visual generator: online iterative DPO teaches the generator to internalize world-knowledge that it can absorb and build noise-resistance to imperfect search-augmented inputs, while rejection-sampling finetuning calibrates the search reasoner to search only for what the generator cannot be taught (\S\ref{sec:training}).  
+
+On \bench{}, this single-iteration recipe produces monotonic gains from \CondNS{} through \CondGS{} to \CondGAS{}, exceeding frontier generators paired with frontier VLMs.
+The recipe is deliberately minimal,  yet we envision this co-training framework lays the foundation for a recursive self-improvement flywheel in visual generation: the generator progressively expanding rendering knowledge while the reasoner progressively adjust its search scope, catering to production-scale text-to-image requests that demand dynamically evolving world knowledge. 
+
+\textbf{Contributions.}
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item We introduce \dataset{} and \bench{}, a large-scale dataset of 20{,}839 world-knowledge-grounded text-to-image prompts spanning twelve failure categories and twenty-two domains, together with a pre-executed multimodal \searchcorpus{} for reproducible and democratized research.
+\item We show that search-intensive visual generation exposes a substantial evaluation gap: frontier open generators collapse by up to 40 points on \bench{}, a gap that shifts as generators improve and that current benchmarks render entirely invisible.
+\item We show that naive search introduces \emph{search noise}, causing concept corruption and copy effects, and identify the underlying challenge as a searcher--generator coordination problem governed by a generator-specific knowledge boundary.
+\item We propose a co-training framework with a noise-resistant agentic search protocol. We validate that the minimalist recipe, an 8B agentic reasoner with search tools, jointly calibrated with the generator outperforms both pure generation and undiscriminating search by better respecting the knowledge boundary.
+\end{enumerate}
+
+
+\section{The World-Knowledge Bottleneck}
+\label{sec:benchmark}
+Faithful generation is limited less by rendering than by \emph{knowledge}. A visual generator is trained on a fixed corpus, but user requests draw on a world that is open-ended, evolving, and long-tailed; the mismatch between the two is the \emph{world-knowledge bottleneck}. The bottleneck is compounded by a structural blind spot: generators are trained to always produce an image, so they have no mechanism for recognizing what they do not know, no way to say ``I lack the knowledge to render this faithfully,'' and no protocol for acquiring it. This section characterizes the bottleneck end to end: we map the landscape of world-knowledge-grounded generation from real user behavior, construct a large-scale dataset and benchmark, quantify how severely it degrades frontier generators, and show that naive search introduces new failures rather than resolving it.
+
+\subsection{What Users Actually Ask For} %% CHANGED from \paragraph{2.1}
+\label{sec:taxonomy}
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/treemap.pdf}
+\caption{\small\textbf{\dataset{} spans diverse, long-tailed domains.}
+Treemap of benchmark mass across domain categories (area reflects relative prompt counts). The cross-category severity structure between failure modes and domains is deferred to Appendix~\ref{app:benchmark} (Figure~\ref{fig:heatmap_severity}), where uniform severity across all cells rules out the hypothesis that failures concentrate in a few niche categories.}
+\label{fig:bench_overview}
+\vspace{-.3cm}
+\end{figure}
+
+To ground the benchmark in real-user demand, we analyzed 20{,}840 prompts from a production text-to-image platform.
+The landscape is far more diverse, long-tailed, and rapidly evolving than existing benchmarks suggest.
+We discover twelve recurring failure categories distilled from real-world user requests (Table~\ref{tab:taxonomy}); Figure~\ref{fig:user_diversity} shows example generations representative of these failure modes.
+
+As shown in Table~\ref{tab:taxonomy}, the twelve categories split along a structural axis that directly determines search design.
+Some require \emph{visual} references that resist linguistic specification -- a game character's costume silhouette, a national flag's precise color fields -- that no textual description can fully specify but that a generator can readily condition on once retrieved. For example, generating \emph{Jingliu from Honkai: Star Rail (a game character)}  demands a precise visual identity (costume, weapon, color palette).
+
+Other requests require \emph{textual} knowledge for which no visual shortcut exists or images alone cannot convey. For instance, \emph{a China dynastic timeline with dates and founders} relies entirely on structured factual content (exact names, years, and causal orderings), and \emph{an Aztec-style infographic of DNA replication} requires precise biochemical labels and process orderings for which visual shortcuts rarely exists but encyclopedic text can supply.
+
+Many categories sit in between, requiring both modalities simultaneously: \emph{a traditional Oaxacan alebrije dragon} demands visual references for culturally specific chromatic conventions \emph{and} textual knowledge of what distinguishes an alebrije from a generic dragon; \emph{the mascot for the 2025 Osaka Expo} requires temporally fresh visual references of the character \emph{and} textual context that postdates model training.
+
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Taxonomy of search-intensive visual generation.} Twelve categories organized by failure source, each with a representative example prompt. The \emph{Modality} column indicates the dominant knowledge type required.}
+  \label{tab:taxonomy}
+  \small
+  \renewcommand{\arraystretch}{1.1}
+  \begin{tabularx}{\linewidth}{@{}lcX@{}}
+  \toprule
+  \textbf{Category} & \textbf{Modality} & \textbf{Example Prompt} \\
+  \midrule
+  \textbf{Temporal -- Recent}    & Both    & ``The mascot for the 2025 Osaka Expo in its official pose and colors'' \\
+  \textbf{Temporal -- Current}   & Both & ``Current FIFA World Cup group stage rankings as a scoreboard graphic'' \\
+  \textbf{Entity \& IP}          & Visual  & ``Jingliu from Honkai: Star Rail wielding her ice sword'' \\
+  \textbf{Concept \& Symbol}     & Both & ``The national flag of Bhutan with the correct Druk dragon design'' \\
+  \textbf{Factual \& Historical} & Both    & ``Spartan phalanx at Thermopylae with historically accurate bronze armor'' \\
+  \textbf{Cultural Specificity}  & Both    & ``A traditional Oaxacan alebrije dragon with authentic chromatic patterns'' \\
+  \textbf{Visual / UI / UX}      & Visual  & ``iOS 17 Weather app screenshot showing a thunderstorm animation'' \\
+  \textbf{Data Visualization}    & Textual & ``China dynastic timeline with accurate dates and founding emperors'' \\
+  \textbf{Text / Typography}     & Textual & ``Art Nouveau concert poster with period-authentic display lettering'' \\
+  \textbf{Complex Composite}     & Both    & ``Aztec-style infographic of DNA replication with labeled process stages'' \\
+  \textbf{Vague / Abstract}      & Textual & ``The feeling of nostalgia on a rainy afternoon in a small Japanese town'' \\
+  \textbf{Implicit Reasoning}    & Both  & ``Cozy mountain cabin interior in the style of a Miyazaki film'' \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/a1_a6_combined.pdf}
+\caption{\small\textbf{Dataset composition: entity long-tail and multimodal knowledge gaps.}
+\textbf{(a)} Entity frequency distribution: 93.1\% of the 31{,}537 unique visual entities
+appear in only a single prompt, confirming the extreme long-tailed nature of real-world
+image generation requests.
+\textbf{(b)} Multimodal knowledge gaps: prompts carry a mean of 5.2 simultaneous knowledge gaps
+(reference slots + text knowledge slots + failure modes); 90.5\% carry three or more,
+confirming the multi-constrained nature of the dataset.}
+\label{fig:entity_longtail}
+\vspace{-.3cm}
+\end{figure}
+This dual-modality structure, visual identity on one axis and factual precision on the other, directly motivates the modality-aware search protocol we introduce in \S\ref{sec:method}: neither visual nor textual search alone suffices, and the choice of modality must be made per knowledge gap. In this work, we use Google Search API with both image search and web-text search. {Image search and web search are thus two distinct tools the agentic reasoner utilizes between per knowledge gap (\S\ref{sec:atomic}).}
+
+
+\subsection{Dataset Construction} %% CHANGED from \paragraph{2.2}
+\label{sec:bench_construct}
+
+From the failure taxonomy (Table.~\ref{tab:taxonomy}), we construct \dataset{} spanning all twelve categories and twenty-two
+domains. The dataset is intentionally bilingual (Figure~\ref{fig:language_prompt_length}): English prompts (58\%) average 266 characters and tend toward descriptive elaboration, while Chinese prompts (42\%) average 89 characters and favor dense, implicit specification, capturing authentic cross-lingual prompt behavior rather than translated templates. The full training dataset comprises 20{,}188 rows (20{,}187 unique prompts) with an average of 5.2
+multimodal knowledge gaps per prompt (90.5\% carry three or more), annotated with
+34{,}694 visual reference slots, 16{,}345 textual knowledge slots. % , and 33{,}395 search queries.
+We partition into train (20{,}188 rows with 128 held out for validation) and test (751) sets.
+
+To construct this dataset, we first extract a seed database of 31{,}537 entities from production-scale user requests, each annotated with canonical names, estimated training-set frequency, ground-truth visual references (where available), and distinguishing attributes; the distribution is intentionally long-tailed, mirroring real user demand (Figure~\ref{fig:entity_longtail}a). With 93.1\% of entities appearing in only a single prompt, parametric learning from any feasible training dataset cannot cover this demand; search is structurally unavoidable for the tail.
+From this seed database, we synthesize the \dataset{} dataset via human-brainstormed template-based generation and LLM-assisted rewriting.
+
+During prompt synthesis, we deliberately employ an answer-first strategy. We ask a frontier model to select self-contained world-knowledge gaps based on the seed context. Therefore, each prompt carries \emph{knowledge gap references} by construction, structured slots specifying what visual or textual knowledge the generator is likely to lack, each with a severity label (critical, important, moderate or minimal) and a justification field. These annotations ease the burden of automated evaluation.
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{We release \dataset{}, \searchcorpus{} and \bench{} which compose replayable environment for agentic visual generation.}
+These assets provide agentic reasoning and generation traces collected across multiple reasoners and generators for the 20{,}188 unique training prompts. \textbf{\searchcorpus{}} provide cached search sessions and downloads which emulate live web search offline, relieving burden to costly search APIs.}
+\label{tab:released_assets}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\columnwidth}{@{}lrX@{}}
+\toprule
+\textbf{Asset} & \textbf{Scale} & \textbf{Enables} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{\textbf{Training Trajectories} (20{,}188 prompts)}} \\
+Reasoning traces across various frontier reasoners     & 90{,}452  & search-policy / reward learning \\
+Image Generations using different reasoning trace x generators          & 281{,}925 & preference \& distillation data \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{\textbf{Search corpus} (archived, indexed)}} \\
+Search sessions             & 145{,}642 & reproducible retrieval, no live API \\
+\quad image / web           & 108{,}800 / 36{,}842 & \\
+SERP hits (unique URLs)     & 559{,}973 & retrieval / grounding studies \\
+Cached downloads            & 370{,}733 & fully offline replay \\
+\quad image / web           & 259{,}178 / 111{,}555 & \\
+\bottomrule
+\end{tabularx}
+\vspace{-1cm}
+\end{table}
+
+
+
+
+\textbf{Released assets: a {replayable harness}.}
+Reproducing search-augmented generation normally demands paid API access to both a search engine and a fleet of generators, and results drift as those services change. We remove that barrier. Alongside \dataset{}/\bench{}, we release the full training dataset: 90{,}452 reasoning traces collected from different frontier reasoners, and 281{,}925 image generations spanning multiple reasoner configurations and frontier generators (Table~\ref{tab:released_assets}). We further release a \searchcorpus{} with 145{,}642 archived image and web search sessions, 559{,}973 unique search URLs, and 370{,}733 cached downloads. Because every search is pre-executed and frozen, the pipeline can be replayed without live search API keys or search-result drift, turning an expensive workflow into an offline substrate for preference learning, reward modeling, search-policy design, and retrieval research. {Together, the gate--filter--integrate protocol, the co-training loop, and this frozen corpus constitute a reusable \emph{harness} for agentic, tool-augmented visual generation.}
+
+
+\subsection{Evaluation Protocols}
+\label{sec:eval_protocols}
+
+Before we deliver our major empirical findings, we first briefly clarify our evaluation protocols for world-knowledge-grounded image generation. We aim to distinguish between world-knowledge failures and rendering failures with fully automated evaluation. Therefore, we employ two complementary set of evaluation score components. As Table~\ref{tab:eval_components} details, four components are \emph{knowledge-sensitive}: \emph{Checklist verification} tests 3--5 binary questions about key visual elements. \emph{Rubric-adaptive scoring} applies 2--4 category-tailored weighted dimensions.  \emph{Prompt faithfulness} measures overall adherence to the textual request, and \emph{visual reference fidelity} measures faithfulness to provided reference images (when applicable). These evaluation criteria tailor to prompt-specific knowledge demands.
+
+The remaining five components are \emph{knowledge-invariant} dimensions that assess \emph{rendering quality} (bottom half of Table~\ref{tab:eval_components}): image quality, text rendering, AI naturalness, composition \& aesthetics, and physical plausibility. This decomposition comprehensively diagnoses the knowledge bottleneck and rendering gap. We provide an example below for concrete illustration. 
+
+\begin{examplebox}
+\small
+\textbf{Example: Prompt-Specific Evaluation Context.} 
+\\[2pt]
+\textbf{Prompt:} \emph{``Paint Yang Chaoyue (a celebrity) on a 1970s Chinese rural field ridge; long-handled hoe; earth tones; 1970s film grain.''} \\[3pt]
+\textbf{Checklist} (binary verification questions, each targeting one knowledge gap):
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt,parsep=0pt]
+  \item Is the person recognizable as Yang Chaoyue (facial features and overall bearing)?
+  \item Do the clothing and setting match a 1970s Chinese rural commune worker rather than modern workwear?
+  \item Does the farm tool match the form of a traditional long-handled hoe?
+  \item Does the image show the requested earth-tone palette and 1970s film-grain texture?
+\end{itemize}
+\vspace{1pt}
+\textbf{Rubric} (category-specific weighted dimensions; the justification states what each dimension scores):
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt,parsep=0pt]
+  \item \texttt{celebrity\_likeness}\,(0.4) --- how well the model preserves Yang Chaoyue's face when placed in a non-standard context.
+  \item \texttt{historical\_authenticity}\,(0.4) --- accuracy of the 1970s attire and farming environment.
+  \item \texttt{atmospheric\_tone}\,(0.2) --- consistency of the film grain and earth-tone color palette.
+\end{itemize}
+\noindent Every prompt additionally receives generic dimensions (prompt faithfulness, image quality, AI naturalness, composition). \\[2pt]
+\textbf{Knowledge Gap References:} Textual knowledge of the background of 1970s Chinese history. Two reference images (period labor clothing; celebrity likeness) supplied alongside the generated image. \\[2pt]
+{\footnotesize End-to-end trace and per-stage reasoner I/O: Appendix~\ref{app:reasoner_io}.}
+\end{examplebox}
+
+% . These isolate rendering competence from knowledge absence. This decomposition is essential for our analysis: a generator scoring high on rendering but low on visual reference fidelity is failing on knowledge, not rendering---precisely the diagnostic that existing single-score benchmarks cannot provide. Full details appear in Appendix~\ref{app:benchmark_details}.
+
+
+% Our goal is fully automated evaluation that distinguishes whether a generation fails because it lacks world knowledge or because it renders poorly. We decompose evaluation into ten complementary components (Table~\ref{tab:eval_components}), scored by a Gemini-3-Flash VLM judge (Spearman $\rho = 0.87$ with human ratings on 500 held-out pairs~\cite{hu2023tifa,wiles2024gecko,lee2024heim}). The overall score is the unweighted mean of all applicable components.
+
+% As Table~\ref{tab:eval_components} details, four components are \emph{prompt-adaptive}: every prompt receives evaluation criteria tailored to its specific knowledge demands. \emph{Checklist verification} tests 3--5 binary questions about key visual elements (e.g., ``Is the helmet design consistent with 1980s-era NASA equipment?''). \emph{Rubric-adaptive scoring} applies 2--4 category-tailored weighted dimensions (e.g., \texttt{entity\_accuracy}\,(0.4), \texttt{stylistic\_coherence}\,(0.3), \texttt{compositional\_adherence}\,(0.3)). \emph{Prompt faithfulness} measures overall adherence to the textual request, and \emph{visual reference fidelity} measures faithfulness to provided reference images.
+
+% The remaining six components (bottom half of Table~\ref{tab:eval_components}) assess \emph{rendering quality}: image quality, text rendering, AI naturalness, composition \& aesthetics, and physical plausibility, plus a textual reference fidelity score when text knowledge gaps are present. These isolate rendering competence from knowledge absence. This decomposition is essential for our analysis: a generator scoring high on rendering but low on visual reference fidelity is failing on knowledge, not rendering---precisely the diagnostic that existing single-score benchmarks cannot provide. Full details appear in Appendix~\ref{app:benchmark_details}.
+% ============================================================
+% GROUNDING: Evaluation component descriptions derived from the FF-judge system prompt.
+% Source: Flow-Factory/src/flow_factory/rewards/toolgen_searchbetter_judge_common.py
+%   - JUDGE_SYSTEM_PROMPT (lines 121--198): 8-step evaluation protocol
+%   - REQUIRED_GENERIC_RUBRIC_DIMS (lines 311--319): frozenset of 6 fixed dims
+%   - build_eval_prompt_text() (lines 596--632): rubric line construction
+%
+% Verbatim judge instructions per component (scoring scale 0--3, half-points):
+%   prompt_faithfulness: "Are all requested subjects, attributes, actions, scene, and style
+%     present and accurate?"
+%   image_quality: "Visual clarity/sharpness? Artifacts or defects? Style/lighting/perspective
+%     coherence? Physical plausibility and anatomy correctness?"
+%   text_rendering: "Does rendered text match required content? Readable? Spelled? Placed well?
+%     If no in-image text is required and none is present, leave score empty."
+%   ai_naturalness: "Does the image look AI-generated? Check: organic texture realism vs AI
+%     smoothness? Fine-detail plausibility vs uncanny uniformity? Environment grounded vs
+%     dreamlike/generic? Would a careful viewer readily identify this as AI-generated?"
+%   composition_and_aesthetics: "Well-framed and balanced? Clear depth and spatial arrangement?
+%     Color harmony and consistent lighting? Visually appealing overall?"
+%   physical_plausibility: "Anatomy (fingers, limbs, proportions, pose)? Object physics (gravity,
+%     support, balance)? Spatial consistency (perspective, scale, occlusion)? Material properties
+%     (reflections, transparency, texture)? Lighting/shadow consistency?"
+%   visual_reference (Step 7): "Compare target against references for identity preservation,
+%     attribute consistency, and style fidelity. Score preservation of critical identity,
+%     attributes, and style from references onto the target."
+%   text_reference (Step 7b): "Using gap metadata (entity, reasoning, suggested lookup intent)
+%     and visible target evidence only, score how correctly the image renders what those gaps
+%     require (facts, labels, standards, wording, numbers, symbols, etc.)."
+%   checklist: per-prompt verification items (3--10 binary questions about key visual elements)
+%   rubric_adaptive: per-prompt category-tailored weighted dimensions, excluding the 6 fixed dims
+% ============================================================
+\begin{table}[t]
+\centering
+\caption{\small\textbf{Evaluation components of the \bench{} judge.} Each component is scored 0--100; the overall score is the mean of all applicable components. Knowledge-sensitive components (top) vary per prompt and measure knowledge presence; rendering-quality components (bottom) are fixed across all prompts and measure generation competence independently of knowledge.}
+\label{tab:eval_components}
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+\textbf{Component} & \textbf{What it evaluates} \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Knowledge-sensitive (prompt-adaptive)}} \\
+Checklist Verification & 3--10 per-prompt checks on key visual elements, each scored on visual evidence \\
+Rubric Scoring & 3--5 weighted scoring scheme that grades  quality across a few prompt-adaptive dimensions \\
+Prompt Faithfulness & Presence and accuracy of all requested subjects, attributes, actions, scene, and style \\
+Visual Reference Fidelity & Identity, attribute, and style fidelity to the prompt-requested entities (if applicable)\\
+Textual Knowledge Fidelity & Correctness of factual/textual knowledge gaps (facts, systems, concepts, workflows,  etc) \\
+\midrule
+\multicolumn{2}{@{}l}{\emph{Rendering quality (knowledge-invariant)}} \\
+Image Quality & Clarity and sharpness; freedom from artifacts; style, lighting, and perspective coherence \\
+Text Rendering & Accuracy, readability, spelling, and placement of in-image text; scored only when text is required \\
+AI Naturalness & Texture realism vs.\ AI smoothness and uncanny uniformity; grounded vs.\ generic look \\
+Composition \& Aesthetics & Framing and balance; depth and spatial arrangement; color harmony; overall appeal \\
+Physical Plausibility & Anatomy, object physics, spatial consistency, and material/lighting coherence \\
+\bottomrule
+\end{tabularx}
+\vspace{-.3cm}
+\end{table}
+
+\subsection{What Makes World-Knowledge-Grounded Image Generation Hard?} %% CHANGED from \paragraph{2.3}
+\label{sec:bottleneck_finding}
+
+
+
+% \textbf{Finding 1: The search bottleneck is severe, pervasive, and invisible to existing evaluations.}
+\begin{finding}
+\textbf{Finding 1: Generators that score comparably on standard prompts diverge by nearly 40 points when search-intensive world knowledge is required.}
+On prompts requiring only parametric knowledge, open and commercial generators score at comparable levels (67--75 out of 100); on search-intensive prompts, the same open generators collapse to 22--28 while commercial systems with integrated search barely drop. This 40-point divergence is invisible to existing benchmarks that test only rendering within known concepts.
+\end{finding}
+
+Figure~\ref{fig:stratum_collapse} visualizes the gap directly. On the NoSearch stratum, where only parametric knowledge is required, every generator, open and commercial alike, scores in a comparable band (63--75 out of 100). Generators cluster in a comparable band when knowledge is not the bottleneck. On the Search-Intensive stratum, the landscape fractures: every open-weight generator collapses to 22--28, while commercial systems with integrated search barely drop.
+
+
+To isolate the world-knowledge bottleneck from rendering ability, we curate two complementary test sets: \emph{NoSearch} (100 prompts selected where generators perform well with parametric knowledge alone) and \emph{Search-Intensive} (651 prompts where external world knowledge is required).
+Table~\ref{tab:bottleneck_overall} reports six key evaluation dimensions on the Search-Intensive slice, grouped into knowledge-sensitive components (which measure knowledge presence) and knowledge-invariant components (which measure rendering competence). The full nine-component breakdown including both strata appears in the appendix.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/b1_stratum_collapse.pdf}
+\caption{\small\textbf{The world-knowledge bottleneck: per-stratum collapse across nine generators.}
+Grouped bars show the nine-component mean on NoSearch vs.\ Search-Intensive strata.
+Every generator, open-weight and commercial alike, collapses on the search-intensive subset,
+confirming the bottleneck is universal. Drop magnitudes range from $-$0.1 (GPT-Image-2) to $-$39.1 (Qwen-Image-2).}
+\label{fig:stratum_collapse}
+\vspace{-.3cm}
+\end{figure}
+\input{table_bottleneck}
+The non-uniformity across commercial systems is itself diagnostic. GPT-Image-2 drops only 0.1 points, because live search operates behind that API. Nano Banana Pro drops only $9.7$ points ($75.0 \to 65.3$), while Qwen-Image-1 drops nearly $40$ points. The magnitude of the drop correlates inversely with the degree of integrated search capability: systems with reasoned search maintain performance, e.g., GPT-Image-2, Nano Banana Pro; systems without it collapse, e.g., open-source generators. 
+
+Table~\ref{tab:bottleneck_overall} pinpoints where the gap originates. Knowledge-sensitive components (Checklist, Rubric, Visual Reference Fidelity), which directly measure knowledge presence, collapse across all open generators (e.g., Flux.2-Klein-9B: Checklist 24.2, Visual Reference 16.9). Knowledge-invariant components (Image Quality, Physical Plausibility) remain comparatively high (36.8, 48.6 for the same model), confirming that the collapse reflects knowledge absence, not rendering failure. GPT-Image-2 holds strong across both groups (Checklist 71.2, Visual Reference 66.0), consistent with integrated knowledge access.
+The benchmark spans diverse, long-tailed domains (Figure~\ref{fig:bench_overview}), and the per-cell severity heatmap (Figure~\ref{fig:heatmap_severity}, Appendix~\ref{app:benchmark}) confirms the severity is pervasive across all twelve failure categories and twenty-two domains, ruling out the hypothesis that the bottleneck is concentrated in a few niche categories.
+
+
+\subsection{Naive Search Is a Second Problem} %% CHANGED: was commented out, now a proper subsection
+\label{sec:naive}
+
+The bottleneck has a natural remedy: search.
+A human illustrator who receives an unfamiliar request looks up references before drawing.
+The analogous pipeline for a generator has three steps: (1)~a reasoner identifies knowledge gaps in the prompt, (2)~search queries fill those gaps, returning images, text, or both, and (3)~the retrieved material is integrated into the generator's input so it can render faithfully (Figure~\ref{fig:pipeline}; \S\ref{sec:method} formalizes each step).
+
+We stress-test this pipeline with two search policies.
+\emph{BlindSearch}: the reasoner searches for every nominated gap regardless of whether search actually helps.
+\emph{ReasonedSearch}: a frontier VLM (Gemini-3-Flash) selectively searches for quality-relevant gaps, then picks the better of the augmented and unaugmented outputs per prompt.
+
+To diagnose when and where each policy helps or harms, we further partition the \emph{Search-Intensive} set into two subsets: \emph{VisualSearch} prompt set that benefits substantially from visual references, e.g., celebrities, or \emph{TextualSearch} that benefits from textual references, e.g., scientific infographics.
+% Table~\ref{tab:bottleneck} reports stratified scores.
+
+%  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+% Original user-supplied grid (verbatim column / row identifiers and
+% values), preserved for audit:
+% | Stratum       | Model | NoSearch | ReasonedSearch | BlindSearch |
+% | NoSearch      | Qwen-Image-2 | 0.8110   | 0.7858         | 0.742       |
+% | NoSearch      | qwen1 | 0.7394   | 0.7091         | 0.668       |
+% | NoSearch      | klein | 0.6943   | 0.7284         | 0.618       |
+% | VisualSearch  | Qwen-Image-2 | 0.5998   | 0.7060         | 0.618       |
+% | VisualSearch  | qwen1 | 0.5638   | 0.7058         | 0.578       |
+% | VisualSearch  | klein | 0.5521   | 0.6815         | 0.498       |
+% | TextualSearch | Qwen-Image-2 | 0.1494   | 0.2915         | 0.248       |
+% | TextualSearch | qwen1 | 0.1498   | 0.2754         | 0.232       |
+% | TextualSearch | klein | 0.1211   | 0.1912         | 0.162       |
+% Row strata partition the test split using Qwen1's knowledge boundary:
+% NoSearch / VisualSearch / TextualSearch per user specification.
+%  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  -- 
+
+
+\begin{finding}
+\textbf{Finding 2: Naive search actively degrades prompts the generator already handles.}
+BlindSearch drops every generator on the NoSearch stratum (prompts that don't need external world knowledge); even selective search must learn \emph{when} to abstain (Table~\ref{tab:naive}).
+\end{finding}
+
+If search were uniformly beneficial, the problem would reduce to engineering better queries.
+Table~\ref{tab:naive} shows otherwise.
+On the \emph{NoSearch} stratum, \emph{BlindSearch} strictly degrades every generator: Qwen-Image-2 drops from $70.7$ to $60.4$, a $14.6\%$ relative loss on prompts it already handles well.
+\emph{ReasonedSearch} improves Qwen-Image-2 on \emph{NoSearch} ($70.7 \to 76.5$) while strongly lifting \emph{TextualSearch} from $22.9$ to $34.1$.
+Selective search buys knowledge-intensive gains while preserving parametric knowledge on prompts that do not benefit from retrieval.
+\input{table_searchhurt}
+
+Figure~\ref{fig:naive_failure} illustrates two structurally distinct failure modes.
+\emph{Concept corruption} (top): search fires on a prompt the generator already handles; the returned reference overrides accurate internal knowledge, a gating failure.
+\emph{Copy effect} (bottom): a reference carries too much raw information and becomes a copying template rather than a knowledge supplement, a filtering failure.
+These two modes directly motivate the gate--filter--integrate protocol in \S\ref{sec:atomic}.
+The generator's inability to filter search noise mirrors text-domain evidence that parametric memory and external lookup trade off by query type~\cite{mallen2023nottrust}, but the visual setting adds modality-specific failure modes, including spatial distortion, identity blending, and stylistic leakage, that demand different triage and integration strategies.
+
+
+\section{Co-Training {Agentic}  Visual Generation}
+\label{sec:method}
+
+The findings above motivate a search-augmented generation paradigm: search only when missing knowledge lies outside the generator's boundary, and control how retrieved content enters generation.
+This requires deciding \emph{when} to search, \emph{which modality} to use, and \emph{how} to integrate evidence without introducing search noise.
+
+% Two structural facts make a static solution impossible.
+% First, the generator cannot filter noise from conditioning signals; noise must be suppressed \emph{before} reaching the generator, placing the burden entirely on the reasoner.
+% Second, the optimal search policy depends on what the generator already knows, and this boundary shifts as the generator improves: a policy calibrated to today's generator is miscalibrated tomorrow.
+% The resolution is co-training: the generator and reasoner train together so that the boundary, though hard to specify a priori, becomes discoverable empirically.
+
+We realize this philosophy through two components (Figure~\ref{fig:pipeline}): a reasoner controls what to search and how search-augmented inputs (visual references and searched web knowledge) reach the generator with noise resistance (\S\ref{sec:atomic}), and a co-training framework that first teaches the generator to expand knowledge, then recalibrates the reasoner to the strengthened generator's knowledge boundary (\S\ref{sec:training}).  
+
+\subsection{Noise-Resistant {Agentic} Reasoner}
+\label{sec:atomic}
+
+Naive search degrades generation (\S\ref{sec:naive}) because noise enters at three structurally distinct points: the decision to search, the choice of reference, and the integration of external content.
+A single filter cannot address all three; each demands its own targeted defense.
+Therefore, we propose a three-stage agentic search protocol (bottom half of Figure~\ref{fig:pipeline}) that suppresses noise at each point in sequence (see Appendix~\ref{app:reasoner_io} for a worked example). {These stages form the agent's reason-and-act loop: \emph{gate} decides when to act and which tool to call, \emph{filter} selects the tool's returns, and \emph{integrate} assimilates the observation into generation.}
+
+\textbf{Stage 1: Gate.}
+In this stage, given a user prompt $p$, the reasoner identifies knowledge gaps, classifies each by type and severity, and proposes search queries with modality labels (\texttt{image}\,$|$\,\texttt{web}).
+Only gaps rated \texttt{critical} or \texttt{important} trigger search; the rest are filtered, producing at most 3 search queries or \textsc{skip} if no actionable gaps survive.
+
+\textbf{Stage 2: Filter.}
+After multimodal search is executed and search results return, this stage aims to select references that sufficiently fill the specific gap identified  while minimizing extraneous content. We seek a reference that ``fills the gap'' supplies only the missing visual knowledge while leaving the generator free to compose the rest. Empirically, we find that this stage helps reduce the copy effects (\S\ref{sec:naive}) as visual shortcuts are filtered from search results. 
+
+
+\textbf{Stage 3: Integrate.}
+Even a well-chosen visual reference can carry far more information than knowledge gap requires, and thus be exploited by the generator as visual shortcuts: raw pixel conditioning leaks style, background, and layout that were never requested. The integration stage therefore \emph{routes visual references through natural language} (Figure~\ref{fig:pipeline}): the reasoner fuses the original prompt, its gap analysis, retrieved visual and textual knowledge into enriched text specification. In addition to the raw photograph, the generator receives grounded citations naming exactly what to borrow, e.g., ``following Image~I, render the character in a teal-and-gold robe''. This preserves the missing knowledge for faithful generation while discarding the pixel-level noise that would otherwise dominate the output.
+
+\subsection{Knowledge Boundary}
+To address world-knowledge-grounded requests, our key insight is to introduce a reasoner that decides when and what to search, preparing augmented inputs to the generator. Yet this design rests on an implicit assumption: that there exists a well-defined partition between what the generator already knows and what it must search. The observations from \S\ref{sec:benchmark} confirm this partition is real but also reveal that it is \emph{generator-specific and shifts under training}; search helps some prompts and harms others, and the balance changes with generator capability. This identifies a quantity we define as \emph{knowledge boundary}.
+
+\refstepcounter{definitionctr}
+\begin{defbox} %% CHANGED: styled box instead of plain definition environment
+\textbf{Definition~\thedefinitionctr} (Knowledge Boundary).
+\label{def:boundary}
+Let $\mathcal{K}$ denote the space of world-knowledge units (entities, cultural symbols, typographic identities, procedural specifications, etc.)\ required by prompts in a distribution $\mathcal{P}$.
+For a generator $G_\theta$ with parameters $\theta$, a prompt $p \in \mathcal{P}$, and conditioning context $c$ (search-returned references and text), let $Q(G_\theta, p, c) \in [0,1]$ be a bounded quality function.
+For a fixed tolerance $\epsilon > 0$, define the \emph{internalizable} and \emph{contextual} knowledge sets:
+\begin{align}
+\mathcal{K}_{\mathrm{int}}(\theta) &\;=\; \bigl\{\, k \in \mathcal{K} \;:\; \mathbb{E}_{p \mid k}\bigl[Q(G_\theta,\, p,\, \text{\textsc{Search}}(k)) - Q(G_\theta,\, p,\, \varnothing)\bigr] < \epsilon \,\bigr\}, \label{eq:kint} \\
+\mathcal{K}_{\mathrm{ctx}}(\theta) &\;=\; \mathcal{K} \;\setminus\; \mathcal{K}_{\mathrm{int}}(\theta). \label{eq:kctx}
+\end{align}
+where the expectation is over all prompts in $\mathcal{P}$ that require knowledge unit $k$, and $\text{\textsc{Search}}(k)$ denotes the conditioning context from executing the search protocol for knowledge unit $k$.
+The pair $(\mathcal{K}_{\mathrm{int}}(\theta),\, \mathcal{K}_{\mathrm{ctx}}(\theta))$ forms a generator-specific partition of $\mathcal{K}$; we refer to this partition as the \emph{knowledge boundary} $\mathcal{B}(\theta)$.
+A prompt $p$ is \emph{search-intensive} w.r.t.\ $G_\theta$ if it requires knowledge $k \in \mathcal{K}_{\mathrm{ctx}}(\theta)$.
+The boundary is generator-specific: it depends on $\theta$ and shifts under training, i.e., $\mathcal{K}_{\mathrm{int}}(\theta) \subseteq \mathcal{K}_{\mathrm{int}}(\theta')$ when $\theta'$ results from DPO on search-augmented demonstrations.
+\end{defbox}
+
+
+Definition~\ref{def:boundary} formalizes our fundamental insight.
+\begin{insight}
+\textbf{Insight.} Some knowledge is internalizable and search should not fire for it; other knowledge is contextual and search is structurally necessary. 
+\end{insight}
+Crucially, the boundary need not be knowable a priori: we find that it is \emph{discoverable} through co-training. Figure~\ref{fig:cotraining_progression}b makes this concrete: we measure the per-prompt quality gap with and without search and show that its distribution shifts under co-training.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/approach2.pdf}
+\caption{\small\textbf{Co-training framework: teach the generator what it can internalize, then calibrate the reasoner to search what it cannot. }Given a user prompt, the VLM reasoner identifies knowledge gaps, executes modality-aware search (image or text), filters and integrates results into an enriched final prompt, and routes visual references to the generator. Co-training proceeds in two phases. Phase 1 (top): online DPO samples search-augmented generations and ranks them by generation quality, constructing preference pairs to push its knowledge boundary outward. Phase 2 (bottom): rejection-sampling finetuning recalibrates the reasoner to the strengthened generator, reinforcing trajectories where reasoned search improves output and discarding what causes degradation. }\vspace{-.3cm}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Co-Training: Teach, Then Search}
+\label{sec:training}
+
+How does co-training discover the boundary in practice? The boundary shifts only when the generator's parameters change, so discovering it requires training the generator itself, not merely adjusting the search policy.
+Co-training (top half of Figure~\ref{fig:pipeline}) acts on both sides in sequence: it first strengthens the generator so fewer prompts require search, then recalibrates the reasoner to the strengthened generator's boundary.
+
+% This sequence is load-bearing. If the reasoner were calibrated first, every subsequent generator improvement would invalidate that calibration: the reasoner would still search for concepts the generator has since internalized. Teaching the generator first ensures that when calibration happens, it targets the correct, expanded boundary.
+
+\textbf{Phase~0: Supervised warm-start.}
+Co-training requires a reasoner that follow the prescribed three-stage protocol to reason and search.
+So we first warm-up the reasoner by supervised finetuning Qwen3-VL-8B~\cite{qwen2024vl} on ${\sim}$10{,}000 expert-annotated Task~A/B/C trajectories, which correspond one-to-one to the gate/filter/integrate stages (representative per-stage I/O in Appendix~\ref{app:reasoner_io}; full hyperparameters in Appendix~\ref{app:hardware}).
+The resulting reasoner produces well-structured analyses but remains generator-agnostic: it searches for anything that \emph{might} be difficult, not only what \emph{one specific} generator actually fails on.
+
+\textbf{Phase~1: Teach what the generator can internalize.}
+The warmed-up reasoner provides search-augmented inputs (visual references and text prompts), exposing the generator to knowledge it previously lacked.
+Based on original text prompts and augmented inputs, we train generators to internalize world knowledge via online iterative Diffusion-DPO~\cite{rafailov2023dpo,wallace2024diffusiondpo}. In each episode, the generator samples $M$ images per prompt, scored by the \dataset{} evaluation protocol, and constructs preference pairs from top- and worst-scored generations.
+DPO reinforces the generator's own best outputs, internalizing knowledge whose visual identity is stable enough to absorb into parameters.
+After Phase~1, the generator $G_\theta^{(1)}$ has expanded its knowledge boundary: concepts that previously required search now reside in parameters (Figure~\ref{fig:cotraining_progression}b provides direct evidence: the CDF of per-prompt no-search quality shifts rightward after DPO).
+
+DPO training also builds noise-robustness in visual generation: because the generator trains on search-augmented inputs, it learns to incorporate imperfect visual references without being dominated by their noise. A generator trained only on clean inputs treats every conditioning signal as authoritative, the root cause of concept corruption and copy effects identified in \S\ref{sec:naive}. Exposure to the noisy, varied outputs of real search builds robustness to imperfect references. This noise resistance is essential for Phase~2, because even a well-calibrated reasoner cannot guarantee perfectly clean references at inference time.
+
+\textbf{Phase~2: Search what the generator cannot be taught.}
+The generator's boundary has shifted; the reasoner's policy is now miscalibrated, still searching for concepts the generator has internalized.
+Recalibration uses rejection-sampling finetuning (RFT): we roll out $N$ trajectories from the Phase~0 reasoner paired with $G_\theta^{(1)}$, score the resulting images, compute group-relative advantages, and retain only positive-advantage trajectories for continued reasoner training.
+Trajectories where the reasoner correctly abstains receive high scores and are reinforced; trajectories where unnecessary search corrupts output receive low scores and are discarded.
+The reasoner learns the strengthened generator's boundary without explicit boundary labels: the boundary emerges from the reward signal. {We roll out the search agent's trace, score the resulting images, and reinforce positive-advantage trajectories, optimizing the agent's policy against the generator as its environment.}
+The full RFT cycle fits in $4 \times 8$ GPU hours.
+
+Taken together, the two phases execute complementary movements on the knowledge boundary: Phase~1 moves the boundary outward by internalizing stable knowledge and building noise robustness; Phase~2 moves the search policy inward to match, so that search fires precisely where knowledge remains outside the generator's expanded capacity.
+
+
+% \textbf{Gating formalization.}
+% Let $g_\phi \colon \mathcal{P} \to \{\text{\textsc{search}},\, \text{\textsc{skip}}\}$ denote the reasoner's Stage~1 gating decision.
+% After Phase~2 calibration, $g_{\phi'}$ approximates the indicator function for contextual knowledge:
+% \begin{equation}
+% g_{\phi'}(p) \;\approx\; \mathbf{1}\bigl[\,p \text{ requires } k \in \mathcal{K}_{\mathrm{ctx}}(\theta')\,\bigr],
+% \label{eq:gate}
+% \end{equation}
+% where $\theta'$ is the DPO-strengthened generator's parameters from Phase~1.
+% The approximation is learned, not prescribed: Phase~2 RFT reinforces trajectories where $g_\phi$ correctly predicts whether search improves the \emph{strengthened} generator's output.
+
+
+\begin{algorithm}[h]
+\caption{Co-Training: Teach, Then Search}
+\label{alg:cotrain}
+\begin{algorithmic}[1]
+\Require Generator $G_\theta$, base VLM $R_\phi$, dataset $\mathcal{D} = \{p_i\}_{i=1}^{N_{\mathrm{D}}}$, quality function $Q$, margin $\epsilon$
+\Ensure Co-trained generator $G_{\theta'}$, calibrated reasoner $R_{\phi'}$
+
+\Statex \textbf{--- Phase~0: Supervised Warm-Start ---}
+\State Collect expert trajectories $\mathcal{T}_{\mathrm{sft}} = \{(p_i, a_i^{\mathrm{A}}, a_i^{\mathrm{B}}, a_i^{\mathrm{C}})\}$ for Tasks A/B/C \Comment{${\sim}$20K}
+\State $R_{\phi_0} \leftarrow \arg\min_\phi \sum_{(p,a) \in \mathcal{T}_{\mathrm{sft}}} \mathcal{L}_{\mathrm{SFT}}(\phi; p, a)$
+    \Comment{Cross-entropy on structured task outputs}
+\Statex
+
+\Statex \textbf{--- Phase~1: Online Iterative DPO (Generator) ---}
+\For{each episode $e = 1, \dots, T_1$}
+    \State Sample batch $\mathcal{B}_e \subset \mathcal{D}$
+    \For{each $p \in \mathcal{B}_e$}
+        \State $\tilde{p} \leftarrow R_{\phi_0}(p)$ \Comment{Search-enriched specification via gate--filter--integrate}
+        \State Generate $M$ images: $\{x_j\}_{j=1}^{M} \sim G_{\theta}(\cdot \mid \tilde{p})$
+        \State Score: $s_j \leftarrow \text{Score}(p, x_j)$ for each $j$ \Comment{Image scoring function; distinct from boundary-defining $Q$ in Def.~\ref{def:boundary}}
+        \State Construct preference pair: $x^{w} \leftarrow x_{\arg\max s_j}$,\; $x^{l} \leftarrow x_{\arg\min s_j}$
+    \EndFor
+    \State Update via DPO loss adapted for flow-matching:
+    \Statex \qquad $\mathcal{L}_{\mathrm{DPO}}(\theta) = -\mathbb{E}\!\left[\log\sigma\!\left(\beta \left(\log \frac{v_\theta(x^w_t \mid \tilde{p})}{v_{\theta_{\mathrm{ref}}}(x^w_t \mid \tilde{p})} - \log \frac{v_\theta(x^l_t \mid \tilde{p})}{v_{\theta_{\mathrm{ref}}}(x^l_t \mid \tilde{p})}\right)\right)\right]$
+    \Statex \qquad where $v_\theta$ is the flow-matching velocity field, $t$ is the diffusion timestep, $\beta = 100$ is the DPO temperature, and $\theta_{\mathrm{ref}}$ is updated via EMA (decay $0.99$). Preference pairs are constructed from groups of $M$ generations per prompt.
+    \State $\theta \leftarrow \theta - \eta_1 \nabla_\theta \mathcal{L}_{\mathrm{DPO}}(\theta)$
+\EndFor
+\State $G_{\theta'} \leftarrow G_\theta$ \Comment{DPO-strengthened generator}
+\Statex
+
+\Statex \textbf{--- Phase~2: Rejection Finetuning (Reasoner) ---}
+\For{each $p \in \mathcal{D}_{\mathrm{rft}} \subset \mathcal{D}$}
+    \State Roll out $N_{\mathrm{traj}}$ trajectories: $\{\tau_n\}_{n=1}^{N_{\mathrm{traj}}}$, where $\tau_n = R_{\phi_0}(p)$, each yielding image $x_n \sim G_{\theta'}(\cdot \mid \tau_n)$
+    \State Score: $s_n \leftarrow \text{Score}(p, x_n)$
+    \State Compute group-relative advantage: $A_n \leftarrow \frac{s_n - \bar{s}}{\sigma_s + \delta}$, \; $\bar{s} = \frac{1}{N_{\mathrm{traj}}}\sum_n s_n$, \; $\sigma_s = \mathrm{std}(\{s_n\})$
+\EndFor
+\State Filter: $\mathcal{T}_{\mathrm{rft}} \leftarrow \{\tau_n : A_n > 0\}$ \Comment{Retain positive-advantage trajectories}
+\State $R_{\phi'} \leftarrow \arg\min_\phi \sum_{\tau \in \mathcal{T}_{\mathrm{rft}}} \mathcal{L}_{\mathrm{SFT}}(\phi; \tau)$
+    \Comment{SFT on filtered trajectories}
+\Statex
+\State \Return $(G_{\theta'},\; R_{\phi'})$
+\end{algorithmic}
+\end{algorithm}
+
+
+% \textbf{Minimality as methodology.}
+% The reported models apply exactly one Phase~1 pass followed by one Phase~2 pass.
+% This is a methodological choice, not a resource constraint: a minimal recipe isolates the effect of the principle from confounds introduced by multi-iteration optimization or complex scheduling.
+
+\section{Validating Evolving Knowledge Boundary through Co-Training}
+\label{sec:experiments}
+
+% The Selective Augmentation Principle makes three testable predictions:
+If the knowledge boundary is real and co-training discovers it, three consequences follow.
+First, each training phase should improve overall quality without regressing on any stratum; \emph{monotonicity} rules out the possibility that gains on search-intensive prompts come at the cost of prompts the generator already handles.
+Second, the improvement should be \emph{selective}: the calibrated reasoner must recover performance on prompts that generic search degrades, demonstrating that it has learned \emph{when not to search}.
+Third, the optimal search policy should be \emph{generator-specific}: a policy calibrated to the base generator should behave differently from one calibrated to the DPO-strengthened generator, confirming that the boundary is a joint property of the generator--reasoner pair rather than a fixed property of the prompt distribution.
+We test each prediction below; per-dimension breakdowns and the broader generator landscape appear in the appendix.
+
+% \subsection{Setup}
+% \label{sec:setup}
+
+\textbf{Generators.}
+Co-training experiments use two architecturally distinct open-weight generators: Flux.2-Klein-4B (\textbf{Klein-4B}), a flow-matching model, and Bagel-7B (\textbf{Bagel}), a unified vision--language model. This model choice is deliberate because the two models are widely acknowledged open-source generators that support both text-to-image generation and reference-to-image generation. 
+Testing on two architectures rules out the possibility that co-training benefits are specific to one conditioning mechanism.
+Each has a DPO-finetuned variant (\textbf{Klein-4B-DPO} and \textbf{Bagel-DPO}) whose knowledge boundary has shifted outward through Phase~1 training.
+
+\textbf{Reasoner variants.}
+The progression from weaker to stronger reasoners isolates the effect of generator-aware calibration:
+\textbf{\CondNS}: generator alone (no retrieval baseline).
+\textbf{\CondGS} (SFT-8B): Qwen3-VL-8B after supervised warm-up; the reasoner follows the protocol to perform reasoning and search but is generator-agnostic, i.e., not aware of knowledge boundary of specific generators.
+\textbf{\CondGAS}: undergoes co-training based on \CondGS; the reasoner is calibrated to specific generator's specific boundary.
+\textbf{\textsc{Oracle} (Frontier API)}: trillion parameters high-cost Gemini-3-Flash API as the reasoner following same reasoning and search protocol. This serves as an upper bound on generator-agnostic reasoner, showing best possible performance when pairing generators with strong but generic reasoner.
+
+All reasoners are equipped with search tools for world-knowledge grounding. We use Google Image and Web Search via SERP API. 
+
+\textbf{Evaluation.}
+All scores use the Gemini-3-Flash judge on the 751-prompt test set (0--100 scale, 9-component rubric averaged to an overall score; Appendix~\ref{app:eval}).
+The search-intensive prompts are partitioned into three difficulty sets by Nano Banana Pro no-search quality (tercile boundaries): Set~I (easiest), Set~II, and Set~III (hardest).  
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/e1.pdf}
+\caption{\small\textbf{Co-training progression and knowledge boundary shift.}
+\textbf{(a)} Grouped bars show the three co-training stages (Reasoner SFT, Generator DPO, Reasoner RFT) for Set~I (easiest), Set~II, and Set~III (hardest) search-intensive tiers (Klein-4B). All three tiers show monotonic improvement.
+\textbf{(b)} Cumulative distribution of per-prompt no-search quality scores for base vs.\ DPO-finetuned generators on the 647-prompt eval set. The DPO curve sits below the base curve, indicating a rightward shift: fewer prompts receive low scores and more receive high scores from parametric knowledge alone. The shaded region represents newly internalized knowledge: concepts that previously required search but now reside in generator parameters. The shift is consistent across both Klein-4B (top) and Bagel-7B (bottom), confirming that DPO expands the knowledge boundary regardless of architecture.}
+\label{fig:cotraining_progression}
+\vspace{-.3cm}
+\end{figure}
+
+\vspace{-.1cm}
+\subsection{Co-Training Produces Monotonic, Selective Improvement}
+\label{sec:exp_monotone}
+\label{sec:main_results}
+\label{sec:exp_strata}
+
+With the setup in place, we first test our key insight: that co-training \emph{discovers and expands} the generator's knowledge boundary. Figure~\ref{fig:cotraining_progression} supplies the two most direct pieces of visual evidence. Panel~(a) shows the co-training progression---Reasoner SFT, Generator DPO, Reasoner RFT---improving monotonically within every difficulty tier, previewing the downstream quality gains we quantify below. Panel~(b) exposes the underlying mechanism: the CDF of per-prompt no-search quality for the base vs.\ DPO-strengthened generator shifts rightward, meaning fewer prompts score low and more score high from parametric knowledge alone. The shaded region is newly internalized knowledge---concepts whose per-prompt quality gap formerly exceeded $\epsilon$ and now fall below it, migrating from $\mathcal{K}_{\mathrm{ctx}}$ to $\mathcal{K}_{\mathrm{int}}$ (Def.~\ref{def:boundary}). The shift holds across both Klein-4B and Bagel-7B, confirming that DPO expands the boundary regardless of architecture.
+
+\begin{finding} %% NEW: Finding 3 added per review M19
+\textbf{Finding 3: Co-training discovers the knowledge boundary: a calibrated 8B reasoner matches a frontier oracle on the same generator.}
+The monotonic progression from \CondNS{} through \CondGS{} to \CondGAS{}, the per-stratum recovery on NoSearch prompts, and the generator-specific behavior across two architectures provide converging evidence that the structural split is an operational design variable, not merely a conceptual framework (Table~\ref{tab:main}).
+\end{finding}
+
+Table~\ref{tab:main} quantifies this progression.
+The top section traces three phases in order: Phase~0 pairs a generator-agnostic SFT reasoner with the base generator; Phase~1 keeps the same reasoner but pairs it with the DPO-strengthened generator (isolating the generator improvement); Phase~2 recalibrates the reasoner to the strengthened generator via RFT (isolating the reasoner calibration effect).
+The bottom section provides reference baselines that bound interpretation: no-search baselines establish the floor, frontier oracle baselines establish the ceiling, and a cross-check (calibrated reasoner on base generator) tests generator-specificity directly.
+% We partition the 651 search-intensive prompts into difficulty terciles (Set~I--III) by Nano Banana Pro no-search quality, with the 100-prompt NoSearch subset reported separately to reveal selectivity.
+
+\begin{table}[t]
+\centering
+\caption{\small \textbf{Main results: the co-training progression.}
+The \textbf{Progression} section traces the three co-training phases for both Klein-4B and Bagel.
+The \textbf{Reference baselines} section reports the no-search floor, frontier oracle ceiling, and cross-generator check for each architecture.
+Difficulty terciles (Set~I--III) by Nano Banana Pro no-search quality; NoSearch subset (100 prompts) reported separately.}
+\label{tab:main}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+& & NoSearch & \multicolumn{4}{c}{Search} \\
+\cmidrule{4-7}
+& & & Set I & Set II & Set III & Overall \\
+\midrule
+\multicolumn{7}{l}{\textbf{Co-training progression}} \\
+\midrule
+\multicolumn{7}{l}{\quad\textit{Klein-4B}} \\
+Phase~0 & \CondGS\,(SFT-8B)\;+\;Klein-4B & 54.6 & 28.9 & 29.2 & 21.2 & 26.4 \\
+Phase~1 & \CondGS\,(SFT-8B)\;+\;Klein-4B-DPO & 54.0 & 31.8 & 31.1 & 24.7 & 29.2 \\
+Phase~2 & \CondGAS\,(RFT-8B)\;+\;Klein-4B-DPO & \textbf{56.9} & \textbf{34.1} & \textbf{33.6} & \textbf{27.4} & \textbf{31.8} \\
+\addlinespace
+\multicolumn{7}{l}{\quad\textit{Bagel}} \\
+Phase~0 & \CondGS\,(SFT-8B)\;+\;Bagel & 52.6 & 24.4 & 26.6 & 19.2 & 23.4 \\
+Phase~1 & \CondGS\,(SFT-8B)\;+\;Bagel-DPO & 52.4 & 26.4 & 26.9 & 20.7 & 24.7 \\
+Phase~2 & \CondGAS\,(RFT-8B)\;+\;Bagel-DPO & \textbf{54.3} & \textbf{28.3} & \textbf{29.3} & \textbf{22.6} & \textbf{26.8} \\
+\midrule
+\multicolumn{7}{l}{\textbf{Reference baselines}} \\
+\midrule
+\multicolumn{7}{l}{\quad\textit{Klein-4B}} \\
+& \CondNS\;+\;Klein-4B-DPO & 49.9 & 28.2 & 26.3 & 20.6 & 25.0 \\
+& \textsc{Oracle}\;+\;Klein-4B-DPO & 55.7 & 33.7 & 33.9 & 26.0 & 31.2 \\
+& \CondGAS\,(RFT-8B)\;+\;Klein-4B & 54.6 & 29.0 & 29.8 & 21.5 & 26.8 \\
+\addlinespace
+\multicolumn{7}{l}{\quad\textit{Bagel}} \\
+& \CondNS\;+\;Bagel-DPO & 48.8 & 24.3 & 24.0 & 18.8 & 22.4 \\
+& \textsc{Oracle}\;+\;Bagel-DPO & 53.2 & 28.1 & 29.0 & 21.1 & 26.1 \\
+& \CondGAS\,(RFT-8B)\;+\;Bagel & 52.5 & 25.1 & 27.3 & 19.8 & 24.1 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{-.3cm}
+\end{table}
+
+Three patterns emerge, each confirming a prediction of the co-training principle.
+
+\textbf{Monotonicity.}
+The progression is monotonic on both generators. On Klein-4B, Phase~2 reaches 31.8, slightly exceeding the frontier oracle on the same generator (31.2). Both training phases contribute independently: generator DPO alone (Phase~0$\to$1) yields $+2.8$; reasoner RFT (Phase~1$\to$2) adds $+2.6$. The same pattern holds for Bagel (Table~\ref{tab:main}).
+
+As Figure~\ref{fig:cotraining_progression}(a) confirms, the improvement is monotonic within every difficulty tier, with Set~III (hardest) showing the largest gains where the boundary shift (Figure~\ref{fig:cotraining_progression}b) has the most room to operate.
+
+\textbf{Selectivity.}
+Recall from \S\ref{sec:naive} that naive search \emph{degrades} prompts the generator already handles (Finding~2).
+The calibrated reasoner must therefore improve search-intensive prompts without sacrificing quality on prompts where search is harmful.
+The NoSearch column in Table~\ref{tab:main} tests this directly: Phase~2 scores 56.9, a $+$7.0 gain over the no-search DPO baseline (49.9).
+The reasoner has learned when to abstain; it no longer corrupts prompts the strengthened generator already handles.
+Within the Search partition, Phase~2 improves over the no-search DPO baseline at every set and matches or closely approaches the frontier oracle, with the largest gains on Set~III where external knowledge is most critical.
+The same selectivity pattern holds for Bagel (Phase~2: 54.3 on NoSearch vs.\ 48.8 for no-search DPO; 26.8 overall).
+
+\textbf{Generator-specificity.}
+If the knowledge boundary is generator-specific, a reasoner calibrated to the DPO-strengthened generator should behave differently when paired with the base generator, because the base generator's boundary sits in a different location.
+The cross-check rows in Table~\ref{tab:main} test this: \CondGAS{} paired with \emph{base} Klein-4B scores 26.8 overall (vs.\ 31.8 when paired with Klein-4B-DPO, the generator it was calibrated for).
+NoSearch recovery remains strong (the reasoner still knows when to abstain), but Set~III gains shrink because the reasoner searches for concepts the base generator cannot render even with correct references.
+The calibrated reasoner, when paired with its \emph{intended} generator, matches or exceeds frontier-oracle scores at every tier.
+This asymmetry confirms that the search policy is a joint property of the generator--reasoner pair: a policy optimal for one generator is suboptimal for another.
+
+\textbf{Structural interpretation.}
+The evidence confirms all three predictions: monotonicity across phases and generators, selectivity on the NoSearch stratum, and generator-specificity in the cross-check.
+The matched-compute comparison is the sharpest validation: our co-trained 8B reasoner paired with a 4B generator (31.8) slightly exceeds a frontier VLM oracle on the same generator (31.2), suggesting that generator-specific calibration can approach costly frontier-scale reasoning at a fraction of the compute, latency and expense.
+The 39-point gap to GPT-Image-2 (71.0) reflects generator capacity at the 4B scale rather than a framework limitation; the co-training principle extracts the maximum from a fixed generator, and scaling the generator along this axis is the clear path to closing the absolute gap.
+
+
+
+% \subsection{Where Gains Concentrate}
+% \label{sec:exp_landscape}
+% \label{sec:exp_components}
+% \label{sec:exp_discussion}
+
+% \begin{figure}[t]
+% \centering
+% \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.85cm}\small\texttt{[FIGURE: seven-dimension progression]} Grouped bar chart: seven evaluation dimensions on the $x$-axis; three bars per group (\CondGS+Klein-4B, \CondGS+Klein-4B-DPO, \CondGAS+Klein-4B-DPO). Numeric values in Table~\ref{tab:klein_component_progression} (Appendix~\ref{app:extra_results_tables}).\vspace{0.85cm}}}
+% \caption{\textbf{Co-training progression across seven judge dimensions} (placeholder figure).
+% Parameterizable dimensions (checklist, rubric, prompt adherence, AI naturalness) should show the largest gains; compositional dimensions (text rendering, textual reference) the smallest, consistent with the structural split.}
+% \label{fig:dim_progression}
+% \end{figure}
+
+% The seven-dimension decomposition (Figure~\ref{fig:dim_progression}; Table~\ref{tab:klein_component_progression}) reveals where each training phase acts.
+% Dimensions reflecting parameterizable visual knowledge show the largest gains across the co-training progression: checklist accuracy ($+$7.3), rubric adherence ($+$7.8), prompt following ($+$6.7), and AI naturalness ($+$7.6) from \CondGS+Klein-4B to \CondGAS+Klein-4B-DPO.
+% These are dimensions where DPO successfully internalizes visual structure and where calibrated search avoids corrupting it.
+% Visual reference fidelity improves modestly ($+$4.4), reflecting genuine knowledge gaps that search continues to fill even after the generator strengthens.
+% Text rendering ($+$3.1) and textual reference fidelity ($+$0.5) show the smallest gains -- compositional reasoning that neither single-pass DPO nor single-pass RFT fully resolves.
+% This gradient is itself evidence for the structural split: the principle acts most strongly on the internalizable stratum and least on the contextual stratum.
+
+% \textbf{Broader landscape.}
+% See Appendix~\ref{app:extra_results_tables} for the full eight-generator discussion (Table~\ref{tab:landscape_app}).
+
+% \textbf{Situating the improvements.}
+% The absolute lift from \CondNS to \CondGAS on Klein-4B is $+$5.0 Overall; we do not claim state-of-the-art search-augmented generation.
+% The evidence is the \emph{structure} of improvement: gains where the principle predicts gains, recovery where it predicts recovery, and persistent difficulty where it predicts resistance.
+% The gap between our best result (36.2) and frontier commercial systems (53.4--70.5) defines a clear research frontier; future work can iterate co-training, scale the reasoner, or employ richer rewards, using the split as the organizing framework.
+
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Search-augmented generation.}
+Retrieval-augmented generation (RAG)~\cite{lewis2020rag} and REALM~\cite{guu2020realm} established the paradigm of grounding language models in external documents at inference time.
+Atlas~\cite{izacard2023atlas} and REPLUG~\cite{shi2023replug} take this further by jointly training the searcher and language model end-to-end, demonstrating that aligning the retrieval distribution with the generator's needs yields substantial gains over frozen-searcher pipelines.
+In the visual domain, Re-Imagen~\cite{chen2023reimagen} conditions diffusion on searched image--text pairs, RDM~\cite{blattmann2022rdm} augments generation with nearest-neighbor features, KNN-Diffusion~\cite{ashual2023knn} queries a large image database at generation time, Gen-Searcher~\cite{feng2026gen} trains an agentic searcher via SFT and RL while keeping the image generator frozen, and IP-Adapter~\cite{ye2023ipadapter} injects visual exemplars through cross-attention adapters.
+Subject-driven methods such as DreamBooth~\cite{ruiz2023dreambooth} and Textual Inversion~\cite{gal2022textual} internalize specific concepts via per-concept optimization; BLIP-Diffusion~\cite{li2023blipdiffusion} pre-trains a subject representation for efficient control.
+% Compared to these approaches, trains a Qwen3-VL-based search agent with SFT and GRPO to produce grounded prompts and reference images for generation.
+% This differs from our setting in two ways.
+% First, Gen-Searcher's SFT/RL data supervise search trajectories on synthetic prompts designed to require external search.
+% By contrast, \dataset{} is built from production user requests and annotated around prompt-level knowledge gaps: the agent must recognize what knowledge is missing and whether search should be skipped because the generator already knows enough. \searchcorpus{} further provides fully reproducible image and web search, enabling fair offline comparison.
+% Second, Gen-Searcher optimizes the search agent while keeping the visual generator fixed; our work finds that the knowledge boundary itself evolves only when the generator and reasoner are co-trained.
+% SearchGen therefore trains both sides.
+% Thus, Gen-Searcher primarily addresses how to search once a prompt is search-dependent, whereas our work studies when search is useful, when it is harmful, and how that decision changes after the generator learns.
+A common thread unites these pipelines: search is \emph{always on}, triggering retrieval for every prompt regardless of whether the generator already possesses adequate knowledge.
+In contrast, we study real user requests from production AIGC systems, identify real-world failure mode taxonomy, and contribute datasets and replayable search harness with  this real-world diversity. Our analysis (\S\ref{sec:benchmark})  shows that indiscriminate search actively degrades a substantial fraction of prompts, making the \emph{decision to search} itself a first-order design variable. Our approach thus proposes to co-evolve the joint system of agentic reasoner and image generator, laying the foundation for recursive self-improvement in visual generation. 
+
+\textbf{Selective and adaptive retrieval.}
+The question of \emph{when} to search has been studied extensively in text.
+Self-RAG~\cite{asai2024selfrag} trains a language model to emit retrieval-control and critique tokens.
+FLARE~\cite{jiang2023flare} triggers retrieval when predictive confidence drops.
+Toolformer~\cite{schick2023toolformer} learns when to invoke external APIs including search.
+CRAG~\cite{yan2024crag} evaluates and corrects retrieval quality post-hoc.
+Adaptive-RAG~\cite{jeong2024adaptiverag} routes queries to different retrieval strategies based on complexity.
+Mallen et al.~\cite{mallen2023nottrust} and Kandpal et al.~\cite{kandpal2023entities} show that popular entities are better served by parametric knowledge while rare entities benefit from retrieval, an empirical split analogous to our internalizable/contextual distinction.
+These methods establish selective retrieval for text, but visual search failure is structurally different: it manifests as spatial distortion, identity blending, and stylistic contamination (\S\ref{sec:naive}), failure modes that have no text-domain analogue and require modality-specific triage and integration.
+More fundamentally, none co-trains the search policy with the generator: the retrieval decision is learned against a fixed generation model, whereas our co-training framework recalibrates the search policy after each generator improvement.
+
+\textbf{{Tool-augmented and agentic} image generation.}
+GenAgent~\cite{genagent2024}, RPG-DiffusionMaster~\cite{yang2024rpg}, LLM-grounded Diffusion~\cite{lian2024lmd}, and IterComp~\cite{zhang2024itercomp} use LLM-based planning to decompose complex prompts, improving compositional generation within the generator's existing knowledge.
+Instruct-Imagen~\cite{hu2024instructimagen} supports multi-modal instructions including style exemplars. RationalRewards~\cite{wang2026rationalrewards} show that preference-calibrated prompt rewriter significantly improve image generation via agentic workflow at test-time.
+These systems assume the generator possesses the relevant visual concepts and focus on compositional arrangement; none addresses knowledge \emph{absence}, the case where the generator has never seen the concept it must render.
+Our work is complementary: agentic planning can improve the compositional quality of search-augmented outputs, but cannot substitute for the missing knowledge that search provides.
+ 
+
+\textbf{Knowledge-intensive evaluation.}
+Existing benchmarks evaluate compositionality and aesthetic quality within known visual concepts: GenAI-Bench~\cite{genaibench} tests prompt adherence, T2I-CompBench~\cite{t2icompbench} evaluates spatial reasoning and attribute binding, DALL-Eval~\cite{dalleval} measures object relationships, and HEIM~\cite{lee2024heim} provides holistic multi-dimensional evaluation.
+VLM-based automated judges such as TIFA~\cite{hu2023tifa} and human-grounded auto-metric suites such as Gecko~\cite{wiles2024gecko} enable scalable faithfulness assessment.
+A prompt like ``a red cube on a blue sphere'' tests spatial reasoning but assumes the generator knows what cubes and spheres look like.
+\bench{} is complementary: it targets concepts \emph{outside} the training distribution (cultural symbols, recent entities, niche typography), measuring knowledge absence rather than reasoning failure.
+The gap is stark: Flux.2-Klein-9B scores above 4.0/5.0 on GenAI-Bench yet falls below 30/100 on \bench{}, a discrepancy of over 60 percentage points that no existing evaluation captures.
+
+\textbf{Self-improving and co-training systems.}
+Self-Rewarding Language Models~\cite{yuan2024selfrewarding} show that a model can judge its own outputs to generate training signal, improving over successive iterations without external reward.
+SPIN~\cite{chen2024spin} frames self-improvement as self-play, iteratively distinguishing model outputs from ground truth. Our co-training framework instantiates this principle for visual generation: Phase~1 (DPO) teaches the generator from search-augmented demonstrations that expose knowledge it previously lacked, while Phase~2 (RFT) recalibrates the reasoner to the strengthened generator's shifted boundary.
+The deliberate ordering (teach, then search) and the boundary-discovery mechanism distinguish our approach from generic self-play, where both players improve symmetrically; here the generator and reasoner occupy structurally different roles and improve in complementary directions.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The central question is not how to build a model that knows everything, but how to build a system that knows what it does not know. This split creates a generator-specific knowledge boundary, and we have shown that this boundary, though hard to specify a priori, is discoverable through co-training. Our evidence suggests that this self-awareness emerges from co-training dynamics, not from scale alone.
+
+The resolution lies in co-training the generator and reasoner around their shared boundary. Online DPO serves a dual function: it pushes the generator's boundary outward by internalizing stable visual knowledge, and it teaches the generator to use imperfect references without being corrupted by them. Rejection finetuning then recalibrates the reasoner to search only what the strengthened generator still cannot render. The monotonic progression from \CondNS{} through \CondGS{} to \CondGAS{}, the per-stratum recovery on NoSearch prompts, and the generator-specific behavior across two architectures provide converging evidence that the structural split is an operational design variable, not merely a conceptual framework.
+
+Our deliberately minimal recipe (one DPO pass, one RFT pass, a 4B generator, an 8B reasoner) validates the principle at the smallest useful scale. Each subsequent iteration can push the boundary further outward and tighten the search policy further inward, converging toward a regime where only genuinely contextual knowledge triggers search. A natural objection is that next-generation models will absorb more knowledge at scale, making external search unnecessary. But training data is finite while the world is unbounded and in constant motion: no model, regardless of scale, can internalize knowledge about events after its training cutoff, entities too rare for any feasible dataset, or cultural knowledge that evolves across communities and time. The knowledge boundary may shift outward with scale, but it cannot disappear; co-training discovers where it lies for any given generator, at any scale. Whether additional iterations sharpen the boundary, whether larger generators internalize knowledge that resists parameterization in smaller ones, and whether richer reward signals accelerate gains on the hardest strata are open questions that define a clear research trajectory.
+
+Beyond these immediate questions, this work opens several broader research directions. What is the scaling law of the knowledge boundary: does the internalizable set expand uniformly across failure categories as generator size increases, or do certain categories (e.g., cultural specificity) resist internalization? Can the boundary be predicted from model internals without full co-training, for instance via probing classifiers or uncertainty estimates? Does the internalizable/contextual split generalize to other modalities such as video, 3D, and music generation, which face the same structural problem of finite training data and unbounded user requests?
+
+{\textbf{Beyond search: the knowledge boundary as a tool-invocation principle.} Search is the first and most fundamental tool, but the boundary that governs \emph{when to invoke it} is not search-specific. The same gate--filter--integrate protocol and teach-then-search co-training extend to other tools---image editing and inpainting, render-as-code (SVG, matplotlib, CAD), 3D-asset retrieval, and structural control---each supplying a different slice of the contextual knowledge set $\mathcal{K}_{\mathrm{ctx}}$. Whether a single agent can learn a unified boundary across such a toolbox is an open direction this work's harness is built to support.}
+
+The released dataset, co-training corpus, and search corpus provide the infrastructure for pursuing these questions: 20{,}839 prompts, 90{,}452 reasoning trajectories, 281{,}925 generated images, and 145{,}642 archived search sessions that can be replayed without live search API access.
+
+
+% ============================================================
+% REFERENCES (BibTeX: references.bib)
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+
+\clearpage
+\appendix
+\input{appendix}
+
+% \clearpage
+% \newpage
+% \input{checklist.tex}
+
+\end{document}

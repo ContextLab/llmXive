@@ -1,0 +1,10 @@
+
+
+
+Since the evaluation relies on an AI \textit{grader}, we manually validate its agreement with human judgments.
+Specifically, we sample more than 100 generated responses, equally drawn from different \textit{solver} models, score them using our pipeline, and in parallel manually annotate their correctness. This validation set is designed to include roughly equal numbers of responses graded as "correct" and "incorrect", preventing class imbalance from biasing agreement metrics. Full human-\textit{grader} agreement scores are reported in \autoref{tab:pipeline_validation}, with an accuracy of 96.6\% on tasks with textual outputs, and 90.9\% on the more challenging image-generation tasks.
+
+Since our evaluation uses \texttt{gemini-3-flash} as the grader, we additionally assess it exhibits bias that inflates scores for models from the same provider (Gemini and Gemma). Results are reported in \Cref{tab:pipeline_validation_bias}. Overall, we find no substantial evidence of a pro-Google grading bias. For both tasks with textual outputs and tasks with image outputs, agreement is comparable between Google and non-Google models. The false positive rate is instead higher for non-Google models, meaning that incorrect answers are more likely to be promoted to "correct" for non-Google outputs than for Google model generations.
+
+
+

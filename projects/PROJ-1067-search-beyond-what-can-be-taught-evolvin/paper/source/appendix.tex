@@ -1,0 +1,404 @@
+\section*{Appendix overview}
+{This appendix is organized to follow the evidence chain of the paper.}
+{\textbf{\S\ref{app:benchmark}} documents benchmark construction and the per-category/domain heatmap used by the main text.}
+{\textbf{\S\ref{app:failure_ext}--\S\ref{app:eval_correlation}} provide focused failure-analysis context and judge--human agreement.}
+\textbf{\S\ref{app:full_component_breakdown}} gives the full nine-component score breakdown across all generators.
+\textbf{\S\ref{app:prompts}--\S\ref{app:eval}} provide the end-to-end workflow, reasoner I/O examples, and evaluation protocol.
+\textbf{\S\ref{app:hardware}} documents hardware and training/serving implementation details.
+\textbf{\S\ref{app:limitations}--\S\ref{app:broader}} summarize limitations, release safeguards, third-party/API caveats, and broader impact.
+\section{Benchmark and dataset details}
+\subsection{Benchmark construction details}
+\label{app:benchmark}
+\textbf{Taxonomy annotation reliability.}
+Two annotators independently labeled 2{,}000 sampled failure cases, iteratively
+refined the schema to Cohen's $\kappa > 0.85$, then applied it to all
+10{,}840 prompts in the production scrape.
+The taxonomy's stability across annotators supports viewing it as capturing
+structure in the failure space rather than an artifact of labeling choices.
+
+The failure taxonomy appears in Table~\ref{tab:taxonomy} (main paper).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/heatmap.pdf}
+\caption{\small\textbf{The bottleneck is pervasive: every domain--category combination shows knowledge-driven degradation.}
+Heatmap summarizing cross-category structure between failure modes and domain categories in \dataset{}. The uniform severity across all cells rules out the hypothesis that failures concentrate in a few niche categories.}
+\label{fig:heatmap_severity}
+\end{figure}
+
+\textbf{Layer 1 (seed entities).}
+From the 10{,}840 real user prompts, we extract a seed database of
+31{,}537 entities spanning 22 primary domains, each annotated with canonical
+name, estimated training-set frequency, ground-truth visual references, and
+distinguishing attributes. The distribution is intentionally long-tailed,
+mirroring real user demand.
+
+\textbf{Layer 2 (prompt synthesis).}
+From the seed database, we synthesize the \dataset{} corpus in three steps.
+First, \emph{template instantiation} produces structured drafts across categories and domains by filling parameterized slots for entities, relations, and stylistic constraints distilled from the production scrape.
+Second, a \emph{frontier large language model} rewrites each instantiated template into a naturalistic user-style request while preserving grounded entities, modality requirements (image versus text retrieval), and checklist-eligible facts; temperature is elevated to diversify surface form and reduce templating artifacts.
+Third, \emph{quality control} removes prompts that are ambiguous under the evaluation protocol, culturally insensitive, or misaligned with the intended failure mode; annotators also verify that checklist items remain answerable from the prompt and cached search evidence alone.
+Each accepted prompt includes 2--4
+ground-truth search queries, a structured list of 3--8 key visual elements
+with binary verification checklists, and a 1--5 evaluation rubric tailored
+to the failure category. This annotation infrastructure enables fully
+automated evaluation via a Gemini-3-Flash VLM judge~\cite{nanobanana2025gemini} (Spearman $\rho = 0.87$ with human
+ratings; methodology in Appendix~\ref{app:eval_correlation}).
+
+\textbf{Cultural diversity and splits.}
+The benchmark spans global cultural diversity---entities from East Asia,
+South Asia, the Middle East, Africa, Latin America, and beyond---because
+knowledge gaps concentrate in long-tail cultural concepts and a
+Western-centric benchmark would underestimate severity. For supervised
+training and model selection we use train (20{,}000), validation (128), and
+\textbf{test} (751) partitions, matching Section~\ref{sec:bench_construct}; remaining non-test prompts support cached
+search construction, trajectory collection, and co-training rollouts.
+Unlike benchmarks that test compositionality within known
+concepts~\cite{genaibench,t2icompbench,dalleval}, \bench{} targets
+knowledge absence.
+\section{Additional empirical analysis}
+\subsection{Extended failure analysis}
+\label{app:failure_ext}
+
+\textbf{Concept corruption (gating).}
+The generator's conditioning architecture typically has no reliable mechanism
+for gating external information based on its own confidence in its internal
+representation. When a reference image (or strongly textually specified
+exemplar) is provided, it is integrated with substantial weight regardless
+of whether the generator's native rendering would have been more accurate
+on the same entity, yielding concept corruption on prompts where internal
+knowledge was already adequate.
+
+\textbf{Reference copying (pixel-level conditioning).}
+Visual conditioning operates on pixel (and low-level feature) statistics rather
+than explicit semantic attributes. Without an integration layer that specifies
+which attributes to transplant, the generator tends to reproduce incidental
+structure from the reference---background, lighting, framing---so the output
+resembles a filtered search result rather than a new composite generation.
+
+\textbf{Why surface cues are a poor proxy for Qwen-Image-boundary strata.}
+Named entities and other shallow triggers are only loosely correlated with
+the knowledge boundary inferred from Qwen-Image in Table~\ref{tab:bottleneck_overall}: many
+prompts contain proper nouns that already lie inside Qwen-Image's \emph{NoSearch}
+stratum, while some high-gap prompts yield few detectable entities. Cheap
+gates therefore trigger search on the wrong subset, repeating the same
+tradeoff between \emph{VisualSearch}/\emph{TextualSearch} gains and
+\emph{NoSearch} regressions that \emph{BlindSearch} exhibits outright.
+
+\textbf{TextualSearch stratum (extended discussion).}
+The main paper (\S\ref{sec:exp_strata}) compresses the TextualSearch finding: for Klein-4B-DPO, both \CondGS and \CondGAS score below the no-search baseline because internalized contextual knowledge makes search net harmful on the hardest prompts.
+Those prompts disproportionately require compositional contextual reasoning---typography, cultural composition, and implicit interpretation---that resists both single-pass parameterization and single-pass search, motivating richer co-training cycles and search strategies.
+
+\subsection{Judge--human correlation and judge--reasoner independence}
+\label{app:eval_correlation}
+
+\textbf{Human study protocol.}
+Human ratings are collected on the same 500 prompt--image pairs used to report aggregate agreement in \S\ref{sec:bench_construct}.
+Each pair is presented with the user prompt, the checklist, and the category rubric; raters assign checklist judgments, rubric scores, and holistic quality judgments using the same anchors as the automated judge.
+Multiple raters participate with adjudication on high-disagreement items so that gold labels are stable under resampling.
+
+\textbf{Aggregate agreement.}
+The Gemini-3-Flash judge achieves Spearman $\rho = 0.87$ with the consolidated human labels on this set, which is consistent with scalable VLM-as-judge practice for text-to-image faithfulness evaluation~\cite{hu2023tifa,wiles2024gecko,lee2024heim}.
+
+\textbf{Stratified difficulty.}
+Agreement is tightest on object-centric \emph{NoSearch} prompts where errors are predominantly omissions of salient attributes.
+Agreement weakens on \emph{TextualSearch}, where glyph-level correctness and fine layout dominate rubric variance; this pattern aligns with known limitations of VLMs on dense in-image text and motivates treating TextualSearch as a conservative stratum in automated evaluation.
+
+\section{Extended quantitative results}
+\label{app:extended_quant}
+
+\subsection{Full nine-component breakdown by stratum}
+\label{app:full_component_breakdown}
+
+Table~\ref{tab:bottleneck_full} provides the complete nine-component evaluation for all generators on both the NoSearch and Search-Intensive strata.
+This supplements the six-component summary in the main paper (Table~\ref{tab:bottleneck_overall}) with the full scoring breakdown.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{The Search Bottleneck on \bench{} -- Full Nine-Component Breakdown.}
+Scores on a 0--100 scale (one decimal); higher is better.
+Every generator drops sharply on the \emph{Search-Intensive} set, confirming that the bottleneck reflects missing knowledge rather than rendering ability.
+Knowledge-sensitive components (Checklist, Rubric, Visual Ref.) vary per prompt and measure knowledge presence; knowledge-invariant components (Text Rend., Phys.\ Plaus., Img.\ Qual.) measure rendering competence.}
+\label{tab:bottleneck_full}
+\small
+\setlength{\tabcolsep}{2.0pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llcccccccccc@{}}
+\toprule
+\textbf{Type} & \textbf{Generator}
+  & \textbf{Overall} & \textbf{Checklist} & \textbf{Rubric} & \textbf{Prompt}
+  & \textbf{Img.\ Qual.} & \textbf{Text Rend.} & \textbf{AI Nat.} & \textbf{Comp.\ Aes.}
+  & \textbf{Phys.\ Plaus.} & \textbf{Vis.\ Ref.} \\
+\midrule
+\multicolumn{12}{@{}l}{\emph{NoSearch set (parametric knowledge sufficient)}} \\
+\addlinespace[2pt]
+\multirow{4}{*}{Open}
+& Bagel              & 49.3 & 52.3 & 49.1 & 39.2 & 58.0 & 18.4 & 48.3 & 65.3 & 60.4 & 34.8 \\
+& Flux.2-Klein-4B    & 51.0 & 54.7 & 51.8 & 39.3 & 61.3 & 13.2 & 49.5 & 67.2 & 63.5 & 32.6 \\
+& Flux.2-Klein-9B    & 57.8 & 63.8 & 59.8 & 51.3 & 63.8 & 31.3 & 52.5 & 72.3 & 66.7 & 43.7 \\
+& Qwen-Image         & 67.4 & 74.8 & 70.8 & 62.8 & 68.3 & 63.0 & 61.0 & 76.8 & 73.8 & 56.7 \\
+\midrule
+\multirow{6}{*}{Commercial}
+& Qwen-Image-2       & 70.7 & 78.7 & 73.8 & 68.4 & 70.2 & 71.7 & 60.8 & 80.3 & 75.6 & 60.0 \\
+& SeedDream-4.0      & 67.9 & 74.9 & 70.6 & 61.7 & 69.5 & 71.1 & 59.7 & 80.3 & 73.9 & 56.7 \\
+& Nano Banana        & 63.1 & 71.1 & 67.5 & 59.7 & 66.3 & 42.8 & 56.5 & 76.3 & 68.5 & 53.8 \\
+& Nano Banana Pro    & 75.0 & 82.8 & 78.1 & 72.8 & 71.5 & 85.9 & 65.0 & 83.3 & 78.2 & 67.8 \\
+& GPT-Image-2        & 71.1 & 78.6 & 75.6 & 70.8 & 69.0 & 67.7 & 60.8 & 77.7 & 73.9 & 64.3 \\
+\midrule
+\multicolumn{12}{@{}l}{\emph{Search-Intensive (external knowledge required)}} \\
+\addlinespace[2pt]
+\multirow{4}{*}{Open}
+& Bagel              & 21.5 & 18.2 & 17.6 & 13.3 & 30.5 &  2.5 & 29.3 & 33.6 & 36.8 & 13.5 \\
+& Flux.2-Klein-4B    & 24.1 & 19.8 & 18.4 & 12.4 & 37.2 &  4.2 & 33.6 & 39.3 & 46.2 & 11.9 \\
+& Flux.2-Klein-9B    & 26.7 & 24.2 & 23.1 & 17.2 & 36.8 &  7.2 & 32.9 & 40.4 & 48.6 & 16.9 \\
+& Qwen-Image         & 27.9 & 24.8 & 24.3 & 18.6 & 40.1 &  8.7 & 31.6 & 42.8 & 44.6 & 17.7 \\
+\midrule
+\multirow{6}{*}{Commercial}
+& Qwen-Image-2       & 31.6 & 28.5 & 27.1 & 22.1 & 42.2 & 12.7 & 36.3 & 45.5 & 48.2 & 21.0 \\
+& Imagen3-Fast       & 14.1 &  9.7 & 10.0 &  6.9 & 22.2 &  1.4 & 21.4 & 23.2 & 23.7 &  7.0 \\
+& SeedDream-4.0      & 45.9 & 44.2 & 43.6 & 38.5 & 57.0 & 35.9 & 47.1 & 58.7 & 64.0 & 35.1 \\
+& Nano Banana        & 44.1 & 41.0 & 40.4 & 36.0 & 57.1 & 28.0 & 47.4 & 61.5 & 65.5 & 33.2 \\
+& Nano Banana Pro    & 65.3 & 64.4 & 63.1 & 60.7 & 71.4 & 65.0 & 62.0 & 75.9 & 78.5 & 58.3 \\
+& GPT-Image-2        & 71.0 & 71.2 & 70.1 & 69.2 & 75.1 & 75.9 & 64.7 & 80.4 & 77.3 & 66.0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section{Protocols and supplementary artifacts}
+\subsection{End-to-end workflow and reasoner I/O}
+\label{app:prompts}
+\label{app:reasoner_io}
+% D.1 (standalone end-to-end worked example) collapsed into the reasoner I/O section:
+% appendix_reasoner_io now leads with a condensed workflow overview, then the per-stage I/O.
+% The full standalone worked example is retained but disabled for now:
+% \input{appendix_workflow_eval025}
+\input{appendix_reasoner_io}
+
+
+
+\subsection{Evaluation protocol}
+\label{app:eval}
+\input{appendix_eval_figs}
+
+\section{Hardware and implementation details}
+\label{app:hardware}
+All experiments were conducted on NVIDIA H20 (80~GB HBM3) GPUs.
+Below we detail the compute configuration for each training phase.
+
+\subsection{VLM reasoner training (Phase~0 and Phase~2)}
+The VLM reasoner (Qwen3-VL-8B) is trained using the ModelScope-Swift framework (\texttt{ms-swift}).
+We perform full-parameter supervised finetuning with the configuration in Table~\ref{tab:app_reasoner_sft}.
+
+\begin{table}[t]
+  \centering
+  \caption{\textbf{VLM reasoner SFT hyperparameters} (Phase~0 and Phase~2).}
+  \label{tab:app_reasoner_sft}
+  \small
+  \begin{tabularx}{\linewidth}{lX}
+    \toprule
+    \textbf{Hyperparameter} & \textbf{Value} \\
+    \midrule
+    Base model & Qwen3-VL-8B-Instruct \\
+    Training type & Full-parameter SFT \\
+    Precision & bfloat16 \\
+    Epochs & 5--6 \\
+    Learning rate & $1\times 10^{-5}$ \\
+    Warmup ratio & 0.05 \\
+    Per-device batch size & 1 \\
+    Gradient accumulation steps & 8 \\
+    Effective batch size & 64 ($8$ GPUs $\times 1 \times 8$ accum.) \\
+    Max sequence length & 12{,}288 tokens \\
+    Max image pixels & 262{,}144 ($512^2$) \\
+    Image max token number & 512 \\
+    Attention implementation & FlashAttention-2 \\
+    Sequence packing & Enabled (padding-free) \\
+    Gradient checkpointing & Enabled \\
+    ViT parameters & Frozen \\
+    DeepSpeed stage & ZeRO-2 \\
+    Hardware & $8 \times$ NVIDIA H20 (80~GB) \\
+    Training data & ${\sim}20$K SFT trajectories \\
+    Wall-clock time & ${<}4$~hours \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The SFT dataset consists of approximately 20{,}000 expert-annotated reasoning trajectories for the gate--filter--compress pipeline (Tasks A/B/C), stored in the training-row format consumed by ModelScope-Swift.
+A 1\% held-out split is used for validation.
+We use dataset preprocessing with 200 workers and 4 dataloader workers for efficient data loading.
+
+\subsection{Generator DPO training (Phase~1)}
+Online iterative DPO for the visual generator (Flux.2-Klein-4B) is conducted using the Flow-Factory framework with the configuration in Table~\ref{tab:app_dpo}.
+
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Generator DPO hyperparameters} (Phase~1).}
+  \label{tab:app_dpo}
+  \small
+  \begin{tabularx}{\linewidth}{lX}
+    \toprule
+    \textbf{Hyperparameter} & \textbf{Value} \\
+    \midrule
+    Base model & Flux.2-Klein-4B \\
+    Finetuning type & LoRA \\
+    LoRA rank / alpha & 64 / 128 \\
+    Target modules & Default (attention layers) \\
+    Precision & bfloat16 \\
+    Learning rate & $1\times 10^{-4}$ \\
+    Optimizer & AdamW ($\beta_1{=}0.9$, $\beta_2{=}0.999$, $\varepsilon{=}10^{-8}$) \\
+    Weight decay & $1\times 10^{-4}$ \\
+    Max gradient norm & 1.0 \\
+    Resolution & $512 \times 512$ \\
+    Condition image size & $512 \times 512$ \\
+    Per-device batch size & 1 \\
+    Group size (candidates per prompt) & 5 \\
+    Unique samples per epoch & 64 \\
+    Gradient steps per epoch & 2 \\
+    Gradient accumulation & Auto (computed from group size) \\
+    DPO $\beta$ & 100.0 \\
+    Reference model device & CPU (offloaded) \\
+    Advantage aggregation & Group-relative DPO \\
+    EMA decay / update interval & 0.99 / 4 steps \\
+    Guidance scale & 4.0 \\
+    Inference steps (sampling) & 50 \\
+    Timestep sampling & Logit-normal ($\mu{=}0.0$, $\sigma{=}1.0$) \\
+    Gradient checkpointing & Enabled \\
+    Hardware & $8 \times$ NVIDIA H20 (80~GB) \\
+    Training data & ${\sim}7$K prompt--image preference pairs \\
+    Save frequency & Every 10 gradient steps \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The DPO reward signal is provided by the Qwen3-VL-8B VLM judge, served via vLLM on a separate node (accessed at inference time over HTTP).
+The judge evaluates generated candidates using the \dataset{} evaluation protocol with nine scoring dimensions.
+Judge inference uses a maximum of 4{,}096 output tokens, temperature 0.2, and a maximum pixel budget of 262{,}144 per image, with up to 24 concurrent requests.
+
+\paragraph{Preference construction.}
+For each prompt, the generator produces 5 candidate images (one additional candidate beyond the group for preference diversity via \texttt{preference\_extra\_candidates: 1}).
+Candidates are scored by the VLM judge, and preference pairs are constructed from the highest- and lowest-scored generations within each group.
+A structural similarity (SSIM) penalty (\texttt{dpo\_penalize\_condition\_ssim: 0.95}) discourages degenerate pairs where chosen and rejected images are near-identical.
+
+\paragraph{Flow-matching dynamics.}
+We use a Flow-SDE scheduler with noise level 1.0, time shift 1.0, and timestep range truncated at 0.1 for stable training.
+
+\subsection{Reasoner rejection finetuning (Phase~2)}
+Phase~2 recalibrates the reasoner to the DPO-strengthened generator using rejection-sampling finetuning.
+The training infrastructure is identical to Phase~0 (ModelScope-Swift, $8 \times$ H20, same hyperparameters), with the key difference that the training data consists of filtered trajectories: only reasoner rollouts that produce positive group-relative advantage (i.e., search improved the strengthened generator's output quality) are retained for training.
+The full RFT cycle completes in approximately $4 \times 8 = 32$ GPU-hours.
+
+\subsection{Total compute budget}
+Table~\ref{tab:app_compute_budget} summarizes end-to-end training compute (Phase~1 GPU-hours are $8$ GPUs $\times 24$~h wall-clock).
+The VLM judge service runs concurrently on a separate GPU and is not folded into the training GPU-hour totals.
+
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Compute budget overview.} Training GPU-hours are approximate.}
+  \label{tab:app_compute_budget}
+  \small
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Phase} & \textbf{GPUs} & \textbf{Wall-clock} & \textbf{GPU-hours} \\
+    \midrule
+    Phase~0: Reasoner SFT & $8 \times$ H20 & ${<}4$~h & ${\sim}32$ \\
+    Phase~1: Generator DPO & $8 \times$ H20 & 24~h & ${\sim}192$ \\
+    Phase~2: Reasoner RFT & $8 \times$ H20 & ${\sim}4$~h & ${\sim}32$ \\
+    VLM Judge serving (vLLM) & $1 \times$ H20 & concurrent & --- \\
+    \midrule
+    \textbf{Total (training)} & --- & --- & \textbf{${\sim}256$} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+All training runs use CUDA memory optimization via \\
+\texttt{PYTORCH\_CUDA\_ALLOC\_CONF=expandable\_segments:True}.
+Distributed training communication uses NCCL over NVLink interconnects within each 8-GPU node.
+
+\section{Limitations and future directions}
+\label{app:limitations}
+Our work deliberately prioritizes depth of insight over exhaustive optimization, and this choice opens several promising avenues for future research.
+
+\paragraph{Iterative co-training.}
+Our recipe consists of a single DPO pass followed by a single RFT pass.
+While this minimal protocol already produces monotonic improvement and validates the core principle, the knowledge boundary between internalizable and contextual knowledge is unlikely to be fully resolved in one iteration.
+Multi-round co-training---where the generator and reasoner alternate improvement over several cycles---could progressively sharpen this boundary and unlock additional gains.
+Investigating convergence behavior, diminishing returns, and potential instability in such iterative loops is an exciting direction.
+
+\paragraph{Generator scale and architecture.}
+Our co-training experiments use a 4B-parameter generator (Flux.2-Klein-4B) and 7B-parameter generator (Bagel).
+The substantial gap between our best result and frontier commercial systems suggests that larger or architecturally different generators may internalize a broader swath of knowledge, shifting the knowledge boundary and potentially changing the distribution of prompts that require search.
+Studying how the internalizable/contextual split evolves across generator scales---and whether certain failure categories (e.g., temporal-recent vs.\ cultural-specificity) exhibit qualitatively different scaling behavior---would deepen understanding of the knowledge boundary as a function of model capacity.
+
+\paragraph{Reward signals.}
+Our current evaluation relies on an automated VLM judge (Gemini-3-Flash).
+While it achieves strong correlation with human ratings (Spearman $\rho = 0.87$), such judges can introduce noisy rewards---a widely acknowledged issue when automated scoring substitutes for human judgment~\cite{wiles2024gecko,lee2024heim}.
+The choice of DPO is intentional: it resists reward noise by selecting the best- and worst-ranked generations to construct preference pairs~\cite{rafailov2023dpo}.
+
+\section{Broader impact}
+\label{app:broader}
+This work contributes positively to the research community and society in several important ways, while also carrying risks that warrant consideration.
+
+\paragraph{Positive impacts.}
+\begin{itemize}
+  \item \textbf{New evaluation resources for an underserved problem.}
+  \dataset{} and \bench{} fill a significant evaluation gap.
+  Existing text-to-image benchmarks predominantly test prompts that fall within generators' parametric knowledge, creating an illusion of near-solved performance.
+  By systematically cataloging twelve failure categories grounded in over 10{,}000 real user prompts, our benchmark surfaces a class of failures that affects daily production use but has been largely invisible to the research community.
+  Making this gap measurable is a prerequisite for closing it.
+
+  \item \textbf{A long-tailed, culturally diverse, and challenging reference-to-image dataset.}
+  The released corpus of 20{,}000 prompts, spanning twenty-two domains and intentionally representing global cultural diversity---including underrepresented cultural symbols, regional artifacts, non-Latin typography, and entities from the Global South---provides a uniquely challenging testbed.
+  The long-tailed entity distribution mirrors real user demand and offers the community a resource for studying knowledge-intensive generation at a scale and diversity not previously available.
+  The accompanying pre-executed search results (both image and web returns) form a fully offline search environment, lowering the barrier for reproducible research on search-augmented visual generation without requiring live API access or incurring search costs.
+
+  \item \textbf{Advancing equitable visual generation.}
+  A disproportionate share of search-intensive failures affects culturally specific content: regional festivals, indigenous art forms, historical figures outside Western canons, and scripts beyond Latin.
+  By explicitly benchmarking these categories and demonstrating that search-augmented generation can improve fidelity for such content, this work contributes toward more equitable visual AI that can serve diverse global users rather than only those whose cultural knowledge is well-represented in training data.
+
+  \item \textbf{Computational accessibility.}
+  The deliberately minimal co-training recipe (one DPO pass, one RFT pass, a 4B generator, an 8B reasoner, fitting in $4\times 8$ GPU hours for the RFT phase) demonstrates that meaningful progress on knowledge-intensive generation does not require frontier-scale compute, broadening access to researchers with limited resources.
+\end{itemize}
+
+\paragraph{Potential negative impacts and mitigations.}
+\begin{itemize}
+  \item \textbf{Misinformation risk.}
+  Improving generators' ability to render specific real-world entities---public figures, cultural symbols, historical events---could lower the barrier for producing convincing visual misinformation.
+  We note, however, that our benchmark explicitly includes an ``AIGC fakeness'' evaluation dimension that measures detectable artifacts, and our released assets are evaluation prompts and search results rather than trained generator checkpoints.
+  We encourage downstream users to pair improved generation with provenance tracking and watermarking.
+
+  \item \textbf{Privacy concerns.}
+  Some search-intensive prompts involve public figures.
+  Our dataset construction follows standard practices: all seed entities are drawn from publicly available information, and the benchmark is designed for research evaluation rather than generating deceptive impersonations.
+  We will include usage guidelines with the released dataset that prohibit malicious identity synthesis.
+
+  \item \textbf{Bias amplification.}
+  While we intentionally design for cultural diversity, the search results that form part of our released offline environment inherit biases from web search engines.
+  Researchers using these results should be aware that search-returned references may reflect stereotypical or incomplete representations of certain cultures, and should evaluate whether such biases propagate into generated outputs.
+  {\color{white}\nocite{wang2025code,wang2025emergent,wang2025pixelreasoner,wang2025vl,wang2025reverse,wang2026badseeingbadthinking}}
+\end{itemize}
+
+
+\subsection{Third-party models, data access, and terms of use}
+\label{app:third_party}
+\textbf{Open-weight generators.}
+Bagel~\cite{deng2025bagel}; FLUX.2 Klein checkpoints~\cite{blackforest2026flux2}; Qwen-Image~\cite{qwenimage}.
+\textbf{Commercial APIs.}
+Qwen-Image-2~\cite{qwenimage}; Gemini developer endpoints (Gemini~2.5~Flash Image, Gemini~3~Pro Image; consumer names Nano Banana / Nano Banana Pro in some regions)~\cite{nanobanana2025gemini}; ByteDance Jimeng~\cite{jimeng2025bytedance}; SeedDream 4.0~\cite{seedream2025arxiv}; Imagen 3 Fast~\cite{baldridge2024imagen3}.
+Public documentation does not specify whether these endpoints internally invoke retrieval, tool use, or proprietary knowledge bases at inference time.
+Consequently, high \bench{} scores for commercial systems should be interpreted as end-to-end product behavior rather than as pure comparisons to open-weight generators under identical conditioning assumptions.
+
+\textbf{Use.}
+Experiments respect each provider's publicly posted terms and documentation; releases from this work consist of prompts and cached search artifacts, not redistributed model weights or proprietary API payloads.
+
+\subsection{Responsible release and safeguards}
+\label{app:responsible_release}
+
+\textbf{Release scope.}
+\dataset{} and \bench{} are intended for research evaluation of knowledge-intensive visual generation.
+The public release will include prompts, annotations, evaluation checklists, rubrics, search queries, and permissible search metadata or derived attributes, rather than raw scraped images or proprietary web content.
+We do not redistribute copyrighted source images, proprietary web content, or proprietary API payloads without permission.
+
+\textbf{Safeguards and intended use.}
+To reduce copyright and safety risks, we filter or exclude unsafe search artifacts, including explicit sexual content, graphic violence, hateful or extremist material, and personally sensitive content.
+The benchmark is intended for evaluating search-intensive visual generation, not for producing deceptive, infringing, or harmful content.
+Users of the released assets should respect the licenses and terms of the original sources and should not use the benchmark to generate unauthorized reproductions of protected characters, brands, or individuals.

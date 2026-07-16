@@ -1,0 +1,105 @@
+% Automated judge protocol (description precedes abbreviated figures).
+
+\paragraph{Automated judge protocol.}
+Each evaluation instance gives the judge the user prompt, the verification checklist, and the category-specific rubric, together with any reference images carrying short textual annotations (entity focus and severity).
+References are used only as comparison evidence; the single ``image to assess'' is scored.
+The judge follows a fixed sequence: recover task requirements; separate reference versus scored roles; extract observable evidence (subjects, attributes, scene, style, in-image text, artifacts); compare against references where checklist items depend on them; assign anchored half-point scores for checklist rows, rubric dimensions, and generic quality axes; then emit scored blocks for reference alignment, checklist, rubric, visual-reference fidelity, and text-reference fidelity, suitable for aggregation into the nine reported components (Table~\ref{tab:judge_components}).
+
+% --- eval_protocol box commented out: orphaned (0 refs), its 8 steps duplicate the prose
+%     paragraph directly above, and its C3-convertase example is off-theme vs. the rest of
+%     the paper. Re-enable if a concrete judge-input box is wanted.
+\iffalse
+\begin{tcolorbox}[appevalbox, title={Evaluation Protocol: Judge Prompt Structure (abbreviated)}]
+\textbf{Image layout:}\\
+Reference image 1: \texttt{\textless image\textgreater} --- entity=\texttt{Annotated C3 convertase pathway schematic}, severity=\texttt{critical}\\
+Reference image 2: \texttt{\textless image\textgreater} --- entity=Mature C3 $\alpha$/$\beta$ chains post-furin cleavage, severity=\texttt{important}\\
+Image to assess: \texttt{\textless image\textgreater}\\[4pt]
+\textbf{Evaluation steps} (8 steps, enforced in order):\\
+1.~Task understanding: map user\_prompt, checklist, rubric, references\\
+2.~Image roles: reference = comparison only; assessed = scored\\
+3.~Evidence extraction: 11 observable categories\\
+4.~Reference comparison\\
+5.~Scoring: 0--3 in 0.5 steps with \textbf{auditable reason format}:
+Anchor $\to$ Adjustments $\to$ Computed final\\
+6.~Score all checklist items + task-specific rubric + 6 generic
+dimensions\\
+7.~Visual/text reference fidelity\\
+8.~Consistency checks\\[4pt]
+\textbf{Output:} scored blocks for reference alignment, checklist, rubric,
+visual-reference fidelity, and text-reference fidelity.
+\end{tcolorbox}
+\captionof{figure}{Abbreviated evaluation protocol; full judge prompt ships with the supplementary materials.}
+\label{fig:eval_protocol}
+\fi
+
+% --- "Illustrative parsed output" block commented out per request (prose + output box). ---
+\iffalse
+\paragraph{Illustrative parsed output.}
+For every scored item---a checklist question, a rubric dimension, or a generic quality
+axis---the judge emits a half-point score and a short auditable reason.
+Figure~\ref{fig:eval_output} shows this output format on an example generation.
+
+\begin{tcolorbox}[appscorebox, title={Evaluation Output Example (Parsed, abbreviated)}]
+{\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}p{2.4cm}cX@{}}
+\toprule
+\textbf{Item} & \textbf{Score} & \textbf{Reason} \\
+\midrule
+Pyramid silhouette & 1 / 3 & Slope angle is plausible, but limestone-casing detail is missing. \\
+Camel anatomy & 2 / 3 & Limbs are coherent with minor hump-proportion drift. \\
+Poster style & 2 / 3 & Palette evokes mid-century travel art, but composition is only partly period-authentic. \\
+Lighting coherence & 3 / 3 & Golden-hour direction and shadows are consistent. \\
+\bottomrule
+\end{tabularx}
+\par}
+\end{tcolorbox}
+\captionof{figure}{\textbf{Judge output format.} Each scored item carries a $0$--$3$ score
+and a one-line reason; the overall score aggregates these rows into the nine reported
+components (Table~\ref{tab:judge_components}).}
+\label{fig:eval_output}
+\fi
+
+\bigskip
+
+\paragraph{Score components and aggregation.}
+All scores use a $[0,3]$ scale in $0.5$ steps ($0$~=~not met/contradicted, $1$~=~weak with major issues, $2$~=~mostly met with minor issues, $3$~=~fully met).
+Each score is accompanied by an auditable reason in three parts: \emph{Anchor} (initial score with evidence), \emph{Adjustments} (signed deltas with justification), and \emph{Computed final} (clamped sum matching the emitted score).
+Table~\ref{tab:judge_components} lists the nine reported components and their judge instructions.
+The overall score is the mean of present components, rescaled to $0$--$100$.
+
+\begin{table}[h]
+\centering
+\caption{\textbf{Judge scoring components.} Each component is scored on $[0,3]$. Components 1--2 are prompt-specific; components 3--8 are fixed generic dimensions scored for every image; component 9 is conditional on whether reference images are provided.}
+\label{tab:judge_components}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}clX@{}}
+\toprule
+\textbf{\#} & \textbf{Component} & \textbf{Judge instruction (abbreviated)} \\
+\midrule
+1 & Checklist & Mean of per-item verification scores. Each prompt carries 3--10 binary-verifiable items (e.g., ``Is the Om symbol correctly formed?''); the judge scores each against observable evidence. \\
+2 & Rubric adaptive & Weighted mean of prompt-specific rubric dimensions (e.g., \emph{symbol\_accuracy}, \emph{historical\_fidelity}) excluding the six fixed generic dimensions below. \\
+\midrule
+3 & Prompt faithfulness & Are all requested subjects, attributes, actions, scene, and style present and accurate? \\
+4 & Image quality & Visual clarity and sharpness; absence of artifacts or defects; style, lighting, and perspective coherence. \\
+5 & Text rendering & Does rendered in-image text match required content? Readable, correctly spelled, well-placed? Score left empty if no text is required and none is present. \\
+6 & AI naturalness & Organic texture realism vs.\ AI smoothness; fine-detail plausibility vs.\ uncanny uniformity; environment grounded vs.\ dreamlike or generic. \\
+7 & Composition \& aesthetics & Framing and balance; depth and spatial arrangement; color harmony and consistent lighting; overall visual appeal. \\
+8 & Physical plausibility & Anatomy (fingers, limbs, proportions, pose); object physics (gravity, support, balance); spatial consistency (perspective, scale, occlusion); material properties; lighting and shadow consistency. Score left empty for abstract or stylized content. \\
+\midrule
+9 & Visual reference fidelity & Scored only when reference images are attached. Identity preservation (facial features, distinguishing traits); attribute consistency (colors, textures, proportions); style fidelity. Skipped (not zero) when no references are provided. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Difficulty partition (Set~I--III).}
+The 651 search-intensive prompts are partitioned into three difficulty sets using Nano Banana Pro no-search quality as the sorting variable: each prompt receives an overall score from Nano Banana Pro \emph{without any retrieval augmentation}, and tercile boundaries on this score distribution define Set~I (easiest third), Set~II, and Set~III (hardest third).
+The partition is fixed across all experiments; the 100-prompt NoSearch subset is reported as a separate column.
+
+\paragraph{Judge fidelity.}
+The judge achieves Spearman $\rho = 0.87$ with human ratings on a
+held-out set of 500 prompt--image pairs
+(Appendix~\ref{app:eval_correlation}). The Anchor/Adjustment/Computed
+diagnostic encourages falsifiable critiques of individual scores.

@@ -1,0 +1,52 @@
+{
+  "arxiv_id": "2607.12463",
+  "arxiv_url": "https://arxiv.org/abs/2607.12463",
+  "title": "Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Foundation Models",
+  "authors": [
+    "Yubo Wang",
+    "Jiarong Liang",
+    "Yuxuan Zhang",
+    "Xuye Liu",
+    "Cong Wei",
+    "Yuyu Zhang",
+    "Ping Nie",
+    "Wenhu Chen"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Coding agents must integrate external tool returns into ongoing reasoning - a capability that standard left-to-right pretraining on code exposes only in its forward direction. We observe that the action-observation-continuation loop of a coding agent is structurally isomorphic to a function call site, where a caller binds arguments, a callee returns a value computed elsewhere, and downstream code consumes that value. This conditioning structure exists at internet scale in ordinary code. We exploit it through function-aware fill-in-the-middle (FIM) mid-training: a self-supervised objective that masks functions selected via program dependency graph analysis and a complexity-inferability double criterion. We mid-train Qwen2.5-Coder-Instruct (7B/14B) and Qwen3-8B on a 2.6B-token decontaminated corpus drawn from 968 GitHub repositories, then apply existing agentic post-training pipelines. Mid-training improves SWE-Bench-Verified by +2.8/+3.0 at 7B/14B and by +3.2 on Qwen3-8B; SWE-Bench-Lite gains are +3.7/+4.0/+5.4 on the same models. The improvement holds across two post-training pipelines (R2E-Gym, SWE-Smith) and on a non-Qwen2.5 base (Qwen3-8B with SWE-Lego). Beyond in-domain gains, mid-training also mitigates the capability erosion that agentic post-training otherwise inflicts on non-agent coding (e.g., LiveCodeBench) and non-coding tool-use benchmarks (tau-bench, BFCL): although the mid-training corpus contains Python code only, the function-call inductive bias survives post-training and yields consistent gains.",
+  "submitted_via": "llmXive dashboard, GitHub issue #1235",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/TIGER-AI-Lab/FIM-Midtraining"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "checklist.tex",
+    "figs",
+    "figs/dataset_categories.pdf",
+    "figs/failure_modes.pdf",
+    "figs/license_distribution.pdf",
+    "figs/passrate_by_patchshape_lite.pdf",
+    "figs/passrate_by_patchshape_verified.pdf",
+    "figs/pdg_score.pdf",
+    "figs/teaser_v34.pdf",
+    "neurips_2026.sty",
+    "neurips_2026.tex",
+    "references.bib",
+    "sec",
+    "sec/1_abstract.tex",
+    "sec/2_introduction.tex",
+    "sec/3_method.tex",
+    "sec/4_experiments.tex",
+    "sec/5_analysis.tex",
+    "sec/6_related_works.tex",
+    "sec/7_limitations.tex",
+    "sec/8_conclusion.tex",
+    "sec/9_appendix.tex"
+  ]
+}

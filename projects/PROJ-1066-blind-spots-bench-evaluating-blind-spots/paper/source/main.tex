@@ -1,0 +1,399 @@
+\documentclass{article}
+\PassOptionsToPackage{numbers, compress}{natbib}
+\PassOptionsToPackage{table}{xcolor}
+\usepackage[preprint]{neurips_2026}
+% \usepackage[eandd]{neurips_2026}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage[title]{appendix}
+\usepackage[most]{tcolorbox}
+\usepackage{soul}
+\usepackage{adjustbox}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{arydshln}
+\usepackage{tikz}
+\usepackage{adjustbox}
+
+\usepackage{placeins}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{csvsimple}
+\usepackage{subcaption}
+
+
+\def\sectionautorefname{Sec.}
+\def\corollaryautorefname{Corollary}
+\def\subsectionautorefname{Subsec.}
+\def\lemmaautorefname{Lemma}
+\def\figureautorefname{Fig.}
+\def\listingautorefname{Code}
+\def\equationautorefname~#1\null{Eq.~(#1)\null}
+
+% Custom commands:
+\newcommand{\commenttext}[1]{{\color{lightgray}{\small #1}}}    % 1. commented grey text
+\newcommand{\todo}[1]{{\color{orange}{\small \textbf{TODO: }#1}}}   % 2. TODOs
+\newcommand{\tagpers}[1]{{\color{cyan}{\small \textbf{@}#1}}}   % 2. TODOs
+\newcommand{\bench}{\texttt{blind-spots-bench}\xspace}    % 3. Write the name of the benchmark
+\newtcolorbox{promptbox}[1][]{
+  colback=gray!10, colframe=gray, boxrule=0.5pt,
+  arc=2mm, left=2mm, right=2mm, top=1mm, bottom=1mm,
+  fontupper=\small\ttfamily, breakable,
+  title=#1
+}  % Prompt box
+\newcommand{\xiuying}[1]{{\color{blue} \textbf{Xiuying:}#1}}
+\newcommand{\ms}[1]{{\color{teal} \textbf{Matteo:}#1}}
+\newcommand{\jgg}[1]{{\color{green!50!black} \textbf{Juan:}#1}}
+\newcommand{\fb}[1]{{\color{brown} \textbf{Felix: }#1}}
+\newcommand{\israa}[1]{{\color{purple} \textbf{Israa: }#1}}
+\newcommand{\cl}[1]{{\color{cyan} \textbf{Chengkun: }#1}}
+\newcommand{\toggle}[2][gray]{%
+  \tikz[baseline=(X.base)]{
+    \node[
+      fill=#1!15,
+      draw=#1!60,
+      rounded corners=5pt,
+      inner xsep=4pt,
+      inner ysep=2pt,
+      font=\small\ttfamily
+    ] (X) {#2};
+  }%
+}
+
+
+
+\title{Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  \textbf{Matteo Santelmo}\thanks{Equal contribution. Correspondence to \texttt{<matteo.santelmo@epfl.ch>},  \texttt{<xiuying.wei@epfl.ch>}. Matteo led the evaluation and Xiuying led dataset cleaning and labeling.  Dagger$^\dagger$ denotes advising roles.} \quad
+  \textbf{Xiuying Wei}\footnotemark[1] \quad
+  \textbf{Israa Fakih}\footnotemark[1] \quad
+  \textbf{Felix Bauer}\footnotemark[1] \\
+  \textbf{Juan Garcia Giraldo}\footnotemark[1] \quad
+  \textbf{Chengkun Li}\footnotemark[1] \quad
+  \textbf{Etienne Bamas}\footnotemark[2] \quad
+  \textbf{Emmanuel Abbé}\footnotemark[2] \\[0.6em]
+  École Polytechnique Fédérale de Lausanne (EPFL), Switzerland
+}
+
+\begin{document}
+
+\maketitle
+
+\vspace{-1.5em}
+\begin{center}
+\href{https://huggingface.co/datasets/matsant01/blind-spots-bench}{%
+  \raisebox{-0.15em}{%
+    \includegraphics[height=1.1em, trim=0 30 0 6, clip]{fig/huggingface.png}%
+ }\,
+  \texttt{blind-spots-bench}
+}
+\quad
+\href{https://github.com/matteosantelmo/reasoning-blind-spots}{%
+  \includegraphics[height=0.9em, trim=0 0 0 0, clip]{fig/github.png}\,
+  \texttt{eval-pipeline}
+}
+\end{center}
+
+
+\begin{abstract}
+Modern AI models achieve strong performance on many established benchmarks, yet they still fail on tasks that humans find almost trivial, such as manipulating a string or drawing a dog with five legs. These examples suggest that existing benchmarks may under-measure persistent blind spots in current systems. We introduce \bench, a benchmark designed to expose such blind spots through tasks that appear simple for humans but remain challenging for modern AI. We collect raw questions from students in an AI course, clean and annotate them with structured reference solutions, and propose a task taxonomy tailored to the resulting dataset of 235 samples. We further develop an automated grading pipeline to evaluate a wide range of models, including open-weight and closed-source language, vision-language, and image-generation models. Our analysis on \bench reveals that closed-source frontier models can substantially outperform open-weight models with even $\approx$10\% gap, even when they attain comparable performance on existing benchmarks. A more fine-grained analysis shows that no single model dominates across all task types, and that some tasks remain challenging for all evaluated models.
+These results highlight the value of \bench as a diagnostic stress test for identifying concrete weaknesses in current modern models.
+% \fb{Depending on our analysis results I suggest trying to find a more meaningful conclusion to state here. Some of the conclusions mentioned towards the end of the introduction would fit much better, e.g. the final one: "Although larger models improve many reasoning abilities, gains on character-level challenges such as counting and lexical constraints remain limited, suggesting the need for advances beyond scaling"}
+\end{abstract}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{fig/front_page_new.pdf}
+    \caption{\textbf{Left}: Accuracy on \bench\ vs. Artificial Analysis Intelligence Index score for \textit{text-only} problems. \textbf{Right:} Performance of four VLM models on several sub-tasks.}
+    \label{fig:acc_vs_aaii_text} 
+ \end{figure}
+% \begin{figure}[htbp]
+%     \centering
+%     \begin{minipage}[b]{0.45\textwidth}
+%         \vspace{0pt}
+%         \centering
+%         \includegraphics[width=\linewidth]{sections/assets/text_accuracy_vs_aa_index.pdf}
+%     \end{minipage}
+%     \hspace{-0.1em}
+%     \begin{minipage}[b]{0.52\textwidth}
+%         \vspace{0pt}
+%         \centering
+%        \includegraphics[width=\linewidth]{fig/vlm_model_task.pdf}
+%         \label{tab:top_vlm}
+%     \end{minipage}
+%     \caption{\textbf{Left}: Accuracy on \bench\ vs. Artificial Analysis Intelligence Index score, \textit{text-only} problems. \textbf{Right:} Performance of four VLM models on several representative sub-tasks.}
+%     \label{fig:acc_vs_aaii_text}    
+% \end{figure}
+\section{Introduction}
+% \input{sections/Intro}
+% The rapid ascent of Large Language Models (LLMs) has been marked 
+% by their domination of static reasoning benchmarks. 
+% On datasets like GSM8K~\cite{Mirzadehetal2025} and 
+% MATH~\cite{huang2025mathperturb}, frontier models now achieve accuracy rates 
+% that rival or exceed human experts. If we take these leaderboards at face 
+% value, the problem of automated mathematical reasoning appears largely 
+% solved.
+
+% However, a growing body of evidence suggests that 
+% this apparent performance is fragile \cite{mirzadeh2024gsm, li2024gsmplus}.
+% Recent work has uncovered a striking gap between surface competence and true 
+% understanding: models that can solve sophisticated calculus problems may 
+% fail when the problem is altered in seemingly trivial ways. 
+% For example, simply adding a semantically irrelevant detail, such as the 
+% color of an object—to a word problem can lead state-of-the-art models to 
+% hallucinate numerical relationships 
+% that are not actually present~\cite{mirzadeh2024gsm}. 
+% Likewise, minor changes such as renaming entities or 
+% rescaling numerical values can cause a dramatic 
+% drop in reasoning accuracy~\cite{qian2024varbench, huang2025mathperturb}.
+
+The rapid ascent of large language models (LLMs) and multimodal models has been marked by strong performance across a wide range of tasks, including mathematics, coding, reasoning, and vision. Recent frontier models~\cite{deepseek2026v4,openai2026gpt55,google2026gemini31} have achieved impressive results, often nearly saturating several carefully designed benchmarks~\cite{ifbench,gpqa_bench,tau_bench,swe_bench,matharena}, in some cases rivaling or surpassing human experts. Similar progress has also been observed on vision-language benchmarks, where modern systems demonstrate strong capabilities~\cite{mathvista,mmbench,mmmu_bench}.
+
+In practice, however, these models still exhibit surprising failures on tasks that are straightforward for humans~\citep{zhou2023instruction,seely2025sudoku,tong2024eyes,fu2024large,chen2026babyvision}. For instance, a model may struggle to generate a string of a specified length~\cite{xiong2025enhancing}, produce an image of a cat with exactly four eyes~\cite{wiedemer2023compositional,binyamin2025make}, draw a clock showing a requested time~\cite{saxena2025lost}, or solve a relatively simple Sudoku puzzle~\cite{constraintbench}. These failures point to persistent blind spots across a range of abilities like spatial reasoning~\cite{spatialab}, logical consistency~\cite{liu2025evaluating}, and character-level manipulation~\cite{xiong2025enhancing}. 
+% These are not isolated edge cases, but persistent blind spots: systems that perform well on standard benchmarks can still fail on seemingly simple tasks across a wide range of reasoning aspects, like spatial grounding, counting~\cite{binyamin2025make,}, and logical consistency. 
+% \fb{This paragraph needs citations}
+
+To systematically study which questions remain easy for humans yet difficult for today's state-of-the-art models, we introduce \bench, a benchmark of 235 manually curated questions across multiple input-output format, accompanied by a reproducible evaluation framework. The questions are collected from students in a graduate-level AI course, who were asked in October 2025 to propose problems frontier AI chatbots failed to answer correctly. Each problem is annotated with a structured reference solution, question format, and task label. To support fine-grained analysis, we introduce a task taxonomy with three broad categories and finer-grained subtask labels: object-centric tasks, such as counting, recognition, and spatial reasoning; abstract reasoning tasks, mainly involving mathematical and logic-oriented problems; and language-and-knowledge tasks, involving linguistic and knowledge-based reasoning. We further develop an end-to-end evaluation pipeline to automatically grade answers against the reference solutions. 
+% We further verify the reliability of the grading judgments through manual audits of a subset of model responses and outcomes. 
+Under this framework, we evaluate a broad range of frontier systems, including text-only LLMs, vision-language models (VLMs), and specialized image-generation models, covering 38 models in total. 
+
+
+% which accurately captures diverse reasoning failure modes and enables targeted analysis beyond coarse benchmark scores, covering a wide range of reasoning phenomena. 
+% and determines correctness using a stronger grader model together with ground-truth answers. To ensure grading reliability, we construct a validation set and quantify grader accuracy using binary correctness metrics. 
+% One reason is that benchmark progress does not necessarily translate into robust everyday reasoning~\cite{mirzadeh2024gsm,dziri2023faith,jiang2024peek}. Many widely used benchmarks (and their underlying skill patterns) have been heavily considered during model development and training, while a large space of “simple-for-humans” tasks remains underrepresented or poorly measured. Before we can reliably improve model reasoning in these areas, it is crucial to first systematically identify where failures occur and categorize them into concrete capability gaps using carefully annotated data and consistent evaluation protocols.
+% and consists of approximately 250 validated text-only and multimodal examples.  
+% Under this framework, we evaluate a broad range of frontier models, covering both text-only LLMs and multimodal image-capable systems, in total 50 models. 
+
+
+Our results provide a systematic comparison across model variants and offer two complementary analyses. At the model level, the best-performing closed-source systems achieve approximately 10 per cent higher accuracy on \bench than the highest-scoring open-weight models. This difference remains marked even between models with comparable performance on established benchmarks (see \autoref{fig:acc_vs_aaii_text}). In contrast, open-weight models can be more effective under the same evaluation budget. We also find that tool use is not uniformly beneficial and can sometimes lead to lower accuracy. At the task level, our taxonomy supports detailed analyses of model capabilities. Fine-grained visual perception tasks, such as counting objects in images, remain challenging for all models with no more than 60\% accuracy results. No single model remains top-1 across all tasks. For example, the strongest \texttt{GPT} and \texttt{Gemini} models show different strengths across different tasks (e.g., 88.6\% of \texttt{GPT} on arithmetic reasoning). Meanwhile, other models, can still excel in specific categories, such as \texttt{DeepSeek-V4} on character-level manipulation and \texttt{Kimi-2.5} on arithmetic reasoning. Finally, we find that scaling model size within the same family does not always improve performance consistently.
+
+% We hope that our benchmark with our annotations, pipepine, validations, and findings, will motivate further research toward more robust reasoning-centric AI models. Our main contributions are:
+% In summary, this work proposes (i) a manually annotated benchmark, specifically designed to address unexpected reasoning failures in current frontier models, (ii) a novel taxonomy for systematic analysis of reasoning performance across a wide range of failure modes, and (iii) an end-to-end evaluation pipeline with validated grader-based correctness assessment, applied to test reasoning capabilities of 50 frontier models.
+We summarize our contributions as follows:
+\begin{enumerate}[leftmargin=*]
+    \item We introduce \bench, a curated dataset of 235 open-ended problems designed to expose blind spots in multimodal AI systems through tasks that are easy for humans but challenging for today's models. We apply a detailed cleaning and annotation process and provide structured reference solutions to support reliable evaluation.
+
+    \item We develop an end-to-end evaluation pipeline, covering response generation, AI-based automatic grading, and manual auditing of grading reliability. Using this pipeline, we perform a comprehensive evaluation of 32 LLMs/VLMs, and 6 specialized image-generation models.
+
+    \item We propose a task taxonomy and conduct fine-grained analyses of model behavior across task types. The taxonomy consists of three high-level categories and 12 subcategories, enabling us to examine question composition and sources of difficulty. Our analysis reveals both shared weaknesses, such as object counting, and model-specific strengths and failure patterns.
+\end{enumerate}
+
+\section{Related Works}
+\input{sections/Related_Works}
+
+
+\section{Benchmark construction and Composition analysis}
+\input{sections/Dataset_Annotation}
+
+
+\section{Experiments}
+\subsection{Experimental Setup}
+\paragraph{Evaluation Pipeline}
+\input{sections/Evaluation_Pipeline}
+
+\paragraph{Grader Validation}
+\input{sections/Grader_Validation}
+
+\paragraph{Evaluated Models Choice and Configuration}
+\input{sections/Experimental_Setup}
+
+
+
+\subsection{Main Results}
+\input{sections/Analysis}
+
+\section{Conclusion}
+\input{sections/Conclusion}
+
+% \section*{References}
+% \bibliographystyle{abbrv}
+\bibliographystyle{unsrtnat}
+\bibliography{bibliography}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% APPENDICES
+%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\appendix
+
+\section{Examples of problems} \label{appendix:examples}
+
+To illustrate a practical example for the annotation and task taxonomy, we provide the following prompt from the dataset:
+\input{tables/dataset/example} \label{question_example}
+
+We note that some prompts require multi-task categories, in this case we discuss further the failure mode depending on the model's answer. We provide an example below:
+\input{tables/dataset/multicategory_example} \label{question_example_multi_category} 
+
+\input{tables/dataset/category}
+
+\subsection{Task type analsysis}
+\label{app:task_type_analyses}
+We provide detailed description and examples of task taxonomy in \autoref{tab:dataset_category}.
+Beyond the distribution of question format and task taxonomy, we examine the resulting distribution and observe several recurring patterns in the designed challenging tasks. Since the prompts were intentionally created to probe the weaknesses of modern AI agents, these frequently appearing categories may offer useful clues about the capabilities that remain difficult for current models. Below, we provide a brief dataset-level analysis and link the possible reasons to several related studies for easier future study.
+
+\textbf{Object-centric tasks:} We observe a failure for questions related to attribute and pattern recognition  because models tend to extract and report frequently occurring patterns from their training dataset distribution rather than perceiving the actual content as reported in ~\cite{vo2025vision,mitrevski2025inksight,inkslop2026}. In attribute binding or generative counting, they could fail in producing novel recombinations of familiar concepts that rarely occur in natural data. This challenge has been emphasized in prior work ~\cite{wiedemer2023compositional,keysers2019measuring,redhardt2025scaling,binyamin2025make}.  Another example in perceptual counting~\citep{zhang2018learning,acharya2019tallyqa}, models often misidentify, merge or overlook objects in cluttered scenes, especially when instances are small, visually similar, or partially occluded. Spatial reasoning has also been widely recognized as a challenging capability~\cite{spatialab,liu2025spatial} for current models, as it requires understanding and manipulating spatial relations rather than merely recognizing objects. While humans can usually solve these problems through intuitive geometric and physical reasoning, models may fail when the task requires precise relational understanding or multi-step spatial manipulation. In our taxonomy, we therefore include spatial reasoning as a key subcategory of object-centric tasks, covering questions that test whether models can correctly interpret, transform, or reason about spatial configurations.
+
+\textbf{Abstract Reasoning:}
+In abstract reasoning, model often fails in problems that require several logical steps and reveals the reasoning gap where the accuracy of the model decreases with the increase of number of inference step. This is justified in \cite{saparov2022language} , where they show that due to the greedy nature of the model, it makes choices locally at each step without a global verification. This leads to accumulation of the error and fails in giving a final correct solution. Moreover, on the problems with constraint reasoning, where strict rules should be followed, or graph ones, such as the maze problems, where a certain path needs to be found, the model suffers from backtracking as mentioned in \cite{valmeekam2023planbench}. In this case, it cannot effectively re-evaluate earlier decision when a path leads to a dead-end or violates a certain constraint and ends up in hallucinated answer.
+
+\textbf{Language and Knowledge tasks:}
+For Character-level manipulation, we observe failure in several tasks , such as generating an exact number of characters or repeating a token sequence under strict constraints, especially in settings where external tools are disallowed. We conjecture that such failures may often be attributed to limitations of subword tokenization in large language models, making exact character-level counting and length control  difficult~\cite{zhang2024counting,fu2024large}. Also, models are not robust to irrelevant changes in the input. Prior work \cite{veitch2021counterfactual} has studied this phenomenon as spurious correlations, where model predictions depend on features that are not causally relevant to the task.
+
+\section{Full Grader Prompts}
+\label{appendix:full_prompts}
+\begin{promptbox}[Grader Prompt (text generation tasks)]
+You are an expert grader. Your task is to evaluate the correctness of a submitted answer based on the provided question and ground truth answer defining grading criteria. \\
+
+---
+
+\# [Question] \\
+\{question\} \\
+
+---
+
+\# [Submission] \\
+\{answer\} \\
+
+---
+
+\# [Ground Truth] \\
+\{criterion\} \\
+
+---
+
+Important grading rules: \\
+- The submission is correct only if it clearly states a final answer to the question. \\
+- A submission that only contains code, tool calls, search queries, reasoning, or instructions for how to derive the answer must be graded 'I' if that answer is not clearly reported at the end, even if those steps would likely produce the correct answer. \\
+- If the submission is ambiguous about what the final answer is, grade it 'I'. \\
+\\
+After assessing the submitted answer, reply with 'GRADE: \$LETTER' (without quotes) where LETTER is either of C or I. Please choose ONE option for the grade: either "C" for correct answers, or "I" for incorrect answers. No intermediate grades are allowed. If the grading criterion is met only partially or the ground truth is ambiguous, use your best judgement to assign the most appropriate grade.\\
+\\
+Start by briefly analyzing the submission and compare it against the ground truth. Be as concise as possible in your analysis. The ground truth will provide you with the necessary information to easily determine if the submission is correct or incorrect. Only if needed, execute code snippets to verify the correctness of the submission. \\
+Write a minimal explanation of your judgement and end with your answer formatted as 'GRADE: \$LETTER' (without quotes) where LETTER is either of C or I.
+\end{promptbox}
+
+\begin{promptbox}[Grader Prompt (image generation tasks)]
+You are an expert grader evaluating whether a generated image correctly satisfies the given task.
+
+---
+
+\# [Task/Prompt] \\
+\{question\} \\
+\{optional-input-image-section\} \\
+
+---
+
+\# [Generated Image (Candidate Answer to Grade)] \\
+The image below is the generated output that needs to be evaluated. (The generated image is attached after this text) \\
+
+---
+
+\# [Grading Criteria] \\
+\{criterion\} \\
+
+---
+
+\# [Instructions] \\
+Evaluate whether the generated image correctly satisfies the task requirements based on the grading criteria above.
+
+Consider the following aspects when grading: \\
+1. **Content Accuracy**: Does the image contain the required elements/objects/scenes? \\
+2. **Instruction Following**: Does the image follow the specific instructions in the prompt? \\
+3. **Quality**: Is the generated image of reasonable quality (not corrupted, incomplete, or nonsensical)? \\
+4. **Relevance**: Is the generated image relevant to the task? \\
+\\
+If needed, you can execute Python code snippets to help verify aspects of the generated image (e.g., counting objects, checking colors, analyzing dimensions, etc.).
+
+After your analysis, provide your final grade. \\
+Reply with 'GRADE: \$LETTER' (without quotes) where LETTER is either: \\
+- "C" for CORRECT: The generated image satisfies the task requirements \\
+- "I" for INCORRECT: The generated image does NOT satisfy the task requirements \\
+
+Start with a brief analysis of the generated image compared to the requirements, then provide your final grade.
+\end{promptbox}
+
+\section{Grader Validation}
+\autoref{tab:pipeline_validation} and \cref{tab:pipeline_validation_bias} collect the detailed metrics computed to verify the alignment between the automatic evaluation pipeline and human judgment.
+
+\input{sections/assets/pipeline_validation}
+\input{sections/assets/pipeline_validation_bias}
+
+
+\section{Models Info List}
+\label{appendix:models_info}
+\autoref{tab:models-serving-hardware} collects all the specifics of the evaluated models.
+\input{sections/assets/models_info_table}
+
+
+
+\section{Full Models Performance}
+\label{appendix:full_accuracy}
+Hereafter are reported the scores of all models on each single question, allowing to identify shared failures among models. Three heatmaps collect the models mean@k for each problem. Problems are sorted based on the average accuracy across models. Results are reported in \cref{fig:qid_acc_text} for text-only, \cref{fig:qid_acc_multi} for multi-to-text, and \cref{fig:qid_acc_imggen} for image generation.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{sections/assets/text_qid_model_accuracy_heatmap.pdf}
+    \caption{Average accuracy for each model on each task, on \textbf{text-only} problems.}
+    \label{fig:qid_acc_text}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{sections/assets/multi_qid_model_accuracy_heatmap.pdf}
+    \caption{Average accuracy for each model on each task, on \textbf{multi-to-text} problems.}
+    \label{fig:qid_acc_multi}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{sections/assets/image_gen_qid_model_accuracy_heatmap.pdf}
+    \caption{Average accuracy for each model on each task, on \textbf{image-generation} problems.}
+    \label{fig:qid_acc_imggen}
+\end{figure}
+
+
+
+\section{Additional analysis}
+Analyses relying on the proposed taxonomy are presented in \autoref{tab:analyses_category}.
+\input{tables/analyses/category}
+
+\section{Broader Impact}
+\label{appendix:broader_impact}
+Firstly, we provide a diagnostic benchmark to detect persistent gaps in modern models' language understanding. By selecting tasks that can be easily solved by humans but remain difficult for modern AI, \bench can help to better understand cases of failure which are otherwise overlooked due to aggregate success in other benchmarking tasks. In certain use-cases, where minor mistakes in number or spatial reasoning, attribute binding, or instruction following could lead to misinterpretations or even unsafe actions on the part of an AI system, \bench may become relevant for evaluating the applicability of the models in question, including applications to education, assistive technologies, document parsing, and human-AI collaboration workflows.
+
+The \bench may prove useful as a tool for more insightful model comparisons, showing how different approaches behave within individual categories. At the same time, it would be unwise to consider the proposed benchmark as a means for thorough reliability assessment. Being relatively small in terms of scale, biased towards particular types of problems and limited in question formulation and answer distribution, the dataset will inevitably show some signs of bias when it comes to the overall reliability of various model architectures. Another problem associated with public benchmarks is that in the future, models can be specifically trained to overfit to the given data. For all that, the proposed benchmark can only serve as a stress-test and not a thorough safety evaluation of model robustness.
+
+\section{License information}
+We distribute \bench, containing the benchmark prompts, reference solutions, task and sub-task annotations, failure-mode annotations, and associated benchmark metadata for research purposes. This dataset is available on HuggingFace under CC-BY-4.0 license. This data set contains questions suggested by students in an AI course at a graduate level and refined, filtered, and annotated by the authors. The provided annotations consist of the structured reference solution, correctness conditions, and typical failure modes. Some samples include or refer to images and external links to interact with shared models; the respective external service and third-party contents accessible via such links are governed by their own license terms and are not being re-licensed by the benchmark.
+
+The evaluation code and scripts are provided separately from the data set. The evaluation pipeline uses Inspect AI, available under the MIT License. All the third-party software packages used here retain their original license agreements. Outputs from models, evaluation logs, and generated images are not included with the distribution of the benchmark.
+
+\clearpage
+% \input{checklist.tex}
+\end{document}

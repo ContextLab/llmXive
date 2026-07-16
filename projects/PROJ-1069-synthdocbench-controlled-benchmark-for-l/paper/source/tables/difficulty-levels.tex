@@ -1,0 +1,48 @@
+\begin{table}[htbp!]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{} l c c l @{}}
+\toprule
+\textbf{Level} & \textbf{Modality} & \textbf{Operation} & \textbf{Example} \\
+\midrule
+L1: Direct lookup         & Chart / Table    & Read-off  & \texttt{What is the value for \emph{X} in chart \emph{Y}?} \\
+L2: Comparison            & Chart / Table    & Compare   & \texttt{Which is larger, \emph{A} or \emph{B}?} \\
+L3: Aggregation           & Chart / Table    & Compute   & \texttt{What is the total or average of $\ldots$?} \\
+L4: Domain reasoning      & Chart + Text     & Infer     & \texttt{Why does \emph{X} outperform \emph{Y} given the context?} \\
+L5: Visual interpretation & Chart only       & Interpret & \texttt{What does colour \emph{C} encode in chart \emph{Y}?} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Difficulty taxonomy for \synthdocbench{}}
+\label{tab:difficulty-levels}
+\end{table}
+
+
+% \begin{table}[htbp!]
+% \centering
+% \small
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}cl c c l@{}}
+% \toprule
+% \textbf{Level} & \textbf{Name} & \textbf{Modality} & \textbf{Operation} & \textbf{Example} \\
+% \midrule
+% \rowcolor{gray!10}
+% \multicolumn{5}{@{}l}{\textit{Localized visual understanding}} \\
+% L1 & Direct lookup         & Chart / Table                  & Read-off    & 
+% \texttt{What is the value for \emph{X} in chart \emph{Y}?} \\
+% L2 & Comparison            & Chart / Table                  & Compare     & \texttt{Which is larger, \emph{A} or \emph{B}?} \\
+% L3 & Aggregation           & Chart / Table                  & Compute     & \texttt{What is the total or average of $\ldots$?} \\
+% \rowcolor{gray!10}
+% \multicolumn{5}{@{}l}{\textit{Semantic abstraction and visual interpretation}} \\
+% L4 & Domain reasoning      & Chart + Text                   & Infer       & \texttt{Why does \emph{X} outperform \emph{Y} given the context?} \\
+% L5 & Visual interpretation & Chart only                     & Interpret   & \texttt{What does colour \emph{C} encode in chart \emph{Y}?} \\
+% \rowcolor{gray!10}
+% \multicolumn{5}{@{}l}{\textit{Cross-section, cross-modal retrieval and reasoning}} \\
+% L6 & Cross-reference       & \begin{tabular}{c} Chart + Text \\ (multi-section) \end{tabular}  & \begin{tabular}{c} Multi-page \\ reasoning \end{tabular} & \texttt{According to both Section \emph{A} and chart \emph{B}, $\ldots$} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{Difficulty taxonomy for \synthdocbench{}. Levels are grouped into three regimes of increasing reasoning demand.}
+% \label{tab:difficulty-levels}
+% \end{table}

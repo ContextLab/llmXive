@@ -1,0 +1,95 @@
+\section{Introduction}
+\label{sec:intro}
+
+Image generation has advanced rapidly in recent years, evolving from
+specialized text-to-image models~\cite{sd3,flux} to unified multimodal
+models (UMMs)~\cite{bagel,chameleon,januspro,emu3,emu3.5,illume+,metaquery}
+that integrate visual understanding and generation within a single
+architecture. Reinforcement learning has emerged in parallel as an
+effective post-training stage~\cite{flowgrpo,dancegrpo,awm,diffusionnft},
+consistently lifting compositional fidelity and instruction-following. The success of an RL recipe, however, rests on two
+complementary pillars. 
+The optimization algorithm governs the stability of long-horizon training,
+while the reward model determines the ceiling that the trained policy can
+ultimately approach. 
+However, designing a practical reward model that remains both efficient and reliable is still challenging.
+
+
+Recent studies have made substantial progress in reward modeling for image generation.
+One line of work builds reward models from large-scale
+human preference annotations, using these data to align visual-text
+representations or vision-language models with human judgments~\cite{pickscore,imagereward,hpsv2,rewarddance,unifiedreward}. While effective, these methods depend on expensive annotation, difficult data collection, and costly iteration. Another line of work bypasses preference training by reusing pretrained MLLMs as zero-shot reward sources~\cite{viescore,li2025uniworld,alphagrpo}. Direct scalar or logit-based feedback is training-free, but can be sensitive to judge calibration and scoring noise~\cite{viescore,li2025uniworld}. Question-decomposition pipelines improve reliability by verifying atomic prompt requirements one by one, but introduce substantial engineering complexity~\cite{alphagrpo}. This leaves open the design of an efficient, preference-label-free, and off-the-shelf reward model for open-sourced image generators.
+
+
+We propose \method, a training-free reward function that turns any
+pretrained MLLM into an image-generation reward model by reusing its
+image-text alignment knowledge, without preference labels or additional training. 
+Given a generated image, \method conditions a frozen MLLM on the image and performs a single teacher-forced forward pass on the prompt, 
+producing a token-level likelihood profile that reflects how well each textual requirement can be read from the image. 
+We refer to this profile as the \emph{semantic spectrum} of the image-text pair, 
+and aggregate it into a scalar reward using the mean prompt-token log-likelihood. 
+In this way, \method uses the prompt-likelihood spectrum induced by the model's own image-conditioned language modeling objective as a deterministic, off-the-shelf reward signal, as shown in~\autoref{fig:teaser}~(a), instead of asking the MLLM to judge an image or answer decomposed questions.
+
+We further specialize \method within unified multimodal models (UMMs),
+yielding a special case we call \emph{Self-\method}. Since a UMM integrates image
+understanding and image generation into a single framework, its 
+understanding branch could directly provide the reward signals for its
+generation branch.
+In this way, the model improves its own generation
+using its own understanding ability, without relying on any external
+model or external knowledge, forming a closed-loop self-improving framework in which the policy evolves by
+leveraging its own intrinsic capability. 
+Beyond removing external dependencies, this design has a structural advantage. 
+The understanding branch shares the same tokenizer, vision encoder, and pretraining
+distribution as the generation branch, so the way it reads an image is naturally aligned with 
+the distribution from which the generation branch samples images. 
+We therefore hypothesize that this intrinsic alignment makes the policy's own understanding branch a
+particularly suitable reward source for its own generation.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/teaser.pdf}
+    % \vspace{-5pt}
+  \caption{\textbf{Overview of \method.}
+  (a) Pretrained MLLMs naturally induce a semantic spectrum that measures how well a generated image aligns with the prompt.
+  \method aggregates this into a reward for T2I RL.
+  (b) During RL training, \method steadily increases together with visible improvements in complex scene generation.
+  (c) We study nine reward MLLM backbones from four MLLM families, with external reward MLLMs spanning three families and 4B to 235B parameters. 
+  Scaling the reward MLLM backbones brings non-monotonic gains.
+  Qwen3-VL-30B-A3B achieves the best performance among external MLLMs,
+  while Self-\method, using BAGEL's own understanding branch as the reward model, outperforms all external MLLMs.
+  (d) Both \method and Self-\method bring significant and consistent improvements across all six downstream benchmarks compared to the baselines.
+  }
+  \label{fig:teaser}
+  \vspace{-10pt}
+\end{figure*}
+
+We validate \method through a broad image-generation RL study covering
+two diffusion models, three RL training algorithms, nine reward MLLM backbones from four MLLM
+families ranging from 4B to 235B parameters, and evaluate real generalization improvements on five out-of-distribution downstream text-to-image generation benchmarks.
+On both SD3.5-M~\cite{sd3} and BAGEL~\cite{bagel}, \method brings significant improvements on all downstream benchmarks, showing the generalization ability of the proposed prompt-likelihood reward.
+With BAGEL as the policy model, both \method and Self-\method consistently improve the BAGEL baseline by +10.0 on TIIF-Bench~\cite{tiif} and +4.3/5.5 on GenEval~\cite{geneval}, respectively.
+\method also outperforms the strong RL baseline, AlphaGRPO~\cite{alphagrpo}, by 6.3 and 2.1 gains on TIIF-Bench and GenEval, respectively.
+Moreover, Self-\method exhibits better improvements compared to \method with similar-scale MLLM backbones, and comparable or even better performance compared to 4x or 30x larger MLLMs,
+e.g., +1.2 on GenEval, +2.1 on GenEval2~\cite{kamath2025geneval}, and +2 on WISE~\cite{wise} compared to \method with the best MLLM backbone.
+These results support our hypothesis that distributional alignment between the reward model and the policy can be
+as important as the scale of the reward model. The contributions of the paper are summarized as follows:
+% \begin{itemize}[nolistsep, leftmargin=*]
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=1pt]
+  \item We propose \method, a training-free and off-the-shelf reward
+  function that turns any pretrained MLLM into a reward model for text-to-image generation. 
+  By calculating the image-conditioned prompt-token likelihood, 
+  \method reuses pretrained image-text alignment without preference labels, 
+  reward-model fine-tuning, scalar judging, or question decomposition.
+
+  \item We introduce {Self-\method}, the special case in which the policy's own understanding branch in a unified multimodal model serves as the reward model. 
+  This forms a closed-loop self-improving framework without external reward models or 
+  external knowledge, where the model leverages its own understanding ability to improve generation performance.
+
+  \item We conduct a broad image-generation RL study covering two
+  generator backbones, three RL algorithms, nine reward MLLM backbones
+  from four MLLM families spanning $4$B--$235$B parameters, and five
+  downstream benchmarks. The results show the effectiveness of \method and Self-\method, and reveal that the benefits of scaling the reward model are not monotonic
+  and that the well-aligned self-reward model can match or even outperform much larger
+  external models.
+\end{itemize}

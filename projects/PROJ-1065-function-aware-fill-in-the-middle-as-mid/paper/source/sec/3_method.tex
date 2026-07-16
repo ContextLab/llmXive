@@ -1,0 +1,215 @@
+% =============================================================================
+% SECTION 3 — METHOD (revised for paper_v2)
+% Forward references:
+%   Section~\ref{sec:exp:ablation}, Section~\ref{sec:method:cot}
+%   Appendix~\ref{app:data}, Appendix~\ref{app:algo}
+% =============================================================================
+
+\section{Method}
+\label{sec:method}
+\vspace{-0.5ex}
+
+\subsection{Motivation: Function Calls as Agent-Like Structures}
+\label{sec:method:motivation}
+A coding agent at step $t$ samples $a_t \sim \pi(a_t \mid h_t)$, observes
+$o_{t+1} \sim p(o_{t+1} \mid h_t, a_t)$, and continues. Function calls
+mirror this loop (Figure~\ref{fig:teaser}, left): pre-call context, call,
+return, and downstream usage align with history, action, observation,
+and continuation. This isomorphism motivates a fill-in-the-middle (FIM)
+objective drawn from code. Random-span FIM~\citep{qwencoder,
+deepseekcoder, starcoder} captures it only incidentally; our
+\emph{function-aware} variant selects masking targets by program
+structure and contextual predictability.
+
+% \subsection{Motivation: Function Calls as Agent-Like Structures}
+% \label{sec:method:motivation}
+
+% At step $t$ a coding agent maintains a history $h_t$, samples an action
+% $a_t \sim \pi(a_t \mid h_t)$, receives an observation
+% $o_{t+1} \sim p(o_{t+1} \mid h_t, a_t)$, and continues conditioned on the
+% trace. Under the function-call/agent-step correspondence
+% (Figure~\ref{fig:teaser}, left), the four parts---history, action, return,
+% continuation---align with pre-call context, the call, the returned value,
+% and downstream usage. This isomorphism motivates extracting an agentic
+% conditioning signal directly from source code via a fill-in-the-middle
+% (FIM) objective. Standard random-span FIM~\citep{qwencoder, deepseekcoder,
+% starcoder} captures this structure only incidentally; we construct a
+% \emph{function-aware} variant whose masking targets are chosen by program
+% structure and contextual predictability.
+
+\vspace{-0.5ex}
+\subsection{Data Collection and Decontamination}
+\label{sec:method:data}
+
+We curate a corpus of $968$ Python repositories from GitHub. Starting
+from $\sim\!2{,}000$ candidates retrieved by combining a star-count
+threshold with ten topic queries, we apply manual quality filtering and
+remove every repository whose origin overlaps with the source
+repositories of SWE-Bench~\citep{swebench} (verified by repository name
+and any known fork). To eliminate test-time leakage, we restrict each
+repository to commits whose timestamp precedes the earliest base-commit
+used in SWE-Bench-Verified and SWE-Bench-Lite. The filtered corpus
+yields $\approx\!400\mathrm{K}$ FIM samples ($\approx\!2.6\mathrm{B}$
+tokens under the Qwen2.5-Coder tokenizer): $320\mathrm{K}$
+single-function, $60\mathrm{K}$ pair, and $20\mathrm{K}$ triple targets.
+Full statistics, topic-category breakdown, and license inventory are
+reported in Appendix~\ref{app:data}.
+
+\vspace{-0.5ex}
+\subsection{Function-Aware FIM Target Selection}
+\label{sec:method:selection}
+
+Given each source file, our pipeline produces a set of mask targets
+together with the corresponding masked file. Each target is a single
+function or a connected group of $2$--$3$ functions; the multi-function
+variant is studied in Section~\ref{sec:exp:ablation}. The pipeline has
+four stages: dependency-graph construction, complexity scoring,
+inferability scoring, and threshold-based selection. Figure~\ref{fig:pdg_score}
+illustrates these stages on a small running example---a
+\texttt{Calculator} class with two top-level helpers. The full
+single-function selection algorithm is given in
+Appendix~\ref{app:algo:single}, the multi-function extension in
+Appendix~\ref{app:algo:groups}, and a numerical walkthrough of every
+quantity shown in Figure~\ref{fig:pdg_score}(b) in
+Appendix~\ref{app:algo:worked_example}.
+
+% -----------------------------------------------------------------------------
+% Figure: PDG construction and H/I score schematic (compact single-row layout)
+% -----------------------------------------------------------------------------
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/pdg_score.pdf}
+\vspace{-2ex}
+\caption{Function-aware FIM target selection on a small calculator
+example. \textbf{(a)}~Program dependency graph parsed from the AST:
+solid arrows are call edges $\mathcal{E}_{\mathrm{call}}$, dashed lines
+are sibling edges $\mathcal{E}_{\mathrm{sib}}$ between same-class
+methods. \textbf{(b)}~Stacked bars decompose the complexity score
+$\hat{H}\!=\!0.40$ (Eq.~\ref{eq:complexity}; LoC, CC, depth) and the
+inferability score $\hat{I}\!=\!0.48$ (Eq.~\ref{eq:inferability}; five
+context signals) for $\mathtt{Calculator.total}$, yielding $\mathrm{FIM}\!\approx\!0.22\!\geq\!\tau\!=\!0.08$
+(a hyperparameter; see Appendix~\ref{app:algo} for the full list).}
+\label{fig:pdg_score}
+\vspace{-1.5ex}
+\end{figure}
+
+\subsubsection{Program Dependency Graph}
+\label{sec:method:pdg}
+
+For each file we parse its AST and extract the set $\mathcal{V}$ of
+function nodes (top-level functions and class methods, identified by
+qualified names). Two edge sets are constructed: \emph{call edges}
+$\mathcal{E}_{\mathrm{call}}$ between caller and callee, and
+\emph{sibling edges} $\mathcal{E}_{\mathrm{sib}}$ between methods of the
+same class (capturing intra-class coupling that flows through shared instance state rather than direct calls).
+Call resolution handles common Python idioms (direct invocations, class
+instantiation, \texttt{self}/\texttt{cls} method calls) with a
+short-name fallback against the qualified-name index;
+Appendix~\ref{app:algo:pdg} details the procedure.
+
+\subsubsection{Complexity Score $\hat{H}$}
+\label{sec:method:complexity}
+
+For each $v \in \mathcal{V}$ we define
+\vspace{-0.5ex}
+\begin{equation}
+  \hat{H}(v) \;=\; w_{\ell}\,\phi\!\left(\mathrm{LoC}(v),\,c_{\ell}\right)
+            + w_{c}\,\phi\!\left(\mathrm{CC}(v),\,c_{c}\right)
+            + w_{d}\,\phi\!\left(\mathrm{D}(v),\,c_{d}\right),
+  \label{eq:complexity}
+\end{equation}
+where $\mathrm{LoC}(v)$ is lines of code, $\mathrm{CC}(v)$ is McCabe
+cyclomatic complexity, $\mathrm{D}(v)$ is the maximum nesting depth of
+control-flow constructs, and $\phi(x,c)\!=\!\min(x/c,\,2)$ normalizes
+each quantity by a soft cap. Caps and weights are listed in
+Appendix~\ref{app:algo:hyperparams}.
+
+\subsubsection{Inferability Score $\hat{I}$}
+\label{sec:method:inferability}
+
+A target should be \emph{recoverable} from the surrounding context.
+$\hat{I}(v)$ aggregates five context-derived signals that approximate
+the mutual information between $v$'s body and the rest of the file:
+\vspace{-0.5ex}
+\begin{equation}
+  \hat{I}(v) \;=\; \alpha\,C_{\mathrm{caller}}(v)
+              + \beta\,C_{\mathrm{callee}}(v)
+              + \gamma\,C_{\mathrm{sig}}(v)
+              + \delta\,C_{\mathrm{doc}}(v)
+              + \varepsilon\,C_{\mathrm{class}}(v).
+  \label{eq:inferability}
+\end{equation}
+$C_{\mathrm{caller}}$ scores call-site argument specificity,
+$C_{\mathrm{callee}}$ counts intra-file functions called by $v$,
+$C_{\mathrm{sig}}$ aggregates type annotations and name descriptiveness,
+$C_{\mathrm{doc}}$ indicates docstring presence, and
+$C_{\mathrm{class}}$ counts in-class siblings; full component formulas
+and weights are in Appendix~\ref{app:algo:inferability}. Each component
+is a hand-designed proxy: a learned predictability score would couple
+selection to a particular reference model and complicate the
+cross-base-model generalization analysis (Section~\ref{sec:exp:main}).
+
+\subsubsection{Single-Function Score}
+\label{sec:method:single}
+
+We combine $\hat{H}$ and $\hat{I}$ in a harmonic-mean-like form, scaled
+by a one-sided difficulty penalty $\rho(\Delta(v))$:
+\vspace{-0.5ex}
+\begin{equation}
+  \mathrm{FIM}(v) \;=\;
+  \frac{\hat{H}(v)\,\hat{I}(v)}{\hat{H}(v) + \hat{I}(v) + \epsilon}
+  \cdot \rho\!\left(\Delta(v)\right).
+  \label{eq:fim_single}
+\end{equation}
+The harmonic-mean form forces both $\hat{H}$ and $\hat{I}$ to be large
+simultaneously, penalizing imbalance; $\rho$ down-weights targets that
+remain hard even given full context, which would otherwise be
+unlearnable noise. Hard filters on length and dunder methods, the form
+of $\rho$, and the threshold $\tau\!=\!0.08$ used throughout this work
+are documented in Appendix~\ref{app:algo:penalty}.
+
+\subsubsection{Multi-Function Group Selection}
+\label{sec:method:groups}
+
+Real-world code patches frequently span multiple related
+functions~\citep{swebench}, motivating an extension that masks
+\emph{groups} of $k\!=\!2$ or $k\!=\!3$ structurally connected functions;
+we use this variant in our main recipe and ablate it in
+Section~\ref{sec:exp:ablation}. A group score $\mathrm{FIM}(G)$
+multiplies a coupling term, the harmonic-mean-like product of
+group-level $\hat{H}(G)$ and $\hat{I}(G)$, and a difficulty penalty,
+with $\hat{I}(G)$ recomputed under joint masking so that intra-group
+references cannot inflate the score. The eight topology patterns
+(caller-callee, co-callee, sibling-coupled, mutual-call, call-chain,
+hub, fan-in, class-triad), the full equations,
+Algorithm~\ref{alg:selection_multi}, and a worked pair example are in
+Appendix~\ref{app:algo:groups}.
+
+\vspace{-0.5ex}
+\subsection{Chain-of-Thought Augmentation}
+\label{sec:method:cot}
+For each selected target we run a three-stage pipeline.
+\textbf{Generate.} Gemini-3-Flash sees only the masked file and
+produces a step-by-step rationale together with a candidate function
+body, with no access to the ground-truth body
+(Appendix~\ref{app:algo:cot-gen}).
+\textbf{Filter.} A separate Gemini-3-Flash judge scores the
+(rationale, candidate body) pair against the ground-truth body on
+feasibility and five quality dimensions; we keep the top-scoring
+$\sim\!400$K samples (Appendix~\ref{app:algo:filter}).
+\textbf{Format.} Each retained pair is placed inside the FIM middle
+span, rationale before body (Appendix~\ref{app:algo:cot-format}):
+\vspace{-0.5ex}
+\begin{center}\small
+\texttt{<fim\_prefix>}\,$\langle$prefix$\rangle$\,%
+\texttt{<fim\_suffix>}\,$\langle$suffix$\rangle$\,%
+\texttt{<fim\_middle>}\,$\langle$rationale$\rangle$\,$\langle$body$\rangle$
+\end{center}
+\vspace{-1ex}
+The model is thus trained to produce reasoning followed by consistent
+code, mirroring the think-then-act structure of an agent step. The
+ground-truth body serves only as a filter anchor and never appears in
+the training target.
+Section~\ref{sec:exp:ablation} isolates the contribution of FIM
+structure from CoT distillation via a \emph{self-CoT} variant in
+which the model under training generates its own rationales.

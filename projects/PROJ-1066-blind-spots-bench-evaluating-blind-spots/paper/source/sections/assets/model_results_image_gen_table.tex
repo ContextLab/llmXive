@@ -1,0 +1,22 @@
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{4pt}
+% \caption{Image-generation model results. Accuracy is shown as a percentage. Small subscripts show standard errors computed across problems. Evaluation cost is measured in USD-per-100-samples.}
+% \label{tab:image-gen-leaderboard}
+\begin{tabular}{lrr}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Image-gen}} \\
+\cmidrule(lr){2-3}
+Model & mean@1 & cost \\
+\midrule
+\multicolumn{3}{l}{\textbf{Image-generation models}} \\
+Gemini-2.5-flash-image & \cellcolor{green!22!red!25!white}{$22.6_{ \pm 4.6}$} & \cellcolor{green!72!red!25!white}{4.14} \\
+Gemini-3-pro-image & \cellcolor{green!85!red!25!white}{$54.8_{ \pm 5.5}$} & \cellcolor{green!15!red!25!white}{19.23} \\
+Gemini-3.1-flash-image & \cellcolor{green!83!red!25!white}{$53.6_{ \pm 5.5}$} & \cellcolor{green!52!red!25!white}{9.56} \\
+GPT-image-1-mini & \cellcolor{green!15!red!25!white}{$19_{ \pm 4.3}$} & \cellcolor{green!85!red!25!white}{0.85} \\
+GPT-image-1.5 & \cellcolor{green!57!red!25!white}{$40.5_{ \pm 5.4}$} & \cellcolor{green!71!red!25!white}{4.59} \\
+GPT-image-2 & \cellcolor{green!78!red!25!white}{$51.2_{ \pm 5.5}$} & \cellcolor{green!68!red!25!white}{5.26} \\
+\bottomrule
+\end{tabular}
+% \end{table}

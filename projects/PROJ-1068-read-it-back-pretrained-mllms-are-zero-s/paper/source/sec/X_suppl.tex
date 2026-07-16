@@ -1,0 +1,214 @@
+\newpage
+\appendix
+\setcounter{page}{1}
+
+\section*{\textbf{Appendix}}
+
+\renewcommand{\subsectionautorefname}{Appendix}
+\renewcommand{\sectionautorefname}{Appendix}
+
+The outline of the Appendix is as follows.
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+\item \ref{sec:app_limitations} Limitations and Future Work. We discuss the limitations of prompt-likelihood rewards, including dependence on MLLM visual reasoning, implicit physical and commonsense implications, and complementary reward signals.
+\item \ref{sec:additional_implementation_details} Additional Implementation Details, including the reward prompt format, EOS masking, and the use of VAE features in Self-\method on BAGEL.
+\item \ref{sec:additional_experimental_results} Additional Experimental Results, including the effect of EOS token removal and the effect of VAE features in reward calculation on BAGEL.
+
+\item \ref{app:detailed_benchmark} Detailed Benchmark Results, including category-level results on GenEval, TIIF-Bench, DPG-Bench, and WISE.
+\item \ref{sec:more_visualizations} More Visualizations, including qualitative comparisons on spatial relations, counting, attribute binding, relative size, and long-prompt composition.
+\item \ref{sec:broader_impacts} Broader Impacts.
+\end{itemize}
+
+
+\section{Limitations and future work}
+\label{sec:app_limitations}
+\method relies on the image-conditioned prompt likelihood of pretrained MLLMs, 
+so its reward quality is bounded by the visual understanding and reasoning ability of the chosen reward backbone. 
+Since the likelihood is computed only over the input prompt, the reward mainly captures explicit semantic alignment between generated images and prompts, 
+and may under-emphasize implicit visual implications that are not directly expressed in the text. 
+For example, a prompt such as ``hot coffee'' may imply steam through physical and commonsense reasoning, 
+but such implications may be weakly reflected in the likelihood of the original prompt tokens. 
+This limitation may be alleviated by using stronger MLLM backbones with rich world knowledge, 
+or by extending \method to reasoning text-to-image generation, where intermediate reasoning can make such implicit requirements explicit. 
+In addition, \method does not directly optimize criteria such as aesthetics and safety, 
+which could be addressed by combining it with complementary specialized reward models. 
+
+\section{Additional Implementation Details}
+\label{sec:additional_implementation_details}
+When using \method, we feed the generated image as the visual condition
+and evaluate the original prompt with teacher forcing. We do not add any
+general prefix to ask the reward MLLM to describe the image. Although
+such a prefix can change absolute likelihood values, it does not
+substantially affect the relative ranking within each prompt group, which
+is the quantity used by group-relative RL. Therefore, we refrain from
+using a prefix for all reward MLLMs by default. The only exception is the
+InternVL3.5 family, where we empirically find that adding the prefix
+``Describe the image'' gives more stable reward values.
+
+We exclude the [EOS] token from the \method computation. The [EOS]
+likelihood is often dominated by sequence termination rather than
+image-text alignment, and it can disproportionately affect short prompts
+because it contributes a large fraction of the averaged token likelihood.
+The ablation in~\autoref{sec:ablation_eos} shows that masking [EOS]
+improves GenEval while keeping TIIF-Bench performance comparable.
+
+For Self-\method on BAGEL, we use the model's own understanding branch to
+score generated images. BAGEL contains both semantic visual features and
+VAE features. By default, we include the VAE feature in Self-\method
+because it gives better average performance in our ablation. We discuss
+the effect of VAE inputs in~\autoref{sec:ablation_vae}.
+
+\section{Additional Experimental Results}
+\label{sec:additional_experimental_results}
+
+\paragraph{Effect of EOS token removal.}
+\label{sec:ablation_eos}
+When inspecting the per-token likelihood distribution, 
+we find that the EOS token often receives much lower likelihood than regular prompt tokens. 
+Because \method averages token log-likelihoods, this unusually low-likelihood token can significantly shift the final reward, especially for short prompts. 
+However, EOS only indicates sequence termination and does not carry semantic information about image-text alignment. 
+We therefore mask the EOS token when computing \method.
+
+\paragraph{Effect of VAE feature in the reward calculation on BAGEL.}
+\label{sec:ablation_vae}
+BAGEL uses separate encoders for generation and understanding, 
+i.e., ViT for understanding and VAE for generation, and can optionally include the VAE feature when conducting understanding tasks.
+In Self-\method, we use BAGEL's understanding backbone to provide reward signals for generation.
+Here, we ablate the effect of using the VAE feature in Self-\method.~\autoref{tab:vae} shows that including the VAE feature obtains better performance on average, 
+and the improvement is more significant on the TIIF-Long benchmark.
+
+\section{Detailed Benchmark Results}
+\label{app:detailed_benchmark}
+
+This section provides the full category-level benchmark results that complement the aggregate numbers in~\autoref{tab:main_result}. 
+We include detailed breakdowns on GenEval, TIIF-Bench, DPG-Bench, and WISE to 
+examine whether the gains from \method are concentrated in a single score or hold across different types of text-to-image requirements. 
+Overall, the detailed results show that both \method and Self-\method improve the BAGEL baseline across compositional generation, fine-grained instruction following and knowledge-grounded generation. 
+The improvements also remain visible when the same 512-resolution trained model is evaluated at 1024 resolution, 
+suggesting that the learned reward signal transfers beyond the training sampling resolution.
+
+\begin{table}[t]
+    \scriptsize
+    \centering
+    \tablestyle{4pt}{1.2}
+    \caption{\textbf{The effect of including the EOS token in the reward calculation.}
+    % All rows use Self-\method + AWM.
+    }
+    \label{tab:eos}
+    \begin{tabular}{cccc}
+    \toprule
+    \textbf{Include EOS token} & \textbf{GenEval$\uparrow$} & \textbf{TIIF-Short$\uparrow$} & \textbf{TIIF-Long$\uparrow$} \\
+    \midrule
+    Yes            & 88.5 & \textbf{85.5} & \textbf{84.3} \\
+    \rowcolor{gray!10}
+    No           & \textbf{89.5} & 85.1 & \textbf{84.3} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\begin{table}[t]
+    \scriptsize
+    \centering
+    \tablestyle{4pt}{1.2}
+    \caption{\textbf{Effect of VAE features in Self-\method reward computation.}
+        BAGEL provides two visual inputs to its understanding branch, 
+        ViT features from the semantic encoder and VAE features from the generation encoder. 
+        Using both inputs improves GenEval and TIIF-Short.
+    }
+    \label{tab:vae}
+    \begin{tabular}{cccc}
+    \toprule
+    \textbf{Use VAE input} & \textbf{GenEval$\uparrow$} & \textbf{TIIF-Short$\uparrow$} & \textbf{TIIF-Long$\uparrow$} \\
+    \midrule
+    No             & 87.8 & 83.6 & \textbf{84.7}  \\
+    \rowcolor{gray!10}
+    Yes           & \textbf{89.5} & \textbf{85.1} & {84.3} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{GenEval.}~\autoref{tab:geneval} reports the complete GenEval breakdown. 
+Compared with BAGEL and AlphaGRPO, \method and Self-\method improve the overall score at both 512 and 1024 inference resolutions. 
+The largest improvements appear in the more compositional categories, including counting, spatial position and color-attribute binding, 
+where successful generation requires not only object presence but also correct attribute binding to objects.
+Self-\method achieves the best overall score at both resolutions, indicating that using the policy model's own understanding branch 
+as the reward model can provide a particularly well-aligned signal for structured prompt following.
+\input{tables/geneval}
+
+\paragraph{TIIF-Bench.}~\autoref{tab:tiifbench} gives the full TIIF-Bench results on short and long prompts. 
+TIIF-Bench separates basic following, advanced following, and designer-oriented prompts, 
+making it a useful stress test for instruction fidelity beyond object-level matching.
+Both \method and Self-\method substantially improve the BAGEL baseline and AlphaGRPO on the overall short and long scores. 
+The improvements are observed in basic attribute and relation following, advanced combinations
+of attribute/relation/reasoning, and the designer-oriented real-world split.
+The text subcategory remains challenging in absolute terms, 
+but both methods increase the score by a large margin over BAGEL, 
+suggesting that image-conditioned prompt likelihood provides useful supervision even for
+fine-grained instruction details.
+\input{tables/tiif_bench}
+
+\paragraph{DPG-Bench.}~\autoref{tab:dpgbench} further evaluates prompt following with the decomposed categories of DPG-Bench. 
+Since BAGEL is already a strong baseline on this benchmark, 
+the absolute margins are smaller than those on TIIF-Bench. 
+Nevertheless, \method obtains the best 512-resolution overall score and improves the global, relation, and other categories, 
+while Self-\method gives the strongest attribute score. 
+At 1024 resolution, Self-\method achieves the best overall score among the compared BAGEL-based
+methods. These results indicate that the reward learned from prompt
+likelihood helps not only aggregate instruction following, but also the
+relation- and attribute-sensitive subskills measured by DPG-Bench.
+\input{tables/dpg}
+
+\paragraph{WISE.}~\autoref{tab:wisescore} reports the WISE benchmark, which emphasizes
+world-knowledge and semantic reasoning in text-to-image generation. 
+When combined with self-CoT, however, both methods clearly improve over BAGEL and AlphaGRPO with the same inference strategy. 
+Self-\method with self-CoT reaches the best overall WISE score and improves multiple knowledge domains, 
+including space, biology, physics, and chemistry. 
+This suggests that \method improves prompt-following ability and helps the model respond better to the CoT text.
+\input{tables/wise}
+
+\section{More Visualizations}
+\label{sec:more_visualizations}
+
+\autoref{fig:appendix_reward_ranking} provides additional examples of reward ranking in the same rollout group. 
+Samples with higher \method reward better satisfy object, attribute, and spatial constraints, 
+supporting the use of image-conditioned prompt likelihood as a group-wise ranking signal.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/appendix_reward_ranking.pdf}
+    \caption{\textbf{Additional reward-ranking examples.}
+            For each prompt, samples are ordered from lower to higher \method reward.}
+    \label{fig:appendix_reward_ranking}
+\end{figure*}
+
+\autoref{fig:appendix_qualitative} provides additional qualitative
+comparisons between the BAGEL baseline and Self-\method. The red text marks the key differences between the baseline BAGEL and our model, 
+covering spatial relations, counting, attribute binding, relative size, and object co-occurrence in long prompts.
+Across these cases, Self-\method more often preserves the requested relation between objects while also keeping the main visual content recognizable. 
+For example, it places the toy car on modeling clay and 
+separates the pen from the fabric blanket. These examples support the quantitative gains in
+instruction-following benchmarks by showing that the learned reward improves fine-grained prompt grounding rather than only global image quality.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/appendix_visualization_campare.pdf}
+    \caption{\textbf{Additional qualitative comparison.}
+    Red text highlights the prompt constraints that are especially sensitive to spatial relation,
+    counting, attribute binding, or long-prompt composition.
+    Self-\method more consistently satisfies these highlighted constraints than the BAGEL baseline.}
+    \label{fig:appendix_qualitative}
+\end{figure*}
+  
+
+\section{Broader Impacts}\label{sec:broader_impacts}
+\method lowers the cost of constructing reward signals for image-generation RL by reusing frozen pretrained MLLMs, 
+without preference annotation or reward-model fine-tuning. 
+This may make reinforcement learning for text-to-image generation more accessible to researchers with limited annotation or
+training resources, and can support studies on prompt following, compositional generation, and unified multimodal self-improvement.
+
+At the same time, easier RL optimization for image generation may amplify the existing risks of text-to-image models. 
+Stronger prompt following can be misused for generating misleading visual content, imitating protected styles, 
+or producing unsafe images. Since \method derives rewards from pretrained MLLMs, 
+it may inherit potential biases and visual misjudgments from the reward MLLM backbone during policy optimization. 
+For Self-\method, the closed-loop reward further encourages the model to align with its own understanding branch,
+which may not always reflect human preferences or safety requirements. 
+We therefore recommend using \method together with standard safety filters, bias auditing, and human evaluation 
+when deploying or releasing models trained with this reward.

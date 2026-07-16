@@ -1,0 +1,82 @@
+% \todo{add similar benchmarks and papers highlighting different categories. GSM-symbolic and other similar papers (GSM-plus, MATH-perturb) showing lack of robustness to simple alterations of well known datasets are also worth mentioning}
+% Maybe some works to add:
+% \begin{itemize}
+%     \item Training verifiers to solve math word problems \cite{cobbe2021training}
+% \end{itemize}
+
+\paragraph{General and Multimodal Evaluation Benchmarks.}
+A growing body of work has emphasized the importance of moving beyond a single aggregate benchmark score toward more structured characterizations of model reasoning errors. Recent benchmarks focusing on broad multidisciplinary reasoning performance, such as RBench~\cite{rbench_2025}, BIG-Bench~\cite{srivastava2023beyond}, GPQA~\cite{gpqa_bench}, and MMMU~\cite{mmmu_bench}, aggregate metrics across different categories, but fail to understand the differences in model behavior across specific reasoning components and identify residual weaknesses on simple but precise skills. In contrast, \bench introduces a structured framework that decomposes reasoning into fine-grained sub-tasks, allowing for a more interpretable assessment beyond aggregate scores, revealing that different models exhibit distinct strengths and weaknesses
+
+
+\paragraph{Taxonomies and Failure Analysis.}
+Moving beyond aggregate benchmarks, prior work has explored characterizing model behaviors through behavior testing, diagnostic challenge sets, and structured task taxonomies and failure analysis. In NLP, checklist~\cite{ribeiro2020beyond} introduced capability-level behavioral testing, while diagnostic benchmarks such as HANS~\cite{mccoy2019right} showed that models with high benchmark accuracy can still rely on brittle heuristics. Dynamic and contrastive evaluation frameworks further highlight the value of constructing targeted examples around model failures~\cite{kiela2021dynabench,gardner2020evaluating}. In multimodal evaluation, benchmarks such as MME~\cite{fu2023mme0}, ME-Reasoning~\cite{mme_reasoning_2025}, MM-Vet~\cite{yu2023mm}, GLUE~\cite{wang2018glue}, SIV-Bench~\cite{kong2025siv} organize evaluation around structured capabilities including perception, OCR, spatial reasoning, object-attribute understanding, social reasoning, multimodal logical reasoning, and distinctions between informal and formal reasoning or embodied settings~\cite{reasoning_failure_survey_2025}. Although these work provide useful high-level analyses of model behavior, they are either too coarse or too broad to support fine-grained analysis. As a result, they are difficult to apply to our benchmark setting for reasoning failure analysis. In this work, we instead propose a structured decomposition or reasoning problems into fine-grained sub-tasks and introduce failure modes for questions with more than one sub-task, where the type of failure is determined based on the model’s responses. This enables a more detailed and contextual analysis of errors.
+
+
+\paragraph{Robustness Evaluation}
+Another line of work studies whether high benchmark scores reflect robust reasoning. GSM-Plus \cite{li2024gsmplus} and Math-Perturb \cite{MATHPerturb2025} generate perturbed versions of problems from well established reasoning benchmarks. GSM-Symbolic \cite{Mirzadehetal2025} and VarBench \cite{qian2024varbench} focus on creating parametric templates to test performance invariance on equivalent problems.
+%effectively assessing the robustness of LLM reasoning. 
+These benchmarks complement \bench, but differ from it in their purpose. Perturbation benchmarks create controlled variants of existing problems, whereas \bench is built from naturally occurring failures of frontier models focusing on underrepresented tasks.
+% Thus \bench focuses on underrepresented blind spots across modalities, rather than robustness on already assessed domains.
+
+
+
+% \paragraph{Categorization of reasoning failures}
+% A growing body of work has emphasized the importance of moving beyond aggregate benchmark scores toward more structured characterizations of model reasoning errors.
+% Some benchmarks focus on specific reasoning dimensions, such as logical reasoning in multimodal settings~\cite{mme_reasoning_2025}, and some focus on multidisciplinary reasoning performance without an explicit taxonomy of failure modes~\cite{rbench_2025}. Beyond benchmark construction, several studies propose error-oriented frameworks to diagnose model limitations, including misattribution-based analyses~\cite{misattributionllm_2025} and structured taxonomies for agentic or multi-agent failures~\cite{agenterrorbench_2025, cemri2025multi}.
+% Recent surveys attempt to organize reasoning failures into broad conceptual groupings (e.g., informal vs.\ formal reasoning, embodied settings)~\cite{reasoning_failure_survey_2025}. 
+% However, such categorizations are often high-level and heterogeneous, making them less suitable for benchmark-level diagnosis or instance-level failure attribution. In contrast, our taxonomy is designed to be evaluation-oriented and directly applicable at the instance level, enabling clear and fine-grained analysis across diverse reasoning aspects.
+
+% \paragraph{The Shift to Perturbation-Based Evaluation}
+% A pivotal development in this domain is 
+% \textit{GSM-Symbolic}~\cite{mirzadeh2024gsm}, 
+% which demonstrates that static benchmarks fail to capture model fragility. 
+% Using symbolic templates to generate thousands of variations of the 
+% canonical GSM8K dataset \ms{this is a bit redundant with "Dynamic and Functional benchmarks" (up to here)}, the authors identified the ``NoOp'' failure mode: 
+% adding a single, semantically irrelevant clause (e.g., describing the color 
+% of an object in a math problem) caused performance on frontier models to 
+% drop by up to 65\%. This failure reveals a critical lack of distractor 
+% suppression, where models blindly incorporate all visible numbers into 
+% calculations regardless of context.
+
+% \paragraph{Taxonomy of Robustness: Simple vs. Hard}                     
+% Recent work has formalized the distinction between superficial stability and 
+% deep understanding. \textit{MATH-Perturb}~\cite{huang2025mathperturb} 
+% introduces a taxonomy of perturbations: 
+% \textit{Simple perturbations} (altering numbers or names) test basic 
+% invariance, while \textit{Hard perturbations} (altering problem logic) 
+% test meta-reasoning. 
+% Failure on the latter indicates ``overgeneralized memorization,'' 
+% where models  recite familiar solution plans even when they no longer apply. 
+% Similarly, \textit{GSM-Plus}~\cite{li2024gsmplus} shows that models often 
+% solve original instances but fail on simple adversarial variants            
+% (such as reversing a question's target),                                     
+% confirming that high benchmark accuracy does not imply algorithmic 
+% understanding.
+
+% \paragraph{Dynamic and Functional Benchmarks} 
+% To combat memorization, the field is moving toward dynamic evaluation. 
+% Frameworks like \textit{VarBench}~\cite{qian2024varbench} and \textit{reasoning-gym}~\cite{stojanovski2025reasoninggymreasoningenvironments} ``variabilize'' 
+% static benchmarks 
+% sampled at inference time. 
+% In the domain of competition mathematics, 
+% \textit{Putnam-AXIOM}~\cite{gulati2025putnam} and 
+% \textit{PutnamGAP}~\cite{hao2025putnamgap} generate functional variants of 
+% Olympiad-level problems. 
+% The significant performance drop observed on these mathematically 
+% equivalent variants suggests 
+% that ``superhuman'' capabilities reported on static leaderboards 
+% are often brittle and reliant on specific training configurations.
+
+% \paragraph{General Semantic Robustness}                                      
+% This philosophy extends beyond mathematics to general NLP. 
+% Frameworks such as \textit{RUPBench}~\cite{wang2024rupbench} and 
+% \textit{SCORE}~\cite{ackerman2024score} establish consistency 
+% as a first-class metric. Rather than optimizing solely for accuracy, 
+% these protocols measure whether model outputs remain stable under
+% meaning-preserving changes, 
+% such as paraphrasing prompts or reordering answer choices.
+
+% Overall, this work validates the need for perturbation-based 
+% pipelines to diagnose the gap between perceived performance and actual 
+% robustness to reasoning.
+

@@ -1,0 +1,152 @@
+\colorlet{takeawaybg}{blue!10}
+\newtcolorbox{takeawaysbox}{
+    enhanced,
+    colback=takeawaybg,
+    colframe=black,
+    boxrule=1.2pt,
+    arc=6pt, % Slightly rounder corners on the main box
+    auto outer arc,
+    top=10pt,
+    bottom=8pt,
+    left=6pt,
+    right=6pt,
+    fontupper=\normalsize,
+    % --- Title definition ---
+    title=Takeaways,
+    coltitle=white,
+    fonttitle=\bfseries,
+    % --- THIS IS THE KEY LINE FOR THE BADGE CUTOUT ---
+    attach boxed title to top left={xshift=12pt, yshift=-8pt},
+    % --- Styling the little black badge itself ---
+    boxed title style={
+        colback=black,
+        colframe=black,
+        size=small,
+        arc=3pt, % Round corners on the badge
+        bottom=1pt, top=1pt, left=4pt, right=4pt
+    }
+}
+
+\begin{takeawaysbox}
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=0pt]
+    \item \textbf{Closed source models are more accurate} than open-weight ones, even at the same level of capabilities on other established benchmarks.
+    \item \textbf{Open models are more cost-effective}: GLM-5.2, Qwen3.5 and DeepSeek-V4 perform better than frontier models \textit{with the same evaluation cost}.
+    \item \textbf{Tool-use is not always beneficial}: it reduces token-use but sometimes decreases accuracy.
+\end{itemize}
+\end{takeawaysbox}
+
+
+\paragraph{Leaderboard} \label{subsec:leaderboard}
+The complete evaluation results are reported in \autoref{tab:llm-vlm-leaderboard}, \autoref{tab:image-gen-leaderboard}. We track performance by question type, reporting average accuracy (\textit{mean@k}) and success within \textit{k} attempts (\textit{pass@k}, defined as the probability of obtaining at least one correct solution out of \textit{k} independent attempts), as well as average inference cost and the number of generated tokens.
+% \textit{Pass@k} is defined as the probability of having at least one correct solution out of \textit{k} independent attempts, a metric often used in AI reasoning literature to measure of output diversity. The average inference cost and number of generate tokens are also reported.
+\input{sections/assets/model_results_llm_vlm_table}
+% \input{sections/assets/model_results_image_gen_table}
+
+
+\paragraph{Overall Performance}
+\texttt{Gemini-3.1-Pro} achieves the strongest overall performance, with an accuracy of $\approx$83.3\% on textual problems and $\approx$66.9\% on multimodal problems \autoref{tab:llm-vlm-leaderboard}. While \texttt{GPT-5.5} also attains very high accuracy on textual problems ($\approx$84\%), its performance does not transfer to visual questions ($\approx$58.7\%). The strongest open-weight models remain competitive mainly on text-only problems, but lag behind in the multimodal setting. \texttt{GLM-5.2} leads among open-weights models with a text-only accuracy of $\approx$74\%. \texttt{Qwen3.5-397B} also demonstrates strong performance ($\approx$70\% on text, $\approx$48\% on multimodal), surpassing much larger models such as \texttt{Kimi-K2.6} and \texttt{DeepSeek-V4-Pro}. This result might come as a consequence of longer reasoning, as suggested by the high average number of output tokens.
+Overall we observe substantial improvements across successive iterations of the same model families in the different iterations of the same model families (e.g., from \texttt{Gemini-2.5} to \texttt{Gemini-3}), indicating that the latest generation of models is significantly more robust than models from late 2025.
+
+For image-generation models~\autoref{tab:image-gen-leaderboard}) \texttt{Gemini-3-Pro-Image} attains highest accuracy (54.8\%), but at a substantially higher inference cost than its OpenAI counterpart. \texttt{GPT-Image-2} achieves slightly lower accuracy (51.2\%) while being approximately 4$\times$ cheaper. A detailed view of the failures distribution across the different problems is provided in \autoref{appendix:full_accuracy}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{sections/assets/accuracy_vs_cost.pdf}
+    \caption{
+    Accuracy on \bench\ vs. average cost for 100 samples. Colors distinguish model families; models of the same version but different sizes are connected.
+    }
+    \label{fig:acc_vs_cost}
+\end{figure}
+
+
+\paragraph{Cost-Performance Trade-off}
+We further analyze the relation between each model's accuracy on \bench\ and its average inference cost. As shown in \autoref{fig:acc_vs_cost}, the rate of improvement in accuracy slowly decreases with higher cost. In text-only tasks in particular, we observe that a 10\% accuracy gain, from 60\% to 70\%, requires at least an order-of-magnitude increase in inference cost (approximately 10$\times$).
+Few open models, in paricular \texttt{DeepSeek-V4}, \texttt{Qwen3.5}, and \texttt{GLM-5.2} demonstrate particularly cost-efficient performance, outperforming the frontier alternatives at similar cost levels (such as \texttt{Gemini-3.1-Flash-Lite} and \texttt{GPT-5.4-mini}).
+Among frontier models, the \texttt{Gemini-3} family displays an overall better accuracy-cost trade-off, especially in the multimodal domain, strengthening the evidence of its greater performance when compared to \texttt{GPT-5.4} and \texttt{5.5}. 
+
+\paragraph{Alignment with General Intelligence Assessment}
+We further compare \bench\ accuracy with external general intelligence scores, focusing on the Artificial Analysis Intelligence Index (AAII) \citep{artificialanalysis_methodology_2026}. This composite benchmark aggregates ten established text-only evaluations that span diverse capabilities, including Humanity Last Exam \citep{phan2025humanitys_last_exam}, IFBench \citep{pyatkin2025ifbench}, and TerminalBench \citep{merrill2026terminal_bench}. As shown in \autoref{fig:acc_vs_aaii_text}a, we observe a positive relationship between Intelligence Index scores and performance \bench, with models that perform well on broad reasoning, coding, and mathematical evaluations also scoring highly on \bench\footnote{For some models, an AAII score is not available at exactly \texttt{medium} thinking effort. In these cases, we use the best available approximation: the average of \texttt{low} and \texttt{high} when both are reported, or the single reasoning-enabled score when no \texttt{thinking\_effort} option is provided.}. This supports the view that \bench measures general reasoning ability rather than an capturing an unrelated set of adversarial prompts.
+
+However, this relation differs between open- and closed-weight models. Open models tend to perform worse on \bench\ than closed models with comparable AAII scores. One possible explanation is that broad public benchmarks may overestimate robustness on underrepresented tasks, especially when models have been optimized for widely used evaluations that emphasize specific skills rather than global robustness.
+
+
+\begin{table}
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \vspace{0pt}
+\captionof{table}{Image-generation model results. Accuracy ($\texttt{mean}_{\pm \texttt{stderr}}$) is shown as a percentage, generation cost as USD-per-100-samples.}
+        \centering
+        \input{sections/assets/model_results_image_gen_table}
+    \label{tab:image-gen-leaderboard}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \vspace{0pt}
+        \centering
+            \captionof{table}{Delta in performance and tokens, when enabling code execution for text-only problems.}
+        \input{sections/assets/tool_use_comparison_table}
+        \label{tab:tool-use-comparison}
+    \end{minipage}
+\end{table}
+
+\paragraph{Tool Use Impact on Reasoning}
+Some of the most challenging tasks for LLMs often involve meeting hard constraints, counting and performing string operations. Because of this, the use of external tools, particularly code execution environments, can substantially improve performance.
+Therefore, we repeat the evaluation for a subset of models, equipping them with a Python execution environment and allowing up to five tool calls per question. Results in \autoref{tab:tool-use-comparison} show mixed effects, with some models like \texttt{Gemini-3.1-Flash} achieving notably higher accuracy with reduced token consumption, whereas others, such as \texttt{GPT-5.4} and \texttt{Qwen3.5-397B}, lose performance. A qualitative evaluation of these failures indicates that, despite generating correct code snippets, models often mishandle inputs, for example, when copy-pasting an input string.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/task_analysis.pdf}
+    \caption{Performance comparison of leading image generation and VLM models on the largest-sample subtasks within each model type.}
+    \label{fig:task_analysis}
+\end{figure}
+\subsection{Results Analysis by Task Taxonomy}
+% \begin{takeawaysbox}
+% \begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=0pt]
+%     \item Fine-grained visual perception remains a major bottleneck, with models consistently struggling on attribute and pattern recognition and perceptual counting.
+%     \item Model families exhibit complementary strengths rather than a single dominant pattern across all subtask categories.
+%     \item Larger scale within the same model series does not always lead to consistent improvements across all subtasks.
+% \end{itemize}
+% \end{takeawaysbox}
+
+We analyze model performance across the defined taxonomy to better understand  their strengths and limitations, with the full results reported in  \autoref{tab:analyses_category} and \autoref{tab:analyses_category-2}. Scores are computed using mean@4 for all models  except image-generation models. For the 15 questions annotated with multiple subtask labels, we further validate their fine-grained task scores. Since different question formats contain different numbers of subtask categories, we mainly conduct the 
+analysis within each input-output format. Several interesting findings emerge. 
+
+% The performance varies across the tasks and sub-tasks, while certain sub-tasks remain challenging for most of the models. In the following, we highlight key observations at the model and sub-task level.
+
+
+First, \textbf{\emph{fine-grained visual perception remains a major bottleneck, with models consistently struggling on attribute and pattern recognition and perceptual counting.}} Even the strongest models obtain only 41.67\%  and 57.14\% on these two subtasks, which contain 6 and 21 questions, respectively. For perceptual counting, many models achieve only around 30--40\% accuracy. 
+
+Second, \textbf{\emph{different model families exhibit complementary strengths rather than a single dominant pattern across all subtask categories.}} Here, we compare among the best-performing model from each family. For image-generation models, Gemini  and GPT achieve comparable overall performance, but exhibit complementary strengths:  Gemini performs better on abstract reasoning winning 3 more questions, whereas GPT is stronger in language and knowledge~\autoref{fig:task_analysis}. A similar pattern appears among text-only models. GPT-OSS remains competitive on math-related tasks, but lags behind others on all three language-and-knowledge subtasks. DeepSeek-V4 performs particularly well on character-level manipulation, reaching 75\% accuracy. Among VLMs, the GPT and Gemini series form the leading group. GPT trails Gemini on  object-centric tasks, but slightly outperforms it on the other two major categories. Although Qwen and Kimi sometimes perform strongly on individual subtasks, such as Kimi's 83\% accuracy on arithmetic reasoning, their performance is less consistent, with noticeable gaps from the leading models in other cases, including a 10-point gap on character-level manipulation.
+
+Third, \textbf{\emph{model size scaling does not consistently improve performance across all subtask types.}} We compare different model sizes within the same model family and observe  several cases where larger models underperform smaller variants. For example, in 
+the Gemma-4 series, the 26B model improves on most subtasks but performs about 8\%  worse than the E2B model on irrelevant-context robustness. Similarly, in the Qwen3.5 series, the 122B model shows a 10--14\% drop over the 35B model on several 
+abstract-reasoning subtasks, including logical reasoning, geometric and graph  reasoning, and arithmetic reasoning. Although the 397B model recovers part of this drop, it still does not surpass the 35B model on these subtasks.
+
+% We observe that Gemini-3.1-pro-preview achieves the strongest overall performance across most of the sub-tasks, especially the object-centric questions . On the other side, GPT-5.5 shows a better performance in text-related questions, achieving an accuracy of $84.65\%$ for Abstract reasoning and $84.13\%$ for Language and knowledge reasoning.  
+% In arithmetic reasoning for example, GPT-5.5 outperforms Gemini-3.1-pro-preview, improving accuracy from $75\%$ to 88.64\%. Also, it  shows a slight advantage in irrelevant-context robustness, increasing performance from 96.43\% to 100\%. 
+
+% The most challenging sub-tasks are attribute and pattern recognition and perceptual counting, where most of the models achieve their lowest performance. In attribute and pattern recognition, several language models, including deepseek-V4-Pro and GPT-OSS-120b, achieve $0\%$ accuracy across the 6 questions. A slight improvement is observed in Vision-language models models like gemma-4 achieving $4.17\%$ and greater improvement for Gemini-3.1-pro-review and GPT-5.4, both achieving $41.67\%$.
+
+% For character-level manipulation, DeepSeek-V4-Pro shows the highest performance reaching $75\%$ over all other Language models while having comparable accuracy across other sub-tasks. On the other hand, GLM-5.1 reaches $85.71\%$ accuracy in irrelevant-context robustness leading to a comparable performance between the two models over the language and knowledge task.
+
+
+
+
+
+% \paragraph{Performance by Model Family}
+% In particular, this image variant shows substantial gains on generative vision tasks such as Compositional Generalization, which often relates with questions about generating uncommon or novel images. For example, its score increases from 5 to 13 solved questions compared to the standard Pro model. Similar improvements are observed in visual transformation sub-category (from 3 to 8) and spatial reasoning sub-category (from 7 to 11), highlighting its enhanced capability in structured visual generation and manipulation. Nevertheless, we also observe an anomaly: on more classical perceptual tasks with visual perception and grounding category, the image model exhibits a slight performance drop relative to Gemini’s non-image counterparts. We leave further in-depth analyses for future work.
+
+% Overall, the GPT family also achieves strong performance across a wide range of tasks, although it remains slightly behind Gemini on most sub-categories. Similar to Gemini, GPT provides a dedicated image-oriented variant, which performs competitively on vision-heavy benchmarks. For example, GPT’s image version ranks second in compositional generalization and spatial reasoning. A particularly notable trend within the GPT series is the substantial performance improvement from GPT-4 to GPT-5, most prominently in mathematical reasoning. We observe large gains across multiple math-related sub-categories: for instance, performance in constraint reasoning increases from 6 to 17 solved questions, while arithmetic-related accuracy rises from approximately 6 to 13 solved questions. This upgrade shifts GPT from being among the weaker performers in these mathematical subsets to becoming one of the strongest, reaching top-1 performance in arithmetic, constraint reasoning, and probability. These results highlight GPT-5’s significant advancement in structured reasoning, narrowing the gap with the golden answers.
+
+% The Qwen family demonstrates overall strong performance in our evaluation, particularly with its large Qwen-235B-thinking variant. This model consistently ranks just behind the leading Gemini and GPT families across a wide range of sub-categories, making it also one of the most competitive alternatives in our benchmark. Smaller Qwen variants (e.g., the 30B models) as well as non-thinking configurations tend to achieve more moderate results, placing closer to the middle of the overall spectrum. In comparison, DeepSeek models generally exhibit mid-level performance and appear weaker than Qwen-235B-thinking. More specifically, their results are less competitive on vision-heavy categories, while remaining reasonably capable on mathematical reasoning tasks. A possible reason is that these models may be relatively stronger in Chinese-language settings, whereas our benchmark questions are in English, which may limit their effectiveness.
+
+%  O3 stands out as a highly capable text-focused reasoning model while its vision-related performance is slightly weaker than Qwen and slightly better than Gemini-2.5. But on logical reasoning, it trails the best-performing model by only two questions, and on constraint reasoning the gap is three questions. Most notably, O3 achieves top-1 performance on character-level reasoning, solving 27/31 questions, compared to 25 for the second-best model. In addition, O3 remains competitive on world Knowledge and instruction following. Interestingly, O3 exhibits the highest variance among top models: its Pass@2 score exceeds its accuracy by 9.56 percentage points on text-only tasks (65.22\% $\rightarrow$ 74.78\%), the largest gap among all evaluated models. This suggests that O3's reasoning process introduces substantial output diversity, and that multiple sampling attempts may be particularly beneficial for reasoning-focused models.
+
+% Llama and Mistral Finally, Llama and Mistral tend to rank among the bottom performers on vision-related tasks, but appear relatively better on mathematics and world knowledge categories. Within this group, Mistral is consistently stronger than Llama, especially outside the most vision-dependent subsets.
+
+% We take out some data to analyze the performance with the increasing efficiency budgets, as shown in \autoref{tab:analyses_speed}. First, we observe that larger models tend to achieve stronger overall performance, suggesting a clear scaling benefit across most reasoning categories. For instance, within both the GPT-OSS and Qwen families, increasing model capacity leads to noticeable gains in visual reasoning and mathematical reasoning, indicating that these domains continue to improve with additional parameters and compute budget.
+
+% Interestingly, the two Gemini variants: flash and pro, exhibit very similar accuracy despite their different deployment profiles: although flash is designed for lower latency, its category-level scores remain comparable to the pro version, suggesting that Gemini achieves a strong efficiency–performance balance within this family.
+
+% However, the scaling trend is less pronounced for character-level reasoning. Across multiple model families, performance in this category remains relatively stable as model size increases, with only marginal improvements. This may reflect the distinct failure mechanisms underlying character-level tasks, which are often influenced by low-level modeling factors such as tokenization~\cite{zhang2024counting} rather than sheer model capacity. These observations highlight character-level reasoning as a persistent bottleneck and suggest that future model development may require more targeted architectural or training interventions beyond simple scaling.
+

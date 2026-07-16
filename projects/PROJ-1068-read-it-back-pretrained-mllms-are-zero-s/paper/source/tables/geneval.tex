@@ -1,0 +1,62 @@
+\definecolor{gray10}{gray}{0.9}
+
+\begin{table*}[ht]
+    \centering
+    \tablestyle{3pt}{1.2}
+    \scriptsize
+    \caption{\textbf{Evaluation of text-to-image generation ability on GenEval benchmark.} 
+        `Gen. Only' stands for an image generation model, and `Unified' denotes a model that has both understanding and generation capabilities. 
+        $\dagger$ refers to the methods using the LLM rewriter. Our model's results and BAGEL all use the LLM rewriter.}
+    \begin{tabular}{lccccccc}
+        \toprule
+        \textbf{Model}  & \textbf{Single Obj.} & \textbf{Two Obj.} & \textbf{Counting} & \textbf{Colors} & \textbf{Position} & \textbf{Color Attri.} & \textbf{Overall$\uparrow$} \\
+        \midrule
+        \rowcolor{gray!10}
+        \multicolumn{8}{l}{\textit{Gen. Only Models}} \\
+        PixArt-$\alpha$~\cite{chen2024pixart} & 98.0 & 50.0 & 44.0 & 80.0 & 8.0 & 7.0 & 48.0 \\
+        Emu3-Gen~\cite{emu3}  & 98.0 & 71.0 & 34.0 & 81.0 & 17.0 & 21.0 & 54.0 \\
+        SDXL~\cite{sdxl} & 98.0 & 74.0 & 39.0 & 85.0 & 15.0 & 23.0 & 55.0 \\
+        DALL-E $3$~\cite{dalle3} & 96.0 & 87.0 & 47.0 & 83.0 & 43.0 & 45.0 & 67.0 \\
+        SD3-Medium~\cite{sd3} & 99.0 & 94.0 & 72.0 & 89.0 & 33.0 & 60.0 & 74.0 \\
+        FLUX.1-dev$^{\dagger}$~\cite{flux} & 98.0 & 93.0 & 75.0 & 93.0 & 68.0 & 65.0 & 82.0 \\
+        \midrule
+        \rowcolor{gray10}
+        \multicolumn{8}{l}{\textit{Unified Models}} \\
+        SEED-X~\cite{seedx} & 97.0 & 58.0 & 26.0 & 80.0 & 19.0 & 14.0 & 49.0 \\
+        TokenFlow-XL~\cite{tokenflow} & 95.0 & 60.0 & 41.0 & 81.0 & 16.0 & 24.0 & 55.0 \\
+        ILLUME~\cite{illume} & 99.0 & 86.0 & 45.0 & 71.0 & 39.0 & 28.0 & 61.0 \\
+        Transfusion~\cite{transfusion} & - & - & - & - & - & - & 63.0 \\
+        Emu$3$-Gen$^{\dagger}$\cite{emu3} & 99.0 & 81.0 & 42.0 & 80.0 & 49.0 & 45.0 & 66.0 \\
+        Show-o~\cite{showo} & 98.0 & 80.0 & 66.0 & 84.0 & 31.0 & 50.0 & 68.0 \\
+        Janus-Pro-7B~\cite{januspro} & 99.0 & 89.0 & 59.0 & 90.0 & 79.0 & 66.0 & 80.0 \\
+        MetaQuery-XL$^{\dagger}$~\cite{metaquery} & - & - & - & - & - & - & 80.0 \\
+        \midrule
+        \rowcolor{gray10}
+        \multicolumn{8}{l}{\textit{Inference on 512 resolution}} \\
+        BAGEL & 99.1 & 95.0 & 74.1 & 90.4 & 71.0 & 74.8 & 84.0 \\
+        AlphaGRPO$^{\dagger}$ ({RT2I}) & 98.1 & 95.7 & 82.5 & 91.0 & 74.3 & 68.8 & 85.1 \\ 
+        AlphaGRPO$^{\dagger}$ & 98.8 & 97.0 & 75.6 & 91.0 & 69.8 & 73.3 & 84.2 \\ 
+        %  \quad + Self-reflective Refinement & 99.7 & 97.7 & 83.4 & 93.1 & 73.8 & 81.5 & 88.2 \\ 
+        \rowcolor{myblue} 
+         \textbf{\method}$^{\dagger}$ 
+        & 98.4 & 96.0 & 83.1  &  93.4  & 79.8 & 79.0 & 88.3  \\
+         \rowcolor{myblue} 
+        \textbf{Self-\method}$^{\dagger}$ 
+        & 98.4  &  97.7  &  84.4  &  93.6  &  81.5  &  81.5  &  89.5  \\
+        \midrule
+        \rowcolor{gray10}  
+        \multicolumn{8}{l}{\textit{Inference on 1024 resolution}} \\
+        BAGEL & 98.4 & 94.7 & 81.3 & 94.7 & 74.0 & 76.3 & 86.6 \\
+        AlphaGRPO ({RT2I}) & 98.8 & 95.2 & 82.8 & 93.6 & 76.3 & 77.8 & 87.4 \\ 
+        AlphaGRPO & 99.1 & 96.0 & 80.3 & 94.7 & 71.0 & 75.5 & 86.1 \\
+        % \quad + Self-reflective Refinement & 99.4 & 97.2 & 87.2 & 97.1 & 72.3 & 83.8 & 89.5 \\
+        \rowcolor{myblue} 
+        \textbf{\method}$^{\dagger}$  
+        & 98.1 & 96.2 &  86.2 & 94.2 & 78.5 & 76.8 & 88.3 \\
+        \rowcolor{myblue} 
+        \textbf{Self-\method}$^{\dagger}$ 
+        & 98.4 & 95.2 & 88.8 & 95.7 & 82.3 & 78.3 & 89.8 \\
+    \bottomrule
+    \end{tabular}
+\label{tab:geneval}
+\end{table*}

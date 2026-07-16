@@ -1,0 +1,59 @@
+\begin{table*}[t]
+    \centering
+    \caption{\textbf{Evaluation of text-to-image generation ability on the DPG-Bench~\cite{dpg} benchmark.} * indicates our reproduced results.
+    }
+    \scriptsize
+    \resizebox{0.8\linewidth}{!}{
+        \begin{tabular}{lcccccc}
+            \toprule
+            Method & Global$\uparrow$ & Entity$\uparrow$ & Attribute$\uparrow$ & {Relation$\uparrow$} & {Other$\uparrow$} & {Overall$\uparrow$} \\
+            \midrule
+            \rowcolor{gray!10}
+            \multicolumn{7}{l}{\textit{Gen. Only Models}} \\
+            Hunyuan-DiT~\cite{hunyuandit} & 84.59 & 80.59 & 88.01 & 74.36 & 86.41 & 78.87 \\
+            PixArt-$\Sigma$~\cite{chen2024pixart} & 86.89 & 82.89 & 88.94 & 86.59 & 87.68 & 80.54 \\
+            DALLE3~\cite{dalle3} & 90.97 & 89.61 & 88.39 & 90.58 & 89.83 & 83.50 \\
+            SD3-medium~\cite{sd3} & 87.90 & 91.01 & 88.83 & 80.70 & 88.68 & 84.08 \\
+            FLUX.1-dev~\cite{flux} & 82.10 & 89.50 & 88.70 & 91.10 & 89.40 & 84.00 \\ 
+            OmniGen~\cite{omnigen} & 87.90 & 88.97 & 88.47 & 87.95 & 83.56 & 81.16 \\
+            \midrule
+            \rowcolor{gray!10}
+            \multicolumn{7}{l}{\textit{Unified Multimodal Models}} \\
+            Show-o~\cite{showo} & 79.33 & 75.44 & 78.02 & 84.45 & 60.80 & 67.27 \\
+            EMU3~\cite{emu3} & 85.21 & 86.68 & 86.84 & 90.22 & 83.15 & 80.60 \\
+            TokenFlow-XL~\cite{tokenflow} & 78.72 & 79.22 & 81.29 & 85.22 & 71.20 & 73.38 \\ 
+            Janus~\cite{janus} & 82.33 & 87.38 & 87.70 & 85.46 & 86.41 & 79.68 \\
+            Janus Pro~\cite{januspro} & 86.90 & 88.90 & 89.40 & 89.32 & 89.48 & \underline{84.19} \\
+            BLIP3-o 4B~\cite{blip3o} & - & - & - & - & - & 79.36 \\
+            BLIP3-o 8B~\cite{blip3o} & - & - & - & - & - & 81.60 \\
+            BAGEL~\cite{bagel} & 88.94 & 90.37 & 91.29 & 90.82 & 88.67 & {85.07} \\
+            UniWorld-V1~\cite{uniworld} & 83.64 & 88.39 & 88.44 & 89.27 & 87.22 & 81.38 \\
+            OmniGen2~\cite{omnigen2} & 88.81 & 88.83 & 90.18 & 89.37 & 90.27 & 83.57 \\
+            \midrule
+            \rowcolor{gray!10}
+            \multicolumn{7}{l}{\textit{Inference on 512 resolution}} \\
+            \midrule
+            BAGEL* & 88.94 & 90.37 & 91.29 & 90.82 & 88.67 & 85.07 \\
+            AlphaGRPO (RT2I) &  89.99 &  \textbf{92.20} &  88.49 &  90.89 &  89.12 &  85.98 \\
+            AlphaGRPO & 84.99 &  90.93 &  91.22 &  92.51 &  90.11 & 86.25 \\
+            \rowcolor{myblue} \textbf{\method}      & \textbf{93.80} & 92.17 & 90.78 & \textbf{92.95} & \textbf{93.08} & \textbf{88.08} \\
+            \rowcolor{myblue} Self-\method & 92.40 & 91.94 & \textbf{92.12} & 92.77 & 88.57 & 87.73 \\
+     
+            \midrule  
+            \rowcolor{gray!10}
+            \multicolumn{7}{l}{\textit{Inference on 1024 resolution}} \\
+            \midrule
+            BAGEL* & 87.42 & \textbf{92.46} & 90.75 & 91.92 & 84.96 & 85.17 \\
+            AlphaGRPO (RT2I) & 87.42 & \textbf{92.46} & 90.75 & 91.92 & 84.96 & 85.87 \\
+            AlphaGRPO & \textbf{89.21} & 89.43 & 90.20 & \textbf{92.26} & 90.39 & 85.08 \\
+            % \quad + Self-reflective Refinement &  86.38 & 91.97 & 90.76 & 92.77 & 89.99 & 86.62 \\
+            \rowcolor{myblue} \textbf{\method}            & 85.54 & 91.95 & 92.67 & 91.27 & 89.14 & 86.46 \\
+            \rowcolor{myblue} \textbf{Self-\method} & 85.33 &  91.23 & \textbf{93.14} &  89.97 & \textbf{92.06} & \textbf{86.97}  \\
+            \bottomrule
+        
+        \end{tabular}
+    }
+    \vspace{-4pt}
+% }
+\label{tab:dpgbench}
+\end{table*}

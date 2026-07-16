@@ -1,0 +1,111 @@
+\section{Evaluation Setup}
+
+Candidate models operate under a strict \emph{vision-only} protocol: they receive only the rendered page-image sequence $\mathcal{I}$ and never access HTML source, embedded metadata, or $\mathcal{M}$. The end-to-end pipeline is illustrated in Figure~\ref{fig:eval_diagram} (Appendix~\ref{app:eval_pipeline}).
+Each PDF is rasterized at 144\,DPI, capped at 120 pages, and concatenated into single-column 5-page vertical strips (max 7{,}900\,px, 4\,MB); we use 5-page strips as the default to satisfy the input constraints of all evaluated models simultaneously, noting that denser strips further improve performance where API limits permit. Full hyperparameters are in Table~\ref{tab:rendering_appendix}. Candidate models predict $\hat{a} = f_\theta(\mathcal{I}, q)$ at temperature~0 via a fixed system prompt requiring concise, vision-grounded 2 to 4 sentence answers (prompt in Appendix~\ref{app:prompts}). GPT-5~\citep{openai2025gpt5} scores each $(\hat{a}, a^*)$ pair at temperature~0, returning a JSON score in $[0,10]$ (rubric in Table~\ref{tab:rubric}). Parse failures receive score $-1$ and are excluded from all aggregates ($Q_{\mathrm{valid}}$). To validate judge reliability, we re-scored a subset of responses using Gemini-3.1-Pro and Claude-Sonnet-4.5 as alternative judges (Appendix~\ref{app:judge_validation}): GPT-5 and Gemini-as-judge agree to within 3.5 ACC points (Pearson $r \geq 0.94$ across all question types), confirming that model rankings are robust to judge choice (see Table~\ref{tab:judge_agreement_by_type}).
+
+We report mean judge score and threshold accuracy:
+\begin{equation}
+  \text{ACC}(f_\theta) = \frac{1}{|Q_{\mathrm{valid}}|}
+    \sum_{q \in Q_{\mathrm{valid}}}
+    \mathbf{1}\!\left[\mathcal{J}(\hat{a}_q, a^*_q) \ge 6\right],
+  \label{eq:acc}
+\end{equation}
+where $\tau{=}6$ (``core answer correct'') aligns with MMLongBench-Doc~\citep{ma2024mmlongbenchdoc}. Both metrics are stratified by question family and difficulty level $L1$--$L5$.
+
+% ============================================================
+\subsection{Experiments and Results}
+\label{sec:main_results}
+% ============================================================
+
+We evaluate the following eight vision-language models on \synthdocbench{}:
+Gemini-3.1-Pro~\citep{geminiteam2026gemini31},
+GPT-5.4~\citep{openai2025gpt5},
+GPT-4o~\citep{openai2024gpt4o},
+Claude-Sonnet-4.5~\citep{anthropic2024claude45sonnet},
+Qwen3.5-VL-122B~\citep{qwen2025qwen35vl},
+Qwen3-VL-235B~\citep{bai2025qwen3},
+InternVL3-78B~\citep{wang2025internvl3}, and
+Qwen2.5-VL-7B~\citep{bai2025qwen25vl}.
+All models are evaluated with GPT-5 as judge.
+
+\begin{table*}[!htbp]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lcc ccccccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Prior Benchmarks}}
+ & \multicolumn{8}{c}{\textbf{\textsc{SynthDocBench} (Ours)}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-11}
+ & \multicolumn{2}{c}{\textbf{Accuracy}}
+ & \multicolumn{2}{c}{\textbf{Overall}}
+ & \multicolumn{2}{c}{\textbf{Chart}}
+ & \multicolumn{2}{c}{\textbf{Complex}}
+ & \multicolumn{2}{c}{\textbf{Cross-Modal}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+\textbf{Model}
+  & \makecell{\textbf{DocVQA}\\\scriptsize(1\,pg)}
+  & \makecell{\textbf{MMLong-}\\\textbf{Bench-Doc}\\\scriptsize(47.5\,pg)}
+  & \textbf{ACC} & \textbf{Score}
+  & \textbf{ACC} & \textbf{Score}
+  & \textbf{ACC} & \textbf{Score}
+  & \textbf{ACC} & \textbf{Score} \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{11}{c}{\textit{Proprietary Models}} \\
+\midrule
+Gemini-3.1-Pro~\citep{geminiteam2026gemini31}    & 93.4          & 45.1          & \textbf{0.725} & \textbf{7.19} & \textbf{0.759} & \textbf{7.62} & \textbf{0.789} & \textbf{7.28} & \textbf{0.628} & \textbf{6.65} \\
+GPT-5.4~\citep{openai2025gpt5}            & \na           & \na           & 0.423          & 4.68          & 0.425          & 4.24          & 0.457          & 5.21          & 0.387          & 4.59          \\
+GPT-4o~\citep{openai2024gpt4o}            & 92.8          & 46.3          & 0.386          & 4.38          & 0.457          & 4.44          & 0.360          & 4.66          & 0.342          & 4.05          \\
+Claude-Sonnet-4.5~\citep{anthropic2024claude45sonnet} & 92.0          & 40.1          & 0.314          & 3.96          & 0.353          & 4.11          & 0.337          & 4.28          & 0.250          & 3.49          \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{11}{c}{\textit{Open-Weight Models}} \\
+\midrule
+Qwen3.5-VL-122B~\citep{qwen2025qwen35vl}  & \na           & \na           & 0.655          & 6.77          & 0.713          & 7.21          & 0.690          & 6.89          & 0.561          & 6.22          \\
+Qwen3-VL-235B~\citep{bai2025qwen3}        & \textbf{96.5} & \textbf{57.0} & 0.586          & 6.18          & 0.642          & 6.60          & 0.611          & 6.23          & 0.503          & 5.71          \\
+InternVL3-78B~\citep{wang2025internvl3}    & 95.1          & 24.3          & 0.383          & 4.39          & 0.456          & 4.75          & 0.397          & 4.73          & 0.296          & 3.69          \\
+Qwen2.5-VL-7B~\citep{bai2025qwen25vl}     & 93.7          & 25.1          & 0.081          & 1.08          & 0.162          & 1.76          & 0.012          & 0.37          & 0.067          & 1.12          \\
+\bottomrule
+\end{tabular}%
+}
+\caption{%
+  Performance on \textsc{SynthDocBench} (200 reports, 1,788 questions) alongside two established benchmarks.
+  \textbf{DocVQA}~\citep{mathew2021docvqa} tests single-page understanding;
+  \textbf{MMLongBench-Doc}~\citep{ma2024mmlongbenchdoc} tests multi-page documents (avg.\ 47.5 pages).
+  \na{} = not publicly reported at time of writing.
+  Bootstrap 95\% CIs (2{,}000 resamples, seed 42) are ${\leq}\pm0.023$ overall and ${\leq}\pm0.041$ per subset across all models; all pairwise ACC gaps between adjacent-ranked models exceed their combined CI half-widths.
+  Per-model CI details are reported in Table~\ref{tab:bootstrap_ci}.
+}
+\label{tab:main_results}
+\end{table*}
+
+Table~\ref{tab:main_results} presents ACC ($\tau{=}6$) and mean judge score across all eight models, stratified by question subset. Gemini-3.1-Pro leads all models by a substantial margin, achieving an overall ACC of 0.725 and a mean judge score of 7.19. The ranking Gemini $>$ Qwen3.5-VL-122B $>$ Qwen3-VL-235B $>$ GPT-5.4 $>$ GPT-4o $\approx$ InternVL3-78B $>$ Claude-Sonnet-4.5 $\gg$ Qwen2.5-VL-7B holds consistently across all three question subsets. Qwen3.5-VL-122B ranks second overall (ACC 0.655), demonstrating that a 122B MoE open-weight model can approach Gemini-level performance on long-context document understanding. GPT-5.4 ranks fourth overall (ACC 0.423), between Qwen3-VL-235B (0.586) and GPT-4o (0.386). GPT-4o (0.386) and InternVL3-78B (0.383) are statistically indistinguishable despite their different architectures, suggesting that neither parameter scale nor training approach alone determines long-context document performance on this benchmark.
+
+\paragraph{OCR + Text-Only Baseline.}
+\begin{figure}
+  \centering
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/fig_ocr_comparison.pdf}
+    \caption{GPT-4o vision vs.\ OCR+GPT-4o (text-only) ACC by subset.
+      Vision dominates on Chart; OCR dominates on Complex.}
+    \label{fig:ocr_comparison}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/fig_error_analysis_small}
+    \caption{%
+      Hard failures: 109 questions where all six models score $\leq 3$, broken down by
+      error category and question subset
+      (\textbf{Ch.}~= chart-reading; \textbf{Cx.}~= complex; \textbf{XM.}~= cross-modal).
+    }
+    \label{fig:error_analysis}
+  \end{minipage}
+\end{figure}
+
+Chart-reading is the easiest subset for most models, while cross-modal questions are consistently the hardest, confirming that integrating evidence across text and charts within long documents remains an open challenge for all current VLMs. The gap between Gemini and the next-best model (Qwen3.5-VL-122B, 0.655) is 7.0 ACC points; we discuss a potential distribution-familiarity confound in Section~\ref{sec:analysis}. Model rankings on \synthdocbench{} correlate with MMLongBench-Doc (Spearman $\rho{=}0.657$, Pearson $r{=}0.683$), supporting external validity of the benchmark ordering (Appendix~\ref{app:judge_validation}).
+
+PyMuPDF extracts page text (up to 60{,}000 chars) and GPT-4o answers without images ($n{=}1{,}525$; 263 parse failures excluded). As Figure~\ref{fig:ocr_comparison} shows, performance is highly asymmetric: complex multi-hop ACC is 0.798 for OCR vs.\ 0.360 for vision, confirming that complex evidence is largely text-recoverable; chart-reading reverses sharply (OCR 0.297 vs.\ vision 0.457), confirming that chart questions genuinely require pixel-level visual decoding. The 46 pp gap between OCR chart ACC and Gemini's (0.759) isolates visual perception as the primary bottleneck.

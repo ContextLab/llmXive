@@ -1,0 +1,69 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "README.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "colm2026_conference.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fig_domain_analysis.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/fig_dataset_overview.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/fig_error_analysis.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/fig_perf_by_difficulty.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/fig_positional_bias_continuous.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/fig_question_dist.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "images/positional_bias_stats.json"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "math_commands.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/5b-error-analysis.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sections/archive-2-related-work-old.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/eval-rubric.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tables/main-results.tex"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

@@ -1,0 +1,124 @@
+\begin{table}[htbp!]
+\centering
+\caption{Detailed accuracy performance of each model on individual subtask categories. The mapping between task IDs and task names can be found in \autoref{tab:dataset_category}.}
+\label{tab:analyses_category}
+\setlength{\tabcolsep}{3pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{llllllllllllll}
+\toprule
+\textbf{Model name} & \textbf{Model type} & \textbf{1-1} & \textbf{1-2} & \textbf{1-3} & \textbf{1-4} & \textbf{1-5} & \textbf{2-1} & \textbf{2-2} & \textbf{2-3} & \textbf{2-4} & \textbf{3-1} & \textbf{3-2} & \textbf{3-3}  \\
+\midrule
+\bf Total count & ALL & 6 & 53 & 18 & 21 & 30 & 18 & 22 & 18 & 9 & 8 & 32 & 19  \\
+\midrule
+\bf Total count & GEN & 0 & 37 & 18 & 0 & 30 & 1 & 0 & 7 & 2 & 1 & 0 & 6  \\
+\hdashline
+gemini-2.5-flash-image & GEN & - & 29.73 & 38.89 & - & 40.00 & 0.00 & - & 0.00 & 0.00 & 100.00 & - & 50.00   \\
+gemini-3-pro-image-preview & GEN & - & 54.05 & 61.11 & - & 73.33 & 0.00 & - & 42.86 & 50.00 & 100.00 & - & 66.67 \\
+gemini-3.1-flash-image-preview & GEN & - & 64.86 & 55.56 & - & 60.00 & 0.00 & - & 57.14 & 0.00 & 100.00 & - & 83.33   \\
+gpt-image-1-mini & GEN & - & 21.62 & 33.33 & - & 46.67 & 0.00 & - & 0.00 & 0.00 & 100.00 & - & 0.00   \\
+gpt-image-1.5 & GEN & - & 51.35 & 50.00 & - & 63.33 & 0.00 & - & 14.29 & 0.00 & 100.00 & - & 33.33  \\
+gpt-image-2 & GEN & - & 54.05 & 66.67 & - & 66.67 & 0.00 & - & 14.29 & 0.00 & 100.00 & - & 83.33   \\
+\midrule
+\bf Total count & LM & 1 & 10 & 0 & 1 & 0 & 17 & 18 & 7 & 6 & 7 & 31 & 11 \\
+\hdashline
+zai-org/GLM-4.7 & LM & 0.00 & 62.50 & - & 0.00 & - & 67.65 & 68.06 & 71.43 & 37.50 & 64.29 & 54.84 & 68.18   \\
+zai-org/GLM-5 & LM & 75.00 & 60.00 & - & 0.00 & - & 57.35 & 66.67 & 78.57 & 41.67 & 85.71 & 57.26 & 84.09  \\
+zai-org/GLM-5.1 & LM & 50.00 & 62.50 & - & 0.00 & - & 54.41 & 63.89 & 85.71 & 45.83 & 85.71 & 67.74 & 86.36   \\
+zai-org/GLM-5.2 & LM & 50.00 & 72.50 & - & 0.00 & - & 75.00 & 73.61 & 85.71 & 41.67 & 78.57 & 73.39 & 84.09 \\
+deepseek-ai/DeepSeek-V4-Flash & LM & 0.00  & 62.50 & -- & 0.00 & -- & 73.53 & 68.06 & 82.14 & 45.83 & 57.14 & 72.58 & 63.64    \\
+deepseek-ai/DeepSeek-V4-Pro & LM & 0.00 & 65.00 & -- & 0.00 & -- & 64.71 & 73.61 & 82.14 & 33.33 & 71.43 & 75.00 & 84.09   \\
+openai/gpt-oss-20b & LM & 0.00 & 55.00 & -- & 0.00 & -- & 51.47 & 59.72 & 71.43 & 33.33 & 53.57 & 52.42 & 40.91  \\
+openai/gpt-oss-120b & LM & 0.00 & 55.00 & -- & 0.00 & -- & 66.18 & 66.67 & 85.71 & 50.00 & 57.14 & 59.68 & 43.18   \\
+Qwen/Qwen3-Next-80B-A3B-Thinking & LM & 0.00 & 62.50 & - & 0.00 & -  & 66.18 & 66.67 & 82.14 & 33.33 & 50.00 & 56.45 & 54.55   \\
+\midrule
+\bf Total count & VLM & 6 & 16 & 0 & 21 & 0 & 17 & 22 & 11 & 7 & 7 & 32 & 13   \\
+\hdashline
+moonshotai/Kimi-K2.5 & VLM & 20.83 & 54.69 & -- & 33.33 & -- & 76.47 & 82.95 & 70.45 & 53.57 & 60.71 & 64.06 & 57.69 \\
+moonshotai/Kimi-K2.6 & VLM & 12.50 & 51.56 & -- & 34.52 & -- & 63.24 & 75.00 & 70.45 & 46.43 & 50.00 & 69.53 & 61.54    \\
+google/gemma-4-E2B-it & VLM & 4.17 & 39.06 & -- & 9.52 & -- & 27.94 & 46.59 & 27.27 & 21.43 & 50.00 & 25.00 & 25.00    \\
+google/gemma-4-E4B-it & VLM & 0.00 & 31.25 & -- & 16.67 & -- & 52.94 & 57.95 & 29.55 & 25.00 & 57.14 & 34.38 & 32.69  \\
+google/gemma-4-26B-A4B-it & VLM & 4.17 & 56.25 & -- & 34.52 & -- & 69.12 & 75.00 & 61.36 & 39.29 & 42.86 & 66.41 & 50.00  \\
+Qwen/Qwen3-VL-30B-A3B-Thinking & VLM & 0.00 & 35.94 & -- & 17.86 & -- & 55.88 & 67.05 & 54.55 & 14.29 & 39.29 & 51.56 & 32.69  \\
+Qwen/Qwen3-VL-235B-A22B-Thinking & VLM & 8.33 & 43.75 & -- & 25.00 & -- & 64.71 & 68.18 & 54.55 & 28.57 & 53.57 & 60.16 & 53.85  \\
+Qwen/Qwen3.5-35B-A3B & VLM & -- & 51.56 & -- & 47.62 & -- & 75.00 & 79.55 & 72.73 & 32.14 & 75.00 & 55.47 & 53.85  \\
+Qwen/Qwen3.5-122B-A10B & VLM & 29.17 & 51.56 & -- & 53.57 & -- & 64.71 & 69.32 & 59.09 & 39.29 & 75.00 & 65.62 & 53.85   \\
+Qwen/Qwen3.5-397B-A17B & VLM & 25.00 & 60.94 & -- & 55.95 & -- & 72.06 & 71.59 & 65.91 & 39.29 & 82.14 & 67.97 & 69.23  \\
+gemini-2.5-flash & VLM & 4.17 & 45.31 & -- & 27.38 & -- & 70.59 & 72.73 & 63.64 & 21.43 & 60.71 & 41.41 & 48.08\\
+gemini-2.5-pro & VLM & 4.17 & 54.69 & -- & 29.76 & -- & 55.88 & 68.18 & 68.18 & 32.14 & 71.43 & 53.91 & 69.23\\
+gemini-3-flash-preview & VLM & 41.67 & 75.00 & -- & 59.52 & -- & 76.47 & 72.73 & 88.64 & 53.57 & 71.43 & 77.34 & 82.69  \\
+gemini-3.1-flash-lite-preview & VLM & 4.17 & 60.94 & - & 40.48 & - & 57.35 & 68.18 & 61.36 & 28.57 & 60.71 & 64.06 & 63.46   \\
+gemini-3.1-pro-preview & VLM & 41.67 & 87.50 & - & 57.14 & - & 92.65 & 75.00 & 88.64 & 64.29 & 96.43 & 84.38 & 76.92   \\
+gpt-5-mini & VLM & 0.00 & 53.12 & - & 26.19 & - & 77.94 & 79.55 & 75.00 & 32.14 & 64.29 & 68.75 & 42.31   \\
+gpt-5 & VLM & 12.50 & 59.38 & - & 38.10 & - & 77.94 & 71.59 & 68.18 & 57.14 & 60.71 & 69.53 & 55.77   \\
+gpt-5.2 & VLM & 41.67 & 62.50 & - & 39.29 & - & 70.59 & 76.14 & 75.00 & 71.43 & 64.29 & 71.09 & 59.62 \\
+gpt-5.4-nano & VLM & 4.17 & 48.44 & - & 16.67 & - & 72.06 & 72.73 & 54.55 & 46.43 & 53.57 & 64.06 & 34.62  \\
+gpt-5.4-mini & VLM & 12.50 & 50.00 & - & 36.90 & - & 60.29 & 75.00 & 75.00 & 35.71 & 75.00 & 66.41 & 53.85 \\
+gpt-5.4 & VLM & 41.67 & 70.31 & - & 52.38 & - & 85.29 & 77.27 & 81.82 & 64.29 & 89.29 & 81.25 & 63.46   \\
+gpt-5.5 & VLM & 25.00 & 73.44 & - & 51.19 & - & 89.71 & 88.64 & 84.09 & 60.71 & 100.00 & 82.03 & 80.77 \\
+\bottomrule
+
+\end{tabular} 
+\end{adjustbox}
+\end{table}
+\begin{table}[htbp!]
+\centering
+\caption{Detailed accuracy performance of each model on individual task categories.}
+\label{tab:analyses_category-2}
+\setlength{\tabcolsep}{3pt}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Model} & \textbf{Model type} & \textbf{Object-centric} & \textbf{Abstract Reasoning} & \textbf{Language and Knowledge} \\
+\midrule
+\bf ALL & - &  128 & 67 & 59  \\
+\midrule
+\bf Total count & GEN &  85 & 10 & 7  \\
+\hdashline
+gemini-2.5-flash-image & GEN &  35.29 & 0.00 & 57.14 \\
+gemini-3-pro-image-preview & GEN &  62.35 & 40.00 & 71.43\\
+gemini-3.1-flash-image-preview & GEN & 61.18 & 40.00 & 85.71  \\
+gpt-image-1-mini & GEN &  32.94 & 0.00 & 14.29  \\
+gpt-image-1.5 & GEN &  55.29 & 10.00 & 42.86  \\
+gpt-image-2 & GEN & 61.18 & 10.00 & 85.71  \\
+\midrule
+\bf Total count & LM & 12 & 48 & 49 \\
+\hdashline
+zai-org/GLM-4.7 & LM & 52.08 & 64.58 & 59.18  \\
+zai-org/GLM-5 & LM &  56.25 & 61.98 & 67.35 \\
+zai-org/GLM-5.1 & LM & 56.25 & 61.46 & 74.49 \\
+zai-org/GLM-5.2 & LM & 64.58 & 71.88 & 76.53 \\
+deepseek-ai/DeepSeek-V4-Flash & LM & 52.08 & 69.27 & 68.37  \\
+deepseek-ai/DeepSeek-V4-Pro & LM &  54.17 & 66.67 & 76.53  \\
+openai/gpt-oss-20b & LM & 45.83 & 55.21 & 50.00  \\
+openai/gpt-oss-120b & LM & 45.83 & 67.19 & 55.61  \\
+Qwen/Qwen3-Next-80B-A3B-Thinking & LM & 52.08 & 64.58 & 55.10  \\
+\midrule
+\bf Total count &VLM & 43 & 57 & 52 \\
+\hdashline
+moonshotai/Kimi-K2.5 & VLM  & 39.53 & 75.00 & 62.02  \\
+moonshotai/Kimi-K2.6 & VLM & 37.79 & 67.11 & 64.90  \\
+google/gemma-4-E2B-it & VLM & 19.77 & 34.21 & 28.37  \\
+google/gemma-4-E4B-it & VLM &  19.77 & 46.93 & 37.02  \\
+google/gemma-4-26B-A4B-it & VLM & 38.37 & 66.23 & 59.13  \\
+Qwen/Qwen3-VL-30B-A3B-Thinking & VLM &22.09 & 54.82 & 45.19  \\
+Qwen/Qwen3-VL-235B-A22B-Thinking & VLM & 29.65 & 59.65 & 57.69  \\
+Qwen/Qwen3.5-35B-A3B & VLM & 43.60 & 71.05 & 57.69  \\
+Qwen/Qwen3.5-122B-A10B & VLM & 49.42 & 62.28 & 63.94  \\
+Qwen/Qwen3.5-397B-A17B & VLM & 53.49 & 66.67 & 70.19 \\
+gemini-2.5-flash & VLM &30.81 & 64.04 & 45.67 \\
+gemini-2.5-pro & VLM &  35.47 & 60.09 & 60.10 \\
+gemini-3-flash-preview & VLM & 62.79 & 74.56 & 77.88  \\
+gemini-3.1-flash-lite-preview & VLM & 43.02 & 58.77 & 63.46  \\
+gemini-3.1-pro-preview & VLM &  66.28 & 81.58 & 84.13 \\
+gpt-5-mini & VLM &32.56 & 72.37 & 61.54 \\
+gpt-5 & VLM & 42.44 & 71.05 & 64.90  \\
+gpt-5.2 & VLM & 48.26 & 73.68 & 67.31\\
+gpt-5.4-nano & VLM & 26.74 & 65.79 & 55.29  \\
+gpt-5.4-mini & VLM  & 38.37 & 65.79 & 64.42 \\
+gpt-5.4 & VLM & 57.56 & 78.95 & 77.88  \\
+gpt-5.5 & VLM  & 55.81 & 84.65 & 84.13 \\
+\bottomrule
+
+\end{tabular} 
+\end{adjustbox}
+\end{table}

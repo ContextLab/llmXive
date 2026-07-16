@@ -1,0 +1,131 @@
+% Per-stage reasoner I/O (gate / filter / integrate), shown in compact structured form
+% matching the main-paper evaluation-context example (examplebox), NOT verbatim JSON.
+% The released co-training corpus holds the exact JSON schema; here we show the same
+% fields (\texttt{...}) in a shortened, readable form.
+
+The reasoner's three stages of \S\ref{sec:atomic}---\textbf{gate} (Stage~1),
+\textbf{filter} (Stage~2), and \textbf{integrate} (Stage~3)---are stored in our SFT
+corpus as trajectory types Task~A, Task~B, and Task~C, respectively.
+We first trace a \emph{single} request end-to-end to show the overall inputs and outputs,
+then give one representative input--output pair per stage so the input contract and output
+fields (shown as \texttt{field}) are visible at a glance. We render outputs in compact
+form; the released co-training corpus contains the verbatim JSON in the exact schema.
+These are representative \emph{successful} cases; failure modes such as copy effects are
+analyzed in \S\ref{sec:naive}.
+
+% ============================================================
+% End-to-end workflow overview (condensed; collapsed from former standalone D.1)
+% ============================================================
+\paragraph{End-to-end workflow (condensed).}
+A user prompt enters; the reasoner runs gate\,$\to$\,filter\,$\to$\,integrate to decide
+what to search, select references, and emit an enriched prompt; the generator renders the
+image; and a VLM judge scores it against a checklist and rubric. The box below traces one
+request through these steps, and Figure~\ref{fig:workflow_overview} shows the retrieved
+references and the resulting generation.
+
+\begin{examplebox}
+\small
+\textbf{End-to-end example (condensed).}\\[2pt]
+\textbf{Input --- user request:} \emph{``Paint Yang Chaoyue on a 1970s Chinese rural field ridge; commune-member clothing; long-handled hoe; earth tones; 1970s film grain.''}\\[3pt]
+\textbf{Stage~1 (gate) --- image search queries:} Yang Chaoyue natural photo; 1970s commune labor scene; 1970s rural film photography; long-handled hoe.\\[2pt]
+\textbf{Stage~2 (filter) --- selected references:} a period rural-ridge scene; commune work clothing; Yang Chaoyue likeness.\\[2pt]
+\textbf{Stage~3 (integrate) --- enriched prompt (output to generator):} \emph{``A 1970s Chinese rural labor scene on a yellow-earth field ridge: Yang Chaoyue in period commune clothing, holding a wooden long-handled hoe with a curved iron blade, natural expression, earth-tone palette, slight vintage color cast, film grain, no modern elements.''}\\[2pt]
+\textbf{Output --- generation \& evaluation:} the enriched prompt and the three references condition the generator (Figure~\ref{fig:workflow_overview}); a VLM judge then scores the result on likeness, historical authenticity, and atmospheric tone (protocol in \S\ref{app:eval}).
+\end{examplebox}
+
+\begin{figure}[t]
+  \centering
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}ccc@{}}
+    \includegraphics[width=0.30\linewidth]{figures/appendix_workflow_eval025_i2i_ref1_scene.jpg} &
+    \includegraphics[width=0.30\linewidth]{figures/appendix_workflow_eval025_i2i_ref2_clothing.jpg} &
+    \includegraphics[width=0.30\linewidth]{figures/appendix_workflow_eval025_i2i_ref3_likeness.jpeg} \\
+    \scriptsize Reference~1 (scene) & \scriptsize Reference~2 (costume) & \scriptsize Reference~3 (likeness)
+  \end{tabular}\\[6pt]
+  \includegraphics[width=0.55\linewidth]{figures/appendix_workflow_eval025_generated.png}\\[2pt]
+  {\scriptsize Augmented output (Flux.2-Klein-4B-DPO).}
+  \caption{\textbf{The end-to-end example's visual output.} The three references the reasoner
+  retrieved and selected (top: scene, costume, likeness) and the image the generator produced
+  from the enriched prompt (bottom), for the Yang Chaoyue request traced in the box above.
+  This is the section's only image example; it grounds what ``retrieved references'' and
+  ``generation'' concretely look like. The per-stage boxes that follow are text-only and use
+  different prompts, each chosen to isolate one stage's behavior.}
+  \label{fig:workflow_overview}
+\end{figure}
+
+% ============================================================
+% Stage 1 -- Gate (Task A)
+% ============================================================
+\paragraph{Stage~1 --- Gate (SFT Task~A).}
+The gate decides \emph{whether} external grounding is needed, classifies each surviving
+gap by type and severity, and proposes modality-labeled search queries. The two cases
+below show the decision it must make: it \emph{fires} on a named landmark with a critical
+visual-identity gap, and it \emph{skips} a generic studio prompt the base generator
+already renders reliably---the discipline that keeps the pipeline from over-retrieving.
+
+\begin{examplebox}
+\small
+\textbf{Stage~1 (gate) --- search fires.}\\[2pt]
+\textbf{Prompt:} \emph{``Photorealistic dusk poster of the Shanghai Tower showing its actual spiral facade and correct height proportions.''}\\[3pt]
+\textbf{Knowledge gap:} Shanghai Tower --- \texttt{category}: entity identity; \texttt{severity}: \emph{critical}. The signature 120-degree spiral taper and tiered glass facade are frequently rendered incorrectly; an image reference fixes the exact geometry.\\[2pt]
+\textbf{Decision} (\texttt{search\_decision}): \emph{search}. \quad \textbf{Query} (\texttt{modality}: image): ``Shanghai Tower full exterior dusk photograph''.\\[2pt]
+\textbf{Justification:} a critical visual-identity gap survives analysis, so image search is warranted.
+\end{examplebox}
+
+\begin{examplebox}
+\small
+\textbf{Stage~1 (gate) --- search skips.}\\[2pt]
+\textbf{Prompt:} \emph{``Photorealistic product shot of a blue and white porcelain teapot with bamboo motif on a marble tabletop, shallow depth of field, soft studio lighting.''}\\[3pt]
+\textbf{Knowledge gaps} (\texttt{knowledge\_gaps}): none. Porcelain teapots, bamboo motifs, marble surfaces, and studio lighting all render reliably from training data; no named entities, events, or cultural specifics are present.\\[2pt]
+\textbf{Decision} (\texttt{search\_decision}): \emph{skip}. No critical or important gap survives; searching would inject noise without improving accuracy.\\[2pt]
+{\footnotesize\emph{Fields:} \texttt{severity}$\in$\{critical, important, moderate, minimal\}; \texttt{modality}$\in$\{image, web\}.}
+\end{examplebox}
+
+\bigskip
+
+% ============================================================
+% Stage 2 -- Filter (Task B)
+% ============================================================
+\paragraph{Stage~2 --- Filter (SFT Task~B).}
+Once the gate fires, retrieval returns several candidate references; the filter selects
+the single one that most directly fills the identified gap while minimizing extraneous
+content. Below, only one of three candidates carries the required location-specific
+layout, and the filter selects it by 0-based index.
+
+\begin{examplebox}
+\small
+\textbf{Stage~2 (filter) --- reference selection.}\\[2pt]
+\textbf{User request:} \emph{``Create a photorealistic render of the current Atlanta, GA UV index dashboard, showing both the real-time UV reading and the daily maximum forecast value.''}\\[2pt]
+\textbf{Search query:} ``Official Atlanta Georgia real-time UV index dashboard example''.\\[3pt]
+\textbf{Candidates} (0-based):
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt,parsep=0pt]
+  \item[0.] generic Home Assistant UV-index card (dashboard widget)
+  \item[1.] Atlanta, GA real-time UV index dashboard
+  \item[2.] Buckhead dermatology clinic UV-safety page
+\end{itemize}
+\vspace{1pt}
+\textbf{Identified gap} (\texttt{identified\_knowledge\_gaps}): the model lacks the location-specific layout, branding, and data structure of a real-time UV dashboard for Atlanta.\\[2pt]
+\textbf{Selected} (\texttt{selected\_index}): \textbf{1}. Only candidate~1 shows an Atlanta-specific dashboard with the correct layout; candidates~0 and~2 are a generic widget and a clinical page and lack the required city-specific structure.
+\end{examplebox}
+
+\bigskip
+
+% ============================================================
+% Stage 3 -- Integrate (Task C)
+% ============================================================
+\paragraph{Stage~3 --- Integrate (SFT Task~C).}
+The final stage folds the selected reference(s) into a generation-ready prompt, routing
+visual grounding \emph{through language}: rather than passing raw pixels alone, the
+reasoner names exactly what to borrow with a grounded citation (``following Image~1,
+render~\dots'') so the generator inherits the missing knowledge without copying
+unrequested style or layout.
+
+\begin{examplebox}
+\small
+\textbf{Stage~3 (integrate) --- reference-grounded refinement.}\\[2pt]
+\textbf{User request:} \emph{``Generate a photorealistic image of a polar bear standing in the Sahara Desert, looking confused as it searches for ice, with sand dunes and a single dead acacia tree nearby.''}\\[2pt]
+\textbf{Reference~1:} a dead acacia tree under hard desert sunlight (retrieved for the tree's branching structure).\\[3pt]
+\textbf{Borrow from Image~1} (\texttt{borrow\_from\_references}): the acacia tree's forked branching silhouette, dry cracked bark texture, and hard midday desert lighting.\\[2pt]
+\textbf{Create new} (\texttt{create\_new}): the confused polar bear searching for ice; rolling Sahara dunes to the horizon; clear blue sky.\\[2pt]
+\textbf{Refined prompt} (\texttt{refined\_prompt}): \emph{``Photorealistic 8k polar bear in the Sahara, furrowed brow as it searches for ice. \underline{Following Image~1}, render the dead acacia tree with the same forked branches, dry cracked bark, and hard midday sunlight; match that lighting on the bear so its white fur casts the same sharp shadows. Golden-orange dunes roll to the horizon under a clear blue sky.''}
+\end{examplebox}

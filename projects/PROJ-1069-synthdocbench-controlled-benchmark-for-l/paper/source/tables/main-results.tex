@@ -1,0 +1,79 @@
+% \begin{table*}[t]
+% \centering
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}lccccccc@{}}
+% \toprule
+% \textbf{Model}
+%   & \textbf{DocVQA}
+%   & \textbf{ChartQA}
+%   & \textbf{MathVista}
+%   & \textbf{MMMU}
+%   & \textbf{MMLongBench}
+%   & \textbf{ACC} & \textbf{Score} \\
+% \midrule
+% \rowcolor{gray!10}
+% \multicolumn{8}{c}{\textit{Proprietary Models}} \\ \midrule
+% GPT-4o            & 92.8          & 85.7          & 63.8          & 70.7          & 46.3
+%                   & 0.446 & 4.71 \\
+% Gemini 3.1 Pro    & \textbf{93.4} & 88.5          & \textbf{74.8} & \textbf{81.0} & 45.1
+%                   & \textbf{0.719} & \textbf{7.17} \\
+% Claude Sonnet \todos{3.5/4.5?} & 92.0          & \textbf{89.0} & 72.0          & 77.8          & \na{}
+%                   & 0.351 & 4.19 \\
+% \midrule
+% \rowcolor{gray!10}
+% \multicolumn{8}{c}{\textit{Open-weight Models}} \\ \midrule
+% Qwen3-VL 235B       & \textbf{96.5} & \textbf{91.2} & \textbf{85.8} & 71.3          & \textbf{57.0}
+%                      & 0.538 & 5.75 \\
+% Qwen2.5-VL 7B       & 93.7          & 83.8          & 68.1          & 58.0          & 25.1
+%                      & 0.450 & 4.93 \\
+% InternVL3 78B       & 95.1          & \na{}         & 79.0          & \textbf{72.2} & 24.3
+%                      & 0.427 & 4.63 \\
+% LLaVA-OneVision 72B & 91.3          & 83.7          & 68.4          & 56.6          & 0.12
+%                      & \na{} & \na{} \\
+% MiniCPM-V 2.6       & 90.8          & 79.4          & 60.8          & 49.8          & 0.13
+%                      & 0.078 & 1.29 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{Performance on existing benchmarks and \textsc{SynthDocBench}.
+%   \textbf{ACC} = fraction of questions with judge score $\ge 6$;
+%   \textbf{Score} = mean judge score (0--10).
+%   Best value per column in \textbf{bold}.}
+% \label{tab:combined_results}
+% \end{table*}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Overall}}
+ & \multicolumn{2}{c}{\textbf{Chart}}
+ & \multicolumn{2}{c}{\textbf{Complex}}
+ & \multicolumn{2}{c}{\textbf{Cross-Modal}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\textbf{Model} & ACC & Score & ACC & Score & ACC & Score & ACC & Score \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{9}{c}{\textit{Proprietary Models}} \\
+\midrule
+Gemini-3.1-Pro    & \textbf{0.725} & \textbf{7.19} & \textbf{0.759} & \textbf{7.62} & \textbf{0.789} & \textbf{7.28} & \textbf{0.628} & \textbf{6.65} \\
+GPT-4o            & 0.386 & 4.38 & 0.457 & 4.44 & 0.360 & 4.66 & 0.342 & 4.05 \\
+Claude-Sonnet-4.5 & 0.314 & 3.96 & 0.353 & 4.11 & 0.337 & 4.28 & 0.250 & 3.49 \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{9}{c}{\textit{Open-Weight Models}} \\
+\midrule
+Qwen3-VL-235B     & 0.586 & 6.18 & 0.642 & 6.60 & 0.611 & 6.23 & 0.503 & 5.71 \\
+InternVL3-78B     & 0.383 & 4.39 & 0.456 & 4.75 & 0.397 & 4.73 & 0.296 & 3.69 \\
+Qwen2.5-VL-7B     & 0.081 & 1.08 & 0.162 & 1.76 & 0.012 & 0.37 & 0.067 & 1.12 \\
+\bottomrule
+\end{tabular}
+\caption{%
+  Model performance on \textsc{SynthDocBench} (200 reports, 1,788 questions).
+  \textbf{ACC} = fraction of questions with judge score $\ge 6$;
+  \textbf{Score} = mean judge score (0--10).
+  Best value per column in \textbf{bold}.
+}
+\label{tab:main_results}
+\end{table}

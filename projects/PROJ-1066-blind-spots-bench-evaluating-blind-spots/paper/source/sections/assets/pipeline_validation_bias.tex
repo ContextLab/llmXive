@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{
+Disaggregated grader validation by solver model family. We report agreement between the automatic grader and human labels, together with false positive rate (FPR) and recall. FPR measures the rate at which the grader incorrectly marks a human-incorrect response as correct, and is therefore the most relevant metric for detecting potential overestimation of a model family's performance.
+}
+\label{tab:pipeline_validation_bias}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{llrrrrrr}
+\toprule
+Output type & Solver subset & $n$ & Human correct & Grader correct & \textbf{Accuracy} & \textbf{FPR} & \textbf{Recall} \\
+\midrule
+Text & Google & 21 & 13 & 12 & 0.952 & 0.000 & 0.923 \\
+ & Others & 67 & 34 & 36 & 0.970 & 0.061 & 1.000 \\
+\midrule
+Image & Google & 33 & 18 & 17 & 0.909 & 0.067 & 0.889 \\
+ & Others & 33 & 13 & 16 & 0.909 & 0.150 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
