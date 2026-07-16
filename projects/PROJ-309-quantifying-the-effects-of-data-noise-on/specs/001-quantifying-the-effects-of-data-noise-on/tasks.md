@@ -171,8 +171,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in code/visualize.py
-- [ ] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in code/visualize.py
+- [X] T034 [P] [US4] Implement CSV export logic (columns: SNR_dB, noise_type, metric_name, computed_value, ground_truth_value, error_percent) in code/visualize.py
+- [X] T035 [US4] Implement line plot generation with critical threshold marker (at the 50% FNN point) in code/visualize.py
 - [X] T037 [US4] Add timing logic to verify pipeline completes within 2-hour CPU budget (FR-010): Measure total runtime in code/main.py. Write result to data/results/runtime.json with keys: total_seconds (float), passed_2h_limit (boolean).
 - [X] T038 [US4] Write final results and plots to data/results/ including error_vs_snr.png, final_lookup.csv, and critical_threshold_report.json. The critical_threshold_report.json MUST contain keys: threshold_snr (float), metric_name (string), error_percent (float), fnn_rate (float).
 

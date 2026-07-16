@@ -841,3 +841,180 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T09:04:26Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: "Project scope limited to Lorenz and R\xF6ssler systems"
+  claim_id: c_f58410ce
+  context: "Removed Scope: Phase 7 (Cellular Automata) has been REMOVED to align with\
+    \ spec.md which restricts the domain to 'canonical chaotic systems like the Lorenz\
+    \ attractor' and 'R\xF6ssler' only."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_scope_limited_to_Lorenz_and_R%C3%B6ssler_systems
+  kind: entity_fact
+  raw_text: "The project focuses solely on Lorenz and R\xF6ssler systems."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:22:30Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lorenz attractor standard parameters sigma 10 rho 28 beta 8/3
+  claim_id: c_53af9498
+  context: "Implement Lorenz attractor integration in code/generators.py using scipy.integrate.solve_ivp\
+    \ with standard parameters (\u03C3=10, \u03C1=28, \u03B2=8/3 (Wikipedia: Lorenz\
+    \ system, https://en.wikipedia.org/wiki/Lorenz_system))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Lorenz attractor uses standard parameters (\u03C3=10, \u03C1=28,\
+    \ \u03B2=8/3)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:22:57Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: SNR measurement accuracy tolerance 0.5dB
+  claim_id: c_a6a60416
+  context: "Independent Test: Inject Gaussian noise at a moderate SNR into a signal\
+    \ and verify the measured SNR (computed as 10\xB7log\u2081\u2080(P_signal/P_noise))\
+    \ matches the target within \xB10.5dB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The measured SNR must match the target within \xB10.5dB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:14Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lyapunov exponent error tolerance 10% at high SNR
+  claim_id: c_4291bcc4
+  context: "Independent Test: Run the pipeline on data at a specified signal-to-noise\
+    \ ratio and verify Lyapunov exponent error is \u226410% of ground truth at high\
+    \ SNR, while low SNR data shows error \u226550%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Lyapunov exponent error must be \u226410% of ground truth at high SNR."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:14Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lyapunov exponent error 50% or greater at low SNR
+  claim_id: c_4e07034d
+  context: "Independent Test: Run the pipeline on data at a specified signal-to-noise\
+    \ ratio and verify Lyapunov exponent error is \u226410% of ground truth at high\
+    \ SNR, while low SNR data shows error \u226550%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Low SNR data shows error \u226550%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:14Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Lookup table requires 6 or more SNR levels from 0 to 30dB
+  claim_id: c_55b95fa9
+  context: "Independent Test: Generate the lookup table and verify it contains \u2265\
+    6 SNR levels (0, 5, 10, 15, 20, 25, 30dB) with corresponding error rates for all\
+    \ three metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The lookup table must contain \u22656 SNR levels (0, 5, 10, 15, 20, 25,\
+    \ 30dB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:15Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Critical SNR threshold defined as FNN rate exceeding 0.5
+  claim_id: c_e5e43374
+  context: 'Implement logic to identify critical SNR threshold where FNN rate exceeds
+    % (0.5). Algorithm: Iterate SNR levels from low to high using the list defined
+    in code/config.py, spanning a range that includes very low signal-to-noise conditions.;
+    find the lowest SNR where FNN rate > 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The critical SNR threshold is identified where FNN rate exceeds 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:33Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: FNN algorithm uses embedding dimension 2 and threshold 10 times standard
+    deviation
+  claim_id: c_1469443c
+  context: "Implement False Nearest Neighbors (FNN) in code/metrics.py (embedding=2,\
+    \ threshold=10\xD7 std)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The False Nearest Neighbors algorithm uses embedding=2 and threshold=10\xD7\
+    \ std."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:23:47Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 2 hours
+  claim_id: c_c72c8aa9
+  context: 'Add timing logic to verify pipeline completes within 2-hour CPU budget
+    (FR-010): Measure total runtime in code/main.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within a 2-hour CPU budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:24:02Z'
+- artifact_path: projects/PROJ-309-quantifying-the-effects-of-data-noise-on/specs/001-quantifying-the-effects-of-data-noise-on/tasks.md
+  attempts: 1
+  canonical: Trajectory generation reproducibility stable within 1 percent
+  claim_id: c_98c08c4b
+  context: "Independent Test: Generate a Lorenz attractor trajectory, compute its\
+    \ correlation dimension and Lyapunov exponent using the defined algorithms, and\
+    \ verify the results are stable (within \xB11% across two independent runs of\
+    \ the same trajectory generation)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reproducibility results must be stable within \xB11% across two independent\
+    \ runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T09:24:02Z'

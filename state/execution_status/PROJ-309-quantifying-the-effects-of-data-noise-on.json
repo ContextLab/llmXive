@@ -1,17 +1,14 @@
 {
   "project_id": "PROJ-309-quantifying-the-effects-of-data-noise-on",
   "ok": false,
-  "reason": "2 command(s) failed: python code/analysis.py --input data/processed/metrics/ --threshold 30 (rc=1); python code/visualize.py --input data/results/error_vs_snr.csv --output data/results/plots/ (rc=1)",
+  "reason": "run-book completed but produced no data/figure artifacts",
   "artifacts": [],
-  "failures": [
-    "python code/analysis.py --input data/processed/metrics/ --threshold 30 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-309-quantifying-the-effects-of-data-noise-on/code/analysis.py\", line 8, in <module>\n    from metrics import compute_correlation_dimension, compute_lyapunov_exponent_rosenstein, compute_false_nearest_neighbors\nImportError: cannot import name 'compute_correlation_dimension' from 'metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-309-quantifying-the-effects-of-data-noise-on/code/metrics/__init__.py)",
-    "python code/visualize.py --input data/results/error_vs_snr.csv --output data/results/plots/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-309-quantifying-the-effects-of-data-noise-on/code/visualize.py\", line 25, in <module>\n    from utils.io import export_csv\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-309-quantifying-the-effects-of-data-noise-on/code/utils/io.py\", line 21, in <module>\n    def export_csv(data: List[Dict[str, Any]], file_path: str, fieldnames: Optional[List[str]] = None) -> None:\n                         ^^^^\n"
-  ],
-  "fix_rounds": 1,
+  "failures": [],
+  "fix_rounds": 10,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 10,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "unknown",
   "evidence": [],
-  "updated_at": "2026-07-16T08:51:59Z"
+  "updated_at": "2026-07-16T09:34:25Z"
 }
