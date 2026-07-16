@@ -1,0 +1,42 @@
+"""Slice 1 (spec 026) — REAL composite runtime_snapshot against live backends.
+
+Gated by ``LLMXIVE_REAL_TESTS=1`` (Constitution III). Verifies the acquisition
+layer assembles a composite snapshot (Dartmouth catalog + local fallback) with
+correct canonical identity, USD pricing, and a fraction-aware credit-guard
+observation.
+"""
+
+from __future__ import annotations
+
+import os
+
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    os.environ.get("LLMXIVE_REAL_TESTS") != "1",
+    reason="real-call test; set LLMXIVE_REAL_TESTS=1",
+)
+
+
+def test_runtime_snapshot_real_composite() -> None:
+    from llmxive.model_selection import runtime_snapshot
+
+    snap = runtime_snapshot()
+    backends = {m.backend for m in snap.models}
+    assert "dartmouth" in backends, "dartmouth models missing"
+    assert "local" in backends, "local fallback missing (composite requirement)"
+
+    byid = {m.model_id: m for m in snap.models}
+    # canonical identity: vendor is separate from serving endpoint/backend
+    if "qwen.qwen3.5-122b" in byid:
+        m = byid["qwen.qwen3.5-122b"]
+        assert m.vendor == "qwen" and m.model_family == "qwen3.5"
+        assert m.serving_endpoint != m.vendor
+        assert snap.pricing["qwen.qwen3.5-122b"].is_free  # cost 0
+
+    # credit guard: fraction-aware effective cap, not raw balance-spend
+    c = snap.credit
+    if c.source == "live":
+        assert c.effective_cap == pytest.approx(c.budget_fraction * c.max_budget)
+        assert c.available_headroom == max(0.0, c.effective_cap - c.spend)
+    assert snap.digest  # non-empty full-snapshot digest
