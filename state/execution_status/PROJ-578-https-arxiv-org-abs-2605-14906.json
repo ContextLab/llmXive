@@ -12,5 +12,9 @@
   "model_tier": 0,
   "updated_at": "2026-06-30T20:15:39Z",
   "total_attempts": 8,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/run_memlens_demo.py: self-declared fabricated metric \u2014 \u201c\u2026a 2-core CPU with  no GPU, we simulate the benchmark logic using: 1. A tiny synthe\u2026\u201d; code/run_memlens_demo.py: function `simulate_visual_ablation` returns a bare RNG draw (line 100) \u2014 a reported value computed from no real input; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026question dataset with 50 synthetic samples across the 5 core memory\u2026\u201d; 1 command(s) failed: python code/run_memlens_demo.py (rc=1)"
+  ]
 }

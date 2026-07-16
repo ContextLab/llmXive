@@ -4,5 +4,7 @@
   "updated_at": "2026-07-11T01:31:11Z",
   "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
   "total_attempts": 0,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": []
 }

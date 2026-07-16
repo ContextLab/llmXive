@@ -4,5 +4,7 @@
   "updated_at": "2026-06-29T17:15:50Z",
   "project_id": "PROJ-185-predicting-protein-protein-interactions-",
   "total_attempts": 0,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": []
 }

@@ -16,5 +16,9 @@
   "model_tier": 0,
   "updated_at": "2026-07-13T22:15:34Z",
   "total_attempts": 15,
-  "replan_rounds": 1
+  "replan_rounds": 1,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/main.py --task generate_control --config code/config.py"
+  ]
 }

@@ -4,5 +4,7 @@
   "updated_at": "2026-07-06T21:42:08Z",
   "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
   "total_attempts": 0,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": []
 }

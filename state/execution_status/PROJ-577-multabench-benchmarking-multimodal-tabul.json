@@ -8,5 +8,7 @@
   "model_tier": 0,
   "updated_at": "2026-06-30T05:38:30Z",
   "total_attempts": 1,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": []
 }

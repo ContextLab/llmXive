@@ -2,5 +2,7 @@
   "model_tier": 1,
   "fix_rounds": 0,
   "updated_at": "2026-07-15T08:15:53Z",
-  "project_id": "PROJ-460-investigating-the-impact-of-network-cent"
+  "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+  "failure_class": "unknown",
+  "evidence": []
 }

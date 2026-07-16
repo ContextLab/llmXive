@@ -4,5 +4,7 @@
   "updated_at": "2026-07-11T03:43:03Z",
   "project_id": "PROJ-777-analyzing-the-trade-off-between-prompt-s",
   "total_attempts": 0,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": []
 }

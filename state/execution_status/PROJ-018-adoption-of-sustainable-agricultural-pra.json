@@ -15,5 +15,7 @@
   "model_tier": 1,
   "updated_at": "2026-07-14T18:08:26Z",
   "total_attempts": 14,
-  "replan_rounds": 0
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": []
 }
