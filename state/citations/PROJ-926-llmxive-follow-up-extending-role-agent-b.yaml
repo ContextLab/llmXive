@@ -1,0 +1,11 @@
+- artifact_hash: 257bdfd73e0dde29411a38a59b60a97f439c90d5d2ffda8a876bb879d853a1bd
+  artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-followup.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-followup
+  verified_at: '2026-07-16T08:43:53.388219Z'

@@ -1,0 +1,16 @@
+status: none
+intent: download ALFWorld failure trajectories dataset from alfworld python package
+  dataset
+required_fields:
+- trajectory_id
+- action_sequence
+- failure_step_index
+- failure_reason
+- ground_truth_state_before
+- ground_truth_state_after
+- model_name
+- environment_version
+- generation_timestamp
+cache_key: 3ad4ed8dd306e11efc650ab14f456be3b53e94fde9f9c115b45a2b708dc7c1a5
+searched_at: '2026-07-16T08:34:50.188169+00:00'
+retry_count: 1

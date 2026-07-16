@@ -1,0 +1,516 @@
+{
+  "fetched_at": "2026-07-16T08:22:50Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution\"",
+      "target_n": 5
+    },
+    "duration_seconds": 86.305,
+    "ended_at": "2026-07-16T08:22:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "dual-role evolution in large language models"
+        ],
+        [
+          2,
+          "bootstrapping LLM agents through role adaptation"
+        ],
+        [
+          3,
+          "iterative role refinement for autonomous agents"
+        ],
+        [
+          4,
+          "role-playing dynamics in multi-agent LLM systems"
+        ],
+        [
+          5,
+          "self-improving LLM agents via role switching"
+        ],
+        [
+          6,
+          "evolutionary strategies for LLM agent initialization"
+        ],
+        [
+          7,
+          "agent bootstrapping using dual-role frameworks"
+        ],
+        [
+          8,
+          "dynamic role assignment in language model agents"
+        ],
+        [
+          9,
+          "meta-learning for LLM agent role specialization"
+        ],
+        [
+          10,
+          "emergent behaviors in role-based LLM agents"
+        ],
+        [
+          11,
+          "reinforcement learning for LLM role evolution"
+        ],
+        [
+          12,
+          "adaptive role-playing in generative AI agents"
+        ],
+        [
+          13,
+          "recursive self-improvement in LLM agent roles"
+        ],
+        [
+          14,
+          "multi-role coordination in large language models"
+        ],
+        [
+          15,
+          "agent initialization via role-based prompting"
+        ],
+        [
+          16,
+          "role-based curriculum learning for LLM agents"
+        ],
+        [
+          17,
+          "dual-agent interaction for skill acquisition"
+        ],
+        [
+          18,
+          "self-play mechanisms in LLM agent training"
+        ],
+        [
+          19,
+          "role transfer learning for autonomous AI systems"
+        ],
+        [
+          20,
+          "bootstrapping cognitive architectures with LLMs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "dual-role evolution in large language models": 5,
+        "llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "role-based agent evolution dual-role bootstrapping",
+      "LLM multi-agent self-play emergent behavior",
+      "agent specialization role allocation multi-agent system",
+      "agent capability growth iterative self-improvement benchmark",
+      "emergent role dynamics recursive agent evolution theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.10917"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM multi-agent self-play emergent behavior": 3,
+      "agent capability growth iterative self-improvement benchmark": 3,
+      "agent specialization role allocation multi-agent system": 1,
+      "emergent role dynamics recursive agent evolution theory": 2,
+      "llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution\" computer science": 3,
+      "role-based agent evolution dual-role bootstrapping": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, conversational coherence) in LLMs, which is a distinct construct from the user's specific question about \"Dual-Role Evolution\" for bootstrapping LLM agents. It does not measure the same mechanism, address the specific variables of role-agent evolution, or serve as a foundational reference for that specific methodology.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates the consistency between LLM self-reported personality and observed behavior, which is a distinct construct from the user's question about \"Dual-Role Evolution\" for bootstrapping LLM agents. While both involve LLMs, the candidate paper does not measure the specific mechanism of role-based evolution, the dual-role framework, or the agent bootstrapping process central to the user's research, failing to meet criteria (a) or (b) for inclusion in a literature review on that spec",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about \"dual-role evolution\" and \"bootstrapping agents\" for role-playing. While both topics concern LLM capabilities, the candidate paper does not measure the same mechanism, variables, or empirical setting required for the user's specific research on agent evolution frameworks, nor does it serve as a foundational reference for that specific metho",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on the taxonomy, risks, and governance of AI deception (a safety and ethics topic), whereas the user's question concerns a specific technical methodology for bootstrapping LLM agents via dual-role evolution. There is no overlap in the mechanism, variables, or empirical setting between studying deceptive behaviors and the agent evolution framework described in the user's title, and the paper does not serve as a foundational reference for the \"Role-Agent\" technique.",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-16T08:21:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"role-agent: bootstrapping llm agents via dual-role evolution\" computer science",
+      "raw": "llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-16T08:21:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-16T08:21:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-16T08:21:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper examines the evolution, architecture, and practical applications of AI agents from their early, rule-based incarnations to modern sophisticated systems that integrate large language models with dedicated modules for perception, planning, and tool use. Emphasizing both theoretical foundations and real-world deployments, the paper reviews key agent paradigms, discusses limitations of current evaluation benchmarks, and proposes a holistic evaluation framework that balances task effectiveness, efficiency, robustness, and safety. Applications across enterprise, personal assistance, and specialized domains are analyzed, with insights into future research directions for more resilient and adaptive AI agent systems.",
+          "claimed_authors": [
+            "Naveen Krishnan"
+          ],
+          "claimed_title": "AI Agents: Evolution, Architecture, and Real-World Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.12687"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='AI Agents: Evolution, Architecture, and Real-World Applications')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional AI safety evaluations on isolated LLMs are insufficient as multi-agent AI ensembles become prevalent, introducing novel emergent risks. This paper introduces the Multi-Agent Emergent Behavior Evaluation (MAEBE) framework to systematically assess such risks. Using MAEBE with the Greatest Good Benchmark (and a novel double-inversion question technique), we demonstrate that: (1) LLM moral preferences, particularly for Instrumental Harm, are surprisingly brittle and shift significantly with question framing, both in single agents and ensembles. (2) The moral reasoning of LLM ensembles is not directly predictable from isolated agent behavior due to emergent group dynamics. (3) Specifically, ensembles exhibit phenomena like peer pressure influencing convergence, even when guided by a supervisor, highlighting distinct safety and alignment challenges. Our findings underscore the necessity of evaluating AI systems in their interactive, multi-agent contexts.",
+          "claimed_authors": [
+            "Sinem Erisken",
+            "Timothy Gothard",
+            "Martin Leitgab",
+            "Ram Potham"
+          ],
+          "claimed_title": "MAEBE: Multi-Agent Emergent Behavior Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03053"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='MAEBE: Multi-Agent Emergent Behavior Framework')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-agent reinforcement learning focuses on training the behaviors of multiple learning agents that coexist in a shared environment. Recently, MARL models, such as the Multi-Agent Transformer (MAT) and ACtion dEpendent deep Q-learning (ACE), have significantly improved performance by leveraging sequential decision-making processes. Although these models can enhance performance, they do not explicitly consider the importance of the order in which agents make decisions. In this paper, we propose an Agent Order of Action Decisions-MAT (AOAD-MAT), a novel MAT model that considers the order in which agents make decisions. The proposed model explicitly incorporates the sequence of action decisions into the learning process, allowing the model to learn and predict the optimal order of agent actions. The AOAD-MAT model leverages a Transformer-based actor-critic architecture that dynamically adjusts the sequence of agent actions. To achieve this, we introduce a novel MARL architecture that cooperates with a subtask focused on predicting the next agent to act, integrated into a Proximal Policy Optimization based loss function to synergistically maximize the advantage of the sequential decision-making. The proposed method was validated through extensive experiments on the StarCraft Multi-Agent Challenge and Multi-Agent MuJoCo benchmarks. The experimental results show that the proposed AOAD-MAT model outperforms existing MAT and other baseline models, demonstrating the effectiveness of adjusting the AOAD order in MARL.",
+          "claimed_authors": [
+            "Shota Takayama",
+            "Katsuhide Fujita"
+          ],
+          "claimed_title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.13343"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title=\"AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions\")",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-improving autonomous agents are moving from research prototypes to deployed systems. The primary goal is controllable evolution, or adaptation, from experience with minimal or even no human input. This survey frames modern self-improving agents as adaptive systems that convert experience into accumulated capability gains. We offer a system-level framework that represents a modern agent as a configuration coupling a foundation model with an operational scaffold of prompts, memory, tools, and control logic. Within this framework, self-improvement is formalized as a self-induced update operator that obtains and commits updates to model parameters or scaffold components. We organize prior work by update target and by the signals that drive change, then review applications and discuss evaluation, before closing with open problems and future directions. For convenience, we track technical updates on https://github.com/selfimproving-agent/awesome-Self-Improving-Agents.",
+          "claimed_authors": [
+            "Zhe Ren",
+            "Yimeng Chen",
+            "Dandan Guo",
+            "Guowei Rong",
+            "Tonghui Li",
+            "R. B. Xiong",
+            "Qingfeng Lan",
+            "Wenyi Wang",
+            "Li Nanbo",
+            "Yibo Yang",
+            "Mingchen Zhuge",
+            "Jürgen Schmidhuber"
+          ],
+          "claimed_title": "Self-Improvements in Modern Agentic Systems: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.13104"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Self-Improvements in Modern Agentic Systems: A Survey')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current AI benchmarks evaluate agents on task execution within human-designed workflows. These evaluations fundamentally fail to measure a critical next-level capability: whether models can autonomously develop agent systems. We introduce the Meta-Agent Challenge (MAC), an evaluation framework designed to test the capacity of frontier models for autonomous agent development. Specifically, a code agent (the meta-agent) is given a sandboxed environment, an evaluation API, and a time limitation to iteratively program an agent artifact that maximizes performance on a held-out test set across five domains. To ensure evaluation integrity, this framework is secured by multi-layer defenses against reward hacking. Leveraging this framework, we demonstrate that meta-agents rarely match human-engineered baseline policies, and the few that do are dominated by proprietary frontier models. Moreover, the design process exhibits high variance, and high optimization pressure surfaces emergent adversarial behaviors like ground-truth exfiltration-highlighting critical deficits in both robustness and model alignment. Ultimately, MAC provides a rigorous, open-source benchmark for autonomous AI research and development, offering an empirical proxy for evaluating recursive self-improvement. Benchmark is publicly available at: https://github.com/ant-research/meta-agent-challenge.",
+          "claimed_authors": [
+            "Xinyu Lu",
+            "Tianshu Wang",
+            "Pengbo Wang",
+            "zujie wen",
+            "Zhiqiang Zhang",
+            "Jun Zhou",
+            "Boxi Cao",
+            "Yaojie Lu",
+            "Hongyu Lin",
+            "Xianpei Han",
+            "Le Sun"
+          ],
+          "claimed_title": "The Meta-Agent Challenge: Are Current Agents Capable of Autonomous Agent Development?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.04455"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='The Meta-Agent Challenge: Are Current Agents Capable of Autonomous Agent Development?')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Single crystals of iridates are usually grown by a flux method well above the boiling point of the SrCl2 solvent. This leads to non-equilibrium growth conditions and dramatically shortens the lifetime of expensive Pt crucibles. Here, we report the growth of Sr2IrO4, Sr3Ir2O7 and SrIrO3 single crystals in a reproducible way by using anhydrous SrCl2 flux well below its boiling point. We show that the yield of the different phases strongly depends on the nutrient/solvent ratio for fixed soak temperature and cooling rate. Using this low-temperature growth approach generally leads to a lower temperature-independent contribution to the magnetic susceptibility than previously reported. Crystals of SrIrO3 exhibit a paramagnetic behavior that can be remarkably well fitted with a Curie-Weiss law yielding physically reasonable parameters, in contrast to previous reports. Hence, reducing the soak temperature below the solvent boiling point not only provides more stable and controllable growth conditions in contrast to previously reported growth protocols, but also extends considerably the lifetime of expensive platinum crucibles and reduces the corrosion of heating and thermoelements of standard furnaces, thereby reducing growth costs.",
+          "claimed_authors": [
+            "Kaustuv Manna",
+            "Gizem Aslan-Cansever",
+            "Andrey Maljuk",
+            "Sabine Wurmehl",
+            "Silvia Seiro",
+            "Bernd Büchner"
+          ],
+          "claimed_title": "Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.03654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Game dynamics theory, as a field of science, the consistency of theory and experiment is essential. In the past 10 years, important progress has been made in the merging of the theory and experiment in this field, in which dynamics cycle is the presentation. However, the merging works have not got rid of the constraints of Euclidean two-dimensional cycle so far. This paper uses a classic four-strategy game to study the dynamic structure (non-Euclidean superplane cycle). The consistency is in significant between the three ways: (1) the analytical results from evolutionary dynamics equations, (2) agent-based simulation results from learning models and (3) laboratory results from human subjects game experiments. The consistency suggests that, game dynamic structure could be quantitatively predictable, observable and controllable in general.",
+          "claimed_authors": [
+            "Zhijian Wang",
+            "Shujie Zhou",
+            "Qinmei Yao",
+            "Yijia Wang"
+          ],
+          "claimed_title": "Dynamic Structure in Four-strategy Game: Theory and Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.14669"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Dynamic Structure in Four-strategy Game: Theory and Experiment')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The field of emergent language represents a novel area of research within the domain of artificial intelligence, particularly within the context of multi-agent reinforcement learning. Although the concept of studying language emergence is not new, early approaches were primarily concerned with explaining human language formation, with little consideration given to its potential utility for artificial agents. In contrast, studies based on reinforcement learning aim to develop communicative capabilities in agents that are comparable to or even superior to human language. Thus, they extend beyond the learned statistical representations that are common in natural language processing research. This gives rise to a number of fundamental questions, from the prerequisites for language emergence to the criteria for measuring its success. This paper addresses these questions by providing a comprehensive review of 181 scientific publications on emergent language in artificial intelligence. Its objective is to serve as a reference for researchers interested in or proficient in the field. Consequently, the main contributions are the definition and overview of the prevailing terminology, the analysis of existing evaluation methods and metrics, and the description of the identified research gaps.",
+          "claimed_authors": [
+            "Jannik Peters",
+            "Constantin Waubert de Puiseau",
+            "Hasan Tercan",
+            "Arya Gopikrishnan",
+            "Gustavo Adolpho Lucas De Carvalho",
+            "Christian Bitter",
+            "Tobias Meisen"
+          ],
+          "claimed_title": "Emergent Language: A Survey and Taxonomy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02645"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Role-Agent: Bootstrapping LLM Agents via Dual-Role', candidate_title='Emergent Language: A Survey and Taxonomy')",
+        "failed_at": "2026-07-16T08:21:59Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xucong Wang",
+            "Ziyu Ma",
+            "Shidong Yang",
+            "Tongwen Huang",
+            "Pengkun Wang",
+            "Yong Wang",
+            "Xiangxiang Chu"
+          ],
+          "title": "Role-Agent: Bootstrapping LLM Agents via Dual-Role Evolution",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.10917",
+        "summary": "Although Large Language Model (LLM) agents have demonstrated strong performance on complex tasks, their learning is often limited by inefficient interaction feedback and static training environments, which hinder broader generalization. To address these limitations, this paper introduces Role-Agent, \\textcolor{black}{a framework} that harnesses a single LLM to function concurrently as both the agent and the environment, enabling a bootstrapped co-evolution. Role-Agent comprises two synergistic components: World-In-Agent (WIA) and Agent-In-World (AIW). In WIA, the LLM acts as the agent and predicts future states after each action; the alignment between predicted and actual states is then used as a process reward, encouraging environment-aware reasoning. In AIW, the LLM analyzes failure modes from failed trajectories and retrieves tasks with similar failure patterns, thereby reshaping the training data distribution for targeted practice. Experiments on multiple benchmarks show that Role-Agent consistently improves performance, yielding an average gain of over 4\\% over strong baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.10917",
+          "http_status": 200,
+          "pdf_sample_score": 0.2267,
+          "query_relevance_score": 0.6154,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T08:21:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-16T08:22:06Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"role-agent: bootstrapping llm agents via dual-role evolution\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

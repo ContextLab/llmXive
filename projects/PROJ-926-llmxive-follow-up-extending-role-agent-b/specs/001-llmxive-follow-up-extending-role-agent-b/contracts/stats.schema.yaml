@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for aggregated statistical results across independent groups"
+type: "object"
+properties:
+  condition:
+    type: "string"
+    description: "Experimental condition"
+    enum:
+      - "baseline"
+      - "degraded"
+      - "intervention"
+  n:
+    type: "integer"
+    description: "Sample size per group"
+    minimum: 1
+  mean_retrieval_score:
+    type: "number"
+    description: "Mean retrieval relevance score"
+    minimum: 0.0
+    maximum: 1.0
+  std_retrieval_score:
+    type: "number"
+    description: "Standard deviation of retrieval scores"
+    minimum: 0.0
+  task_completion_rate:
+    type: "number"
+    description: "Task completion rate (0.0–1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  normality_p_value:
+    type: "number"
+    description: "Shapiro-Wilk normality test p-value"
+    minimum: 0.0
+    maximum: 1.0
+  test_used:
+    type: "string"
+    description: "Statistical test used (Independent Samples)"
+    enum:
+      - "t-test"
+      - "mann-whitney-u"
+  p_value:
+    type: "number"
+    description: "Statistical test p-value"
+    minimum: 0.0
+    maximum: 1.0
+  effect_size:
+    type: "number"
+    description: "Effect size (Cohen's d or rank-biserial correlation)"
+required:
+  - condition
+  - n
+  - mean_retrieval_score
+  - std_retrieval_score
+  - task_completion_rate
+  - normality_p_value
+  - test_used
+  - p_value
+  - effect_size
+additionalProperties: false

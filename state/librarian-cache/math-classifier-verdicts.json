@@ -1467,6 +1467,10 @@
     "classified_at": "2026-07-16T07:23:31Z",
     "verdict": false
   },
+  "PROJ-926-llmxive-follow-up-extending-role-agent-b::1.6.0": {
+    "classified_at": "2026-07-16T08:21:58Z",
+    "verdict": false
+  },
   "PROJ-927-llmxive-follow-up-extending-openrath-ses::1.6.0": {
     "classified_at": "2026-07-09T10:50:45Z",
     "verdict": false
