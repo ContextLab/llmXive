@@ -1,9 +1,3 @@
-T025a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `README.md` or documentation files containing the required \u201CAPI usage\u201D\
-    \ and \u201Cdata schema\u201D sections were provided; the evidence shows no updated\
-    \ documentation artifacts at all. The task\u2019s deliverable is therefore missing."
 T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

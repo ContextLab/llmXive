@@ -1,276 +1,221 @@
 # API Reference
 
-This document provides detailed API documentation for the `code/` modules in the Grain Boundary Diffusivity pipeline.
+This document provides detailed documentation for all public APIs in the grain boundary diffusivity project.
 
-## Module: `download`
+## Configuration Modules
 
-### `fetch_materials_project_data(keywords, properties)`
+### `code/config/linting_config.py`
 
-Fetches grain boundary structures from the Materials Project API.
+Provides configuration for linting and formatting tools.
 
-**Parameters**:
-- `keywords` (List[str]): Search keywords (e.g., `["grain boundary", "bicrystal"]`)
-- `properties` (List[str]): Properties to filter by (e.g., `["diffusivity"]`)
+#### Functions
 
-**Returns**:
-- `List[Dict]`: List of record dictionaries containing structure data and metadata
+- `get_ruff_command() -> str`: Returns the ruff command line string.
+- `get_ruff_fix_command() -> str`: Returns the ruff fix command line string.
+- `get_black_command() -> str`: Returns the black command line string.
+- `get_black_check_command() -> str`: Returns the black check command line string.
+- `get_ruff_config_file_content() -> str`: Returns the ruff configuration file content.
+- `get_black_config_file_content() -> str`: Returns the black configuration file content.
 
-**Raises**:
-- `ValueError`: If API key is missing or invalid
-- `ConnectionError`: If API request fails
+### `code/config/threshold_config.py`
 
-**Example**:
-```python
-data = fetch_materials_project_data(
- keywords=["grain boundary"],
- properties=["diffusivity"]
-)
-```
+Manages R² threshold configurations for model validation.
 
-### `fetch_openkim_data(keywords)`
+#### Classes
 
-Fetches grain boundary structures from OpenKIM.
+- `ThresholdConfig`: Dataclass holding threshold metadata.
 
-**Parameters**:
-- `keywords` (List[str]): Search keywords
+#### Functions
 
-**Returns**:
-- `List[Dict]`: List of record dictionaries
+- `get_r2_threshold() -> float`: Returns the R² threshold value (default: 0.7).
+- `get_threshold_justification() -> str`: Returns the justification for the threshold.
+- `get_threshold_reference() -> str`: Returns the reference source for the threshold.
+- `get_threshold_metadata() -> Dict`: Returns metadata about the threshold configuration.
 
-### `save_raw_data(mp_data, kim_data, output_dir)`
+## Core Modules
 
-Saves raw data files with SHA-256 checksums.
+### `code/utils.py`
 
-**Parameters**:
-- `mp_data` (List[Dict]): Materials Project data
-- `kim_data` (List[Dict]): OpenKIM data
-- `output_dir` (str): Output directory path
+Shared utilities for the project.
 
-**Side Effects**:
-- Writes POSCAR/CIF files to `output_dir/`
-- Updates `data/metadata.yaml` with checksums
+#### Functions
 
----
+- `setup_logging(log_file: str = "project.log") -> logging.Logger`: Configures and returns a logger.
+- `compute_sha256(file_path: str) -> str`: Computes SHA-256 checksum of a file.
+- `set_random_seed(seed: int) -> None`: Sets random seed for reproducibility.
+- `load_metadata() -> Dict`: Loads metadata from `data/metadata.yaml`.
+- `update_metadata_entry(key: str, value: Any) -> None`: Updates a metadata entry.
+- `save_metadata() -> None`: Saves metadata to `data/metadata.yaml`.
 
-## Module: `geometry_parser`
+### `code/error_handling.py`
 
-### `parse_structure_file(file_path)`
+Custom error handling for data insufficiency.
 
-Parses a crystallographic structure file (POSCAR or CIF).
+#### Classes
 
-**Parameters**:
-- `file_path` (str): Path to structure file
+- `DataInsufficiencyError(Exception)`: Raised when data count is below minimum threshold.
 
-**Returns**:
-- `pymatgen.Structure`: Parsed structure object
+#### Functions
 
-### `extract_geometry_features(structure)`
+- `check_data_sufficiency(count: int, min_count: int) -> bool`: Checks if count meets minimum.
+- `exit_on_insufficiency(count: int, min_count: int, missing_features: List[str]) -> None`: Exits with error if insufficient.
 
-Extracts all geometric features from a grain boundary structure.
+### `code/models/grain_boundary_record.py`
 
-**Parameters**:
-- `structure` (pymatgen.Structure): Input structure
+Data schema for grain boundary records.
 
-**Returns**:
-- `Dict[str, Any]`: Dictionary containing:
- - `misorientation_angle` (float)
- - `sigma_value` (int)
- - `boundary_plane_normal` (Tuple[int, int, int])
- - `rodrigues_vector` (Tuple[float, float, float])
- - `boundary_width` (float)
- - `excess_volume` (float)
+#### Classes
 
-### `calculate_sigma_from_misorientation(angle_degrees)`
+- `GrainBoundaryRecord`: Dataclass representing a grain boundary record with fields for misorientation, sigma value, boundary plane, diffusivity, etc.
 
-Calculates Σ value from misorientation angle using CSL definition.
+### `code/diagnostics.py`
 
-**Parameters**:
-- `angle_degrees` (float): Misorientation angle in degrees
+Collinearity and correlation diagnostics.
 
-**Returns**:
-- `int`: Σ value
+#### Functions
 
-### `calculate_rodrigues_vector(rotation_matrix)`
+- `calculate_sigma_from_misorientation(angle: float) -> int`: Calculates Σ value from misorientation angle.
+- `compute_mutual_information(data: pd.DataFrame, col1: str, col2: str) -> float`: Computes mutual information between two columns.
+- `run_collinearity_diagnostic(data_path: str) -> Dict`: Runs full collinearity diagnostic and saves report.
+- `main() -> None`: Entry point for diagnostics script.
 
-Converts rotation matrix to Rodrigues vector representation.
+### `code/download.py`
 
-**Parameters**:
-- `rotation_matrix` (np.ndarray): 3x3 rotation matrix
+Data acquisition from external sources.
 
-**Returns**:
-- `Tuple[float, float, float]`: Rodrigues vector components
+#### Functions
 
-### `get_miller_indices(normal_vector, lattice)`
+- `fetch_materials_project_data(keywords: List[str], properties: List[str]) -> List[Dict]`: Fetches data from Materials Project API.
+- `fetch_openkim_data(keywords: List[str]) -> List[Dict]`: Fetches data from OpenKIM.
+- `save_raw_data(data: List[Dict], output_dir: str) -> None`: Saves raw data files with checksums.
+- `main() -> None`: Entry point for download script.
 
-Converts a normal vector to Miller indices.
+### `code/geometry_parser.py`
 
-**Parameters**:
-- `normal_vector` (np.ndarray): Normal vector components
-- `lattice` (pymatgen.Lattice): Lattice object
+Geometry feature extraction from crystal structures.
 
-**Returns**:
-- `Tuple[int, int, int]`: Miller indices (h, k, l)
+#### Functions
 
----
+- `calculate_sigma_from_misorientation(angle: float) -> int`: Calculates Σ value.
+- `calculate_rodrigues_vector(rotation_matrix: np.ndarray) -> List[float]`: Converts rotation matrix to Rodrigues vector.
+- `get_miller_indices(plane_normal: np.ndarray, lattice: Lattice) -> List[int]`: Converts plane normal to Miller indices.
+- `extract_boundary_plane_normal(structure: Structure) -> np.ndarray`: Extracts boundary plane normal.
+- `calculate_boundary_width(structure: Structure) -> float`: Calculates boundary width.
+- `calculate_excess_volume(structure: Structure, bulk_density: float) -> float`: Calculates excess volume.
+- `parse_structure_file(file_path: str) -> Structure`: Parses POSCAR/CIF file.
+- `extract_geometry_features(structure: Structure) -> Dict`: Extracts all geometry features.
+- `parse_all_structures(input_dir: str, output_path: str) -> None`: Parses all structures in directory.
+- `main() -> None`: Entry point for geometry parser script.
 
-## Module: `preprocess`
+### `code/preprocess.py`
 
-### `load_parsed_data(file_path)`
+Data cleaning and validation.
 
-Loads parsed geometry data from Parquet file.
+#### Functions
 
-**Parameters**:
-- `file_path` (str): Path to parquet file
+- `load_parsed_data(input_path: str) -> pd.DataFrame`: Loads parsed geometry data.
+- `validate_features(df: pd.DataFrame, required: List[str]) -> pd.DataFrame`: Filters rows with missing required features.
+- `tag_metadata_features(df: pd.DataFrame, metadata_fields: List[str]) -> pd.DataFrame`: Tags metadata columns.
+- `enforce_minimum_records(df: pd.DataFrame, min_count: int) -> pd.DataFrame`: Ensures minimum record count.
+- `save_cleaned_data(df: pd.DataFrame, output_path: str) -> None`: Saves cleaned dataset.
+- `main() -> None`: Entry point for preprocessing script.
 
-**Returns**:
-- `pd.DataFrame`: DataFrame with parsed features
+### `code/train.py`
 
-### `validate_features(df, required_features)`
+Model training and evaluation.
 
-Validates that all required features are present and non-null.
+#### Functions
 
-**Parameters**:
-- `df` (pd.DataFrame): Input DataFrame
-- `required_features` (List[str]): List of required column names
+- `load_and_prepare_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]`: Loads and prepares data for training.
+- `split_data(X: np.ndarray, y: np.ndarray) -> Tuple`: Splits data into train/val/test sets (70/15/15).
+- `tune_hyperparameters(X_train, y_train, X_val, y_val) -> Tuple`: Performs RandomizedSearchCV for XGBoost.
+- `evaluate_model(model, X_test, y_test) -> Dict`: Evaluates model and returns metrics (R², RMSE, MAPE).
+- `save_model_and_metrics(model, metrics, model_path: str, report_path: str) -> None`: Saves model and metrics.
+- `main() -> None`: Entry point for training script.
 
-**Returns**:
-- `Tuple[pd.DataFrame, List[str]]`: Validated DataFrame and list of missing features
+### `code/validate.py`
 
-### `tag_metadata_features(df)`
+Model validation and bias testing.
 
-Tags metadata columns (simulation_method, potential_id) for special handling.
+#### Functions
 
-**Parameters**:
-- `df` (pd.DataFrame): Input DataFrame
+- `load_model_and_data(model_path: str, data_path: str) -> Tuple`: Loads model and data.
+- `perform_cross_validation(model, X, y, k: int) -> Dict`: Performs k-fold cross-validation.
+- `run_regression_bias_test(y_true, y_pred) -> Dict`: Runs regression bias test with Bonferroni correction.
+- `generate_report(cv_metrics: Dict, bias_results: Dict) -> Dict`: Generates validation report.
+- `main() -> None`: Entry point for validation script.
 
-**Returns**:
-- `pd.DataFrame`: DataFrame with tagged metadata
+### `code/interpret.py`
 
-### `enforce_minimum_records(df, min_records)`
+SHAP analysis and sensitivity analysis.
 
-Ensures dataset meets minimum record count requirement.
+#### Functions
 
-**Parameters**:
-- `df` (pd.DataFrame): Input DataFrame
-- `min_records` (int): Minimum required records
+- `load_model_and_data(model_path: str, data_path: str) -> Tuple`: Loads model and data.
+- `generate_shap_analysis(model, X, output_path: str) -> str`: Generates SHAP summary plot.
+- `perform_sensitivity_analysis(model, X, y, threshold_range: List[float]) -> pd.DataFrame`: Performs sensitivity analysis on R² threshold.
+- `main() -> None`: Entry point for interpretability script.
 
-**Raises**:
-- `DataInsufficiencyError`: If record count < min_records
+### `code/optimization_utils.py`
 
----
+Vectorized operations for performance.
 
-## Module: `train`
+#### Functions
 
-### `load_and_prepare_data(file_path, target, test_size, val_size)`
+- `vectorize_miller_indices_calculation(...)`: Vectorized Miller indices calculation.
+- `vectorize_sigma_calculation(...)`: Vectorized Σ value calculation.
+- `vectorize_rodrigues_encoding(...)`: Vectorized Rodrigues encoding.
+- `vectorize_feature_scaling(...)`: Vectorized feature scaling.
+- `vectorize_missing_value_imputation(...)`: Vectorized missing value imputation.
+- `vectorize_diffusivity_calculation(...)`: Vectorized diffusivity calculation.
+- `vectorize_correlation_matrix(...)`: Vectorized correlation matrix.
+- `vectorize_outlier_detection(...)`: Vectorized outlier detection.
+- `benchmark_vectorization(...)`: Benchmarks vectorized operations.
+- `ensure_vectorized_operations(...)`: Ensures operations are vectorized.
 
-Loads data and performs train/validation/test split.
+### `code/setup_project.py`
 
-**Parameters**:
-- `file_path` (str): Path to cleaned dataset
-- `target` (str): Target column name
-- `test_size` (float): Test split fraction
-- `val_size` (float): Validation split fraction
+Project initialization.
 
-**Returns**:
-- `Tuple[np.ndarray,...]`: (X_train, X_val, X_test, y_train, y_val, y_test)
+#### Functions
 
-### `tune_hyperparameters(X_train, y_train, X_val, y_val, param_grid)`
+- `create_directory(path: str) -> None`: Creates directory if not exists.
+- `main() -> None`: Entry point for project setup.
 
-Performs RandomizedSearchCV for XGBoost hyperparameter tuning.
+### `code/setup_env.py`
 
-**Parameters**:
-- `X_train`, `y_train`: Training data
-- `X_val`, `y_val`: Validation data
-- `param_grid` (Dict): Hyperparameter search space
+Environment setup and API key validation.
 
-**Returns**:
-- `Tuple[XGBRegressor, Dict]`: Best model and parameters
+#### Functions
 
-### `evaluate_model(model, X_test, y_test)`
+- `load_environment() -> bool`: Loads.env file.
+- `validate_api_keys() -> bool`: Validates required API keys.
+- `main() -> None`: Entry point for environment setup.
 
-Evaluates model performance on test set.
+### `code/update_state.py`
 
-**Parameters**:
-- `model`: Trained XGBoost model
-- `X_test`, `y_test`: Test data
+State management and hash verification.
 
-**Returns**:
-- `Dict[str, float]`: Metrics dictionary (r2, rmse, mape)
+#### Functions
 
----
+- `compute_sha256(file_path: str) -> str`: Computes SHA-256 hash.
+- `scan_directory(dir_path: str) -> Dict`: Scans directory for files.
+- `load_state(state_path: str) -> Dict`: Loads state file.
+- `save_state(state: Dict, state_path: str) -> None`: Saves state file.
+- `verify_hashes(state: Dict) -> bool`: Verifies file hashes.
+- `main() -> None`: Entry point for state update script.
 
-## Module: `diagnostics`
+### `code/validate_quickstart.py`
 
-### `compute_mutual_information(x, y)`
+Quickstart validation script.
 
-Computes mutual information between two variables.
+#### Functions
 
-**Parameters**:
-- `x`, `y` (np.ndarray): Input arrays
-
-**Returns**:
-- `float`: Mutual information score
-
-### `run_collinearity_diagnostic(data_path)`
-
-Runs full collinearity diagnostic on dataset.
-
-**Parameters**:
-- `data_path` (str): Path to dataset
-
-**Returns**:
-- `Dict[str, Any]`: Diagnostic report including MI scores
-
----
-
-## Module: `validate`
-
-### `perform_cross_validation(model, X, y, n_folds)`
-
-Performs k-fold cross-validation.
-
-**Parameters**:
-- `model`: Trained model
-- `X`, `y`: Data
-- `n_folds` (int): Number of folds
-
-**Returns**:
-- `Dict[str, float]`: Mean and std of R², RMSE, MAPE
-
-### `run_regression_bias_test(y_true, y_pred, alpha)`
-
-Runs regression bias test with Bonferroni correction.
-
-**Parameters**:
-- `y_true`, `y_pred`: True and predicted values
-- `alpha` (float): Adjusted significance level
-
-**Returns**:
-- `Dict[str, float]`: Intercept, slope, p-values
-
----
-
-## Module: `interpret`
-
-### `generate_shap_analysis(model, X_test)`
-
-Generates SHAP feature importance analysis.
-
-**Parameters**:
-- `model`: Trained model
-- `X_test`: Test features
-
-**Returns**:
-- `Dict[str, Any]`: SHAP values and summary statistics
-
-### `perform_sensitivity_analysis(model, X_test, y_test, thresholds)`
-
-Performs sensitivity analysis across R² thresholds.
-
-**Parameters**:
-- `model`: Trained model
-- `X_test`, `y_test`: Test data
-- `thresholds` (List[float]): R² thresholds to evaluate
-
-**Returns**:
-- `pd.DataFrame`: Sensitivity table with pass rates
+- `check_directory_structure() -> bool`: Validates directory structure.
+- `check_required_files() -> bool`: Checks for required files.
+- `check_dependencies() -> bool`: Checks installed dependencies.
+- `check_pipeline_scripts() -> bool`: Validates pipeline scripts exist.
+- `run_pipeline_step(step_name: str) -> bool`: Runs a pipeline step.
+- `check_output_artifacts() -> bool`: Checks for output artifacts.
+- `validate_output_content() -> bool`: Validates output content.
+- `main() -> None`: Entry point for quickstart validation.

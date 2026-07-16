@@ -1,5 +1,5 @@
-'|cross fold used validation':
-  quote: The figure below illustrates standard 5 Fold Cross-Validation
-  source_id: Purged cross-validation
-  url: https://en.wikipedia.org/wiki/Purged_cross-validation
+'|cross fold perform script validation':
+  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
   value: '5'

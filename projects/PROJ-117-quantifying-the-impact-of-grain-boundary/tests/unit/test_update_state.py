@@ -1,163 +1,284 @@
 """
-tests/unit/test_update_state.py
+Unit tests for the update_state module.
 
-Unit tests for code/update_state.py
+Tests cover:
+- SHA-256 hash computation
+- Directory scanning
+- State loading and saving
+- Hash verification and change detection
 """
-
-import hashlib
+import json
 import os
 import tempfile
-import unittest
 from pathlib import Path
+from unittest import TestCase
 from unittest.mock import patch, MagicMock
+import sys
+import hashlib
 
 # Add parent directory to path for imports
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.update_state import compute_sha256, scan_directory, verify_hashes
+from code.update_state import (
+    compute_sha256,
+    scan_directory,
+    load_state,
+    save_state,
+    verify_hashes,
+    main
+)
 
 
-class TestComputeSha256(unittest.TestCase):
-    def test_compute_sha256_on_known_content(self):
-        """Test SHA-256 computation on a file with known content."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+class TestComputeSha256(TestCase):
+    """Tests for the compute_sha256 function."""
+    
+    def test_compute_sha256_simple_file(self):
+        """Test hash computation for a simple file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             f.write("Hello, World!")
             temp_path = Path(f.name)
-
+        
         try:
-            computed_hash = compute_sha256(temp_path)
-            # SHA-256 of "Hello, World!"
-            expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-            self.assertEqual(computed_hash, expected_hash)
+            # Compute expected hash
+            expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+            
+            # Compute actual hash
+            actual_hash = compute_sha256(temp_path)
+            
+            self.assertEqual(actual_hash, expected_hash)
         finally:
-            os.unlink(temp_path)
-
-    def test_compute_sha256_on_empty_file(self):
-        """Test SHA-256 computation on an empty file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            temp_path.unlink()
+    
+    def test_compute_sha256_empty_file(self):
+        """Test hash computation for an empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             temp_path = Path(f.name)
-
+        
         try:
-            computed_hash = compute_sha256(temp_path)
-            # SHA-256 of empty string
-            expected_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-            self.assertEqual(computed_hash, expected_hash)
+            expected_hash = hashlib.sha256(b"").hexdigest()
+            actual_hash = compute_sha256(temp_path)
+            self.assertEqual(actual_hash, expected_hash)
         finally:
-            os.unlink(temp_path)
+            temp_path.unlink()
+    
+    def test_compute_sha256_nonexistent_file(self):
+        """Test that FileNotFoundError is raised for non-existent file."""
+        with self.assertRaises(FileNotFoundError):
+            compute_sha256(Path("nonexistent_file.txt"))
 
 
-class TestScanDirectory(unittest.TestCase):
+class TestScanDirectory(TestCase):
+    """Tests for the scan_directory function."""
+    
+    def test_scan_directory_empty(self):
+        """Test scanning an empty directory."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            result = scan_directory(Path(temp_dir))
+            self.assertEqual(result, {})
+    
     def test_scan_directory_with_files(self):
-        """Test scanning a directory with files."""
+        """Test scanning a directory with tracked files."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
-
-            # Create some test files
-            file1 = temp_path / "file1.txt"
-            file1.write_text("content1")
-
-            file2 = temp_path / "subdir" / "file2.txt"
-            file2.parent.mkdir(parents=True, exist_ok=True)
-            file2.write_text("content2")
-
-            # Mock PROJECT_ROOT to be the temp directory
-            with patch('code.update_state.PROJECT_ROOT', temp_path):
-                with patch('code.update_state.EXCLUDE_PATTERNS', []):
-                    result = scan_directory(temp_path)
-
-            self.assertEqual(len(result), 2)
-            paths = {item['path'] for item in result}
-            self.assertIn("file1.txt", paths)
-            self.assertIn("subdir/file2.txt", paths)
-
-    def test_scan_directory_with_exclusions(self):
-        """Test that excluded patterns are skipped."""
+            
+            # Create test files
+            (temp_path / "test1.json").write_text("{}", suffix='.json')
+            (temp_path / "test2.parquet").write_bytes(b"fake parquet")
+            (temp_path / "test3.txt").write_text("text")
+            (temp_path / "test4.csv").write_text("a,b\n1,2")
+            (temp_path / "test5.yaml").write_text("key: value")
+            
+            # Create untracked file
+            (temp_path / "test6.py").write_text("print('hello')")
+            
+            result = scan_directory(temp_path)
+            
+            # Should include all tracked extensions
+            self.assertIn("test1.json", result)
+            self.assertIn("test2.parquet", result)
+            self.assertIn("test3.txt", result)
+            self.assertIn("test4.csv", result)
+            self.assertIn("test5.yaml", result)
+            
+            # Should exclude untracked extension
+            self.assertNotIn("test6.py", result)
+    
+    def test_scan_directory_subdirectories(self):
+        """Test scanning directories recursively."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
+            
+            # Create nested structure
+            subdir = temp_path / "subdir"
+            subdir.mkdir()
+            (subdir / "nested.json").write_text("{}")
+            
+            result = scan_directory(temp_path)
+            
+            # Should find file in subdirectory
+            self.assertIn("subdir/nested.json", result)
+    
+    def test_scan_directory_nonexistent(self):
+        """Test scanning a non-existent directory."""
+        result = scan_directory(Path("nonexistent_dir"))
+        self.assertEqual(result, {})
 
-            # Create test files including excluded ones
-            (temp_path / "file.txt").write_text("content")
-            (temp_path / ".gitkeep").write_text("keep")
-            (temp_path / "__pycache__").mkdir(exist_ok=True)
-            (temp_path / "__pycache__" / "cache.txt").write_text("cache")
 
-            with patch('code.update_state.PROJECT_ROOT', temp_path):
-                with patch('code.update_state.EXCLUDE_PATTERNS', [".gitkeep", "__pycache__"]):
-                    result = scan_directory(temp_path)
+class TestLoadSaveState(TestCase):
+    """Tests for load_state and save_state functions."""
+    
+    def test_save_and_load_state(self):
+        """Test saving and loading state."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "state.yaml"
+            
+            test_state = {
+                "last_updated": "2023-01-01T00:00:00",
+                "artifacts": {"file1.json": "abc123"},
+                "pipeline_runs": [{"timestamp": "2023-01-01T00:00:00"}]
+            }
+            
+            # Save state
+            save_state(test_state, state_file)
+            
+            # Load state
+            loaded_state = load_state(state_file)
+            
+            self.assertEqual(loaded_state, test_state)
+    
+    def test_load_nonexistent_state(self):
+        """Test loading a non-existent state file."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "nonexistent.yaml"
+            
+            result = load_state(state_file)
+            
+            # Should return default state
+            self.assertIn("last_updated", result)
+            self.assertIn("artifacts", result)
+            self.assertIn("pipeline_runs", result)
+            self.assertEqual(result["artifacts"], {})
+            self.assertEqual(result["pipeline_runs"], [])
+    
+    def test_save_state_creates_directories(self):
+        """Test that save_state creates parent directories."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            state_file = Path(temp_dir) / "subdir" / "nested" / "state.yaml"
+            
+            test_state = {"test": "data"}
+            save_state(test_state, state_file)
+            
+            self.assertTrue(state_file.exists())
 
-            # Should only include file.txt
-            self.assertEqual(len(result), 1)
-            self.assertEqual(result[0]['path'], "file.txt")
 
-
-class TestVerifyHashes(unittest.TestCase):
-    def test_verify_hashes_no_changes(self):
-        """Test verification when no files have changed."""
-        old_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"},
-                {"path": "file2.txt", "hash": "def456"}
-            ]
+class TestVerifyHashes(TestCase):
+    """Tests for the verify_hashes function."""
+    
+    def test_verify_no_changes(self):
+        """Test verification with no changes."""
+        current = {"file1.json": "abc123", "file2.json": "def456"}
+        previous = {"file1.json": "abc123", "file2.json": "def456"}
+        
+        changes = verify_hashes(current, previous)
+        
+        self.assertEqual(changes['added'], [])
+        self.assertEqual(changes['modified'], [])
+        self.assertEqual(changes['deleted'], [])
+    
+    def test_verify_added_files(self):
+        """Test verification with added files."""
+        current = {"file1.json": "abc123", "file3.json": "ghi789"}
+        previous = {"file1.json": "abc123"}
+        
+        changes = verify_hashes(current, previous)
+        
+        self.assertEqual(changes['added'], ["file3.json"])
+        self.assertEqual(changes['modified'], [])
+        self.assertEqual(changes['deleted'], [])
+    
+    def test_verify_deleted_files(self):
+        """Test verification with deleted files."""
+        current = {"file1.json": "abc123"}
+        previous = {"file1.json": "abc123", "file2.json": "def456"}
+        
+        changes = verify_hashes(current, previous)
+        
+        self.assertEqual(changes['added'], [])
+        self.assertEqual(changes['modified'], [])
+        self.assertEqual(changes['deleted'], ["file2.json"])
+    
+    def test_verify_modified_files(self):
+        """Test verification with modified files."""
+        current = {"file1.json": "newhash123"}
+        previous = {"file1.json": "oldhash456"}
+        
+        changes = verify_hashes(current, previous)
+        
+        self.assertEqual(changes['added'], [])
+        self.assertEqual(changes['modified'], ["file1.json"])
+        self.assertEqual(changes['deleted'], [])
+    
+    def test_verify_mixed_changes(self):
+        """Test verification with mixed changes."""
+        current = {
+            "file1.json": "abc123",  # unchanged
+            "file2.json": "newhash",  # modified
+            "file3.json": "ghi789"    # added
         }
-        new_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"},
-                {"path": "file2.txt", "hash": "def456"}
-            ]
+        previous = {
+            "file1.json": "abc123",  # unchanged
+            "file2.json": "oldhash",  # modified
+            "file4.json": "jkl012"    # deleted
         }
+        
+        changes = verify_hashes(current, previous)
+        
+        self.assertEqual(set(changes['added']), {"file3.json"})
+        self.assertEqual(changes['modified'], ["file2.json"])
+        self.assertEqual(changes['deleted'], ["file4.json"])
 
-        result = verify_hashes(old_state, new_state)
-        self.assertTrue(result)
 
-    def test_verify_hashes_with_changes(self):
-        """Test verification when some files have changed."""
-        old_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"},
-                {"path": "file2.txt", "hash": "def456"}
-            ]
+class TestMain(TestCase):
+    """Tests for the main function."""
+    
+    @patch('code.update_state.scan_directory')
+    @patch('code.update_state.load_state')
+    @patch('code.update_state.save_state')
+    def test_main_execution(self, mock_save, mock_load, mock_scan):
+        """Test main function execution flow."""
+        # Setup mocks
+        mock_load.return_value = {
+            "last_updated": None,
+            "artifacts": {"old.json": "oldhash"},
+            "pipeline_runs": []
         }
-        new_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "changed123"},
-                {"path": "file2.txt", "hash": "def456"}
-            ]
+        mock_scan.return_value = {
+            "data/raw/file1.json": "hash1",
+            "models/model.json": "hash2"
         }
-
-        result = verify_hashes(old_state, new_state)
-        self.assertTrue(result)  # Function should return True even with changes
-
-    def test_verify_hashes_new_files(self):
-        """Test verification when new files are added."""
-        old_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"}
-            ]
-        }
-        new_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"},
-                {"path": "file2.txt", "hash": "new456"}
-            ]
-        }
-
-        result = verify_hashes(old_state, new_state)
-        self.assertTrue(result)
-
-    def test_verify_hashes_removed_files(self):
-        """Test verification when files are removed."""
-        old_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"},
-                {"path": "file2.txt", "hash": "def456"}
-            ]
-        }
-        new_state = {
-            "files": [
-                {"path": "file1.txt", "hash": "abc123"}
-            ]
-        }
-
-        result = verify_hashes(old_state, new_state)
-        self.assertTrue(result)
+        
+        # Run main
+        main()
+        
+        # Verify scan_directory was called for each artifact directory
+        self.assertEqual(mock_scan.call_count, len([
+            Path("data/raw"),
+            Path("data/processed"),
+            Path("models"),
+            Path("artifacts/reports"),
+            Path("artifacts/figures"),
+            Path("data")
+        ]))
+        
+        # Verify load_state was called
+        mock_load.assert_called_once()
+        
+        # Verify save_state was called with correct structure
+        mock_save.assert_called_once()
+        saved_state = mock_save.call_args[0][0]
+        
+        self.assertIn("last_updated", saved_state)
+        self.assertIn("artifacts", saved_state)
+        self.assertIn("pipeline_runs", saved_state)
+        self.assertEqual(len(saved_state['pipeline_runs']), 1)
+        self.assertIn("changes", saved_state['pipeline_runs'][0])

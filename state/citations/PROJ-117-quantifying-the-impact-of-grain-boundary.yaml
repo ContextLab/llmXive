@@ -65,25 +65,16 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/xgboost-lover/datasets
   verified_at: '2026-07-03T00:45:14.335842Z'
-- artifact_hash: f55090f57da5d7081b7fdb099c02d4ecbc541148ea2b331f1281fc892ea94901
-  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+- artifact_hash: 4773e02fd8ebefb50851d818e2f3df9a17f4e6e2977db07b733c7467b6141402
+  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
   kind: url
-  value: https://api.materialsproject.org/v2/structures`
-  verification_status: mismatch
-  verified_against_url: https://api.materialsproject.org/v2/structures
-  verified_at: '2026-07-16T01:27:38.320597Z'
-- artifact_hash: f55090f57da5d7081b7fdb099c02d4ecbc541148ea2b331f1281fc892ea94901
-  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://api.openkim.org/v1/structures`
-  verification_status: unreachable
-  verified_against_url: https://api.openkim.org/v1/structures
-  verified_at: '2026-07-16T01:27:38.320597Z'
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-07-16T03:16:19.542884Z'

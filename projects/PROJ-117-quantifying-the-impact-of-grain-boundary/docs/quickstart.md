@@ -1,102 +1,223 @@
 # Quickstart Guide
 
-This guide provides a minimal example to get started with the Grain Boundary Diffusivity pipeline.
+This guide provides a step-by-step walkthrough to run the grain boundary diffusivity pipeline.
+
+## Overview
+
+The pipeline performs the following steps:
+1. **Download** raw data from external sources (Materials Project, OpenKIM)
+2. **Parse** geometry features from crystal structures
+3. **Preprocess** and validate the dataset
+4. **Train** an XGBoost model to predict diffusivity
+5. **Validate** the model with cross-validation and bias testing
+6. **Interpret** results with SHAP analysis
 
 ## Prerequisites
 
-- Python 3.9+
-- pip package manager
-- API keys for Materials Project and OpenKIM
+- Follow the [Installation Guide](installation.md) to set up your environment
+- Ensure you have valid API keys for Materials Project (and OpenKIM if applicable)
+- Have at least 7 GB of available RAM [UNRESOLVED-CLAIM: c_00d75107 — status=not_enough_info]
 
-## Step 1: Clone and Setup
+## Step-by-Step Execution
+
+### 1. Setup Environment
 
 ```bash
-git clone <repository-url>
-cd PROJ-117-quantifying-the-impact-of-grain-boundary
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+python code/setup_env.py
 ```
 
-## Step 2: Configure Environment
+This validates your API keys and loads environment variables.
 
-Create a `.env` file in the project root:
-
-```bash
-MP_API_KEY=your_materials_project_api_key
-OPENKIM_API_KEY=your_openkim_api_key
-```
-
-## Step 3: Run the Pipeline
-
-Execute the pipeline steps in order:
+### 2. Download Data
 
 ```bash
-# Download raw data
 python code/download.py
+```
 
-# Parse geometry
+This script:
+- Fetches grain boundary data from Materials Project and OpenKIM
+- Validates JSON schema
+- Saves raw files to `data/raw/` with checksums
+- Ensures at least 500 records are retrieved
+
+**Output:** `data/raw/` directory with raw structure files
+
+### 3. Parse Geometry
+
+```bash
 python code/geometry_parser.py
+```
 
-# Preprocess and validate
+This script:
+- Parses POSAR/CIF files using pymatgen
+- Extracts boundary plane normals, Σ values, and other features
+- Encodes misorientation as Rodrigues vectors
+- Saves intermediate data to `data/processed/parsed_geometry.parquet`
+
+**Output:** `data/processed/parsed_geometry.parquet`
+
+### 4. Preprocess Data
+
+```bash
 python code/preprocess.py
+```
 
-# Run diagnostics
+This script:
+- Loads parsed geometry data
+- Filters records with missing required features
+- Tags metadata features (simulation_method, potential_id)
+- Enforces minimum record count (n >= 500)
+- Saves cleaned dataset to `data/processed/cleaned_dataset.parquet`
+
+**Output:** `data/processed/cleaned_dataset.parquet`
+
+### 5. Run Diagnostics (Optional but Recommended)
+
+```bash
 python code/diagnostics.py
+```
 
-# Train model
+This script:
+- Computes Mutual Information between misorientation angle and Σ value
+- Logs warnings for high MI values
+- Saves collinearity diagnostic to `artifacts/reports/collinearity_diagnostic.json`
+
+**Output:** `artifacts/reports/collinearity_diagnostic.json`
+
+### 6. Train Model
+
+```bash
 python code/train.py
+```
 
-# Validate model
+This script:
+- Performs 70/15/15 train/validation/test split
+- Runs RandomizedSearchCV for XGBoost hyperparameter tuning
+- Trains final model on training set
+- Evaluates on test set and logs metrics
+- Saves model to `models/best_model.json`
+
+**Output:**
+- `models/best_model.json`
+- `artifacts/reports/training_metrics.json`
+
+### 7. Validate Model
+
+```bash
 python code/validate.py
+```
 
-# Generate interpretability reports
+This script:
+- Performs 5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold cross-validation
+- Calculates R², RMSE, MAPE with standard deviation
+- Runs regression bias test with Bonferroni correction
+- Generates validation report
+
+**Output:** `artifacts/reports/validation_report.json`
+
+### 8. Interpret Results
+
+```bash
 python code/interpret.py
 ```
 
-## Step 4: Verify Outputs
+This script:
+- Generates SHAP summary plot
+- Performs sensitivity analysis on R² threshold
+- Saves plots to `artifacts/figures/`
+- Generates threshold variation table
 
-Check that the following artifacts were created:
+**Output:**
+- `artifacts/figures/shap_summary.png`
+- `artifacts/reports/threshold-variation-table.csv`
+
+## Full Pipeline Execution
+
+To run the entire pipeline sequentially:
 
 ```bash
-ls -la data/raw/
-ls -la data/processed/
-ls -la models/
-ls -la artifacts/reports/
-ls -la artifacts/figures/
+bash scripts/run_pipeline.sh # If available, or run each step manually
 ```
 
-## Step 5: Run Tests
+Or manually:
 
 ```bash
-# Unit tests
-pytest tests/unit/ -v
+python code/setup_env.py && \
+python code/download.py && \
+python code/geometry_parser.py && \
+python code/preprocess.py && \
+python code/diagnostics.py && \
+python code/train.py && \
+python code/validate.py && \
+python code/interpret.py
+```
 
-# Integration tests
-pytest tests/integration/ -v
+## Expected Outputs
 
-# Quickstart validation
+After successful execution, you should have:
+
+```
+data/
+├── raw/
+│ └── [raw structure files]
+└── processed/
+ ├── parsed_geometry.parquet
+ └── cleaned_dataset.parquet
+
+models/
+└── best_model.json
+
+artifacts/
+├── reports/
+│ ├── collinearity_diagnostic.json
+│ ├── training_metrics.json
+│ ├── validation_report.json
+│ └── threshold-variation-table.csv
+└── figures/
+ └── shap_summary.png
+```
+
+## Validation
+
+To verify the pipeline completed successfully:
+
+```bash
 python code/validate_quickstart.py
 ```
 
+This script checks:
+- All required directories exist
+- All expected output files are present
+- Dependencies are correctly installed
+- Pipeline scripts are executable
+
 ## Troubleshooting
 
-### API Key Errors
-Ensure `.env` file exists and contains valid API keys.
+### "Data Insufficiency" Error
 
-### Data Insufficiency
-If the pipeline fails with "Data Insufficiency", check that:
-- Your API keys have access to sufficient data
-- The search keywords match available records
-- You have at least 500 valid records after preprocessing
+If you see "Data Insufficiency: Retrieved {count} < 500", ensure:
+- Your API keys are valid and have sufficient quota
+- The search keywords match available data
+- You have network connectivity to the APIs
 
 ### Memory Errors
-The pipeline is designed to run within 7GB RAM. [UNRESOLVED-CLAIM: c_b3dcd4d3 — status=not_enough_info] If you encounter memory issues:
-- Reduce the dataset size by filtering early
-- Use streaming mode for large datasets (if supported)
+
+If the pipeline exceeds 7 GB RAM:
+- Close other applications
+- Ensure you're using 64-bit Python
+- Consider running on a machine with more RAM
+
+### API Rate Limiting
+
+If you encounter rate limiting:
+- Wait and retry
+- Check your API plan limits
+- Consider caching downloaded data
 
 ## Next Steps
 
-- Read the [API Reference](api_reference.md) for detailed module documentation
-- Review the [Data Schema](data_schema.md) for data format details
-- Check the [README](../README.md) for project overview
+- Review the [API Reference](api_reference.md) for detailed module documentation
+- Explore the [Data Schema](data_schema.md) to understand the data structure
+- Read the [README.md](../README.md) for project overview
+- Run unit tests: `pytest tests/`
+- Run integration tests: `pytest tests/integration/`

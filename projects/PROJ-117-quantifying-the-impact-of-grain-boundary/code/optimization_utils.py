@@ -1,444 +1,365 @@
 """
-Optimization utilities for vectorizing heavy loops in the grain boundary diffusivity pipeline.
+Optimization utilities for vectorized operations in the grain boundary diffusivity pipeline.
 
-This module provides wrapper functions and patterns to ensure that data processing,
-feature engineering, and model evaluation steps utilize vectorized NumPy/Pandas operations
-instead of Python-level loops, ensuring the pipeline stays within the 6-hour runtime budget
-on CPU-only infrastructure.
+This module provides vectorized implementations of common operations to ensure
+the pipeline stays within the 6-hour runtime budget on CPU-only hardware.
 """
-
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Optional, Tuple, Callable
 import logging
+import time
+from functools import wraps
 
 logger = logging.getLogger(__name__)
 
-# Constants for vectorization thresholds
-VECTORIZATION_THRESHOLD = 100  # Below this, loops might be acceptable
 
+def benchmark_vectorization(func: Callable) -> Callable:
+    """Decorator to benchmark the execution time of a function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        elapsed = end_time - start_time
+        logger.info(f"{func.__name__} executed in {elapsed:.4f} seconds")
+        return result
+    return wrapper
+
+
+@benchmark_vectorization
 def vectorize_miller_indices_calculation(
-    boundary_vectors: np.ndarray, 
-    lattice_vectors: np.ndarray
+    normal_vectors: np.ndarray,
+    lattice_matrix: np.ndarray
 ) -> np.ndarray:
     """
-    Vectorized calculation of Miller indices from boundary plane normals.
-    
-    Replaces a loop that would calculate cross products and normalize for each row.
+    Calculate Miller indices (hkl) for a batch of normal vectors using vectorized operations.
     
     Args:
-        boundary_vectors: Array of shape (N, 3) containing boundary plane normal vectors.
-        lattice_vectors: Array of shape (3, 3) containing the lattice basis vectors.
+        normal_vectors: Array of shape (n, 3) containing normal vectors in Cartesian coordinates.
+        lattice_matrix: 3x3 matrix representing the lattice basis vectors (rows).
         
     Returns:
-        Array of shape (N, 3) containing Miller indices (h, k, l).
+        Array of shape (n, 3) containing Miller indices (h, k, l).
     """
-    if boundary_vectors.shape[0] == 0:
-        return np.array([])
-        
-    # Ensure boundary_vectors is 2D
-    if boundary_vectors.ndim == 1:
-        boundary_vectors = boundary_vectors.reshape(1, -1)
-        
-    # Calculate reciprocal lattice vectors (vectorized)
-    # reciprocal_lattice = 2π * (b × c) / (a · (b × c))
-    # For Miller indices, we need the transformation from Cartesian to reciprocal space
+    if normal_vectors.ndim == 1:
+        normal_vectors = normal_vectors.reshape(1, -1)
     
-    # Inverse of lattice matrix transforms Cartesian to fractional coordinates
-    # which is proportional to Miller indices for orthogonal systems
-    inv_lattice = np.linalg.inv(lattice_vectors)
+    # Convert Cartesian normal to reciprocal lattice coordinates
+    # hkl = normal * L^(-1) where L is the lattice matrix
+    lattice_inv = np.linalg.inv(lattice_matrix)
+    miller_indices = normal_vectors @ lattice_inv.T
     
-    # Transform all boundary vectors at once: (N, 3) @ (3, 3) -> (N, 3)
-    fractional_coords = boundary_vectors @ inv_lattice.T
+    # Convert to smallest integer ratio
+    # Find the greatest common divisor for each row
+    abs_indices = np.abs(miller_indices)
+    # Avoid division by zero
+    abs_indices[abs_indices < 1e-10] = 1e-10
     
-    # Convert to Miller indices by multiplying by LCM-like factor to clear denominators
-    # For simplicity in this context, we normalize to smallest integers
-    # This is a simplified version; real implementation might need GCD logic
-    # which is harder to vectorize perfectly but can be approximated
+    # Normalize by the smallest non-zero element to get integer ratios
+    min_vals = np.min(abs_indices, axis=1, keepdims=True)
+    normalized = miller_indices / min_vals
     
-    # Normalize to unit length then scale to reasonable integers
-    norms = np.linalg.norm(fractional_coords, axis=1, keepdims=True)
-    norms[norms == 0] = 1  # Avoid division by zero
+    # Round to nearest integer
+    miller_int = np.round(normalized).astype(int)
     
-    unit_vectors = fractional_coords / norms
+    # Ensure smallest integer set (divide by GCD)
+    def gcd_batch(arr):
+        result = arr[:, 0]
+        for i in range(1, arr.shape[1]):
+            result = np.gcd(result, arr[:, i])
+        return result
     
-    # Scale to integers (approximate)
-    # In practice, you might want to use a more sophisticated GCD approach
-    # but for performance, we scale to nearest integers
-    miller_indices = np.round(unit_vectors * 10).astype(int)
+    gcds = gcd_batch(np.abs(miller_int))
+    gcds[gcds == 0] = 1  # Avoid division by zero
     
-    # Clean up near-zero values
-    miller_indices[np.abs(miller_indices) < 1] = 0
-    
-    return miller_indices
+    return miller_int // gcds[:, np.newaxis]
 
+
+@benchmark_vectorization
 def vectorize_sigma_calculation(
-    misorientation_angles: np.ndarray
+    misorientation_angles: np.ndarray,
+    crystal_system: str = "cubic"
 ) -> np.ndarray:
     """
-    Vectorized calculation of Σ (Sigma) values from misorientation angles.
-    
-    Replaces a loop that would calculate Sigma for each angle individually.
-    Uses the CSL approximation: Σ ≈ 1 / (1 - cos(θ)) for small angles,
-    or lookup table logic vectorized across the array.
+    Calculate Σ value from misorientation angles using vectorized operations.
     
     Args:
-        misorientation_angles: Array of shape (N,) containing misorientation angles in radians.
+        misorientation_angles: Array of shape (n,) containing misorientation angles in degrees.
+        crystal_system: Crystal system (currently only "cubic" is supported).
         
     Returns:
-        Array of shape (N,) containing Σ values.
+        Array of shape (n,) containing Σ values.
     """
-    if misorientation_angles.size == 0:
-        return np.array([])
-        
-    # Ensure 1D
-    if misorientation_angles.ndim > 1:
-        misorientation_angles = misorientation_angles.flatten()
-        
-    # Vectorized cosine calculation
-    cos_angles = np.cos(misorientation_angles)
+    if misorientation_angles.ndim == 0:
+        misorientation_angles = np.array([misorientation_angles])
     
-    # CSL approximation: Σ = 1 / (1 - cos(θ))
-    # Avoid division by zero for θ = 0
-    denominator = 1 - cos_angles
-    denominator[denominator == 0] = 1e-10
+    # For cubic crystals, Σ = 1 / (1 - cos(θ/2)) for special angles
+    # We use the standard CSL relationship for low-angle boundaries
+    theta_rad = np.radians(misorientation_angles / 2.0)
     
-    sigma_values = 1.0 / denominator
+    # Calculate Σ using the standard formula for cubic systems
+    # Σ = 2 / (1 - cos(θ)) for special boundaries
+    # This is an approximation for general boundaries
+    cos_theta = np.cos(theta_rad)
+    sigma_values = np.round(2.0 / (1.0 - cos_theta + 1e-10)).astype(int)
     
-    # Round to nearest integer (common Σ values are integers)
-    sigma_values = np.round(sigma_values).astype(int)
+    # Ensure Σ is odd (characteristic of CSL boundaries)
+    # If even, find nearest odd number
+    sigma_values = np.where(sigma_values % 2 == 0, sigma_values + 1, sigma_values)
     
-    # Ensure minimum value of 1
+    # Ensure Σ >= 1
     sigma_values = np.maximum(sigma_values, 1)
     
     return sigma_values
 
+
+@benchmark_vectorization
 def vectorize_rodrigues_encoding(
     rotation_matrices: np.ndarray
 ) -> np.ndarray:
     """
-    Vectorized encoding of rotation matrices to Rodrigues vectors.
-    
-    Replaces a loop that would convert each rotation matrix individually.
+    Encode rotation matrices as Rodrigues vectors using vectorized operations.
     
     Args:
-        rotation_matrices: Array of shape (N, 3, 3) containing rotation matrices.
+        rotation_matrices: Array of shape (n, 3, 3) containing rotation matrices.
         
     Returns:
-        Array of shape (N, 3) containing Rodrigues vectors.
+        Array of shape (n, 3) containing Rodrigues vectors.
     """
-    if rotation_matrices.shape[0] == 0:
-        return np.array([])
-        
-    # Extract rotation angles and axes from matrices
-    # trace(R) = 1 + 2*cos(θ) => cos(θ) = (trace(R) - 1) / 2
-    traces = np.einsum('ijj->i', rotation_matrices)
-    cos_theta = (traces - 1) / 2.0
+    if rotation_matrices.ndim == 2:
+        rotation_matrices = rotation_matrices.reshape(1, 3, 3)
     
-    # Clamp to valid range to avoid numerical issues
+    n_matrices = rotation_matrices.shape[0]
+    rodrigues_vectors = np.zeros((n_matrices, 3))
+    
+    # Extract rotation angle and axis from each matrix
+    # cos(θ) = (trace(R) - 1) / 2
+    traces = np.einsum('aii->a', rotation_matrices)
+    cos_theta = (traces - 1.0) / 2.0
     cos_theta = np.clip(cos_theta, -1.0, 1.0)
+    theta = np.arccos(cos_theta)
     
-    # Calculate sin(θ)
-    sin_theta = np.sqrt(1 - cos_theta**2)
+    # For small angles, use different formula to avoid division by zero
+    small_angle_mask = theta < 1e-10
+    large_angle_mask = ~small_angle_mask
     
-    # Avoid division by zero for θ = 0
-    sin_theta[sin_theta == 0] = 1e-10
+    # Calculate rotation axis
+    # R - R^T = 2*sin(θ)*K where K is the skew-symmetric matrix of the axis
+    R_minus_RT = rotation_matrices - rotation_matrices.transpose(0, 2, 1)
+    axis_x = R_minus_RT[:, 2, 1] / 2.0
+    axis_y = R_minus_RT[:, 0, 2] / 2.0
+    axis_z = R_minus_RT[:, 1, 0] / 2.0
     
-    # Rodrigues vector = (axis) * tan(θ/2)
-    # tan(θ/2) = sin(θ) / (1 + cos(θ))
-    tan_half_theta = sin_theta / (1 + cos_theta)
+    # Rodrigues vector = axis * tan(θ/2)
+    tan_half_theta = np.tan(theta / 2.0)
+    tan_half_theta[small_angle_mask] = theta[small_angle_mask] / 2.0  # Small angle approximation
     
-    # Extract rotation axis components from antisymmetric part of R
-    # R - R^T = 2*sin(θ) * [axis]_x (skew-symmetric matrix)
-    # axis_x = (R[2,1] - R[1,2]) / (2*sin(θ))
-    # axis_y = (R[0,2] - R[2,0]) / (2*sin(θ))
-    # axis_z = (R[1,0] - R[0,1]) / (2*sin(θ))
+    rodrigues_vectors[:, 0] = axis_x * tan_half_theta
+    rodrigues_vectors[:, 1] = axis_y * tan_half_theta
+    rodrigues_vectors[:, 2] = axis_z * tan_half_theta
     
-    axis_x = (rotation_matrices[:, 2, 1] - rotation_matrices[:, 1, 2]) / (2 * sin_theta)
-    axis_y = (rotation_matrices[:, 0, 2] - rotation_matrices[:, 2, 0]) / (2 * sin_theta)
-    axis_z = (rotation_matrices[:, 1, 0] - rotation_matrices[:, 0, 1]) / (2 * sin_theta)
-    
-    # Combine to get Rodrigues vectors
-    rodrigues = np.stack([axis_x, axis_y, axis_z], axis=1) * tan_half_theta
-    
-    return rodrigues
+    return rodrigues_vectors
 
+
+@benchmark_vectorization
 def vectorize_feature_scaling(
-    data: pd.DataFrame, 
-    feature_columns: List[str],
-    method: str = 'standard'
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    features: np.ndarray,
+    method: str = "standard"
+) -> np.ndarray:
     """
-    Vectorized feature scaling using pandas/numpy operations.
-    
-    Replaces loops that would scale each feature individually.
+    Scale features using vectorized operations.
     
     Args:
-        data: DataFrame containing the features.
-        feature_columns: List of column names to scale.
-        method: Scaling method ('standard', 'minmax', 'robust').
+        features: Array of shape (n_samples, n_features).
+        method: Scaling method ("standard" for Z-score, "minmax" for 0-1 scaling).
         
     Returns:
-        Tuple of (scaled DataFrame, scaling parameters dict).
+        Scaled features array.
     """
-    if len(feature_columns) == 0:
-        return data, {}
+    if method == "standard":
+        # Z-score normalization: (x - mean) / std
+        mean = np.mean(features, axis=0)
+        std = np.std(features, axis=0)
+        std[std < 1e-10] = 1.0  # Avoid division by zero
+        return (features - mean) / std
         
-    # Extract features as numpy array for vectorized operations
-    X = data[feature_columns].values
-    
-    params = {}
-    
-    if method == 'standard':
-        # Standard scaling: (X - mean) / std
-        mean = np.mean(X, axis=0)
-        std = np.std(X, axis=0)
-        std[std == 0] = 1  # Avoid division by zero
-        
-        X_scaled = (X - mean) / std
-        
-        params = {'mean': mean, 'std': std, 'method': method}
-        
-    elif method == 'minmax':
-        # Min-Max scaling: (X - min) / (max - min)
-        min_vals = np.min(X, axis=0)
-        max_vals = np.max(X, axis=0)
+    elif method == "minmax":
+        # Min-max scaling: (x - min) / (max - min)
+        min_vals = np.min(features, axis=0)
+        max_vals = np.max(features, axis=0)
         range_vals = max_vals - min_vals
-        range_vals[range_vals == 0] = 1  # Avoid division by zero
-        
-        X_scaled = (X - min_vals) / range_vals
-        
-        params = {'min': min_vals, 'max': max_vals, 'method': method}
-        
-    elif method == 'robust':
-        # Robust scaling: (X - median) / IQR
-        median = np.median(X, axis=0)
-        q75 = np.percentile(X, 75, axis=0)
-        q25 = np.percentile(X, 25, axis=0)
-        iqr = q75 - q25
-        iqr[iqr == 0] = 1  # Avoid division by zero
-        
-        X_scaled = (X - median) / iqr
-        
-        params = {'median': median, 'q75': q75, 'q25': q25, 'method': method}
+        range_vals[range_vals < 1e-10] = 1.0  # Avoid division by zero
+        return (features - min_vals) / range_vals
         
     else:
         raise ValueError(f"Unknown scaling method: {method}")
-    
-    # Create scaled DataFrame
-    scaled_data = data.copy()
-    scaled_data[feature_columns] = X_scaled
-    
-    return scaled_data, params
 
+
+@benchmark_vectorization
 def vectorize_missing_value_imputation(
-    data: pd.DataFrame, 
-    strategy: str = 'mean'
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    data: pd.DataFrame,
+    strategy: str = "mean"
+) -> pd.DataFrame:
     """
-    Vectorized missing value imputation.
-    
-    Replaces loops that would impute each column individually.
+    Impute missing values using vectorized operations.
     
     Args:
-        data: DataFrame containing the data with missing values.
-        strategy: Imputation strategy ('mean', 'median', 'most_frequent', 'constant').
+        data: DataFrame with missing values.
+        strategy: Imputation strategy ("mean", "median", "most_frequent", or a scalar).
         
     Returns:
-        Tuple of (imputed DataFrame, imputation parameters dict).
+        DataFrame with imputed values.
     """
-    if data.isna().sum().sum() == 0:
-        return data, {}
-        
-    params = {}
+    if isinstance(strategy, (int, float)):
+        # Fill with constant value
+        return data.fillna(strategy)
     
-    if strategy == 'mean':
-        impute_values = data.mean()
-        params = {'strategy': strategy, 'values': impute_values.to_dict()}
+    elif strategy == "mean":
+        means = data.mean(skipna=True)
+        return data.fillna(means)
         
-    elif strategy == 'median':
-        impute_values = data.median()
-        params = {'strategy': strategy, 'values': impute_values.to_dict()}
+    elif strategy == "median":
+        medians = data.median(skipna=True)
+        return data.fillna(medians)
         
-    elif strategy == 'most_frequent':
-        impute_values = data.mode().iloc[0]
-        params = {'strategy': strategy, 'values': impute_values.to_dict()}
-        
-    elif strategy == 'constant':
-        impute_values = 0
-        params = {'strategy': strategy, 'value': impute_values}
+    elif strategy == "most_frequent":
+        # For numerical data, this is similar to mode
+        modes = data.mode().iloc[0]
+        return data.fillna(modes)
         
     else:
         raise ValueError(f"Unknown imputation strategy: {strategy}")
-    
-    # Vectorized imputation using fillna
-    if strategy == 'constant':
-        imputed_data = data.fillna(impute_values)
-    else:
-        imputed_data = data.fillna(impute_values)
-    
-    return imputed_data, params
 
+
+@benchmark_vectorization
 def vectorize_diffusivity_calculation(
     temperature: np.ndarray,
     activation_energy: np.ndarray,
-    pre_exponential: np.ndarray,
-    gas_constant: float = 8.314
+    pre_exponential: np.ndarray
 ) -> np.ndarray:
     """
-    Vectorized calculation of diffusivity using Arrhenius equation.
+    Calculate diffusivity using Arrhenius equation with vectorized operations.
     
     D = D0 * exp(-Q / (R * T))
     
-    Replaces a loop that would calculate diffusivity for each sample individually.
-    
     Args:
-        temperature: Array of shape (N,) containing temperatures in Kelvin.
-        activation_energy: Array of shape (N,) containing activation energies in J/mol.
-        pre_exponential: Array of shape (N,) containing pre-exponential factors in m²/s.
-        gas_constant: Gas constant R in J/(mol·K).
+        temperature: Array of shape (n,) containing temperatures in Kelvin.
+        activation_energy: Array of shape (n,) containing activation energies in J/mol.
+        pre_exponential: Array of shape (n,) containing pre-exponential factors in m²/s.
         
     Returns:
-        Array of shape (N,) containing diffusivity values in m²/s.
+        Array of shape (n,) containing diffusivity values in m²/s.
     """
-    if temperature.size == 0:
-        return np.array([])
-        
-    # Ensure all inputs are 1D
-    if temperature.ndim > 1:
-        temperature = temperature.flatten()
-    if activation_energy.ndim > 1:
-        activation_energy = activation_energy.flatten()
-    if pre_exponential.ndim > 1:
-        pre_exponential = pre_exponential.flatten()
-        
-    # Vectorized Arrhenius calculation
-    # Avoid division by zero for T = 0
-    safe_temp = np.where(temperature == 0, 1e-10, temperature)
-    
-    exponent = -activation_energy / (gas_constant * safe_temp)
-    
-    # Clip exponent to avoid overflow
-    exponent = np.clip(exponent, -700, 700)
-    
-    diffusivity = pre_exponential * np.exp(exponent)
-    
-    return diffusivity
+    R = 8.314  # Gas constant in J/(mol·K)
+    return pre_exponential * np.exp(-activation_energy / (R * temperature))
 
+
+@benchmark_vectorization
 def vectorize_correlation_matrix(
-    data: pd.DataFrame,
-    method: str = 'pearson'
-) -> pd.DataFrame:
+    data: np.ndarray,
+    method: str = "pearson"
+) -> np.ndarray:
     """
-    Vectorized correlation matrix calculation.
-    
-    Replaces loops that would calculate pairwise correlations individually.
-    Uses pandas built-in which is optimized with NumPy.
+    Calculate correlation matrix using vectorized operations.
     
     Args:
-        data: DataFrame containing the features.
-        method: Correlation method ('pearson', 'spearman', 'kendall').
+        data: Array of shape (n_samples, n_features).
+        method: Correlation method ("pearson", "spearman", "kendall").
         
     Returns:
-        DataFrame containing the correlation matrix.
+        Correlation matrix of shape (n_features, n_features).
     """
-    # pandas corr is already vectorized
-    return data.corr(method=method)
+    if method == "pearson":
+        # Center the data
+        data_centered = data - np.mean(data, axis=0)
+        # Calculate covariance
+        n_samples = data.shape[0]
+        cov = (data_centered.T @ data_centered) / (n_samples - 1)
+        # Calculate standard deviations
+        std = np.std(data, axis=0, ddof=1)
+        std[std < 1e-10] = 1.0
+        # Calculate correlation
+        std_outer = np.outer(std, std)
+        corr = cov / std_outer
+        return corr
+        
+    elif method == "spearman":
+        # Convert to ranks
+        ranks = np.argsort(np.argsort(data, axis=0), axis=0) + 1
+        return vectorize_correlation_matrix(ranks, method="pearson")
+        
+    else:
+        raise ValueError(f"Unknown correlation method: {method}")
 
+
+@benchmark_vectorization
 def vectorize_outlier_detection(
-    data: pd.DataFrame,
-    method: str = 'iqr',
+    data: np.ndarray,
+    method: str = "iqr",
     k: float = 1.5
-) -> pd.Series:
+) -> np.ndarray:
     """
-    Vectorized outlier detection.
-    
-    Replaces loops that would check each row/column individually.
+    Detect outliers using vectorized operations.
     
     Args:
-        data: DataFrame containing the features.
-        method: Outlier detection method ('iqr', 'zscore').
-        k: Multiplier for IQR or Z-score threshold.
+        data: Array of shape (n_samples, n_features).
+        method: Outlier detection method ("iqr", "zscore").
+        k: Threshold parameter (IQR multiplier or Z-score threshold).
         
     Returns:
-        Series of boolean values indicating outliers.
+        Boolean array of shape (n_samples,) indicating outliers.
     """
-    if method == 'iqr':
-        q1 = data.quantile(0.25)
-        q3 = data.quantile(0.75)
+    if method == "iqr":
+        q1 = np.percentile(data, 25, axis=0)
+        q3 = np.percentile(data, 75, axis=0)
         iqr = q3 - q1
-        
         lower_bound = q1 - k * iqr
         upper_bound = q3 + k * iqr
         
-        # Vectorized check
-        outliers = ((data < lower_bound) | (data > upper_bound)).any(axis=1)
+        # Outlier if any feature is outside bounds
+        outlier_mask = np.any((data < lower_bound) | (data > upper_bound), axis=1)
+        return outlier_mask
         
-    elif method == 'zscore':
-        from scipy import stats
-        # Z-score calculation is vectorized
-        z_scores = np.abs(stats.zscore(data, nan_policy='omit'))
-        outliers = (z_scores > k).any(axis=1)
+    elif method == "zscore":
+        mean = np.mean(data, axis=0)
+        std = np.std(data, axis=0)
+        std[std < 1e-10] = 1.0
+        z_scores = np.abs((data - mean) / std)
+        outlier_mask = np.any(z_scores > k, axis=1)
+        return outlier_mask
         
     else:
         raise ValueError(f"Unknown outlier detection method: {method}")
-        
-    return outliers
 
-def benchmark_vectorization(
-    func: Callable,
-    input_size: int = 10000,
-    num_iterations: int = 5
-) -> Dict[str, float]:
-    """
-    Benchmark a vectorized function against a loop-based alternative.
-    
-    Args:
-        func: The vectorized function to benchmark.
-        input_size: Size of the input data.
-        num_iterations: Number of benchmark iterations.
-        
-    Returns:
-        Dictionary with timing results.
-    """
-    import time
-    
-    # Generate sample data
-    np.random.seed(42)
-    sample_data = np.random.rand(input_size, 3)
-    
-    # Time the vectorized function
-    start_time = time.time()
-    for _ in range(num_iterations):
-        result = func(sample_data)
-    vectorized_time = (time.time() - start_time) / num_iterations
-    
-    logger.info(f"Vectorized function completed in {vectorized_time:.4f} seconds for {input_size} samples")
-    
-    return {
-        'vectorized_time': vectorized_time,
-        'input_size': input_size,
-        'num_iterations': num_iterations
-    }
 
 def ensure_vectorized_operations(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ensure that heavy operations on a DataFrame use vectorized operations.
+    Ensure all numerical operations on the DataFrame use vectorized methods.
     
-    This is a utility function that can be called to enforce vectorization
-    patterns in the pipeline.
+    This function applies vectorized imputation and scaling to numerical columns
+    to optimize performance for large datasets.
     
     Args:
         df: Input DataFrame.
         
     Returns:
-        DataFrame with vectorized operations applied where beneficial.
+        DataFrame with optimized numerical operations.
     """
-    # Example: Replace row-wise apply with vectorized operations
-    # This is a template that can be extended based on specific needs
+    logger.info("Ensuring vectorized operations for performance optimization")
     
-    # Check for common anti-patterns
-    if 'apply' in str(df.apply):
-        logger.warning("Detected potential non-vectorized operations. Consider refactoring.")
+    # Identify numerical columns
+    numerical_cols = df.select_dtypes(include=[np.number]).columns
     
+    if len(numerical_cols) == 0:
+        logger.warning("No numerical columns found for vectorization")
+        return df
+    
+    # Apply vectorized imputation
+    df[numerical_cols] = vectorize_missing_value_imputation(df[numerical_cols], strategy="mean")
+    
+    # Apply vectorized scaling
+    df[numerical_cols] = vectorize_feature_scaling(df[numerical_cols].values, method="standard")
+    
+    logger.info(f"Vectorized operations applied to {len(numerical_cols)} columns")
     return df

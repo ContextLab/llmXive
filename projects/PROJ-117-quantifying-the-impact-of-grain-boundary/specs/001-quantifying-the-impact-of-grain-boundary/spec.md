@@ -92,7 +92,7 @@ As a materials researcher, I want to visualize SHAP values for feature importanc
 - **SC-001**: Model predictive performance (R², RMSE, MAPE) is measured against the held-out test set and reported with standard deviation across k=5 cross-validation folds (See US-1).
 - **SC-002**: Systematic bias is measured against zero-baseline via regression of y_true ~ y_pred; intercept, slope, and p-values are reported (See US-2).
 - **SC-003**: Feature importance ranking is measured against SHAP value magnitudes; the top contributing grain-boundary descriptors are identified and visualized (See US-3).
-- **SC-004**: Threshold robustness is measured by sweeping R² threshold ∈ {0.65, 0.70, 0.75} and reporting how pass/fail rate and false-positive rate vary across thresholds (See US-3).
+- **SC-004**: Threshold robustness is measured by sweeping R² threshold ∈ {, 0.70, 0.75} and reporting how pass/fail rate and false-positive rate vary across thresholds (See US-3).
 - **SC-005**: Compute feasibility is measured against GitHub Actions free-tier limits (≤2 CPU cores, ≤7 GB RAM, ≤6 h runtime, no GPU); peak RAM and total runtime are logged (See US-1).
 
 ## Assumptions

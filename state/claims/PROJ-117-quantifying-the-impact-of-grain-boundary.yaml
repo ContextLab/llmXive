@@ -902,3 +902,480 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T02:00:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: 523 records in the dataset
+  claim_id: c_6e4764e8
+  context: The metadata schema example shows a record_count of 523 for the Materials
+    Project source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'record_count: 523'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:09:29Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: rmse of 0.12 in training metrics
+  claim_id: c_01b34a4f
+  context: The training metrics JSON artifact reports an rmse value of 0.12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'rmse: 0.12'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:09:46Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mape of 15.3 in training metrics
+  claim_id: c_85a41d2b
+  context: The training metrics JSON artifact reports a mape value of 15.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'mape: 15.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:10:03Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: test size of 75 in training metrics
+  claim_id: c_39484b9d
+  context: The training metrics JSON artifact reports a test_size of 75.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'test_size: 75'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:10:39Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: cross validation r2 mean of 0.84
+  claim_id: c_08effe41
+  context: The validation report JSON artifact reports a cross validation r2_mean
+    of 0.84.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'r2_mean: 0.84'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:11:09Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: cross validation r2 standard deviation of 0.03
+  claim_id: c_7d4e2574
+  context: The validation report JSON artifact reports a cross validation r2_std of
+    0.03.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'r2_std: 0.03'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:11:45Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: cross validation rmse mean of 0.13
+  claim_id: c_fa2baded
+  context: The validation report JSON artifact reports a cross validation rmse_mean
+    of 0.13.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'rmse_mean: 0.13'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:11:59Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: cross validation mape mean of 16.1
+  claim_id: c_8ce18e57
+  context: The validation report JSON artifact reports a cross validation mape_mean
+    of 16.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'mape_mean: 16.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:12:16Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: 5 k-folds used in cross validation
+  claim_id: c_3e123ebc
+  context: The validation report JSON artifact reports k_folds of 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'k_folds: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:12:34Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test intercept of 0.02
+  claim_id: c_fe37fd06
+  context: The validation report JSON artifact reports a bias test intercept of 0.02.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'intercept: 0.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:12:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test slope of 0.98
+  claim_id: c_538cbf4a
+  context: The validation report JSON artifact reports a bias test slope of 0.98.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'slope: 0.98'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:13:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test p-value for intercept of 0.15
+  claim_id: c_401175bb
+  context: The validation report JSON artifact reports a p_value_intercept of 0.15.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'p_value_intercept: 0.15'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:13:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test p-value for slope of 0.22
+  claim_id: c_88244346
+  context: The validation report JSON artifact reports a p_value_slope of 0.22.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'p_value_slope: 0.22'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:13:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: adjusted alpha of 0.017 in bias test
+  claim_id: c_f6c202f1
+  context: The validation report JSON artifact reports an alpha_adjusted value of
+    0.017.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'alpha_adjusted: 0.017'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:13:41Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mutual information of 0.85 between misorientation angle and sigma value
+  claim_id: c_7585c045
+  context: The collinearity diagnostic JSON artifact reports a mutual information
+    of 0.85 between misorientation angle and sigma value.
+  evidence:
+    asserted: '0.85'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: 'misorientation_angle_vs_sigma mutual information: 0.85'
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T03:13:41Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/quickstart.md
+  attempts: 1
+  canonical: download script ensures at least 500 records retrieved
+  claim_id: c_944c8976
+  context: 'This script: - Fetches grain boundary data from Materials Project and
+    OpenKIM - Validates JSON schema - Saves raw files to `data/raw/` with checksums
+    - Ensures at least 500 records are retrieved'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_script_ensures_at_least_500_records_retrieved
+  kind: magnitude
+  raw_text: This script ensures at least 500 records are retrieved.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:14:49Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/quickstart.md
+  attempts: 1
+  canonical: train script performs 70/15/15 train/validation/test split
+  claim_id: c_427c0ca5
+  context: 'This script: - Performs 70/15/15 train/validation/test split - Runs RandomizedSearchCV
+    for XGBoost hyperparameter tuning - Trains final model on training set - Evaluates
+    on test set and logs metrics - Saves model to `models/best_model.json`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This script performs 70/15/15 train/validation/test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:15:12Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/quickstart.md
+  attempts: 1
+  canonical: validate script performs 5-fold cross-validation
+  claim_id: c_a429c26f
+  context: "This script: - Performs 5-fold cross-validation - Calculates R\xB2, RMSE,\
+    \ MAPE with standard deviation - Runs regression bias test with Bonferroni correction\
+    \ - Generates validation report"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: This script performs 5-fold cross-validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T03:15:48Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/quickstart.md
+  attempts: 1
+  canonical: prerequisite requires at least 7 GB available RAM
+  claim_id: c_00d75107
+  context: Prerequisites - Follow the [Installation Guide](installation.md) to set
+    up your environment - Ensure you have valid API keys for Materials Project (and
+    OpenKIM if applicable) - Have at least 7 GB of available RAM
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prerequisite_requires_at_least_7_GB_available_RAM
+  kind: magnitude
+  raw_text: Have at least 7 GB of available RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:16:19Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: raw records count must be >= 500 to proceed
+  claim_id: c_daa64ea4
+  context: 'Validate returned JSON schema and store raw files in data/raw/ with checksums.
+    Verify the count of raw records is >= 500 before proceeding; if < 500, log ''Data
+    Insufficiency: Retrieved {count} < 500'' and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify the count of raw records is >= 500 before proceeding; if < 500,
+    log ''Data Insufficiency: Retrieved {count} < 500'' and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:17:12Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: valid records count must be >= 500 to proceed
+  claim_id: c_2601fc90
+  context: 'Filter records with missing required features... Enforce n >= 500 constraint:
+    If fewer than 500 valid records remain, log ''Data Insufficiency: {valid_count}
+    < 500. Missing features: {missing_feature_list}'' and exit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/valid_records_count_must_be_%3E=_500_to_proceed
+  kind: magnitude
+  raw_text: 'Enforce n >= 500 constraint: If fewer than 500 valid records remain,
+    log ''Data Insufficiency: {valid_count} < 500. Missing features: {missing_feature_list}''
+    and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:18:01Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: 70/15/15 train/validation/test split
+  claim_id: c_2e8b04c4
+  context: 'Perform a 70/15/15 train/validation/test split. Note: Corrected from ambiguous
+    spec notation ''/15/15'' to ensure sufficient training data for XGBoost.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a 70/15/15 train/validation/test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:18:18Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: RandomizedSearchCV with k=5 for XGBoost
+  claim_id: c_b4ade20e
+  context: 'Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning. Search
+    space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:19:56Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost hyperparameter search space max_depth 3-10, learning_rate 0.01-0.3,
+    n_estimators 50-300
+  claim_id: c_5ca578f7
+  context: 'Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning. Search
+    space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Search space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators
+    [50, 300].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:20:13Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: k=5 cross-validation
+  claim_id: c_77f89fff
+  context: "Perform k=5 cross-validation on the trained model. Report average R\xB2\
+    , RMSE, MAPE and calculate standard deviation of R\xB2 (must be <= 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform k=5 cross-validation on the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:20:30Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "standard deviation of R\xB2 must be <= 0.05"
+  claim_id: c_1de6d6d3
+  context: "Perform k=5 cross-validation on the trained model. Report average R\xB2\
+    , RMSE, MAPE and calculate standard deviation of R\xB2 (must be <= 0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Report average R\xB2, RMSE, MAPE and calculate standard deviation of\
+    \ R\xB2 (must be <= 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:20:53Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha_adj 0.017
+  claim_id: c_47d37d71
+  context: "Execute regression bias test (y_true ~ y_pred) to calculate intercept,\
+    \ slope, and p-values. Apply Bonferroni correction (\u03B1_adj = 0.017) for multiple\
+    \ hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1_adj = 0.017) for multiple hypothesis\
+    \ tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:21:06Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier limit 2 CPU cores
+  claim_id: c_3e2e4759
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
+    of 2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_2_CPU_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T03:21:29Z'

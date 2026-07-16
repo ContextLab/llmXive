@@ -1,276 +1,251 @@
 # Quantifying the Impact of Grain Boundary Character on Diffusivity
 
-**Project ID**: PROJ-117-quantifying-the-impact-of-grain-boundary
+This project implements an automated science pipeline to download atomistic simulation datasets, extract grain-boundary descriptors, and train a gradient-boosted tree model to predict atomic diffusivity.
 
-This project implements an automated science pipeline to quantify the relationship between grain boundary character (misorientation, boundary plane, Σ value) and atomic diffusivity using atomistic simulation data and machine learning.
+## Project Structure
 
-## Overview
-
-The pipeline ingests raw crystallographic structures (POSCAR/CIF) from materials databases, extracts geometric descriptors of grain boundaries, trains a gradient-boosted tree model (XGBoost) to predict diffusivity, and performs statistical validation and interpretability analysis.
+```
+.
+├── code/ # Python implementation modules
+│ ├── config/ # Configuration utilities
+│ ├── models/ # Data schemas
+│ ├── utils.py # Shared utilities
+│ ├── download.py # Data acquisition
+│ ├── geometry_parser.py # Geometry feature extraction
+│ ├── preprocess.py # Data cleaning & validation
+│ ├── train.py # Model training
+│ ├── validate.py # Model validation
+│ ├── interpret.py # SHAP analysis & sensitivity
+│ └──...
+├── data/
+│ ├── raw/ # Raw downloaded data (POSCAR, CIF)
+│ ├── processed/ # Parsed and cleaned datasets
+│ └── metadata.yaml # Data provenance schema
+├── models/ # Trained model artifacts
+├── artifacts/
+│ ├── reports/ # Diagnostic and validation reports
+│ └── figures/ # SHAP plots and sensitivity tables
+├── specs/ # Design documents
+├── tests/ # Unit and integration tests
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
 
 ## Data Schema
 
-### Raw Data (`data/raw/`)
-Raw files downloaded from external sources:
-- **Format**: POSCAR or CIF files
-- **Metadata**: Stored in `data/metadata.yaml` containing:
- - `source`: Materials Project, OpenKIM, or NIST
- - `version`: Dataset version tag
- - `checksum`: SHA-256 hash of the file
- - `retrieval_date`: ISO 8601 timestamp
+The project uses a `GrainBoundaryRecord` dataclass to represent grain boundary data. The schema is defined in `code/models/grain_boundary_record.py`.
 
-### Parsed Geometry (`data/processed/parsed_geometry.parquet`)
-Intermediate dataset containing extracted geometric features:
-- `structure_id`: Unique identifier
-- `misorientation_angle`: Float (degrees)
-- `sigma_value`: Integer (Σ value from CSL)
-- `boundary_plane_normal_h`, `boundary_plane_normal_k`, `boundary_plane_normal_l`: Miller indices
-- `rodrigues_x`, `rodrigues_y`, `rodrigues_z`: Rodrigues vector components
-- `boundary_width`: Float (Å)
-- `excess_volume`: Float (Å³)
-- `temperature`: Float (K)
-- `composition`: String (chemical formula)
-- `diffusivity`: Float (m²/s)
-- `simulation_method`: String (DFT, MD, KMC)
-- `potential_id`: String (interatomic potential identifier)
+### GrainBoundaryRecord Fields
 
-### Cleaned Dataset (`data/processed/cleaned_dataset.parquet`)
-Final dataset after filtering missing values and enforcing minimum record count (n ≥ 500):
-- Same schema as parsed geometry with additional validation flags
-- Missing required features result in record exclusion
+| Field | Type | Description |
+|-------|------|-------------|
+| `material_id` | str | Unique identifier for the material |
+| `misorientation_angle` | float | Angle of misorientation in degrees |
+| `sigma_value` | int | Coincidence Site Lattice (Σ) value |
+| `boundary_plane_normal` | List[int] | Miller indices (hkl) of the boundary plane |
+| `rodrigues_vector` | List[float] | Rodrigues vector representation of misorientation |
+| `boundary_width` | float | Width of the grain boundary in Å |
+| `excess_volume` | float | Excess volume at the boundary in Å³/atom |
+| `temperature` | float | Temperature in Kelvin |
+| `composition` | str | Chemical composition string |
+| `diffusivity` | float | Atomic diffusivity (target variable) |
+| `simulation_method` | str | Method used (DFT, MD, KMC) |
+| `potential_id` | str | Interatomic potential identifier |
+| `source` | str | Data source (Materials Project, OpenKIM, NIST) |
+| `checksum` | str | SHA-256 checksum of the raw file |
+| `retrieval_date` | str | Date of data retrieval |
 
-### Model Artifacts (`models/`)
-- `best_model.json`: Trained XGBoost model parameters and metadata
+### Metadata Schema (`data/metadata.yaml`)
 
-### Reports (`artifacts/reports/`)
-- `collinearity_diagnostic.json`: Mutual Information analysis between misorientation and Σ value
-- `training_metrics.json`: R², RMSE, MAPE on test set
-- `validation_report.json`: Cross-validation metrics and bias test results
+The `metadata.yaml` file tracks data provenance:
 
-### Figures (`artifacts/figures/`)
-- SHAP summary plots and sensitivity analysis tables
+```yaml
+source: Materials Project | OpenKIM | NIST
+version_tag: v1.0.0
+checksum: <sha256_hash>
+retrieval_date: YYYY-MM-DD
+record_count: <number>
+```
 
 ## API Usage
 
-### Download Module (`code/download.py`)
-Fetches raw structures from external APIs.
+The project provides several Python modules for different stages of the pipeline. Below are examples of how to use the key APIs.
+
+### Data Download (`code/download.py`)
 
 ```python
 from download import fetch_materials_project_data, fetch_openkim_data, save_raw_data
 
-# Fetch from Materials Project
+# Fetch data from Materials Project
 mp_data = fetch_materials_project_data(
  keywords=["grain boundary", "bicrystal"],
  properties=["diffusivity"]
 )
 
-# Fetch from OpenKIM
-kim_data = fetch_openkim_data(
+# Fetch data from OpenKIM
+ok_data = fetch_openkim_data(
  keywords=["grain boundary"]
 )
 
-# Save raw files with checksums
-save_raw_data(mp_data, kim_data, output_dir="data/raw/")
+# Save raw data files with checksums
+save_raw_data(mp_data, "data/raw/mp_grain_boundaries/")
+save_raw_data(ok_data, "data/raw/openkim_grain_boundaries/")
 ```
 
-**Requirements**:
-- `MP_API_KEY` environment variable (Materials Project)
-- `OPENKIM_API_KEY` environment variable (OpenKIM)
-
-### Geometry Parser (`code/geometry_parser.py`)
-Parses crystallographic files and extracts grain boundary descriptors.
+### Geometry Parsing (`code/geometry_parser.py`)
 
 ```python
 from geometry_parser import parse_structure_file, extract_geometry_features
 
-# Parse a single structure file
-structure = parse_structure_file("data/raw/structure_001.cif")
+# Parse a POSAR or CIF file
+structure = parse_structure_file("data/raw/sample_POSCAR")
 
-# Extract all features
+# Extract geometry features
 features = extract_geometry_features(structure)
 # Returns: {
 # 'misorientation_angle': float,
 # 'sigma_value': int,
-# 'boundary_plane_normal': (h, k, l),
-# 'rodrigues_vector': (x, y, z),
+# 'boundary_plane_normal': [h, k, l],
+# 'rodrigues_vector': [rx, ry, rz],
 # 'boundary_width': float,
 # 'excess_volume': float
 # }
 ```
 
 ### Preprocessing (`code/preprocess.py`)
-Validates features and enforces data sufficiency constraints.
 
 ```python
-from preprocess import load_parsed_data, validate_features, enforce_minimum_records
+from preprocess import load_parsed_data, validate_features, tag_metadata_features, enforce_minimum_records, save_cleaned_data
 
-# Load parsed geometry
+# Load parsed data
 df = load_parsed_data("data/processed/parsed_geometry.parquet")
 
 # Validate required features
-valid_df, missing = validate_features(df, required_features=[
- 'misorientation_angle', 'sigma_value', 'boundary_plane_normal',
- 'temperature', 'composition', 'diffusivity'
-])
+valid_df = validate_features(df, required=['misorientation_angle', 'sigma_value', 'diffusivity'])
+
+# Tag metadata features
+tagged_df = tag_metadata_features(valid_df, metadata_fields=['simulation_method', 'potential_id'])
 
 # Enforce minimum record count (n >= 500)
-final_df = enforce_minimum_records(valid_df, min_records=500)
+final_df = enforce_minimum_records(tagged_df, min_count=500)
+
+# Save cleaned dataset
+save_cleaned_data(final_df, "data/processed/cleaned_dataset.parquet")
 ```
 
-### Training (`code/train.py`)
-Trains XGBoost model with hyperparameter tuning.
+### Model Training (`code/train.py`)
 
 ```python
-from train import load_and_prepare_data, tune_hyperparameters, evaluate_model
+from train import load_and_prepare_data, split_data, tune_hyperparameters, evaluate_model, save_model_and_metrics
 
-# Load and split data
-X_train, X_val, X_test, y_train, y_val, y_test = load_and_prepare_data(
- "data/processed/cleaned_dataset.parquet",
- target='diffusivity',
- test_size=0.15,
- val_size=0.15
-)
+# Load and prepare data
+X, y = load_and_prepare_data("data/processed/cleaned_dataset.parquet")
 
-# Hyperparameter tuning
-best_model, best_params = tune_hyperparameters(
- X_train, y_train, X_val, y_val,
- param_grid={
- 'max_depth': [3, 10],
- 'learning_rate': [0.01, 0.3],
- 'n_estimators': [50, 300]
- }
-)
+# Split data (70/15/15)
+X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
+
+# Hyperparameter tuning with RandomizedSearchCV
+best_model, best_params = tune_hyperparameters(X_train, y_train, X_val, y_val)
 
 # Evaluate on test set
 metrics = evaluate_model(best_model, X_test, y_test)
 # Returns: {'r2': float, 'rmse': float, 'mape': float}
-```
 
-### Diagnostics (`code/diagnostics.py`)
-Computes mutual information for feature dependency analysis.
-
-```python
-from diagnostics import compute_mutual_information, run_collinearity_diagnostic
-
-# Calculate MI between misorientation and Σ value
-mi_score = compute_mutual_information(
- misorientation_angles, sigma_values
-)
-
-# Run full collinearity diagnostic
-report = run_collinearity_diagnostic("data/processed/cleaned_dataset.parquet")
+# Save model and metrics
+save_model_and_metrics(best_model, metrics, "models/best_model.json", "artifacts/reports/training_metrics.json")
 ```
 
 ### Validation (`code/validate.py`)
-Performs cross-validation and bias testing.
 
 ```python
-from validate import perform_cross_validation, run_regression_bias_test
+from validate import load_model_and_data, perform_cross_validation, run_regression_bias_test, generate_report
 
-# 5-fold cross-validation
-cv_results = perform_cross_validation(model, X, y, n_folds=5)
+# Load model and data
+model, X, y = load_model_and_data("models/best_model.json", "data/processed/cleaned_dataset.parquet")
 
-# Regression bias test with Bonferroni correction
-bias_test = run_regression_bias_test(y_true, y_pred, alpha=0.017)
+# Perform 5-fold cross-validation
+cv_metrics = perform_cross_validation(model, X, y, k=5)
+
+# Run regression bias test
+bias_results = run_regression_bias_test(y, model.predict(X))
+
+# Generate validation report
+report = generate_report(cv_metrics, bias_results)
+# Saves to: artifacts/reports/validation_report.json
 ```
 
 ### Interpretability (`code/interpret.py`)
-Generates SHAP analysis and sensitivity tables.
 
 ```python
-from interpret import generate_shap_analysis, perform_sensitivity_analysis
+from interpret import load_model_and_data, generate_shap_analysis, perform_sensitivity_analysis
 
-# SHAP feature importance
-shap_results = generate_shap_analysis(model, X_test)
+# Load model and data
+model, X, y = load_model_and_data("models/best_model.json", "data/processed/cleaned_dataset.parquet")
 
-# Sensitivity analysis across R² thresholds
-sensitivity_table = perform_sensitivity_analysis(
- model, X_test, y_test,
- thresholds=[0.5, 0.6, 0.7, 0.8, 0.9]
-)
+# Generate SHAP analysis
+shap_plot_path = generate_shap_analysis(model, X, "artifacts/figures/shap_summary.png")
+
+# Perform sensitivity analysis on R² threshold
+sensitivity_table = perform_sensitivity_analysis(model, X, y, threshold_range=[0.5, 0.7, 0.8, 0.9])
+# Saves to: artifacts/reports/threshold-variation-table.csv
 ```
 
-## Execution Pipeline
+### Diagnostics (`code/diagnostics.py`)
 
-The pipeline executes in the following order:
+```python
+from diagnostics import run_collinearity_diagnostic
 
-1. **T009**: `python code/download.py` - Fetch raw data
-2. **T010**: `python code/geometry_parser.py` - Parse structures
-3. **T011**: `python code/preprocess.py` - Clean and validate
-4. **T016**: `python code/diagnostics.py` - Collinearity check
-5. **T012**: `python code/train.py` - Train model
-6. **T017**: `python code/validate.py` - Validate model
-7. **T021**: `python code/interpret.py` - Interpret results
+# Run collinearity diagnostic on raw dataset
+result = run_collinearity_diagnostic("data/processed/parsed_geometry.parquet")
+# Calculates Mutual Information between misorientation angle and Σ value
+# Saves to: artifacts/reports/collinearity_diagnostic.json
+```
 
-## Dependencies
+## Running the Pipeline
 
-See `requirements.txt` for pinned versions:
-- pandas
-- numpy
-- scikit-learn
-- xgboost
-- shap
-- matplotlib
-- requests
-- pymatgen
-- python-dotenv
-
-## Environment Setup
-
-1. Create virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # Linux/Mac
- # or venv\Scripts\activate # Windows
- ```
-
-2. Install dependencies:
+1. **Setup Environment**
  ```bash
  pip install -r requirements.txt
+ python code/setup_env.py
  ```
 
-3. Configure API keys in `.env`:
- ```
- MP_API_KEY=your_materials_project_key
- OPENKIM_API_KEY=your_openkim_key
- ```
-
-4. Run the pipeline:
+2. **Download Data**
  ```bash
  python code/download.py
+ ```
+
+3. **Parse Geometry**
+ ```bash
  python code/geometry_parser.py
+ ```
+
+4. **Preprocess Data**
+ ```bash
  python code/preprocess.py
- python code/diagnostics.py
+ ```
+
+5. **Train Model**
+ ```bash
  python code/train.py
+ ```
+
+6. **Validate Model**
+ ```bash
  python code/validate.py
+ ```
+
+7. **Interpret Results**
+ ```bash
  python code/interpret.py
  ```
 
-## Output Verification
+## Requirements
 
-After successful execution, verify these artifacts exist:
-- `data/raw/` - Raw structure files with checksums
-- `data/processed/parsed_geometry.parquet` - Parsed geometry
-- `data/processed/cleaned_dataset.parquet` - Cleaned dataset (n ≥ 500)
-- `models/best_model.json` - Trained model
-- `artifacts/reports/training_metrics.json` - Training metrics
-- `artifacts/reports/validation_report.json` - Validation report
-- `artifacts/figures/shap_summary.png` - SHAP plot
-- `artifacts/reports/threshold-variation-table.csv` - Sensitivity table
+- Python 3.8+
+- pandas, numpy, scikit-learn, xgboost, shap, matplotlib, requests, pymatgen, python-dotenv
 
-## Testing
+See `requirements.txt` for exact versions.
 
-Run unit tests:
-```bash
-pytest tests/unit/ -v
-```
+## License
 
-Run integration tests:
-```bash
-pytest tests/integration/ -v
-```
-
-Run quickstart validation:
-```bash
-python code/validate_quickstart.py
-```
+This project is licensed under the MIT License.

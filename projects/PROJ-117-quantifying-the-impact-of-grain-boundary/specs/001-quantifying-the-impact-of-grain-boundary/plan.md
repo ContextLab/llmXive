@@ -21,7 +21,7 @@ The plan strictly adheres to the project constitution's requirements for reprodu
 **Project Type**: Computational research pipeline / CLI.  
 **Performance Goals**: End-to-end pipeline execution ≤ 6 hours; peak RAM ≤ 7 GB; R² ≥ 0.7 (hypothesis target).  
 **Constraints**: No GPU/CUDA; no large-LLM inference; dataset must be sampled if >7 GB; strict handling of missing data (halt if n < 500).  
-**Scale/Scope**: Target ≥ 500 valid GB records; 500-5000 records depending on available open data.
+**Scale/Scope**: Target ≥ 500 valid GB records; A variable number of records depending on available open data.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

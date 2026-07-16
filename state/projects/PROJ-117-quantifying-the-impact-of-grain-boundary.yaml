@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-117-quantifying-the-impact-of-grain-boundary
-last_run_id: bd6a08b9-6193-474d-bb60-8bbda37e264b
+last_run_id: 19807b68-45ce-466e-85e2-53833ea52e45
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary
 title: Quantifying the Impact of Grain Boundary Character on Diffusivity in Polycrystalline
   Materials
-updated_at: '2026-07-03T04:26:24.634339Z'
+updated_at: '2026-07-16T03:45:30.233742Z'

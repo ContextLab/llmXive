@@ -1,15 +1,10 @@
 """
-update_state.py
+State management module for tracking content hashes of project artifacts.
 
-Verifies and updates state.yaml with content hashes after a successful pipeline run.
-This script scans the data/, artifacts/, and models/ directories, computes SHA-256
-hashes for all relevant files, and updates the state.yaml file with the new hashes
-and a timestamp.
-
-Usage:
-    python code/update_state.py
+This module provides functionality to compute SHA-256 hashes of files,
+scan directories for relevant artifacts, and maintain a persistent
+state.yaml file that tracks the current state of the project.
 """
-
 import hashlib
 import json
 import logging
@@ -17,143 +12,246 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List
-
-import yaml
+from typing import Dict, Any, List, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-STATE_FILE = PROJECT_ROOT / "state.yaml"
-TARGET_DIRS = ["data", "models", "artifacts"]
-EXCLUDE_PATTERNS = [".gitkeep", ".DS_Store", "__pycache__"]
+STATE_FILE = Path("state.yaml")
+# Define which directories to scan for artifacts
+ARTIFACT_DIRS = [
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("models"),
+    Path("artifacts/reports"),
+    Path("artifacts/figures"),
+    Path("data")  # For metadata.yaml
+]
+# File extensions to include in hash tracking
+TRACKED_EXTENSIONS = {'.json', '.parquet', '.csv', '.png', '.yaml', '.yml', '.txt', '.pkl'}
 
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """
+    Compute SHA-256 hash of a file.
+    
+    Args:
+        file_path: Path to the file to hash
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+        IOError: If the file cannot be read
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
+            # Read in chunks for large files
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing hash for {file_path}: {e}")
-        return ""
-
-
-def scan_directory(directory: Path) -> List[Dict[str, Any]]:
-    """Scan a directory and return a list of file hashes."""
-    if not directory.exists():
-        logger.warning(f"Directory {directory} does not exist. Skipping.")
-        return []
-
-    files_data = []
-    for file_path in directory.rglob("*"):
-        if file_path.is_file():
-            # Skip excluded patterns
-            if any(pattern in file_path.name for pattern in EXCLUDE_PATTERNS):
-                continue
-
-            relative_path = file_path.relative_to(PROJECT_ROOT)
-            file_hash = compute_sha256(file_path)
-            if file_hash:
-                files_data.append({
-                    "path": str(relative_path),
-                    "hash": file_hash,
-                    "size": file_path.stat().st_size
-                })
-    return files_data
-
-
-def load_state() -> Dict[str, Any]:
-    """Load existing state.yaml or return an empty structure."""
-    if STATE_FILE.exists():
-        try:
-            with open(STATE_FILE, "r") as f:
-                return yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.error(f"Error loading state.yaml: {e}")
-            return {}
-    return {}
-
-
-def save_state(state: Dict[str, Any]) -> None:
-    """Save state to state.yaml."""
-    try:
-        with open(STATE_FILE, "w") as f:
-            yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"State saved to {STATE_FILE}")
-    except Exception as e:
-        logger.error(f"Error saving state.yaml: {e}")
+    except IOError as e:
+        logger.error(f"Error reading file {file_path}: {e}")
         raise
 
 
-def verify_hashes(old_state: Dict[str, Any], new_state: Dict[str, Any]) -> bool:
+def scan_directory(base_dir: Path) -> Dict[str, str]:
     """
-    Verify that hashes in the new state match the old state for unchanged files.
-    Returns True if all hashes match or if it's the first run.
+    Scan a directory for tracked files and compute their hashes.
+    
+    Args:
+        base_dir: Base directory to scan
+        
+    Returns:
+        Dictionary mapping relative file paths to their SHA-256 hashes
     """
-    old_files = {item["path"]: item["hash"] for item in old_state.get("files", [])}
-    new_files = {item["path"]: item["hash"] for item in new_state.get("files", [])}
+    hashes = {}
+    
+    if not base_dir.exists():
+        logger.warning(f"Directory does not exist, skipping: {base_dir}")
+        return hashes
+    
+    for file_path in base_dir.rglob('*'):
+        if file_path.is_file():
+            # Check if file has a tracked extension
+            if file_path.suffix.lower() in TRACKED_EXTENSIONS:
+                try:
+                    relative_path = file_path.relative_to(Path.cwd())
+                    file_hash = compute_sha256(file_path)
+                    hashes[str(relative_path)] = file_hash
+                    logger.debug(f"Hashed: {relative_path}")
+                except Exception as e:
+                    logger.error(f"Error processing {file_path}: {e}")
+    
+    return hashes
 
-    # Check for changed or removed files
-    for path, old_hash in old_files.items():
-        if path in new_files:
-            if new_files[path] != old_hash:
-                logger.info(f"File changed: {path}")
-        else:
-            logger.info(f"File removed: {path}")
 
-    # Check for new files
-    for path in new_files:
-        if path not in old_files:
-            logger.info(f"New file: {path}")
-
-    return True
-
-
-def main() -> int:
-    """Main entry point for the state update script."""
-    logger.info("Starting state verification and update...")
-
-    # Collect hashes from target directories
-    all_files = []
-    for dir_name in TARGET_DIRS:
-        target_dir = PROJECT_ROOT / dir_name
-        files = scan_directory(target_dir)
-        all_files.extend(files)
-
-    if not all_files:
-        logger.warning("No files found in target directories. State will be empty.")
-
-    # Load existing state
-    old_state = load_state()
-
-    # Create new state structure
-    new_state = {
-        "last_updated": datetime.utcnow().isoformat(),
-        "files": all_files,
-        "summary": {
-            "total_files": len(all_files),
-            "total_size_bytes": sum(f["size"] for f in all_files)
+def load_state(state_file: Path = STATE_FILE) -> Dict[str, Any]:
+    """
+    Load the current state from state.yaml.
+    
+    Args:
+        state_file: Path to the state file
+        
+    Returns:
+        Dictionary containing the current state, or empty dict if file doesn't exist
+    """
+    if not state_file.exists():
+        logger.info("No existing state file found. Starting fresh.")
+        return {
+            "last_updated": None,
+            "artifacts": {},
+            "pipeline_runs": []
         }
+    
+    try:
+        with open(state_file, 'r') as f:
+            # Simple YAML-like parsing for our specific format
+            content = f.read()
+            # If it's valid JSON, use json.loads
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError:
+                # Otherwise, try to parse as simple YAML
+                # For now, return empty state if we can't parse
+                logger.warning("Could not parse state file. Starting fresh.")
+                return {
+                    "last_updated": None,
+                    "artifacts": {},
+                    "pipeline_runs": []
+                }
+    except Exception as e:
+        logger.error(f"Error loading state file: {e}")
+        return {
+            "last_updated": None,
+            "artifacts": {},
+            "pipeline_runs": []
+        }
+
+
+def save_state(state: Dict[str, Any], state_file: Path = STATE_FILE) -> None:
+    """
+    Save the current state to state.yaml.
+    
+    Args:
+        state: Dictionary containing the state to save
+        state_file: Path to the state file
+    """
+    try:
+        # Ensure parent directory exists
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Convert to JSON for reliable serialization
+        with open(state_file, 'w') as f:
+            json.dump(state, f, indent=2)
+        
+        logger.info(f"State saved to {state_file}")
+    except Exception as e:
+        logger.error(f"Error saving state file: {e}")
+        raise
+
+
+def verify_hashes(current_hashes: Dict[str, str], previous_hashes: Dict[str, str]) -> Dict[str, List[str]]:
+    """
+    Compare current hashes with previous hashes to identify changes.
+    
+    Args:
+        current_hashes: Current file hashes
+        previous_hashes: Previous file hashes
+        
+    Returns:
+        Dictionary with keys 'added', 'modified', 'deleted' containing lists of file paths
+    """
+    changes = {
+        'added': [],
+        'modified': [],
+        'deleted': []
     }
+    
+    current_files = set(current_hashes.keys())
+    previous_files = set(previous_hashes.keys())
+    
+    # Files that are new
+    changes['added'] = list(current_files - previous_files)
+    
+    # Files that are deleted
+    changes['deleted'] = list(previous_files - current_files)
+    
+    # Files that might be modified
+    for file_path in current_files & previous_files:
+        if current_hashes[file_path] != previous_hashes[file_path]:
+            changes['modified'].append(file_path)
+    
+    return changes
 
-    # Verify hashes against old state
-    verify_hashes(old_state, new_state)
 
-    # Save new state
-    save_state(new_state)
-
-    logger.info("State update completed successfully.")
-    return 0
+def main() -> None:
+    """
+    Main function to update the state.yaml file with current content hashes.
+    
+    This function:
+    1. Loads the previous state
+    2. Scans all tracked directories for artifacts
+    3. Computes SHA-256 hashes for all tracked files
+    4. Compares with previous state to identify changes
+    5. Updates the state file with new hashes and metadata
+    6. Logs a summary of changes
+    """
+    logger.info("Starting state update...")
+    
+    # Load previous state
+    previous_state = load_state()
+    previous_hashes = previous_state.get('artifacts', {})
+    
+    # Scan all artifact directories
+    all_hashes = {}
+    for art_dir in ARTIFACT_DIRS:
+        dir_hashes = scan_directory(art_dir)
+        all_hashes.update(dir_hashes)
+    
+    # Verify hashes against previous state
+    changes = verify_hashes(all_hashes, previous_hashes)
+    
+    # Update state
+    current_state = {
+        "last_updated": datetime.now().isoformat(),
+        "artifacts": all_hashes,
+        "pipeline_runs": previous_state.get('pipeline_runs', []) + [{
+            "timestamp": datetime.now().isoformat(),
+            "changes": {
+                "added_count": len(changes['added']),
+                "modified_count": len(changes['modified']),
+                "deleted_count": len(changes['deleted'])
+            }
+        }]
+    }
+    
+    # Save updated state
+    save_state(current_state)
+    
+    # Log summary
+    logger.info("State update completed!")
+    logger.info(f"  Total artifacts tracked: {len(all_hashes)}")
+    logger.info(f"  Added: {len(changes['added'])}")
+    logger.info(f"  Modified: {len(changes['modified'])}")
+    logger.info(f"  Deleted: {len(changes['deleted'])}")
+    
+    if changes['added']:
+        logger.info(f"  New files: {', '.join(changes['added'])}")
+    if changes['modified']:
+        logger.info(f"  Modified files: {', '.join(changes['modified'])}")
+    if changes['deleted']:
+        logger.info(f"  Deleted files: {', '.join(changes['deleted'])}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
