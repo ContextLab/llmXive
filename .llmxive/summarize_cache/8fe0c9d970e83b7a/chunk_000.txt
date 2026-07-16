@@ -1,0 +1,133 @@
+# Implementation Plan: Ambient Temperature Influence on Moral Decision Speed
+
+**Branch**: `001-ambient-temp-moral-speed` | **Date**: 2026-06-25 | **Spec**: `specs/001-ambient-temperature-influence-on-moral-speed/spec.md`
+**Input**: Feature specification from `/specs/001-ambient-temperature-influence-on-moral-speed/spec.md`
+
+## Summary
+
+This project investigates the correlation between ambient temperature and the speed of moral decision‑making using the Moral Machine dataset merged with ERA5 Reanalysis data. The technical approach involves ingesting and geospatially/temporally matching large‑scale behavioral data with hourly meteorological records, filtering for data quality and physical constraints, and fitting a scalable statistical model that respects the compute limits of a free‑tier CI runner. All steps are designed to run on CPU‑only CI with strict data hygiene and reproducibility standards.
+
+## Technical Context
+
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopy`, `xarray`, `h5netcdf`, `matplotlib`, `seaborn`, `cdsapi` (for ERA5 download). All versions are pinned in `requirements.txt`.
+- **Storage**: Local filesystem (`data/`, `results/`). No external database.
+- **Testing**: `pytest` (unit tests for ingestion logic, integration tests for model convergence).
+- **Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7 GB RAM, ≤6 h per job).
+- **Constraints**: No GPU, no deep‑learning, all libraries CPU‑compatible.
+
+### Scalable Modeling Strategy (Addresses FR‑003, FR‑013, FR‑014, and methodology‑660650ab)
+
+1. **Two‑Stage Aggregation** – To ensure feasibility on 2 CPU/7 GB RAM:
+ - **Stage 1**: Aggregate raw response times to the participant level (compute mean log‑response‑time per participant).
+ - **Stage 2**: Fit an OLS regression on the aggregated participant‑level data with **cluster‑robust standard errors** clustered by `cultural_region`. This provides valid inference for fixed effects without fitting millions of random intercepts.
+2. **Full LMM on Sample (Validation Only)** – On a small random subset (≤ 10 k participants), fit a full Linear Mixed‑Effects Model with random intercepts for `cultural_region` only (participant random effects omitted) to verify consistency with the OLS‑clustered approach.
+3. **Fallback GLMM** – If log‑transformation leaves heavy tails, a GLMM with Gamma family and log link will be fitted on the same small subset.
+4. **Sampling** – If the full dataset exceeds memory during ingestion, the pipeline automatically samples up to 200 k rows, preserving the distribution of geographic regions and temperature.
+
+### Temperature Extreme Filtering (FR‑002)
+
+- Records with temperature < ‑30 °C or > 50 °C are flagged and excluded. These bounds are documented in `code/ingestion.py` and logged in `results/logs/exclusion_log.csv`.
+
+### Data Source Validation (FR‑014)
+
+- Before any download, `ingestion.py` checks the SHA‑256 checksum of the source files against values stored in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`.
+- ERA resolution (≈high spatial resolution) and hourly temporal granularity are verified; any dataset that does not meet these criteria aborts the pipeline.
+
+### Indoor/Outdoor Confound Sensitivity (FR‑012)
+
+- `robustness.py` will stratify the dataset by an **urban/rural proxy** derived from the coordinate’s population density (using the Global Human Settlement Layer).
+- If the proxy cannot be derived, the script logs the limitation and runs a bootstrap‑based noise‑impact analysis, reporting the variance introduced by the unobserved indoor/outdoor factor.
+
+### Match Distance Sensitivity (Addresses methodology‑23999b2f)
+
+- The matching script records `distance_km` for every successful match in `results/logs/match_log.csv`.
+- Sensitivity analyses will re‑run the primary model after excluding records with `distance_km` > 25 km and > 50 km, reporting coefficient stability to quantify attenuation bias.
+
+### Dilemma Choice Fixed Effect (FR‑011)
+
+- The primary model includes `choice_type` (e.g., “save_many”, “save_few”) as a fixed effect.
+- `dilemma_id` is **not** entered as a fixed effect to avoid collinearity with the derived `dilemma_complexity` score (see scientific_soundness‑d6ea48e7).
+
+### Non‑Linearity Test Consumer Step (Task T026)
+
+- After fitting linear, quadratic, and spline models, the script computes **AIC**, **BIC**, and a **Wald test** for the joint significance of the linear and quadratic terms.
+- Results are saved to `results/robustness/nonlinearity_comparison.json`.
+
+### Efficient Spatial‑Temporal Matching (Addresses data_resources‑7cd66e3b)
+
+- ERA5 grid points are loaded into a **KD‑Tree** (via `scipy.spatial.cKDTree`).
+- Moral Machine data are processed in **1‑million‑row chunks**; each chunk queries the KD‑Tree for the nearest grid point, checks the temporal window (≤ 2 h), and records the match.
+- This chunked, indexed approach keeps peak memory < 5 GB.
+
+### Verified Dataset URLs (Addresses data_resources‑9ee0b9aa & data_resources‑ea62ba82)
+
+- **Moral Machine**: `https://huggingface.co/datasets/moral-machine/moral-machine` (verified via Reference‑Validator).
+- **ERA Hourly (recent years)**: accessed through the Copernicus Climate Data Store API (`). This source provides the required temporal coverage and hourly resolution.
+
+## Constitution Check
+
+| Principle | Compliance Status | Implementation Detail |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | **COMPLIANT** | Random seeds pinned; `requirements.txt` version‑locked; data fetched from canonical URLs each run. |
+| **II. Verified Accuracy** | **COMPLIANT** | All external URLs verified; checksum validation before ingestion. |
+| **III. Data Hygiene** | **COMPLIANT** | Raw data immutable; each transformation writes new files; checksums recorded; PII scan enforced. |
+| **IV. Single Source of Truth** | **COMPLIANT** | Figures and statistics trace to `data/processed/merged_dataset.parquet` and scripts in `code/`. |
+| **V. Versioning Discipline** | **COMPLIANT** | Artifact hashes stored in project state; any logic change bumps version. |
+| **VI. Dataset Alignment Integrity** | **COMPLIANT** | `results/logs/match_log.csv` records station ID and timestamp for every successful match; `exclusion_log.csv` records all exclusions. |
+| **VII. Statistical Modeling Transparency** | **COMPLIANT** | Scripts list all fixed/random effects; diagnostics and LRT results saved in `results/`; robustness comparisons saved as JSON. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-ambient-temp-moral-speed/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│ ├── exclusion_log.schema.yaml
+│ ├── merged_dataset.schema.yaml
+│ ├── model_output.schema.yaml
+│ └── moral_temperature.schema.yaml
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-743-ambient-temperature-influence-on-moral-d/
+├── data/
+│ ├── raw/
+│ │ └── (downloaded files)
+│ └── processed/
+│ └── merged_dataset.parquet
+├── code/
+│ ├── ingestion.py # Download, validation, matching, filtering, logging
+│ ├── modeling.py # Scalable OLS/clustered SE, optional LMM/GLMM, diagnostics
+│ ├── robustness.py # Sensitivity analyses, non‑linearity tests, indoor/outdoor proxy
+│ └── utils.py # Helpers for distance, time parsing, KD‑Tree handling
+├── results/
+│ ├── logs/
+│ │ ├── exclusion_log.csv
+│ │ └── match_log.csv
+│ ├── figures/
+│ │ ├── residuals_qq.png
+│ │ ├── residuals_fitted.png
+│ │ └── effect_plots/
+│ └── models/
+│ └── model_summary.json
+├── tests/
+│ ├── unit/
+│ │ └── test_ingestion.py
+│ └── integration/
+│ └── test_modeling.py
+└── requirements.txt
+```
+
+**Structure Decision**: Single‑project layout keeps the pipeline simple and reproducible. All heavy I/O is streamed or chunked to respect the CI memory limits.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |

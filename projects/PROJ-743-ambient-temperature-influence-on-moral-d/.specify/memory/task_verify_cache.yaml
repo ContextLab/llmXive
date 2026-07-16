@@ -1,0 +1,69 @@
+T002:
+  c: false
+  h: 74a911694d7579f6da65aaa6ee89f9edf134704a0c2ac0e4e29c4f1613fb0147
+  r: "The log file exists and records a \u201CSuccessfully fetched\u201D message,\
+    \ but the expected output file `data/raw/era5_sample.h5` is missing, indicating\
+    \ the script was not actually run or did not produce the required data. Moreover,\
+    \ the script only requests data for a two\u2011day window in 2016 rather than\
+    \ the full 2016\u20112019 period specified in the task. Both the missing sample\
+    \ file and the insufficient request range need to be fixed."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`code/`, `data/raw/`, `data/processed/`, `results/figures/`,
+    `results/logs/`, `results/stats/`, `tests/`) actually exist; without such artifacts
+    the task cannot be confirmed as completed.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or related setup scripts were presented.
+    Without these artifacts, the requirement to configure ruff/flake8 and Black cannot
+    be verified as fulfilled.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or directory structure was presented that creates a\
+    \ logging system writing data\u2011quality logs and model\u2011diagnostic files\
+    \ to `results/logs/`. Without such artifacts, we cannot confirm the logging infrastructure\
+    \ exists or functions as required. The implementer must add the logging setup\
+    \ (e.g., Python logging config, log\u2011file creation, and example log entries)\
+    \ and show the `results/logs/` directory populated."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files, test scripts, or documentation for CPU\u2011\
+    only execution and stratified sampling were provided; the only evidence shown\
+    \ is the project specification, which does not contain the required unit\u2011\
+    test framework artifacts. The implementer must add the pytest setup (e.g., `pytest.ini`\
+    \ or `conftest.py`), example tests, and configuration ensuring CPU\u2011only runs\
+    \ and stratified sampling behavior."
+T017:
+  c: false
+  h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
+  r: "The provided `code/ingestion.py` is truncated and does not show any logic that\
+    \ loads the dataset, filters out records with missing location data or response\
+    \ times outside the 100\u202Fms\u201310\u202F000\u202Fms range, or writes excluded\
+    \ records to `results/logs/exclusion_log.csv`. Moreover, the `exclusion_log.csv`\
+    \ file contains only a header and no logged exclusions, indicating the required\
+    \ logging is not implemented. The task\u2019s functional requirements are therefore\
+    \ not satisfied."
+T019:
+  c: false
+  h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
+  r: "The provided `code/ingestion.py` is truncated and does not contain any geospatial\
+    \ matching logic, nor does it set a `match_quality` field or log records with\
+    \ the exact reason \u201Cdistance > 100km\u201D. The `results/logs/exclusion_log.csv`\
+    \ file only has a header and no entries reflecting such exclusions. Implement\
+    \ the full matching routine, add the low\u2011quality flag, and write detailed\
+    \ exclusion rows to the log."
+T020:
+  c: false
+  h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
+  r: "The provided `code/ingestion.py` snippet does not show any implementation of\
+    \ time\u2011based linear interpolation with a \u22642\u202Fhour gap rule, nor\
+    \ does it contain logic to exclude records with larger gaps and write detailed\
+    \ reasons to `results/logs/exclusion_log.csv`. The exclusion log file only contains\
+    \ a header and no actual exclusion entries. Consequently, the required functionality\
+    \ and logging are missing."
