@@ -1,263 +1,267 @@
-"""
-Preprocessing module for Grain Boundary Diffusivity pipeline.
-
-This module handles:
-1. Loading parsed geometry data
-2. Validating required features
-3. Tagging metadata features
-4. Enforcing minimum record constraints (n >= 500)
-5. Saving cleaned datasets
-
-Specific to T037:
-- Explicitly logs counts of excluded records due to missing Σ value or boundary plane normal.
-- Verifies these counts are non-zero if the dataset is incomplete (transparency).
-"""
-
 import logging
 import sys
 import os
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+
 import pandas as pd
 import numpy as np
 
-# Import local utilities
-from utils import setup_logging
+from models.grain_boundary_record import GrainBoundaryRecord
+from utils import setup_logging, load_metadata, update_metadata_entry, save_metadata, raise_data_insufficiency
 from error_handling import DataInsufficiencyError, exit_on_insufficiency
+from data_streamer import stream_data_source
 
 # Configure logging
-logger = setup_logging("preprocess")
+logger = setup_logging(__name__)
 
-# Required features for the model
-REQUIRED_FEATURES = [
-    "misorientation_angle",
-    "rodrigues_x", "rodrigues_y", "rodrigues_z",
-    "boundary_plane_h", "boundary_plane_k", "boundary_plane_l",
-    "sigma_value",
-    "temperature",
-    "composition",
-    "diffusivity",
-    "boundary_width",
-    "excess_volume",
-    "simulation_method",
-    "potential_id"
-]
+# Paths
+PROJECT_ROOT = Path(__file__).parent.parent
+PARSED_GEOMETRY_PATH = PROJECT_ROOT / "data" / "processed" / "parsed_geometry.parquet"
+CLEANED_DATASET_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_dataset.parquet"
+EXCLUSION_REPORT_PATH = PROJECT_ROOT / "artifacts" / "reports" / "exclusion_report.json"
+METADATA_PATH = PROJECT_ROOT / "data" / "metadata.yaml"
+SAMPLE_CONFIG_PATH = PROJECT_ROOT / "data" / "sample_config.yaml"
 
-# Features specifically monitored for T037 transparency
-MONITORED_MISSING_FEATURES = ["sigma_value", "boundary_plane_h", "boundary_plane_k", "boundary_plane_l"]
-
-def load_parsed_data(input_path: str) -> pd.DataFrame:
-    """
-    Load parsed geometry data from parquet file.
-
-    Args:
-        input_path: Path to the parquet file (e.g., data/processed/parsed_geometry.parquet)
-
-    Returns:
-        DataFrame containing parsed geometry features
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Parsed geometry file not found: {input_path}")
-
-    logger.info(f"Loading parsed data from {input_path}")
-    try:
-        df = pd.read_parquet(path)
-        logger.info(f"Loaded {len(df)} records from {input_path}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+def load_parsed_data() -> pd.DataFrame:
+    """Load the parsed geometry data from the parquet file."""
+    if not PARSED_GEOMETRY_PATH.exists():
+        raise FileNotFoundError(f"Parsed geometry file not found at {PARSED_GEOMETRY_PATH}. Run T010 first.")
+    
+    logger.info(f"Loading parsed geometry data from {PARSED_GEOMETRY_PATH}")
+    df = pd.read_parquet(PARSED_GEOMETRY_PATH)
+    logger.info(f"Loaded {len(df)} records from parsed geometry file.")
+    return df
 
 def validate_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
     Filter records with missing required features.
-
-    This function:
-    1. Identifies missing values in required features.
-    2. Drops rows with any missing required feature.
-    3. Logs the count of excluded records, specifically highlighting
-       missing Σ value and boundary plane normal components (T037 requirement).
-
-    Args:
-        df: Input DataFrame
-
+    
+    Required features:
+    - misorientation_angle
+    - boundary_plane_normal (h, k, l)
+    - sigma_value (calculated or extracted)
+    - temperature
+    - composition
+    - diffusivity
+    - boundary_width
+    - excess_volume
+    
     Returns:
-        Tuple of (cleaned DataFrame, dict of missing counts per feature)
+        Tuple of (cleaned_df, exclusion_counts)
     """
-    logger.info("Validating features and filtering missing values...")
-    initial_count = len(df)
-    missing_counts = {}
-
-    # Check for missing values in required features
-    for feature in REQUIRED_FEATURES:
-        if feature not in df.columns:
-            logger.warning(f"Required feature '{feature}' not found in dataset.")
-            missing_counts[feature] = initial_count # All rows missing this
+    required_features = [
+        'misorientation_angle', 
+        'boundary_plane_normal_h', 'boundary_plane_normal_k', 'boundary_plane_normal_l',
+        'sigma_value',
+        'temperature', 
+        'composition', 
+        'diffusivity', 
+        'boundary_width', 
+        'excess_volume'
+    ]
+    
+    exclusion_counts = {feature: 0 for feature in required_features}
+    total_records = len(df)
+    
+    # Track which rows are dropped and why
+    dropped_indices = set()
+    exclusion_details = {feature: [] for feature in required_features}
+    
+    # Check each required feature
+    for feature in required_features:
+        if feature in ['boundary_plane_normal_h', 'boundary_plane_normal_k', 'boundary_plane_normal_l']:
+            # Check if any of the normal components are missing
+            mask = df[feature].isna()
+            missing_indices = df[mask].index.tolist()
+            exclusion_counts[feature] = len(missing_indices)
+            for idx in missing_indices:
+                if idx not in dropped_indices:
+                    dropped_indices.add(idx)
+                    exclusion_details[feature].append(idx)
         else:
-            count_missing = df[feature].isna().sum()
-            if count_missing > 0:
-                missing_counts[feature] = count_missing
-                logger.warning(f"Feature '{feature}' has {count_missing} missing values.")
-
-    # T037: Explicitly log counts for monitored features (Σ value and boundary plane normal)
-    # Note: Boundary plane normal is represented by h, k, l. If any are missing, the record is invalid.
-    monitored_missing_summary = {}
-
-    # Check Sigma
-    if "sigma_value" in df.columns:
-        sigma_missing = df["sigma_value"].isna().sum()
-        monitored_missing_summary["sigma_value"] = sigma_missing
-        if sigma_missing > 0:
-            logger.warning(f"DATA FILTERING TRANSPARENCY: {sigma_missing} records excluded due to missing 'sigma_value'.")
-        else:
-            logger.info("DATA FILTERING TRANSPARENCY: No records excluded due to missing 'sigma_value'.")
-
-    # Check Boundary Plane Normal (h, k, l)
-    plane_features = ["boundary_plane_h", "boundary_plane_k", "boundary_plane_l"]
-    if all(f in df.columns for f in plane_features):
-        # A record is invalid if ANY of h, k, l is missing
-        plane_mask = df[plane_features].isna().any(axis=1)
-        plane_missing_count = plane_mask.sum()
-        monitored_missing_summary["boundary_plane_normal"] = plane_missing_count
-
-        if plane_missing_count > 0:
-            logger.warning(f"DATA FILTERING TRANSPARENCY: {plane_missing_count} records excluded due to missing 'boundary plane normal' (h, k, or l).")
-        else:
-            logger.info("DATA FILTERING TRANSPARENCY: No records excluded due to missing 'boundary plane normal'.")
-    else:
-        logger.error("Boundary plane normal columns (h, k, l) missing from dataset.")
-        monitored_missing_summary["boundary_plane_normal"] = initial_count
-
-    # Perform the actual filtering
-    # Drop rows where ANY required feature is missing
-    valid_df = df.dropna(subset=REQUIRED_FEATURES)
-    final_count = len(valid_df)
-    excluded_count = initial_count - final_count
-
-    logger.info(f"Filtering complete. Excluded {excluded_count} records due to missing features.")
-    logger.info(f"Remaining valid records: {final_count}")
-
-    return valid_df, missing_counts
+            mask = df[feature].isna()
+            missing_indices = df[mask].index.tolist()
+            exclusion_counts[feature] = len(missing_indices)
+            for idx in missing_indices:
+                if idx not in dropped_indices:
+                    dropped_indices.add(idx)
+                    exclusion_details[feature].append(idx)
+    
+    # Also specifically check for missing Sigma values and boundary plane normals as requested by T037
+    sigma_missing_mask = df['sigma_value'].isna()
+    boundary_plane_missing_mask = (
+        df['boundary_plane_normal_h'].isna() | 
+        df['boundary_plane_normal_k'].isna() | 
+        df['boundary_plane_normal_l'].isna()
+    )
+    
+    sigma_missing_count = sigma_missing_mask.sum()
+    boundary_plane_missing_count = boundary_plane_missing_mask.sum()
+    
+    # Log the specific counts for T037 transparency
+    logger.info(f"Records excluded due to missing Sigma value: {sigma_missing_count}")
+    logger.info(f"Records excluded due to missing boundary plane normal: {boundary_plane_missing_count}")
+    
+    # Verify these counts are non-zero if the dataset is incomplete (transparency check)
+    if sigma_missing_count > 0 or boundary_plane_missing_count > 0:
+        logger.warning(
+            f"Data filtering found incomplete records: {sigma_missing_count} missing Sigma, "
+            f"{boundary_plane_missing_count} missing boundary plane normal. "
+            f"Total records dropped: {len(dropped_indices)}."
+        )
+    
+    # Drop rows with any missing required features
+    cleaned_df = df.drop(index=list(dropped_indices))
+    final_count = len(cleaned_df)
+    
+    logger.info(f"Validation complete. Started with {total_records} records, "
+                f"dropped {len(dropped_indices)}, kept {final_count} records.")
+    
+    return cleaned_df, exclusion_counts
 
 def tag_metadata_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Tag simulation method and potential ID as features.
-
-    Args:
-        df: Input DataFrame
-
-    Returns:
-        DataFrame with metadata features tagged (ensuring they are in correct format)
+    Tag simulation_method and potential_id as features.
+    
+    This function ensures that metadata fields are properly tagged for feature engineering.
     """
-    logger.info("Tagging metadata features...")
-
-    # Ensure simulation_method and potential_id exist and are strings
-    if "simulation_method" in df.columns:
-        df["simulation_method"] = df["simulation_method"].astype(str)
-    else:
-        logger.warning("Column 'simulation_method' not found. Adding placeholder.")
-        df["simulation_method"] = "unknown"
-
-    if "potential_id" in df.columns:
-        df["potential_id"] = df["potential_id"].astype(str)
-    else:
-        logger.warning("Column 'potential_id' not found. Adding placeholder.")
-        df["potential_id"] = "unknown"
-
+    # Ensure simulation_method column exists, default to 'unknown' if not present
+    if 'simulation_method' not in df.columns:
+        df['simulation_method'] = 'unknown'
+    
+    # Ensure potential_id column exists, default to 'unknown' if not present
+    if 'potential_id' not in df.columns:
+        df['potential_id'] = 'unknown'
+    
+    logger.info("Tagged simulation_method and potential_id as features.")
     return df
 
-def enforce_minimum_records(df: pd.DataFrame, min_records: int = 500) -> None:
+def apply_sampling(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Enforce the minimum record constraint (n >= 500).
-
-    If the dataset has fewer than min_records after filtering,
-    raises DataInsufficiencyError with detailed logging.
-
-    Args:
-        df: Cleaned DataFrame
-        min_records: Minimum required records (default 500)
-
-    Raises:
-        DataInsufficiencyError: If record count is insufficient
+    Apply deterministic sampling if dataset is too large.
+    
+    Reads sampling strategy from data/sample_config.yaml.
     """
-    count = len(df)
-    if count < min_records:
-        # Identify which features caused the most exclusions
-        # This logic assumes we have the missing_counts from validate_features,
-        # but since we are in a separate function, we re-calculate or pass context.
-        # For robustness, we log the current state.
-        missing_features = [col for col in REQUIRED_FEATURES if df[col].isna().any()]
+    if not SAMPLE_CONFIG_PATH.exists():
+        logger.warning("Sample config not found. Skipping sampling.")
+        return df
+    
+    try:
+        import yaml
+        with open(SAMPLE_CONFIG_PATH, 'r') as f:
+            config = yaml.safe_load(f)
         
+        sampling_strategy = config.get('sampling', {})
+        strategy_type = sampling_strategy.get('type', 'none')
+        
+        if strategy_type == 'none':
+            return df
+        
+        if strategy_type == 'first_n':
+            n = sampling_strategy.get('n', 1000)
+            logger.info(f"Applying 'first_n' sampling: keeping first {n} rows.")
+            return df.head(n)
+        
+        elif strategy_type == 'random_sample':
+            seed = sampling_strategy.get('seed', 42)
+            n = sampling_strategy.get('n', 1000)
+            logger.info(f"Applying 'random_sample' with seed {seed}, keeping {n} rows.")
+            np.random.seed(seed)
+            return df.sample(n=min(n, len(df)), random_state=seed)
+        
+        else:
+            logger.warning(f"Unknown sampling strategy: {strategy_type}. Skipping.")
+            return df
+            
+    except Exception as e:
+        logger.error(f"Error applying sampling: {e}")
+        return df
+
+def enforce_minimum_records(df: pd.DataFrame, min_records: int = 500) -> pd.DataFrame:
+    """
+    Enforce the n >= 500 constraint.
+    
+    If fewer than min_records remain, log the error and exit with code 1.
+    """
+    if len(df) < min_records:
         error_msg = (
-            f"Data Insufficiency: Retrieved (initial) records not tracked here, "
-            f"Valid {count}, Required {min_records}. "
-            f"Missing features causing insufficiency: {missing_features if missing_features else 'Unknown (all valid but low count)'}"
+            f"Data Insufficiency: Retrieved {len(df)}, Valid {len(df)}, Required {min_records}. "
+            f"Missing features: See exclusion report for details."
         )
-        
         logger.error(error_msg)
         raise DataInsufficiencyError(error_msg)
     
-    logger.info(f"Data sufficiency check passed: {count} >= {min_records}")
+    logger.info(f"Data sufficiency check passed: {len(df)} records >= {min_records} required.")
+    return df
 
-def save_cleaned_data(df: pd.DataFrame, output_path: str) -> None:
+def write_exclusion_report(exclusion_counts: Dict[str, int], dropped_indices: List[int] = None):
     """
-    Save cleaned dataset to parquet file.
-
-    Args:
-        df: Cleaned DataFrame
-        output_path: Output path for the parquet file
+    Write the exclusion count and details to artifacts/reports/exclusion_report.json.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    EXCLUSION_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    report = {
+        "total_excluded": sum(exclusion_counts.values()),
+        "exclusion_counts_by_feature": exclusion_counts,
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    if dropped_indices:
+        report["dropped_indices_sample"] = dropped_indices[:100]  # Limit sample size
+        report["total_dropped_indices"] = len(dropped_indices)
+    
+    with open(EXCLUSION_REPORT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Exclusion report written to {EXCLUSION_REPORT_PATH}")
 
-    logger.info(f"Saving cleaned dataset to {output_path}")
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
+def save_cleaned_data(df: pd.DataFrame):
+    """Save the cleaned dataset to parquet."""
+    CLEANED_DATASET_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(CLEANED_DATASET_PATH, index=False)
+    logger.info(f"Cleaned dataset saved to {CLEANED_DATASET_PATH} ({len(df)} records).")
 
 def main():
-    """
-    Main entry point for the preprocessing pipeline.
-    Executes the full preprocessing workflow:
-    1. Load parsed data
-    2. Validate and filter features (with T037 logging)
-    3. Tag metadata
-    4. Enforce minimum records
-    5. Save cleaned data
-    """
-    # Configuration paths
-    input_path = "data/processed/parsed_geometry.parquet"
-    output_path = "data/processed/cleaned_dataset.parquet"
-    min_records = 500
-
+    """Main entry point for the preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline (T011)...")
+    
     try:
-        # 1. Load
-        df = load_parsed_data(input_path)
-
-        # 2. Validate & Filter (T037: Logs missing counts explicitly)
-        df_clean, missing_counts = validate_features(df)
-
-        # 3. Tag Metadata
-        df_clean = tag_metadata_features(df_clean)
-
-        # 4. Enforce Minimum
-        enforce_minimum_records(df_clean, min_records)
-
-        # 5. Save
-        save_cleaned_data(df_clean, output_path)
-
+        # 1. Load parsed data
+        df = load_parsed_data()
+        
+        # 2. Validate features and get exclusion counts
+        cleaned_df, exclusion_counts = validate_features(df)
+        
+        # 3. Tag metadata features
+        cleaned_df = tag_metadata_features(cleaned_df)
+        
+        # 4. Apply sampling if needed
+        cleaned_df = apply_sampling(cleaned_df)
+        
+        # 5. Enforce minimum record count
+        cleaned_df = enforce_minimum_records(cleaned_df)
+        
+        # 6. Write exclusion report
+        # Note: We need to reconstruct dropped_indices for the report if we want to include them
+        # For now, we pass the counts
+        write_exclusion_report(exclusion_counts)
+        
+        # 7. Save cleaned data
+        save_cleaned_data(cleaned_df)
+        
         logger.info("Preprocessing pipeline completed successfully.")
         return 0
-
+        
     except DataInsufficiencyError as e:
-        logger.error(f"Pipeline halted due to data insufficiency: {e}")
+        logger.error(f"Data insufficiency error: {e}")
         exit_on_insufficiency(str(e))
-        return 1
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
         return 1
     except Exception as e:
         logger.error(f"Unexpected error during preprocessing: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 if __name__ == "__main__":

@@ -4,43 +4,50 @@ import subprocess
 import json
 import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-# Configure logging to output to both console and file
-def setup_logging(log_file: str):
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file, mode='w'),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('artifacts/reports/quickstart_validation.log', mode='w')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def check_directory_structure(log):
+def setup_logging():
+    """Ensure logging is configured."""
+    return logger
+
+def check_directory_structure() -> bool:
     """Verify required directory structure exists."""
-    log.info("Checking directory structure...")
     required_dirs = [
-        "code", "data/raw", "data/processed", "models",
-        "artifacts/reports", "artifacts/figures", "tests"
+        'code', 'data', 'data/raw', 'data/processed',
+        'models', 'artifacts', 'artifacts/figures', 'artifacts/reports',
+        'tests', 'tests/unit', 'tests/integration'
     ]
     missing = []
     for d in required_dirs:
-        if not Path(d).is_dir():
+        if not Path(d).exists():
             missing.append(d)
     
     if missing:
-        log.error(f"Missing directories: {missing}")
+        logger.error(f"Missing directories: {missing}")
         return False
-    log.info("Directory structure OK.")
+    
+    logger.info("Directory structure verified.")
     return True
 
-def check_required_files(log):
-    """Verify essential configuration and data files exist."""
-    log.info("Checking required files...")
+def check_required_files() -> bool:
+    """Verify required configuration and data files exist."""
     required_files = [
-        "requirements.txt", "config.yaml", "data/metadata.yaml",
-        "specs/001-grain-boundary-diffusivity/spec.md",
-        "specs/001-grain-boundary-diffusivity/plan.md"
+        'config.yaml', 'requirements.txt', 'metadata.yaml',
+        'data/metadata.yaml', 'models/best_model.json',
+        'data/processed/cleaned_dataset.parquet',
+        'artifacts/reports/training_metrics.json',
+        'artifacts/reports/validation_report.json'
     ]
     missing = []
     for f in required_files:
@@ -48,185 +55,213 @@ def check_required_files(log):
             missing.append(f)
     
     if missing:
-        log.error(f"Missing files: {missing}")
+        logger.error(f"Missing required files: {missing}")
         return False
-    log.info("Required files OK.")
-    return True
-
-def check_dependencies(log):
-    """Verify critical Python dependencies are installed."""
-    log.info("Checking dependencies...")
-    deps = ["pandas", "numpy", "scikit-learn", "xgboost", "pymatgen", "requests", "shap", "psutil", "python-dotenv"]
-    missing = []
-    for dep in deps:
-        try:
-            __import__(dep)
-        except ImportError:
-            missing.append(dep)
     
-    if missing:
-        log.error(f"Missing dependencies: {missing}")
-        return False
-    log.info("Dependencies OK.")
+    logger.info("Required files verified.")
     return True
 
-def check_pipeline_scripts(log):
-    """Verify all main pipeline scripts exist and are syntactically valid."""
-    log.info("Checking pipeline scripts...")
-    scripts = [
-        "code/download.py", "code/geometry_parser.py", "code/preprocess.py",
-        "code/diagnostics.py", "code/train.py", "code/validate.py",
-        "code/interpret.py"
+def check_dependencies() -> bool:
+    """Verify critical dependencies are installed."""
+    critical_packages = [
+        'pandas', 'numpy', 'scikit-learn', 'xgboost', 
+        'shap', 'matplotlib', 'pymatgen', 'psutil'
     ]
     missing = []
-    for script in scripts:
-        if not Path(script).exists():
-            missing.append(script)
-        else:
-            # Check syntax
-            try:
-                with open(script, 'r') as f:
-                    compile(f.read(), script, 'exec')
-            except SyntaxError as e:
-                log.error(f"Syntax error in {script}: {e}")
-                return False
+    for pkg in critical_packages:
+        try:
+            __import__(pkg)
+        except ImportError:
+            missing.append(pkg)
     
     if missing:
-        log.error(f"Missing scripts: {missing}")
+        logger.error(f"Missing dependencies: {missing}")
         return False
-    log.info("Pipeline scripts OK.")
+    
+    logger.info("Dependencies verified.")
     return True
 
-def run_pipeline_step(script_name: str, log) -> bool:
-    """Execute a specific pipeline script and check for success."""
-    log.info(f"Running pipeline step: {script_name}...")
+def check_pipeline_scripts() -> bool:
+    """Verify all pipeline scripts exist and are syntactically valid."""
+    scripts = [
+        'code/download.py', 'code/geometry_parser.py', 'code/preprocess.py',
+        'code/diagnostics.py', 'code/train.py', 'code/validate.py',
+        'code/interpret.py', 'code/data_streamer.py'
+    ]
+    missing_or_invalid = []
+    
+    for script in scripts:
+        path = Path(script)
+        if not path.exists():
+            missing_or_invalid.append(f"{script} (missing)")
+            continue
+        
+        # Check syntax
+        try:
+            with open(path, 'r') as f:
+                compile(f.read(), path, 'exec')
+        except SyntaxError as e:
+            missing_or_invalid.append(f"{script} (syntax error: {e})")
+    
+    if missing_or_invalid:
+        logger.error(f"Invalid pipeline scripts: {missing_or_invalid}")
+        return False
+    
+    logger.info("Pipeline scripts verified.")
+    return True
+
+def run_pipeline_step(step_name: str, script_path: str) -> bool:
+    """Run a specific pipeline step and check for success."""
+    logger.info(f"Running pipeline step: {step_name}")
     try:
         result = subprocess.run(
-            [sys.executable, f"code/{script_name}"],
+            [sys.executable, script_path],
             capture_output=True,
             text=True,
-            timeout=300  # 5 minutes timeout
+            timeout=300,  # 5 minute timeout per step
+            cwd=Path.cwd()
         )
         
-        if result.returncode != 0:
-            log.error(f"Script {script_name} failed with return code {result.returncode}")
-            if result.stderr:
-                log.error(f"Stderr: {result.stderr}")
-            if result.stdout:
-                log.error(f"Stdout: {result.stdout}")
+        if result.returncode == 0:
+            logger.info(f"Step {step_name} completed successfully.")
+            return True
+        else:
+            logger.error(f"Step {step_name} failed with return code {result.returncode}")
+            logger.error(f"Stdout: {result.stdout}")
+            logger.error(f"Stderr: {result.stderr}")
             return False
-        
-        log.info(f"Script {script_name} completed successfully.")
-        return True
     except subprocess.TimeoutExpired:
-        log.error(f"Script {script_name} timed out.")
+        logger.error(f"Step {step_name} timed out after 300 seconds")
         return False
     except Exception as e:
-        log.error(f"Error running {script_name}: {e}")
+        logger.error(f"Step {step_name} raised exception: {str(e)}")
         return False
 
-def check_output_artifacts(log) -> bool:
-    """Verify that expected output artifacts from the pipeline exist."""
-    log.info("Checking output artifacts...")
-    # Check for artifacts that should exist after a full run
-    # Note: We check for the existence of the artifacts directory structure
-    # and key files that would be generated by the pipeline components.
-    artifacts_to_check = [
-        "artifacts/reports/training_metrics.json",
-        "artifacts/reports/validation_report.json",
-        "artifacts/reports/collinearity_diagnostic.json",
-        "artifacts/figures/shap_summary.png", # Or .pdf depending on implementation
-        "models/best_model.json"
+def check_output_artifacts() -> bool:
+    """Verify that pipeline execution produced expected output artifacts."""
+    expected_artifacts = [
+        ('data/raw/', '.cif', 'CIF files'),
+        ('data/processed/', '.parquet', 'Parquet files'),
+        ('models/', '.json', 'Model files'),
+        ('artifacts/reports/', '.json', 'Report files'),
+        ('artifacts/figures/', '.png', 'Figure files')
     ]
     
-    # We cannot guarantee these exist if the pipeline hasn't been run yet,
-    # but we can check if the pipeline *can* produce them by checking the
-    # existence of the output directories.
-    output_dirs = [
-        "artifacts/reports", "artifacts/figures", "models"
-    ]
+    missing = []
+    for base, ext, desc in expected_artifacts:
+        base_path = Path(base)
+        if not base_path.exists():
+            missing.append(f"{base} (directory missing)")
+            continue
+        
+        files = list(base_path.glob(f'*{ext}'))
+        if not files:
+            missing.append(f"{base} (no {desc} found)")
     
-    missing_dirs = [d for d in output_dirs if not Path(d).is_dir()]
-    if missing_dirs:
-        log.error(f"Missing output directories: {missing_dirs}")
+    if missing:
+        logger.error(f"Missing output artifacts: {missing}")
         return False
     
-    log.info("Output directories OK. (Artifacts generation depends on data availability and successful pipeline execution).")
+    logger.info("Output artifacts verified.")
     return True
 
-def validate_output_content(log) -> bool:
-    """Validate content of generated reports if they exist."""
-    log.info("Validating output content...")
-    # Check training_metrics.json
-    metrics_file = Path("artifacts/reports/training_metrics.json")
-    if metrics_file.exists():
+def validate_output_content() -> bool:
+    """Validate content of key output files."""
+    # Validate training metrics
+    metrics_path = Path('artifacts/reports/training_metrics.json')
+    if metrics_path.exists():
         try:
-            with open(metrics_file, 'r') as f:
-                data = json.load(f)
-            if 'r2' not in data or 'rmse' not in data:
-                log.error("training_metrics.json missing required keys (r2, rmse)")
+            with open(metrics_path, 'r') as f:
+                metrics = json.load(f)
+            
+            required_keys = ['r2', 'rmse', 'mape']
+            missing_keys = [k for k in required_keys if k not in metrics]
+            if missing_keys:
+                logger.error(f"training_metrics.json missing keys: {missing_keys}")
                 return False
-            log.info("training_metrics.json content valid.")
-        except json.JSONDecodeError:
-            log.error("training_metrics.json is not valid JSON")
+            
+            # Check R2 is within valid range
+            r2 = metrics.get('r2')
+            if r2 is not None and not (0 <= r2 <= 1):
+                logger.warning(f"R2 value {r2} outside expected range [0, 1]")
+            
+            logger.info("Training metrics validated.")
+        except Exception as e:
+            logger.error(f"Error validating training_metrics.json: {str(e)}")
             return False
     else:
-        log.warning("training_metrics.json not found (pipeline may not have been run)")
+        logger.error("training_metrics.json not found")
+        return False
     
-    # Check validation_report.json
-    val_file = Path("artifacts/reports/validation_report.json")
-    if val_file.exists():
+    # Validate validation report
+    val_path = Path('artifacts/reports/validation_report.json')
+    if val_path.exists():
         try:
-            with open(val_file, 'r') as f:
-                data = json.load(f)
-            if 'r2_mean' not in data:
-                log.error("validation_report.json missing r2_mean")
+            with open(val_path, 'r') as f:
+                val_report = json.load(f)
+            
+            required_keys = ['cv_r2_mean', 'cv_r2_std', 'bias_test_results']
+            missing_keys = [k for k in required_keys if k not in val_report]
+            if missing_keys:
+                logger.error(f"validation_report.json missing keys: {missing_keys}")
                 return False
-            log.info("validation_report.json content valid.")
-        except json.JSONDecodeError:
-            log.error("validation_report.json is not valid JSON")
+            
+            logger.info("Validation report validated.")
+        except Exception as e:
+            logger.error(f"Error validating validation_report.json: {str(e)}")
             return False
     else:
-        log.warning("validation_report.json not found (pipeline may not have been run)")
-        
+        logger.error("validation_report.json not found")
+        return False
+    
     return True
 
 def main():
-    log_file = "artifacts/reports/quickstart_validation.log"
-    setup_logging(log_file)
-    log = logging.getLogger(__name__)
-    
-    log.info("Starting Quickstart Validation...")
-    log.info("=" * 50)
-    
-    checks = [
-        ("Directory Structure", check_directory_structure),
-        ("Required Files", check_required_files),
-        ("Dependencies", check_dependencies),
-        ("Pipeline Scripts", check_pipeline_scripts),
-        ("Output Artifacts", check_output_artifacts),
-        ("Output Content", validate_output_content)
-    ]
+    """Run comprehensive quickstart validation."""
+    logger.info("=" * 60)
+    logger.info("Starting Quickstart Validation")
+    logger.info("=" * 60)
     
     all_passed = True
-    for name, func in checks:
-        try:
-            if not func(log):
-                all_passed = False
-                log.error(f"CHECK FAILED: {name}")
-            else:
-                log.info(f"CHECK PASSED: {name}")
-        except Exception as e:
-            all_passed = False
-            log.error(f"CHECK FAILED: {name} with exception: {e}")
     
-    log.info("=" * 50)
+    # Step 1: Directory structure
+    if not check_directory_structure():
+        all_passed = False
+    
+    # Step 2: Required files
+    if not check_required_files():
+        all_passed = False
+    
+    # Step 3: Dependencies
+    if not check_dependencies():
+        all_passed = False
+    
+    # Step 4: Pipeline scripts
+    if not check_pipeline_scripts():
+        all_passed = False
+    
+    # Step 5: Run pipeline steps (optional if artifacts exist)
+    # Only run if we want to verify end-to-end execution
+    # For validation, we check if artifacts exist and are valid
+    
+    # Step 6: Output artifacts
+    if not check_output_artifacts():
+        all_passed = False
+    
+    # Step 7: Content validation
+    if not validate_output_content():
+        all_passed = False
+    
+    logger.info("=" * 60)
     if all_passed:
-        log.info("VALIDATION SUCCESSFUL: All checks passed.")
-        sys.exit(0)
+        logger.info("Quickstart validation PASSED")
+        logger.info("All checks completed successfully.")
     else:
-        log.error("VALIDATION FAILED: One or more checks failed.")
-        sys.exit(1)
+        logger.error("Quickstart validation FAILED")
+        logger.error("One or more checks did not pass.")
+    logger.info("=" * 60)
+    
+    return 0 if all_passed else 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

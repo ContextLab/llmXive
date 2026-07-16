@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-117-quantifying-the-impact-of-grain-boundary",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/diagnostics.py (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_dataset.parquet; data/processed/parsed_geometry.parquet",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/download.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/preprocess.py\", line 21, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/diagnostics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/diagnostics.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/train.py\", line 8, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/validate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/validate.py\", line 14, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/interpret.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-117-quantifying-the-impact-of-grain-boundary/code/interpret.py\", line 16, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-16T06:44:27Z"
+}

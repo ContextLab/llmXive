@@ -1,3 +1,7 @@
+"""
+Utility functions for the grain boundary diffusivity project.
+Provides helpers for checksumming, logging, and random seed setting.
+"""
 import hashlib
 import logging
 import os
@@ -5,117 +9,110 @@ import random
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import yaml
+import sys
 
-# Standardized logging format configuration
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """
-    Configure logging for the project with a standardized format.
+    Configure and return a logger instance.
     
     Args:
-        log_file: Optional path to a log file. If provided, logs are written to both
-                  stdout and the file.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-    
+        level: Logging level.
+        
     Returns:
-        Configured logger instance named "llmXive".
+        Configured logger.
     """
-    logger = logging.getLogger("llmXive")
+    logger = logging.getLogger(__name__)
     logger.setLevel(level)
-
-    # Prevent adding duplicate handlers if function is called multiple times
-    if logger.handlers:
-        return logger
-
-    # Create formatter with standardized settings
-    formatter = logging.Formatter(
-        fmt=LOG_FORMAT,
-        datefmt=LOG_DATE_FORMAT
-    )
-
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    # File handler (optional)
-    if log_file:
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        
     return logger
 
-def compute_sha256(file_path: str) -> str:
+def compute_sha256(filepath: Path) -> str:
     """
     Compute SHA-256 checksum of a file.
     
     Args:
-        file_path: Path to the file to hash.
-    
+        filepath: Path to the file.
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal checksum string.
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def set_random_seed(seed: int = 42) -> None:
     """
-    Set random seed for reproducibility across numpy, random, and environment.
+    Set random seed for reproducibility.
     
     Args:
         seed: Integer seed value.
     """
     random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    # Note: numpy seed is typically set in scripts that import numpy directly
-    # to avoid circular imports in this utility module.
+    # Note: numpy and torch seeds should be set in respective modules
 
-def load_metadata(metadata_path: str) -> Dict[str, Any]:
+def load_metadata(filepath: Path) -> Dict[str, Any]:
     """
     Load metadata from a YAML file.
     
     Args:
-        metadata_path: Path to the metadata YAML file.
-    
+        filepath: Path to the metadata file.
+        
     Returns:
-        Dictionary containing metadata, or empty dict if file doesn't exist.
+        Dictionary of metadata.
     """
-    if not os.path.exists(metadata_path):
+    if not filepath.exists():
         return {}
-    with open(metadata_path, "r") as f:
+        
+    with open(filepath, 'r') as f:
         return yaml.safe_load(f) or {}
 
-def update_metadata_entry(metadata_path: str, key: str, value: Any) -> None:
+def update_metadata_entry(metadata: Dict[str, Any], key: str, value: Any) -> Dict[str, Any]:
     """
-    Update or add an entry in the metadata YAML file.
+    Update a specific entry in the metadata dictionary.
     
     Args:
-        metadata_path: Path to the metadata YAML file.
-        key: The key to update or add.
-        value: The value to assign to the key.
+        metadata: Metadata dictionary.
+        key: Key to update.
+        value: New value.
+        
+    Returns:
+        Updated metadata dictionary.
     """
-    metadata = load_metadata(metadata_path)
     metadata[key] = value
-    with open(metadata_path, "w") as f:
-        yaml.dump(metadata, f, default_flow_style=False)
+    return metadata
 
-def save_metadata(metadata: Dict[str, Any], metadata_path: str) -> None:
+def save_metadata(metadata: Dict[str, Any], filepath: Path) -> None:
     """
     Save metadata to a YAML file.
     
     Args:
-        metadata: Dictionary to save.
-        metadata_path: Path to the output YAML file.
+        metadata: Metadata dictionary.
+        filepath: Path to save the file.
     """
-    Path(metadata_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(metadata_path, "w") as f:
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w') as f:
         yaml.dump(metadata, f, default_flow_style=False)
+
+def raise_data_insufficiency(retrieved: int, required: int, missing_features: Optional[list] = None) -> None:
+    """
+    Raise a DataInsufficiencyError and exit.
+    
+    Args:
+        retrieved: Number of records retrieved.
+        required: Minimum required records.
+        missing_features: List of missing feature names.
+    """
+    from error_handling import exit_on_insufficiency
+    exit_on_insufficiency(retrieved, required, missing_features)

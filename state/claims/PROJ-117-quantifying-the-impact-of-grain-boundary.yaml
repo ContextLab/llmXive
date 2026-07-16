@@ -1600,3 +1600,646 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T06:14:55Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 0
+  canonical: retrieve at least 500 valid records after filtering
+  claim_id: c_6abc5227
+  context: 'Search Strategy: Use query parameters keywords=["grain boundary", "bicrystal"]
+    and properties=["diffusivity"]. Volume Goal: Aim to retrieve a volume of raw records
+    sufficient to yield at least 500 valid records after filtering (per FR-001).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P672: F01.658.500'
+      source_id: Q4503831
+      url: https://www.wikidata.org/wiki/Q4503831
+      value: '500'
+    filled: true
+  kind: magnitude
+  raw_text: Aim to retrieve a volume of raw records sufficient to yield at least 500
+    valid records after filtering.
+  resolved_value: '500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:52:47Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: pipeline raises validation error if R2 threshold citation is missing
+  claim_id: c_d90de52a
+  context: 'MANDATORY REQUIREMENT: The config.yaml MUST contain a non-empty string
+    in the thresholds.r2.citation field referencing the community-standard benchmark...
+    The pipeline MUST raise a validation error if this field is missing or empty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_raises_validation_error_if_R2_threshold_citation_is
+  kind: entity_fact
+  raw_text: "The pipeline MUST raise a validation error if the R\xB2 threshold citation\
+    \ field is missing or empty."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:53:28Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: define R2 sensitivity sweep range as 0.70, 0.75, 0.80
+  claim_id: c_6ab58679
+  context: Define the sensitivity sweep range in thresholds.r2.sweep_range as {0.70
+    (moderate), 0.75 (high), 0.80 (very high)} to strictly satisfy the spec's {moderate,
+    high, very high} requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the sensitivity sweep range in thresholds.r2.sweep_range as {0.70
+    (moderate), 0.75 (high), 0.80 (very high)}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:53:45Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: use 70/15/15 train/validation/test split
+  claim_id: c_31ffcfd7
+  context: 'Implement code/train_tuning.py to: Perform a 70/15/15 train/validation/test
+    split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training set split ratio is 70/15/15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:54:39Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: use RandomizedSearchCV with k=5 for XGBoost tuning
+  claim_id: c_6da5b523
+  context: Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning on the
+    training set only.
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: XGBoost hyperparameter tuning uses RandomizedSearchCV with k=5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:54:39Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost max_depth search space is 3 to 10
+  claim_id: c_ddc5b23f
+  context: 'Search space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators
+    [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The XGBoost max_depth search space is [3, 10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:55:00Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost learning_rate search space is 0.01 to 0.3
+  claim_id: c_1edbd055
+  context: 'Search space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators
+    [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The XGBoost learning_rate search space is [0.01, 0.3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:56:03Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost n_estimators search space is 50 to 300
+  claim_id: c_80296ddc
+  context: 'Search space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators
+    [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The XGBoost n_estimators search space is [50, 300].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:56:23Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: misorientation and Sigma value relationship is descriptive not causal
+  claim_id: c_3923d79b
+  context: "Unconditionally write a framing statement for the joint relationship of\
+    \ misorientation and \u03A3 value in artifacts/reports/training_metrics.json stating:\
+    \ \"The relationship between misorientation and \u03A3 value is descriptive, not\
+    \ causal, as \u03A3 is derived from misorientation.\""
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Misorientation_and_Sigma_value_relationship_is_descriptive_n
+  kind: entity_fact
+  raw_text: "The relationship between misorientation and \u03A3 value is described\
+    \ as descriptive, not causal."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:56:43Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: perform k=5 cross-validation on held-out test set
+  claim_id: c_6f6002ed
+  context: Perform k=5 cross-validation on the held-out test set (repeated split)
+    to assess generalization stability and measure test-set performance variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation uses k=5 folds on the held-out test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:58:23Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: standard deviation of R2 across 5 folds must be less than or equal to
+    0.05
+  claim_id: c_708cc1e5
+  context: "Report average R\xB2, RMSE, MAPE and calculate standard deviation of R\xB2\
+    \ across the k=5 folds on the test set (must be <= 0.05)."
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: "The standard deviation of R\xB2 across k=5 folds on the test set must\
+    \ be <= 0.05."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T06:58:24Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction with alpha adjusted to 0.017
+  claim_id: c_0fa46df1
+  context: "Apply Bonferroni correction (\u03B1_adj = 0.05 / 3 \u2248 0.017) for multiple\
+    \ hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction is applied with \u03B1_adj = 0.05 / 3 \u2248 0.017."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:58:38Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: integration test must run within 6 hours and use less than 7 GB RAM
+  claim_id: c_b92fd1ae
+  context: Add integration test in tests/integration/test_pipeline.py to verify end-to-end
+    execution (T009a-c -> T010 -> T011 -> T016 -> T012a -> T012b) within 6 hours and
+    <7 GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_must_run_within_6_hours_and_use_less_than_7
+  kind: magnitude
+  raw_text: The integration test must complete within 6 hours and use less than 7
+    GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T06:58:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 0
+  canonical: aim to retrieve at least 500 valid records after filtering
+  claim_id: c_b6582e11
+  context: 'Search Strategy: Use query parameters keywords=["grain boundary", "bicrystal"]
+    and properties=["diffusivity"]. Volume Goal: Aim to retrieve a volume of raw records
+    sufficient to yield at least 500 valid records after filtering (per FR-001).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P672: F01.658.500'
+      source_id: Q4503831
+      url: https://www.wikidata.org/wiki/Q4503831
+      value: '500'
+    filled: true
+  kind: magnitude
+  raw_text: aim to retrieve a volume of raw records sufficient to yield at least 500
+    valid records after filtering
+  resolved_value: '500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:03:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "standard deviation of R\xB2 across 5 folds on test set must be <= 0.05"
+  claim_id: c_f1c410bc
+  context: "Report average R\xB2, RMSE, MAPE and calculate standard deviation of R\xB2\
+    \ across the k=5 folds on the test set (must be <= 0.05). This metric satisfies\
+    \ SC-001."
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "report average R\xB2, RMSE, MAPE and calculate standard deviation of\
+    \ R\xB2 across the k=5 folds on the test set (must be <= 0.05)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T07:03:24Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha adjusted to 0.017 for 3 tests
+  claim_id: c_cc2a4b5c
+  context: "Execute regression bias test (y_true ~ y_pred) on the held-out test set\
+    \ to calculate intercept, slope, and p-values. Apply Bonferroni correction (\u03B1\
+    _adj = 0.05 / 3 \u2248 0.017) for multiple hypothesis tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1_adj = 0.05 / 3 \u2248 0.017) for\
+    \ multiple hypothesis tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:06:21Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: download script logs raw count but does not halt on insufficiency
+  claim_id: c_fc49b0bb
+  context: 'Add unit tests in tests/unit/test_download.py to verify that the download
+    script logs the raw count but does NOT halt on insufficiency (delegating to T011),
+    ensuring no synthetic fallback is used (addressing edge case: data insufficiency).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_script_logs_raw_count_but_does_not_halt_on_insuffic
+  kind: entity_fact
+  raw_text: verify that the download script logs the raw count but does NOT halt on
+    insufficiency
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:07:15Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 2
+  canonical: GitHub Actions free-tier limit is 2 CPU cores
+  claim_id: c_4ec901a6
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
+    of 2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:07:17Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: end-to-end pipeline execution within 6 hours and 7 GB RAM
+  claim_id: c_9bddf34f
+  context: Add integration test in tests/integration/test_pipeline.py to verify end-to-end
+    execution (T009a-c -> T010 -> T011 -> T016 -> T012a -> T012b) within 6 hours and
+    <7 GB RAM. Removed [P] tag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: integrate test in tests/integration/test_pipeline.py to verify end-to-end
+    execution within 6 hours and <7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:07:29Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Materials Project query uses keywords grain boundary and properties diffusivity
+  claim_id: c_72dc5ed2
+  context: 'Search Strategy: Use query parameters keywords=["grain boundary", "bicrystal"]
+    and properties=["diffusivity"]. Volume Goal: Aim to retrieve a volume of raw records
+    sufficient to yield at least 500 valid records after filtering (per FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_query_uses_keywords_grain_boundary_and_pro
+  kind: entity_fact
+  raw_text: Use query parameters keywords=["grain boundary", "bicrystal"] and properties=["diffusivity"]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:07:52Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: 70/15/15 train/validation/test split
+  claim_id: c_619ecb6d
+  context: 'Perform a 70/15/15 train/validation/test split. Save Split Indices: MUST
+    save the split indices (e.g., data/processed/split_indices.pkl) to ensure T012b
+    reuses the exact same split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a 70/15/15 train/validation/test split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:08:15Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost hyperparameter tuning using RandomizedSearchCV with k=5
+  claim_id: c_fea0199e
+  context: 'Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning on
+    the training set only. Search space: max_depth [3, 10], learning_rate [0.01, 0.3],
+    n_estimators [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:09:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: XGBoost search space max_depth 3-10 learning_rate 0.01-0.3 n_estimators
+    50-300
+  claim_id: c_7cfb2be6
+  context: 'Execute RandomizedSearchCV (k=5) for XGBoost hyperparameter tuning on
+    the training set only. Search space: max_depth [3, 10], learning_rate [0.01, 0.3],
+    n_estimators [50, 300].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Search space: max_depth [3, 10], learning_rate [0.01, 0.3], n_estimators
+    [50, 300]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:10:13Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "standard deviation of R\xB2 across 5 folds of held-out test set"
+  claim_id: c_4285266f
+  context: "Calculate SD: MUST calculate the standard deviation of R\xB2 across k=5\
+    \ folds of the held-out test set (using repeated k-fold CV on the test set, or\
+    \ nested CV outer loop on test) to satisfy SC-001."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "calculate the standard deviation of R\xB2 across k=5 folds of the held-out\
+    \ test set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:11:35Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: relationship between misorientation and Sigma value is descriptive not
+    causal
+  claim_id: c_f341a07a
+  context: "Collinearity Framing: MUST read artifacts/reports/collinearity_diagnostic.json\
+    \ from T016. Unconditionally write a framing statement for the joint relationship\
+    \ of misorientation and \u03A3 value in artifacts/reports/training_metrics.json\
+    \ stating: \"The relationship between misorientation and \u03A3 value is descriptive,\
+    \ not causal, as \u03A3 is derived from misorientation.\" (This applies regardless\
+    \ of the MI score)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relationship_between_misorientation_and_Sigma_value_is_descr
+  kind: entity_fact
+  raw_text: "The relationship between misorientation and \u03A3 value is descriptive,\
+    \ not causal, as \u03A3 is derived from misorientation"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:11:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: k=5 cross-validation on held-out test set
+  claim_id: c_f943114a
+  context: Perform k=5 cross-validation on the held-out test set (repeated split)
+    to assess generalization stability and measure test-set performance variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform k=5 cross-validation on the held-out test set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:12:46Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: FPR proxy defined as proportion of records where predicted > threshold
+    and actual <= threshold
+  claim_id: c_d3b3aa73
+  context: "Define Sensitivity Metrics: Calculate and report: 1. Pass Rate: Proportion\
+    \ of bootstrap samples (or folds) where R\xB2 > threshold. 2. False Positive Rate\
+    \ (FPR) Proxy: For a regression context, define this as the proportion of test\
+    \ records where predicted > threshold AND actual <= threshold."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FPR_proxy_defined_as_proportion_of_records_where_predicted_%3E
+  kind: entity_fact
+  raw_text: define False Positive Rate (FPR) Proxy as the proportion of test records
+    where predicted > threshold AND actual <= threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:13:24Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: "Model pass defined as R\xB2 greater than threshold"
+  claim_id: c_2f2912b9
+  context: "Define Pass: Model R\xB2 > threshold. Define Sensitivity Metrics: Calculate\
+    \ and report: 1. Pass Rate: Proportion of bootstrap samples (or folds) where R\xB2\
+    \ > threshold."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_pass_defined_as_R%C2%B2_greater_than_threshold
+  kind: magnitude
+  raw_text: "Define Pass: Model R\xB2 > threshold"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:13:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: MI greater than 0.8 indicates strong dependency
+  claim_id: c_ac72564a
+  context: 'Log a descriptive note: "MI > 0.8 indicates strong dependency; relationship
+    is descriptive, not causal."'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MI_greater_than_0.8_indicates_strong_dependency
+  kind: magnitude
+  raw_text: MI > 0.8 indicates strong dependency
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:14:15Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: pipeline raises validation error if R2 citation field is missing or empty
+  claim_id: c_a5e8f5b1
+  context: "MANDATORY REQUIREMENT: The config.yaml MUST contain a non-empty string\
+    \ in the thresholds.r2.citation field referencing the community-standard benchmark\
+    \ (e.g., \"Fundamentals and Catalytic Applications of CeO\u2082-Based Materials,\
+    \ 2016\"). The pipeline MUST raise a validation error if this field is missing\
+    \ or empty (if not config['thresholds']['r2']['citation']: raise ValueError)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_raises_validation_error_if_R2_citation_field_is_mis
+  kind: entity_fact
+  raw_text: The pipeline MUST raise a validation error if this field is missing or
+    empty
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:14:47Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep range for R2 is 0.70 0.75 0.80
+  claim_id: c_b0b68b88
+  context: Define the sensitivity sweep range in thresholds.r2.sweep_range as {0.70
+    (moderate), 0.75 (high), 0.80 (very high)} to strictly satisfy the spec's {moderate,
+    high, very high} requirement (see SC-004 acceptance scenarios).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the sensitivity sweep range in thresholds.r2.sweep_range as {0.70
+    (moderate), 0.75 (high), 0.80 (very high)}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:14:48Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: API keys for Materials Project and OpenKIM configured in .env
+  claim_id: c_dc06efa4
+  context: Configure environment variables for API keys (Materials Project, OpenKIM)
+    in .env (not committed).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_keys_for_Materials_Project_and_OpenKIM_configured_in_.en
+  kind: entity_fact
+  raw_text: Configure environment variables for API keys (Materials Project, OpenKIM)
+    in .env
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T07:15:07Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 2
+  canonical: exit with code 1 if fewer than 500 valid records remain
+  claim_id: c_5376cdc6
+  context: 'Enforce n >= 500 constraint: If fewer than 500 valid records remain, MUST
+    log "Data Insufficiency: Retrieved {retrieved_count}, Valid {valid_count}, Required
+    500. Missing features: {missing_feature_list}" and exit with code 1.'
+  evidence:
+    candidates:
+    - - Exit with code 1 if fewer than
+      - 500.0
+    - - Create account Log in Exit with code
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exit_with_code_1_if_fewer_than_500_valid_records_remain
+  kind: magnitude
+  raw_text: If fewer than 500 valid records remain, the system must log 'Data Insufficiency'
+    and exit with code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-16T07:15:09Z'
