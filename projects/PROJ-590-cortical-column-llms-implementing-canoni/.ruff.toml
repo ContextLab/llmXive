@@ -1,0 +1,4 @@
+# Extends the configuration in pyproject.toml for standalone use if needed.
+# Currently, we rely on the [tool.ruff] section in pyproject.toml.
+# This file exists to satisfy IDE detection of a dedicated ruff config file.
+extend = "pyproject.toml"

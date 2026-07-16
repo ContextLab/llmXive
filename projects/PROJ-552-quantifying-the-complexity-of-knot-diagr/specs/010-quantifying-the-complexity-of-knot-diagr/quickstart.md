@@ -2,140 +2,67 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- Stable internet connection (for downloading Knot Atlas data)
-- ≥ 14GB disk space, ≥ 7GB RAM
+- Python 3.11 or higher.
+- `pip` (Python package installer).
+- Internet connection (for downloading Knot Atlas data).
+- At least 2GB of free disk space.
 
 ## Installation
 
-1. **Clone Repository**:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-552-quantifying-the-complexity-of-knot-diagr
-   ```
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` is located at `projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/requirements.txt`.*
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Execution
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-4. **Verify Installation**:
-   ```bash
-   python -c "import pandas; import numpy; import sklearn; print('All dependencies installed successfully')"
-   ```
-
-## Data Download
-
-Run the data download script with retry logic:
+The pipeline is executed via the main orchestration script:
 
 ```bash
-python code/download/knot_atlas_loader.py
+cd code
+python main.py
 ```
 
-**Output**: `data/raw/knot_atlas_raw.json` (~190MB)
+### Execution Steps
 
-**Features**:
-- Exponential backoff retry (initial 1s, multiplier 2, max 32s)
-- Partial result caching after 3 consecutive failures
-- Checksum generation (SHA-256)
+1.  **Download**: Fetches data from Knot Atlas with retry logic.
+    - Output: `data/raw/knot_atlas_raw.json`
+2.  **Parse & Clean**: Extracts invariants, applies tie-breaking rules.
+    - Output: `data/processed/knots_cleaned.csv`
+    - *Note*: `knot_id` is normalized to `^[0-9]+_[0-9]+$` format.
+3.  **Validate**: Checks against KnotInfo, flags missing data.
+    - Output: `data/processed/knots_validated.csv`
+4.  **Analyze**: Fits regression models, computes correlations, generates plots.
+    - Output: `docs/reproducibility/` (reports, plots, logs).
 
-## Data Processing
+## Verification
 
-Run the data pipeline:
+To verify the pipeline ran correctly:
 
-```bash
-python code/main.py
-```
-
-**Steps**:
-1. Parse raw data (`code/data/parser.py`)
-2. Clean and validate (`code/data/validator.py`)
-3. Apply tie-breaking rules (FR-011)
-4. Filter hyperbolic knots (FR-012)
-5. Generate checksums and logs (FR-007)
-
-**Outputs**:
-- `data/processed/knots_cleaned.csv`
-- `data/processed/knots_validated.csv`
-- `data/processed/hyperbolic_knots.csv`
-- `docs/reproducibility/data_quality_report.md`
-- `docs/reproducibility/excluded_knots.md`
-
-## Exploratory Analysis
-
-Generate scatter plots and correlation analysis:
-
-```bash
-python code/analysis/exploratory.py
-```
-
-**Outputs**:
-- `data/processed/plots/crossing_vs_braid_alternating.png`
-- `data/processed/plots/crossing_vs_braid_non_alternating.png`
-- `docs/reproducibility/plot_validation_report.md`
-
-## Regression Modeling
-
-Fit and compare regression models:
-
-```bash
-python code/analysis/regression.py
-```
-
-**Outputs**:
-- `data/processed/model_results.json`
-- `docs/reproducibility/multicolinearity_assessment.md`
-- `docs/reproducibility/residual_analysis.md`
-
-## Validation & Reproducibility
-
-Run all validation checks:
-
-```bash
-python code/reproducibility/checksums.py
-python code/reproducibility/logs.py
-python docs/reproducibility/tie_breaking_validator.py
-```
-
-**Outputs**:
-- `data/checksums/manifest.json`
-- `docs/reproducibility/validation_status.md`
-- `docs/reproducibility/random_seeds.md`
-
-## Expected Results
-
-- **Dataset Size**: ~9,988 prime knots ≤ 13 crossings (source: OEIS A002863, https://oeis.org/A002863)
-- **Hyperbolic Subset**: [deferred] knots (volume > 0, exact count varies)
-- **Data Quality**: ≥ 95% completeness for required fields (SC-013)
-- **Model Selection**: Best-fitting model based on R², AIC/BIC, MAE (SC-002)
-- **Residual Analysis**: Specific knot families with residuals ≥ 2σ documented (SC-011)
+1.  **Check Data Integrity**:
+    ```bash
+    python -c "import sys; sys.path.append('data'); from reproducibility import check_checksums; check_checksums('data/raw/knot_atlas_raw.json')"
+    ```
+2.  **View Reports**:
+    - Data Quality: `docs/reproducibility/data_quality_report.md`
+    - Validation Scope: `docs/reproducibility/validation_scope.md`
+    - Core Precision Consistency: `docs/reproducibility/core_precision_consistency.md`
+    - Tie-Breaking Rules: `docs/reproducibility/tie_breaking_rules.md`
+    - Plot Validation: `docs/reproducibility/plot_validation_report.md`
+    - Residual Analysis: `docs/reproducibility/residual_analysis.md`
+3.  **Check Plots**:
+    - Navigate to `data/plots/` for PNG files (min 1200x900 px).
 
 ## Troubleshooting
 
-### API Unavailability
-- Retry logic automatically applies exponential backoff
-- Partial results cached to disk after 3 failures
-- Check `docs/reproducibility/logs.py` for error details
-
-### Missing Invariants
-- Records flagged with `missing_invariant_flags`
-- Not excluded from dataset; documented in `data_quality_report.md`
-
-### Memory Constraints
-- Data processed in chunks if needed
-- Intermediate results written to disk
-- No GPU-dependent operations
-
-## Next Steps
-
-1. Review `docs/reproducibility/data_quality_report.md` for data quality metrics
-2. Examine `docs/reproducibility/residual_analysis.md` for deviation patterns
-3. Read `docs/reproducibility/validation_scope.md` for Phase 1 vs. exploratory scope
-4. Consult `research.md` for methodological details and statistical rigor considerations
+- **API Failure**: If Knot Atlas is unreachable, the script will retry with exponential backoff. If it fails after 3 attempts, partial results are cached. Check `docs/reproducibility/logs/` for error details.
+- **Missing Invariants**: Records with missing invariants are not dropped but flagged. Check `docs/reproducibility/data_quality_report.md` for counts.
+- **Memory Error**: The full dataset should fit in 7GB RAM. If issues arise, ensure no other heavy processes are running.
+- **Schema Validation**: Ensure `contracts/knot_record.schema.yaml` is used for validation. Deprecated files are ignored.

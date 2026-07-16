@@ -11,7 +11,7 @@ import os
 import sys
 import time
 import resource
-from typing import Generator, Optional
+from typing import Generator, Optional, Dict, Any
 
 import pytest
 import psutil
@@ -71,7 +71,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture(autouse=True)
-def setup_resource_monitoring() -> Generator[Optional[dict], None, None]:
+def setup_resource_monitoring(request) -> Generator[Optional[Dict[str, Any]], None, None]:
     """
     Fixture to monitor resource usage (CPU time, memory) for each test.
     Records peak memory usage in the test context.
@@ -85,13 +85,20 @@ def setup_resource_monitoring() -> Generator[Optional[dict], None, None]:
     # Teardown: Check resources
     end_time = time.perf_counter()
     current_mem = process.memory_info().rss / (1024 * 1024)
-    peak_mem = process.memory_info().rss / (1024 * 1024)  # Approximation via rss
+    peak_mem = current_mem
 
     # Try to get max RSS if available (Unix)
     try:
-        # resource module gives max RSS in bytes
-        max_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # KB to MB
-        peak_mem = max(max_mem, max_rss)
+        # resource module gives max RSS in bytes (ru_maxrss is in KB on Linux, bytes on macOS)
+        rusage = resource.getrusage(resource.RUSAGE_SELF)
+        # Normalize to MB: on Linux ru_maxrss is KB, on macOS it is bytes.
+        # We assume Linux environment for consistency or check size.
+        if sys.platform == "darwin":
+            max_rss_mb = rusage.ru_maxrss / (1024 * 1024)
+        else:
+            max_rss_mb = rusage.ru_maxrss / 1024
+        
+        peak_mem = max(start_mem, max_rss_mb, current_mem)
     except Exception:
         pass  # Fallback to current measurement if resource module fails
 
@@ -99,16 +106,18 @@ def setup_resource_monitoring() -> Generator[Optional[dict], None, None]:
     if peak_mem > MAX_MEMORY_MB:
         pytest.warns(
             UserWarning,
-            f"Test used {peak_mem:.2f} MB memory, exceeding limit of {MAX_MEMORY_MB} MB."
+            f"Test {request.node.name} used {peak_mem:.2f} MB memory, exceeding limit of {MAX_MEMORY_MB} MB."
         )
 
     # Store stats in a custom attribute for potential reporting plugins
-    if hasattr(sys, "pytest_resource_stats"):
-        sys.pytest_resource_stats.append({
-            "test_name": str(request.node.name) if "request" in locals() else "unknown",
-            "elapsed": end_time - start_time,
-            "peak_memory_mb": peak_mem
-        })
+    if not hasattr(sys, "pytest_resource_stats"):
+        sys.pytest_resource_stats = []
+    
+    sys.pytest_resource_stats.append({
+        "test_name": request.node.name,
+        "elapsed": end_time - start_time,
+        "peak_memory_mb": peak_mem
+    })
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -123,5 +132,7 @@ def pytest_runtest_makereport(item, call):
         # Attach custom stats if available
         if hasattr(sys, "pytest_resource_stats"):
             # Find the last entry for this test
-            # In a real robust implementation, we'd map test IDs to stats
-            pass
+            for stat in reversed(sys.pytest_resource_stats):
+                if stat["test_name"] == item.name:
+                    report.pytest_stats = stat
+                    break

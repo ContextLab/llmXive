@@ -436,3 +436,341 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T04:53:22Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: fetch PubLayNet dataset from HuggingFace facebook/publaynet with SHA-256
+    checksum verification
+  claim_id: c_0429abf4
+  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
+    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:14:45Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: implement RF encoder wrapping microsoft/layoutlmv3-base
+  claim_id: c_60b7b9b7
+  context: T015 [P] [US1] Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen and pixel-decoder layers disabled
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_RF_encoder_wrapping_microsoft/layoutlmv3-base
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen and pixel-decoder layers disabled
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:15:25Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: define lightweight transformer model with 30M parameters
+  claim_id: c_b97c3eef
+  context: T022 [P] [US2] Implement code/models/autoregressive.py defining a lightweight
+    transformer (~30M params) accepting RF tokens as embeddings
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_lightweight_transformer_model_with_30M_parameters
+  kind: entity_fact
+  raw_text: Implement code/models/autoregressive.py defining a lightweight transformer
+    (~30M params) accepting RF tokens as embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:16:12Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: resource monitor enforces 4GB memory limit derived from 7GB runner constraint
+  claim_id: c_4a7935c3
+  context: T004 [P] Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce a configurable memory limit (default 4GB) derived from the 7GB runner
+    constraint (FR-007), with active monitoring, logging of resource trends, and process
+    kill on overflow; include mock test for verification
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_monitor_enforces_4GB_memory_limit_derived_from_7GB
+  kind: entity_fact
+  raw_text: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce a configurable memory limit (default 4GB) derived from the 7GB runner
+    constraint
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:18:01Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: fetch PubLayNet dataset from HuggingFace facebook/publaynet
+  claim_id: c_3f5c6501
+  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
+    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:18:01Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: RF encoder wraps microsoft/layoutlmv3-base
+  claim_id: c_d8b27248
+  context: T015 [P] [US1] Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen and pixel-decoder layers disabled
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RF_encoder_wraps_microsoft/layoutlmv3-base
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen and pixel-decoder layers disabled
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:18:03Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: lightweight autoregressive transformer has approximately 30 million parameters
+  claim_id: c_d188789b
+  context: T022 [P] [US2] Implement code/models/autoregressive.py defining a lightweight
+    transformer (~30M params) accepting RF tokens as embeddings
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/models/autoregressive.py defining a lightweight transformer
+    (~30M params) accepting RF tokens as embeddings
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:18:04Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: CPU-only free-tier runners have limits of 4GB RAM and 6 hours runtime
+  claim_id: c_86767146
+  context: "CRITICAL: All tasks must run on CPU-only free-tier runners (\u22644GB\
+    \ RAM, \u22646h). No GPU/CUDA tasks allowed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU-only free-tier runners (\u22644GB RAM, \u2264\
+    6h)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:18:04Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: lightweight autoregressive transformer model has approximately 30 million
+    parameters
+  claim_id: c_2aaf0258
+  context: T022 [P] [US2] Implement code/models/autoregressive.py defining a lightweight
+    transformer (~30M params) accepting RF tokens as embeddings
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/models/autoregressive.py defining a lightweight transformer
+    (~30M params) accepting RF tokens as embeddings
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:20:19Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: training loop configured for maximum 2 epochs
+  claim_id: c_b3369f0b
+  context: T024 [US2] Implement code/train.py training loop (depends on T023) with
+    configuration for max 2 epochs (Constitution VII)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py training loop with configuration for max 2 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:20:56Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: runtime compared against 6-hour CI job threshold
+  claim_id: c_ccd8ffe1
+  context: T038 [US3] Implement verification logic to compare logged runtime against
+    the 6-hour CI job threshold and raise SystemExit(1) if exceeded (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to compare logged runtime against the 6-hour CI job threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:21:13Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: tasks must run on CPU-only runners with at most 4GB RAM and 6 hours runtime
+  claim_id: c_ae4d2478
+  context: "Notes: CRITICAL: All tasks must run on CPU-only free-tier runners (\u2264\
+    4GB RAM, \u22646h). No GPU/CUDA tasks allowed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tasks_must_run_on_CPU-only_runners_with_at_most_4GB_RAM_and
+  kind: magnitude
+  raw_text: "All tasks must run on CPU-only free-tier runners (\u22644GB RAM, \u2264\
+    6h)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:21:38Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: PubLayNet dataset fetched from HuggingFace repository facebook/publaynet
+  claim_id: c_10db38e2
+  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
+    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:21:38Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: fetch PubLayNet dataset from HuggingFace facebook/publaynet with SHA-256
+    checksum verification
+  claim_id: c_978ef7c5
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 [P] Implement code/data/loaders.py...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:22:18Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: use microsoft/layoutlmv3-base model with frozen weights and disabled
+    pixel-decoder layers
+  claim_id: c_367abdcb
+  context: 'Phase 3: User Story 1 - T015 [P] [US1] Implement code/models/rf_encoder.py
+    wrapping microsoft/layoutlmv3-base...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_microsoft/layoutlmv3-base_model_with_frozen_weights_and
+  kind: entity_fact
+  raw_text: Implement `microsoft/layoutlmv3-base` with weights frozen and pixel-decoder
+    layers disabled
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:22:54Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: define a lightweight transformer with approximately 30M parameters
+  claim_id: c_394fe215
+  context: 'Phase 4: User Story 2 - T022 [P] [US2] Implement code/models/autoregressive.py...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_a_lightweight_transformer_with_approximately_30M_para
+  kind: entity_fact
+  raw_text: Implement code/models/autoregressive.py defining a lightweight transformer
+    (~30M params)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:24:03Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: enforce a hard limit of 2 epochs for training
+  claim_id: c_65be5dc7
+  context: 'Phase 4: User Story 2 - T025 [US2] Implement code/train.py stopping logic...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce a hard limit of 2 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:24:38Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: enforce a configurable memory limit with default 4GB derived from 7GB
+    runner constraint
+  claim_id: c_0b1f09c8
+  context: 'Phase 2: Foundational - T004 [P] Implement code/utils/resource_monitor.py...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_a_configurable_memory_limit_with_default_4GB_derived
+  kind: entity_fact
+  raw_text: enforce a configurable memory limit (default 4GB) derived from the 7GB
+    runner constraint
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:25:15Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: raise SystemExit(1) if runtime exceeds 6-hour CI job threshold
+  claim_id: c_b2b8c218
+  context: 'Phase 5: User Story 3 - T038 [US3] Implement verification logic...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raise SystemExit(1) if runtime exceeds the 6-hour CI job threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T01:25:57Z'

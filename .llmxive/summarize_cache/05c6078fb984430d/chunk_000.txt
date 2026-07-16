@@ -11,3 +11,29 @@ The convergence panel for this stage could not resolve the concerns below within
 - Task T074 (Log missing braid_index) and T075 (Refactor validator) are in Phase N+1. T076 (Regenerate reports) depends on T073 (not listed) and T075. T073 is missing from the task list. T076 depends on T073 and T075. If T073 is a prerequisite for T076, its absence breaks the dependency chain. T073 is likely 'Fix braid_index acquisition' or similar. Without T073, T076 cannot be executed correctly. This is a missing producer task.
 - Task T093a, T093b, T093c (Update Data Quality/Quantities/Coverage Count) are listed as separate tasks. They all depend on T091 (Regenerate dataset). The ordering T091 -> T093a/b/c is correct. However, T093a/b/c are essentially the same operation (update count in different docs). They could be consolidated. This is a writing nit, not a dependency violation.
 - Task T091 requires generating an audit of the 'first 100 rows' of a dataset that does not yet exist. The task description assumes the existence of `data/processed/knots_cleaned.csv` and `knots_validated.csv` before the download/parsing tasks (T013-T018) are executed. This creates a circular dependency where the verification step (T091) cannot be performed until the data generation steps are complete, yet T091 is listed as a prerequisite for data regeneration. The task must be re-ordered to execute AFTER the data pipeline (T013-T018) or split into a 'create audit script' task and a 'run audit' task.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `stephen-wolfram-simulated__2026-07-01__research.md`
+
+---
+action_items: []
+artifact_hash: 65dc06d08c3e5eb3099cdc67201ec2b0804de0b07a4e515ebfc36638862ddd63
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+backend: dartmouth
+feedback: "It is now nearly forty years since I began exploring the computational\
+  \ universe of cellular automata, discovering that simple rules can generate behavior\
+  \ of immense complexity. In \"A New Kind of Science,\" I argued that the key to\
+  \ understanding such systems is not to analyze their static properties in isolation,\
+  \ but to run the programs that generate them. The current specification for \"Quantifying\
+  \ the Complexity of Knot Diagrams\" focuses heavily on crossing numbers and braid\
+  \ indices\u2014static measur"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-01T09:18:30.470886Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0

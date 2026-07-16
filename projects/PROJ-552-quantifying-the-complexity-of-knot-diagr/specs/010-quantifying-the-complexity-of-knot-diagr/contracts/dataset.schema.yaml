@@ -11,6 +11,7 @@ description: >
   Contains all knot records with crossing numbers, braid indices,
   hyperbolic volumes, and alternating/non-alternating classifications
   for prime knots with crossing number ≤ 13.
+  References the SSoT: knot_record.schema.yaml
 
 # Dataset-level metadata
 dataset_metadata:
@@ -108,8 +109,4 @@ dataset:
       type: array
       description: Array of knot records
       items:
-        $ref: '#/knot_record'
-
-# Individual knot record structure (extends knot-record.schema.yaml)
-knot_record:
-  $ref: 'knot_record.schema.yaml'
+        $ref: 'knot_record.schema.yaml'

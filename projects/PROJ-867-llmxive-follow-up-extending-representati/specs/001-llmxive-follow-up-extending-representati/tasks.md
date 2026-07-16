@@ -56,15 +56,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
-- [ ] T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace (`facebook/publaynet`) with SHA-256 checksum verification
+- [X] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint [UNRESOLVED-CLAIM: c_0b1f09c8 — status=not_enough_info] (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
+- [X] T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace (`facebook/publaynet`) with SHA-256 checksum verification
 - [X] T006a [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations (confirming presence of structural boxes and text content) as required by Plan Phase 0 Step 1, before processing begins
 - [X] T007 [P] Create `docs/contracts/rf_token_sequence.yaml` schema definition
 - [X] T008 [P] Create `docs/contracts/structured_text_output.yaml` schema definition
 - [X] T009 [P] Create `docs/contracts/evaluation_metrics.yaml` schema definition
 - [X] T010 [P] Implement `code/utils/stats.py` with placeholders for McNemar's test and Wilcoxon signed-rank test using `scipy.stats`
 - [X] T011 [P] Implement `code/utils/validators.py` for JSON/Markdown syntax parsing and AST edit distance calculation
-- [ ] T012 [P] Implement `code/data/preprocessing.py` logic for general image loading, resizing to 224x224, and basic normalization (shared across all US)
+- [X] T012 [P] Implement `code/data/preprocessing.py` logic for general image loading, resizing to 224x224, and basic normalization (shared across all US)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,7 +80,7 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T013 [P] [US1] Unit test for RF token shape validation in `tests/unit/test_rf_encoder.py`
+- [X] T013 [P] [US1] Unit test for RF token shape validation in `tests/unit/test_rf_encoder.py`
 - [ ] T014 [P] [US1] Integration test for single-image extraction in `tests/integration/test_extraction.py`
 
 ### Implementation for User Story 1
@@ -108,10 +108,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/models/autoregressive.py` defining a lightweight transformer (~30M params) accepting RF tokens as embeddings [UNRESOLVED-CLAIM: c_69cb81b7 — status=not_enough_info]
+- [ ] T022 [P] [US2] Implement `code/models/autoregressive.py` defining a lightweight transformer (~30M params) accepting RF tokens as embeddings
 - [ ] T023 [P] [US2] Implement `code/data/preprocessing.py` logic to create a `DataLoader` for RF token pairs (depends on T005 and T016)
 - [ ] T024 [US2] Implement `code/train.py` training loop (depends on T023) with configuration for max 2 epochs (Constitution VII)
-- [ ] T025 [US2] Implement `code/train.py` stopping logic (depends on T024) to enforce a hard limit of 2 epochs (Plan override of FR-003/Constitution VII) and log convergence diagnostics
+- [ ] T025 [US2] Implement `code/train.py` stopping logic (depends on T024) to enforce a hard limit of 2 epochs [UNRESOLVED-CLAIM: c_65be5dc7 — status=not_enough_info] (Plan override of FR-003/Constitution VII) and log convergence diagnostics
 - [ ] T026 [US2] Integrate `code/utils/resource_monitor.py` into training loop (depends on T004)
 - [ ] T027 [US2] Implement logic to generate structured text from RF tokens and validate syntax using `jsonschema` or `markdown` parsers (depends on T011)
 - [ ] T028 [US2] Implement `code/models/baseline.py` defining a simple CNN encoder for raw downsampled pixel inputs
@@ -270,4 +270,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks must run on CPU-only free-tier runners (≤4GB RAM, ≤6h) [UNRESOLVED-CLAIM: c_90ed94a4 — status=not_enough_info]. No GPU/CUDA tasks allowed. 
+- **CRITICAL**: All tasks must run on CPU-only free-tier runners (≤4GB RAM, ≤6h). No GPU/CUDA tasks allowed. 

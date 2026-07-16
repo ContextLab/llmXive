@@ -1,1 +1,2 @@
-"""Contract tests validating API and data schema compliance."""
+# Contract Tests
+# Contains tests verifying adherence to defined schemas and interfaces.

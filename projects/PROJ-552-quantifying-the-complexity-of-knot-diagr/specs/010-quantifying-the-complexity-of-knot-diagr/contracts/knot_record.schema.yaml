@@ -1,78 +1,79 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: KnotRecord Schema
-description: Schema for individual knot records with core invariants and metadata
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "KnotRecord"
+description: "Schema for a single prime knot record from Knot Atlas (SINGLE SOURCE OF TRUTH)"
+type: "object"
 required:
-  - knot_id
-  - crossing_number
-  - braid_index
-  - hyperbolic_volume
-  - alternating
-  - source
+  - "knot_id"
+  - "crossing_number"
+  - "braid_index"
+  - "hyperbolic_volume"
+  - "source"
+  - "checksum_sha256"
 properties:
   knot_id:
-    type: string
-    description: "Unique identifier for the knot (e.g., '10_123', '11n42')"
-    pattern: "^[0-9]+[a-zA-Z]?_?[0-9]+$"
+    type: "string"
+    description: "Unique identifier for the knot (e.g., '8_18')"
+    pattern: "^[0-9]+_[0-9]+$"
   crossing_number:
-    type: integer
+    type: "integer"
+    description: "Number of crossings in the minimal diagram"
     minimum: 1
-    description: "Number of crossings in minimal diagram"
   braid_index:
-    type: integer
-    minimum: 1
+    type: "integer"
     description: "Minimum number of strands in braid representation"
+    minimum: 1
   hyperbolic_volume:
-    type: number
+    type: "number"
+    description: "Volume of the hyperbolic complement"
     minimum: 0
-    description: "Hyperbolic volume of knot complement (0 for torus/satellite knots)"
   alternating:
-    type: boolean
-    description: "True if knot is alternating, false otherwise"
+    type: ["boolean", "null"]
+    description: "Whether the knot is alternating. Null if ambiguous."
   source:
-    type: object
+    type: "object"
+    description: "Metadata about the source record"
     required:
-      - database
-      - version
-      - url
-      - accessed_at
+      - "database"
+      - "version"
+      - "url"
+      - "accessed_at"
     properties:
       database:
-        type: string
-        description: "Source database name (e.g., 'Knot Atlas')"
+        type: "string"
+        description: "Name of the database"
+        const: "Knot Atlas"
       version:
-        type: string
-        description: "Source database version"
+        type: "string"
+        description: "Version of the database"
       url:
-        type: string
-        format: uri
+        type: "string"
+        format: "uri"
         description: "Canonical URL for the record"
       accessed_at:
-        type: string
-        format: date-time
-        description: "ISO-8601 timestamp when data was fetched"
+        type: "string"
+        format: "date-time"
+        description: "ISO-8601 timestamp of download"
       source_timestamp:
-        type: string
-        format: date-time
-        description: "ISO-8601 timestamp of source record creation/update"
+        type: ["string", "null"]
+        format: "date-time"
+        description: "ISO-8601 timestamp of the source record"
       checksum_sha256:
-        type: string
-        pattern: "^[a-f0-9]{64}$"
-        description: "SHA-256 hash of raw source record"
+        type: ["string", "null"]
+        description: "SHA-256 of the raw source record"
   data_quality_flags:
-    type: array
+    type: "array"
+    description: "General data quality issues"
     items:
-      type: string
-    description: "General data quality issues (null values, format failures, duplicates)"
+      type: "string"
     default: []
   missing_invariant_flags:
-    type: array
+    type: "array"
+    description: "Specific missing invariants (Phase 2+)"
     items:
-      type: string
-    description: "Invariants not computable from available diagram representations (Phase 2+ scope)"
+      type: "string"
     default: []
-  unclassifiable:
-    type: boolean
-    description: "True if alternating classification is ambiguous/missing"
-    default: false
+  checksum_sha256:
+    type: "string"
+    description: "SHA-256 of the processed record"
+    pattern: "^[a-f0-9]{64}$"
 additionalProperties: false

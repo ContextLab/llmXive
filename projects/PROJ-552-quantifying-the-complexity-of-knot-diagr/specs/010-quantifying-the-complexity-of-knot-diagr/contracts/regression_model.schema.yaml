@@ -9,7 +9,7 @@ title: "RegressionModel"
 description: |
   A record describing a regression model fitted to knot invariants. Each record
   corresponds to one model configuration (e.g., linear, polynomial degree 2,
-  logarithmic) and stores the fitted coefficients as well as evaluation metrics.
+  logarithmic, ridge) and stores the fitted coefficients as well as evaluation metrics.
 type: object
 required:
   - model_id
@@ -29,7 +29,7 @@ properties:
       Human‑readable name for the model (e.g., "Linear model: volume ~ crossing").
   model_type:
     type: string
-    enum: [linear, polynomial, logarithmic, other]
+    enum: [linear, polynomial, logarithmic, ridge, other]
     description: |
       Classification of the regression model. Use "polynomial" for any degree >1.
   degree:

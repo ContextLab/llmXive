@@ -1,0 +1,103 @@
+verdict: minor_revision
+---
+
+It is now nearly forty years since I began exploring the computational universe of cellular automata, discovering that simple rules can generate behavior of immense complexity. In "A New Kind of Science," I argued that the key to understanding such systems is not to analyze their static properties in isolation, but to run the programs that generate them. The current specification for "Quantifying the Complexity of Knot Diagrams" focuses heavily on crossing numbers a
+
+*[truncated]*
+
+## `research_reviewer_implementation_correctness__2026-07-01__research.md`
+
+---
+action_items:
+- id: c331e6ba9675
+  severity: writing
+  text: 'File: code/data/validator.py'
+- id: 54f11db3305b
+  severity: writing
+  text: 'File: code/analysis/model_fitting.py'
+- id: c64c960925d2
+  severity: writing
+  text: 'File: code/analysis/regression.py'
+- id: 0e251fccdf1a
+  severity: writing
+  text: 'File: docs/reproducibility/data_quality_report.md'
+artifact_hash: 51f67afe33d622bdbc591f959097eeaa2314cfd198e275168461b1e145921cfa
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-01T07:53:05.406273Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_correctness
+score: 0.0
+verdict: minor_revision
+---
+
+The implementation deviates from the specification in three critical areas regarding data integrity, statistical methodology, and file structure.
+
+1.  **Data Integrity & Flagging Logic (FR-002, FR-009, SC-013):**
+    The `docs/reproducibility/data_quality_report.md` indicates `missing_invariant_flags` count is **9988** (100% of the dataset).
+    *   **Deviation:** FR-009 explicitly states `missing_invariant_flags` are for invariants *not computable from available diagram representations* (Phase 2+ scope). FR-003 and SC-008 clarify that core invariants (crossing number, braid index) are **tabulated**, not computed.
+    *   **Impact:** The sy
+
+*[truncated]*
+
+## `research_reviewer_implementation_completeness__2026-06-30__research.md`
+
+---
+action_items: []
+artifact_hash: 51f67afe33d622bdbc591f959097eeaa2314cfd198e275168461b1e145921cfa
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-30T05:07:07.255599Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_completeness
+score: 0.5
+verdict: accept
+---
+
+The implementation is complete with respect to the Phase 1 scope defined in `spec.md` and `plan.md`. The codebase successfully downloads, parses, and validates the Knot Atlas dataset, filters for hyperbolic knots, and generates the required reproducibility artifacts (checksums, logs, validation reports).
+
+Key completeness checks:
+- **Data Acquisition**: `code/download/knot_atlas_loader.py` implements the required exponential backoff and caching. The raw data file `data/raw/knot_atlas_raw.json` (189MB) confirms successful ingestion.
+- **Parsing & Validation**: `code/data/parser.py` and `code/data/validator.py` are present and functional. The `data/processed/knots_cleaned.csv` and `knots_validated.csv` files indicate the pipeline ran to completion.
+- **Reproducibility Artifacts**: All mandatory documents listed in `plan.md` (e.g., `data_quality_report.md`, `validation_scope.md`, `excluded_knots.md`, `random_seeds.md`) are present in `docs/reproducibility/`.
+- **Phase 1 Scope**: The pro
+
+*[truncated]*
+
+## `research_reviewer_implementation_completeness__2026-06-18__research.md`
+
+---
+action_items: []
+artifact_hash: 7baa44b59cd32c7fda7ee82e82eeaf53dd34c3f18b9a974e3b4792da9f1598ca
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+backend: dartmouth
+feedback: ''
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-18T15:32:29.489133Z'
+reviewer_kind: llm
+reviewer_name: research_reviewer_implementation_completeness
+score: 0.5
+verdict: accept
+---
+
+**Implementation Completeness Review**
+
+The project’s codebase, data, and documentation collectively satisfy all functional and reproducibility requirements outlined in **spec.md** and **plan.md**. Below is a concise mapping of the key specifications to concrete implementation evidence.
+
+### 1. Data Acquisition & Parsing (FR‑001, FR‑008)
+- **Downloader**: `code/download/knot_atlas_loader.py` implements HTTP fetch from `https://katlas.org`, includes exponential back‑off (initial = 1 s, multiplier = 2, max = 32 s) and caches partial results after three consecutive failures (task T014).  
+- **Parser**: `code/data/parser.py` extracts crossing number, braid index, hyperbolic volume, and alternating classification, applying the documented tie‑breaking rules (braid word > DT code, lexicographic DT).  
+- **Raw & Processed Data**: `data/raw/knot_atlas_raw.json` (≈190 MB) and `data/processed/knots_cleaned.csv`/`knots_validated.csv` confirm that all prime knots ≤ 13 crossings are downloaded a
+
+*[truncated]*
+

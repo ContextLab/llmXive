@@ -1,39 +1,45 @@
 """
-Baseline Transformer implementation for cortical column comparison.
+Baseline Transformer implementation for computational universality comparison.
 
-Implements standard Transformer MLP and Attention layers to serve as a
-computational universal baseline against which the microcircuit model
-will be compared.
-
-This module provides:
-- MultiHeadAttention: Standard scaled-dot product attention
-- FeedForward: Standard Transformer MLP block
-- TransformerBlock: Combined attention + FFN with residual connections
-- BaselineTransformer: Full encoder-only transformer model
+This module provides a standard Transformer architecture with self-attention
+and MLP layers, serving as a control baseline for the cortical column microcircuit.
+Implements standard attention mechanisms without biological constraints.
 """
-
-import math
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Optional, Tuple
+
+
+class FeedForward(nn.Module):
+    """Standard Transformer MLP layer."""
+
+    def __init__(
+        self,
+        d_model: int,
+        d_ff: int,
+        dropout: float = 0.1
+    ):
+        super().__init__()
+        self.linear1 = nn.Linear(d_model, d_ff)
+        self.linear2 = nn.Linear(d_ff, d_model)
+        self.dropout = nn.Dropout(dropout)
+        self.activation = F.relu
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.linear2(self.dropout(self.activation(self.linear1(x))))
 
 
 class MultiHeadAttention(nn.Module):
-    """
-    Standard multi-head scaled-dot product attention mechanism.
-
-    Implements the attention function from "Attention Is All You Need":
-    Attention(Q, K, V) = softmax(QK^T / sqrt(d_k))V
-    """
+    """Standard multi-head self-attention mechanism."""
 
     def __init__(
         self,
         d_model: int,
         n_heads: int,
         dropout: float = 0.1,
-        bias: bool = True,
+        bias: bool = True
     ):
         super().__init__()
         assert d_model % n_heads == 0, "d_model must be divisible by n_heads"
@@ -42,296 +48,203 @@ class MultiHeadAttention(nn.Module):
         self.n_heads = n_heads
         self.d_k = d_model // n_heads
 
-        # Linear projections for Q, K, V
         self.w_q = nn.Linear(d_model, d_model, bias=bias)
         self.w_k = nn.Linear(d_model, d_model, bias=bias)
         self.w_v = nn.Linear(d_model, d_model, bias=bias)
-
-        # Output projection
         self.w_o = nn.Linear(d_model, d_model, bias=bias)
 
         self.dropout = nn.Dropout(dropout)
+        self.scale = self.d_k ** -0.5
 
     def forward(
         self,
         query: torch.Tensor,
         key: torch.Tensor,
         value: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
-        """
-        Forward pass through multi-head attention.
+        batch_size = query.size(0)
 
-        Args:
-            query: Query tensor of shape (batch, seq_len, d_model)
-            key: Key tensor of shape (batch, seq_len, d_model)
-            value: Value tensor of shape (batch, seq_len, d_model)
-            mask: Optional attention mask of shape (batch, 1, 1, seq_len)
-                  or (1, 1, seq_len, seq_len) for causal masking
-
-        Returns:
-            Output tensor of shape (batch, seq_len, d_model)
-        """
-        batch_size, seq_len, _ = query.size()
-
-        # Project Q, K, V
-        q = self.w_q(query).view(batch_size, seq_len, self.n_heads, self.d_k)
-        k = self.w_k(key).view(batch_size, seq_len, self.n_heads, self.d_k)
-        v = self.w_v(value).view(batch_size, seq_len, self.n_heads, self.d_k)
-
-        # Transpose for multi-head: (batch, n_heads, seq_len, d_k)
-        q = q.transpose(1, 2)
-        k = k.transpose(1, 2)
-        v = v.transpose(1, 2)
+        # Linear projections and split heads
+        q = self.w_q(query).view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        k = self.w_k(key).view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        v = self.w_v(value).view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
 
         # Scaled dot-product attention
-        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)
+        scores = torch.matmul(q, k.transpose(-2, -1)) * self.scale
 
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -1e9)
 
-        attn_weights = F.softmax(scores, dim=-1)
-        attn_weights = self.dropout(attn_weights)
+        attn = F.softmax(scores, dim=-1)
+        attn = self.dropout(attn)
 
         # Apply attention to values
-        output = torch.matmul(attn_weights, v)
+        out = torch.matmul(attn, v)
 
-        # Reshape and project back
-        output = output.transpose(1, 2).contiguous().view(
-            batch_size, seq_len, self.d_model
+        # Concatenate heads
+        out = out.transpose(1, 2).contiguous().view(
+            batch_size, -1, self.d_model
         )
 
-        return self.w_o(output)
-
-
-class FeedForward(nn.Module):
-    """
-    Standard Transformer feed-forward network (MLP).
-
-    Consists of two linear transformations with a ReLU activation in between:
-    FFN(x) = max(0, xW1 + b1)W2 + b2
-    """
-
-    def __init__(
-        self,
-        d_model: int,
-        d_ff: int,
-        dropout: float = 0.1,
-    ):
-        super().__init__()
-        self.linear1 = nn.Linear(d_model, d_ff)
-        self.linear2 = nn.Linear(d_ff, d_model)
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass through the feed-forward network.
-
-        Args:
-            x: Input tensor of shape (batch, seq_len, d_model)
-
-        Returns:
-            Output tensor of shape (batch, seq_len, d_model)
-        """
-        return self.linear2(self.dropout(F.relu(self.linear1(x))))
+        return self.w_o(out)
 
 
 class TransformerBlock(nn.Module):
-    """
-    A single Transformer block containing multi-head attention and feed-forward layers.
-
-    Implements the standard residual connections and layer normalization:
-    - LayerNorm(x + MultiHeadAttention(LayerNorm(x)))
-    - LayerNorm(x + FFN(LayerNorm(x)))
-    """
+    """Single Transformer layer with attention and MLP."""
 
     def __init__(
         self,
         d_model: int,
         n_heads: int,
         d_ff: int,
-        dropout: float = 0.1,
+        dropout: float = 0.1
     ):
         super().__init__()
         self.attention = MultiHeadAttention(d_model, n_heads, dropout)
         self.feed_forward = FeedForward(d_model, d_ff, dropout)
-
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
-
         self.dropout = nn.Dropout(dropout)
 
     def forward(
         self,
         x: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
-        """
-        Forward pass through the transformer block.
-
-        Args:
-            x: Input tensor of shape (batch, seq_len, d_model)
-            mask: Optional attention mask
-
-        Returns:
-            Output tensor of shape (batch, seq_len, d_model)
-        """
         # Self-attention with residual connection
-        attn_out = self.attention(self.norm1(x), self.norm1(x), self.norm1(x), mask)
-        x = x + self.dropout(attn_out)
+        attn_out = self.attention(x, x, x, mask)
+        x = self.norm1(x + self.dropout(attn_out))
 
-        # Feed-forward with residual connection
-        ff_out = self.feed_forward(self.norm2(x))
-        x = x + self.dropout(ff_out)
+        # MLP with residual connection
+        ff_out = self.feed_forward(x)
+        x = self.norm2(x + self.dropout(ff_out))
 
         return x
 
 
 class BaselineTransformer(nn.Module):
     """
-    Complete baseline Transformer model for sequence modeling.
+    Standard Transformer model for baseline comparison.
 
-    This model serves as the computational universal baseline against which
-    the cortical column microcircuit will be compared. It implements a standard
-    encoder-only Transformer architecture.
-
-    Args:
-        d_model: Dimensionality of the model (default: 256)
-        n_heads: Number of attention heads (default: 8)
-        n_layers: Number of transformer blocks (default: 4)
-        d_ff: Dimensionality of feed-forward network (default: 1024)
-        dropout: Dropout rate (default: 0.1)
-        max_seq_len: Maximum sequence length for positional encoding (default: 512)
-        vocab_size: Vocabulary size for embedding layer (default: 1000)
+    This model implements the canonical Transformer architecture with
+    self-attention and feed-forward layers, serving as a computational
+    baseline against which the cortical column microcircuit will be compared.
     """
 
     def __init__(
         self,
         d_model: int = 256,
         n_heads: int = 8,
-        n_layers: int = 4,
+        n_layers: int = 6,
         d_ff: int = 1024,
         dropout: float = 0.1,
-        max_seq_len: int = 512,
-        vocab_size: int = 1000,
-        use_positional_encoding: bool = True,
+        input_dim: int = 512,
+        output_dim: int = 512,
+        max_seq_len: int = 512
     ):
         super().__init__()
 
         self.d_model = d_model
-        self.max_seq_len = max_seq_len
-        self.use_positional_encoding = use_positional_encoding
+        self.n_heads = n_heads
+        self.n_layers = n_layers
+        self.d_ff = d_ff
 
-        # Embedding layer
-        self.embedding = nn.Embedding(vocab_size, d_model)
+        # Input projection
+        self.input_projection = nn.Linear(input_dim, d_model)
 
-        # Positional encoding (sinusoidal)
-        if use_positional_encoding:
-            self.register_buffer(
-                "pos_encoding",
-                self._create_positional_encoding(max_seq_len, d_model),
-            )
-
-        # Transformer blocks
-        self.blocks = nn.ModuleList(
-            [
-                TransformerBlock(d_model, n_heads, d_ff, dropout)
-                for _ in range(n_layers)
-            ]
+        # Positional encoding (learned)
+        self.positional_encoding = nn.Parameter(
+            torch.zeros(1, max_seq_len, d_model)
         )
 
-        # Final layer normalization
-        self.norm = nn.LayerNorm(d_model)
+        # Transformer layers
+        self.layers = nn.ModuleList([
+            TransformerBlock(d_model, n_heads, d_ff, dropout)
+            for _ in range(n_layers)
+        ])
 
-        # Dropout
+        # Output projection
+        self.output_projection = nn.Linear(d_model, output_dim)
+
         self.dropout = nn.Dropout(dropout)
+        self._init_weights()
 
-    @staticmethod
-    def _create_positional_encoding(max_len: int, d_model: int) -> torch.Tensor:
-        """
-        Create sinusoidal positional encodings.
-
-        Args:
-            max_len: Maximum sequence length
-            d_model: Dimensionality of the model
-
-        Returns:
-            Positional encoding tensor of shape (max_len, d_model)
-        """
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(
-            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
-        )
-
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-
-        return pe.unsqueeze(0)  # (1, max_len, d_model)
+    def _init_weights(self):
+        """Initialize weights with Xavier uniform distribution."""
+        for p in self.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
 
     def forward(
         self,
         x: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
+        mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
-        Forward pass through the baseline transformer.
+        Forward pass through the Transformer.
 
         Args:
-            x: Input tensor of shape (batch, seq_len) containing token indices
-            mask: Optional attention mask of shape (batch, 1, 1, seq_len)
+            x: Input tensor of shape (batch_size, seq_len, input_dim)
+            mask: Optional attention mask of shape (batch_size, seq_len, seq_len)
 
         Returns:
-            Output tensor of shape (batch, seq_len, d_model)
+            Output tensor of shape (batch_size, seq_len, output_dim)
         """
-        batch_size, seq_len = x.size()
-
-        # Embedding
-        x = self.embedding(x) * math.sqrt(self.d_model)
-
-        # Add positional encoding
-        if self.use_positional_encoding:
-            # Ensure we don't exceed max_seq_len
-            if seq_len > self.max_seq_len:
-                raise ValueError(
-                    f"Sequence length {seq_len} exceeds max_seq_len {self.max_seq_len}"
-                )
-            x = x + self.pos_encoding[:, :seq_len, :]
-
+        # Project input to model dimension
+        x = self.input_projection(x) * (self.d_model ** 0.5)
+        x = x + self.positional_encoding[:, :x.size(1), :]
         x = self.dropout(x)
 
-        # Pass through transformer blocks
-        for block in self.blocks:
-            x = block(x, mask)
+        # Pass through transformer layers
+        for layer in self.layers:
+            x = layer(x, mask)
 
-        # Final layer normalization
-        x = self.norm(x)
-
-        return x
+        # Project to output dimension
+        return self.output_projection(x)
 
     def get_num_parameters(self) -> int:
-        """Return the total number of trainable parameters."""
+        """Return total number of trainable parameters."""
         return sum(p.numel() for p in self.parameters())
 
-    def get_parameter_breakdown(self) -> dict:
-        """Return a breakdown of parameters by component."""
-        breakdown = {}
-        breakdown["embedding"] = sum(
-            p.numel() for n, p in self.named_parameters() if "embedding" in n
-        )
-        breakdown["attention"] = sum(
-            p.numel()
-            for n, p in self.named_parameters()
-            if "attention" in n and "w_o" not in n
-        )
-        breakdown["output_projection"] = sum(
-            p.numel() for n, p in self.named_parameters() if "w_o" in n
-        )
-        breakdown["feed_forward"] = sum(
-            p.numel() for n, p in self.named_parameters() if "feed_forward" in n
-        )
-        breakdown["layer_norms"] = sum(
-            p.numel() for n, p in self.named_parameters() if "norm" in n
-        )
-        breakdown["total"] = self.get_num_parameters()
-        return breakdown
+    def get_num_trainable_parameters(self) -> int:
+        """Return number of trainable parameters."""
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
+
+def create_baseline_transformer(
+    d_model: int = 256,
+    n_heads: int = 8,
+    n_layers: int = 6,
+    d_ff: int = 1024,
+    dropout: float = 0.1,
+    input_dim: int = 512,
+    output_dim: int = 512,
+    max_seq_len: int = 512
+) -> BaselineTransformer:
+    """
+    Factory function to create a BaselineTransformer instance.
+
+    Args:
+        d_model: Dimension of the model (embedding size)
+        n_heads: Number of attention heads
+        n_layers: Number of transformer layers
+        d_ff: Dimension of feed-forward network
+        dropout: Dropout probability
+        input_dim: Dimension of input features
+        output_dim: Dimension of output features
+        max_seq_len: Maximum sequence length
+
+    Returns:
+        Configured BaselineTransformer instance
+    """
+    return BaselineTransformer(
+        d_model=d_model,
+        n_heads=n_heads,
+        n_layers=n_layers,
+        d_ff=d_ff,
+        dropout=dropout,
+        input_dim=input_dim,
+        output_dim=output_dim,
+        max_seq_len=max_seq_len
+    )

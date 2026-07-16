@@ -1,1 +1,2 @@
-"""Integration tests validating end-to-end pipeline flows."""
+# Integration Tests
+# Contains tests verifying interactions between multiple components.

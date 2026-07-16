@@ -1,71 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionOutput"
-description: "Output schema for regression model fitting and evaluation"
+description: "Schema for regression model output and metrics"
 type: "object"
 required:
-  - model_type
-  - coefficients
-  - r_squared
-  - aic
-  - bic
-  - mae
-  - vif
-  - residuals
-  - outlier_families
+  - "model_id"
+  - "model_type"
+  - "coefficients"
+  - "metrics"
+  - "vif_scores"
 properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run"
   model_type:
     type: "string"
+    description: "Type of regression model"
     enum:
       - "linear"
       - "polynomial"
       - "logarithmic"
-    description: "Type of regression model"
+      - "ridge"
   coefficients:
     type: "object"
-    description: "Model coefficients"
+    description: "Map of feature name to coefficient value"
     additionalProperties:
       type: "number"
-  r_squared:
-    type: "number"
-    description: "Goodness-of-fit R²"
-  aic:
-    type: "number"
-    description: "Akaike Information Criterion"
-  bic:
-    type: "number"
-    description: "Bayesian Information Criterion"
-  mae:
-    type: "number"
-    description: "Mean Absolute Error"
-  vif:
+  metrics:
     type: "object"
-    description: "Variance Inflation Factor per predictor"
+    description: "Goodness-of-fit metrics"
+    required:
+      - "r_squared"
+      - "aic"
+      - "bic"
+      - "mae"
+    properties:
+      r_squared:
+        type: "number"
+        description: "Coefficient of determination"
+      aic:
+        type: "number"
+        description: "Akaike Information Criterion"
+      bic:
+        type: "number"
+        description: "Bayesian Information Criterion"
+      mae:
+        type: "number"
+        description: "Mean Absolute Error"
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor for each predictor"
     additionalProperties:
       type: "number"
-  residuals:
+  residual_outliers:
     type: "array"
-    description: "Residual values"
+    description: "List of knot_ids with residuals ≥ 2 standard deviations"
     items:
-      type: "number"
-  outlier_families:
-    type: "array"
-    description: "Families with residuals ≥ 2 standard deviations from trend"
-    items:
-      type: "object"
-      required:
-        - family_name
-        - knot_ids
-        - residual_count
-      properties:
-        family_name:
-          type: "string"
-          description: "Name of the knot family (e.g., pretzel, hyperbolic non-alternating)"
-        knot_ids:
-          type: "array"
-          description: "List of knot identifiers in this family"
-          items:
-            type: "string"
-        residual_count:
-          type: "integer"
-          description: "Number of knots in this family with residuals ≥ 2 SD"
+      type: "string"
+  description:
+    type: "string"
+    description: "Descriptive note on model interpretation (census data caveat)"
+    const: "Coefficients are descriptive associations within the finite census; braid_index ≤ crossing_number constraint acknowledged. Ridge regression used for stability."
 additionalProperties: false

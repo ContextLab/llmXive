@@ -44,9 +44,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (directories: `src/models`, `src/data`, `src/training`, `src/experiments`, `tests`)
-- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil)
+- [X] T002 Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks
+- [X] T004 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks
 
 ---
 
@@ -57,13 +57,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding
-- [ ] T006 [P] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers)
-- [~] T007a [P] Implement `src/models/microcircuit.py` layer definitions for L2/3, L4, L5, L6 as separate `nn.Module` sub-layers.
-- [~] T007b [P] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce L4->L2/3 excitatory and other laminar connections.
-- [~] T007c [P] Implement `src/models/microcircuit.py` E/I ratio enforcement logic (targeting a dominant excitatory component) by construction in the initialization and forward pass.
-- [~] T008 Implement `src/training/homeostasis.py` for activity-dependent synaptic scaling mechanism
-- [ ] T009 Implement `tests/unit/test_benchmarks.py` to verify synthetic data generation and checksums
-- [ ] T010 Implement `tests/unit/test_microcircuit.py` to verify initial connectivity matrix shape and weight constraints
+- [X] T006 [P] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers)
+- [X] T007a [P] Implement `src/models/microcircuit.py` layer definitions for L2/3, L4, L5, L6 as separate `nn.Module` sub-layers.
+- [X] T007b [P] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce L4->L2/3 excitatory and other laminar connections.
+- [X] T007c [P] Implement `src/models/microcircuit.py` E/I ratio enforcement logic (targeting a dominant excitatory component) by construction in the initialization and forward pass.
+- [ ] T008 Implement `src/training/homeostasis.py` for activity-dependent synaptic scaling mechanism
+- [X] T009 Implement `tests/unit/test_benchmarks.py` to verify synthetic data generation and checksums
+- [X] T010 Implement `tests/unit/test_microcircuit.py` to verify initial connectivity matrix shape and weight constraints
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,13 +79,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for data generation in `tests/unit/test_benchmarks.py` (verify independent test set distribution)
-- [ ] T012 [P] [US1] Integration test for baseline training pipeline in `tests/integration/test_baseline_training.py`
+- [X] T011 [P] [US1] Contract test for data generation in `tests/unit/test_benchmarks.py` (verify independent test set distribution)
+- [X] T012 [P] [US1] Integration test for baseline training pipeline in `tests/integration/test_baseline_training.py`
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `src/training/trainer.py` with CPU-optimized loop, gradient clipping (max norm), resource monitoring (psutil), and logic to calculate Mean Absolute Error (MAE). (Uses `pytest-timeout` for enforcement).
-- [ ] T014 [US1] Create `scripts/run_baseline.sh` to orchestrate baseline training on Lorenz (train) and Polynomials (test), explicitly invoking `/usr/bin/time -v` to verify -hour time limit and GB RAM threshold as per FR-004.
+- [X] T014 [US1] Create `scripts/run_baseline.sh` to orchestrate baseline training on Lorenz (train) and Polynomials (test), explicitly invoking `/usr/bin/time -v` to verify -hour time limit and GB RAM threshold as per FR-004.
 - [ ] T015 [US1] Create `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
 - [ ] T016 [US1] Create `tests/integration/test_baseline_validation.py::test_baseline_degradation_measurement` that asserts the system records the MAE on the independent test set and calculates the degradation percentage relative to the training set, storing these metrics in `data/results/baseline_metrics.json` for cost curve generation (no hard pass/fail threshold on degradation).
 
